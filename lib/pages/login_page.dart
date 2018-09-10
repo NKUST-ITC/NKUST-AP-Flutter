@@ -3,6 +3,8 @@ import 'package:nkust_ap/res/theme.dart' as Theme;
 import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nkust_ap/config/constants.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -15,10 +17,12 @@ class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final TextEditingController _username = new TextEditingController();
   final TextEditingController _password = new TextEditingController();
+  bool isRememberPassword = false;
 
   @override
   void initState() {
     super.initState();
+    _isRememberPassword();
   }
 
   @override
@@ -26,11 +30,11 @@ class LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
+  _editTextStyle() => new TextStyle(
+      color: Colors.white, fontSize: 18.0, decorationColor: Colors.white);
+
   @override
   Widget build(BuildContext context) {
-    _editTextStyle() => new TextStyle(
-        color: Colors.white, fontSize: 18.0, decorationColor: Colors.white);
-
     return new Scaffold(
         backgroundColor: Theme.Colors.blue,
         body: Center(
@@ -66,17 +70,22 @@ class LoginPageState extends State<LoginPage>
                   style: _editTextStyle(),
                 ),
                 SizedBox(
-                  height: 30.0,
+                  height: 15.0,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Checkbox(
+                      value: isRememberPassword,
+                      onChanged: _onChanged,
+                    ),
+                    Text(Strings.remember_password)
+                  ],
                 ),
                 Material(
                   child: RaisedButton(
                     padding: EdgeInsets.all(12.0),
-                    onPressed: () {
-                      if (_username.text.isEmpty || _password.text.isEmpty) {
-                        Utils.showToast(Strings.do_not_empty);
-                      } else
-                        Navigator.of(context).push(HomePageRoute());
-                    },
+                    onPressed: _login,
                     color: Colors.grey[300],
                     child: new Text(
                       Strings.login,
@@ -92,5 +101,36 @@ class LoginPageState extends State<LoginPage>
             ),
           ),
         ));
+  }
+
+  _onChanged(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isRememberPassword = value;
+      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+    });
+  }
+
+  _isRememberPassword() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    isRememberPassword =
+        prefs.getBool(Constants.PREF_REMEMBER_PASSWORD) ?? false;
+    _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
+    if (isRememberPassword)
+      _password.text = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+    setState(() {});
+  }
+
+  _login() async {
+    if (_username.text.isEmpty || _password.text.isEmpty) {
+      //TODO: 改善提示
+      Utils.showToast(Strings.do_not_empty);
+    } else {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString(Constants.PREF_USERNAME, _username.text);
+      if (isRememberPassword)
+        prefs.setString(Constants.PREF_PASSWORD, _password.text);
+      Navigator.of(context).push(HomePageRoute());
+    }
   }
 }
