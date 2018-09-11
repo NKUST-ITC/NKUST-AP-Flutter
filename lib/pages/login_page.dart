@@ -5,6 +5,7 @@ import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/api/helper.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -53,7 +54,6 @@ class LoginPageState extends State<LoginPage>
                 ),
                 TextField(
                   maxLines: 1,
-                  keyboardType: TextInputType.number,
                   controller: _username,
                   decoration: InputDecoration(
                     labelText: Strings.username,
@@ -126,11 +126,15 @@ class LoginPageState extends State<LoginPage>
       //TODO: 改善提示
       Utils.showToast(Strings.do_not_empty);
     } else {
+      var data = await Helper.instance.login(_username.text, _password.text);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
         prefs.setString(Constants.PREF_PASSWORD, _password.text);
-      Navigator.of(context).push(HomePageRoute());
+      if (data != null)
+        Navigator.of(context).push(HomePageRoute());
+      else
+        Utils.showToast(Strings.login_fail);
     }
   }
 }

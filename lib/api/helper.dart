@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'dart:convert';
 
 class Helper {
   static const PORT = '14769';
@@ -23,7 +24,29 @@ class Helper {
     dio = new Dio(options);
   }
 
-  static void login() async {
-    var data = await dio.get("");
+  login(String username, String password) async {
+    dio.options.headers = _createBasicAuth(username, password);
+    try {
+      var response = await dio.get("/latest/token");
+      return response.data;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+        print(e.response.headers);
+        print(e.response.request.headers);
+        print(e.response.request.baseUrl);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  _createBasicAuth(String username, String password) {
+    var text = username + ":" + password;
+    var encoded = utf8.encode(text);
+    return {
+      "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
+    };
   }
 }
