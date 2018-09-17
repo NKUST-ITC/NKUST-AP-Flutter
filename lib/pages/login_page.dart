@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/theme.dart' as Theme;
 import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/pages/home_page.dart';
+import 'package:nkust_ap/pages/page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -37,7 +37,7 @@ class LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        backgroundColor: Theme.Colors.blue,
+        backgroundColor: Theme.Theme.blue,
         body: Center(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
@@ -90,7 +90,7 @@ class LoginPageState extends State<LoginPage>
                     child: new Text(
                       Strings.login,
                       style: new TextStyle(
-                          color: Theme.Colors.blue, fontSize: 18.0),
+                          color: Theme.Theme.blue, fontSize: 18.0),
                     ),
                   ),
                   borderRadius: BorderRadius.circular(20.0),
@@ -126,7 +126,14 @@ class LoginPageState extends State<LoginPage>
       //TODO: 改善提示
       Utils.showToast(Strings.do_not_empty);
     } else {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) => new AlertDialog(
+                content: bodyProgress,
+                contentPadding: EdgeInsets.all(0.0),
+              ));
       var data = await Helper.instance.login(_username.text, _password.text);
+      Navigator.of(context, rootNavigator: true).pop('dialog');
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
@@ -137,4 +144,30 @@ class LoginPageState extends State<LoginPage>
         Utils.showToast(Strings.login_fail);
     }
   }
+
+  var bodyProgress = new Container(
+    width: 150.0,
+    height: 150.0,
+    alignment: AlignmentDirectional.center,
+    child: new Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        new Center(
+          child: CircularProgressIndicator(
+            value: null,
+          ),
+        ),
+        new Container(
+          margin: const EdgeInsets.only(top: 25.0),
+          child: new Center(
+            child: new Text(
+              Strings.login_ing,
+              style: new TextStyle(color: Colors.blue),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

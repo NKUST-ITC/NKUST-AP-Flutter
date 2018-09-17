@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/pages/home/dashboard_page.dart';
-import 'package:nkust_ap/pages/home/setting_page.dart';
-import 'package:nkust_ap/res/string.dart';
-import 'package:nkust_ap/res/theme.dart' as Theme;
+import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/resource.dart';
 
 class HomePageRoute extends MaterialPageRoute {
-  HomePageRoute()
-      : super(builder: (BuildContext context) => new HomePage());
+  HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
 
-
-  // OPTIONAL IF YOU WISH TO HAVE SOME EXTRA ANIMATION WHILE ROUTING
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return new FadeTransition(opacity: animation, child: new HomePage());
   }
 }
+
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
 
@@ -29,7 +25,11 @@ class HomePageState extends State<HomePage>
   // Create a tab controller
   TabController controller;
   int _currentIndex = 0;
-  final List<Widget> _children = [new DashboardPage(), new SettingPage()];
+  final List<Widget> _children = [
+    new BusPage(),
+    new CoursePage(),
+    new ScorePage()
+  ];
 
   @override
   void initState() {
@@ -54,7 +54,7 @@ class HomePageState extends State<HomePage>
         // Title
         title: new Text(Strings.app_name),
         // Set the background color of the App Bar
-        backgroundColor: Theme.Colors.blue,
+        backgroundColor: Colors.blue,
       ),
       // Set the TabBar view as the body of the Scaffold
       body: _children[_currentIndex],
@@ -67,12 +67,16 @@ class HomePageState extends State<HomePage>
         items: [
           BottomNavigationBarItem(
             // set icon to the tab
-            icon: Icon(Icons.dashboard),
-            title: Text("主控版"),
+            icon: Icon(Icons.directions_bus),
+            title: Text(Strings.bus),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            title: Text("設定"),
+            icon: Icon(Icons.class_),
+            title: Text(Strings.course),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.assignment),
+            title: Text(Strings.score),
           ),
         ],
         //,
