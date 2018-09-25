@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/pages/home_page.dart';
-import 'package:nkust_ap/res/theme.dart' as Theme;
 import 'package:nkust_ap/pages/login_page.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 void main() => runApp(new MyApp());
 
@@ -10,6 +11,7 @@ class MyApp extends StatelessWidget {
   final Map<String, WidgetBuilder> _routes = <String, WidgetBuilder>{
     Navigator.defaultRouteName: (context) => new LoginPage()
   };
+  FirebaseAnalytics analytics = new FirebaseAnalytics();
 
   // This widget is the root of your application.
   @override
@@ -31,6 +33,9 @@ class MyApp extends StatelessWidget {
               borderSide: new BorderSide(color: Colors.white)),
         ),
       ),
+      navigatorObservers: [
+        new FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 }

@@ -1,4 +1,4 @@
-package com.nkust.nkustap
+package com.nkust.ap.flutter
 
 import android.os.Bundle
 
