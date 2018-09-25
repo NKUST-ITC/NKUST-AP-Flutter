@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
@@ -35,6 +36,35 @@ class Helper {
         print(e.response.headers);
         print(e.response.request.headers);
         print(e.response.request.baseUrl);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> getSemester() async {
+    try {
+      var response = await dio.get("/latest/ap/semester");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> getCourseTables(String year, String semester) async {
+    try {
+      var response = await dio
+          .get("/latest/ap/users/coursetables/" + year + "/" + semester);
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
       } else {
         print(e.message);
       }

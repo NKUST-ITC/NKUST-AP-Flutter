@@ -12,5 +12,5 @@ class Strings {
   static const String bus = "校車系統";
   static const String course = "學期課表";
   static const String score = "學期成績";
-  static String login_ing ="登入中...";
+  static const String login_ing ="登入中...";
 }

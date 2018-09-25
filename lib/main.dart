@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/string.dart';
-import 'package:nkust_ap/pages/home_page.dart';
-import 'package:nkust_ap/pages/login_page.dart';
+import 'package:nkust_ap/pages/page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
@@ -23,6 +22,7 @@ class MyApp extends StatelessWidget {
         Navigator.defaultRouteName: (context) => LoginPage(),
         LoginPage.routerName: (BuildContext context) => LoginPage(),
         HomePage.routerName: (BuildContext context) => HomePage(),
+        CoursePage.routerName: (BuildContext context) => CoursePage(),
       },
       theme: new ThemeData(
         hintColor: Colors.white,

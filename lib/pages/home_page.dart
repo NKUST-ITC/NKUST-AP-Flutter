@@ -22,7 +22,6 @@ class HomePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  // Create a tab controller
   TabController controller;
   int _currentIndex = 0;
   final List<Widget> _children = [
@@ -34,8 +33,6 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-
-    // Initialize the Tab Controller
     controller = new TabController(length: 2, vsync: this);
   }
 
@@ -57,13 +54,11 @@ class HomePageState extends State<HomePage>
         backgroundColor: Colors.blue,
       ),
       // Set the TabBar view as the body of the Scaffold
-      body: _children[_currentIndex],
+      body: Text("主畫面"),
       // Set the bottom navigation bar
       bottomNavigationBar: new BottomNavigationBar(
-        // set the color of the bottom navigation bar
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        // set the tab bar as the child of bottom navigation bar
         items: [
           BottomNavigationBarItem(
             // set icon to the tab
@@ -79,7 +74,6 @@ class HomePageState extends State<HomePage>
             title: Text(Strings.score),
           ),
         ],
-        //,
       ),
     );
   }
@@ -87,6 +81,15 @@ class HomePageState extends State<HomePage>
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+      switch (_currentIndex) {
+        case 0:
+          break;
+        case 1:
+          Navigator.of(context).push(CoursePageRoute());
+          break;
+        case 2:
+          break;
+      }
     });
   }
 }
