@@ -2,9 +2,10 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 
-class Helper {
-  static const PORT = '14769';
+const HOST = "kuas.grd.idv.tw";
+const PORT = '14769';
 
+class Helper {
   static Helper _instance;
   static Options options;
   static Dio dio;
@@ -18,9 +19,9 @@ class Helper {
 
   Helper() {
     options = new Options(
-      baseUrl: 'https://kuas.grd.idv.tw:$PORT',
-      connectTimeout: 5000,
-      receiveTimeout: 5000,
+      baseUrl: 'https://$HOST:$PORT',
+      connectTimeout: 20000,
+      receiveTimeout: 10000,
     );
     dio = new Dio(options);
   }

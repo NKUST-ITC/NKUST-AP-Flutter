@@ -23,11 +23,13 @@ class CoursePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
-  var courseList;
+  List<Widget> courseWeightList;
   var selectSemesterIndex;
   var selectSemester;
 
   var semesterData;
+
+  int base = 6;
 
   @override
   void initState() {
@@ -36,7 +38,7 @@ class CoursePageState extends State<CoursePage>
       semesterData = response;
       selectSemester = semesterData.data["default"]["text"];
       selectSemesterIndex = 0;
-      _getCourseTables(semesterData.data["default"]["value"]);
+      _getCourseTables();
       setState(() {});
     });
   }
@@ -48,15 +50,14 @@ class CoursePageState extends State<CoursePage>
   }
 
   _textStyle() {
-    return TextStyle(color: Colors.blue);
+    return TextStyle(color: Colors.blue, fontSize: 12.0);
   }
 
   Widget _textBorder(String text) {
     return new Container(
-      padding: const EdgeInsets.all(0.0),
       decoration: new BoxDecoration(border: new Border.all(color: Colors.blue)),
       child: FlatButton(
-          onPressed: _selectSemester,
+          onPressed: _showCourse,
           child: Text(
             text ?? "",
             style: _textStyle(),
@@ -73,22 +74,29 @@ class CoursePageState extends State<CoursePage>
         title: new Text(Strings.course),
         backgroundColor: Colors.blue,
       ),
-      body: Column(
-        children: <Widget>[
-          FlatButton(
-              onPressed: _selectSemester,
-              child: Text(
-                selectSemester ?? "",
-                style: _textStyle(),
-              )),
-          Container(
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 6,
-              children: courseList ?? <Widget>[],
-            ),
-          )
-        ],
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            FlatButton(
+                onPressed: _selectSemester,
+                child: Text(
+                  selectSemester ?? "",
+                  style: _textStyle(),
+                )),
+            RefreshIndicator(
+              onRefresh: () => _getCourseTables(),
+              child: GridView.count(
+                mainAxisSpacing: 0.0,
+                shrinkWrap: true,
+                crossAxisCount: base,
+                children: courseWeightList ?? <Widget>[],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -107,8 +115,7 @@ class CoursePageState extends State<CoursePage>
         selectSemesterIndex = position;
         selectSemester =
             semesterData.data["semester"][selectSemesterIndex]["text"];
-        _getCourseTables(
-            semesterData.data["semester"][selectSemesterIndex]["value"]);
+        _getCourseTables();
         setState(() {});
       }
     });
@@ -122,25 +129,70 @@ class CoursePageState extends State<CoursePage>
         });
   }
 
-  _getCourseTables(String value) async {
-    var textList = value.split(",");
+  _getCourseTables() async {
+    var textList =
+        semesterData.data["semester"][selectSemesterIndex]["value"].split(",");
     if (textList.length == 2) {
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        courseList = <Widget>[];
+        courseWeightList = <Widget>[
+          _textBorder(""),
+          _textBorder("一"),
+          _textBorder("二"),
+          _textBorder("三"),
+          _textBorder("四"),
+          _textBorder("五")
+        ];
         for (var text in response.data["coursetables"]["timecode"]) {
-          courseList.add(_textBorder(text));
-          courseList.add(_textBorder(""));
-          courseList.add(_textBorder(""));
-          courseList.add(_textBorder(""));
-          courseList.add(_textBorder(""));
-          courseList.add(_textBorder(""));
+          courseWeightList.add(_textBorder(text));
+          courseWeightList.add(_textBorder(""));
+          courseWeightList.add(_textBorder(""));
+          courseWeightList.add(_textBorder(""));
+          courseWeightList.add(_textBorder(""));
+          courseWeightList.add(_textBorder(""));
+        }
+        var weeks = [
+          "Sunday",
+          "Monday",
+          "Thursday",
+          "Wednesday",
+          "Tuesday",
+          "Friday"
+        ];
+        var timeCodes = response.data["coursetables"]["timecode"];
+        for (int i = 0; i < weeks.length; i++) {
+          if (response.data["coursetables"][weeks[i]] != null)
+            for (var data in response.data["coursetables"][weeks[i]]) {
+              for (int j = 0; j < timeCodes.length; j++) {
+                if (timeCodes[j] == data["date"]["section"]) {
+                  courseWeightList[j * base + i] =
+                      _textBorder(data["title"][0] + data["title"][1]);
+                }
+              }
+            }
         }
         setState(() {});
       });
     } else {
       //TODO 錯誤訊息
     }
+  }
+
+  _showCourse() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text('課程資訊'),
+              content: Text("測試"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                  },
+                )
+              ],
+            ));
   }
 }
