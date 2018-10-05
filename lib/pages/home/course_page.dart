@@ -23,13 +23,15 @@ class CoursePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
-  List<Widget> courseWeightList;
+  List<Widget> courseWeightList = [];
   var selectSemesterIndex;
   var selectSemester;
 
   var semesterData;
 
   int base = 6;
+
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -55,11 +57,45 @@ class CoursePageState extends State<CoursePage>
 
   Widget _textBorder(String text) {
     return new Container(
-      decoration: new BoxDecoration(border: new Border.all(color: Colors.blue)),
+      decoration: new BoxDecoration(
+          border: new Border.all(color: Colors.grey, width: 0.5)),
       child: FlatButton(
-          onPressed: _showCourse,
+          onPressed: () {},
           child: Text(
             text ?? "",
+            style: _textStyle(),
+          )),
+    );
+  }
+
+  Widget _courseBorder(var data) {
+    String content = "課程名稱：${data["title"]}\n"
+        "授課老師：${data["instructors"][0] ?? ""}\n"
+        "教室位置：${data["location"]["building"]}${data["location"]["room"]}\n"
+        "上課時間：${data["date"]["start_time"]}-${data["date"]["end_time"]}";
+    return new Container(
+      decoration: new BoxDecoration(
+          border: new Border.all(color: Colors.grey, width: 0.5)),
+      child: FlatButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (BuildContext context) => AlertDialog(
+                      title: const Text('課程資訊'),
+                      content: Text(content),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.of(context, rootNavigator: true)
+                                .pop('dialog');
+                          },
+                        )
+                      ],
+                    ));
+          },
+          child: Text(
+            (data["title"][0] + data["title"][1]) ?? "",
             style: _textStyle(),
           )),
     );
@@ -78,7 +114,7 @@ class CoursePageState extends State<CoursePage>
         padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FlatButton(
                 onPressed: _selectSemester,
@@ -88,12 +124,16 @@ class CoursePageState extends State<CoursePage>
                 )),
             RefreshIndicator(
               onRefresh: () => _getCourseTables(),
-              child: GridView.count(
-                mainAxisSpacing: 0.0,
-                shrinkWrap: true,
-                crossAxisCount: base,
-                children: courseWeightList ?? <Widget>[],
-              ),
+              child: isLoading
+                  ? Container(
+                      child: CircularProgressIndicator(),
+                      alignment: Alignment.center)
+                  : GridView.count(
+                      mainAxisSpacing: 0.0,
+                      shrinkWrap: true,
+                      crossAxisCount: base,
+                      children: courseWeightList ?? <Widget>[],
+                    ),
             )
           ],
         ),
@@ -130,6 +170,9 @@ class CoursePageState extends State<CoursePage>
   }
 
   _getCourseTables() async {
+    courseWeightList.clear();
+    isLoading = true;
+    setState(() {});
     var textList =
         semesterData.data["semester"][selectSemesterIndex]["value"].split(",");
     if (textList.length == 2) {
@@ -166,12 +209,12 @@ class CoursePageState extends State<CoursePage>
             for (var data in response.data["coursetables"][weeks[i]]) {
               for (int j = 0; j < timeCodes.length; j++) {
                 if (timeCodes[j] == data["date"]["section"]) {
-                  courseWeightList[j * base + i] =
-                      _textBorder(data["title"][0] + data["title"][1]);
+                  courseWeightList[j * base + i] = _courseBorder(data);
                 }
               }
             }
         }
+        isLoading = false;
         setState(() {});
       });
     } else {
