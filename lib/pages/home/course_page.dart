@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/models/models.dart';
 
 class CoursePageRoute extends MaterialPageRoute {
   CoursePageRoute()
@@ -32,6 +33,7 @@ class CoursePageState extends State<CoursePage>
   int base = 6;
 
   bool isLoading = true;
+  bool isError = false;
 
   @override
   void initState() {
@@ -69,10 +71,11 @@ class CoursePageState extends State<CoursePage>
   }
 
   Widget _courseBorder(var data) {
-    String content = "課程名稱：${data["title"]}\n"
-        "授課老師：${data["instructors"][0] ?? ""}\n"
-        "教室位置：${data["location"]["building"]}${data["location"]["room"]}\n"
-        "上課時間：${data["date"]["start_time"]}-${data["date"]["end_time"]}";
+    Course course = Course.fromJson(data);
+    String content = "課程名稱：${course.title}\n"
+        "授課老師：${course.instructors[0] ?? ""}\n"
+        "教室位置：${course.building}${course.room}\n"
+        "上課時間：${course.startTime}-${course.endTime}";
     return new Container(
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
@@ -112,29 +115,57 @@ class CoursePageState extends State<CoursePage>
       ),
       body: Container(
         padding: EdgeInsets.all(16.0),
-        child: Column(
+        child: Flex(
+          direction: Axis.vertical,
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            FlatButton(
-                onPressed: _selectSemester,
-                child: Text(
-                  selectSemester ?? "",
-                  style: _textStyle(),
-                )),
-            RefreshIndicator(
-              onRefresh: () => _getCourseTables(),
-              child: isLoading
-                  ? Container(
-                      child: CircularProgressIndicator(),
-                      alignment: Alignment.center)
-                  : GridView.count(
-                      mainAxisSpacing: 0.0,
-                      shrinkWrap: true,
-                      crossAxisCount: base,
-                      children: courseWeightList ?? <Widget>[],
-                    ),
-            )
+            Expanded(
+              flex: 1,
+              child: FlatButton(
+                  onPressed: _selectSemester,
+                  child: Text(
+                    selectSemester ?? "",
+                    style: _textStyle(),
+                  )),
+            ),
+            Expanded(
+                flex: 19,
+                child: RefreshIndicator(
+                  onRefresh: () => _getCourseTables(),
+                  child: isLoading
+                      ? Container(
+                          child: CircularProgressIndicator(),
+                          alignment: Alignment.center)
+                      : courseWeightList.length == 0
+                          ? FlatButton(
+                              onPressed:
+                                  isError ? _getCourseTables : _selectSemester,
+                              child: Center(
+                                child: Flex(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  direction: Axis.vertical,
+                                  children: <Widget>[
+                                    SizedBox(
+                                      child: Icon(Icons.class_,size: 150.0,),
+                                      width: 200.0,
+                                    ),
+                                    Text(
+                                      isError
+                                          ? "發生錯誤，點擊重試"
+                                          : "Oops！本學期沒有任何課哦～\n請選擇其他學期\uD83D\uDE0B",
+                                      textAlign: TextAlign.center,
+                                    )
+                                  ],
+                                ),
+                              ))
+                          : GridView.count(
+                              mainAxisSpacing: 0.0,
+                              shrinkWrap: true,
+                              crossAxisCount: base,
+                              children: courseWeightList ?? <Widget>[],
+                            ),
+                ))
           ],
         ),
       ),
@@ -179,63 +210,59 @@ class CoursePageState extends State<CoursePage>
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        courseWeightList = <Widget>[
-          _textBorder(""),
-          _textBorder("一"),
-          _textBorder("二"),
-          _textBorder("三"),
-          _textBorder("四"),
-          _textBorder("五")
-        ];
-        for (var text in response.data["coursetables"]["timecode"]) {
-          courseWeightList.add(_textBorder(text));
-          courseWeightList.add(_textBorder(""));
-          courseWeightList.add(_textBorder(""));
-          courseWeightList.add(_textBorder(""));
-          courseWeightList.add(_textBorder(""));
-          courseWeightList.add(_textBorder(""));
-        }
-        var weeks = [
-          "Sunday",
-          "Monday",
-          "Thursday",
-          "Wednesday",
-          "Tuesday",
-          "Friday"
-        ];
-        var timeCodes = response.data["coursetables"]["timecode"];
-        for (int i = 0; i < weeks.length; i++) {
-          if (response.data["coursetables"][weeks[i]] != null)
-            for (var data in response.data["coursetables"][weeks[i]]) {
-              for (int j = 0; j < timeCodes.length; j++) {
-                if (timeCodes[j] == data["date"]["section"]) {
-                  courseWeightList[j * base + i] = _courseBorder(data);
+        //var semesterData = SemesterData.fromJson(response.data);
+        if (response.data["status"] == 200) {
+          var weeks = [
+            "Sunday",
+            "Monday",
+            "Thursday",
+            "Wednesday",
+            "Tuesday",
+            "Friday"
+          ];
+          courseWeightList = <Widget>[
+            _textBorder(""),
+            _textBorder("一"),
+            _textBorder("二"),
+            _textBorder("三"),
+            _textBorder("四"),
+            _textBorder("五")
+          ];
+          if (response.data["coursetables"]["Saturday"] != null ||
+              response.data["coursetables"]["Sunday"] != null) {
+            courseWeightList.add(_textBorder("六"));
+            courseWeightList.add(_textBorder("日"));
+            weeks.add("Saturday");
+            weeks.add("Sunday");
+            base = 8;
+          } else {
+            base = 6;
+          }
+          for (var text in response.data["coursetables"]["timecode"]) {
+            courseWeightList.add(_textBorder(text));
+            for (var i = 0; i < base - 1; i++)
+              courseWeightList.add(_textBorder(""));
+          }
+          var timeCodes = response.data["coursetables"]["timecode"];
+          for (int i = 0; i < weeks.length; i++) {
+            if (response.data["coursetables"][weeks[i]] != null)
+              for (var data in response.data["coursetables"][weeks[i]]) {
+                for (int j = 0; j < timeCodes.length; j++) {
+                  if (timeCodes[j] == data["date"]["section"]) {
+                    courseWeightList[(j + 1) * base + i] = _courseBorder(data);
+                  }
                 }
               }
-            }
+          }
         }
         isLoading = false;
+        isError = false;
         setState(() {});
       });
     } else {
-      //TODO 錯誤訊息
+      isLoading = false;
+      isError = true;
+      setState(() {});
     }
-  }
-
-  _showCourse() {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: const Text('課程資訊'),
-              content: Text("測試"),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context, rootNavigator: true).pop('dialog');
-                  },
-                )
-              ],
-            ));
   }
 }
