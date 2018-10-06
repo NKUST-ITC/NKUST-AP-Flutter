@@ -147,7 +147,10 @@ class CoursePageState extends State<CoursePage>
                                   direction: Axis.vertical,
                                   children: <Widget>[
                                     SizedBox(
-                                      child: Icon(Icons.class_,size: 150.0,),
+                                      child: Icon(
+                                        Icons.class_,
+                                        size: 150.0,
+                                      ),
                                       width: 200.0,
                                     ),
                                     Text(
@@ -215,9 +218,9 @@ class CoursePageState extends State<CoursePage>
           var weeks = [
             "Sunday",
             "Monday",
-            "Thursday",
-            "Wednesday",
             "Tuesday",
+            "Wednesday",
+            "Thursday",
             "Friday"
           ];
           courseWeightList = <Widget>[

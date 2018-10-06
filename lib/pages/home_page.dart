@@ -23,12 +23,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   TabController controller;
-  int _currentIndex = 0;
-  final List<Widget> _children = [
-    new BusPage(),
-    new CoursePage(),
-    new ScorePage()
-  ];
+  int _currentIndex = 1;
 
   @override
   void initState() {
@@ -53,6 +48,7 @@ class HomePageState extends State<HomePage>
         // Set the background color of the App Bar
         backgroundColor: Colors.blue,
       ),
+      endDrawer: Drawer(),
       // Set the TabBar view as the body of the Scaffold
       body: Text("主畫面"),
       // Set the bottom navigation bar
@@ -83,11 +79,13 @@ class HomePageState extends State<HomePage>
       _currentIndex = index;
       switch (_currentIndex) {
         case 0:
+          Navigator.of(context).push(BusPageRoute());
           break;
         case 1:
           Navigator.of(context).push(CoursePageRoute());
           break;
         case 2:
+          Navigator.of(context).push(ScorePageRoute());
           break;
       }
     });

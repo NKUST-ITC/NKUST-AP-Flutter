@@ -23,6 +23,8 @@ class MyApp extends StatelessWidget {
         LoginPage.routerName: (BuildContext context) => LoginPage(),
         HomePage.routerName: (BuildContext context) => HomePage(),
         CoursePage.routerName: (BuildContext context) => CoursePage(),
+        BusPage.routerName: (BuildContext context) => BusPage(),
+        ScorePage.routerName: (BuildContext context) => ScorePage(),
       },
       theme: new ThemeData(
         hintColor: Colors.white,

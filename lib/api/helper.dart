@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 const HOST = "kuas.grd.idv.tw";
 const PORT = '14769';
@@ -62,6 +63,22 @@ class Helper {
     try {
       var response = await dio
           .get("/latest/ap/users/coursetables/" + year + "/" + semester);
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> getBusTimeTables(DateTime dateTime) async {
+    var formatter = new DateFormat('yyyy-MM-dd');
+    var date = formatter.format(dateTime);
+    try {
+      var response = await dio.get("/latest/bus/timetables?date=$date");
       return response;
     } on DioError catch (e) {
       if (e.response != null) {
