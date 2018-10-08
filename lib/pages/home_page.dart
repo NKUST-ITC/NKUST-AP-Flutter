@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/resource.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 
 class HomePageRoute extends MaterialPageRoute {
   HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
@@ -44,9 +44,9 @@ class HomePageState extends State<HomePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(Strings.app_name),
+        title: new Text(Resource.Strings.app_name),
         // Set the background color of the App Bar
-        backgroundColor: Colors.blue,
+        backgroundColor: Resource.Colors.blue,
       ),
       endDrawer: Drawer(),
       // Set the TabBar view as the body of the Scaffold
@@ -59,15 +59,15 @@ class HomePageState extends State<HomePage>
           BottomNavigationBarItem(
             // set icon to the tab
             icon: Icon(Icons.directions_bus),
-            title: Text(Strings.bus),
+            title: Text(Resource.Strings.bus),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.class_),
-            title: Text(Strings.course),
+            title: Text(Resource.Strings.course),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            title: Text(Strings.score),
+            title: Text(Resource.Strings.score),
           ),
         ],
       ),

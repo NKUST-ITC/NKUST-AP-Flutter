@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/theme.dart' as Theme;
+import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -37,7 +37,7 @@ class LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        backgroundColor: Theme.Theme.blue,
+        backgroundColor: Resource.Colors.blue,
         body: Center(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
@@ -90,7 +90,7 @@ class LoginPageState extends State<LoginPage>
                     child: new Text(
                       Strings.login,
                       style: new TextStyle(
-                          color: Theme.Theme.blue, fontSize: 18.0),
+                          color: Resource.Colors.blue, fontSize: 18.0),
                     ),
                   ),
                   borderRadius: BorderRadius.circular(20.0),

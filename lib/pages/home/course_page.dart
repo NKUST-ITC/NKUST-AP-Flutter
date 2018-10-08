@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 
@@ -110,8 +110,8 @@ class CoursePageState extends State<CoursePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(Strings.course),
-        backgroundColor: Colors.blue,
+        title: new Text(Resource.Strings.course),
+        backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
         padding: EdgeInsets.all(16.0),

@@ -26,29 +26,29 @@ class BusData {
 }
 
 class BusTime {
-  String EndEnrollDateTime;
+  String endEnrollDateTime;
   String runDateTime;
-  String Time;
+  String time;
   String endStation;
   String busId;
   String reserveCount;
   String limitCount;
   int isReserve;
-  String SpecialTrain;
-  String SpecialTrainRemark;
+  String specialTrain;
+  String specialTrainRemark;
   int cancelKey;
 
   BusTime({
-    this.EndEnrollDateTime,
+    this.endEnrollDateTime,
     this.runDateTime,
-    this.Time,
+    this.time,
     this.endStation,
     this.busId,
     this.reserveCount,
     this.limitCount,
     this.isReserve,
-    this.SpecialTrain,
-    this.SpecialTrainRemark,
+    this.specialTrain,
+    this.specialTrainRemark,
     this.cancelKey,
   });
 
@@ -60,51 +60,48 @@ class BusTime {
 
   static BusTime fromJson(Map<String, dynamic> json) {
     return BusTime(
-      EndEnrollDateTime: json['EndEnrollDateTime'],
+      endEnrollDateTime: json['EndEnrollDateTime'],
       runDateTime: json['runDateTime'],
-      Time: json['Time'],
+      time: json['Time'],
       endStation: json['endStation'],
       busId: json['busId'],
       reserveCount: json['reserveCount'],
       limitCount: json['limitCount'],
       isReserve: json['isReserve'],
-      SpecialTrain: json['SpecialTrain'],
-      SpecialTrainRemark: json['SpecialTrainRemark'],
+      specialTrain: json['SpecialTrain'],
+      specialTrainRemark: json['SpecialTrainRemark'],
       cancelKey: json['cancelKey'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'EndEnrollDateTime': EndEnrollDateTime,
+        'EndEnrollDateTime': endEnrollDateTime,
         'runDateTime': runDateTime,
-        'Time': Time,
+        'Time': time,
         'endStation': endStation,
         'busId': busId,
         'reserveCount': reserveCount,
         'limitCount': limitCount,
         'isReserve': isReserve,
-        'SpecialTrain': SpecialTrain,
-        'SpecialTrainRemark': SpecialTrainRemark,
+        'SpecialTrain': specialTrain,
+        'SpecialTrainRemark': specialTrainRemark,
         'cancelKey': cancelKey,
       };
 
   bool hasReserve() {
     var now = new DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd hh:mm',"zh");
-    var endEnrollDateTime = formatter.parse(this.EndEnrollDateTime);
-    /*print(now);
-    print(endEnrollDateTime);
-    print(now.millisecondsSinceEpoch);
-    print(endEnrollDateTime.millisecondsSinceEpoch);*/
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
+    //print(endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
-        endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
+        endEnrollDateTime.millisecondsSinceEpoch;
   }
 
   Color getColorState() {
     return isReserve == 1
-        ? Resource.Theme.blue
-        : hasReserve() ? Resource.Theme.grey : Colors.grey;
+        ? Resource.Colors.blue
+        : hasReserve() ? Resource.Colors.grey : Colors.grey;
   }
 
   String getReserveState() {

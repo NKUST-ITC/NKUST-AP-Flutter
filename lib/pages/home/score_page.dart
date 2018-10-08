@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 
@@ -37,8 +37,8 @@ class ScorePageState extends State<ScorePage> with SingleTickerProviderStateMixi
       // Appbar
         appBar: new AppBar(
           // Title
-          title: new Text(Strings.score),
-          backgroundColor: Colors.blue,
+          title: new Text(Resource.Strings.score),
+          backgroundColor: Resource.Colors.blue,
         ),
         body: Container());
   }

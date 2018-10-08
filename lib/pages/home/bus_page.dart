@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -26,7 +26,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   BusData busData;
   List<Widget> busTimeWeights = [];
 
-  String selectStartStation = "text";
+  String selectStartStation = "JianGong";
   DateTime dateTime = DateTime.now();
 
   bool isLoading = true;
@@ -49,16 +49,51 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       decorationColor: Colors.grey);
 
   Widget _busTime(BusTime busTime) {
+    String title = "預約", content = "確定要預定本次校車？";
+    if (busTime.specialTrainRemark.length > 3) {
+      title = busTime.specialTrainRemark.substring(0, 4);
+      content = "${busTime.specialTrainRemark}\n$content";
+    }
     return Column(
       children: <Widget>[
         FlatButton(
           padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          onPressed: busTime.hasReserve() ? () {} : null,
+          onPressed: busTime.hasReserve()
+              ? () {
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                            title: Text(title,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Resource.Colors.blue)),
+                            content: Text(
+                              content,
+                              textAlign: TextAlign.center,
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                child: Text("取消"),
+                                onPressed: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop('dialog');
+                                },
+                              ),
+                              FlatButton(
+                                child: Text("預約"),
+                                onPressed: () {
+                                  Navigator.of(context, rootNavigator: true)
+                                      .pop('dialog');
+                                },
+                              )
+                            ],
+                          ));
+                }
+              : null,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Icon(
                   Icons.directions_bus,
                   size: 20.0,
@@ -68,7 +103,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
               Expanded(
                 flex: 3,
                 child: Text(
-                  busTime.Time,
+                  busTime.time,
                   textAlign: TextAlign.center,
                   style: _textStyle(busTime),
                 ),
@@ -82,9 +117,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 3,
                 child: Text(
-                  busTime.SpecialTrainRemark,
+                  busTime.specialTrainRemark.length > 3
+                      ? busTime.specialTrainRemark.substring(0, 4)
+                      : "",
                   textAlign: TextAlign.center,
                   style: _textStyle(busTime),
                 ),
@@ -122,58 +159,105 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-        // Appbar
-        appBar: new AppBar(
-          // Title
-          title: new Text(Strings.bus),
-          backgroundColor: Colors.blue,
-        ),
-        body: Flex(
-          direction: Axis.vertical,
-          children: <Widget>[
-            Calendar(),
-            Container(
-                padding: EdgeInsets.all(8.0),
-                child: CupertinoSegmentedControl(
-                  groupValue: selectStartStation,
-                  children: {
-                    "text": Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 48.0),
-                      child: Text("建工上車"),
-                    ),
-                    "texta": Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 48.0),
-                      child: Text("燕巢上車"),
-                    )
-                  },
-                  onValueChanged: (String text) {
-                    selectStartStation = text;
-                    setState(() {});
-                  },
-                )),
-            RefreshIndicator(
-                onRefresh: () => _getBusTimeTables(),
-                child: isLoading
-                    ? Container(
-                        child: CircularProgressIndicator(),
-                        alignment: Alignment.center)
-                    : Flex(
-                        direction: Axis.vertical,
+      // Appbar
+      appBar: new AppBar(
+        // Title
+        title: new Text(Resource.Strings.bus),
+        backgroundColor: Resource.Colors.blue,
+      ),
+      body: Flex(
+        direction: Axis.vertical,
+        children: <Widget>[
+          Expanded(
+              flex: 2,
+              child: Calendar(
+                onDateSelected: (DateTime datetime) {
+                  dateTime = datetime;
+                  _getBusTimeTables();
+                },
+              )),
+          Expanded(
+              flex: 1,
+              child: Container(
+                  padding: EdgeInsets.all(8.0),
+                  child: CupertinoSegmentedControl(
+                    groupValue: selectStartStation,
+                    children: {
+                      "JianGong": Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 48.0),
+                        child: Text("建工上車"),
+                      ),
+                      "YanChao": Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 48.0),
+                        child: Text("燕巢上車"),
+                      )
+                    },
+                    onValueChanged: (String text) {
+                      selectStartStation = text;
+                      _updateBusTimeTables();
+                    },
+                  ))),
+          Expanded(
+            flex: 10,
+            child: isLoading
+                ? Container(
+                    child: CircularProgressIndicator(),
+                    alignment: Alignment.center)
+                : busTimeWeights.length == 0
+                    ? FlatButton(
+                        onPressed: _getBusTimeTables,
+                        child: Center(
+                          child: Flex(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            direction: Axis.vertical,
+                            children: <Widget>[
+                              SizedBox(
+                                child: Icon(
+                                  Icons.directions_bus,
+                                  size: 150.0,
+                                ),
+                                width: 200.0,
+                              ),
+                              Text(
+                                isError
+                                    ? "發生錯誤，點擊重試"
+                                    : "Oops！本日校車沒有上班喔～\n請選擇其他日期\uD83D\uDE0B",
+                                textAlign: TextAlign.center,
+                              )
+                            ],
+                          ),
+                        ))
+                    : ListView(
                         children: busTimeWeights,
-                      ))
-          ],
-        ));
+                      ),
+          ),
+        ],
+      ),
+    );
   }
 
   _getBusTimeTables() {
+    isLoading = true;
+    setState(() {});
     Helper.instance.getBusTimeTables(dateTime).then((response) {
       busData = BusData.fromJson(response.data);
-      busTimeWeights.clear();
-      for (var i in busData.timetable) busTimeWeights.add(_busTime(i));
+      _updateBusTimeTables();
+    });
+  }
+
+  _updateBusTimeTables() {
+    busTimeWeights = [];
+    if (busData != null) {
+      for (var i in busData.timetable) {
+        if (selectStartStation == "JianGong" && i.endStation == "燕巢")
+          busTimeWeights.add(_busTime(i));
+        else if (selectStartStation == "YanChao" && i.endStation == "建工")
+          busTimeWeights.add(_busTime(i));
+      }
       isLoading = false;
       setState(() {});
-    });
+    }
   }
 }

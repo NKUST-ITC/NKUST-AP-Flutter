@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class Theme {
-  Theme._();
+class Colors {
+  Colors._();
 
   static const Color blue = const Color(0xff2574ff);
   static const Color grey = const Color(0xff7c7c7c);
