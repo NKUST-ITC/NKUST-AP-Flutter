@@ -52,6 +52,25 @@ class BusTime {
     this.cancelKey,
   });
 
+  String getSpecialTrainTitle() {
+    switch (specialTrain) {
+      case "1":
+        return "特殊班次";
+      case "2":
+        return "試辦車次";
+      default:
+        return "";
+    }
+  }
+
+  String getSpecialTrainRemark() {
+    print(specialTrainRemark);
+    if (specialTrainRemark.length == 0)
+      return "";
+    else
+      return "${specialTrainRemark.replaceAll("<br />", "\n")}\n";
+  }
+
   static List<BusTime> toList(List<dynamic> jsonArray) {
     List<BusTime> list = [];
     for (var item in (jsonArray ?? [])) list.add(BusTime.fromJson(item));
@@ -106,5 +125,24 @@ class BusTime {
 
   String getReserveState() {
     return isReserve == 1 ? "已預約" : hasReserve() ? "預約" : "無法預約";
+  }
+
+  String getDate() {
+    initializeDateFormatting();
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    var formatterTime = new DateFormat('yyyy-MM-dd');
+    var time = formatter.parse(this.runDateTime);
+    return formatterTime.format(time);
+  }
+
+  String getStart() {
+    switch (endStation) {
+      case "建工":
+        return "燕巢";
+      case "燕巢":
+        return "建工";
+      default:
+        return "未知";
+    }
   }
 }

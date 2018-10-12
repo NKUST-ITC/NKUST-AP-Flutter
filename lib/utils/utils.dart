@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 
 class Utils {
   static void showToast(String message) {
@@ -9,5 +11,29 @@ class Utils {
         timeInSecForIos: 1,
         bgcolor: "#434c61",
         textcolor: '#ffffff');
+  }
+
+  static void showDefaultDialog(BuildContext context, String title,
+      String content, String actionText, Function function) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.blue)),
+              content: Text(content,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Resource.Colors.grey)),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(actionText,
+                      style: TextStyle(color: Resource.Colors.grey)),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                    function();
+                  },
+                )
+              ],
+            ));
   }
 }

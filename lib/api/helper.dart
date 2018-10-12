@@ -106,6 +106,48 @@ class Helper {
     }
   }
 
+  Future<Response> getBusReservations() async {
+    try {
+      var response = await dio.get("/$VERSION/bus/reservations");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> bookingBusReservation(String busId) async {
+    try {
+      var response = await dio.put("/$VERSION/bus/reservations/$busId");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> cancelBusReservation(String cancelKey) async {
+    try {
+      var response = await dio.delete("/$VERSION/bus/reservations/$cancelKey");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
   _createBasicAuth(String username, String password) {
     var text = username + ":" + password;
     var encoded = utf8.encode(text);

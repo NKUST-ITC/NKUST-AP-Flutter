@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -7,7 +7,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-enum Status { loading, finish, error, empty }
+enum HomeStatus { loading, finish, error, empty }
 
 class HomePageRoute extends MaterialPageRoute {
   HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
@@ -29,7 +29,7 @@ class HomePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  Status status = Status.loading;
+  HomeStatus state = HomeStatus.loading;
 
   TabController controller;
   int _currentTabIndex = 0;
@@ -65,12 +65,12 @@ class HomePageState extends State<HomePage>
   }
 
   Widget _homebody() {
-    switch (status) {
-      case Status.loading:
+    switch (state) {
+      case HomeStatus.loading:
         return Center(
           child: CircularProgressIndicator(),
         );
-      case Status.finish:
+      case HomeStatus.finish:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
@@ -191,17 +191,17 @@ class HomePageState extends State<HomePage>
   }
 
   _getAllNews() {
-    status = Status.loading;
+    state = HomeStatus.loading;
     Helper.instance.getAllNews().then((response) {
       if (response == null) {
-        status = Status.error;
+        state = HomeStatus.error;
         return;
       }
       JsonCodec jsonCodec = JsonCodec();
       var jsonArray = jsonCodec.decode(response.data);
       news = News.toList(jsonArray);
       for (var i in news) newsWidgets.add(_newImage(i));
-      status = news.length == 0 ? Status.empty : Status.finish;
+      state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
       setState(() {});
     });
   }
