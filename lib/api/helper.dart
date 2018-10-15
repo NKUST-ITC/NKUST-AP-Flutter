@@ -75,6 +75,21 @@ class Helper {
     }
   }
 
+  Future<Response> getScore(String year, String semester) async {
+    try {
+      var response = await dio
+          .get("/$VERSION/ap/users/scores/" + year + "/" + semester);
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
   Future<Response> getCourseTables(String year, String semester) async {
     try {
       var response = await dio

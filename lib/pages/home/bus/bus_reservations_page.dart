@@ -221,6 +221,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         message = "取消日期：${busReservation.getDate()}\n"
             "上車地點：${busReservation.getStart()}上車\n"
             "取消班次：${busReservation.getTime()}";
+        _getBusReservations();
       }
       Utils.showDefaultDialog(context, title, message, "我知道了", () {});
     });

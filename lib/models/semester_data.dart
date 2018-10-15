@@ -1,113 +1,53 @@
 class SemesterData {
-  int status;
-  String messages;
-  CourseTables courseTables;
+  List<Semester> semesters;
+  Semester defaultSemester;
 
   SemesterData({
-    this.status,
-    this.messages,
-    this.courseTables,
+    this.semesters,
+    this.defaultSemester,
   });
 
   static SemesterData fromJson(Map<String, dynamic> json) {
     return SemesterData(
-      status: json['status'],
-      messages: json['messages'],
-      courseTables: CourseTables.fromJson(json['coursetables']),
+      semesters: Semester.toList(json['semester']),
+      defaultSemester:Semester.fromJson(json['default']) ,
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'status': status,
-        'messages': messages,
-        'coursetables': courseTables,
+        'semester': semesters,
+        'default': defaultSemester,
       };
 }
 
-class CourseTables {
-  List<Course> tuesday;
-  List<Course> friday;
-  List<Course> saturday;
-  List<Course> thursday;
-  List<Course> monday;
-  List<Course> wednesday;
-  List<String> timeCode;
+class Semester {
+  String value;
+  int selected;
+  String text;
 
-  CourseTables({
-    this.tuesday,
-    this.friday,
-    this.saturday,
-    this.thursday,
-    this.monday,
-    this.wednesday,
-    this.timeCode,
+  Semester({
+    this.value,
+    this.selected,
+    this.text,
   });
 
-  static CourseTables fromJson(Map<String, dynamic> json) {
-    return CourseTables(
-      tuesday: Course.toList(json['Tuesday']),
-      friday: Course.toList(json['Friday']),
-      saturday: Course.toList(json['Saturday']),
-      thursday: Course.toList(json['Thursday']),
-      wednesday: Course.toList(json['Wednesday']),
-      monday: Course.toList(json['Monday']),
-      timeCode: List<String>.from(json['timecode'] ?? []),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'Tuesday': tuesday,
-        'Friday': friday,
-        'Saturday': saturday,
-        'Thursday': thursday,
-        'Monday': monday,
-        'Wednesday': wednesday,
-        'timecode': timeCode,
-      };
-}
-
-class Course {
-  String title;
-  String startTime;
-  String endTime;
-  String weekday;
-  String section;
-  String building;
-  String room;
-  List<String> instructors;
-
-  Course({
-    this.title,
-    this.startTime,
-    this.endTime,
-    this.weekday,
-    this.section,
-    this.building,
-    this.room,
-    this.instructors,
-  });
-
-  static List<Course> toList(List<dynamic> jsonArray) {
-    List<Course> list = [];
-    for (var item in (jsonArray ?? [])) list.add(Course.fromJson(item));
+  static List<Semester> toList(List<dynamic> jsonArray) {
+    List<Semester> list = [];
+    for (var item in (jsonArray ?? [])) list.add(Semester.fromJson(item));
     return list;
   }
 
-  static Course fromJson(Map<String, dynamic> json) {
-    return Course(
-      title: json['title'],
-      startTime: json['date']["start_time"],
-      endTime: json['date']["end_time"],
-      weekday: json['date']["weekday"],
-      section: json['date']["section"],
-      building: json['location']["building"],
-      room: json['location']["room"],
-      instructors: List<String>.from(json['instructors']),
+  static Semester fromJson(Map<String, dynamic> json) {
+    return Semester(
+      value: json['value'],
+      selected: json['selected'],
+      text: json['text'],
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'title': title,
-        'instructors': instructors,
+        'value': value,
+        'selected': selected,
+        'text': text,
       };
 }

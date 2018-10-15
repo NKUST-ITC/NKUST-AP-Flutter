@@ -263,6 +263,7 @@ class BusReservePageState extends State<BusReservePage>
         message = "預約日期：${busTime.getDate()}\n"
             "上車地點：${busTime.getStart()}上車\n"
             "預約班次：${busTime.time}";
+        _getBusTimeTables();
       }
       Utils.showDefaultDialog(context, title, message, "我知道了", () {});
     });

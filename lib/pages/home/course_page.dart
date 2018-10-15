@@ -26,9 +26,9 @@ class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
   List<Widget> courseWeightList = [];
   var selectSemesterIndex;
-  var selectSemester;
+  Semester selectSemester;
 
-  var semesterData;
+  SemesterData semesterData;
 
   int base = 6;
 
@@ -38,18 +38,11 @@ class CoursePageState extends State<CoursePage>
   @override
   void initState() {
     super.initState();
-    Helper.instance.getSemester().then((response) {
-      semesterData = response;
-      selectSemester = semesterData.data["default"]["text"];
-      selectSemesterIndex = 0;
-      _getCourseTables();
-      setState(() {});
-    });
+    _getSemester();
   }
 
   @override
   void dispose() {
-    // Dispose of the Tab Controller
     super.dispose();
   }
 
@@ -62,11 +55,12 @@ class CoursePageState extends State<CoursePage>
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
       child: FlatButton(
-          onPressed: () {},
-          child: Text(
-            text ?? "",
-            style: _textStyle(),
-          )),
+        onPressed: () {},
+        child: Text(
+          text ?? "",
+          style: _textStyle(),
+        ),
+      ),
     );
   }
 
@@ -125,60 +119,74 @@ class CoursePageState extends State<CoursePage>
               child: FlatButton(
                   onPressed: _selectSemester,
                   child: Text(
-                    selectSemester ?? "",
+                    selectSemester == null ? "" : selectSemester.text,
                     style: _textStyle(),
                   )),
             ),
             Expanded(
-                flex: 19,
-                child: RefreshIndicator(
-                  onRefresh: () => _getCourseTables(),
-                  child: isLoading
-                      ? Container(
-                          child: CircularProgressIndicator(),
-                          alignment: Alignment.center)
-                      : courseWeightList.length == 0
-                          ? FlatButton(
-                              onPressed:
-                                  isError ? _getCourseTables : _selectSemester,
-                              child: Center(
-                                child: Flex(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  direction: Axis.vertical,
-                                  children: <Widget>[
-                                    SizedBox(
-                                      child: Icon(
-                                        Icons.class_,
-                                        size: 150.0,
-                                      ),
-                                      width: 200.0,
+              flex: 19,
+              child: RefreshIndicator(
+                onRefresh: () => _getCourseTables(),
+                child: isLoading
+                    ? Container(
+                        child: CircularProgressIndicator(),
+                        alignment: Alignment.center)
+                    : courseWeightList.length == 0
+                        ? FlatButton(
+                            onPressed:
+                                isError ? _getCourseTables : _selectSemester,
+                            child: Center(
+                              child: Flex(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                direction: Axis.vertical,
+                                children: <Widget>[
+                                  SizedBox(
+                                    child: Icon(
+                                      Icons.class_,
+                                      size: 150.0,
                                     ),
-                                    Text(
-                                      isError
-                                          ? "發生錯誤，點擊重試"
-                                          : "Oops！本學期沒有任何課哦～\n請選擇其他學期\uD83D\uDE0B",
-                                      textAlign: TextAlign.center,
-                                    )
-                                  ],
-                                ),
-                              ))
-                          : GridView.count(
-                              mainAxisSpacing: 0.0,
-                              shrinkWrap: true,
-                              crossAxisCount: base,
-                              children: courseWeightList ?? <Widget>[],
-                            ),
-                ))
+                                    width: 200.0,
+                                  ),
+                                  Text(
+                                    isError
+                                        ? "發生錯誤，點擊重試"
+                                        : "Oops！本學期沒有任何課哦～\n請選擇其他學期\uD83D\uDE0B",
+                                    textAlign: TextAlign.center,
+                                  )
+                                ],
+                              ),
+                            ))
+                        : GridView.count(
+                            mainAxisSpacing: 0.0,
+                            shrinkWrap: true,
+                            crossAxisCount: base,
+                            children: courseWeightList ?? <Widget>[],
+                          ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
+  void _getSemester() {
+    Helper.instance.getSemester().then((response) {
+      if (response.data == null) {
+      } else {
+        semesterData = SemesterData.fromJson(response.data);
+        selectSemester = semesterData.defaultSemester;
+        selectSemesterIndex = 0;
+        _getCourseTables();
+        setState(() {});
+      }
+    });
+  }
+
   void _selectSemester() {
     var semesters = <SimpleDialogOption>[];
-    for (var semester in semesterData.data["semester"]) {
-      semesters.add(_dialogItem(semesters.length, semester["text"]));
+    for (var semester in semesterData.semesters) {
+      semesters.add(_dialogItem(semesters.length, semester.text));
     }
     showDialog<int>(
             context: context,
@@ -187,8 +195,7 @@ class CoursePageState extends State<CoursePage>
         .then<void>((int position) {
       if (position != null) {
         selectSemesterIndex = position;
-        selectSemester =
-            semesterData.data["semester"][selectSemesterIndex]["text"];
+        selectSemester = semesterData.semesters[selectSemesterIndex];
         _getCourseTables();
         setState(() {});
       }
@@ -207,8 +214,7 @@ class CoursePageState extends State<CoursePage>
     courseWeightList.clear();
     isLoading = true;
     setState(() {});
-    var textList =
-        semesterData.data["semester"][selectSemesterIndex]["value"].split(",");
+    var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance
           .getCourseTables(textList[0], textList[1])
