@@ -46,8 +46,12 @@ class CoursePageState extends State<CoursePage>
     super.dispose();
   }
 
+  _textBlueStyle() {
+    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+  }
+
   _textStyle() {
-    return TextStyle(color: Colors.blue, fontSize: 12.0);
+    return TextStyle(color: Colors.black, fontSize: 14.0);
   }
 
   Widget _textBorder(String text) {
@@ -58,7 +62,7 @@ class CoursePageState extends State<CoursePage>
         onPressed: () {},
         child: Text(
           text ?? "",
-          style: _textStyle(),
+          style: _textBlueStyle(),
         ),
       ),
     );
@@ -117,11 +121,21 @@ class CoursePageState extends State<CoursePage>
             Expanded(
               flex: 1,
               child: FlatButton(
-                  onPressed: _selectSemester,
-                  child: Text(
-                    selectSemester == null ? "" : selectSemester.text,
-                    style: _textStyle(),
-                  )),
+                onPressed: _selectSemester,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      selectSemester == null ? "" : selectSemester.text,
+                      style: _textBlueStyle(),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Resource.Colors.blue,
+                    )
+                  ],
+                ),
+              ),
             ),
             Expanded(
               flex: 19,

@@ -45,9 +45,24 @@ class ScorePageState extends State<ScorePage>
     super.dispose();
   }
 
-  _textStyle() {
-    return TextStyle(color: Colors.blue, fontSize: 12.0);
+  _textBlueStyle() {
+    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
   }
+
+  _textStyle() {
+    return TextStyle(color: Colors.black, fontSize: 14.0);
+  }
+
+  _scoreTitle() => Container(
+        width: double.infinity,
+        child: Row(
+          children: <Widget>[
+            Expanded(child: _scoreTextBorder("課程名稱", false, true)),
+            Expanded(child: _scoreTextBorder("期中成績", false, true)),
+            Expanded(child: _scoreTextBorder("期末成績", true, true)),
+          ],
+        ),
+      );
 
   Widget _textBorder(String text, bool isTop) {
     return new Container(
@@ -63,12 +78,12 @@ class ScorePageState extends State<ScorePage>
       child: Text(
         text ?? "",
         textAlign: TextAlign.center,
-        style: _textStyle(),
+        style: _textBlueStyle(),
       ),
     );
   }
 
-  Widget _scoreTextBorder(String text, bool isEnd) {
+  Widget _scoreTextBorder(String text, bool isEnd, bool isTitle) {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.symmetric(vertical: 2.0),
@@ -83,7 +98,7 @@ class ScorePageState extends State<ScorePage>
       child: Text(
         text ?? "",
         textAlign: TextAlign.center,
-        style: _textStyle(),
+        style: isTitle ? _textBlueStyle() : _textStyle(),
       ),
     );
   }
@@ -98,9 +113,9 @@ class ScorePageState extends State<ScorePage>
       ),
       child: Row(
         children: <Widget>[
-          Expanded(child: _scoreTextBorder(score.title, false)),
-          Expanded(child: _scoreTextBorder(score.middleScore, false)),
-          Expanded(child: _scoreTextBorder(score.finalScore, true)),
+          Expanded(child: _scoreTextBorder(score.title, false, false)),
+          Expanded(child: _scoreTextBorder(score.middleScore, false, false)),
+          Expanded(child: _scoreTextBorder(score.finalScore, true, false)),
         ],
       ),
     );
@@ -126,9 +141,18 @@ class ScorePageState extends State<ScorePage>
               flex: 1,
               child: FlatButton(
                 onPressed: _selectSemester,
-                child: Text(
-                  selectSemester == null ? "" : selectSemester.text,
-                  style: _textStyle(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      selectSemester == null ? "" : selectSemester.text,
+                      style: _textBlueStyle(),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Resource.Colors.blue,
+                    )
+                  ],
                 ),
               ),
             ),
@@ -153,32 +177,36 @@ class ScorePageState extends State<ScorePage>
       case ScoreState.error:
       case ScoreState.empty:
         return FlatButton(
-            onPressed: () {},
-            child: Center(
-              child: Flex(
-                mainAxisAlignment: MainAxisAlignment.center,
-                direction: Axis.vertical,
-                children: <Widget>[
-                  SizedBox(
-                    child: Icon(
-                      Icons.directions_bus,
-                      size: 150.0,
-                    ),
-                    width: 200.0,
+          onPressed: () {},
+          child: Center(
+            child: Flex(
+              mainAxisAlignment: MainAxisAlignment.center,
+              direction: Axis.vertical,
+              children: <Widget>[
+                SizedBox(
+                  child: Icon(
+                    Icons.directions_bus,
+                    size: 150.0,
                   ),
-                  Text(
-                    state == ScoreState.error
-                        ? "發生錯誤，點擊重試"
-                        : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            ));
+                  width: 200.0,
+                ),
+                Text(
+                  state == ScoreState.error
+                      ? "發生錯誤，點擊重試"
+                      : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
+                  textAlign: TextAlign.center,
+                )
+              ],
+            ),
+          ),
+        );
       default:
         return SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              SizedBox(
+                height: 8.0,
+              ),
               Container(
                 decoration: new BoxDecoration(
                   borderRadius: BorderRadius.all(
@@ -188,9 +216,13 @@ class ScorePageState extends State<ScorePage>
                   ),
                   border: new Border.all(color: Colors.grey, width: 1.0),
                 ),
-                child: Column(
+                child: Flex(
+                  direction: Axis.vertical,
                   children: scoreWeightList,
                 ),
+              ),
+              SizedBox(
+                height: 8.0,
               ),
               Container(
                 decoration: new BoxDecoration(
@@ -264,6 +296,7 @@ class ScorePageState extends State<ScorePage>
           scoreData = ScoreData.fromJson(response.data);
           print(response.data);
           print(scoreData.content.detail.classRank);
+          scoreWeightList.add(_scoreTitle());
           for (var score in scoreData.content.scores) {
             scoreWeightList.add(_scoreBorder(score));
           }
