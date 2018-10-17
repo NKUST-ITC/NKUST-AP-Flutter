@@ -3,6 +3,8 @@ import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 void main() => runApp(new MyApp());
 
@@ -16,6 +18,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      localeResolutionCallback:
+          (Locale locale, Iterable<Locale> supportedLocales) {
+        return locale;
+      },
       title: Strings.app_name,
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
@@ -37,6 +43,16 @@ class MyApp extends StatelessWidget {
       ),
       navigatorObservers: [
         new FirebaseAnalyticsObserver(analytics: analytics),
+      ],
+      localizationsDelegates: [
+        const AppLocalizationsDelegate(),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('en', 'US'), // English
+        const Locale('zh', 'TW'), // Hebrew
+        // ... other locales the app supports
       ],
     );
   }

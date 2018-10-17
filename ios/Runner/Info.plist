@@ -3,7 +3,10 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
+	<array>
+        <string>en</string>
+        <string>zh</string>
+      </array>
 	<key>CFBundleDisplayName</key>
 	<string>高科校務通</string>
 	<key>CFBundleExecutable</key>

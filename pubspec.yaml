@@ -4,6 +4,8 @@ description: A new Flutter application.
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   shared_preferences: ^0.4.2
   cupertino_icons: ^0.1.2
   dio: 1.0.4
@@ -12,7 +14,6 @@ dependencies:
   flutter_calendar: ^0.0.7
   url_launcher: ^4.0.1
   carousel_slider: ^0.0.7
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

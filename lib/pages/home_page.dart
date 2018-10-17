@@ -5,6 +5,7 @@ import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 enum HomeStatus { loading, finish, error, empty }
@@ -30,6 +31,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   HomeStatus state = HomeStatus.loading;
+  AppLocalizations app;
 
   TabController controller;
   int _currentTabIndex = 0;
@@ -128,7 +130,7 @@ class HomePageState extends State<HomePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(Resource.Strings.app_name),
+        title: new Text(AppLocalizations.of(context).title),
         // Set the background color of the App Bar
         backgroundColor: Resource.Colors.blue,
       ),
@@ -158,15 +160,15 @@ class HomePageState extends State<HomePage>
           BottomNavigationBarItem(
             // set icon to the tab
             icon: Icon(Icons.directions_bus),
-            title: Text(Resource.Strings.bus),
+            title: Text(AppLocalizations.of(context).bus),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.class_),
-            title: Text(Resource.Strings.course),
+            title: Text(AppLocalizations.of(context).course),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            title: Text(Resource.Strings.score),
+            title: Text(AppLocalizations.of(context).score),
           ),
         ],
       ),

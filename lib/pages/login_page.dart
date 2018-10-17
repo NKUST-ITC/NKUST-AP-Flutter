@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
-import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -56,7 +56,7 @@ class LoginPageState extends State<LoginPage>
                   maxLines: 1,
                   controller: _username,
                   decoration: InputDecoration(
-                    labelText: Strings.username,
+                    labelText: AppLocalizations.of(context).username,
                   ),
                   style: _editTextStyle(),
                 ),
@@ -65,7 +65,7 @@ class LoginPageState extends State<LoginPage>
                   maxLines: 1,
                   controller: _password,
                   decoration: InputDecoration(
-                    labelText: Strings.password,
+                    labelText: AppLocalizations.of(context).password,
                   ),
                   style: _editTextStyle(),
                 ),
@@ -79,7 +79,7 @@ class LoginPageState extends State<LoginPage>
                       value: isRememberPassword,
                       onChanged: _onChanged,
                     ),
-                    Text(Strings.remember_password)
+                    Text(AppLocalizations.of(context).remember)
                   ],
                 ),
                 Material(
@@ -88,7 +88,7 @@ class LoginPageState extends State<LoginPage>
                     onPressed: _login,
                     color: Colors.grey[300],
                     child: new Text(
-                      Strings.login,
+                      AppLocalizations.of(context).login,
                       style: new TextStyle(
                           color: Resource.Colors.blue, fontSize: 18.0),
                     ),
@@ -124,12 +124,12 @@ class LoginPageState extends State<LoginPage>
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
       //TODO: 改善提示
-      Utils.showToast(Strings.do_not_empty);
+      Utils.showToast(AppLocalizations.of(context).doNotEmpty);
     } else {
       showDialog(
           context: context,
           builder: (BuildContext context) => new AlertDialog(
-                content: bodyProgress,
+                content: bodyProgress(context),
                 contentPadding: EdgeInsets.all(0.0),
               ));
       var data = await Helper.instance.login(_username.text, _password.text);
@@ -141,33 +141,33 @@ class LoginPageState extends State<LoginPage>
       if (data != null)
         Navigator.of(context).push(HomePageRoute());
       else
-        Utils.showToast(Strings.login_fail);
+        Utils.showToast(AppLocalizations.of(context).loginFail);
     }
   }
 
-  var bodyProgress = new Container(
-    width: 150.0,
-    height: 150.0,
-    alignment: AlignmentDirectional.center,
-    child: new Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        new Center(
-          child: CircularProgressIndicator(
-            value: null,
-          ),
-        ),
-        new Container(
-          margin: const EdgeInsets.only(top: 25.0),
-          child: new Center(
-            child: new Text(
-              Strings.login_ing,
-              style: new TextStyle(color: Colors.blue),
+  Widget bodyProgress(BuildContext context) => new Container(
+        width: 150.0,
+        height: 150.0,
+        alignment: AlignmentDirectional.center,
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Center(
+              child: CircularProgressIndicator(
+                value: null,
+              ),
             ),
-          ),
+            new Container(
+              margin: const EdgeInsets.only(top: 25.0),
+              child: new Center(
+                child: new Text(
+                  AppLocalizations.of(context).logining,
+                  style: new TextStyle(color: Colors.blue),
+                ),
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }
