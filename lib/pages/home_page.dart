@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -8,6 +7,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 enum HomeStatus { loading, finish, error, empty }
 
@@ -60,7 +60,7 @@ class HomePageState extends State<HomePage>
       margin: EdgeInsets.all(5.0),
       child: FlatButton(
           onPressed: () {
-            _launchURL(news.url);
+            Utils.launchUrl(news.url);
           },
           padding: EdgeInsets.all(0.0),
           child: Image.network(news.image)),
@@ -197,13 +197,5 @@ class HomePageState extends State<HomePage>
       state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
       setState(() {});
     });
-  }
-
-  _launchURL(var url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 }

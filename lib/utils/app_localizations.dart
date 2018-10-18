@@ -31,6 +31,9 @@ class AppLocalizations {
       'schoolInfo': 'School Info',
       'about': 'About Us',
       'settings': 'Settings',
+      'notifications': 'News',
+      'phones': 'Tel no.',
+      'events': 'Events',
     },
     'zh': {
       'title': '高科校務通',
@@ -47,6 +50,9 @@ class AppLocalizations {
       'schoolInfo': '校園資訊',
       'about': '關於我們',
       'settings': '設定',
+      'notifications': '最新消息',
+      'phones': '常用電話',
+      'events': '行事曆',
     },
   };
 
@@ -79,6 +85,18 @@ class AppLocalizations {
   String get about => _vocabularies['about'];
 
   String get settings => _vocabularies['settings'];
+
+  String get notifications => _vocabularies['notifications'];
+
+  String get phones => _vocabularies['phones'];
+
+  String get events => _vocabularies['events'];
+
+  Map get messages => {
+        0: notifications,
+        1: phones,
+        2: events,
+      };
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

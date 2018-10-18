@@ -90,7 +90,9 @@ class DrawerBodyState extends State<DrawerBody> {
           _item(Icons.directions_bus, AppLocalizations.of(context).bus, () {
             Navigator.of(context).push(BusPageRoute());
           }),
-          _item(Icons.info, AppLocalizations.of(context).schoolInfo, () {}),
+          _item(Icons.info, AppLocalizations.of(context).schoolInfo, () {
+            Navigator.of(context).push(SchoolInfoPageRoute());
+          }),
           _item(Icons.face, AppLocalizations.of(context).about, () {}),
           _item(Icons.settings, AppLocalizations.of(context).settings, () {}),
         ],

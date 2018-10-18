@@ -191,6 +191,20 @@ class Helper {
     }
   }
 
+  Future<Response> getNotifications(int page) async {
+    try {
+      var response = await dio.get("/$VERSION/notifications/$page");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
   _createBasicAuth(String username, String password) {
     var text = username + ":" + password;
     var encoded = utf8.encode(text);

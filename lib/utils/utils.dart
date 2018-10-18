@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
   static void showToast(String message) {
@@ -35,5 +36,13 @@ class Utils {
                 )
               ],
             ));
+  }
+
+  static launchUrl(var url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

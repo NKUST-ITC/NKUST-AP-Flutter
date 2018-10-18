@@ -8,3 +8,7 @@ export 'home/bus/bus_reserve_page.dart';
 export 'home/bus/bus_reservations_page.dart';
 export 'home/course_page.dart';
 export 'home/score_page.dart';
+export 'home/shcool_info_page.dart';
+export 'home/info/notification_page.dart';
+export 'home/info/phone_page.dart';
+export 'home/info/schedule_page.dart';
