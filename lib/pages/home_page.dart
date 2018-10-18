@@ -7,6 +7,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nkust_ap/widgets/drawer_body.dart';
 
 enum HomeStatus { loading, finish, error, empty }
 
@@ -134,17 +135,7 @@ class HomePageState extends State<HomePage>
         // Set the background color of the App Bar
         backgroundColor: Resource.Colors.blue,
       ),
-      endDrawer: Drawer(
-        semanticLabel: "測試",
-        child: ListView(
-          children: <Widget>[
-            FlatButton(
-              onPressed: () {},
-              child: Text("設定"),
-            )
-          ],
-        ),
-      ),
+      endDrawer: DrawerBody(),
       // Set the TabBar view as the body of the Scaffold
       body: Container(
         padding: EdgeInsets.symmetric(vertical: 32.0),

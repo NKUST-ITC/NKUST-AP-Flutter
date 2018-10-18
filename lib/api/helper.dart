@@ -61,6 +61,34 @@ class Helper {
     }
   }
 
+  Future<Response> getUsersInfo() async {
+    try {
+      var response = await dio.get("/$VERSION/ap/users/info");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
+  Future<Response> getUsersPicture() async {
+    try {
+      var response = await dio.get("/$VERSION/ap/users/picture");
+      return response;
+    } on DioError catch (e) {
+      if (e.response != null) {
+        print(e.response.data);
+      } else {
+        print(e.message);
+      }
+      return null;
+    }
+  }
+
   Future<Response> getSemester() async {
     try {
       var response = await dio.get("/$VERSION/ap/semester");

@@ -28,6 +28,9 @@ class AppLocalizations {
       'course': 'Class Schedule',
       'score': 'Report Card',
       'login_ing': 'logining...',
+      'schoolInfo': 'School Info',
+      'about': 'About Us',
+      'settings': 'Settings',
     },
     'zh': {
       'title': '高科校務通',
@@ -41,6 +44,9 @@ class AppLocalizations {
       'course': '學期課表',
       'score': '學期成績',
       'login_ing': '登入中...',
+      'schoolInfo': '校園資訊',
+      'about': '關於我們',
+      'settings': '設定',
     },
   };
 
@@ -67,6 +73,12 @@ class AppLocalizations {
   String get score => _vocabularies['score'];
 
   String get logining => _vocabularies['login_ing'];
+
+  String get schoolInfo => _vocabularies['schoolInfo'];
+
+  String get about => _vocabularies['about'];
+
+  String get settings => _vocabularies['settings'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
