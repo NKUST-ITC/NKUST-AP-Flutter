@@ -4,7 +4,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
-enum NotificationState { loading, finish, error, empty }
+enum NotificationState { loading, finish, loadingMore, error, empty }
 
 class NotificationPageRoute extends MaterialPageRoute {
   NotificationPageRoute()
@@ -27,22 +27,24 @@ class NotificationPage extends StatefulWidget {
 
 class NotificationPageState extends State<NotificationPage>
     with SingleTickerProviderStateMixin {
-  List<Widget> notificationWeights = [];
-
-  List<NotificationModel> notificationList;
+  ScrollController controller;
+  List<NotificationModel> notificationList = [];
+  int page = 1;
 
   NotificationState state = NotificationState.loading;
 
-  int page = 1;
-
   @override
   void initState() {
-    super.initState();
+    controller = new ScrollController()..addListener(_scrollListener);
+    state = NotificationState.loading;
+    setState(() {});
     _getNotifications();
+    super.initState();
   }
 
   @override
   void dispose() {
+    controller.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -139,20 +141,41 @@ class NotificationPageState extends State<NotificationPage>
           ),
         );
       default:
-        return ListView(
-          children: notificationWeights,
+        return RefreshIndicator(
+          onRefresh: () {
+            state = NotificationState.loading;
+            setState(() {});
+            notificationList.clear();
+            _getNotifications();
+          },
+          child: ListView.builder(
+            controller: controller,
+            itemBuilder: (context, index) {
+              return _notificationItem(notificationList[index]);
+            },
+            itemCount: notificationList.length,
+          ),
         );
     }
   }
 
+  void _scrollListener() {
+    if (controller.position.extentAfter < 500) {
+      if (state == NotificationState.finish) {
+        setState(() {
+          page++;
+          state = NotificationState.loadingMore;
+          _getNotifications();
+        });
+      }
+    }
+  }
+
   _getNotifications() async {
-    notificationWeights.clear();
-    state = NotificationState.loading;
-    setState(() {});
     Helper.instance.getNotifications(page).then((response) {
       var notificationData = NotificationData.fromJson(response.data);
       for (var notification in notificationData.notifications) {
-        notificationWeights.add(_notificationItem(notification));
+        notificationList.add(notification);
       }
       state = NotificationState.finish;
       setState(() {});

@@ -28,12 +28,13 @@ class AppLocalizations {
       'course': 'Class Schedule',
       'score': 'Report Card',
       'login_ing': 'logining...',
-      'schoolInfo': 'School Info',
+      'school_info': 'School Info',
       'about': 'About Us',
       'settings': 'Settings',
       'notifications': 'News',
       'phones': 'Tel no.',
       'events': 'Events',
+      'click_to_retry': 'An error occurred, click to retry',
     },
     'zh': {
       'title': '高科校務通',
@@ -47,16 +48,23 @@ class AppLocalizations {
       'course': '學期課表',
       'score': '學期成績',
       'login_ing': '登入中...',
-      'schoolInfo': '校園資訊',
+      'school_info': '校園資訊',
       'about': '關於我們',
       'settings': '設定',
       'notifications': '最新消息',
       'phones': '常用電話',
       'events': '行事曆',
+      'click_to_retry': '發生錯誤，點擊重試',
     },
   };
 
   Map get _vocabularies => _localizedValues[locale.languageCode];
+
+  Map get messages => {
+        0: notifications,
+        1: phones,
+        2: events,
+      };
 
   String get title => _vocabularies['title'];
 
@@ -80,7 +88,7 @@ class AppLocalizations {
 
   String get logining => _vocabularies['login_ing'];
 
-  String get schoolInfo => _vocabularies['schoolInfo'];
+  String get schoolInfo => _vocabularies['school_info'];
 
   String get about => _vocabularies['about'];
 
@@ -92,11 +100,7 @@ class AppLocalizations {
 
   String get events => _vocabularies['events'];
 
-  Map get messages => {
-        0: notifications,
-        1: phones,
-        2: events,
-      };
+  String get clickToRetry => _vocabularies['click_to_retry'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
