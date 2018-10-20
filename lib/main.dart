@@ -9,10 +9,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
-  final Map<String, WidgetBuilder> _routes = <String, WidgetBuilder>{
-    Navigator.defaultRouteName: (context) => new LoginPage()
-  };
-  FirebaseAnalytics analytics = new FirebaseAnalytics();
+  final FirebaseAnalytics analytics = new FirebaseAnalytics();
 
   // This widget is the root of your application.
   @override

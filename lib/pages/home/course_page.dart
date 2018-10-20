@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class CoursePageRoute extends MaterialPageRoute {
   CoursePageRoute()
@@ -35,6 +36,8 @@ class CoursePageState extends State<CoursePage>
   bool isLoading = true;
   bool isError = false;
 
+  var childAspectRatio = 0.8;
+
   @override
   void initState() {
     super.initState();
@@ -62,6 +65,7 @@ class CoursePageState extends State<CoursePage>
         onPressed: () {},
         child: Text(
           text ?? "",
+          textAlign: TextAlign.center,
           style: _textBlueStyle(),
         ),
       ),
@@ -112,12 +116,13 @@ class CoursePageState extends State<CoursePage>
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
         child: Flex(
           direction: Axis.vertical,
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            SizedBox(height: 8.0),
             Expanded(
               flex: 1,
               child: FlatButton(
@@ -137,6 +142,7 @@ class CoursePageState extends State<CoursePage>
                 ),
               ),
             ),
+            SizedBox(height: 8.0),
             Expanded(
               flex: 19,
               child: RefreshIndicator(
@@ -163,7 +169,8 @@ class CoursePageState extends State<CoursePage>
                                   ),
                                   Text(
                                     isError
-                                        ? "發生錯誤，點擊重試"
+                                        ? AppLocalizations.of(context)
+                                            .clickToRetry
                                         : "Oops！本學期沒有任何課哦～\n請選擇其他學期\uD83D\uDE0B",
                                     textAlign: TextAlign.center,
                                   )
@@ -173,6 +180,7 @@ class CoursePageState extends State<CoursePage>
                         : GridView.count(
                             mainAxisSpacing: 0.0,
                             shrinkWrap: true,
+                            childAspectRatio: childAspectRatio,
                             crossAxisCount: base,
                             children: courseWeightList ?? <Widget>[],
                           ),
@@ -258,10 +266,13 @@ class CoursePageState extends State<CoursePage>
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;
+            childAspectRatio = 0.5;
           } else {
             base = 6;
+            childAspectRatio = 0.9;
           }
-          for (var text in response.data["coursetables"]["timecode"]) {
+          for (String text in response.data["coursetables"]["timecode"]) {
+            text = text.replaceAll(' ', '');
             courseWeightList.add(_textBorder(text));
             for (var i = 0; i < base - 1; i++)
               courseWeightList.add(_textBorder(""));

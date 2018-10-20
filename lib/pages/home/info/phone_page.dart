@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 enum PhoneState { loading, finish, error, empty }
 
@@ -114,7 +115,7 @@ class PhonePageState extends State<PhonePage>
                 ),
                 Text(
                   state == PhoneState.error
-                      ? "發生錯誤，點擊重試"
+                      ? AppLocalizations.of(context).clickToRetry
                       : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
                   textAlign: TextAlign.center,
                 )

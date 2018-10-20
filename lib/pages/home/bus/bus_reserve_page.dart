@@ -198,37 +198,33 @@ class BusReservePageState extends State<BusReservePage>
     return Flex(
       direction: Axis.vertical,
       children: <Widget>[
-        Expanded(
-            flex: 3,
-            child: Calendar(
-              onDateSelected: (DateTime datetime) {
-                dateTime = datetime;
-                _getBusTimeTables();
+        Calendar(
+          onDateSelected: (DateTime datetime) {
+            dateTime = datetime;
+            _getBusTimeTables();
+          },
+        ),
+        Container(
+            margin: EdgeInsets.all(8.0),
+            child: CupertinoSegmentedControl(
+              groupValue: selectStartStation,
+              children: {
+                Station.janGong: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
+                  child: Text("建工上車"),
+                ),
+                Station.yanchao: Container(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
+                  child: Text("燕巢上車"),
+                )
+              },
+              onValueChanged: (Station text) {
+                selectStartStation = text;
+                _updateBusTimeTables();
               },
             )),
-        Expanded(
-            flex: 1,
-            child: Container(
-                padding: EdgeInsets.all(8.0),
-                child: CupertinoSegmentedControl(
-                  groupValue: selectStartStation,
-                  children: {
-                    Station.janGong: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
-                      child: Text("建工上車"),
-                    ),
-                    Station.yanchao: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
-                      child: Text("燕巢上車"),
-                    )
-                  },
-                  onValueChanged: (Station text) {
-                    selectStartStation = text;
-                    _updateBusTimeTables();
-                  },
-                ))),
         Expanded(
           flex: 9,
           child: _body(),
