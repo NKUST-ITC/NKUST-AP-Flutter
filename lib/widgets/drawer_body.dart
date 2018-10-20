@@ -81,27 +81,28 @@ class DrawerBodyState extends State<DrawerBody> {
               ),
             ),
           ),
-          _item(Icons.class_, AppLocalizations.of(context).course, () {
-            Navigator.of(context).push(CoursePageRoute());
-          }),
-          _item(Icons.assignment, AppLocalizations.of(context).score, () {
-            Navigator.of(context).push(ScorePageRoute());
-          }),
-          _item(Icons.directions_bus, AppLocalizations.of(context).bus, () {
-            Navigator.of(context).push(BusPageRoute());
-          }),
-          _item(Icons.info, AppLocalizations.of(context).schoolInfo, () {
-            Navigator.of(context).push(SchoolInfoPageRoute());
-          }),
-          _item(Icons.face, AppLocalizations.of(context).about, () {}),
-          _item(Icons.settings, AppLocalizations.of(context).settings, () {}),
+          _item(Icons.class_, AppLocalizations.of(context).course,
+              CoursePageRoute()),
+          _item(Icons.assignment, AppLocalizations.of(context).score,
+              ScorePageRoute()),
+          _item(Icons.directions_bus, AppLocalizations.of(context).bus,
+              BusPageRoute()),
+          _item(Icons.info, AppLocalizations.of(context).schoolInfo,
+              SchoolInfoPageRoute()),
+          _item(Icons.face, AppLocalizations.of(context).about,
+              AboutUsPageRoute()),
+          _item(Icons.settings, AppLocalizations.of(context).settings,
+              SettingPageRoute()),
         ],
       ),
     );
   }
 
-  _item(IconData icon, String title, Function function) => FlatButton(
-      onPressed: function,
+  _item(IconData icon, String title, MaterialPageRoute route) => FlatButton(
+      onPressed: () {
+        Navigator.of(context).pop();
+        Navigator.of(context).push(route);
+      },
       child: Row(
         children: <Widget>[
           Container(

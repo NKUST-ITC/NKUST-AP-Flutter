@@ -45,4 +45,9 @@ class Utils {
       throw 'Could not launch $url';
     }
   }
+
+  static callPhone(var url) async {
+    url = "tel: $url";
+      await launch(url);
+  }
 }

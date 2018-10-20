@@ -5,6 +5,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 
 void main() => runApp(new MyApp());
 
@@ -29,6 +30,8 @@ class MyApp extends StatelessWidget {
         BusPage.routerName: (BuildContext context) => BusPage(),
         ScorePage.routerName: (BuildContext context) => ScorePage(),
         SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
+        SettingPage.routerName: (BuildContext context) => SettingPage(),
+        AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
       },
       theme: new ThemeData(
         hintColor: Colors.white,
