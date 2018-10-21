@@ -147,6 +147,8 @@ class AppLocalizations {
 
   String get aboutItcContent => _vocabularies['about_itc_content'];
 
+  String get aboutContactUsTitle => _vocabularies['about_contact_us'];
+
   String get aboutOpenSourceTitle => _vocabularies['about_open_source_title'];
 
   String get aboutOpenSourceContent =>

@@ -5,6 +5,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 class AboutUsPageRoute extends MaterialPageRoute {
   AboutUsPageRoute()
@@ -70,7 +71,74 @@ class AboutUsPageState extends State<AboutUsPage>
             _item(app.aboutAuthorTitle, app.aboutAuthorContent),
             _item(app.about, app.aboutUsContent),
             _item(app.aboutRecruitTitle, app.aboutRecruitContent),
-            _item(app.aboutItcTitle, app.aboutItcContent),
+            Stack(
+              children: <Widget>[
+                _item(app.aboutItcTitle, app.aboutItcContent),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(vertical: 20.0, horizontal: 26.0),
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: Image.asset(
+                      "assets/images/kuas_itc.png",
+                      width: 64.0,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )
+              ],
+            ),
+            Card(
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              elevation: 4.0,
+              child: Container(
+                padding: EdgeInsets.only(
+                    top: 24.0, left: 16.0, bottom: 16.0, right: 16.0),
+                width: double.infinity,
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      app.aboutContactUsTitle,
+                      style: TextStyle(fontSize: 18.0),
+                    ),
+                    SizedBox(
+                      height: 4.0,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Image.asset("assets/images/ic_fb.png"),
+                            onPressed: () {
+                              Utils.launchUrl('https://www.facebook.com/954175941266264/');
+                            },
+                            iconSize: 48.0,
+                          ),
+                          IconButton(
+                            icon: Image.asset("assets/images/ic_github.png"),
+                            onPressed: () {
+                              Utils.launchUrl('https://github.com/NKUST-ITC');
+                            },
+                            iconSize: 48.0,
+                          ),
+                          IconButton(
+                            icon: Image.asset("assets/images/ic_email.png"),
+                            onPressed: () {
+                              Utils.launchUrl('mailto:abc873693@gmail.com');
+                            },
+                            iconSize: 48.0,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             _item(app.aboutOpenSourceTitle, app.aboutOpenSourceContent),
           ],
         ),
@@ -82,7 +150,8 @@ class AboutUsPageState extends State<AboutUsPage>
         margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         elevation: 4.0,
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+          padding:
+              EdgeInsets.only(top: 24.0, left: 16.0, bottom: 16.0, right: 16.0),
           width: double.infinity,
           child: Column(
             mainAxisSize: MainAxisSize.max,
