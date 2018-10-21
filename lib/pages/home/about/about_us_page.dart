@@ -40,12 +40,32 @@ class AboutUsPageState extends State<AboutUsPage>
   Widget build(BuildContext context) {
     var app = AppLocalizations.of(context);
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(AppLocalizations.of(context).about),
-        backgroundColor: Resource.Colors.blue,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              expandedHeight: 200.0,
+              floating: false,
+              pinned: true,
+              title: new Text(AppLocalizations.of(context).about),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.code),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(MyLicencePage.routerName);
+                    })
+              ],
+              backgroundColor: Resource.Colors.blue,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Image.asset(
+                  "assets/images/kuasap3.png",
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ];
+        },
+        body: ListView(
           children: <Widget>[
             _item(app.aboutAuthorTitle, app.aboutAuthorContent),
             _item(app.about, app.aboutUsContent),

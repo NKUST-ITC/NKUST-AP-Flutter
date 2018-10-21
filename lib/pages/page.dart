@@ -14,3 +14,4 @@ export 'home/info/phone_page.dart';
 export 'home/info/schedule_page.dart';
 export 'home/setting_page.dart';
 export 'home/about/about_us_page.dart';
+export 'home/about/licence_page.dart';

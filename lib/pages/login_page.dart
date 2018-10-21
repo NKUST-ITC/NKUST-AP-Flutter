@@ -38,6 +38,7 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     return new Scaffold(
         backgroundColor: Resource.Colors.blue,
+        resizeToAvoidBottomPadding: false,
         body: Center(
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
