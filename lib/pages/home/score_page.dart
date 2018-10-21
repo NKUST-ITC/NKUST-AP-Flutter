@@ -178,7 +178,8 @@ class ScorePageState extends State<ScorePage>
       case ScoreState.error:
       case ScoreState.empty:
         return FlatButton(
-          onPressed: () {},
+          onPressed:
+              state == ScoreState.error ? _getSemesterScore : _selectSemester,
           child: Center(
             child: Flex(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -186,7 +187,7 @@ class ScorePageState extends State<ScorePage>
               children: <Widget>[
                 SizedBox(
                   child: Icon(
-                    Icons.directions_bus,
+                    Icons.assignment,
                     size: 150.0,
                   ),
                   width: 200.0,
@@ -293,15 +294,17 @@ class ScorePageState extends State<ScorePage>
       Helper.instance.getScore(textList[0], textList[1]).then((response) {
         if (response.data["status"] == 200) {
           scoreData = ScoreData.fromJson(response.data);
-          print(response.data);
-          print(scoreData.content.detail.classRank);
           scoreWeightList.add(_scoreTitle());
           for (var score in scoreData.content.scores) {
             scoreWeightList.add(_scoreBorder(score));
           }
-          state = ScoreState.finish;
-          setState(() {});
-        }
+          if (scoreData.content.scores.length == 0)
+            state = ScoreState.empty;
+          else
+            state = ScoreState.finish;
+        } else
+          state = ScoreState.empty;
+        setState(() {});
       });
     } else {
       state = ScoreState.error;

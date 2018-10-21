@@ -6,6 +6,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
   SettingPageRoute()
@@ -27,14 +29,17 @@ class SettingPage extends StatefulWidget {
 
 class SettingPageState extends State<SettingPage>
     with SingleTickerProviderStateMixin {
-  var displayIcon = false,
-      notifyBus = false,
+  SharedPreferences prefs;
+
+  var notifyBus = false,
       notifyCourse = false,
+      displayPicture = true,
       vibrateCourse = false;
 
   @override
   void initState() {
     super.initState();
+    _getPreference();
   }
 
   @override
@@ -46,7 +51,9 @@ class SettingPageState extends State<SettingPage>
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(AppLocalizations.of(context).settings),
+        title: new Text(AppLocalizations
+            .of(context)
+            .settings),
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
@@ -56,41 +63,52 @@ class SettingPageState extends State<SettingPage>
               _titleItem("通知設定"),
               _itemSwitch("上課體醒", notifyCourse, () {
                 notifyCourse = !notifyCourse;
-                setState(() {});
+                prefs.setBool(Constants.PREF_NOTIFY_COURSE, notifyCourse);
+                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                //setState(() {});
               }),
               _itemSwitch("校車提醒", notifyBus, () {
                 notifyBus = !notifyBus;
-                setState(() {});
+                prefs.setBool(Constants.PREF_NOTIFY_BUS, notifyBus);
+                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
               _titleItem("一般設定"),
-              _itemSwitch("顯示大頭貼", displayIcon, () {
-                displayIcon = !displayIcon;
+              _itemSwitch("顯示大頭貼", displayPicture, () {
+                displayPicture = !displayPicture;
+                prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
                 setState(() {});
               }),
               _itemSwitch("上課震動", vibrateCourse, () {
                 vibrateCourse = !vibrateCourse;
-                setState(() {});
+                prefs.setBool(Constants.PREF_VIBRATE_COURSE, vibrateCourse);
+                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
               _titleItem("其他資訊"),
-              _item("回饋意見", "私訊給粉絲專頁", () {}),
-              _item("Donate", "貢獻一點心力支持作者，\n可以提早使用未開放功能！", () {
-                Utils.launchUrl("market://details?id=com.kuas.ap");
+              _item("回饋意見", "私訊給粉絲專頁", () {
+                Utils.launchUrl('https://www.facebook.com/954175941266264/');
               }),
-              _item("App版本", "v0.3.1", () {}),
+              _item("Donate", "貢獻一點心力支持作者，\n可以提早使用未開放功能！", () {
+                Utils.launchUrl(
+                    "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d");
+              }),
+              _item("App版本", Constants.APP_VERSION, () {}),
             ]),
       ),
     );
   }
 
-  _titleItem(String text) => Container(
+  _titleItem(String text) =>
+      Container(
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
@@ -99,7 +117,8 @@ class SettingPageState extends State<SettingPage>
         ),
       );
 
-  _itemSwitch(String text, bool value, Function function) => FlatButton(
+  _itemSwitch(String text, bool value, Function function) =>
+      FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -112,14 +131,23 @@ class SettingPageState extends State<SettingPage>
               value: value,
               activeColor: Resource.Colors.blue,
               activeTrackColor: Resource.Colors.blue,
-              onChanged: null,
+              onChanged: (b) {
+                function();
+              },
             ),
           ],
         ),
         onPressed: function,
       );
 
-  _item(String text, String subText, Function function) => FlatButton(
+  _getPreference() async {
+    prefs = await SharedPreferences.getInstance();
+    displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+    setState(() {});
+  }
+
+  _item(String text, String subText, Function function) =>
+      FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Container(
           width: double.infinity,

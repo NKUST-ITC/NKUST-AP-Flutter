@@ -46,8 +46,17 @@ class Utils {
     }
   }
 
-  static callPhone(var url) async {
-    url = "tel: $url";
+  static callPhone(String url) async {
+    url = url.replaceAll('#', ',');
+    url = url.replaceAll('(', '');
+    url = url.replaceAll(')', '');
+    url = url.replaceAll('-', '');
+    url = url.replaceAll(' ', '');
+    url = "tel:$url";
+    if (await canLaunch(url)) {
       await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 }

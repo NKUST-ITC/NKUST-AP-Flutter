@@ -106,7 +106,7 @@ class BusReservePageState extends State<BusReservePage>
                                   style:
                                       TextStyle(color: Resource.Colors.blue)),
                               content: Text(
-                                "${busTime.getSpecialTrainRemark()}確定要預定本次校車？",
+                                "${busTime.getSpecialTrainRemark()}確定要預定本次${busTime.time}校車？",
                                 textAlign: TextAlign.center,
                               ),
                               actions: <Widget>[
@@ -222,7 +222,10 @@ class BusReservePageState extends State<BusReservePage>
               },
               onValueChanged: (Station text) {
                 selectStartStation = text;
-                _updateBusTimeTables();
+                if (state == BusReserveState.finish)
+                  _updateBusTimeTables();
+                else
+                  setState(() {});
               },
             )),
         Expanded(

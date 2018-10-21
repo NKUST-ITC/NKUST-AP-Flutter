@@ -34,6 +34,9 @@ flutter:
   uses-material-design: true
   assets:
      - assets/images/
+     - assets/images/kuasap.png
+     - assets/images/kuasap2.png
+     - assets/images/kuasap3.png
      - assets/images/kuas_itc.png
      - assets/images/ic_fb.png
      - assets/images/ic_github.png

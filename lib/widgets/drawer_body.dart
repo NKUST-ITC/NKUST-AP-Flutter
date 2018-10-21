@@ -5,8 +5,9 @@ import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 var pictureUrl = "";
 UserInfo userInfo;
@@ -17,9 +18,13 @@ class DrawerBody extends StatefulWidget {
 }
 
 class DrawerBodyState extends State<DrawerBody> {
+  SharedPreferences prefs;
+  bool displayPicture = true;
+
   @override
   void initState() {
     super.initState();
+    _getPreference();
     _getUserPicture();
     _getUserInfo();
   }
@@ -36,16 +41,21 @@ class DrawerBodyState extends State<DrawerBody> {
       child: Column(
         children: <Widget>[
           Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage("assets/images/kuasap3.png"),
+                fit: BoxFit.fill,
+              ),
+            ),
             width: double.infinity,
-            height: 210.0,
-            color: Resource.Colors.blue,
             child: Container(
               padding: EdgeInsets.all(20.0),
-              child: Column(
+              child: Flex(
+                direction: Axis.vertical,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 40.0),
-                  pictureUrl != ""
+                  pictureUrl != "" && displayPicture
                       ? Container(
                           width: 72.0,
                           height: 72.0,
@@ -143,4 +153,10 @@ class DrawerBodyState extends State<DrawerBody> {
       setState(() {});
     });
   }
+  _getPreference() async {
+    prefs = await SharedPreferences.getInstance();
+    displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+    setState(() {});
+  }
+
 }

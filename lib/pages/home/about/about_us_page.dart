@@ -114,7 +114,7 @@ class AboutUsPageState extends State<AboutUsPage>
                           IconButton(
                             icon: Image.asset("assets/images/ic_fb.png"),
                             onPressed: () {
-                              Utils.launchUrl('https://www.facebook.com/954175941266264/');
+                              Utils.launchUrl('https://www.facebook.com/NKUST.ITC/');
                             },
                             iconSize: 48.0,
                           ),

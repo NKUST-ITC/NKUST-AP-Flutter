@@ -45,6 +45,13 @@ class PhonePageState extends State<PhonePage>
     super.dispose();
   }
 
+  _textBlueStyle() {
+    return TextStyle(
+        color: Resource.Colors.blue,
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold);
+  }
+
   _textGreyStyle() {
     return TextStyle(color: Resource.Colors.grey, fontSize: 14.0);
   }
@@ -62,7 +69,7 @@ class PhonePageState extends State<PhonePage>
         width: double.infinity,
         decoration: new BoxDecoration(
           border: new Border(
-            top: BorderSide(color: Colors.grey, width: 0.5),
+            bottom: BorderSide(color: Colors.grey, width: 0.5),
           ),
         ),
         child: Column(
@@ -89,7 +96,7 @@ class PhonePageState extends State<PhonePage>
         ),
       ),
       onPressed: () {
-        //Utils.callPhone(phone.number);
+        Utils.callPhone(phone.number);
       },
     );
   }
@@ -122,9 +129,7 @@ class PhonePageState extends State<PhonePage>
                 ),
                 Text(
                   state == PhoneState.error
-                      ? AppLocalizations
-                      .of(context)
-                      .clickToRetry
+                      ? AppLocalizations.of(context).clickToRetry
                       : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
                   textAlign: TextAlign.center,
                 )
@@ -143,18 +148,49 @@ class PhonePageState extends State<PhonePage>
     phoneWeights.clear();
     state = PhoneState.loading;
     setState(() {});
-    phoneList.add(PhoneModel("高雄應用科技大學總機", "(07) 381-4526"));
-    phoneList.add(PhoneModel("建工校安專線", "0916-507-506"));
-    phoneList.add(PhoneModel("燕巢校安專線", "0925-350-995"));
+    phoneList.add(PhoneModel("校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5", "0800-550995"));
+    phoneList.add(PhoneModel("建工校區", ""));
+    phoneList.add(PhoneModel("校安專線", "0916-507-506"));
     phoneList.add(PhoneModel("事務組", "(07) 381-4526 #2650"));
     phoneList.add(PhoneModel("營繕組", "(07) 381-4526 #2630"));
     phoneList.add(PhoneModel("課外活動組", "(07) 381-4526 #2525"));
     phoneList.add(PhoneModel("諮商輔導中心", "(07) 381-4526 #2541"));
     phoneList.add(PhoneModel("圖書館", "(07) 381-4526 #3100"));
-    phoneList.add(PhoneModel("建工校外賃居服務中心", "(07) 381-4526 #3420"));
-    phoneList.add(PhoneModel("燕巢校外賃居服務中心", "(07) 381-4526 #8615"));
-    for (var i in phoneList)
-      phoneWeights.add(_phoneItem(i));
+    phoneList.add(PhoneModel("校外賃居服務中心", "(07) 381-4526 #3420"));
+    phoneList.add(PhoneModel("燕巢校區", ""));
+    phoneList.add(PhoneModel("校安專線", "0925-350-995"));
+    phoneList.add(PhoneModel("校外賃居服務中心", "(07) 381-4526 #8615"));
+    phoneList.add(PhoneModel("第一校區", ""));
+    phoneList.add(PhoneModel("生輔組", "(07)601-1000 #31212"));
+    phoneList.add(PhoneModel("總務處 總機", "(07)601-1000 #31316"));
+    phoneList.add(PhoneModel("總務處 場地租借", "(07)601-1000 #31312"));
+    phoneList.add(PhoneModel("總務處 高科大會館", "(07)601-1000 #31306"));
+    phoneList.add(PhoneModel("總務處 學雜費相關(原事務組)", "(07)601-1000 #31340"));
+    phoneList.add(PhoneModel("課外活動組", "(07)601-1000 #31211"));
+    phoneList.add(PhoneModel("諮輔組", "(07)601-1000 #31241"));
+    phoneList.add(PhoneModel("圖書館", "(07)6011000 #1599"));
+    phoneList.add(PhoneModel("生輔組", "(07)6011000 #31212"));
+    phoneList.add(PhoneModel("楠梓校區", ""));
+    phoneList.add(PhoneModel("總機", "07-3617141"));
+    phoneList.add(PhoneModel("課外活動組", "07-3617141 #22070"));
+    phoneList.add(PhoneModel("海洋校區", ""));
+    phoneList.add(PhoneModel("海洋校區", "07-8100888"));
+    phoneList.add(PhoneModel("學生事務處", "07-3617141 #2052"));
+    phoneList.add(PhoneModel("課外活動組", "07-8100888 #25065"));
+    phoneList.add(PhoneModel("生活輔導組", "07-3617141 #23967"));
+    for (var i in phoneList) {
+      if (i.number.isEmpty) {
+        phoneWeights.add(Container(
+          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Text(
+            i.name,
+            style: _textBlueStyle(),
+            textAlign: TextAlign.left,
+          ),
+        ));
+      } else
+        phoneWeights.add(_phoneItem(i));
+    }
     state = PhoneState.finish;
     setState(() {});
   }

@@ -16,6 +16,8 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
+  SharedPreferences prefs;
+
   final TextEditingController _username = new TextEditingController();
   final TextEditingController _password = new TextEditingController();
   bool isRememberPassword = false;
@@ -24,6 +26,7 @@ class LoginPageState extends State<LoginPage>
   void initState() {
     super.initState();
     _isRememberPassword();
+    _showDialog();
   }
 
   @override
@@ -104,8 +107,21 @@ class LoginPageState extends State<LoginPage>
         ));
   }
 
+  _showDialog() async {
+    prefs = await SharedPreferences.getInstance();
+    await Future.delayed(Duration(milliseconds: 50));
+    if (prefs.getBool(Constants.PREF_FIRST_ENTER_APP) ?? true)
+      Utils.showDefaultDialog(
+          context,
+          AppLocalizations.of(context).updateNoteTitle,
+          "${Constants.APP_VERSION}\n"
+          "${AppLocalizations.of(context).updateNoteContent}",
+          AppLocalizations.of(context).ok, () {
+        prefs.setBool(Constants.PREF_FIRST_ENTER_APP, false);
+      });
+  }
+
   _onChanged(bool value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       isRememberPassword = value;
       prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
@@ -113,7 +129,7 @@ class LoginPageState extends State<LoginPage>
   }
 
   _isRememberPassword() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs = await SharedPreferences.getInstance();
     isRememberPassword =
         prefs.getBool(Constants.PREF_REMEMBER_PASSWORD) ?? false;
     _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
@@ -124,7 +140,6 @@ class LoginPageState extends State<LoginPage>
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      //TODO: 改善提示
       Utils.showToast(AppLocalizations.of(context).doNotEmpty);
     } else {
       showDialog(

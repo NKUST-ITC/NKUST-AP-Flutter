@@ -108,7 +108,7 @@ class SchedulePageState extends State<SchedulePage>
       case ScheduleState.error:
       case ScheduleState.empty:
         return FlatButton(
-          onPressed: () {},
+          onPressed: _getSchedules,
           child: Center(
             child: Flex(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -142,11 +142,14 @@ class SchedulePageState extends State<SchedulePage>
     state = ScheduleState.loading;
     setState(() {});
     final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    await remoteConfig.fetch(expiration: const Duration(hours: 5));
+    await remoteConfig.activateFetched();
     JsonCodec jsonCodec = JsonCodec();
     var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
-    if (data == null)
+    if (data.isEmpty)
       state = ScheduleState.error;
     else {
+      print(data);
       var jsonArray = jsonCodec.decode(data);
       scheduleList = ScheduleData.toList(jsonArray);
       scheduleWeights.clear();
