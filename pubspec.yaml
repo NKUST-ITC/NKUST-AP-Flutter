@@ -13,6 +13,7 @@ dependencies:
   firebase_core: ^0.2.5+1
   firebase_analytics: 1.0.4
   firebase_remote_config: ^0.0.6+1
+  firebase_messaging: ^2.0.2
   flutter_calendar: ^0.0.8
   url_launcher: ^4.0.1
   carousel_slider: ^0.0.7

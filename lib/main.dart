@@ -6,15 +6,18 @@ import 'package:firebase_analytics/observer.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
   final FirebaseAnalytics analytics = new FirebaseAnalytics();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    //_firebaseMessaging.requestNotificationPermissions();
     return new MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {
