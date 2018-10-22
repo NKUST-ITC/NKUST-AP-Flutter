@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "141403473068",
+    "firebase_url": "https://nkust-ap-flutter.firebaseio.com",
+    "project_id": "nkust-ap-flutter",
+    "storage_bucket": "nkust-ap-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141403473068:android:65aa63de8e144164",
+        "android_client_info": {
+          "package_name": "com.nkust.ap.flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "141403473068-v71akg1vi0v2ohdtqog3tln8ot678qo8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBIKkKaOfI4nDmj_SN738yB_IUVEOZiAo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
