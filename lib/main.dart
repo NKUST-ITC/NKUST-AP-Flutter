@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -7,8 +8,32 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
-void main() => runApp(new MyApp());
+void main() async {
+  bool isInDebugMode = true;
+  FlutterError.onError = (FlutterErrorDetails details) {
+    if (isInDebugMode) {
+      // In development mode simply print to console.
+      FlutterError.dumpErrorToConsole(details);
+    } else {
+      // In production mode report to the application zone to report to
+      // Crashlytics.
+      Zone.current.handleUncaughtError(details.exception, details.stack);
+    }
+  };
+
+  await FlutterCrashlytics().initialize();
+
+  runZoned<Future<Null>>(() async {
+    runApp(MyApp());
+  }, onError: (error, stackTrace) async {
+    // Whenever an error occurs, call the `reportCrash` function. This will send
+    // Dart errors to our dev console or Crashlytics depending on the environment.
+    await FlutterCrashlytics()
+        .reportCrash(error, stackTrace, forceCrash: false);
+  });
+}
 
 class MyApp extends StatelessWidget {
   final FirebaseAnalytics analytics = new FirebaseAnalytics();
