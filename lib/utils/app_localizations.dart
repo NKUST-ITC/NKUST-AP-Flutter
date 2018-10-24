@@ -87,6 +87,10 @@ class AppLocalizations {
       'ok': 'OK',
       'course_dialog_messages" formatted="false':
           'Class：%s\nProfessor：%s\nLocation：%s\nTime：%s',
+      'course_dialog_name': 'Class',
+      'course_dialog_professor': 'Professor',
+      'course_dialog_location': 'Location',
+      'course_dialog_time': 'Time',
       'course_dialog_title': 'Class Info',
       'course_holiday': 'Rotate Screen to see weekend schedule %s',
       'no_internet': 'No internet connection',
@@ -266,6 +270,10 @@ class AppLocalizations {
       'bus_reserve_fail_title': 'Oops 預約失敗',
       'ok': '好',
       'course_dialog_messages': '課程名稱：%s\n授課老師：%s\n教室位置：%s\n上課時間：%s',
+      'course_dialog_name': '課程名稱',
+      'course_dialog_professor': '授課老師',
+      'course_dialog_location': '教室位置',
+      'course_dialog_time': '上課時間',
       'course_dialog_title': '課程資訊',
       'course_holiday': '旋轉橫向即可查看周末課表 %s',
       'no_internet': '沒有網路連線，請檢查你的網路',
@@ -375,13 +383,25 @@ class AppLocalizations {
     },
   };
 
-  Map get _vocabularies => _localizedValues[locale.languageCode];
+  Map get _vocabularies {
+    return _localizedValues[locale.languageCode] ?? _localizedValues['en'];
+  }
 
   Map get messages => {
         0: notifications,
         1: phones,
         2: events,
       };
+
+  List<String> get weekdays => [
+        mon,
+        tue,
+        wed,
+        thu,
+        fri,
+        sat,
+        sun,
+      ];
 
   String get appName => _vocabularies['app_name'];
 
@@ -445,6 +465,34 @@ class AppLocalizations {
 
   String get aboutOpenSourceContent =>
       _vocabularies['about_open_source_content'];
+
+  String get courseEmpty => _vocabularies['course_no_course'];
+
+  String get picksSemester => _vocabularies['pick_semester'];
+
+  String get courseDialogName => _vocabularies['course_dialog_name'];
+
+  String get courseDialogProfessor => _vocabularies['course_dialog_professor'];
+
+  String get courseDialogLocation => _vocabularies['course_dialog_location'];
+
+  String get courseDialogTime => _vocabularies['course_dialog_time'];
+
+  String get courseDialogTitle => _vocabularies['course_dialog_title'];
+
+  String get mon => _vocabularies['mon'];
+
+  String get tue => _vocabularies['tue'];
+
+  String get wed => _vocabularies['wed'];
+
+  String get thu => _vocabularies['thu'];
+
+  String get fri => _vocabularies['fri'];
+
+  String get sat => _vocabularies['sat'];
+
+  String get sun => _vocabularies['sun'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
