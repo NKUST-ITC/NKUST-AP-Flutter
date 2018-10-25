@@ -120,7 +120,14 @@ class AppLocalizations {
       'no_internet': 'No internet connection',
       'setting_internet': 'Internet Settings',
       'score_no_score':
-          'Oops! No record for this semester~\nPlease choose another semester %s',
+          'Oops! No record for this semester~\nPlease choose another semester \uD83D\uDE0B',
+      'subject': 'Subject',
+      'midterm': 'Midterm',
+      'final': 'Final',
+      'conduct_score': 'Conduct Score',
+      'average': 'Average',
+      'rank': 'You/Total Classmates',
+      'percentage': 'Top % in Class',
       'leave_night':
           'Rotate screen to see night school absent record and day of week %s',
       'leave_no_leave':
@@ -325,7 +332,14 @@ class AppLocalizations {
       'course_holiday': '旋轉橫向即可查看周末課表 %s',
       'no_internet': '沒有網路連線，請檢查你的網路',
       'setting_internet': '設定網路',
-      'score_no_score': 'Oops！本學期沒有任何成績資料哦～\n請選擇其他學期 %s',
+      'score_no_score': 'Oops！本學期沒有任何成績資料哦～\n請選擇其他學期 \uD83D\uDE0B',
+      'subject': '科目',
+      'midterm': '期中成績',
+      'final': '學期成績',
+      'conduct_score': '操行成績',
+      'average': '總平均',
+      'rank': '班名次/班人數',
+      'percentage': '班名次百分比',
       'leave_night': '旋轉橫向即可查看夜間缺曠以及星期幾 %s',
       'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 %s',
       'token_expired_title': '重新登入',
@@ -624,6 +638,22 @@ class AppLocalizations {
   String get fromJiangong => _vocabularies['from_jiangong'];
 
   String get fromYanchao => _vocabularies['from_yanchao'];
+
+  String get scoreEmpty => _vocabularies['score_no_score'];
+
+  String get subject => _vocabularies['subject'];
+
+  String get midtermScore => _vocabularies['midterm'];
+
+  String get finalScore => _vocabularies['final'];
+
+  String get conductScore => _vocabularies['conduct_score'];
+
+  String get average => _vocabularies['average'];
+
+  String get rank => _vocabularies['rank'];
+
+  String get percentage => _vocabularies['percentage'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
