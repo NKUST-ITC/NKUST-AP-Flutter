@@ -59,7 +59,7 @@ class MyApp extends StatelessWidget {
         SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
         SettingPage.routerName: (BuildContext context) => SettingPage(),
         AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
-        MyLicencePage.routerName: (BuildContext context) => MyLicencePage(),
+        OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
       },
       theme: new ThemeData(
         hintColor: Colors.white,
