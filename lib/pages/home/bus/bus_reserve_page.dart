@@ -5,6 +5,7 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 enum BusReserveState { loading, finish, error, empty }
 enum Station { janGong, yanchao }
@@ -22,7 +23,6 @@ class BusReservePageRoute extends MaterialPageRoute {
 
 class BusReservePage extends StatefulWidget {
   static const String routerName = "/bus/reserve";
-  static const String title = "校車預約";
 
   @override
   BusReservePageState createState() => new BusReservePageState();
@@ -36,6 +36,8 @@ class BusReservePageState extends State<BusReservePage>
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
+
+  AppLocalizations local;
 
   @override
   void initState() {
@@ -76,8 +78,8 @@ class BusReservePageState extends State<BusReservePage>
                   ),
                   Text(
                     state == BusReserveState.error
-                        ? "發生錯誤，點擊重試"
-                        : "Oops！本日校車沒有上班喔～\n請選擇其他日期\uD83D\uDE0B",
+                        ? local.clickToRetry
+                        : local.busEmpty,
                     textAlign: TextAlign.center,
                   )
                 ],
@@ -100,25 +102,25 @@ class BusReservePageState extends State<BusReservePage>
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
                               title: Text(
-                                  "${busTime.getSpecialTrainTitle()}"
-                                  "${busTime.specialTrain == "0" ? "預約" : ""}",
+                                  "${busTime.getSpecialTrainTitle(local)}"
+                                  "${busTime.specialTrain == "0" ? local.reserve : ""}",
                                   textAlign: TextAlign.center,
                                   style:
                                       TextStyle(color: Resource.Colors.blue)),
                               content: Text(
-                                "${busTime.getSpecialTrainRemark()}確定要預定本次${busTime.time}校車？",
+                                "${busTime.getSpecialTrainRemark()}${local.busReserveConfirmTitle}",
                                 textAlign: TextAlign.center,
                               ),
                               actions: <Widget>[
                                 FlatButton(
-                                  child: Text("取消"),
+                                  child: Text(local.cancel),
                                   onPressed: () {
                                     Navigator.of(context, rootNavigator: true)
                                         .pop('dialog');
                                   },
                                 ),
                                 FlatButton(
-                                  child: Text("預約"),
+                                  child: Text(local.reserve),
                                   onPressed: () {
                                     Navigator.of(context, rootNavigator: true)
                                         .pop('dialog');
@@ -151,7 +153,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "${busTime.reserveCount}人",
+                    "${busTime.reserveCount} ${local.people}",
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -159,7 +161,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busTime.getSpecialTrainTitle(),
+                    busTime.getSpecialTrainTitle(local),
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -175,7 +177,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busTime.getReserveState(),
+                    busTime.getReserveState(local),
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -195,10 +197,12 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
     return Flex(
       direction: Axis.vertical,
       children: <Widget>[
         Calendar(
+          isExpandable: false,
           onDateSelected: (DateTime datetime) {
             dateTime = datetime;
             _getBusTimeTables();
@@ -211,13 +215,13 @@ class BusReservePageState extends State<BusReservePage>
               children: {
                 Station.janGong: Container(
                   padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
-                  child: Text("建工上車"),
+                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
+                  child: Text(local.fromJiangong),
                 ),
                 Station.yanchao: Container(
                   padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 48.0),
-                  child: Text("燕巢上車"),
+                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
+                  child: Text(local.fromYanchao),
                 )
               },
               onValueChanged: (Station text) {
@@ -255,16 +259,16 @@ class BusReservePageState extends State<BusReservePage>
       String title = "", message = "";
       print(response.data["success"].runtimeType);
       if (!response.data["success"]) {
-        title = "錯誤";
+        title = local.busReserveFailTitle;
         message = response.data["message"];
       } else {
-        title = "預約成功";
-        message = "預約日期：${busTime.getDate()}\n"
-            "上車地點：${busTime.getStart()}上車\n"
-            "預約班次：${busTime.time}";
+        title = local.busReserveSuccess;
+        message = "${local.busReserveDate}：${busTime.getDate()}\n"
+            "${local.busReserveLocation}：${busTime.getStart(local)}${local.campus}\n"
+            "${local.busReserveTime}：${busTime.time}";
         _getBusTimeTables();
       }
-      Utils.showDefaultDialog(context, title, message, "我知道了", () {});
+      Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
     });
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusData {
   String date;
@@ -52,12 +53,12 @@ class BusTime {
     this.cancelKey,
   });
 
-  String getSpecialTrainTitle() {
+  String getSpecialTrainTitle(AppLocalizations local) {
     switch (specialTrain) {
       case "1":
-        return "特殊班次";
+        return local.specialBus;
       case "2":
-        return "試辦車次";
+        return local.trialBus;
       default:
         return "";
     }
@@ -120,11 +121,13 @@ class BusTime {
   Color getColorState() {
     return isReserve == 1
         ? Resource.Colors.blue
-        : hasReserve() ? Resource.Colors.grey : Colors.grey;
+        : hasReserve() ? Resource.Colors.grey : Colors.grey[400];
   }
 
-  String getReserveState() {
-    return isReserve == 1 ? "已預約" : hasReserve() ? "預約" : "無法預約";
+  String getReserveState(AppLocalizations local) {
+    return isReserve == 1
+        ? local.reserved
+        : hasReserve() ? local.reserve : local.canNotReserve;
   }
 
   String getDate() {
@@ -135,14 +138,25 @@ class BusTime {
     return formatterTime.format(time);
   }
 
-  String getStart() {
+  String getStart(AppLocalizations local) {
     switch (endStation) {
       case "建工":
-        return "燕巢";
+        return local.yanchao;
       case "燕巢":
-        return "建工";
+        return local.jiangong;
       default:
-        return "未知";
+        return local.unknown;
+    }
+  }
+
+  String getEnd(AppLocalizations local) {
+    switch (endStation) {
+      case "建工":
+        return local.jiangong;
+      case "燕巢":
+        return local.yanchao;
+      default:
+        return local.unknown;
     }
   }
 }

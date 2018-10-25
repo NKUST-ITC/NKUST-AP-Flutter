@@ -66,24 +66,48 @@ class AppLocalizations {
       'bus_jiangong_reserved': '√ To YanChao, Departure time：',
       'bus_yanchao_reserved': '√ To JianGong, Departure time：',
       'back': 'Back',
+      'people': 'pl',
       'bus_reserve': 'Bus Reservation',
+      'bus_reservations': 'Bus Record',
       'bus_cancel_reserve': 'Cancel Bus Reservation',
-      'bus_reserve_confirm_title': '<b>Reserve</b> this bus?',
+      'bus_reserve_confirm_title': 'Reserve this bus?',
       'bus_reserve_confirm_content" formatted="false':
           'Are you sure to reserve a seat from %s at %s ?',
       'bus_cancel_reserve_confirm_title': '<b>Cancel</b> this reservation?',
-      'bus_cancel_reserve_confirm_content" formatted="false':
+      'bus_cancel_reserve_confirm_content':
           'Are you sure to cancel a seat from %s at %s ?',
+      'bus_cancel_reserve_confirm_content1':
+          'Are you sure to cancel a seat from ',
+      'bus_cancel_reserve_confirm_content2': ' to ',
+      'bus_cancel_reserve_confirm_content3': ' ?',
       'bus_from_jiangong': 'JianGong to YanChao',
       'bus_from_yanchao': 'YanChao to JianGong',
+      'bus_reserve_date': 'Date',
+      'bus_reserve_location': 'Location',
+      'bus_reserve_time': 'Time',
+      'jiangong': 'JianGong',
+      'yanchao': 'YanChao',
+      'unknown': 'Unknown',
+      'campus': ' campus',
+      'reserve': 'Reserve',
+      'reserved': 'Reserved',
+      'can_not_reserve': 'Can\'t reserve',
+      'special_bus': 'Special Bus',
+      'trial_bus': 'Trial Bus',
       'bus_reserve_success': 'Successfully Reserved!',
+      'bus_reserve_cacel_date': 'Date',
+      'bus_reserve_cacel_location': 'Location',
+      'bus_reserve_cacel_time': 'Time',
       'bus_cancel_reserve_success': 'Successfully Canceled!',
+      'bus_cancel_reserve_fail': 'Fail Canceled',
       'bus_no_reservation':
-          'Oops! You haven\'t reserved any bus~\n Ride public transport to save the Earth %s',
-      'bus_no_bus': 'Oops! No bus today~\n Please choose another date %s',
+          'Oops! You haven\'t reserved any bus~\n Ride public transport to save the Earth \uD83D\uDE0B',
+      'bus_no_bus':
+          'Oops! No bus today~\n Please choose another date \uD83D\uDE0B',
       'course_no_course':
-          'Oops! No class for this semester~\n Please choose another semester %s',
+          'Oops! No class for this semester~\n Please choose another semester \uD83D\uDE0B',
       'bus_reserve_fail_title': 'Oops Book Fail',
+      'i_know': 'I know',
       'ok': 'OK',
       'course_dialog_messages" formatted="false':
           'Class：%s\nProfessor：%s\nLocation：%s\nTime：%s',
@@ -187,7 +211,8 @@ class AppLocalizations {
       'enter_username_hint': 'Please enter your ID',
       'enter_password_hint': 'Please enter your password',
       'check_login_hint': 'Check your username and password then retry',
-      'bus_segment': 'From JianGong|From YanChao',
+      'from_jiangong': 'From JianGong',
+      'from_yanchao': 'From YanChao',
       'lorem_title': 'Lorem ipsum',
       'lorem_sentence': 'Lorem ipsum dolor sit amet.',
       'lorem_paragraph':
@@ -254,20 +279,42 @@ class AppLocalizations {
       'bus_jiangong_reserved': '√ 到燕巢，發車：',
       'bus_yanchao_reserved': '√ 到建工，發車：',
       'back': '返回',
+      'people': '人',
       'bus_reserve': '預定校車',
+      'bus_reservations': '校車紀錄',
       'bus_cancel_reserve': '取消預定校車',
-      'bus_reserve_confirm_title': '確定要<b>預定</b>本校車車次？',
+      'bus_reserve_confirm_title': '確定要預定本次校車？',
       'bus_reserve_confirm_content': '要預定從%s\n%s 的校車嗎？',
       'bus_cancel_reserve_confirm_title': '確定要<b>取消</b>本校車車次？',
       'bus_cancel_reserve_confirm_content': '要取消從%s\n%s 的校車嗎？',
+      'bus_cancel_reserve_confirm_content1': '要取消從',
+      'bus_cancel_reserve_confirm_content2': '到',
+      'bus_cancel_reserve_confirm_content3': '的校車嗎？',
       'bus_from_jiangong': '建工到燕巢',
       'bus_from_yanchao': '燕巢到建工',
+      'reserve': '預約',
+      'bus_reserve_date': '預約日期',
+      'bus_reserve_location': '上車地點',
+      'bus_reserve_time': '預約班次',
+      'jiangong': '建工',
+      'yanchao': '燕巢',
+      'unknown': '未知',
+      'campus': '校區',
+      'reserved': '預約',
+      'can_not_reserve': '無法預約',
+      'special_bus': '特殊班次',
+      'trial_bus': '試辦車次',
       'bus_reserve_success': '預約成功！',
+      'bus_reserve_cacel_date': '取消日期',
+      'bus_reserve_cacel_location': '上車地點',
+      'bus_reserve_cacel_time': '取消班次',
       'bus_cancel_reserve_success': '取消預約成功！',
-      'bus_no_reservation': 'Oops！您還沒有預約任何校車喔～\n多多搭乘大眾運輸，節能減碳救地球 %s',
-      'bus_no_bus': 'Oops！本日校車沒上班喔～\n請選擇其他日期 %s',
-      'course_no_course': 'Oops！本學期沒有任何課哦～\n請選擇其他學期 %s',
+      'bus_cancel_reserve_fail': '取消預約失敗',
+      'bus_no_reservation': 'Oops！您還沒有預約任何校車喔～\n多多搭乘大眾運輸，節能減碳救地球 \uD83D\uDE0B',
       'bus_reserve_fail_title': 'Oops 預約失敗',
+      'i_know': '我知道了',
+      'bus_no_bus': 'Oops！本日校車沒上班喔～\n請選擇其他日期 \uD83D\uDE0B',
+      'course_no_course': 'Oops！本學期沒有任何課哦～\n請選擇其他學期 \uD83D\uDE0B',
       'ok': '好',
       'course_dialog_messages': '課程名稱：%s\n授課老師：%s\n教室位置：%s\n上課時間：%s',
       'course_dialog_name': '課程名稱',
@@ -360,7 +407,8 @@ class AppLocalizations {
       'enter_username_hint': '請輸入帳號',
       'enter_password_hint': '請輸入密碼',
       'check_login_hint': '請檢查帳號密碼',
-      'bus_segment': '從建工出發的車次|從燕巢出發的車次',
+      'from_jiangong': '建工上車',
+      'from_yanchao': '燕巢上車',
       'lorem_title': 'Lorem ipsum',
       'lorem_sentence': 'Lorem ipsum dolor sit amet.',
       'lorem_paragraph':
@@ -403,6 +451,11 @@ class AppLocalizations {
         sun,
       ];
 
+  List<String> get busSegment => [
+        fromJiangong,
+        fromYanchao,
+      ];
+
   String get appName => _vocabularies['app_name'];
 
   String get updateNoteTitle => _vocabularies['update_note_title'];
@@ -410,6 +463,8 @@ class AppLocalizations {
   String get updateNoteContent => _vocabularies['update_note_content'];
 
   String get ok => _vocabularies['ok'];
+
+  String get somethingError => _vocabularies['something_error'];
 
   String get username => _vocabularies['id_hint'];
 
@@ -466,6 +521,78 @@ class AppLocalizations {
   String get aboutOpenSourceContent =>
       _vocabularies['about_open_source_content'];
 
+  String get back => _vocabularies['back'];
+
+  String get people => _vocabularies['people'];
+
+  String get busReserve => _vocabularies['bus_reserve'];
+
+  String get busReservations => _vocabularies['bus_reservations'];
+
+  String get determine => _vocabularies['determine'];
+
+  String get jiangong => _vocabularies['jiangong'];
+
+  String get yanchao => _vocabularies['yanchao'];
+
+  String get unknown => _vocabularies['unknown'];
+
+  String get campus => _vocabularies['campus'];
+
+  String get reserve => _vocabularies['reserve'];
+
+  String get reserved => _vocabularies['reserved'];
+
+  String get canNotReserve => _vocabularies['can_not_reserve'];
+
+  String get specialBus => _vocabularies['special_bus'];
+
+  String get trialBus => _vocabularies['trial_bus'];
+
+  String get cancel => _vocabularies['cancel'];
+
+  String get busReserveSuccess => _vocabularies['bus_reserve_success'];
+
+  String get busCancelReserve => _vocabularies['bus_cancel_reserve'];
+
+  String get busCancelReserveSuccess =>
+      _vocabularies['bus_cancel_reserve_success'];
+
+  String get busCancelReserveFail => _vocabularies['bus_cancel_reserve_fail'];
+
+  String get busReservationEmpty => _vocabularies['bus_no_reservation'];
+
+  String get busEmpty => _vocabularies['bus_no_bus'];
+
+  String get busReserveConfirmTitle =>
+      _vocabularies['bus_reserve_confirm_title'];
+
+  String get busReserveFailTitle => _vocabularies['bus_reserve_fail_title'];
+
+  String get busReserveDate => _vocabularies['bus_reserve_date'];
+
+  String get busReserveLocation => _vocabularies['bus_reserve_location'];
+
+  String get busReserveTime => _vocabularies['bus_reserve_time'];
+
+  String get iKnow => _vocabularies['i_know'];
+
+  String get busCancelReserveConfirmContent1 =>
+      _vocabularies['bus_cancel_reserve_confirm_content1'];
+
+  String get busCancelReserveConfirmContent2 =>
+      _vocabularies['bus_cancel_reserve_confirm_content2'];
+
+  String get busCancelReserveConfirmContent3 =>
+      _vocabularies['bus_cancel_reserve_confirm_content3'];
+
+  String get busReserveCancelDate => _vocabularies['bus_reserve_cancel_date'];
+
+  String get busReserveCancelLocation =>
+      _vocabularies['bus_reserve_cancel_location'];
+
+  String get busReserveCancelTime => _vocabularies['bus_reserve_cancel_time'];
+
   String get courseEmpty => _vocabularies['course_no_course'];
 
   String get picksSemester => _vocabularies['pick_semester'];
@@ -493,6 +620,10 @@ class AppLocalizations {
   String get sat => _vocabularies['sat'];
 
   String get sun => _vocabularies['sun'];
+
+  String get fromJiangong => _vocabularies['from_jiangong'];
+
+  String get fromYanchao => _vocabularies['from_yanchao'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
