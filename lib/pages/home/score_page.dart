@@ -35,6 +35,8 @@ class ScorePageState extends State<ScorePage>
 
   ScoreState state = ScoreState.loading;
 
+  AppLocalizations local;
+
   @override
   void initState() {
     super.initState();
@@ -58,9 +60,9 @@ class ScorePageState extends State<ScorePage>
         width: double.infinity,
         child: Row(
           children: <Widget>[
-            Expanded(child: _scoreTextBorder("課程名稱", false, true)),
-            Expanded(child: _scoreTextBorder("期中成績", false, true)),
-            Expanded(child: _scoreTextBorder("期末成績", true, true)),
+            Expanded(child: _scoreTextBorder(local.subject, false, true)),
+            Expanded(child: _scoreTextBorder(local.midtermScore, false, true)),
+            Expanded(child: _scoreTextBorder(local.finalScore, true, true)),
           ],
         ),
       );
@@ -124,11 +126,12 @@ class ScorePageState extends State<ScorePage>
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(Resource.Strings.score),
+        title: new Text(local.score),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
@@ -194,8 +197,8 @@ class ScorePageState extends State<ScorePage>
                 ),
                 Text(
                   state == ScoreState.error
-                      ? AppLocalizations.of(context).clickToRetry
-                      : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
+                      ? local.clickToRetry
+                      : local.scoreEmpty,
                   textAlign: TextAlign.center,
                 )
               ],
@@ -236,13 +239,16 @@ class ScorePageState extends State<ScorePage>
                 child: Column(
                   children: <Widget>[
                     _textBorder(
-                        "操行成績：${scoreData.content.detail.conduct}", true),
+                        "${local.conductScore}：${scoreData.content.detail.conduct}",
+                        true),
                     _textBorder(
-                        "總平均：${scoreData.content.detail.average}", false),
+                        "${local.average}：${scoreData.content.detail.average}",
+                        false),
                     _textBorder(
-                        "班名次/班人數：${scoreData.content.detail.classRank}", false),
+                        "${local.rank}：${scoreData.content.detail.classRank}",
+                        false),
                     _textBorder(
-                        "班名次百分比：${scoreData.content.detail.classPercentage}",
+                        "${local.percentage}：${scoreData.content.detail.classPercentage}",
                         false),
                   ],
                 ),
@@ -259,10 +265,10 @@ class ScorePageState extends State<ScorePage>
       semesters.add(_dialogItem(semesters.length, semester.text));
     }
     showDialog<int>(
-            context: context,
-            builder: (BuildContext context) =>
-                SimpleDialog(title: const Text('請選擇學期'), children: semesters))
-        .then<void>((int position) {
+        context: context,
+        builder: (BuildContext context) => SimpleDialog(
+            title: Text(local.picksSemester),
+            children: semesters)).then<void>((int position) {
       if (position != null) {
         selectSemesterIndex = position;
         selectSemester = semesterData.semesters[selectSemesterIndex];
@@ -292,7 +298,7 @@ class ScorePageState extends State<ScorePage>
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScore(textList[0], textList[1]).then((response) {
-        if (response.data["status"] == 200) {
+        if (response.statusCode == 200 && response.data["status"] == 200) {
           scoreData = ScoreData.fromJson(response.data);
           scoreWeightList.add(_scoreTitle());
           for (var score in scoreData.content.scores) {

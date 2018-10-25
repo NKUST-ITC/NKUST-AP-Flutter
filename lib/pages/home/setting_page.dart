@@ -36,6 +36,8 @@ class SettingPageState extends State<SettingPage>
       displayPicture = true,
       vibrateCourse = false;
 
+  AppLocalizations local;
+
   @override
   void initState() {
     super.initState();
@@ -49,66 +51,64 @@ class SettingPageState extends State<SettingPage>
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(AppLocalizations
-            .of(context)
-            .settings),
+        title: new Text(local.settings),
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _titleItem("通知設定"),
-              _itemSwitch("上課體醒", notifyCourse, () {
+              _titleItem(local.notificationItem),
+              _itemSwitch(local.courseNotify, notifyCourse, () {
                 notifyCourse = !notifyCourse;
                 prefs.setBool(Constants.PREF_NOTIFY_COURSE, notifyCourse);
-                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                Utils.showToast(local.functionNotOpen);
                 //setState(() {});
               }),
-              _itemSwitch("校車提醒", notifyBus, () {
+              _itemSwitch(local.busNotify, notifyBus, () {
                 notifyBus = !notifyBus;
                 prefs.setBool(Constants.PREF_NOTIFY_BUS, notifyBus);
-                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                Utils.showToast(local.functionNotOpen);
                 //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
-              _titleItem("一般設定"),
-              _itemSwitch("顯示大頭貼", displayPicture, () {
+              _titleItem(local.otherSettings),
+              _itemSwitch(local.headPhotoSetting, displayPicture, () {
                 displayPicture = !displayPicture;
                 prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
                 setState(() {});
               }),
-              _itemSwitch("上課震動", vibrateCourse, () {
+              _itemSwitch(local.courseVibrate, vibrateCourse, () {
                 vibrateCourse = !vibrateCourse;
                 prefs.setBool(Constants.PREF_VIBRATE_COURSE, vibrateCourse);
-                Utils.showToast("功能尚未開放\n私密粉絲團 小編會告訴你何時開放");
+                Utils.showToast(local.functionNotOpen);
                 //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
-              _titleItem("其他資訊"),
-              _item("回饋意見", "私訊給粉絲專頁", () {
+              _titleItem(local.otherInfo),
+              _item(local.feedback, local.feedbackViaFacebook, () {
                 Utils.launchUrl('https://www.facebook.com/954175941266264/');
               }),
-              _item("Donate", "貢獻一點心力支持作者，\n可以提早使用未開放功能！", () {
+              _item(local.donateTitle, local.donateContent, () {
                 Utils.launchUrl(
                     "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d");
               }),
-              _item("App版本", Constants.APP_VERSION, () {}),
+              _item(local.appVersion, Constants.APP_VERSION, () {}),
             ]),
       ),
     );
   }
 
-  _titleItem(String text) =>
-      Container(
+  _titleItem(String text) => Container(
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
@@ -117,8 +117,7 @@ class SettingPageState extends State<SettingPage>
         ),
       );
 
-  _itemSwitch(String text, bool value, Function function) =>
-      FlatButton(
+  _itemSwitch(String text, bool value, Function function) => FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,8 +145,7 @@ class SettingPageState extends State<SettingPage>
     setState(() {});
   }
 
-  _item(String text, String subText, Function function) =>
-      FlatButton(
+  _item(String text, String subText, Function function) => FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: Container(
           width: double.infinity,
