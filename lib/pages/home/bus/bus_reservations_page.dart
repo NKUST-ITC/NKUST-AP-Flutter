@@ -6,6 +6,7 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 enum BusReservationsState { loading, finish, error, empty }
 
@@ -23,7 +24,6 @@ class BusReservationsPageRoute extends MaterialPageRoute {
 
 class BusReservationsPage extends StatefulWidget {
   static const String routerName = "/bus/reservations";
-  static const String title = "校車記錄";
 
   @override
   BusReservationsPageState createState() => new BusReservationsPageState();
@@ -35,6 +35,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
   BusReservationsData busReservationsData;
   List<Widget> busReservationWeights = [];
   DateTime dateTime = DateTime.now();
+
+  AppLocalizations local;
 
   @override
   void initState() {
@@ -49,6 +51,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
     return _body();
   }
 
@@ -75,8 +78,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   ),
                   Text(
                     state == BusReservationsState.error
-                        ? "發生錯誤，點擊重試"
-                        : "Oops！您還沒有預約任何校車喔～\n多多搭乘大眾運輸，節能減碳救地球\uD83D\uDE0B",
+                        ? local.clickToRetry
+                        : local.busReservationEmpty,
                     textAlign: TextAlign.center,
                   )
                 ],
@@ -112,7 +115,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "${busReservation.getStart()}→${busReservation.end}",
+                    "${busReservation.getStart(local)}→${busReservation.getEnd(local)}",
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
@@ -138,19 +141,19 @@ class BusReservationsPageState extends State<BusReservationsPage>
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
-                                      title: Text("取消預約",
+                                      title: Text(local.busCancelReserve,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                               color: Resource.Colors.blue)),
                                       content: Text(
-                                        "要取消從${busReservation.getStart()}"
-                                            "到${busReservation.end}\n"
-                                            "${busReservation.getTime()} 的校車嗎？",
+                                        "${local.busCancelReserveConfirmContent1}${busReservation.getStart(local)}"
+                                            "${local.busCancelReserveConfirmContent2}${busReservation.getEnd(local)}\n"
+                                            "${busReservation.getTime()}${local.busCancelReserveConfirmContent3}",
                                         textAlign: TextAlign.center,
                                       ),
                                       actions: <Widget>[
                                         FlatButton(
-                                          child: Text("返回"),
+                                          child: Text(local.back),
                                           onPressed: () {
                                             Navigator.of(context,
                                                     rootNavigator: true)
@@ -158,7 +161,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                           },
                                         ),
                                         FlatButton(
-                                          child: Text("取消預定校車"),
+                                          child: Text(local.busCancelReserve),
                                           onPressed: () {
                                             Navigator.of(context,
                                                     rootNavigator: true)
@@ -214,16 +217,16 @@ class BusReservationsPageState extends State<BusReservationsPage>
       String title = "", message = "";
       print(response.data["success"].runtimeType);
       if (!response.data["success"]) {
-        title = "錯誤";
+        title = local.busCancelReserveFail;
         message = response.data["message"];
       } else {
-        title = "取消成功";
-        message = "取消日期：${busReservation.getDate()}\n"
-            "上車地點：${busReservation.getStart()}上車\n"
-            "取消班次：${busReservation.getTime()}";
+        title = local.busCancelReserveSuccess;
+        message = "${local.busReserveCancelDate}：${busReservation.getDate()}\n"
+            "${local.busReserveCancelLocation}：${busReservation.getStart(local)}${local.campus}\n"
+            "${local.busReserveCancelTime}：${busReservation.getTime()}";
         _getBusReservations();
       }
-      Utils.showDefaultDialog(context, title, message, "我知道了", () {});
+      Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
     });
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusReservationsData {
   List<BusReservation> reservations;
@@ -76,14 +77,25 @@ class BusReservation {
     return formatterTime.format(time);
   }
 
-  String getStart() {
+  String getStart(AppLocalizations local) {
     switch (end) {
       case "建工":
-        return "燕巢";
+        return local.yanchao;
       case "燕巢":
-        return "建工";
+        return local.jiangong;
       default:
-        return "未知";
+        return local.unknown;
+    }
+  }
+
+  String getEnd(AppLocalizations local) {
+    switch (end) {
+      case "建工":
+        return local.jiangong;
+      case "燕巢":
+        return local.yanchao;
+      default:
+        return local.unknown;
     }
   }
 

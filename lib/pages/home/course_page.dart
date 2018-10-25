@@ -38,6 +38,8 @@ class CoursePageState extends State<CoursePage>
 
   var childAspectRatio = 0.8;
 
+  AppLocalizations local;
+
   @override
   void initState() {
     super.initState();
@@ -74,10 +76,10 @@ class CoursePageState extends State<CoursePage>
 
   Widget _courseBorder(var data) {
     Course course = Course.fromJson(data);
-    String content = "課程名稱：${course.title}\n"
-        "授課老師：${course.instructors[0] ?? ""}\n"
-        "教室位置：${course.building}${course.room}\n"
-        "上課時間：${course.startTime}-${course.endTime}";
+    String content = "${local.courseDialogName}：${course.title}\n"
+        "${local.courseDialogProfessor}：${course.instructors[0] ?? ""}\n"
+        "${local.courseDialogLocation}：${course.building}${course.room}\n"
+        "${local.courseDialogTime}：${course.startTime}-${course.endTime}";
     return new Container(
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
@@ -86,11 +88,11 @@ class CoursePageState extends State<CoursePage>
             showDialog(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
-                      title: const Text('課程資訊'),
+                      title: Text(local.courseDialogTitle),
                       content: Text(content),
                       actions: <Widget>[
                         FlatButton(
-                          child: Text("OK"),
+                          child: Text(local.ok),
                           onPressed: () {
                             Navigator.of(context, rootNavigator: true)
                                 .pop('dialog');
@@ -108,11 +110,12 @@ class CoursePageState extends State<CoursePage>
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(Resource.Strings.course),
+        title: new Text(local.course),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
@@ -169,9 +172,8 @@ class CoursePageState extends State<CoursePage>
                                   ),
                                   Text(
                                     isError
-                                        ? AppLocalizations.of(context)
-                                            .clickToRetry
-                                        : "Oops！本學期沒有任何課哦～\n請選擇其他學期\uD83D\uDE0B",
+                                        ? local.clickToRetry
+                                        : local.courseEmpty,
                                     textAlign: TextAlign.center,
                                   )
                                 ],
@@ -211,10 +213,10 @@ class CoursePageState extends State<CoursePage>
       semesters.add(_dialogItem(semesters.length, semester.text));
     }
     showDialog<int>(
-            context: context,
-            builder: (BuildContext context) =>
-                SimpleDialog(title: const Text('請選擇學期'), children: semesters))
-        .then<void>((int position) {
+        context: context,
+        builder: (BuildContext context) => SimpleDialog(
+            title: Text(local.picksSemester),
+            children: semesters)).then<void>((int position) {
       if (position != null) {
         selectSemesterIndex = position;
         selectSemester = semesterData.semesters[selectSemesterIndex];
@@ -251,18 +253,13 @@ class CoursePageState extends State<CoursePage>
             "Thursday",
             "Friday"
           ];
-          courseWeightList = <Widget>[
-            _textBorder(""),
-            _textBorder("一"),
-            _textBorder("二"),
-            _textBorder("三"),
-            _textBorder("四"),
-            _textBorder("五")
-          ];
+          courseWeightList = <Widget>[_textBorder("")];
+          for (var week in local.weekdays.sublist(0, 5))
+            courseWeightList.add(_textBorder(week));
           if (response.data["coursetables"]["Saturday"] != null ||
               response.data["coursetables"]["Sunday"] != null) {
-            courseWeightList.add(_textBorder("六"));
-            courseWeightList.add(_textBorder("日"));
+            courseWeightList.add(_textBorder(local.weekdays[5]));
+            courseWeightList.add(_textBorder(local.weekdays[6]));
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;

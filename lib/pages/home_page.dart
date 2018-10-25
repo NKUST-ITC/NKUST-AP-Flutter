@@ -131,7 +131,7 @@ class HomePageState extends State<HomePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(AppLocalizations.of(context).title),
+        title: new Text(AppLocalizations.of(context).appName),
         // Set the background color of the App Bar
         backgroundColor: Resource.Colors.blue,
       ),
