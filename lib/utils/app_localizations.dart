@@ -17,7 +17,7 @@ class AppLocalizations {
 
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
-      'app_name': 'KUAS AP',
+      'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content': 'Welcome to NKUST AP\n'
           'This app backend comes from the backend application of KUAS AP\n'
@@ -347,7 +347,7 @@ class AppLocalizations {
       'update_content': '高科校務通 在 Google Play 有新版本喲！',
       'update_title': '版本更新',
       'update': '更新',
-      'function_not_open': '此功能尚未開放，敬啟期待～\n贊助我們可以提前使用此功能！',
+      'function_not_open': '功能尚未開放\n私密粉絲團 小編會告訴你何時開放！',
       'beta_function': '此功能為測試版本，如有問題請立即回報！',
       'bus_not_pick': '您尚未選擇日期！\n請先選擇日期 %s',
       'easter_egg_juke': '這不是彩蛋',
@@ -654,6 +654,60 @@ class AppLocalizations {
   String get rank => _vocabularies['rank'];
 
   String get percentage => _vocabularies['percentage'];
+
+  String get educationSystem => _vocabularies['education_system'];
+
+  String get department => _vocabularies['department'];
+
+  String get studentClass => _vocabularies['student_class'];
+
+  String get studentId => _vocabularies['student_id'];
+
+  String get studentNameCht => _vocabularies['student_name_cht'];
+
+  String get notificationItem => _vocabularies['notification_item'];
+
+  String get otherInfo => _vocabularies['other_info'];
+
+  String get otherSettings => _vocabularies['other_settings'];
+
+  String get headPhotoSetting => _vocabularies['head_photo_setting'];
+
+  String get courseNotify => _vocabularies['course_notify'];
+
+  String get courseVibrate => _vocabularies['course_vibrate'];
+
+  String get busNotify => _vocabularies['bus_notify'];
+
+  String get feedback => _vocabularies['feedback'];
+
+  String get feedbackViaFacebook => _vocabularies['feedback_via_facebook'];
+
+  String get donateTitle => _vocabularies['donate_title'];
+
+  String get donateContent => _vocabularies['donate_content'];
+
+  String get donateError => _vocabularies['donate_error'];
+
+  String get appVersion => _vocabularies['app_version'];
+
+  String get updateContent => _vocabularies['update_content'];
+
+  String get updateTitle => _vocabularies['update_title'];
+
+  String get update => _vocabularies['update'];
+
+  String get functionNotOpen => _vocabularies['function_not_open'];
+
+  String get betaFunction => _vocabularies['beta_function'];
+
+  String get easterEggJuke => _vocabularies['easter_egg_juke'];
+
+  String get skip => _vocabularies['skip'];
+
+  String get shareTo => _vocabularies['share_to'];
+
+  String get sendFrom => _vocabularies['send_from'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

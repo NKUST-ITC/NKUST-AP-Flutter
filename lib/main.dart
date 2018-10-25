@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/string.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -48,7 +47,7 @@ class MyApp extends StatelessWidget {
           (Locale locale, Iterable<Locale> supportedLocales) {
         return locale;
       },
-      title: Strings.app_name,
+      onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         Navigator.defaultRouteName: (context) => LoginPage(),
