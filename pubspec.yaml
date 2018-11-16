@@ -1,6 +1,9 @@
 name: nkust_ap
 description: A new Flutter application.
 
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
 dependencies:
   flutter:
     sdk: flutter

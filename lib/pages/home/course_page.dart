@@ -4,6 +4,8 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
+enum CourseState { loading, finish, error, empty }
+
 class CoursePageRoute extends MaterialPageRoute {
   CoursePageRoute()
       : super(builder: (BuildContext context) => new CoursePage());
@@ -35,8 +37,9 @@ class CoursePageState extends State<CoursePage>
 
   bool isLoading = true;
   bool isError = false;
+  CourseState state = CourseState.loading;
 
-  var childAspectRatio = 0.8;
+  var childAspectRatio = 0.5;
 
   AppLocalizations local;
 
@@ -52,19 +55,40 @@ class CoursePageState extends State<CoursePage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+    return TextStyle(color: Resource.Colors.blue, fontSize: 14.0);
   }
 
   _textStyle() {
     return TextStyle(color: Colors.black, fontSize: 14.0);
   }
 
-  Widget _textBorder(String text) {
+  Widget _textBorder(String text,
+      {bool topLeft = false,
+      bool topRight = false,
+      bool bottomLeft = false,
+      bool bottomRight = false,
+      bool isCenter = false}) {
     return new Container(
       decoration: new BoxDecoration(
-          border: new Border.all(color: Colors.grey, width: 0.5)),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(
+            topLeft ? 5.0 : 0.0,
+          ),
+          topRight: Radius.circular(
+            topRight ? 5.0 : 0.0,
+          ),
+          bottomLeft: Radius.circular(
+            bottomLeft ? 5.0 : 0.0,
+          ),
+          bottomRight: Radius.circular(
+            bottomRight ? 5.0 : 0.0,
+          ),
+        ),
+        border: new Border.all(color: Colors.grey, width: 0.5),
+      ),
       child: FlatButton(
-        onPressed: () {},
+        padding: EdgeInsets.all(0.0),
+        onPressed: null,
         child: Text(
           text ?? "",
           textAlign: TextAlign.center,
@@ -84,6 +108,7 @@ class CoursePageState extends State<CoursePage>
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
       child: FlatButton(
+          padding: EdgeInsets.all(0.0),
           onPressed: () {
             showDialog(
                 context: context,
@@ -92,6 +117,7 @@ class CoursePageState extends State<CoursePage>
                       content: Text(content),
                       actions: <Widget>[
                         FlatButton(
+                          padding: EdgeInsets.all(4.0),
                           child: Text(local.ok),
                           onPressed: () {
                             Navigator.of(context, rootNavigator: true)
@@ -180,6 +206,7 @@ class CoursePageState extends State<CoursePage>
                               ),
                             ))
                         : GridView.count(
+                            padding: EdgeInsets.symmetric(vertical: 8.0),
                             mainAxisSpacing: 0.0,
                             shrinkWrap: true,
                             childAspectRatio: childAspectRatio,
@@ -253,26 +280,34 @@ class CoursePageState extends State<CoursePage>
             "Thursday",
             "Friday"
           ];
-          courseWeightList = <Widget>[_textBorder("")];
-          for (var week in local.weekdays.sublist(0, 5))
+          courseWeightList = <Widget>[_textBorder("", topLeft: true)];
+          for (var week in local.weekdays.sublist(0, 4))
             courseWeightList.add(_textBorder(week));
           if (response.data["coursetables"]["Saturday"] != null ||
               response.data["coursetables"]["Sunday"] != null) {
+            courseWeightList.add(_textBorder(local.weekdays[4]));
             courseWeightList.add(_textBorder(local.weekdays[5]));
-            courseWeightList.add(_textBorder(local.weekdays[6]));
+            courseWeightList
+                .add(_textBorder(local.weekdays[6], topRight: true));
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;
-            childAspectRatio = 0.5;
+            childAspectRatio = 1.1;
           } else {
+            courseWeightList
+                .add(_textBorder(local.weekdays[4], topRight: true));
             base = 6;
-            childAspectRatio = 0.9;
+            childAspectRatio = 1.5;
           }
           for (String text in response.data["coursetables"]["timecode"]) {
             text = text.replaceAll(' ', '');
+            if (base == 8) {
+              text = text.replaceAll('第', '');
+              text = text.replaceAll('節', '');
+            }
             courseWeightList.add(_textBorder(text));
             for (var i = 0; i < base - 1; i++)
-              courseWeightList.add(_textBorder(""));
+              courseWeightList.add(_textBorder("", isCenter: true));
           }
           var timeCodes = response.data["coursetables"]["timecode"];
           for (int i = 0; i < weeks.length; i++) {
