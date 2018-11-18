@@ -86,20 +86,15 @@ class LoginPageState extends State<LoginPage>
                     Text(AppLocalizations.of(context).remember)
                   ],
                 ),
-                Material(
-                  child: RaisedButton(
-                    padding: EdgeInsets.all(12.0),
-                    onPressed: _login,
-                    color: Colors.grey[300],
-                    child: new Text(
-                      AppLocalizations.of(context).login,
-                      style: new TextStyle(
-                          color: Resource.Colors.blue, fontSize: 18.0),
-                    ),
+                RaisedButton(
+                  padding: EdgeInsets.all(12.0),
+                  onPressed: _login,
+                  color: Colors.grey[300],
+                  child: new Text(
+                    AppLocalizations.of(context).login,
+                    style: new TextStyle(
+                        color: Resource.Colors.blue, fontSize: 18.0),
                   ),
-                  borderRadius: BorderRadius.circular(20.0),
-                  shadowColor: Colors.grey,
-                  elevation: 5.0,
                 ),
               ],
             ),
