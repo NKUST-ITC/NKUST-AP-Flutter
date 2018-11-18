@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum CourseState { loading, finish, error, empty }
 
@@ -27,19 +29,16 @@ class CoursePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
+  CourseState state = CourseState.loading;
   List<Widget> courseWeightList = [];
   var selectSemesterIndex;
   Semester selectSemester;
 
   SemesterData semesterData;
+  CourseData courseData;
 
   int base = 6;
-
-  bool isLoading = true;
-  bool isError = false;
-  CourseState state = CourseState.loading;
-
-  var childAspectRatio = 0.5;
+  double childAspectRatio = 0.5;
 
   AppLocalizations local;
 
@@ -55,7 +54,7 @@ class CoursePageState extends State<CoursePage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 14.0);
+    return TextStyle(color: Resource.Colors.blue, fontSize: 12.0);
   }
 
   _textStyle() {
@@ -98,8 +97,7 @@ class CoursePageState extends State<CoursePage>
     );
   }
 
-  Widget _courseBorder(var data) {
-    Course course = Course.fromJson(data);
+  Widget _courseBorder(Course course) {
     String content = "${local.courseDialogName}：${course.title}\n"
         "${local.courseDialogProfessor}：${course.instructors[0] ?? ""}\n"
         "${local.courseDialogLocation}：${course.building}${course.room}\n"
@@ -128,19 +126,45 @@ class CoursePageState extends State<CoursePage>
                     ));
           },
           child: Text(
-            (data["title"][0] + data["title"][1]) ?? "",
+            (course.title[0] + course.title[1]) ?? "",
             style: _textStyle(),
           )),
     );
+  }
+
+  Widget _body() {
+    switch (state) {
+      case CourseState.loading:
+        return Container(
+            child: CircularProgressIndicator(), alignment: Alignment.center);
+      case CourseState.empty:
+      case CourseState.error:
+        return FlatButton(
+          onPressed:
+              state == CourseState.error ? _getCourseTables : _selectSemester,
+          child: HintContent(
+              icon: Icons.class_,
+              content: state == CourseState.error
+                  ? local.clickToRetry
+                  : local.courseEmpty),
+        );
+      default:
+        return GridView.count(
+          padding: EdgeInsets.symmetric(vertical: 8.0),
+          mainAxisSpacing: 0.0,
+          shrinkWrap: true,
+          childAspectRatio: childAspectRatio,
+          crossAxisCount: base,
+          children: courseWeightList ?? <Widget>[],
+        );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     local = AppLocalizations.of(context);
     return new Scaffold(
-      // Appbar
       appBar: new AppBar(
-        // Title
         title: new Text(local.course),
         backgroundColor: Resource.Colors.blue,
       ),
@@ -161,7 +185,8 @@ class CoursePageState extends State<CoursePage>
                   children: <Widget>[
                     Text(
                       selectSemester == null ? "" : selectSemester.text,
-                      style: _textBlueStyle(),
+                      style: TextStyle(
+                          color: Resource.Colors.blue, fontSize: 14.0),
                     ),
                     Icon(
                       Icons.keyboard_arrow_down,
@@ -176,43 +201,7 @@ class CoursePageState extends State<CoursePage>
               flex: 19,
               child: RefreshIndicator(
                 onRefresh: () => _getCourseTables(),
-                child: isLoading
-                    ? Container(
-                        child: CircularProgressIndicator(),
-                        alignment: Alignment.center)
-                    : courseWeightList.length == 0
-                        ? FlatButton(
-                            onPressed:
-                                isError ? _getCourseTables : _selectSemester,
-                            child: Center(
-                              child: Flex(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                direction: Axis.vertical,
-                                children: <Widget>[
-                                  SizedBox(
-                                    child: Icon(
-                                      Icons.class_,
-                                      size: 150.0,
-                                    ),
-                                    width: 200.0,
-                                  ),
-                                  Text(
-                                    isError
-                                        ? local.clickToRetry
-                                        : local.courseEmpty,
-                                    textAlign: TextAlign.center,
-                                  )
-                                ],
-                              ),
-                            ))
-                        : GridView.count(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            mainAxisSpacing: 0.0,
-                            shrinkWrap: true,
-                            childAspectRatio: childAspectRatio,
-                            crossAxisCount: base,
-                            children: courseWeightList ?? <Widget>[],
-                          ),
+                child: _body(),
               ),
             ),
           ],
@@ -263,16 +252,16 @@ class CoursePageState extends State<CoursePage>
 
   _getCourseTables() async {
     courseWeightList.clear();
-    isLoading = true;
+    state = CourseState.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        //var semesterData = SemesterData.fromJson(response.data);
-        if (response.data["status"] == 200) {
-          var weeks = [
+        courseData = CourseData.fromJson(response.data);
+        if (courseData.status == 200) {
+          List<String> weeks = [
             "Sunday",
             "Monday",
             "Tuesday",
@@ -283,8 +272,13 @@ class CoursePageState extends State<CoursePage>
           courseWeightList = <Widget>[_textBorder("", topLeft: true)];
           for (var week in local.weekdays.sublist(0, 4))
             courseWeightList.add(_textBorder(week));
-          if (response.data["coursetables"]["Saturday"] != null ||
-              response.data["coursetables"]["Sunday"] != null) {
+          if (courseData.courseTables.saturday.isEmpty &&
+              courseData.courseTables.sunday.isEmpty) {
+            courseWeightList
+                .add(_textBorder(local.weekdays[4], topRight: true));
+            base = 6;
+            childAspectRatio = 1.5;
+          } else {
             courseWeightList.add(_textBorder(local.weekdays[4]));
             courseWeightList.add(_textBorder(local.weekdays[5]));
             courseWeightList
@@ -293,13 +287,12 @@ class CoursePageState extends State<CoursePage>
             weeks.add("Sunday");
             base = 8;
             childAspectRatio = 1.1;
-          } else {
-            courseWeightList
-                .add(_textBorder(local.weekdays[4], topRight: true));
-            base = 6;
-            childAspectRatio = 1.5;
           }
-          for (String text in response.data["coursetables"]["timecode"]) {
+          int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
+          int i = 0;
+          for (String text in courseData.courseTables.timeCode) {
+            i++;
+            if (maxTimeCode <= 11 && i > maxTimeCode) continue;
             text = text.replaceAll(' ', '');
             if (base == 8) {
               text = text.replaceAll('第', '');
@@ -309,25 +302,27 @@ class CoursePageState extends State<CoursePage>
             for (var i = 0; i < base - 1; i++)
               courseWeightList.add(_textBorder("", isCenter: true));
           }
-          var timeCodes = response.data["coursetables"]["timecode"];
+          var timeCodes = courseData.courseTables.timeCode;
           for (int i = 0; i < weeks.length; i++) {
-            if (response.data["coursetables"][weeks[i]] != null)
-              for (var data in response.data["coursetables"][weeks[i]]) {
+            if (courseData.courseTables.getCourseList(weeks[i]) != null)
+              for (var data
+                  in courseData.courseTables.getCourseList(weeks[i])) {
                 for (int j = 0; j < timeCodes.length; j++) {
-                  if (timeCodes[j] == data["date"]["section"]) {
+                  if (timeCodes[j] == data.section) {
                     courseWeightList[(j + 1) * base + i] = _courseBorder(data);
                   }
                 }
               }
           }
         }
-        isLoading = false;
-        isError = false;
+        if (courseWeightList.length == 0)
+          state = CourseState.empty;
+        else
+          state = CourseState.finish;
         setState(() {});
       });
     } else {
-      isLoading = false;
-      isError = true;
+      state = CourseState.error;
       setState(() {});
     }
   }

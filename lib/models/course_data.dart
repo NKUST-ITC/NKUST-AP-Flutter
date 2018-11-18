@@ -17,7 +17,8 @@ class CourseData {
     );
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         'status': status,
         'messages': messages,
         'coursetables': courseTables,
@@ -25,6 +26,7 @@ class CourseData {
 }
 
 class CourseTables {
+  List<Course> sunday;
   List<Course> tuesday;
   List<Course> friday;
   List<Course> saturday;
@@ -34,6 +36,7 @@ class CourseTables {
   List<String> timeCode;
 
   CourseTables({
+    this.sunday,
     this.tuesday,
     this.friday,
     this.saturday,
@@ -43,19 +46,64 @@ class CourseTables {
     this.timeCode,
   });
 
-  static CourseTables fromJson(Map<String, dynamic> json) {
-    return CourseTables(
-      tuesday: Course.toList(json['Tuesday']),
-      friday: Course.toList(json['Friday']),
-      saturday: Course.toList(json['Saturday']),
-      thursday: Course.toList(json['Thursday']),
-      wednesday: Course.toList(json['Wednesday']),
-      monday: Course.toList(json['Monday']),
-      timeCode: List<String>.from(json['timecode'] ?? []),
-    );
+  List<Course> getCourseList(String weeks) {
+    switch (weeks) {
+      case "Sunday":
+        return sunday;
+      case "Monday":
+        return monday;
+      case "Tuesday":
+        return tuesday;
+      case "Wednesday":
+        return wednesday;
+      case "Thursday":
+        return thursday;
+      case "Friday":
+        return friday;
+      case "Saturday":
+        return saturday;
+      case "Sunday":
+        return sunday;
+      default:
+        return null;
+    }
   }
 
-  Map<String, dynamic> toJson() => {
+  int getMaxTimeCode(List<String> weeks) {
+    int maxTimeCodes = 10;
+    for (int i = 0; i < weeks.length; i++) {
+      if (getCourseList(weeks[i]) != null)
+        for (var data
+        in getCourseList(weeks[i])) {
+          for (int j = 0; j < timeCode.length; j++) {
+            if (timeCode[j] == data.section) {
+              if ((j + 1) > maxTimeCodes) maxTimeCodes = (j + 1);
+            }
+          }
+        }
+    }
+    return maxTimeCodes;
+  }
+
+  static CourseTables fromJson(Map<String, dynamic> json) {
+    return CourseTables(
+        sunday: Course.toList(json['Sunday']),
+        tuesday: Course.toList(json['Tuesday']),
+        friday: Course.toList(json['Friday']),
+        saturday: Course.toList(json['Saturday']),
+        thursday: Course.toList(json['Thursday']),
+        wednesday: Course.toList(json['Wednesday']),
+        monday: Course.toList(json['Monday']),
+        timeCode: List < String
+        >
+            .from(json['timecode'] ??
+        [
+        ]),);
+  }
+
+  Map<String, dynamic> toJson() =>
+      {
+        'Sunday': sunday,
         'Tuesday': tuesday,
         'Friday': friday,
         'Saturday': saturday,
@@ -89,24 +137,25 @@ class Course {
 
   static List<Course> toList(List<dynamic> jsonArray) {
     List<Course> list = [];
-    for (var item in (jsonArray ?? [])) list.add(Course.fromJson(item));
+    for (var item in (jsonArray ?? []))
+      list.add(Course.fromJson(item));
     return list;
   }
 
   static Course fromJson(Map<String, dynamic> json) {
     return Course(
-      title: json['title'],
-      startTime: json['date']["start_time"],
-      endTime: json['date']["end_time"],
-      weekday: json['date']["weekday"],
-      section: json['date']["section"],
-      building: json['location']["building"],
-      room: json['location']["room"],
-      instructors: List<String>.from(json['instructors']),
-    );
+        title: json['title'],
+        startTime: json['date']["start_time"],
+        endTime: json['date']["end_time"],
+        weekday: json['date']["weekday"],
+        section: json['date']["section"],
+        building: json['location']["building"],
+        room: json['location']["room"],
+        instructors: List<String>.from(json['instructors']),);
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() =>
+      {
         'title': title,
         'instructors': instructors,
       };
