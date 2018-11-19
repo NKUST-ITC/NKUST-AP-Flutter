@@ -32,8 +32,8 @@ android {
         applicationId "com.nkust.ap.flutter"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 301
-        versionName "0.3.1"
+        versionCode 302
+        versionName "0.3.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
