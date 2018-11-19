@@ -1,6 +1,9 @@
 name: nkust_ap
 description: A new Flutter application.
 
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
 dependencies:
   flutter:
     sdk: flutter
@@ -17,6 +20,7 @@ dependencies:
   flutter_calendar: ^0.0.8
   url_launcher: ^4.0.1
   carousel_slider: ^0.0.7
+  flutter_crashlytics: 0.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

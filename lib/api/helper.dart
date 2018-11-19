@@ -57,7 +57,7 @@ class Helper {
       } else {
         print(e.message);
       }
-      return null;
+      throw e;
     }
   }
 

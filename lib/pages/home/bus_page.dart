@@ -5,6 +5,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusPageRoute extends MaterialPageRoute {
   BusPageRoute() : super(builder: (BuildContext context) => new BusPage());
@@ -25,8 +26,13 @@ class BusPage extends StatefulWidget {
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
-  final List<Widget> _children = [new BusReservePage(), new BusReservationsPage()];
-  final List<String> _title = [BusReservePage.title, BusReservationsPage.title];
+  final List<Widget> _children = [
+    new BusReservePage(),
+    new BusReservationsPage()
+  ];
+  List<String> _title;
+
+  AppLocalizations local;
 
   @override
   void initState() {
@@ -40,6 +46,8 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    local = AppLocalizations.of(context);
+    _title = [local.busReserve, local.busReservations];
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
@@ -55,11 +63,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.date_range),
-            title: Text(BusReservePage.title),
+            title: Text(_title[0]),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            title: Text(BusReservationsPage.title),
+            title: Text(_title[1]),
           ),
         ],
       ),

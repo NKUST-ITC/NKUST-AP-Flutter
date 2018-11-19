@@ -27,6 +27,8 @@ class AboutUsPage extends StatefulWidget {
 
 class AboutUsPageState extends State<AboutUsPage>
     with SingleTickerProviderStateMixin {
+  AppLocalizations local;
+
   @override
   void initState() {
     super.initState();
@@ -39,7 +41,7 @@ class AboutUsPageState extends State<AboutUsPage>
 
   @override
   Widget build(BuildContext context) {
-    var app = AppLocalizations.of(context);
+    local = AppLocalizations.of(context);
     return new Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -48,12 +50,12 @@ class AboutUsPageState extends State<AboutUsPage>
               expandedHeight: 200.0,
               floating: false,
               pinned: true,
-              title: new Text(AppLocalizations.of(context).about),
+              title: new Text(local.about),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(Icons.code),
                     onPressed: () {
-                      Navigator.of(context).pushNamed(MyLicencePage.routerName);
+                      Navigator.of(context).pushNamed(OpenSourcePage.routerName);
                     })
               ],
               backgroundColor: Resource.Colors.blue,
@@ -68,12 +70,12 @@ class AboutUsPageState extends State<AboutUsPage>
         },
         body: ListView(
           children: <Widget>[
-            _item(app.aboutAuthorTitle, app.aboutAuthorContent),
-            _item(app.about, app.aboutUsContent),
-            _item(app.aboutRecruitTitle, app.aboutRecruitContent),
+            _item(local.aboutAuthorTitle, local.aboutAuthorContent),
+            _item(local.about, local.aboutUsContent),
+            _item(local.aboutRecruitTitle, local.aboutRecruitContent),
             Stack(
               children: <Widget>[
-                _item(app.aboutItcTitle, app.aboutItcContent),
+                _item(local.aboutItcTitle, local.aboutItcContent),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 26.0),
@@ -100,7 +102,7 @@ class AboutUsPageState extends State<AboutUsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      app.aboutContactUsTitle,
+                      local.aboutContactUsTitle,
                       style: TextStyle(fontSize: 18.0),
                     ),
                     SizedBox(
@@ -139,7 +141,7 @@ class AboutUsPageState extends State<AboutUsPage>
                 ),
               ),
             ),
-            _item(app.aboutOpenSourceTitle, app.aboutOpenSourceContent),
+            _item(local.aboutOpenSourceTitle, local.aboutOpenSourceContent),
           ],
         ),
       ),

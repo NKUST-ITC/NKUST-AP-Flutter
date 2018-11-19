@@ -38,6 +38,10 @@
                 <action android:name="FLUTTER_NOTIFICATION_CLICK" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <meta-data
+                android:name="io.fabric.ApiKey"
+                android:value="e15d6071bb62dddcb64d4b3ac3bbc9a870c2b90b"
+                />
         </activity>
     </application>
 </manifest>

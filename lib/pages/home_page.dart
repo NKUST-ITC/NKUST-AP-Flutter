@@ -131,7 +131,7 @@ class HomePageState extends State<HomePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(AppLocalizations.of(context).title),
+        title: new Text(AppLocalizations.of(context).appName),
         // Set the background color of the App Bar
         backgroundColor: Resource.Colors.blue,
       ),
@@ -185,17 +185,23 @@ class HomePageState extends State<HomePage>
 
   _getAllNews() {
     state = HomeStatus.loading;
-    Helper.instance.getAllNews().then((response) {
-      if (response == null) {
-        state = HomeStatus.error;
-        return;
-      }
-      JsonCodec jsonCodec = JsonCodec();
-      var jsonArray = jsonCodec.decode(response.data);
-      news = News.toList(jsonArray);
-      for (var i in news) newsWidgets.add(_newImage(i));
-      state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
-      setState(() {});
-    });
+    Helper.instance
+        .getAllNews()
+        .then((response) {
+          if (response == null) {
+            state = HomeStatus.error;
+            return;
+          }
+          JsonCodec jsonCodec = JsonCodec();
+          var jsonArray = jsonCodec.decode(response.data);
+          news = News.toList(jsonArray);
+          news.forEach((news) {
+            newsWidgets.add(_newImage(news));
+          });
+          state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
+          setState(() {});
+        })
+        .catchError((e) {})
+        .then((re) {});
   }
 }
