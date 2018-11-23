@@ -2,6 +2,9 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:nkust_ap/models/api/api_models.dart';
+import 'package:nkust_ap/models/api/error_response.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 const HOST = "kuas.grd.idv.tw";
 const PORT = '14769';
@@ -29,21 +32,33 @@ class Helper {
     dio = new Dio(options);
   }
 
-  login(String username, String password) async {
+  handleDioError(DioError dioError) {
+    switch (dioError.type) {
+      case DioErrorType.DEFAULT:
+        return LoginResponse.fromJson(dioError.response.data);
+        break;
+      case DioErrorType.CANCEL:
+        throw (dioError);
+        break;
+      case DioErrorType.CONNECT_TIMEOUT:
+        throw (dioError);
+        break;
+      case DioErrorType.RESPONSE:
+        throw (dioError);
+        break;
+      case DioErrorType.RECEIVE_TIMEOUT:
+        throw (dioError);
+        break;
+    }
+  }
+
+  Future<LoginResponse> login(String username, String password) async {
     dio.options.headers = _createBasicAuth(username, password);
     try {
       var response = await dio.get("/$VERSION/token");
-      return response.data;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-        print(e.response.headers);
-        print(e.response.request.headers);
-        print(e.response.request.baseUrl);
-      } else {
-        print(e.message);
-      }
-      return null;
+      return LoginResponse.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
@@ -105,8 +120,8 @@ class Helper {
 
   Future<Response> getScore(String year, String semester) async {
     try {
-      var response = await dio
-          .get("/$VERSION/ap/users/scores/" + year + "/" + semester);
+      var response =
+          await dio.get("/$VERSION/ap/users/scores/" + year + "/" + semester);
       return response;
     } on DioError catch (e) {
       if (e.response != null) {

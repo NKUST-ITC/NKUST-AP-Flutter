@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/api/error_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -16,6 +18,7 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
+  AppLocalizations app;
   SharedPreferences prefs;
 
   final TextEditingController _username = new TextEditingController();
@@ -39,6 +42,7 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return new Scaffold(
         backgroundColor: Resource.Colors.blue,
         resizeToAvoidBottomPadding: false,
@@ -142,17 +146,30 @@ class LoginPageState extends State<LoginPage>
           builder: (BuildContext context) => new AlertDialog(
                 content: bodyProgress(context),
                 contentPadding: EdgeInsets.all(0.0),
-              ));
-      var data = await Helper.instance.login(_username.text, _password.text);
-      Navigator.of(context, rootNavigator: true).pop('dialog');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString(Constants.PREF_USERNAME, _username.text);
-      if (isRememberPassword)
-        prefs.setString(Constants.PREF_PASSWORD, _password.text);
-      if (data != null)
+              ),
+          barrierDismissible: true);
+      Helper.instance.login(_username.text, _password.text).then((data) async {
+        Navigator.maybePop(context, 'dialog');
+        prefs.setString(Constants.PREF_USERNAME, _username.text);
+        if (isRememberPassword)
+          prefs.setString(Constants.PREF_PASSWORD, _password.text);
         Navigator.of(context).push(HomePageRoute());
-      else
-        Utils.showToast(AppLocalizations.of(context).loginFail);
+      }).catchError((e) {
+        Navigator.maybePop(context, 'dialog');
+        assert(e is DioError);
+        DioError dioError = e;
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(AppLocalizations.of(context).loginFail);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(dioError, app);
+            break;
+        }
+        print(dioError.type);
+      });
     }
   }
 

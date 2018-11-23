@@ -708,6 +708,10 @@ class AppLocalizations {
   String get shareTo => _vocabularies['share_to'];
 
   String get sendFrom => _vocabularies['send_from'];
+
+  String get timeoutMessage => _vocabularies['timeout_message'];
+
+  String get noInternet => _vocabularies['no_internet'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
