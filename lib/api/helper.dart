@@ -56,6 +56,7 @@ class Helper {
     dio.options.headers = _createBasicAuth(username, password);
     try {
       var response = await dio.get("/$VERSION/token");
+      if (response == null) print("null");
       return LoginResponse.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
