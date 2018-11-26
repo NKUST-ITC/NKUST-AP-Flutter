@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/checkbox_title.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -85,6 +86,7 @@ class LoginPageState extends State<LoginPage>
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: <Widget>[
                     Checkbox(
+                      activeColor: Colors.blue,
                       value: isRememberPassword,
                       onChanged: _onChanged,
                     ),
@@ -159,7 +161,7 @@ class LoginPageState extends State<LoginPage>
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
         assert(e is DioError);
-        DioError dioError = e;
+        DioError dioError = e as DioError;
         switch (dioError.type) {
           case DioErrorType.RESPONSE:
             Utils.showToast(AppLocalizations.of(context).loginFail);
