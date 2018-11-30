@@ -17,11 +17,13 @@ class Helper {
   static Options options;
   static Dio dio;
   static JsonCodec jsonCodec;
+  static CancelToken cancelToken;
 
   static Helper get instance {
     if (_instance == null) {
-      _instance = new Helper();
+      _instance = Helper();
       jsonCodec = JsonCodec();
+      cancelToken = CancelToken();
     }
     return _instance;
   }
@@ -96,41 +98,34 @@ class Helper {
     }
   }
 
-  Future<Response> getSemester() async {
+  Future<SemesterData> getSemester() async {
     try {
       var response = await dio.get("/$VERSION/ap/semester");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      return SemesterData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getScore(String year, String semester) async {
+  Future<ScoreData> getScores(String year, String semester) async {
     try {
-      var response =
-          await dio.get("/$VERSION/ap/users/scores/" + year + "/" + semester);
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      var response = await dio.get(
+          "/$VERSION/ap/users/scores/" + year + "/" + semester,
+          cancelToken: cancelToken);
+      return ScoreData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getCourseTables(String year, String semester) async {
+  Future<CourseData> getCourseTables(String year, String semester) async {
     try {
-      var response = await dio
-          .get("/$VERSION/ap/users/coursetables/" + year + "/" + semester);
-      return response;
+      var response = await dio.get(
+          "/$VERSION/ap/users/coursetables/" + year + "/" + semester,
+          cancelToken: cancelToken);
+      return CourseData.fromJson(response.data);
     } on DioError catch (e) {
+      print(e.type);
       if (e.response != null) {
         print(e.response.data);
       } else {

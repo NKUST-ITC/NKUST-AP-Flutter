@@ -1,50 +1,53 @@
-
-class ScoreData{
+class ScoreData {
   int status;
   String messages;
   Content content;
 
   ScoreData({
-    this.status,this.messages,this.content,
+    this.status,
+    this.messages,
+    this.content,
   });
 
-  static ScoreData fromJson(Map<String,dynamic> json){
+  static ScoreData fromJson(Map<String, dynamic> json) {
     return ScoreData(
       status: json['status'],
       messages: json['messages'],
-      content: Content.fromJson(json['scores']),
+      content:
+          json['scores'].length != 0 ? Content.fromJson(json['scores']) : null,
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'status': status,
-    'messages': messages,
-    'scores': content,
-  };
+        'status': status,
+        'messages': messages,
+        'scores': content,
+      };
 }
 
-class Content{
+class Content {
   List<Score> scores;
   Detail detail;
 
   Content({
-    this.scores,this.detail,
+    this.scores,
+    this.detail,
   });
 
-  static Content fromJson(Map<String,dynamic> json){
+  static Content fromJson(Map<String, dynamic> json) {
     return Content(
-      scores:Score.toList( json['scores']),
-      detail: Detail.fromJson( json['detail']),
+      scores: Score.toList(json['scores']),
+      detail: Detail.fromJson(json['detail']),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'scores': scores,
-    'detail': detail,
-  };
+        'scores': scores,
+        'detail': detail,
+      };
 }
 
-class Score{
+class Score {
   String title;
   String units;
   String hours;
@@ -55,7 +58,14 @@ class Score{
   String remark;
 
   Score({
-    this.title,this.units,this.hours,this.required,this.at,this.middleScore,this.finalScore,this.remark,
+    this.title,
+    this.units,
+    this.hours,
+    this.required,
+    this.at,
+    this.middleScore,
+    this.finalScore,
+    this.remark,
   });
 
   static List<Score> toList(List<dynamic> jsonArray) {
@@ -64,7 +74,7 @@ class Score{
     return list;
   }
 
-  static Score fromJson(Map<String,dynamic> json){
+  static Score fromJson(Map<String, dynamic> json) {
     return Score(
       title: json['title'],
       units: json['units'],
@@ -78,28 +88,31 @@ class Score{
   }
 
   Map<String, dynamic> toJson() => {
-    'title': title,
-    'units': units,
-    'hours': hours,
-    'required': required,
-    'at': at,
-    'middle_score': middleScore,
-    'final_score': finalScore,
-    'remark': remark,
-  };
+        'title': title,
+        'units': units,
+        'hours': hours,
+        'required': required,
+        'at': at,
+        'middle_score': middleScore,
+        'final_score': finalScore,
+        'remark': remark,
+      };
 }
 
-class Detail{
+class Detail {
   double conduct;
   double average;
   String classRank;
   double classPercentage;
 
   Detail({
-    this.conduct,this.average,this.classRank,this.classPercentage,
+    this.conduct,
+    this.average,
+    this.classRank,
+    this.classPercentage,
   });
 
-  static Detail fromJson(Map<String,dynamic> json){
+  static Detail fromJson(Map<String, dynamic> json) {
     return Detail(
       conduct: json['conduct'],
       average: json['average'],
@@ -109,9 +122,9 @@ class Detail{
   }
 
   Map<String, dynamic> toJson() => {
-    'conduct': conduct,
-    'average': average,
-    'class_rank': classRank,
-    'class_percentage': classPercentage,
-  };
+        'conduct': conduct,
+        'average': average,
+        'class_rank': classRank,
+        'class_percentage': classPercentage,
+      };
 }

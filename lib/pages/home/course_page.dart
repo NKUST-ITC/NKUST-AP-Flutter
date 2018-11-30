@@ -4,6 +4,7 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum CourseState { loading, finish, error, empty }
@@ -211,14 +212,27 @@ class CoursePageState extends State<CoursePage>
   }
 
   void _getSemester() {
-    Helper.instance.getSemester().then((response) {
-      if (response.data == null) {
-      } else {
-        semesterData = SemesterData.fromJson(response.data);
-        selectSemester = semesterData.defaultSemester;
-        selectSemesterIndex = 0;
-        _getCourseTables();
-        setState(() {});
+    Helper.instance.getSemester().then((semesterData) {
+      this.semesterData = semesterData;
+      selectSemester = semesterData.defaultSemester;
+      selectSemesterIndex = 0;
+      _getCourseTables();
+      setState(() {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          state = CourseState.error;
+          Utils.handleDioError(dioError, local);
+          break;
       }
     });
   }
@@ -251,6 +265,8 @@ class CoursePageState extends State<CoursePage>
   }
 
   _getCourseTables() async {
+    Helper.cancelToken.cancel("");
+    Helper.cancelToken = CancelToken();
     courseWeightList.clear();
     state = CourseState.loading;
     setState(() {});
@@ -259,7 +275,7 @@ class CoursePageState extends State<CoursePage>
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        courseData = CourseData.fromJson(response.data);
+        courseData = response;
         if (courseData.status == 200) {
           List<String> weeks = [
             "Sunday",
@@ -315,15 +331,35 @@ class CoursePageState extends State<CoursePage>
               }
           }
         }
-        if (courseWeightList.length == 0)
-          state = CourseState.empty;
-        else
-          state = CourseState.finish;
-        setState(() {});
+        setState(() {
+          if (courseWeightList.length == 0)
+            state = CourseState.empty;
+          else
+            state = CourseState.finish;
+        });
+      }).catchError((e) {
+        assert(e is DioError);
+        DioError dioError = e as DioError;
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            setState(() {
+              state = CourseState.error;
+            });
+            Utils.handleDioError(dioError, local);
+            break;
+        }
       });
     } else {
-      state = CourseState.error;
-      setState(() {});
+      setState(() {
+        state = CourseState.error;
+      });
     }
   }
 }

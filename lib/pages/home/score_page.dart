@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 enum ScoreState { loading, finish, error, empty }
 
@@ -279,38 +281,71 @@ class ScorePageState extends State<ScorePage>
   }
 
   void _getSemester() {
-    Helper.instance.getSemester().then((response) {
-      if (response.data == null) {
-      } else {
-        semesterData = SemesterData.fromJson(response.data);
-        selectSemester = semesterData.defaultSemester;
-        selectSemesterIndex = 0;
-        _getSemesterScore();
-        setState(() {});
+    Helper.instance.getSemester().then((semesterData) {
+      this.semesterData = semesterData;
+      selectSemester = semesterData.defaultSemester;
+      selectSemesterIndex = 0;
+      _getSemesterScore();
+      setState(() {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          state = ScoreState.error;
+          Utils.handleDioError(dioError, local);
+          break;
       }
     });
   }
 
   _getSemesterScore() async {
+    Helper.cancelToken.cancel("");
+    Helper.cancelToken = CancelToken();
     scoreWeightList.clear();
     state = ScoreState.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
-      Helper.instance.getScore(textList[0], textList[1]).then((response) {
-        if (response.statusCode == 200 && response.data["status"] == 200) {
-          scoreData = ScoreData.fromJson(response.data);
-          scoreWeightList.add(_scoreTitle());
-          for (var score in scoreData.content.scores) {
-            scoreWeightList.add(_scoreBorder(score));
-          }
-          if (scoreData.content.scores.length == 0)
+      Helper.instance.getScores(textList[0], textList[1]).then((response) {
+        setState(() {
+          print(response.status);
+          scoreData = response;
+          if (scoreData.status == 204)
             state = ScoreState.empty;
-          else
+          else {
+            scoreWeightList.add(_scoreTitle());
+            for (var score in scoreData.content.scores) {
+              scoreWeightList.add(_scoreBorder(score));
+            }
             state = ScoreState.finish;
-        } else
-          state = ScoreState.empty;
-        setState(() {});
+          }
+        });
+      }).catchError((e) {
+        assert(e is DioError);
+        DioError dioError = e as DioError;
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            setState(() {
+              state = ScoreState.error;
+              Utils.handleDioError(dioError, local);
+            });
+            break;
+        }
       });
     } else {
       state = ScoreState.error;

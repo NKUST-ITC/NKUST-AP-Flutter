@@ -195,7 +195,6 @@ class HomePageState extends State<HomePage>
         state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
       });
     }).catchError((e) {
-      state = HomeStatus.error;
       assert(e is DioError);
       DioError dioError = e as DioError;
       switch (dioError.type) {
@@ -207,6 +206,7 @@ class HomePageState extends State<HomePage>
         case DioErrorType.CANCEL:
           break;
         default:
+          state = HomeStatus.error;
           Utils.handleDioError(dioError, app);
           break;
       }
