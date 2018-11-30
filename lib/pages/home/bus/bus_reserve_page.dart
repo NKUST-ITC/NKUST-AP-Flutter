@@ -241,7 +241,13 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
+  timer() async {
+    await Future.delayed(Duration(seconds: 12));
+    Helper.cancelToken.cancel(local.busFailInfinity);
+  }
+
   _getBusTimeTables() {
+    timer();
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     state = BusReserveState.loading;
@@ -252,6 +258,8 @@ class BusReservePageState extends State<BusReservePage>
     }).catchError((e) {
       assert(e is DioError);
       DioError dioError = e as DioError;
+      //if bus can't connection:
+      // dioError.message = HttpException: Connection closed before full header was received
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
           Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
@@ -259,6 +267,12 @@ class BusReservePageState extends State<BusReservePage>
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         case DioErrorType.CANCEL:
+          if (dioError.message.isNotEmpty) {
+            setState(() {
+              state = BusReserveState.error;
+              Utils.showToast(dioError.message);
+            });
+          }
           break;
         default:
           setState(() {
@@ -271,6 +285,7 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   _bookingBus(BusTime busTime) {
+    timer();
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
       String title = "", message = "";
@@ -296,6 +311,9 @@ class BusReservePageState extends State<BusReservePage>
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         case DioErrorType.CANCEL:
+          if (dioError.message.isNotEmpty) {
+            Utils.showToast(dioError.message);
+          }
           break;
         default:
           Utils.handleDioError(dioError, local);

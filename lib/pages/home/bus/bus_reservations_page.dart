@@ -190,7 +190,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
         ],
       );
 
+  timer() async {
+    await Future.delayed(Duration(seconds: 12));
+    Helper.cancelToken.cancel(local.busFailInfinity);
+  }
+
   _getBusReservations() {
+    timer();
     state = BusReservationsState.loading;
     setState(() {});
     Helper.instance.getBusReservations().then((response) {
@@ -213,6 +219,12 @@ class BusReservationsPageState extends State<BusReservationsPage>
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         case DioErrorType.CANCEL:
+          if (dioError.message.isNotEmpty) {
+            setState(() {
+              state = BusReservationsState.error;
+              Utils.showToast(dioError.message);
+            });
+          }
           break;
         default:
           setState(() {
@@ -225,6 +237,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _cancelBusReservation(BusReservation busReservation) {
+    timer();
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
         .then((response) {
@@ -251,6 +264,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         case DioErrorType.CANCEL:
+          if (dioError.message.isNotEmpty) {
+            Utils.showToast(dioError.message);
+          }
           break;
         default:
           Utils.handleDioError(dioError, local);

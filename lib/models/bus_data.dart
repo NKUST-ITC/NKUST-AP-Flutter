@@ -37,7 +37,7 @@ class BusTime {
   int isReserve;
   String specialTrain;
   String specialTrainRemark;
-  int cancelKey;
+  String cancelKey;
 
   BusTime({
     this.endEnrollDateTime,
@@ -90,7 +90,7 @@ class BusTime {
       isReserve: json['isReserve'],
       specialTrain: json['SpecialTrain'],
       specialTrainRemark: json['SpecialTrainRemark'],
-      cancelKey: json['cancelKey'],
+      cancelKey: "${json['cancelKey']}",
     );
   }
 

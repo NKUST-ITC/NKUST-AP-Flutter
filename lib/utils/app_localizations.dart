@@ -239,6 +239,7 @@ class AppLocalizations {
       'sun': 'Sun.',
       'do_not_empty': 'Don\'t Empty',
       'login_fail': 'student id or password error',
+      'bus_fail_infinity': 'Bus system perhaps broken!!!',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -442,6 +443,7 @@ class AppLocalizations {
       'sun': ' 日 ',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤',
+      'bus_fail_infinity': '學校校車系統或許壞掉惹～',
     },
   };
 
@@ -716,6 +718,8 @@ class AppLocalizations {
   String get tokenExpiredTitle => _vocabularies['token_expired_title'];
 
   String get tokenExpiredContent => _vocabularies['token_expired_content'];
+
+  String get busFailInfinity => _vocabularies['bus_fail_infinity'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
