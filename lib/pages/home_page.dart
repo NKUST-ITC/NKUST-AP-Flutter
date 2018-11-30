@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -185,23 +186,30 @@ class HomePageState extends State<HomePage>
 
   _getAllNews() {
     state = HomeStatus.loading;
-    Helper.instance
-        .getAllNews()
-        .then((response) {
-          if (response == null) {
-            state = HomeStatus.error;
-            return;
-          }
-          JsonCodec jsonCodec = JsonCodec();
-          var jsonArray = jsonCodec.decode(response.data);
-          news = News.toList(jsonArray);
-          news.forEach((news) {
-            newsWidgets.add(_newImage(news));
-          });
-          state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
-          setState(() {});
-        })
-        .catchError((e) {})
-        .then((re) {});
+    Helper.instance.getAllNews().then((news) {
+      this.news = news;
+      setState(() {
+        news.forEach((news) {
+          newsWidgets.add(_newImage(news));
+        });
+        state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
+      });
+    }).catchError((e) {
+      state = HomeStatus.error;
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          Utils.handleDioError(dioError, app);
+          break;
+      }
+    });
   }
 }

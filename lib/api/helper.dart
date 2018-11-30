@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
+import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/api/error_response.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
@@ -15,10 +16,12 @@ class Helper {
   static Helper _instance;
   static Options options;
   static Dio dio;
+  static JsonCodec jsonCodec;
 
   static Helper get instance {
     if (_instance == null) {
       _instance = new Helper();
+      jsonCodec = JsonCodec();
     }
     return _instance;
   }
@@ -63,45 +66,33 @@ class Helper {
     }
   }
 
-  Future<Response> getAllNews() async {
+  Future<List<News>> getAllNews() async {
     try {
       var response = await dio.get("/$VERSION/news/all");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      throw e;
+      var jsonArray = jsonCodec.decode(response.data);
+      return News.toList(jsonArray);
+    } on DioError catch (dioError) {
+      print(dioError);
+      throw dioError;
     }
   }
 
-  Future<Response> getUsersInfo() async {
+  Future<UserInfo> getUsersInfo() async {
     try {
       var response = await dio.get("/$VERSION/ap/users/info");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      var json = jsonCodec.decode(response.data);
+      return UserInfo.fromJson(json);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getUsersPicture() async {
+  Future<String> getUsersPicture() async {
     try {
       var response = await dio.get("/$VERSION/ap/users/picture");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      return response.data;
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
