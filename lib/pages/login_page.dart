@@ -82,16 +82,19 @@ class LoginPageState extends State<LoginPage>
                 SizedBox(
                   height: 15.0,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Checkbox(
-                      activeColor: Colors.blue,
-                      value: isRememberPassword,
-                      onChanged: _onChanged,
-                    ),
-                    Text(AppLocalizations.of(context).remember)
-                  ],
+                GestureDetector(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Checkbox(
+                        activeColor: Colors.blue,
+                        value: isRememberPassword,
+                        onChanged: _onChanged,
+                      ),
+                      Text(AppLocalizations.of(context).remember)
+                    ],
+                  ),
+                  onTap: () => _onChanged(!isRememberPassword),
                 ),
                 RaisedButton(
                   padding: EdgeInsets.all(12.0),

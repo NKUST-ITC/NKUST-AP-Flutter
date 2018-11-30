@@ -26,7 +26,7 @@ class Helper {
   Helper() {
     options = new Options(
       baseUrl: 'https://$HOST:$PORT',
-      connectTimeout: 20000,
+      connectTimeout: 10000,
       receiveTimeout: 10000,
     );
     dio = new Dio(options);
@@ -225,6 +225,7 @@ class Helper {
     var text = username + ":" + password;
     var encoded = utf8.encode(text);
     return {
+      "Connection": "keep-Alive",
       "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
     };
   }
