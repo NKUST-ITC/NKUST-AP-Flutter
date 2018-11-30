@@ -1,11 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/api/error_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/checkbox_title.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -16,6 +20,7 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
+  AppLocalizations app;
   SharedPreferences prefs;
 
   final TextEditingController _username = new TextEditingController();
@@ -39,6 +44,7 @@ class LoginPageState extends State<LoginPage>
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return new Scaffold(
         backgroundColor: Resource.Colors.blue,
         resizeToAvoidBottomPadding: false,
@@ -76,15 +82,19 @@ class LoginPageState extends State<LoginPage>
                 SizedBox(
                   height: 15.0,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Checkbox(
-                      value: isRememberPassword,
-                      onChanged: _onChanged,
-                    ),
-                    Text(AppLocalizations.of(context).remember)
-                  ],
+                GestureDetector(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Checkbox(
+                        activeColor: Colors.blue,
+                        value: isRememberPassword,
+                        onChanged: _onChanged,
+                      ),
+                      Text(AppLocalizations.of(context).remember)
+                    ],
+                  ),
+                  onTap: () => _onChanged(!isRememberPassword),
                 ),
                 RaisedButton(
                   padding: EdgeInsets.all(12.0),
@@ -139,46 +149,33 @@ class LoginPageState extends State<LoginPage>
     } else {
       showDialog(
           context: context,
-          builder: (BuildContext context) => new AlertDialog(
-                content: bodyProgress(context),
-                contentPadding: EdgeInsets.all(0.0),
-              ));
-      var data = await Helper.instance.login(_username.text, _password.text);
-      Navigator.of(context, rootNavigator: true).pop('dialog');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+          builder: (BuildContext context) =>
+              ProgressDialog(AppLocalizations.of(context).logining),
+          barrierDismissible: true);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
         prefs.setString(Constants.PREF_PASSWORD, _password.text);
-      if (data != null)
+      Helper.instance.login(_username.text, _password.text).then((data) async {
+        if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        prefs.setString(Constants.PREF_USERNAME, _username.text);
+        if (isRememberPassword)
+          prefs.setString(Constants.PREF_PASSWORD, _password.text);
         Navigator.of(context).push(HomePageRoute());
-      else
-        Utils.showToast(AppLocalizations.of(context).loginFail);
+      }).catchError((e) {
+        if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        assert(e is DioError);
+        DioError dioError = e as DioError;
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(AppLocalizations.of(context).loginFail);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(dioError, app);
+            break;
+        }
+      });
     }
   }
-
-  Widget bodyProgress(BuildContext context) => new Container(
-        width: 150.0,
-        height: 150.0,
-        alignment: AlignmentDirectional.center,
-        child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Center(
-              child: CircularProgressIndicator(
-                value: null,
-              ),
-            ),
-            new Container(
-              margin: const EdgeInsets.only(top: 25.0),
-              child: new Center(
-                child: new Text(
-                  AppLocalizations.of(context).logining,
-                  style: new TextStyle(color: Colors.blue),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
 }

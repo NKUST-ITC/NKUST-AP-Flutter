@@ -10,7 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
 void main() async {
-  bool isInDebugMode = false;
+  bool isInDebugMode = true;
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
       // In development mode simply print to console.
@@ -63,7 +63,7 @@ class MyApp extends StatelessWidget {
       },
       theme: new ThemeData(
         hintColor: Colors.white,
-        accentColor: Colors.blue,
+        accentColor: Resource.Colors.blue,
         inputDecorationTheme: new InputDecorationTheme(
           labelStyle: new TextStyle(color: Colors.white),
           border: new UnderlineInputBorder(

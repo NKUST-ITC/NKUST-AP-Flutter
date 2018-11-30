@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
@@ -193,19 +194,32 @@ class BusReservationsPageState extends State<BusReservationsPage>
     state = BusReservationsState.loading;
     setState(() {});
     Helper.instance.getBusReservations().then((response) {
-      if (response.data == null) {
-        state = BusReservationsState.error;
-        setState(() {});
-      } else {
-        busReservationsData = BusReservationsData.fromJson(response.data);
-        for (var i in busReservationsData.reservations) {
-          busReservationWeights.add(_busReservationWidget(i));
-        }
-        if (busReservationsData.reservations.length != 0)
-          state = BusReservationsState.finish;
-        else
-          state = BusReservationsState.empty;
-        setState(() {});
+      busReservationsData = response;
+      for (var i in busReservationsData.reservations) {
+        busReservationWeights.add(_busReservationWidget(i));
+      }
+      if (busReservationsData.reservations.length != 0)
+        state = BusReservationsState.finish;
+      else
+        state = BusReservationsState.empty;
+      setState(() {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          setState(() {
+            state = BusReservationsState.error;
+            Utils.handleDioError(dioError, local);
+          });
+          break;
       }
     });
   }
@@ -227,6 +241,21 @@ class BusReservationsPageState extends State<BusReservationsPage>
         _getBusReservations();
       }
       Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          Utils.handleDioError(dioError, local);
+          break;
+      }
     });
   }
 }

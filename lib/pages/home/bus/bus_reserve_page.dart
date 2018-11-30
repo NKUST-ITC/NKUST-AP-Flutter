@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
@@ -241,21 +242,37 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   _getBusTimeTables() {
+    Helper.cancelToken.cancel("");
+    Helper.cancelToken = CancelToken();
     state = BusReserveState.loading;
     setState(() {});
     Helper.instance.getBusTimeTables(dateTime).then((response) {
-      if (response.data == null) {
-        state = BusReserveState.error;
-        setState(() {});
-      } else {
-        busData = BusData.fromJson(response.data);
-        _updateBusTimeTables();
+      busData = response;
+      _updateBusTimeTables();
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          setState(() {
+            state = BusReserveState.error;
+            Utils.handleDioError(dioError, local);
+          });
+          break;
       }
     });
   }
 
   _bookingBus(BusTime busTime) {
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
+      //TODO 優化成物件
       String title = "", message = "";
       print(response.data["success"].runtimeType);
       if (!response.data["success"]) {
@@ -269,6 +286,21 @@ class BusReservePageState extends State<BusReservePage>
         _getBusTimeTables();
       }
       Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          Utils.handleDioError(dioError, local);
+          break;
+      }
     });
   }
 
