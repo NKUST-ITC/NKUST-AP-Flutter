@@ -316,7 +316,6 @@ class ScorePageState extends State<ScorePage>
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
         setState(() {
-          print(response.status);
           scoreData = response;
           if (scoreData.status == 204)
             state = ScoreState.empty;

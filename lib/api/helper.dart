@@ -124,44 +124,29 @@ class Helper {
           "/$VERSION/ap/users/coursetables/" + year + "/" + semester,
           cancelToken: cancelToken);
       return CourseData.fromJson(response.data);
-    } on DioError catch (e) {
-      print(e.type);
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getBusTimeTables(DateTime dateTime) async {
+  Future<BusData> getBusTimeTables(DateTime dateTime) async {
     var formatter = new DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
-      var response = await dio.get("/$VERSION/bus/timetables?date=$date");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      var response = await dio.get("/$VERSION/bus/timetables?date=$date",
+          cancelToken: cancelToken);
+      return BusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getBusReservations() async {
+  Future<BusReservationsData> getBusReservations() async {
     try {
       var response = await dio.get("/$VERSION/bus/reservations");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      return BusReservationsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
@@ -169,13 +154,8 @@ class Helper {
     try {
       var response = await dio.put("/$VERSION/bus/reservations/$busId");
       return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
@@ -183,27 +163,17 @@ class Helper {
     try {
       var response = await dio.delete("/$VERSION/bus/reservations/$cancelKey");
       return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
-  Future<Response> getNotifications(int page) async {
+  Future<NotificationData> getNotifications(int page) async {
     try {
       var response = await dio.get("/$VERSION/notifications/$page");
-      return response;
-    } on DioError catch (e) {
-      if (e.response != null) {
-        print(e.response.data);
-      } else {
-        print(e.message);
-      }
-      return null;
+      return NotificationData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
     }
   }
 
