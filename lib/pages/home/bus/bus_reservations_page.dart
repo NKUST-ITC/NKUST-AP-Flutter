@@ -190,13 +190,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         ],
       );
 
-  timer() async {
-    await Future.delayed(Duration(seconds: 12));
-    Helper.cancelToken.cancel(local.busFailInfinity);
-  }
-
   _getBusReservations() {
-    timer();
     state = BusReservationsState.loading;
     setState(() {});
     Helper.instance.getBusReservations().then((response) {
@@ -218,13 +212,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
-        case DioErrorType.CANCEL:
-          if (dioError.message.isNotEmpty) {
+        case DioErrorType.DEFAULT:
+          if (dioError.message.contains("HttpException")) {
             setState(() {
               state = BusReservationsState.error;
-              Utils.showToast(dioError.message);
+              Utils.showToast(local.busFailInfinity);
             });
           }
+          break;
+        case DioErrorType.CANCEL:
           break;
         default:
           setState(() {
@@ -237,7 +233,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _cancelBusReservation(BusReservation busReservation) {
-    timer();
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
         .then((response) {
@@ -263,10 +258,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
-        case DioErrorType.CANCEL:
-          if (dioError.message.isNotEmpty) {
-            Utils.showToast(dioError.message);
+        case DioErrorType.DEFAULT:
+          if (dioError.message.contains("HttpException")) {
+            setState(() {
+              state = BusReservationsState.error;
+              Utils.showToast(local.busFailInfinity);
+            });
           }
+          break;
+        case DioErrorType.CANCEL:
           break;
         default:
           Utils.handleDioError(dioError, local);

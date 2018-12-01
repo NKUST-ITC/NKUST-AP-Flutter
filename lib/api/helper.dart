@@ -181,7 +181,7 @@ class Helper {
     var text = username + ":" + password;
     var encoded = utf8.encode(text);
     return {
-      "Connection": "keep-Alive",
+      "Connection": "Keep-Alive",
       "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
     };
   }

@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
@@ -39,6 +40,9 @@ class BusReservePageState extends State<BusReservePage>
   DateTime dateTime = DateTime.now();
 
   AppLocalizations local;
+  var sub;
+
+  Future delay;
 
   @override
   void initState() {
@@ -241,13 +245,7 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  timer() async {
-    await Future.delayed(Duration(seconds: 12));
-    Helper.cancelToken.cancel(local.busFailInfinity);
-  }
-
   _getBusTimeTables() {
-    timer();
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     state = BusReserveState.loading;
@@ -266,13 +264,15 @@ class BusReservePageState extends State<BusReservePage>
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
-        case DioErrorType.CANCEL:
-          if (dioError.message.isNotEmpty) {
+        case DioErrorType.DEFAULT:
+          if (dioError.message.contains("HttpException")) {
             setState(() {
               state = BusReserveState.error;
-              Utils.showToast(dioError.message);
+              Utils.showToast(local.busFailInfinity);
             });
           }
+          break;
+        case DioErrorType.CANCEL:
           break;
         default:
           setState(() {
@@ -285,7 +285,6 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   _bookingBus(BusTime busTime) {
-    timer();
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
       String title = "", message = "";
@@ -310,10 +309,15 @@ class BusReservePageState extends State<BusReservePage>
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
-        case DioErrorType.CANCEL:
-          if (dioError.message.isNotEmpty) {
-            Utils.showToast(dioError.message);
+        case DioErrorType.DEFAULT:
+          if (dioError.message.contains("HttpException")) {
+            setState(() {
+              state = BusReserveState.error;
+              Utils.showToast(local.busFailInfinity);
+            });
           }
+          break;
+        case DioErrorType.CANCEL:
           break;
         default:
           Utils.handleDioError(dioError, local);
