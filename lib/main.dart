@@ -10,7 +10,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
 void main() async {
-  bool isInDebugMode = true;
+  bool isInDebugMode = false;
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
       // In development mode simply print to console.
