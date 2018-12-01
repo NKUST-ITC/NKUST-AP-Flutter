@@ -95,9 +95,9 @@ class AppLocalizations {
       'special_bus': 'Special Bus',
       'trial_bus': 'Trial Bus',
       'bus_reserve_success': 'Successfully Reserved!',
-      'bus_reserve_cacel_date': 'Date',
-      'bus_reserve_cacel_location': 'Location',
-      'bus_reserve_cacel_time': 'Time',
+      'bus_reserve_cancel_date': 'Date',
+      'bus_reserve_cancel_location': 'Location',
+      'bus_reserve_cancel_time': 'Time',
       'bus_cancel_reserve_success': 'Successfully Canceled!',
       'bus_cancel_reserve_fail': 'Fail Canceled',
       'bus_no_reservation':
@@ -239,6 +239,9 @@ class AppLocalizations {
       'sun': 'Sun.',
       'do_not_empty': 'Don\'t Empty',
       'login_fail': 'student id or password error',
+      'bus_fail_infinity': 'Bus system perhaps broken!!!',
+      'reserving': 'Reserving...',
+      'canceling': 'Canceling...',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -307,14 +310,14 @@ class AppLocalizations {
       'yanchao': '燕巢',
       'unknown': '未知',
       'campus': '校區',
-      'reserved': '預約',
+      'reserved': '已預約',
       'can_not_reserve': '無法預約',
       'special_bus': '特殊班次',
       'trial_bus': '試辦車次',
       'bus_reserve_success': '預約成功！',
-      'bus_reserve_cacel_date': '取消日期',
-      'bus_reserve_cacel_location': '上車地點',
-      'bus_reserve_cacel_time': '取消班次',
+      'bus_reserve_cancel_date': '取消日期',
+      'bus_reserve_cancel_location': '上車地點',
+      'bus_reserve_cancel_time': '取消班次',
       'bus_cancel_reserve_success': '取消預約成功！',
       'bus_cancel_reserve_fail': '取消預約失敗',
       'bus_no_reservation': 'Oops！您還沒有預約任何校車喔～\n多多搭乘大眾運輸，節能減碳救地球 \uD83D\uDE0B',
@@ -442,6 +445,9 @@ class AppLocalizations {
       'sun': ' 日 ',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤',
+      'bus_fail_infinity': '學校校車系統或許壞掉惹～',
+      'reserving': '預約中...',
+      'canceling': '取消中...',
     },
   };
 
@@ -708,6 +714,20 @@ class AppLocalizations {
   String get shareTo => _vocabularies['share_to'];
 
   String get sendFrom => _vocabularies['send_from'];
+
+  String get timeoutMessage => _vocabularies['timeout_message'];
+
+  String get noInternet => _vocabularies['no_internet'];
+
+  String get tokenExpiredTitle => _vocabularies['token_expired_title'];
+
+  String get tokenExpiredContent => _vocabularies['token_expired_content'];
+
+  String get busFailInfinity => _vocabularies['bus_fail_infinity'];
+
+  String get reserving => _vocabularies['reserving'];
+
+  String get canceling => _vocabularies['canceling'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1,9 +1,26 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class Utils {
+  static void handleDioError(DioError dioError, AppLocalizations app) {
+    switch (dioError.type) {
+      case DioErrorType.DEFAULT:
+        showToast(app.noInternet);
+        break;
+      case DioErrorType.CONNECT_TIMEOUT:
+      case DioErrorType.RECEIVE_TIMEOUT:
+        showToast(app.timeoutMessage);
+        break;
+      case DioErrorType.RESPONSE:
+      case DioErrorType.CANCEL:
+        break;
+    }
+  }
+
   static void showToast(String message) {
     Fluttertoast.showToast(
         msg: message,

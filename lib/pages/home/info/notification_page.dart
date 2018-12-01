@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 enum NotificationState { loading, finish, loadingMore, error, empty }
 
@@ -32,6 +34,8 @@ class NotificationPageState extends State<NotificationPage>
   int page = 1;
 
   NotificationState state = NotificationState.loading;
+
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -106,6 +110,7 @@ class NotificationPageState extends State<NotificationPage>
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return _body();
   }
 
@@ -116,6 +121,7 @@ class NotificationPageState extends State<NotificationPage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case NotificationState.error:
       case NotificationState.empty:
+        //TODO 優化
         return FlatButton(
           onPressed: () {},
           child: Center(
@@ -173,12 +179,27 @@ class NotificationPageState extends State<NotificationPage>
 
   _getNotifications() async {
     Helper.instance.getNotifications(page).then((response) {
-      var notificationData = NotificationData.fromJson(response.data);
+      var notificationData = response;
       for (var notification in notificationData.notifications) {
         notificationList.add(notification);
       }
       state = NotificationState.finish;
       setState(() {});
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          Utils.handleDioError(dioError, app);
+          break;
+      }
     });
   }
 }

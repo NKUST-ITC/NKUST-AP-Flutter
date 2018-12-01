@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -29,12 +30,10 @@ class HomePage extends StatefulWidget {
 }
 
 // SingleTickerProviderStateMixin is used for animation
-class HomePageState extends State<HomePage>
-    with SingleTickerProviderStateMixin {
+class HomePageState extends State<HomePage> {
   HomeStatus state = HomeStatus.loading;
   AppLocalizations app;
 
-  TabController controller;
   int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
 
@@ -44,14 +43,11 @@ class HomePageState extends State<HomePage>
   @override
   void initState() {
     super.initState();
-    controller = new TabController(length: 2, vsync: this);
     _getAllNews();
   }
 
   @override
   void dispose() {
-    // Dispose of the Tab Controller
-    controller.dispose();
     super.dispose();
   }
 
@@ -127,43 +123,52 @@ class HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      // Appbar
-      appBar: new AppBar(
-        // Title
-        title: new Text(AppLocalizations.of(context).appName),
-        // Set the background color of the App Bar
-        backgroundColor: Resource.Colors.blue,
-      ),
-      endDrawer: DrawerBody(),
-      // Set the TabBar view as the body of the Scaffold
-      body: Container(
-        padding: EdgeInsets.symmetric(vertical: 32.0),
-        child: Center(
-          child: _homebody(),
+    return WillPopScope(
+        child: Scaffold(
+          appBar: new AppBar(
+            title: new Text(AppLocalizations.of(context).appName),
+            backgroundColor: Resource.Colors.blue,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.exit_to_app),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          ),
+          drawer: DrawerBody(),
+          body: Container(
+            padding: EdgeInsets.symmetric(vertical: 32.0),
+            child: Center(
+              child: _homebody(),
+            ),
+          ),
+          bottomNavigationBar: new BottomNavigationBar(
+            fixedColor: Color(0xff737373),
+            type: BottomNavigationBarType.fixed,
+            currentIndex: _currentTabIndex,
+            onTap: onTabTapped,
+            items: [
+              BottomNavigationBarItem(
+                // set icon to the tab
+                icon: Icon(Icons.directions_bus),
+                title: Text(AppLocalizations.of(context).bus),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.class_),
+                title: Text(AppLocalizations.of(context).course),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.assignment),
+                title: Text(AppLocalizations.of(context).score),
+              ),
+            ],
+          ),
         ),
-      ),
-      // Set the bottom navigation bar
-      bottomNavigationBar: new BottomNavigationBar(
-        currentIndex: _currentTabIndex,
-        onTap: onTabTapped,
-        items: [
-          BottomNavigationBarItem(
-            // set icon to the tab
-            icon: Icon(Icons.directions_bus),
-            title: Text(AppLocalizations.of(context).bus),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.class_),
-            title: Text(AppLocalizations.of(context).course),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
-            title: Text(AppLocalizations.of(context).score),
-          ),
-        ],
-      ),
-    );
+        onWillPop: () async {
+          return false;
+        });
   }
 
   void onTabTapped(int index) {
@@ -185,23 +190,30 @@ class HomePageState extends State<HomePage>
 
   _getAllNews() {
     state = HomeStatus.loading;
-    Helper.instance
-        .getAllNews()
-        .then((response) {
-          if (response == null) {
-            state = HomeStatus.error;
-            return;
-          }
-          JsonCodec jsonCodec = JsonCodec();
-          var jsonArray = jsonCodec.decode(response.data);
-          news = News.toList(jsonArray);
-          news.forEach((news) {
-            newsWidgets.add(_newImage(news));
-          });
-          state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
-          setState(() {});
-        })
-        .catchError((e) {})
-        .then((re) {});
+    Helper.instance.getAllNews().then((news) {
+      this.news = news;
+      setState(() {
+        news.forEach((news) {
+          newsWidgets.add(_newImage(news));
+        });
+        state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
+      });
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+          break;
+        case DioErrorType.CANCEL:
+          break;
+        default:
+          state = HomeStatus.error;
+          Utils.handleDioError(dioError, app);
+          break;
+      }
+    });
   }
 }

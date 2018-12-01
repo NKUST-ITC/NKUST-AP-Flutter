@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -133,30 +135,48 @@ class DrawerBodyState extends State<DrawerBody> {
       ));
 
   _getUserPicture() {
-    Helper.instance.getUsersPicture().then((response) {
-      if (response == null) {
-        return;
+    Helper.instance.getUsersPicture().then((url) {
+      setState(() {
+        pictureUrl = url;
+      });
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(LoginPage.routerName));
+          break;
+        default:
+          break;
       }
-      pictureUrl = response.data;
-      setState(() {});
     });
   }
 
   _getUserInfo() {
     Helper.instance.getUsersInfo().then((response) {
-      if (response == null) {
-        return;
+      setState(() {
+        userInfo = response;
+      });
+    }).catchError((e) {
+      assert(e is DioError);
+      DioError dioError = e as DioError;
+      switch (dioError.type) {
+        case DioErrorType.RESPONSE:
+          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Navigator.popUntil(
+              context, ModalRoute.withName(LoginPage.routerName));
+          break;
+        default:
+          break;
       }
-      JsonCodec jsonCodec = JsonCodec();
-      var json = jsonCodec.decode(response.data);
-      userInfo = UserInfo.fromJson(json);
-      setState(() {});
     });
   }
+
   _getPreference() async {
     prefs = await SharedPreferences.getInstance();
     displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
     setState(() {});
   }
-
 }
