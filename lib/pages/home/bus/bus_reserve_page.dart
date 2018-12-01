@@ -297,7 +297,6 @@ class BusReservePageState extends State<BusReservePage>
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
       String title = "", message = "";
-      print(response.data["success"].runtimeType);
       if (!response.data["success"]) {
         title = local.busReserveFailTitle;
         message = response.data["message"];
