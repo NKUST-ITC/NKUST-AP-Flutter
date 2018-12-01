@@ -8,6 +8,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/progress_dialog.dart';
 
 enum BusReserveState { loading, finish, error, empty }
 enum Station { janGong, yanchao }
@@ -40,9 +41,6 @@ class BusReservePageState extends State<BusReservePage>
   DateTime dateTime = DateTime.now();
 
   AppLocalizations local;
-  var sub;
-
-  Future delay;
 
   @override
   void initState() {
@@ -101,8 +99,13 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           FlatButton(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.hasReserve()
+            onPressed: busTime.hasReserve() && busTime.isReserve == 0
                 ? () {
+                    String start = "";
+                    if (selectStartStation == Station.janGong)
+                      start = local.fromJiangong;
+                    else if (selectStartStation == Station.yanchao)
+                      start = local.fromYanchao;
                     showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
@@ -113,7 +116,8 @@ class BusReservePageState extends State<BusReservePage>
                                   style:
                                       TextStyle(color: Resource.Colors.blue)),
                               content: Text(
-                                "${busTime.getSpecialTrainRemark()}${local.busReserveConfirmTitle}",
+                                "${busTime.getSpecialTrainRemark()}${local.busReserveConfirmTitle}\n"
+                                    "${busTime.time} $start",
                                 textAlign: TextAlign.center,
                               ),
                               actions: <Widget>[
@@ -285,6 +289,11 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   _bookingBus(BusTime busTime) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) =>
+            ProgressDialog(AppLocalizations.of(context).reserving),
+        barrierDismissible: true);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
       String title = "", message = "";
@@ -299,8 +308,10 @@ class BusReservePageState extends State<BusReservePage>
             "${local.busReserveTime}：${busTime.time}";
         _getBusTimeTables();
       }
+      Navigator.pop(context, 'dialog');
       Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
     }).catchError((e) {
+      Navigator.pop(context, 'dialog');
       assert(e is DioError);
       DioError dioError = e as DioError;
       switch (dioError.type) {

@@ -8,6 +8,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/progress_dialog.dart';
 
 enum BusReservationsState { loading, finish, error, empty }
 
@@ -191,6 +192,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       );
 
   _getBusReservations() {
+    busReservationWeights.clear();
     state = BusReservationsState.loading;
     setState(() {});
     Helper.instance.getBusReservations().then((response) {
@@ -233,11 +235,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _cancelBusReservation(BusReservation busReservation) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) =>
+            ProgressDialog(AppLocalizations.of(context).canceling),
+        barrierDismissible: true);
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
         .then((response) {
       String title = "", message = "";
-      print(response.data["success"].runtimeType);
       if (!response.data["success"]) {
         title = local.busCancelReserveFail;
         message = response.data["message"];
@@ -248,8 +254,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
             "${local.busReserveCancelTime}：${busReservation.getTime()}";
         _getBusReservations();
       }
+      Navigator.pop(context, 'dialog');
       Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
     }).catchError((e) {
+      Navigator.pop(context, 'dialog');
       assert(e is DioError);
       DioError dioError = e as DioError;
       switch (dioError.type) {
