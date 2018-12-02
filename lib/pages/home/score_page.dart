@@ -27,7 +27,7 @@ class ScorePage extends StatefulWidget {
 
 class ScorePageState extends State<ScorePage>
     with SingleTickerProviderStateMixin {
-  List<Widget> scoreWeightList = [];
+  List<TableRow> scoreWeightList = [];
 
   var selectSemesterIndex;
   Semester selectSemester;
@@ -58,15 +58,12 @@ class ScorePageState extends State<ScorePage>
     return TextStyle(color: Colors.black, fontSize: 14.0);
   }
 
-  _scoreTitle() => Container(
-        width: double.infinity,
-        child: Row(
-          children: <Widget>[
-            Expanded(child: _scoreTextBorder(local.subject, false, true)),
-            Expanded(child: _scoreTextBorder(local.midtermScore, false, true)),
-            Expanded(child: _scoreTextBorder(local.finalScore, true, true)),
-          ],
-        ),
+  _scoreTitle() => TableRow(
+        children: <Widget>[
+          _scoreTextBorder(local.subject, true),
+          _scoreTextBorder(local.midtermScore, true),
+          _scoreTextBorder(local.finalScore, true),
+        ],
       );
 
   Widget _textBorder(String text, bool isTop) {
@@ -88,17 +85,10 @@ class ScorePageState extends State<ScorePage>
     );
   }
 
-  Widget _scoreTextBorder(String text, bool isEnd, bool isTitle) {
+  Widget _scoreTextBorder(String text, bool isTitle) {
     return Container(
       width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical: 2.0),
-      decoration: new BoxDecoration(
-        border: new Border(
-          right: isEnd
-              ? BorderSide.none
-              : BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
+      padding: EdgeInsets.symmetric(vertical:2.0,horizontal: 4.0),
       alignment: Alignment.center,
       child: Text(
         text ?? "",
@@ -108,22 +98,12 @@ class ScorePageState extends State<ScorePage>
     );
   }
 
-  Widget _scoreBorder(Score score) {
-    return Container(
-      width: double.infinity,
-      decoration: new BoxDecoration(
-        border: new Border(
-          top: BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(child: _scoreTextBorder(score.title, false, false)),
-          Expanded(child: _scoreTextBorder(score.middleScore, false, false)),
-          Expanded(child: _scoreTextBorder(score.finalScore, true, false)),
-        ],
-      ),
-    );
+  _scoreBorder(Score score) {
+    return TableRow(children: <Widget>[
+      _scoreTextBorder(score.title, false),
+      _scoreTextBorder(score.middleScore, false),
+      _scoreTextBorder(score.finalScore, false)
+    ]);
   }
 
   @override
@@ -219,10 +199,12 @@ class ScorePageState extends State<ScorePage>
                       10.0,
                     ),
                   ),
-                  border: new Border.all(color: Colors.grey, width: 1.0),
+                  border: new Border.all(color: Colors.grey, width: 1.5),
                 ),
-                child: Flex(
-                  direction: Axis.vertical,
+                child: Table(
+                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                  border: TableBorder.symmetric(
+                      inside: BorderSide(color: Colors.grey)),
                   children: scoreWeightList,
                 ),
               ),
@@ -236,7 +218,7 @@ class ScorePageState extends State<ScorePage>
                       10.0,
                     ),
                   ),
-                  border: new Border.all(color: Colors.grey, width: 1.0),
+                  border: new Border.all(color: Colors.grey, width: 1.5),
                 ),
                 child: Column(
                   children: <Widget>[
