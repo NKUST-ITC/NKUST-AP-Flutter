@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -99,7 +101,12 @@ class SettingPageState extends State<SettingPage>
               ),
               _titleItem(local.otherInfo),
               _item(local.feedback, local.feedbackViaFacebook, () {
-                Utils.launchUrl('https://www.facebook.com/954175941266264/');
+                if (Platform.isAndroid)
+                  Utils.launchUrl('fb://messaging/954175941266264').catchError(
+                      (onError) => Utils.launchUrl(
+                          'https://www.facebook.com/954175941266264/'));
+                else
+                  Utils.launchUrl('https://www.facebook.com/954175941266264/');
               }),
               _item(local.donateTitle, local.donateContent, () {
                 Utils.launchUrl(

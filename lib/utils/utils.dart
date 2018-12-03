@@ -55,7 +55,7 @@ class Utils {
             ));
   }
 
-  static launchUrl(var url) async {
+  static Future<void> launchUrl(var url) async {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
