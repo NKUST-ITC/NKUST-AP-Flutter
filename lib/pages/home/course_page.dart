@@ -100,7 +100,7 @@ class CoursePageState extends State<CoursePage>
 
   Widget _courseBorder(Course course) {
     String content = "${local.courseDialogName}：${course.title}\n"
-        "${local.courseDialogProfessor}：${course.instructors[0] ?? ""}\n"
+        "${local.courseDialogProfessor}：${course.getInstructors()}\n"
         "${local.courseDialogLocation}：${course.building}${course.room}\n"
         "${local.courseDialogTime}：${course.startTime}-${course.endTime}";
     return new Container(
@@ -112,7 +112,10 @@ class CoursePageState extends State<CoursePage>
             showDialog(
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
-                      title: Text(local.courseDialogTitle),
+                      title: Text(
+                        local.courseDialogTitle,
+                        style: TextStyle(color: Resource.Colors.blue),
+                      ),
                       content: Text(content),
                       actions: <Widget>[
                         FlatButton(

@@ -17,8 +17,7 @@ class CourseData {
     );
   }
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'status': status,
         'messages': messages,
         'coursetables': courseTables,
@@ -73,8 +72,7 @@ class CourseTables {
     int maxTimeCodes = 10;
     for (int i = 0; i < weeks.length; i++) {
       if (getCourseList(weeks[i]) != null)
-        for (var data
-        in getCourseList(weeks[i])) {
+        for (var data in getCourseList(weeks[i])) {
           for (int j = 0; j < timeCode.length; j++) {
             if (timeCode[j] == data.section) {
               if ((j + 1) > maxTimeCodes) maxTimeCodes = (j + 1);
@@ -87,22 +85,18 @@ class CourseTables {
 
   static CourseTables fromJson(Map<String, dynamic> json) {
     return CourseTables(
-        sunday: Course.toList(json['Sunday']),
-        tuesday: Course.toList(json['Tuesday']),
-        friday: Course.toList(json['Friday']),
-        saturday: Course.toList(json['Saturday']),
-        thursday: Course.toList(json['Thursday']),
-        wednesday: Course.toList(json['Wednesday']),
-        monday: Course.toList(json['Monday']),
-        timeCode: List < String
-        >
-            .from(json['timecode'] ??
-        [
-        ]),);
+      sunday: Course.toList(json['Sunday']),
+      tuesday: Course.toList(json['Tuesday']),
+      friday: Course.toList(json['Friday']),
+      saturday: Course.toList(json['Saturday']),
+      thursday: Course.toList(json['Thursday']),
+      wednesday: Course.toList(json['Wednesday']),
+      monday: Course.toList(json['Monday']),
+      timeCode: List<String>.from(json['timecode'] ?? []),
+    );
   }
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'Sunday': sunday,
         'Tuesday': tuesday,
         'Friday': friday,
@@ -137,25 +131,35 @@ class Course {
 
   static List<Course> toList(List<dynamic> jsonArray) {
     List<Course> list = [];
-    for (var item in (jsonArray ?? []))
-      list.add(Course.fromJson(item));
+    for (var item in (jsonArray ?? [])) list.add(Course.fromJson(item));
     return list;
   }
 
   static Course fromJson(Map<String, dynamic> json) {
+    print(json['instructors']);
     return Course(
-        title: json['title'],
-        startTime: json['date']["start_time"],
-        endTime: json['date']["end_time"],
-        weekday: json['date']["weekday"],
-        section: json['date']["section"],
-        building: json['location']["building"],
-        room: json['location']["room"],
-        instructors: List<String>.from(json['instructors']),);
+      title: json['title'],
+      startTime: json['date']["start_time"],
+      endTime: json['date']["end_time"],
+      weekday: json['date']["weekday"],
+      section: json['date']["section"],
+      building: json['location']["building"],
+      room: json['location']["room"],
+        instructors: List<String>.from(json['instructors'])
+    );
   }
 
-  Map<String, dynamic> toJson() =>
-      {
+  String getInstructors() {
+    String text = "";
+    if(instructors.length>0){
+      text += instructors[0];
+      for(var i = 1 ; i < instructors.length ; i++)
+        text += ",${instructors[i]}";
+    }
+    return text;
+  }
+
+  Map<String, dynamic> toJson() => {
         'title': title,
         'instructors': instructors,
       };
