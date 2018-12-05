@@ -15,6 +15,4 @@ class Constants {
   static const PREF_VIBRATE_COURSE = "pref_vibrate_course";
 
   static const SCHEDULE_DATA = "schedule_data";
-
-  static const APP_VERSION = "v0.3.1";
 }
