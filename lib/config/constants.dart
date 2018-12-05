@@ -1,4 +1,10 @@
 class Constants {
+  static bool get isInDebugMode {
+    bool inDebugMode = false;
+    assert(inDebugMode = true);
+    return inDebugMode;
+  }
+
   static const PREF_FIRST_ENTER_APP = "pref_first_enter_app";
   static const PREF_REMEMBER_PASSWORD = "pref_remember_password";
   static const PREF_USERNAME = "pref_username";

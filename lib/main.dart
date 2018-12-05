@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -10,7 +11,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 
 void main() async {
-  bool isInDebugMode = false;
+  bool isInDebugMode = Constants.isInDebugMode;
   FlutterError.onError = (FlutterErrorDetails details) {
     if (isInDebugMode) {
       // In development mode simply print to console.

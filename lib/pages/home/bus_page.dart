@@ -19,29 +19,37 @@ class BusPageRoute extends MaterialPageRoute {
 
 class BusPage extends StatefulWidget {
   static const String routerName = "/bus";
-
-  @override
-  BusPageState createState() => new BusPageState();
-}
-
-class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  int _currentIndex = 0;
   final List<Widget> _children = [
     new BusReservePage(),
     new BusReservationsPage()
   ];
+
+  @override
+  BusPageState createState() => new BusPageState(_children);
+}
+
+class BusPageState extends State<BusPage>
+    with SingleTickerProviderStateMixin {
+  final List<Widget> _children;
+  int _currentIndex = 0;
   List<String> _title;
 
   AppLocalizations local;
 
+  TabController controller;
+
+  BusPageState(this._children);
+
   @override
   void initState() {
     super.initState();
+    controller = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     super.dispose();
+    controller.dispose();
   }
 
   @override
@@ -55,7 +63,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         title: new Text(_title[_currentIndex]),
         backgroundColor: Resource.Colors.blue,
       ),
-      body: _children[_currentIndex],
+      body: TabBarView(children: _children,controller: controller,physics: new NeverScrollableScrollPhysics()),
       bottomNavigationBar: new BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
@@ -77,6 +85,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+      controller.animateTo(_currentIndex);
     });
   }
 }
