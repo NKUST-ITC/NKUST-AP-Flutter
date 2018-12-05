@@ -136,9 +136,11 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getUserPicture() {
     Helper.instance.getUsersPicture().then((url) {
-      setState(() {
-        pictureUrl = url;
-      });
+      if (this.mounted) {
+        setState(() {
+          pictureUrl = url;
+        });
+      }
     }).catchError((e) {
       assert(e is DioError);
       DioError dioError = e as DioError;
@@ -156,9 +158,11 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getUserInfo() {
     Helper.instance.getUsersInfo().then((response) {
-      setState(() {
-        userInfo = response;
-      });
+      if (this.mounted) {
+        setState(() {
+          userInfo = response;
+        });
+      }
     }).catchError((e) {
       assert(e is DioError);
       DioError dioError = e as DioError;

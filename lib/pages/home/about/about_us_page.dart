@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -55,7 +57,8 @@ class AboutUsPageState extends State<AboutUsPage>
                 IconButton(
                     icon: Icon(Icons.code),
                     onPressed: () {
-                      Navigator.of(context).pushNamed(OpenSourcePage.routerName);
+                      Navigator.of(context)
+                          .pushNamed(OpenSourcePage.routerName);
                     })
               ],
               backgroundColor: Resource.Colors.blue,
@@ -116,14 +119,26 @@ class AboutUsPageState extends State<AboutUsPage>
                           IconButton(
                             icon: Image.asset("assets/images/ic_fb.png"),
                             onPressed: () {
-                              Utils.launchUrl('https://www.facebook.com/NKUST.ITC/');
+                              if (Platform.isAndroid)
+                                Utils.launchUrl('fb://page/735951703168873')
+                                    .catchError((onError) => Utils.launchUrl(
+                                        'https://www.facebook.com/NKUST.ITC/'));
+                              else
+                                Utils.launchUrl(
+                                    'https://www.facebook.com/NKUST.ITC/');
                             },
                             iconSize: 48.0,
                           ),
                           IconButton(
                             icon: Image.asset("assets/images/ic_github.png"),
                             onPressed: () {
-                              Utils.launchUrl('https://github.com/NKUST-ITC');
+                              if (Platform.isAndroid)
+                                Utils.launchUrl(
+                                        'github://organization/NKUST-ITC')
+                                    .catchError((onError) => Utils.launchUrl(
+                                        'https://github.com/NKUST-ITC'));
+                              else
+                                Utils.launchUrl('https://github.com/NKUST-ITC');
                             },
                             iconSize: 48.0,
                           ),

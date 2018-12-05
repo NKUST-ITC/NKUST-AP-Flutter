@@ -10,6 +10,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/checkbox_title.dart';
+import 'package:package_info/package_info.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -114,12 +115,13 @@ class LoginPageState extends State<LoginPage>
 
   _showDialog() async {
     prefs = await SharedPreferences.getInstance();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await Future.delayed(Duration(milliseconds: 50));
     if (prefs.getBool(Constants.PREF_FIRST_ENTER_APP) ?? true)
       Utils.showDefaultDialog(
           context,
           AppLocalizations.of(context).updateNoteTitle,
-          "${Constants.APP_VERSION}\n"
+          "v${packageInfo.version}\n"
           "${AppLocalizations.of(context).updateNoteContent}",
           AppLocalizations.of(context).ok, () {
         prefs.setBool(Constants.PREF_FIRST_ENTER_APP, false);

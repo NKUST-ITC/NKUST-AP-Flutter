@@ -32,7 +32,10 @@ class BusReservationsPage extends StatefulWidget {
 }
 
 class BusReservationsPageState extends State<BusReservationsPage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   BusReservationsState state = BusReservationsState.loading;
   BusReservationsData busReservationsData;
   List<Widget> busReservationWeights = [];

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -8,6 +10,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:package_info/package_info.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
   SettingPageRoute()
@@ -37,6 +40,8 @@ class SettingPageState extends State<SettingPage>
       vibrateCourse = false;
 
   AppLocalizations local;
+
+  String appVersion = "1.0.0";
 
   @override
   void initState() {
@@ -96,13 +101,18 @@ class SettingPageState extends State<SettingPage>
               ),
               _titleItem(local.otherInfo),
               _item(local.feedback, local.feedbackViaFacebook, () {
-                Utils.launchUrl('https://www.facebook.com/954175941266264/');
+                if (Platform.isAndroid)
+                  Utils.launchUrl('fb://messaging/954175941266264').catchError(
+                      (onError) => Utils.launchUrl(
+                          'https://www.facebook.com/954175941266264/'));
+                else
+                  Utils.launchUrl('https://www.facebook.com/954175941266264/');
               }),
               _item(local.donateTitle, local.donateContent, () {
                 Utils.launchUrl(
                     "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d");
               }),
-              _item(local.appVersion, Constants.APP_VERSION, () {}),
+              _item(local.appVersion, "v$appVersion", () {}),
             ]),
       ),
     );
@@ -141,6 +151,8 @@ class SettingPageState extends State<SettingPage>
 
   _getPreference() async {
     prefs = await SharedPreferences.getInstance();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
     displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
     setState(() {});
   }
