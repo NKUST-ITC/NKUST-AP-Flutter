@@ -409,7 +409,7 @@ class AppLocalizations {
       'course': '學期課表',
       'score': '學期成績',
       'leave': '缺曠系統',
-      'bus': '校車系統',
+      'bus': '校車系統(建工/燕巢)',
       'simcourse': '模擬選課',
       'school_info': '校園資訊',
       'notifications': '最新消息',
@@ -728,6 +728,8 @@ class AppLocalizations {
   String get reserving => _vocabularies['reserving'];
 
   String get canceling => _vocabularies['canceling'];
+
+  String get logout => _vocabularies['logout'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

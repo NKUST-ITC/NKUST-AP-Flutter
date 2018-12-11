@@ -98,6 +98,8 @@ class LoginPageState extends State<LoginPage>
                   onTap: () => _onChanged(!isRememberPassword),
                 ),
                 RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(24.0))),
                   padding: EdgeInsets.all(12.0),
                   onPressed: _login,
                   color: Colors.grey[300],
