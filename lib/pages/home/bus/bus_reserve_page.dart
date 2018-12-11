@@ -273,10 +273,12 @@ class BusReservePageState extends State<BusReservePage>
           break;
         case DioErrorType.DEFAULT:
           if (dioError.message.contains("HttpException")) {
-            setState(() {
-              state = BusReserveState.error;
-              Utils.showToast(local.busFailInfinity);
-            });
+            if (mounted) {
+              setState(() {
+                state = BusReserveState.error;
+                Utils.showToast(local.busFailInfinity);
+              });
+            }
           }
           break;
         case DioErrorType.CANCEL:
