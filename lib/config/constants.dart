@@ -15,4 +15,6 @@ class Constants {
   static const PREF_VIBRATE_COURSE = "pref_vibrate_course";
 
   static const SCHEDULE_DATA = "schedule_data";
+
+  static const TAG_STUDENT_PICTURE = "student_picture";
 }

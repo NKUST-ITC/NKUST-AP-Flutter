@@ -661,6 +661,8 @@ class AppLocalizations {
 
   String get percentage => _vocabularies['percentage'];
 
+  String get userInfo => _vocabularies['user'];
+
   String get educationSystem => _vocabularies['education_system'];
 
   String get department => _vocabularies['department'];
