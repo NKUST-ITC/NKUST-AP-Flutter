@@ -23,6 +23,11 @@ class DrawerBodyState extends State<DrawerBody> {
   SharedPreferences prefs;
   bool displayPicture = true;
 
+  AppLocalizations app;
+
+  bool isStudyExpanded = false;
+  bool isBusExpanded = false;
+
   @override
   void initState() {
     super.initState();
@@ -36,103 +41,158 @@ class DrawerBodyState extends State<DrawerBody> {
     super.dispose();
   }
 
+  _defaultStyle() => TextStyle(color: Resource.Colors.grey, fontSize: 16.0);
+
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return Drawer(
-      semanticLabel: "測試",
-      child: Column(
-        children: <Widget>[
-          Container(
-            decoration: new BoxDecoration(
-              image: new DecorationImage(
-                image: new AssetImage("assets/images/kuasap3.png"),
-                fit: BoxFit.fill,
-              ),
-            ),
-            width: double.infinity,
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              child: Flex(
-                direction: Axis.vertical,
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              color: Color(0xff0071FF),
+              width: double.infinity,
+              child: Stack(
                 children: <Widget>[
-                  SizedBox(height: 40.0),
-                  pictureUrl != "" && displayPicture
-                      ? Container(
-                          width: 72.0,
-                          height: 72.0,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: new DecorationImage(
-                              fit: BoxFit.fill,
-                              image: NetworkImage(pictureUrl),
-                            ),
-                          ),
+                  Container(
+                    width: double.infinity,
+                    decoration: new BoxDecoration(
+                      image: new DecorationImage(
+                          image: new AssetImage(
+                              "assets/images/drawer-backbroud.png"),
+                          fit: BoxFit.fitWidth,
+                          alignment: Alignment.bottomCenter),
+                    ),
+                    padding: EdgeInsets.all(20.0),
+                    child: Flex(
+                      direction: Axis.vertical,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 40.0),
+                        pictureUrl != "" && displayPicture
+                            ? Container(
+                                width: 72.0,
+                                height: 72.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: new DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: NetworkImage(pictureUrl),
+                                  ),
+                                ),
+                              )
+                            : Container(
+                                width: 72.0,
+                                height: 72.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white,
+                                  size: 72.0,
+                                ),
+                              ),
+                        SizedBox(height: 16.0),
+                        Text(
+                          userInfo == null
+                              ? ""
+                              : "${userInfo.nameCht}\n"
+                              "${userInfo.id}",
+                          style: TextStyle(color: Colors.white),
                         )
-                      : Container(
-                          width: 72.0,
-                          height: 72.0,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.account_circle,
-                            color: Colors.white,
-                            size: 72.0,
-                          ),
-                        ),
-                  SizedBox(height: 16.0),
-                  Text(
-                    userInfo == null
-                        ? ""
-                        : "${userInfo.nameCht}\n"
-                        "${userInfo.id}",
-                    style: TextStyle(color: Colors.white),
-                  )
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 20.0,
+                    right: 20.0,
+                    child: Container(
+                      child: Image.asset(
+                        "assets/images/drawer-icon.png",
+                        width: 90.0,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          ),
-          _item(Icons.class_, AppLocalizations.of(context).course,
-              CoursePageRoute()),
-          _item(Icons.assignment, AppLocalizations.of(context).score,
-              ScorePageRoute()),
-          _item(Icons.directions_bus, AppLocalizations.of(context).bus,
-              BusPageRoute()),
-          _item(Icons.info, AppLocalizations.of(context).schoolInfo,
-              SchoolInfoPageRoute()),
-          _item(Icons.face, AppLocalizations.of(context).about,
-              AboutUsPageRoute()),
-          _item(Icons.settings, AppLocalizations.of(context).settings,
-              SettingPageRoute()),
-        ],
+            ExpansionTile(
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isStudyExpanded = bool;
+                });
+              },
+              leading: Icon(
+                Icons.class_,
+                color: isStudyExpanded
+                    ? Resource.Colors.blue
+                    : Resource.Colors.grey,
+              ),
+              title: Text(app.course, style: _defaultStyle()),
+              children: <Widget>[
+                _subItem(Icons.class_, app.course, CoursePageRoute()),
+                _subItem(Icons.assignment, app.score, ScorePageRoute()),
+              ],
+            ),
+            ExpansionTile(
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isBusExpanded = bool;
+                });
+              },
+              leading: Icon(
+                Icons.directions_bus,
+                color:
+                    isBusExpanded ? Resource.Colors.blue : Resource.Colors.grey,
+              ),
+              title: Text(app.bus, style: _defaultStyle()),
+              children: <Widget>[
+                _subItem(Icons.date_range, app.busReserve,
+                    BusPageRoute(initIndex: 0)),
+                _subItem(Icons.assignment, app.busReservations,
+                    BusPageRoute(initIndex: 1)),
+              ],
+            ),
+            _item(Icons.info, app.schoolInfo, SchoolInfoPageRoute()),
+            _item(Icons.face, app.about, AboutUsPageRoute()),
+            _item(Icons.settings, app.settings, SettingPageRoute()),
+            ListTile(
+              leading: Icon(
+                Icons.power_settings_new,
+                color: Resource.Colors.grey,
+              ),
+              onTap: () {
+                Navigator.popUntil(
+                    context, ModalRoute.withName(Navigator.defaultRouteName));
+              },
+              title: Text(app.logout, style: _defaultStyle()),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  _item(IconData icon, String title, MaterialPageRoute route) => FlatButton(
-      onPressed: () {
-        Navigator.of(context).pop();
-        Navigator.of(context).push(route);
-      },
-      child: Row(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(18.0),
-            child: Icon(
-              icon,
-              size: 24.0,
-              color: Resource.Colors.grey,
-            ),
-          ),
-          SizedBox(width: 4.0),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Resource.Colors.grey, fontSize: 16.0),
-          )
-        ],
-      ));
+  _item(IconData icon, String title, MaterialPageRoute route) => ListTile(
+        leading: Icon(icon, color: Resource.Colors.grey),
+        title: Text(title, style: _defaultStyle()),
+        onTap: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(route);
+        },
+      );
+
+  _subItem(IconData icon, String title, MaterialPageRoute route) => ListTile(
+        contentPadding: EdgeInsets.symmetric(horizontal: 72.0),
+        leading: Icon(icon, color: Resource.Colors.grey),
+        title: Text(title, style: _defaultStyle()),
+        onTap: () {
+          Navigator.of(context).pop();
+          Navigator.of(context).push(route);
+        },
+      );
 
   _getUserPicture() {
     Helper.instance.getUsersPicture().then((url) {
@@ -146,7 +206,7 @@ class DrawerBodyState extends State<DrawerBody> {
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(LoginPage.routerName));
           break;
@@ -168,7 +228,7 @@ class DrawerBodyState extends State<DrawerBody> {
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(LoginPage.routerName));
           break;

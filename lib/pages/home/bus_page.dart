@@ -8,12 +8,18 @@ import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusPageRoute extends MaterialPageRoute {
-  BusPageRoute() : super(builder: (BuildContext context) => new BusPage());
+  BusPageRoute({this.initIndex = 0})
+      : super(
+            builder: (BuildContext context) =>
+                new BusPage(initIndex: initIndex));
+
+  final int initIndex;
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new BusPage());
+    return new FadeTransition(
+        opacity: animation, child: new BusPage(initIndex: initIndex));
   }
 }
 
@@ -23,14 +29,17 @@ class BusPage extends StatefulWidget {
     new BusReservePage(),
     new BusReservationsPage()
   ];
+  final int initIndex;
+
+  BusPage({this.initIndex = 0});
 
   @override
-  BusPageState createState() => new BusPageState(_children);
+  BusPageState createState() => new BusPageState(_children, initIndex);
 }
 
-class BusPageState extends State<BusPage>
-    with SingleTickerProviderStateMixin {
+class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   final List<Widget> _children;
+  final int initIndex;
   int _currentIndex = 0;
   List<String> _title;
 
@@ -38,12 +47,14 @@ class BusPageState extends State<BusPage>
 
   TabController controller;
 
-  BusPageState(this._children);
+  BusPageState(this._children, this.initIndex) {
+    _currentIndex = initIndex;
+  }
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 2, vsync: this);
+    controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
   }
 
   @override
@@ -63,7 +74,10 @@ class BusPageState extends State<BusPage>
         title: new Text(_title[_currentIndex]),
         backgroundColor: Resource.Colors.blue,
       ),
-      body: TabBarView(children: _children,controller: controller,physics: new NeverScrollableScrollPhysics()),
+      body: TabBarView(
+          children: _children,
+          controller: controller,
+          physics: new NeverScrollableScrollPhysics()),
       bottomNavigationBar: new BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,

@@ -88,7 +88,7 @@ class ScorePageState extends State<ScorePage>
   Widget _scoreTextBorder(String text, bool isTitle) {
     return Container(
       width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical:2.0,horizontal: 4.0),
+      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
       alignment: Alignment.center,
       child: Text(
         text ?? "",
@@ -310,22 +310,24 @@ class ScorePageState extends State<ScorePage>
           }
         });
       }).catchError((e) {
-        assert(e is DioError);
-        DioError dioError = e as DioError;
-        switch (dioError.type) {
-          case DioErrorType.RESPONSE:
-            Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            setState(() {
-              state = ScoreState.error;
-              Utils.handleDioError(dioError, local);
-            });
-            break;
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+              Navigator.popUntil(
+                  context, ModalRoute.withName(Navigator.defaultRouteName));
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              setState(() {
+                state = ScoreState.error;
+                Utils.handleDioError(e, local);
+              });
+              break;
+          }
+        } else {
+          throw e;
         }
       });
     } else {
