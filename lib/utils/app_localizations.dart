@@ -203,6 +203,7 @@ class AppLocalizations {
       'close_drawer': 'Close Menu',
       'news': 'News',
       'offline_course': 'Offline Class Schedule',
+      'course_info': 'Course info',
       'course': 'Class Schedule',
       'score': 'Report Card',
       'leave': 'Absent System',
@@ -406,6 +407,7 @@ class AppLocalizations {
       'close_drawer': '關閉功能表',
       'news': '最新消息',
       'offline_course': '離線課表',
+      'course_info': '課程學習',
       'course': '學期課表',
       'score': '學期成績',
       'leave': '缺曠系統',
@@ -734,6 +736,10 @@ class AppLocalizations {
   String get logout => _vocabularies['logout'];
 
   String get news => _vocabularies['news'];
+
+  String get logoutCheck => _vocabularies['logout_check'];
+
+  String get courseInfo => _vocabularies['course_info'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

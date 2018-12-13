@@ -141,7 +141,7 @@ class UserInfoPageState extends State<UserInfoPage>
         case DioErrorType.RESPONSE:
           Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
-              context, ModalRoute.withName(LoginPage.routerName));
+              context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         default:
           break;
@@ -168,7 +168,7 @@ class UserInfoPageState extends State<UserInfoPage>
         case DioErrorType.RESPONSE:
           Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
-              context, ModalRoute.withName(LoginPage.routerName));
+              context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         default:
           break;

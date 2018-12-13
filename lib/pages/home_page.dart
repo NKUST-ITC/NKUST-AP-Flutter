@@ -132,16 +132,48 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return WillPopScope(
         child: Scaffold(
           appBar: new AppBar(
-            title: new Text(AppLocalizations.of(context).appName),
+            title: new Text(app.appName),
             backgroundColor: Resource.Colors.blue,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {
-                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                          title: Text(app.logout,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Resource.Colors.blue)),
+                          content: Text(app.logoutCheck,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Resource.Colors.grey)),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text(app.cancel,
+                                  style:
+                                      TextStyle(color: Resource.Colors.grey)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              child: Text(app.ok,
+                                  style:
+                                      TextStyle(color: Resource.Colors.grey)),
+                              onPressed: () {
+                                Navigator.popUntil(
+                                    context,
+                                    ModalRoute.withName(
+                                        Navigator.defaultRouteName));
+                              },
+                            )
+                          ],
+                        ),
+                  );
                 },
               )
             ],
@@ -161,15 +193,15 @@ class HomePageState extends State<HomePage> {
             items: [
               BottomNavigationBarItem(
                 icon: Icon(Icons.directions_bus),
-                title: Text(AppLocalizations.of(context).bus),
+                title: Text(app.bus),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.class_),
-                title: Text(AppLocalizations.of(context).course),
+                title: Text(app.course),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment),
-                title: Text(AppLocalizations.of(context).score),
+                title: Text(app.score),
               ),
             ],
           ),
@@ -211,7 +243,7 @@ class HomePageState extends State<HomePage> {
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
