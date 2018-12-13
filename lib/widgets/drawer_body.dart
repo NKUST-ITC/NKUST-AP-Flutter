@@ -53,69 +53,81 @@ class DrawerBodyState extends State<DrawerBody> {
             Container(
               color: Color(0xff0071FF),
               width: double.infinity,
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    width: double.infinity,
-                    decoration: new BoxDecoration(
-                      image: new DecorationImage(
-                          image: new AssetImage(
-                              "assets/images/drawer-backbroud.png"),
-                          fit: BoxFit.fitWidth,
-                          alignment: Alignment.bottomCenter),
-                    ),
-                    padding: EdgeInsets.all(20.0),
-                    child: Flex(
-                      direction: Axis.vertical,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 40.0),
-                        pictureUrl != "" && displayPicture
-                            ? Container(
-                                width: 72.0,
-                                height: 72.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: new DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: NetworkImage(pictureUrl),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(UserInfoPageRoute());
+                },
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      width: double.infinity,
+                      decoration: new BoxDecoration(
+                        image: new DecorationImage(
+                            image: new AssetImage(
+                                "assets/images/drawer-backbroud.png"),
+                            fit: BoxFit.fitWidth,
+                            alignment: Alignment.bottomCenter),
+                      ),
+                      padding: EdgeInsets.all(20.0),
+                      child: Flex(
+                          direction: Axis.vertical,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            SizedBox(height: 40.0),
+                            pictureUrl != "" && displayPicture
+                                ? Hero(
+                                    tag: Constants.TAG_STUDENT_PICTURE,
+                                    child: Container(
+                                      width: 72.0,
+                                      height: 72.0,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: new DecorationImage(
+                                          fit: BoxFit.fitWidth,
+                                          image: NetworkImage(pictureUrl),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    width: 72.0,
+                                    height: 72.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.account_circle,
+                                      color: Colors.white,
+                                      size: 72.0,
+                                    ),
                                   ),
-                                ),
-                              )
-                            : Container(
-                                width: 72.0,
-                                height: 72.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.account_circle,
-                                  color: Colors.white,
-                                  size: 72.0,
-                                ),
+                            SizedBox(height: 16.0),
+                            SizedBox(
+                              height: 32.0,
+                              child: Text(
+                                userInfo == null
+                                    ? " \n "
+                                    : "${userInfo.nameCht}\n"
+                                    "${userInfo.id}",
+                                style: TextStyle(color: Colors.white),
                               ),
-                        SizedBox(height: 16.0),
-                        Text(
-                          userInfo == null
-                              ? ""
-                              : "${userInfo.nameCht}\n"
-                              "${userInfo.id}",
-                          style: TextStyle(color: Colors.white),
-                        )
-                      ],
+                            ),
+                          ],
+                        ),
+
                     ),
-                  ),
-                  Positioned(
-                    bottom: 20.0,
-                    right: 20.0,
-                    child: Container(
-                      child: Image.asset(
-                        "assets/images/drawer-icon.png",
-                        width: 90.0,
+                    Positioned(
+                      bottom: 20.0,
+                      right: 20.0,
+                      child: Container(
+                        child: Image.asset(
+                          "assets/images/drawer-icon.png",
+                          width: 90.0,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             ExpansionTile(

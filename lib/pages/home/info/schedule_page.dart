@@ -7,7 +7,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
-enum ScheduleState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 
 class SchedulePageRoute extends MaterialPageRoute {
   SchedulePageRoute()
@@ -33,7 +33,7 @@ class SchedulePageState extends State<SchedulePage>
 
   List<ScheduleData> scheduleList = [];
 
-  ScheduleState state = ScheduleState.loading;
+  _State state = _State.loading;
 
   int page = 1;
 
@@ -102,11 +102,11 @@ class SchedulePageState extends State<SchedulePage>
 
   Widget _body() {
     switch (state) {
-      case ScheduleState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case ScheduleState.error:
-      case ScheduleState.empty:
+      case _State.error:
+      case _State.empty:
         return FlatButton(
           onPressed: _getSchedules,
           child: Center(
@@ -122,7 +122,7 @@ class SchedulePageState extends State<SchedulePage>
                   width: 200.0,
                 ),
                 Text(
-                  state == ScheduleState.error
+                  state == _State.error
                       ? AppLocalizations.of(context).clickToRetry
                       : "Oops！本學期沒有任何行事曆資料哦～\n請點選重試\uD83D\uDE0B",
                   textAlign: TextAlign.center,
@@ -139,7 +139,7 @@ class SchedulePageState extends State<SchedulePage>
   }
 
   _getSchedules() async {
-    state = ScheduleState.loading;
+    state = _State.loading;
     setState(() {});
     final RemoteConfig remoteConfig = await RemoteConfig.instance;
     await remoteConfig.fetch(expiration: const Duration(hours: 5));
@@ -147,7 +147,7 @@ class SchedulePageState extends State<SchedulePage>
     JsonCodec jsonCodec = JsonCodec();
     var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
     if (data.isEmpty)
-      state = ScheduleState.error;
+      state = _State.error;
     else {
       print(data);
       var jsonArray = jsonCodec.decode(data);
@@ -155,9 +155,9 @@ class SchedulePageState extends State<SchedulePage>
       scheduleWeights.clear();
       for (var i in scheduleList) scheduleWeights.add(_scheduleItem(i));
       if (scheduleList.length == 0)
-        state = ScheduleState.empty;
+        state = _State.empty;
       else
-        state = ScheduleState.finish;
+        state = _State.finish;
     }
     setState(() {});
   }

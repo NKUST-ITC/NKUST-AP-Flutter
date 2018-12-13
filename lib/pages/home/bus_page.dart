@@ -41,9 +41,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   final List<Widget> _children;
   final int initIndex;
   int _currentIndex = 0;
-  List<String> _title;
-
-  AppLocalizations local;
+  AppLocalizations app;
 
   TabController controller;
 
@@ -65,13 +63,12 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
-    _title = [local.busReserve, local.busReservations];
+    app = AppLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(_title[_currentIndex]),
+        title: new Text(app.bus),
         backgroundColor: Resource.Colors.blue,
       ),
       body: TabBarView(
@@ -85,11 +82,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.date_range),
-            title: Text(_title[0]),
+            title: Text(app.busReserve),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            title: Text(_title[1]),
+            title: Text(app.busReservations),
           ),
         ],
       ),

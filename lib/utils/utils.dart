@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:share/share.dart';
 
 class Utils {
   static void handleDioError(DioError dioError, AppLocalizations app) {
@@ -75,5 +79,11 @@ class Utils {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  static void shareTo(String content) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    Share.share("$content\n\n"
+        "Send from ${packageInfo.appName} ${Platform.operatingSystem}");
   }
 }

@@ -58,11 +58,12 @@ class LoginPageState extends State<LoginPage>
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Center(
-                  child: Text(
-                    "K",
-                    style: TextStyle(color: Colors.white, fontSize: 128.0),
+                  child: Image.asset(
+                    "assets/images/K.png",
+                    width: 120.0,
                   ),
                 ),
+                SizedBox(height: 30.0),
                 TextField(
                   maxLines: 1,
                   controller: _username,
@@ -80,9 +81,6 @@ class LoginPageState extends State<LoginPage>
                   ),
                   style: _editTextStyle(),
                 ),
-                SizedBox(
-                  height: 15.0,
-                ),
                 GestureDetector(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -99,10 +97,10 @@ class LoginPageState extends State<LoginPage>
                 ),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(24.0))),
-                  padding: EdgeInsets.all(12.0),
+                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                  padding: EdgeInsets.all(16.0),
                   onPressed: _login,
-                  color: Colors.grey[300],
+                  color: Colors.white,
                   child: new Text(
                     AppLocalizations.of(context).login,
                     style: new TextStyle(

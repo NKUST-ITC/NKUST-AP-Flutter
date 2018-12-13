@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 0.4.1+401
+version: 0.4.2+402
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -24,6 +24,7 @@ dependencies:
   carousel_slider: ^0.0.7
   flutter_crashlytics: 0.1.1
   package_info: ^0.3.2
+  share: ^0.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -50,6 +51,7 @@ flutter:
      - assets/images/ic_email.png
      - assets/images/drawer-backbroud.png
      - assets/images/drawer-icon.png
+     - assets/images/K.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg
