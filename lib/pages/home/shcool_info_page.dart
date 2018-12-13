@@ -27,30 +27,39 @@ class SchoolInfoPage extends StatefulWidget {
 class SchoolInfoPageState extends State<SchoolInfoPage>
     with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+  TabController controller;
   final List<Widget> _children = [
     new NotificationPage(),
     new PhonePage(),
     new SchedulePage()
   ];
 
+  AppLocalizations app;
+
   @override
   void initState() {
     super.initState();
+    controller = TabController(length: 3, vsync: this);
   }
 
   @override
   void dispose() {
     super.dispose();
+    controller.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(AppLocalizations.of(context).messages[_currentIndex]),
+        title: new Text(app.schoolInfo),
         backgroundColor: Resource.Colors.blue,
       ),
-      body: _children[_currentIndex],
+      body: TabBarView(
+          children: _children,
+          controller: controller,
+          physics: new NeverScrollableScrollPhysics()),
       bottomNavigationBar: new BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
@@ -58,15 +67,15 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.fiber_new),
-            title: Text(AppLocalizations.of(context).notifications),
+            title: Text(app.notifications),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.phone),
-            title: Text(AppLocalizations.of(context).phones),
+            title: Text(app.phones),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.date_range),
-            title: Text(AppLocalizations.of(context).events),
+            title: Text(app.events),
           ),
         ],
       ),
@@ -76,6 +85,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+      controller.animateTo(_currentIndex);
     });
   }
 }

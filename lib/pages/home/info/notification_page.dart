@@ -6,7 +6,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
-enum NotificationState { loading, finish, loadingMore, error, empty }
+enum _State { loading, finish, loadingMore, error, empty }
 
 class NotificationPageRoute extends MaterialPageRoute {
   NotificationPageRoute()
@@ -33,14 +33,14 @@ class NotificationPageState extends State<NotificationPage>
   List<NotificationModel> notificationList = [];
   int page = 1;
 
-  NotificationState state = NotificationState.loading;
+  _State state = _State.loading;
 
   AppLocalizations app;
 
   @override
   void initState() {
     controller = new ScrollController()..addListener(_scrollListener);
-    state = NotificationState.loading;
+    state = _State.loading;
     setState(() {});
     _getNotifications();
     super.initState();
@@ -62,49 +62,53 @@ class NotificationPageState extends State<NotificationPage>
   }
 
   Widget _notificationItem(NotificationModel notification) {
-    return FlatButton(
-      padding: EdgeInsets.all(0.0),
-      onPressed: () {
-        Utils.launchUrl(notification.link);
+    return GestureDetector(
+      onLongPress: () {
+        Utils.shareTo("${notification.info.title}\n${notification.link}");
       },
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(16.0),
-        decoration: new BoxDecoration(
-          border: new Border(
-            top: BorderSide(color: Colors.grey, width: 0.5),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              notification.info.title ?? "",
-              style: _textStyle(),
-              textAlign: TextAlign.left,
+      child: FlatButton(
+          padding: EdgeInsets.all(0.0),
+          onPressed: () {
+            Utils.launchUrl(notification.link);
+          },
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16.0),
+            decoration: new BoxDecoration(
+              border: new Border(
+                top: BorderSide(color: Colors.grey, width: 0.5),
+              ),
             ),
-            SizedBox(height: 8.0),
-            Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Expanded(
-                  child: Text(
-                    notification.info.department ?? "",
-                    style: _textGreyStyle(),
-                    textAlign: TextAlign.left,
-                  ),
+                Text(
+                  notification.info.title ?? "",
+                  style: _textStyle(),
+                  textAlign: TextAlign.left,
                 ),
-                Expanded(
-                  child: Text(
-                    notification.info.date ?? "",
-                    style: _textGreyStyle(),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
+                SizedBox(height: 8.0),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        notification.info.department ?? "",
+                        style: _textGreyStyle(),
+                        textAlign: TextAlign.left,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        notification.info.date ?? "",
+                        style: _textGreyStyle(),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
-      ),
+            ),
+          )),
     );
   }
 
@@ -116,11 +120,11 @@ class NotificationPageState extends State<NotificationPage>
 
   Widget _body() {
     switch (state) {
-      case NotificationState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case NotificationState.error:
-      case NotificationState.empty:
+      case _State.error:
+      case _State.empty:
         //TODO 優化
         return FlatButton(
           onPressed: () {},
@@ -137,9 +141,7 @@ class NotificationPageState extends State<NotificationPage>
                   width: 200.0,
                 ),
                 Text(
-                  state == NotificationState.error
-                      ? "發生錯誤，點擊重試"
-                      : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
+                  state == _State.error ? app.clickToRetry : app.clickToRetry,
                   textAlign: TextAlign.center,
                 )
               ],
@@ -149,7 +151,7 @@ class NotificationPageState extends State<NotificationPage>
       default:
         return RefreshIndicator(
           onRefresh: () {
-            state = NotificationState.loading;
+            state = _State.loading;
             setState(() {});
             notificationList.clear();
             _getNotifications();
@@ -167,10 +169,10 @@ class NotificationPageState extends State<NotificationPage>
 
   void _scrollListener() {
     if (controller.position.extentAfter < 500) {
-      if (state == NotificationState.finish) {
+      if (state == _State.finish) {
         setState(() {
           page++;
-          state = NotificationState.loadingMore;
+          state = _State.loadingMore;
           _getNotifications();
         });
       }
@@ -183,7 +185,7 @@ class NotificationPageState extends State<NotificationPage>
       for (var notification in notificationData.notifications) {
         notificationList.add(notification);
       }
-      state = NotificationState.finish;
+      state = _State.finish;
       setState(() {});
     }).catchError((e) {
       assert(e is DioError);

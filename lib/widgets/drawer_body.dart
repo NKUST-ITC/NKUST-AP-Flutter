@@ -83,7 +83,7 @@ class DrawerBodyState extends State<DrawerBody> {
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         image: new DecorationImage(
-                                          fit: BoxFit.fill,
+                                          fit: BoxFit.fitWidth,
                                           image: NetworkImage(pictureUrl),
                                         ),
                                       ),
