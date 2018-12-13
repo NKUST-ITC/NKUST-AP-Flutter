@@ -16,3 +16,4 @@ export 'home/setting_page.dart';
 export 'home/about/about_us_page.dart';
 export 'home/about/open_source_page.dart';
 export 'home/user_info_page.dart';
+export 'home/news_content_page.dart';

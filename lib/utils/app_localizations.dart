@@ -732,6 +732,8 @@ class AppLocalizations {
   String get canceling => _vocabularies['canceling'];
 
   String get logout => _vocabularies['logout'];
+
+  String get news => _vocabularies['news'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

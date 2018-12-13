@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -38,9 +39,9 @@ class HomePageState extends State<HomePage> {
   int _currentNewsIndex = 0;
 
   List<Widget> newsWidgets = [];
-  List<News> news = [];
+  List<News> newsList = [];
 
-  double contentHeight;
+  CarouselSlider cardSlider;
 
   @override
   void initState() {
@@ -57,10 +58,11 @@ class HomePageState extends State<HomePage> {
     return Container(
       margin: EdgeInsets.all(5.0),
       child: GestureDetector(
-          onTap: () {
-            Utils.launchUrl(news.url);
-          },
-          child: Image.network(news.image)),
+        onTap: () {
+          Navigator.of(context).push(NewsContentPageRoute(news));
+        },
+        child: Image.network(news.image),
+      ),
     );
   }
 
@@ -75,16 +77,25 @@ class HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              news[_currentNewsIndex].title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 20.0,
-                  color: Resource.Colors.grey,
-                  fontWeight: FontWeight.w500),
+            Hero(
+              tag: Constants.TAG_NEWS_TITLE,
+              child: Material(
+                color: Colors.transparent,
+                child: Text(
+                  newsList[_currentNewsIndex].title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      color: Resource.Colors.grey,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
             ),
-            Icon(Icons.arrow_drop_down),
-            CarouselSlider(
+            Hero(
+              tag: Constants.TAG_NEWS_ICON,
+              child: Icon(Icons.arrow_drop_down),
+            ),
+            cardSlider = CarouselSlider(
               items: newsWidgets,
               viewportFraction: 0.65,
               aspectRatio: 7 / 6,
@@ -187,13 +198,13 @@ class HomePageState extends State<HomePage> {
 
   _getAllNews() {
     state = _Status.loading;
-    Helper.instance.getAllNews().then((news) {
-      this.news = news;
+    Helper.instance.getAllNews().then((newsList) {
+      this.newsList = newsList;
+      newsList.forEach((news) {
+        newsWidgets.add(_newImage(news));
+      });
       setState(() {
-        news.forEach((news) {
-          newsWidgets.add(_newImage(news));
-        });
-        state = news.length == 0 ? _Status.empty : _Status.finish;
+        state = newsList.length == 0 ? _Status.empty : _Status.finish;
       });
     }).catchError((e) {
       assert(e is DioError);
