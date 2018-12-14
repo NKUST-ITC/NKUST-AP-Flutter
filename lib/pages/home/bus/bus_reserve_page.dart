@@ -8,9 +8,10 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 
-enum BusReserveState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 enum Station { janGong, yanchao }
 
 class BusReservePageRoute extends MaterialPageRoute {
@@ -36,14 +37,14 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  BusReserveState state = BusReserveState.loading;
+  _State state = _State.loading;
   BusData busData;
   List<Widget> busTimeWeights = [];
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations local;
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -63,34 +64,18 @@ class BusReservePageState extends State<BusReservePage>
 
   Widget _body() {
     switch (state) {
-      case BusReserveState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case BusReserveState.error:
-      case BusReserveState.empty:
+      case _State.error:
+      case _State.empty:
         return FlatButton(
-            onPressed: _getBusTimeTables,
-            child: Center(
-              child: Flex(
-                mainAxisAlignment: MainAxisAlignment.center,
-                direction: Axis.vertical,
-                children: <Widget>[
-                  SizedBox(
-                    child: Icon(
-                      Icons.directions_bus,
-                      size: 150.0,
-                    ),
-                    width: 200.0,
-                  ),
-                  Text(
-                    state == BusReserveState.error
-                        ? local.clickToRetry
-                        : local.busEmpty,
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            ));
+          onPressed: _getBusTimeTables,
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.busEmpty,
+          ),
+        );
       default:
         return ListView(
           children: busTimeWeights,
@@ -106,33 +91,33 @@ class BusReservePageState extends State<BusReservePage>
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
-                      start = local.fromJiangong;
+                      start = app.fromJiangong;
                     else if (selectStartStation == Station.yanchao)
-                      start = local.fromYanchao;
+                      start = app.fromYanchao;
                     showDialog(
                         context: context,
                         builder: (BuildContext context) => AlertDialog(
                               title: Text(
-                                  "${busTime.getSpecialTrainTitle(local)}"
-                                  "${busTime.specialTrain == "0" ? local.reserve : ""}",
+                                  "${busTime.getSpecialTrainTitle(app)}"
+                                  "${busTime.specialTrain == "0" ? app.reserve : ""}",
                                   textAlign: TextAlign.center,
                                   style:
                                       TextStyle(color: Resource.Colors.blue)),
                               content: Text(
-                                "${busTime.getSpecialTrainRemark()}${local.busReserveConfirmTitle}\n"
+                                "${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n"
                                     "${busTime.time} $start",
                                 textAlign: TextAlign.center,
                               ),
                               actions: <Widget>[
                                 FlatButton(
-                                  child: Text(local.cancel),
+                                  child: Text(app.cancel),
                                   onPressed: () {
                                     Navigator.of(context, rootNavigator: true)
                                         .pop('dialog');
                                   },
                                 ),
                                 FlatButton(
-                                  child: Text(local.reserve),
+                                  child: Text(app.reserve),
                                   onPressed: () {
                                     Navigator.of(context, rootNavigator: true)
                                         .pop('dialog');
@@ -165,7 +150,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "${busTime.reserveCount} ${local.people}",
+                    "${busTime.reserveCount} ${app.people}",
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -173,7 +158,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busTime.getSpecialTrainTitle(local),
+                    busTime.getSpecialTrainTitle(app),
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -189,7 +174,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busTime.getReserveState(local),
+                    busTime.getReserveState(app),
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -209,7 +194,7 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return Flex(
       direction: Axis.vertical,
       children: <Widget>[
@@ -228,24 +213,23 @@ class BusReservePageState extends State<BusReservePage>
                 Station.janGong: Container(
                   padding:
                       EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(local.fromJiangong),
+                  child: Text(app.fromJiangong),
                 ),
                 Station.yanchao: Container(
                   padding:
                       EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(local.fromYanchao),
+                  child: Text(app.fromYanchao),
                 )
               },
               onValueChanged: (Station text) {
                 selectStartStation = text;
-                if (state == BusReserveState.finish)
+                if (state == _State.finish)
                   _updateBusTimeTables();
                 else
                   setState(() {});
               },
             )),
         Expanded(
-          flex: 9,
           child: _body(),
         ),
       ],
@@ -255,7 +239,7 @@ class BusReservePageState extends State<BusReservePage>
   _getBusTimeTables() {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    state = BusReserveState.loading;
+    state = _State.loading;
     setState(() {});
     Helper.instance.getBusTimeTables(dateTime).then((response) {
       busData = response;
@@ -275,8 +259,8 @@ class BusReservePageState extends State<BusReservePage>
           if (dioError.message.contains("HttpException")) {
             if (mounted) {
               setState(() {
-                state = BusReserveState.error;
-                Utils.showToast(local.busFailInfinity);
+                state = _State.error;
+                Utils.showToast(app.busFailInfinity);
               });
             }
           }
@@ -285,8 +269,8 @@ class BusReservePageState extends State<BusReservePage>
           break;
         default:
           setState(() {
-            state = BusReserveState.error;
-            Utils.handleDioError(dioError, local);
+            state = _State.error;
+            Utils.handleDioError(dioError, app);
           });
           break;
       }
@@ -303,17 +287,17 @@ class BusReservePageState extends State<BusReservePage>
       //TODO 優化成物件
       String title = "", message = "";
       if (!response.data["success"]) {
-        title = local.busReserveFailTitle;
+        title = app.busReserveFailTitle;
         message = response.data["message"];
       } else {
-        title = local.busReserveSuccess;
-        message = "${local.busReserveDate}：${busTime.getDate()}\n"
-            "${local.busReserveLocation}：${busTime.getStart(local)}${local.campus}\n"
-            "${local.busReserveTime}：${busTime.time}";
+        title = app.busReserveSuccess;
+        message = "${app.busReserveDate}：${busTime.getDate()}\n"
+            "${app.busReserveLocation}：${busTime.getStart(app)}${app.campus}\n"
+            "${app.busReserveTime}：${busTime.time}";
         _getBusTimeTables();
       }
       Navigator.pop(context, 'dialog');
-      Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
+      Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       assert(e is DioError);
@@ -327,15 +311,15 @@ class BusReservePageState extends State<BusReservePage>
         case DioErrorType.DEFAULT:
           if (dioError.message.contains("HttpException")) {
             setState(() {
-              state = BusReserveState.error;
-              Utils.showToast(local.busFailInfinity);
+              state = _State.error;
+              Utils.showToast(app.busFailInfinity);
             });
           }
           break;
         case DioErrorType.CANCEL:
           break;
         default:
-          Utils.handleDioError(dioError, local);
+          Utils.handleDioError(dioError, app);
           break;
       }
     });
@@ -351,9 +335,9 @@ class BusReservePageState extends State<BusReservePage>
           busTimeWeights.add(_busTimeWidget(i));
       }
       if (busData.timetable.length != 0)
-        state = BusReserveState.finish;
+        state = _State.finish;
       else
-        state = BusReserveState.empty;
+        state = _State.empty;
       setState(() {});
     }
   }

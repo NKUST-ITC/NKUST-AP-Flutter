@@ -59,6 +59,25 @@ class Utils {
             ));
   }
 
+  static void showSnackBarBar(
+    ScaffoldState scaffold,
+    String contentText,
+    String actionText,
+    Color actionTextColor,
+  ) {
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(contentText),
+        duration: Duration(days: 1),
+        action: SnackBarAction(
+          label: actionText,
+          onPressed: () {},
+          textColor: actionTextColor,
+        ),
+      ),
+    );
+  }
+
   static Future<void> launchUrl(var url) async {
     if (await canLaunch(url)) {
       await launch(url);
