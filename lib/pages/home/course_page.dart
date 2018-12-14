@@ -293,17 +293,17 @@ class CoursePageState extends State<CoursePage>
             "Friday"
           ];
           courseWeightList = <Widget>[_textBorder("", topLeft: true)];
-          for (var week in app.weekdays.sublist(0, 4))
+          for (var week in app.weekdaysCourse.sublist(0, 4))
             courseWeightList.add(_textBorder(week));
           if (courseData.courseTables.saturday.isEmpty &&
               courseData.courseTables.sunday.isEmpty) {
-            courseWeightList.add(_textBorder(app.weekdays[4], topRight: true));
+            courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
             base = 6;
             childAspectRatio = 1.5;
           } else {
-            courseWeightList.add(_textBorder(app.weekdays[4]));
-            courseWeightList.add(_textBorder(app.weekdays[5]));
-            courseWeightList.add(_textBorder(app.weekdays[6], topRight: true));
+            courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
+            courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
+            courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;

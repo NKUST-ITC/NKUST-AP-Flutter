@@ -136,7 +136,6 @@ class Course {
   }
 
   static Course fromJson(Map<String, dynamic> json) {
-    print(json['instructors']);
     return Course(
       title: json['title'],
       startTime: json['date']["start_time"],

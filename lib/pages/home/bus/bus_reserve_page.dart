@@ -1,7 +1,7 @@
 import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -183,11 +183,8 @@ class BusReservePageState extends State<BusReservePage>
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Divider(
-              color: Colors.grey,
-              indent: 4.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(color: Colors.grey, height: 0.0),
           )
         ],
       );
@@ -195,15 +192,25 @@ class BusReservePageState extends State<BusReservePage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return Flex(
-      direction: Axis.vertical,
+    return Column(
       children: <Widget>[
-        Calendar(
-          isExpandable: false,
-          onDateSelected: (DateTime datetime) {
-            dateTime = datetime;
-            _getBusTimeTables();
-          },
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Calendar(
+            isExpandable: false,
+            showTodayAction: false,
+            showCalendarPickerIcon: false,
+            showChevronsToChangeRange: false,
+            onDateSelected: (DateTime datetime) {
+              dateTime = datetime;
+              _getBusTimeTables();
+            },
+            weekdays: app.weekdays,
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Divider(color: Colors.grey),
         ),
         Container(
             margin: EdgeInsets.all(8.0),

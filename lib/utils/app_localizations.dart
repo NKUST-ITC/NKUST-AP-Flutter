@@ -238,6 +238,13 @@ class AppLocalizations {
       'fri': 'Fri.',
       'sat': 'Sat.',
       'sun': 'Sun.',
+      'monday': 'Mon',
+      'tuesday': 'Tue',
+      'wednesday': 'Wed',
+      'thursday': 'Thu',
+      'friday': 'Fri',
+      'saturday': 'Sat',
+      'sunday': 'Sun',
       'do_not_empty': 'Don\'t Empty',
       'login_fail': 'student id or password error',
       'bus_fail_infinity': 'Bus system perhaps broken!!!',
@@ -445,6 +452,13 @@ class AppLocalizations {
       'fri': ' 五 ',
       'sat': ' 六 ',
       'sun': ' 日 ',
+      'monday': '週一',
+      'tuesday': '週二',
+      'wednesday': '週三',
+      'thursday': '週四',
+      'friday': '週五',
+      'saturday': '週六',
+      'sunday': '週日',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
@@ -463,7 +477,7 @@ class AppLocalizations {
         2: events,
       };
 
-  List<String> get weekdays => [
+  List<String> get weekdaysCourse => [
         mon,
         tue,
         wed,
@@ -471,6 +485,16 @@ class AppLocalizations {
         fri,
         sat,
         sun,
+      ];
+
+  List<String> get weekdays => [
+        sunday,
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
       ];
 
   List<String> get busSegment => [
@@ -642,6 +666,20 @@ class AppLocalizations {
   String get sat => _vocabularies['sat'];
 
   String get sun => _vocabularies['sun'];
+
+  String get monday => _vocabularies['monday'];
+
+  String get tuesday => _vocabularies['tuesday'];
+
+  String get wednesday => _vocabularies['wednesday'];
+
+  String get thursday => _vocabularies['thursday'];
+
+  String get friday => _vocabularies['friday'];
+
+  String get saturday => _vocabularies['saturday'];
+
+  String get sunday => _vocabularies['sunday'];
 
   String get fromJiangong => _vocabularies['from_jiangong'];
 
