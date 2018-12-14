@@ -169,6 +169,7 @@ class CoursePageState extends State<CoursePage>
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(app.course),
+        backgroundColor: Resource.Colors.blue,
       ),
       body: Builder(
         builder: (builderContext) {

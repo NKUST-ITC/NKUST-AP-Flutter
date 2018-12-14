@@ -31,8 +31,8 @@ class Utils {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        backgroundColor: Color(0x434c61),
-        textColor: Color(0xffffff));
+        backgroundColor: Colors.grey[300],
+        textColor: Colors.black);
   }
 
   static void showDefaultDialog(BuildContext context, String title,

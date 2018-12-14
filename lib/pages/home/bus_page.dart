@@ -65,9 +65,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return new Scaffold(
-      // Appbar
       appBar: new AppBar(
-        // Title
         title: new Text(app.bus),
         backgroundColor: Resource.Colors.blue,
       ),
