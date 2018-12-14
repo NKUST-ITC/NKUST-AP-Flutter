@@ -155,7 +155,7 @@ class HomePageState extends State<HomePage> {
                             FlatButton(
                               child: Text(app.cancel,
                                   style:
-                                      TextStyle(color: Resource.Colors.grey)),
+                                      TextStyle(color: Resource.Colors.blue)),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
@@ -163,7 +163,7 @@ class HomePageState extends State<HomePage> {
                             FlatButton(
                               child: Text(app.ok,
                                   style:
-                                      TextStyle(color: Resource.Colors.grey)),
+                                      TextStyle(color: Resource.Colors.blue)),
                               onPressed: () {
                                 Navigator.popUntil(
                                     context,

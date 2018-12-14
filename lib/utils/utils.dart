@@ -49,7 +49,7 @@ class Utils {
               actions: <Widget>[
                 FlatButton(
                   child: Text(actionText,
-                      style: TextStyle(color: Resource.Colors.grey)),
+                      style: TextStyle(color: Resource.Colors.blue)),
                   onPressed: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
                     function();
