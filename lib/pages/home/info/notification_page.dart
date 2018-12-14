@@ -5,6 +5,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, loadingMore, error, empty }
 
@@ -128,24 +129,10 @@ class NotificationPageState extends State<NotificationPage>
         //TODO 優化
         return FlatButton(
           onPressed: () {},
-          child: Center(
-            child: Flex(
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: <Widget>[
-                SizedBox(
-                  child: Icon(
-                    Icons.directions_bus,
-                    size: 150.0,
-                  ),
-                  width: 200.0,
-                ),
-                Text(
-                  state == _State.error ? app.clickToRetry : app.clickToRetry,
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
+          child: HintContent(
+            icon: Icons.assignment,
+            content:
+                state == _State.error ? app.clickToRetry : app.clickToRetry,
           ),
         );
       default:

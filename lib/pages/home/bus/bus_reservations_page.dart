@@ -8,9 +8,10 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 
-enum BusReservationsState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 
 class BusReservationsPageRoute extends MaterialPageRoute {
   BusReservationsPageRoute()
@@ -36,12 +37,12 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   bool get wantKeepAlive => true;
 
-  BusReservationsState state = BusReservationsState.loading;
+  _State state = _State.loading;
   BusReservationsData busReservationsData;
   List<Widget> busReservationWeights = [];
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations local;
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -56,40 +57,24 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return _body();
   }
 
   Widget _body() {
     switch (state) {
-      case BusReservationsState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case BusReservationsState.error:
-      case BusReservationsState.empty:
+      case _State.error:
+      case _State.empty:
         return FlatButton(
-            onPressed: _getBusReservations,
-            child: Center(
-              child: Flex(
-                mainAxisAlignment: MainAxisAlignment.center,
-                direction: Axis.vertical,
-                children: <Widget>[
-                  SizedBox(
-                    child: Icon(
-                      Icons.directions_bus,
-                      size: 150.0,
-                    ),
-                    width: 200.0,
-                  ),
-                  Text(
-                    state == BusReservationsState.error
-                        ? local.clickToRetry
-                        : local.busReservationEmpty,
-                    textAlign: TextAlign.center,
-                  )
-                ],
-              ),
-            ));
+          onPressed: _getBusReservations,
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.busReservationEmpty,
+          ),
+        );
       default:
         return ListView(
           children: busReservationWeights,
@@ -120,7 +105,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "${busReservation.getStart(local)}→${busReservation.getEnd(local)}",
+                    "${busReservation.getStart(app)}→${busReservation.getEnd(app)}",
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
@@ -146,19 +131,19 @@ class BusReservationsPageState extends State<BusReservationsPage>
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) => AlertDialog(
-                                      title: Text(local.busCancelReserve,
+                                      title: Text(app.busCancelReserve,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                               color: Resource.Colors.blue)),
                                       content: Text(
-                                        "${local.busCancelReserveConfirmContent1}${busReservation.getStart(local)}"
-                                            "${local.busCancelReserveConfirmContent2}${busReservation.getEnd(local)}\n"
-                                            "${busReservation.getTime()}${local.busCancelReserveConfirmContent3}",
+                                        "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                            "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                            "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
                                         textAlign: TextAlign.center,
                                       ),
                                       actions: <Widget>[
                                         FlatButton(
-                                          child: Text(local.back),
+                                          child: Text(app.back),
                                           onPressed: () {
                                             Navigator.of(context,
                                                     rootNavigator: true)
@@ -166,7 +151,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                           },
                                         ),
                                         FlatButton(
-                                          child: Text(local.busCancelReserve),
+                                          child: Text(app.busCancelReserve),
                                           onPressed: () {
                                             Navigator.of(context,
                                                     rootNavigator: true)
@@ -196,7 +181,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   _getBusReservations() {
     busReservationWeights.clear();
-    state = BusReservationsState.loading;
+    state = _State.loading;
     setState(() {});
     Helper.instance.getBusReservations().then((response) {
       busReservationsData = response;
@@ -204,9 +189,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
         busReservationWeights.add(_busReservationWidget(i));
       }
       if (busReservationsData.reservations.length != 0)
-        state = BusReservationsState.finish;
+        state = _State.finish;
       else
-        state = BusReservationsState.empty;
+        state = _State.empty;
       setState(() {});
     }).catchError((e) {
       assert(e is DioError);
@@ -220,8 +205,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
         case DioErrorType.DEFAULT:
           if (dioError.message.contains("HttpException")) {
             setState(() {
-              state = BusReservationsState.error;
-              Utils.showToast(local.busFailInfinity);
+              state = _State.error;
+              Utils.showToast(app.busFailInfinity);
             });
           }
           break;
@@ -229,8 +214,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
           break;
         default:
           setState(() {
-            state = BusReservationsState.error;
-            Utils.handleDioError(dioError, local);
+            state = _State.error;
+            Utils.handleDioError(dioError, app);
           });
           break;
       }
@@ -248,17 +233,17 @@ class BusReservationsPageState extends State<BusReservationsPage>
         .then((response) {
       String title = "", message = "";
       if (!response.data["success"]) {
-        title = local.busCancelReserveFail;
+        title = app.busCancelReserveFail;
         message = response.data["message"];
       } else {
-        title = local.busCancelReserveSuccess;
-        message = "${local.busReserveCancelDate}：${busReservation.getDate()}\n"
-            "${local.busReserveCancelLocation}：${busReservation.getStart(local)}${local.campus}\n"
-            "${local.busReserveCancelTime}：${busReservation.getTime()}";
+        title = app.busCancelReserveSuccess;
+        message = "${app.busReserveCancelDate}：${busReservation.getDate()}\n"
+            "${app.busReserveCancelLocation}：${busReservation.getStart(app)}${app.campus}\n"
+            "${app.busReserveCancelTime}：${busReservation.getTime()}";
         _getBusReservations();
       }
       Navigator.pop(context, 'dialog');
-      Utils.showDefaultDialog(context, title, message, local.iKnow, () {});
+      Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       assert(e is DioError);
@@ -272,15 +257,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
         case DioErrorType.DEFAULT:
           if (dioError.message.contains("HttpException")) {
             setState(() {
-              state = BusReservationsState.error;
-              Utils.showToast(local.busFailInfinity);
+              state = _State.error;
+              Utils.showToast(app.busFailInfinity);
             });
           }
           break;
         case DioErrorType.CANCEL:
           break;
         default:
-          Utils.handleDioError(dioError, local);
+          Utils.handleDioError(dioError, app);
           break;
       }
     });

@@ -29,7 +29,7 @@ class AboutUsPage extends StatefulWidget {
 
 class AboutUsPageState extends State<AboutUsPage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations local;
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -43,7 +43,7 @@ class AboutUsPageState extends State<AboutUsPage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return new Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -52,7 +52,7 @@ class AboutUsPageState extends State<AboutUsPage>
               expandedHeight: 200.0,
               floating: false,
               pinned: true,
-              title: new Text(local.about),
+              title: new Text(app.about),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(Icons.code),
@@ -73,12 +73,12 @@ class AboutUsPageState extends State<AboutUsPage>
         },
         body: ListView(
           children: <Widget>[
-            _item(local.aboutAuthorTitle, local.aboutAuthorContent),
-            _item(local.about, local.aboutUsContent),
-            _item(local.aboutRecruitTitle, local.aboutRecruitContent),
+            _item(app.aboutAuthorTitle, app.aboutAuthorContent),
+            _item(app.about, app.aboutUsContent),
+            _item(app.aboutRecruitTitle, app.aboutRecruitContent),
             Stack(
               children: <Widget>[
-                _item(local.aboutItcTitle, local.aboutItcContent),
+                _item(app.aboutItcTitle, app.aboutItcContent),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(vertical: 20.0, horizontal: 26.0),
@@ -105,7 +105,7 @@ class AboutUsPageState extends State<AboutUsPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      local.aboutContactUsTitle,
+                      app.aboutContactUsTitle,
                       style: TextStyle(fontSize: 18.0),
                     ),
                     SizedBox(
@@ -156,7 +156,7 @@ class AboutUsPageState extends State<AboutUsPage>
                 ),
               ),
             ),
-            _item(local.aboutOpenSourceTitle, local.aboutOpenSourceContent),
+            _item(app.aboutOpenSourceTitle, app.aboutOpenSourceContent),
           ],
         ),
       ),

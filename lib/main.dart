@@ -62,6 +62,8 @@ class MyApp extends StatelessWidget {
         AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
         OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
         UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+        NewsContentPage.routerName: (BuildContext context) =>
+            NewsContentPage(null),
       },
       theme: new ThemeData(
         hintColor: Colors.white,

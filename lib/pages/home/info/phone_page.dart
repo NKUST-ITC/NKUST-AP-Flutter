@@ -4,8 +4,9 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 
-enum PhoneState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 
 class PhonePageRoute extends MaterialPageRoute {
   PhonePageRoute() : super(builder: (BuildContext context) => new PhonePage());
@@ -30,9 +31,11 @@ class PhonePageState extends State<PhonePage>
 
   List<PhoneModel> phoneList = [];
 
-  PhoneState state = PhoneState.loading;
+  _State state = _State.loading;
 
   int page = 1;
+
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -103,39 +106,20 @@ class PhonePageState extends State<PhonePage>
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return _body();
   }
 
   Widget _body() {
     switch (state) {
-      case PhoneState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case PhoneState.error:
-      case PhoneState.empty:
-        return FlatButton(
-          onPressed: () {},
-          child: Center(
-            child: Flex(
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: <Widget>[
-                SizedBox(
-                  child: Icon(
-                    Icons.directions_bus,
-                    size: 150.0,
-                  ),
-                  width: 200.0,
-                ),
-                Text(
-                  state == PhoneState.error
-                      ? AppLocalizations.of(context).clickToRetry
-                      : "Oops！本學期沒有任何成績資料哦～\n請選擇其他學期\uD83D\uDE0B",
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
-          ),
+      case _State.error:
+      case _State.empty:
+        return HintContent(
+          icon: Icons.assignment,
+          content: state == _State.error ? app.clickToRetry : app.busEmpty,
         );
       default:
         return ListView(
@@ -146,7 +130,7 @@ class PhonePageState extends State<PhonePage>
 
   _getPhones() async {
     phoneWeights.clear();
-    state = PhoneState.loading;
+    state = _State.loading;
     setState(() {});
     phoneList.add(PhoneModel("校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5", "0800-550995"));
     phoneList.add(PhoneModel("建工校區", ""));
@@ -191,7 +175,7 @@ class PhonePageState extends State<PhonePage>
       } else
         phoneWeights.add(_phoneItem(i));
     }
-    state = PhoneState.finish;
+    state = _State.finish;
     setState(() {});
   }
 }

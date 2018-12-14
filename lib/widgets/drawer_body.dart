@@ -70,51 +70,50 @@ class DrawerBodyState extends State<DrawerBody> {
                       ),
                       padding: EdgeInsets.all(20.0),
                       child: Flex(
-                          direction: Axis.vertical,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            SizedBox(height: 40.0),
-                            pictureUrl != "" && displayPicture
-                                ? Hero(
-                                    tag: Constants.TAG_STUDENT_PICTURE,
-                                    child: Container(
-                                      width: 72.0,
-                                      height: 72.0,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        image: new DecorationImage(
-                                          fit: BoxFit.fitWidth,
-                                          image: NetworkImage(pictureUrl),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : Container(
+                        direction: Axis.vertical,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: 40.0),
+                          pictureUrl != "" && displayPicture
+                              ? Hero(
+                                  tag: Constants.TAG_STUDENT_PICTURE,
+                                  child: Container(
                                     width: 72.0,
                                     height: 72.0,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.account_circle,
-                                      color: Colors.white,
-                                      size: 72.0,
+                                      image: new DecorationImage(
+                                        fit: BoxFit.fitWidth,
+                                        image: NetworkImage(pictureUrl),
+                                      ),
                                     ),
                                   ),
-                            SizedBox(height: 16.0),
-                            SizedBox(
-                              height: 32.0,
-                              child: Text(
-                                userInfo == null
-                                    ? " \n "
-                                    : "${userInfo.nameCht}\n"
-                                    "${userInfo.id}",
-                                style: TextStyle(color: Colors.white),
-                              ),
+                                )
+                              : Container(
+                                  width: 72.0,
+                                  height: 72.0,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.account_circle,
+                                    color: Colors.white,
+                                    size: 72.0,
+                                  ),
+                                ),
+                          SizedBox(height: 16.0),
+                          SizedBox(
+                            height: 32.0,
+                            child: Text(
+                              userInfo == null
+                                  ? " \n "
+                                  : "${userInfo.nameCht}\n"
+                                  "${userInfo.id}",
+                              style: TextStyle(color: Colors.white),
                             ),
-                          ],
-                        ),
-
+                          ),
+                        ],
+                      ),
                     ),
                     Positioned(
                       bottom: 20.0,
@@ -137,12 +136,12 @@ class DrawerBodyState extends State<DrawerBody> {
                 });
               },
               leading: Icon(
-                Icons.class_,
+                Icons.school,
                 color: isStudyExpanded
                     ? Resource.Colors.blue
                     : Resource.Colors.grey,
               ),
-              title: Text(app.course, style: _defaultStyle()),
+              title: Text(app.courseInfo, style: _defaultStyle()),
               children: <Widget>[
                 _subItem(Icons.class_, app.course, CoursePageRoute()),
                 _subItem(Icons.assignment, app.score, ScorePageRoute()),
@@ -220,7 +219,7 @@ class DrawerBodyState extends State<DrawerBody> {
         case DioErrorType.RESPONSE:
           Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
-              context, ModalRoute.withName(LoginPage.routerName));
+              context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         default:
           break;
@@ -242,7 +241,7 @@ class DrawerBodyState extends State<DrawerBody> {
         case DioErrorType.RESPONSE:
           Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
-              context, ModalRoute.withName(LoginPage.routerName));
+              context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         default:
           break;

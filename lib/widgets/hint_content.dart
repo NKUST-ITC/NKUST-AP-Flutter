@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 
 class HintContent extends StatelessWidget {
   final IconData icon;
@@ -13,16 +14,23 @@ class HintContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         direction: Axis.vertical,
         children: <Widget>[
-          SizedBox(
+          Container(
+            padding: EdgeInsets.all(25.0),
+            decoration: BoxDecoration(
+                image: DecorationImage(
+              image: AssetImage("assets/images/dash_line.png"),
+            )),
             child: Icon(
               icon,
-              size: 150.0,
+              size: 50.0,
+              color: Resource.Colors.blue,
             ),
-            width: 200.0,
           ),
+          SizedBox(height: 20.0),
           Text(
             content,
             textAlign: TextAlign.center,
+            style: TextStyle(color: Resource.Colors.grey),
           )
         ],
       ),

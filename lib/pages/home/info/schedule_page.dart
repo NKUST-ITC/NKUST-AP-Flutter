@@ -6,6 +6,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
 
@@ -36,6 +37,8 @@ class SchedulePageState extends State<SchedulePage>
   _State state = _State.loading;
 
   int page = 1;
+
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -97,6 +100,7 @@ class SchedulePageState extends State<SchedulePage>
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return _body();
   }
 
@@ -109,26 +113,9 @@ class SchedulePageState extends State<SchedulePage>
       case _State.empty:
         return FlatButton(
           onPressed: _getSchedules,
-          child: Center(
-            child: Flex(
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: <Widget>[
-                SizedBox(
-                  child: Icon(
-                    Icons.info,
-                    size: 150.0,
-                  ),
-                  width: 200.0,
-                ),
-                Text(
-                  state == _State.error
-                      ? AppLocalizations.of(context).clickToRetry
-                      : "Oops！本學期沒有任何行事曆資料哦～\n請點選重試\uD83D\uDE0B",
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.busEmpty,
           ),
         );
       default:

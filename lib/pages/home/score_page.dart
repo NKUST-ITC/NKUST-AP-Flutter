@@ -5,8 +5,9 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 
-enum ScoreState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 
 class ScorePageRoute extends MaterialPageRoute {
   ScorePageRoute() : super(builder: (BuildContext context) => new ScorePage());
@@ -27,17 +28,17 @@ class ScorePage extends StatefulWidget {
 
 class ScorePageState extends State<ScorePage>
     with SingleTickerProviderStateMixin {
+  AppLocalizations app;
+
+  _State state = _State.loading;
+
   List<TableRow> scoreWeightList = [];
 
-  var selectSemesterIndex;
-  Semester selectSemester;
+  int selectSemesterIndex;
 
+  Semester selectSemester;
   SemesterData semesterData;
   ScoreData scoreData;
-
-  ScoreState state = ScoreState.loading;
-
-  AppLocalizations local;
 
   @override
   void initState() {
@@ -60,9 +61,9 @@ class ScorePageState extends State<ScorePage>
 
   _scoreTitle() => TableRow(
         children: <Widget>[
-          _scoreTextBorder(local.subject, true),
-          _scoreTextBorder(local.midtermScore, true),
-          _scoreTextBorder(local.finalScore, true),
+          _scoreTextBorder(app.subject, true),
+          _scoreTextBorder(app.midtermScore, true),
+          _scoreTextBorder(app.finalScore, true),
         ],
       );
 
@@ -108,12 +109,12 @@ class ScorePageState extends State<ScorePage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(local.score),
+        title: new Text(app.score),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
@@ -157,34 +158,17 @@ class ScorePageState extends State<ScorePage>
 
   Widget _body() {
     switch (state) {
-      case ScoreState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case ScoreState.error:
-      case ScoreState.empty:
+      case _State.error:
+      case _State.empty:
         return FlatButton(
           onPressed:
-              state == ScoreState.error ? _getSemesterScore : _selectSemester,
-          child: Center(
-            child: Flex(
-              mainAxisAlignment: MainAxisAlignment.center,
-              direction: Axis.vertical,
-              children: <Widget>[
-                SizedBox(
-                  child: Icon(
-                    Icons.assignment,
-                    size: 150.0,
-                  ),
-                  width: 200.0,
-                ),
-                Text(
-                  state == ScoreState.error
-                      ? local.clickToRetry
-                      : local.scoreEmpty,
-                  textAlign: TextAlign.center,
-                )
-              ],
-            ),
+              state == _State.error ? _getSemesterScore : _selectSemester,
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
           ),
         );
       default:
@@ -223,16 +207,16 @@ class ScorePageState extends State<ScorePage>
                 child: Column(
                   children: <Widget>[
                     _textBorder(
-                        "${local.conductScore}：${scoreData.content.detail.conduct}",
+                        "${app.conductScore}：${scoreData.content.detail.conduct}",
                         true),
                     _textBorder(
-                        "${local.average}：${scoreData.content.detail.average}",
+                        "${app.average}：${scoreData.content.detail.average}",
                         false),
                     _textBorder(
-                        "${local.rank}：${scoreData.content.detail.classRank}",
+                        "${app.rank}：${scoreData.content.detail.classRank}",
                         false),
                     _textBorder(
-                        "${local.percentage}：${scoreData.content.detail.classPercentage}",
+                        "${app.percentage}：${scoreData.content.detail.classPercentage}",
                         false),
                   ],
                 ),
@@ -251,7 +235,7 @@ class ScorePageState extends State<ScorePage>
     showDialog<int>(
         context: context,
         builder: (BuildContext context) => SimpleDialog(
-            title: Text(local.picksSemester),
+            title: Text(app.picksSemester),
             children: semesters)).then<void>((int position) {
       if (position != null) {
         selectSemesterIndex = position;
@@ -281,8 +265,8 @@ class ScorePageState extends State<ScorePage>
         case DioErrorType.CANCEL:
           break;
         default:
-          state = ScoreState.error;
-          Utils.handleDioError(dioError, local);
+          state = _State.error;
+          Utils.handleDioError(dioError, app);
           break;
       }
     });
@@ -292,7 +276,7 @@ class ScorePageState extends State<ScorePage>
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     scoreWeightList.clear();
-    state = ScoreState.loading;
+    state = _State.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
@@ -300,13 +284,13 @@ class ScorePageState extends State<ScorePage>
         setState(() {
           scoreData = response;
           if (scoreData.status == 204)
-            state = ScoreState.empty;
+            state = _State.empty;
           else {
             scoreWeightList.add(_scoreTitle());
             for (var score in scoreData.content.scores) {
               scoreWeightList.add(_scoreBorder(score));
             }
-            state = ScoreState.finish;
+            state = _State.finish;
           }
         });
       }).catchError((e) {
@@ -321,8 +305,8 @@ class ScorePageState extends State<ScorePage>
               break;
             default:
               setState(() {
-                state = ScoreState.error;
-                Utils.handleDioError(e, local);
+                state = _State.error;
+                Utils.handleDioError(e, app);
               });
               break;
           }
@@ -331,7 +315,7 @@ class ScorePageState extends State<ScorePage>
         }
       });
     } else {
-      state = ScoreState.error;
+      state = _State.error;
       setState(() {});
     }
   }

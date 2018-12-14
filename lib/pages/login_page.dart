@@ -97,14 +97,17 @@ class LoginPageState extends State<LoginPage>
                 ),
                 RaisedButton(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(30.0))),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
+                  ),
                   padding: EdgeInsets.all(16.0),
                   onPressed: _login,
                   color: Colors.white,
-                  child: new Text(
+                  child: Text(
                     AppLocalizations.of(context).login,
-                    style: new TextStyle(
-                        color: Resource.Colors.blue, fontSize: 18.0),
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
                   ),
                 ),
               ],

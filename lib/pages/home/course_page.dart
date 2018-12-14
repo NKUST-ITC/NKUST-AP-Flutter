@@ -7,7 +7,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
-enum CourseState { loading, finish, error, empty }
+enum _State { loading, finish, error, empty }
 
 class CoursePageRoute extends MaterialPageRoute {
   CoursePageRoute()
@@ -30,18 +30,19 @@ class CoursePage extends StatefulWidget {
 // SingleTickerProviderStateMixin is used for animation
 class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
-  CourseState state = CourseState.loading;
-  List<Widget> courseWeightList = [];
-  var selectSemesterIndex;
-  Semester selectSemester;
+  AppLocalizations app;
+  ScaffoldState scaffold;
 
-  SemesterData semesterData;
-  CourseData courseData;
+  _State state = _State.loading;
+  List<Widget> courseWeightList = [];
 
   int base = 6;
+  int selectSemesterIndex;
   double childAspectRatio = 0.5;
 
-  AppLocalizations local;
+  Semester selectSemester;
+  SemesterData semesterData;
+  CourseData courseData;
 
   @override
   void initState() {
@@ -84,7 +85,7 @@ class CoursePageState extends State<CoursePage>
             bottomRight ? 5.0 : 0.0,
           ),
         ),
-        border: new Border.all(color: Colors.grey, width: 0.5),
+        border: Border.all(color: Colors.grey, width: 0.5),
       ),
       child: FlatButton(
         padding: EdgeInsets.all(0.0),
@@ -99,10 +100,10 @@ class CoursePageState extends State<CoursePage>
   }
 
   Widget _courseBorder(Course course) {
-    String content = "${local.courseDialogName}：${course.title}\n"
-        "${local.courseDialogProfessor}：${course.getInstructors()}\n"
-        "${local.courseDialogLocation}：${course.building}${course.room}\n"
-        "${local.courseDialogTime}：${course.startTime}-${course.endTime}";
+    String content = "${app.courseDialogName}：${course.title}\n"
+        "${app.courseDialogProfessor}：${course.getInstructors()}\n"
+        "${app.courseDialogLocation}：${course.building}${course.room}\n"
+        "${app.courseDialogTime}：${course.startTime}-${course.endTime}";
     return new Container(
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
@@ -113,14 +114,14 @@ class CoursePageState extends State<CoursePage>
                 context: context,
                 builder: (BuildContext context) => AlertDialog(
                       title: Text(
-                        local.courseDialogTitle,
+                        app.courseDialogTitle,
                         style: TextStyle(color: Resource.Colors.blue),
                       ),
                       content: Text(content),
                       actions: <Widget>[
                         FlatButton(
                           padding: EdgeInsets.all(4.0),
-                          child: Text(local.ok),
+                          child: Text(app.ok),
                           onPressed: () {
                             Navigator.of(context, rootNavigator: true)
                                 .pop('dialog');
@@ -138,19 +139,17 @@ class CoursePageState extends State<CoursePage>
 
   Widget _body() {
     switch (state) {
-      case CourseState.loading:
+      case _State.loading:
         return Container(
             child: CircularProgressIndicator(), alignment: Alignment.center);
-      case CourseState.empty:
-      case CourseState.error:
+      case _State.empty:
+      case _State.error:
         return FlatButton(
-          onPressed:
-              state == CourseState.error ? _getCourseTables : _selectSemester,
+          onPressed: state == _State.error ? _getCourseTables : _selectSemester,
           child: HintContent(
               icon: Icons.class_,
-              content: state == CourseState.error
-                  ? local.clickToRetry
-                  : local.courseEmpty),
+              content:
+                  state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
       default:
         return GridView.count(
@@ -166,50 +165,55 @@ class CoursePageState extends State<CoursePage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(local.course),
+        title: new Text(app.course),
         backgroundColor: Resource.Colors.blue,
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: Flex(
-          direction: Axis.vertical,
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            SizedBox(height: 8.0),
-            Expanded(
-              flex: 1,
-              child: FlatButton(
-                onPressed: _selectSemester,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      selectSemester == null ? "" : selectSemester.text,
-                      style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 14.0),
+      body: Builder(
+        builder: (builderContext) {
+          scaffold = Scaffold.of(builderContext);
+          return Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Flex(
+              direction: Axis.vertical,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                SizedBox(height: 8.0),
+                Expanded(
+                  flex: 1,
+                  child: FlatButton(
+                    onPressed: _selectSemester,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          selectSemester == null ? "" : selectSemester.text,
+                          style: TextStyle(
+                              color: Resource.Colors.blue, fontSize: 14.0),
+                        ),
+                        Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Resource.Colors.blue,
+                        )
+                      ],
                     ),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Resource.Colors.blue,
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                SizedBox(height: 8.0),
+                Expanded(
+                  flex: 19,
+                  child: RefreshIndicator(
+                    onRefresh: () => _getCourseTables(),
+                    child: _body(),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 8.0),
-            Expanded(
-              flex: 19,
-              child: RefreshIndicator(
-                onRefresh: () => _getCourseTables(),
-                child: _body(),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -233,8 +237,8 @@ class CoursePageState extends State<CoursePage>
         case DioErrorType.CANCEL:
           break;
         default:
-          state = CourseState.error;
-          Utils.handleDioError(dioError, local);
+          state = _State.error;
+          Utils.handleDioError(dioError, app);
           break;
       }
     });
@@ -248,7 +252,7 @@ class CoursePageState extends State<CoursePage>
     showDialog<int>(
         context: context,
         builder: (BuildContext context) => SimpleDialog(
-            title: Text(local.picksSemester),
+            title: Text(app.picksSemester),
             children: semesters)).then<void>((int position) {
       if (position != null) {
         selectSemesterIndex = position;
@@ -271,7 +275,7 @@ class CoursePageState extends State<CoursePage>
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     courseWeightList.clear();
-    state = CourseState.loading;
+    state = _State.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
@@ -289,19 +293,17 @@ class CoursePageState extends State<CoursePage>
             "Friday"
           ];
           courseWeightList = <Widget>[_textBorder("", topLeft: true)];
-          for (var week in local.weekdays.sublist(0, 4))
+          for (var week in app.weekdays.sublist(0, 4))
             courseWeightList.add(_textBorder(week));
           if (courseData.courseTables.saturday.isEmpty &&
               courseData.courseTables.sunday.isEmpty) {
-            courseWeightList
-                .add(_textBorder(local.weekdays[4], topRight: true));
+            courseWeightList.add(_textBorder(app.weekdays[4], topRight: true));
             base = 6;
             childAspectRatio = 1.5;
           } else {
-            courseWeightList.add(_textBorder(local.weekdays[4]));
-            courseWeightList.add(_textBorder(local.weekdays[5]));
-            courseWeightList
-                .add(_textBorder(local.weekdays[6], topRight: true));
+            courseWeightList.add(_textBorder(app.weekdays[4]));
+            courseWeightList.add(_textBorder(app.weekdays[5]));
+            courseWeightList.add(_textBorder(app.weekdays[6], topRight: true));
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;
@@ -335,10 +337,10 @@ class CoursePageState extends State<CoursePage>
           }
         }
         setState(() {
-          if (courseWeightList.length == 0)
-            state = CourseState.empty;
-          else
-            state = CourseState.finish;
+          if (courseWeightList.length == 0) {
+            state = _State.empty;
+          } else
+            state = _State.finish;
         });
       }).catchError((e) {
         assert(e is DioError);
@@ -353,15 +355,15 @@ class CoursePageState extends State<CoursePage>
             break;
           default:
             setState(() {
-              state = CourseState.error;
+              state = _State.error;
             });
-            Utils.handleDioError(dioError, local);
+            Utils.handleDioError(dioError, app);
             break;
         }
       });
     } else {
       setState(() {
-        state = CourseState.error;
+        state = _State.error;
       });
     }
   }

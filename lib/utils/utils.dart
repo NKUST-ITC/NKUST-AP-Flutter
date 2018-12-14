@@ -31,8 +31,8 @@ class Utils {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIos: 1,
-        bgcolor: "#434c61",
-        textcolor: '#ffffff');
+        backgroundColor: Colors.grey[300],
+        textColor: Colors.black);
   }
 
   static void showDefaultDialog(BuildContext context, String title,
@@ -49,7 +49,7 @@ class Utils {
               actions: <Widget>[
                 FlatButton(
                   child: Text(actionText,
-                      style: TextStyle(color: Resource.Colors.grey)),
+                      style: TextStyle(color: Resource.Colors.blue)),
                   onPressed: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
                     function();
@@ -57,6 +57,25 @@ class Utils {
                 )
               ],
             ));
+  }
+
+  static void showSnackBarBar(
+    ScaffoldState scaffold,
+    String contentText,
+    String actionText,
+    Color actionTextColor,
+  ) {
+    scaffold.showSnackBar(
+      SnackBar(
+        content: Text(contentText),
+        duration: Duration(days: 1),
+        action: SnackBarAction(
+          label: actionText,
+          onPressed: () {},
+          textColor: actionTextColor,
+        ),
+      ),
+    );
   }
 
   static Future<void> launchUrl(var url) async {

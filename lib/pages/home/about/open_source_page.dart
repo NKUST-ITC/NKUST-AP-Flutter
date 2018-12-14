@@ -27,7 +27,7 @@ class OpenSourcePage extends StatefulWidget {
 
 class OpenSourcePageState extends State<OpenSourcePage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations local;
+  AppLocalizations app;
 
   @override
   void initState() {
@@ -41,10 +41,10 @@ class OpenSourcePageState extends State<OpenSourcePage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(local.aboutOpenSourceTitle),
+        title: new Text(app.aboutOpenSourceTitle),
         backgroundColor: Resource.Colors.blue,
       ),
       body: ListView(

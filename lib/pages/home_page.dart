@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/api/helper.dart';
@@ -10,7 +12,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
-enum HomeStatus { loading, finish, error, empty }
+enum _Status { loading, finish, error, empty }
 
 class HomePageRoute extends MaterialPageRoute {
   HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
@@ -29,16 +31,17 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => new HomePageState();
 }
 
-// SingleTickerProviderStateMixin is used for animation
 class HomePageState extends State<HomePage> {
-  HomeStatus state = HomeStatus.loading;
+  _Status state = _Status.loading;
   AppLocalizations app;
 
   int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
 
   List<Widget> newsWidgets = [];
-  List<News> news = [];
+  List<News> newsList = [];
+
+  CarouselSlider cardSlider;
 
   @override
   void initState() {
@@ -54,65 +57,71 @@ class HomePageState extends State<HomePage> {
   Widget _newImage(News news) {
     return Container(
       margin: EdgeInsets.all(5.0),
-      child: FlatButton(
-          onPressed: () {
-            Utils.launchUrl(news.url);
-          },
-          padding: EdgeInsets.all(0.0),
-          child: Image.network(news.image)),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(NewsContentPageRoute(news));
+        },
+        child: Image.network(news.image),
+      ),
     );
   }
 
   Widget _homebody() {
     switch (state) {
-      case HomeStatus.loading:
+      case _Status.loading:
         return Center(
           child: CircularProgressIndicator(),
         );
-      case HomeStatus.finish:
+      case _Status.finish:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Text(
-                news[_currentNewsIndex].title,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 20.0),
+            Hero(
+              tag: Constants.TAG_NEWS_TITLE,
+              child: Material(
+                color: Colors.transparent,
+                child: Text(
+                  newsList[_currentNewsIndex].title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      color: Resource.Colors.grey,
+                      fontWeight: FontWeight.w500),
+                ),
               ),
             ),
-            Expanded(
-              flex: 4,
-              child: CarouselSlider(
-                items: newsWidgets,
-                viewportFraction: 0.7,
-                height: 400.0,
-                autoPlay: false,
-                updateCallback: (int current) {
+            Hero(
+              tag: Constants.TAG_NEWS_ICON,
+              child: Icon(Icons.arrow_drop_down),
+            ),
+            cardSlider = CarouselSlider(
+              items: newsWidgets,
+              viewportFraction: 0.65,
+              aspectRatio: 7 / 6,
+              autoPlay: false,
+              updateCallback: (int current) {
+                setState(() {
                   _currentNewsIndex = current;
-                  setState(() {});
-                },
-              ),
+                });
+              },
             ),
-            Expanded(
-              flex: 1,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    "${_currentNewsIndex + 1}",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: Resource.Colors.red, fontSize: 24.0),
-                  ),
-                  Text(
-                    "/${newsWidgets.length}",
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
-                  )
-                ],
-              ),
+            SizedBox(height: 16.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
+                      "${_currentNewsIndex + 1}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.red, fontSize: 32.0),
+                ),
+                Text(
+                  " / ${newsWidgets.length}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.grey, fontSize: 32.0),
+                )
+              ],
             ),
           ],
         );
@@ -123,16 +132,48 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return WillPopScope(
         child: Scaffold(
           appBar: new AppBar(
-            title: new Text(AppLocalizations.of(context).appName),
+            title: new Text(app.appName),
             backgroundColor: Resource.Colors.blue,
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.exit_to_app),
                 onPressed: () {
-                  Navigator.pop(context);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                          title: Text(app.logout,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Resource.Colors.blue)),
+                          content: Text(app.logoutCheck,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Resource.Colors.grey)),
+                          actions: <Widget>[
+                            FlatButton(
+                              child: Text(app.cancel,
+                                  style:
+                                      TextStyle(color: Resource.Colors.blue)),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            FlatButton(
+                              child: Text(app.ok,
+                                  style:
+                                      TextStyle(color: Resource.Colors.blue)),
+                              onPressed: () {
+                                Navigator.popUntil(
+                                    context,
+                                    ModalRoute.withName(
+                                        Navigator.defaultRouteName));
+                              },
+                            )
+                          ],
+                        ),
+                  );
                 },
               )
             ],
@@ -151,17 +192,16 @@ class HomePageState extends State<HomePage> {
             onTap: onTabTapped,
             items: [
               BottomNavigationBarItem(
-                // set icon to the tab
                 icon: Icon(Icons.directions_bus),
-                title: Text(AppLocalizations.of(context).bus),
+                title: Text(app.bus),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.class_),
-                title: Text(AppLocalizations.of(context).course),
+                title: Text(app.course),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment),
-                title: Text(AppLocalizations.of(context).score),
+                title: Text(app.score),
               ),
             ],
           ),
@@ -189,28 +229,28 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAllNews() {
-    state = HomeStatus.loading;
-    Helper.instance.getAllNews().then((news) {
-      this.news = news;
+    state = _Status.loading;
+    Helper.instance.getAllNews().then((newsList) {
+      this.newsList = newsList;
+      newsList.forEach((news) {
+        newsWidgets.add(_newImage(news));
+      });
       setState(() {
-        news.forEach((news) {
-          newsWidgets.add(_newImage(news));
-        });
-        state = news.length == 0 ? HomeStatus.empty : HomeStatus.finish;
+        state = newsList.length == 0 ? _Status.empty : _Status.finish;
       });
     }).catchError((e) {
       assert(e is DioError);
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
         case DioErrorType.CANCEL:
           break;
         default:
-          state = HomeStatus.error;
+          state = _Status.error;
           Utils.handleDioError(dioError, app);
           break;
       }
