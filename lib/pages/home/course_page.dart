@@ -34,7 +34,6 @@ class CoursePageState extends State<CoursePage>
   ScaffoldState scaffold;
 
   _State state = _State.loading;
-  List<Widget> courseWeightList = [];
 
   int base = 6;
   int selectSemesterIndex;
@@ -152,6 +151,7 @@ class CoursePageState extends State<CoursePage>
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
       default:
+        var list = renderCourseList();
         return SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -162,7 +162,7 @@ class CoursePageState extends State<CoursePage>
             shrinkWrap: true,
             childAspectRatio: childAspectRatio,
             crossAxisCount: base,
-            children: courseWeightList ?? <Widget>[],
+            children: list ?? <Widget>[],
           ),
         );
     }
@@ -275,10 +275,63 @@ class CoursePageState extends State<CoursePage>
         });
   }
 
+  renderCourseList() {
+    List<String> weeks = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ];
+    var courseWeightList = <Widget>[_textBorder("", topLeft: true)];
+    for (var week in app.weekdaysCourse.sublist(0, 4))
+      courseWeightList.add(_textBorder(week));
+    if (courseData.courseTables.saturday.isEmpty &&
+        courseData.courseTables.sunday.isEmpty) {
+      courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
+      base = 6;
+      childAspectRatio = 1.5;
+    } else {
+      courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
+      courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
+      courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
+      weeks.add("Saturday");
+      weeks.add("Sunday");
+      base = 8;
+      childAspectRatio = 1.1;
+    }
+    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
+    int i = 0;
+    for (String text in courseData.courseTables.timeCode) {
+      i++;
+      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
+      text = text.replaceAll(' ', '');
+      if (base == 8) {
+        text = text.replaceAll('第', '');
+        text = text.replaceAll('節', '');
+      }
+      courseWeightList.add(_textBorder(text));
+      for (var i = 0; i < base - 1; i++)
+        courseWeightList.add(_textBorder("", isCenter: true));
+    }
+    var timeCodes = courseData.courseTables.timeCode;
+    for (int i = 0; i < weeks.length; i++) {
+      if (courseData.courseTables.getCourseList(weeks[i]) != null)
+        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
+          for (int j = 0; j < timeCodes.length; j++) {
+            if (timeCodes[j] == data.section) {
+              courseWeightList[(j + 1) * base + i] = _courseBorder(data);
+            }
+          }
+        }
+    }
+    return courseWeightList;
+  }
+
   _getCourseTables() async {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    courseWeightList.clear();
     state = _State.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
@@ -286,67 +339,15 @@ class CoursePageState extends State<CoursePage>
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        courseData = response;
-        if (courseData.status == 200) {
-          List<String> weeks = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday"
-          ];
-          courseWeightList = <Widget>[_textBorder("", topLeft: true)];
-          for (var week in app.weekdaysCourse.sublist(0, 4))
-            courseWeightList.add(_textBorder(week));
-          if (courseData.courseTables.saturday.isEmpty &&
-              courseData.courseTables.sunday.isEmpty) {
-            courseWeightList
-                .add(_textBorder(app.weekdaysCourse[4], topRight: true));
-            base = 6;
-            childAspectRatio = 1.5;
-          } else {
-            courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
-            courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
-            courseWeightList
-                .add(_textBorder(app.weekdaysCourse[6], topRight: true));
-            weeks.add("Saturday");
-            weeks.add("Sunday");
-            base = 8;
-            childAspectRatio = 1.1;
-          }
-          int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
-          int i = 0;
-          for (String text in courseData.courseTables.timeCode) {
-            i++;
-            if (maxTimeCode <= 11 && i > maxTimeCode) continue;
-            text = text.replaceAll(' ', '');
-            if (base == 8) {
-              text = text.replaceAll('第', '');
-              text = text.replaceAll('節', '');
-            }
-            courseWeightList.add(_textBorder(text));
-            for (var i = 0; i < base - 1; i++)
-              courseWeightList.add(_textBorder("", isCenter: true));
-          }
-          var timeCodes = courseData.courseTables.timeCode;
-          for (int i = 0; i < weeks.length; i++) {
-            if (courseData.courseTables.getCourseList(weeks[i]) != null)
-              for (var data
-                  in courseData.courseTables.getCourseList(weeks[i])) {
-                for (int j = 0; j < timeCodes.length; j++) {
-                  if (timeCodes[j] == data.section) {
-                    courseWeightList[(j + 1) * base + i] = _courseBorder(data);
-                  }
-                }
-              }
-          }
-        }
         setState(() {
-          if (courseWeightList.length == 0) {
+          courseData = response;
+          if (courseData.status == 204) {
             state = _State.empty;
-          } else
+          } else if (courseData.status == 200) {
             state = _State.finish;
+          } else {
+            state = _State.error;
+          }
         });
       }).catchError((e) {
         assert(e is DioError);

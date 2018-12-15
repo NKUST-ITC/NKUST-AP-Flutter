@@ -48,10 +48,9 @@ class LoginPageState extends State<LoginPage>
     app = AppLocalizations.of(context);
     return new Scaffold(
         backgroundColor: Resource.Colors.blue,
-        resizeToAvoidBottomPadding: false,
         body: Center(
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
+            padding: EdgeInsets.symmetric(horizontal: 30.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
