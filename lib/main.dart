@@ -10,6 +10,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
+import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _initFCM();
+    FA.analytics = analytics;
     return new MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {

@@ -1,16 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/api/error_response.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
-import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/widgets/checkbox_title.dart';
 import 'package:package_info/package_info.dart';
 
 class LoginPage extends StatefulWidget {
@@ -32,6 +26,7 @@ class LoginPageState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("LoginPage", "login_page.dart");
     _isRememberPassword();
     _showDialog();
   }

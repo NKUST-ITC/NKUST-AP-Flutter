@@ -1,16 +1,10 @@
-import 'dart:convert';
-import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -46,6 +40,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("HomePage", "home_page.dart");
     _getAllNews();
   }
 

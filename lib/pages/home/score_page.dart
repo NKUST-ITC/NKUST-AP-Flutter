@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
@@ -43,6 +41,7 @@ class ScorePageState extends State<ScorePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("ScorePage", "score_page.dart");
     _getSemester();
   }
 

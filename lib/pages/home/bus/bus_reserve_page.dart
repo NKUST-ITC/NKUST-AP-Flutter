@@ -1,13 +1,10 @@
-import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 
@@ -35,9 +32,6 @@ class BusReservePage extends StatefulWidget {
 class BusReservePageState extends State<BusReservePage> {
   double top = 0.0;
 
-  @override
-  bool get wantKeepAlive => true;
-
   _State state = _State.loading;
   BusData busData;
   List<Widget> busTimeWeights = [];
@@ -50,6 +44,7 @@ class BusReservePageState extends State<BusReservePage> {
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
     _getBusTimeTables();
   }
 
