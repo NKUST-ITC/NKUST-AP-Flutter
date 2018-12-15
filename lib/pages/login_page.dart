@@ -4,6 +4,7 @@ import 'package:nkust_ap/models/api/error_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -47,72 +48,72 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return new Scaffold(
-        backgroundColor: Resource.Colors.blue,
-        body: Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Center(
-                  child: Image.asset(
-                    "assets/images/K.png",
-                    width: 120.0,
-                  ),
+      backgroundColor: Resource.Colors.blue,
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 30.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Center(
+                child: Image.asset(
+                  "assets/images/K.png",
+                  width: 120.0,
                 ),
-                SizedBox(height: 30.0),
-                TextField(
-                  maxLines: 1,
-                  controller: _username,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).username,
-                  ),
-                  style: _editTextStyle(),
+              ),
+              SizedBox(height: 30.0),
+              TextField(
+                maxLines: 1,
+                controller: _username,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).username,
                 ),
-                TextField(
-                  obscureText: true,
-                  maxLines: 1,
-                  controller: _password,
-                  decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).password,
-                  ),
-                  style: _editTextStyle(),
+                style: _editTextStyle(),
+              ),
+              TextField(
+                obscureText: true,
+                maxLines: 1,
+                controller: _password,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).password,
                 ),
-                GestureDetector(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Checkbox(
-                        activeColor: Colors.blue,
-                        value: isRememberPassword,
-                        onChanged: _onChanged,
-                      ),
-                      Text(AppLocalizations.of(context).remember)
-                    ],
-                  ),
-                  onTap: () => _onChanged(!isRememberPassword),
-                ),
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
+                style: _editTextStyle(),
+              ),
+              GestureDetector(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Checkbox(
+                      activeColor: Colors.blue,
+                      value: isRememberPassword,
+                      onChanged: _onChanged,
                     ),
-                  ),
-                  padding: EdgeInsets.all(16.0),
-                  onPressed: _login,
-                  color: Colors.white,
-                  child: Text(
-                    AppLocalizations.of(context).login,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                    Text(AppLocalizations.of(context).remember)
+                  ],
+                ),
+                onTap: () => _onChanged(!isRememberPassword),
+              ),
+              RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30.0),
                   ),
                 ),
-              ],
-            ),
+                padding: EdgeInsets.all(16.0),
+                onPressed: _login,
+                color: Colors.white,
+                child: Text(
+                  AppLocalizations.of(context).login,
+                  style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                ),
+              ),
+            ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 
   _showDialog() async {
