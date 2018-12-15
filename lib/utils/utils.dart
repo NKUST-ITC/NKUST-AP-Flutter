@@ -44,7 +44,7 @@ class Utils {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Resource.Colors.blue)),
               content: Text(content,
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: Resource.Colors.grey)),
               actions: <Widget>[
                 FlatButton(
@@ -57,6 +57,71 @@ class Utils {
                 )
               ],
             ));
+  }
+
+  static void showForceUpdateDialog(BuildContext context, String url) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) => AlertDialog(
+            title: Text(app.updateTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.blue)),
+            content: Text(_getPlatformUpdateContent(app),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey)),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(app.update,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  launchUrl(url);
+                },
+              )
+            ],
+          ),
+    );
+  }
+
+  static void showUpdateDialog(BuildContext context, String url) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            title: Text(app.updateTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.blue)),
+            content: Text(_getPlatformUpdateContent(app),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey)),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(app.skip,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text(app.update,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  launchUrl(url);
+                },
+              )
+            ],
+          ),
+    );
+  }
+
+  static String _getPlatformUpdateContent(AppLocalizations app) {
+    if (Platform.isAndroid)
+      return app.updateAndroidContent;
+    else if (Platform.isIOS)
+      return app.updateIOSContent;
+    else
+      return app.updateContent;
   }
 
   static void showSnackBarBar(

@@ -6,6 +6,7 @@ class Constants {
   }
 
   static const PREF_FIRST_ENTER_APP = "pref_first_enter_app";
+  static const PREF_CURRENT_VERSION = "pref_current_version";
   static const PREF_REMEMBER_PASSWORD = "pref_remember_password";
   static const PREF_USERNAME = "pref_username";
   static const PREF_PASSWORD = "pref_password";
@@ -15,6 +16,9 @@ class Constants {
   static const PREF_VIBRATE_COURSE = "pref_vibrate_course";
 
   static const SCHEDULE_DATA = "schedule_data";
+  static const ANDROID_APP_VERSION = "android_app_version";
+  static const IOS_APP_VERSION = "ios_app_version";
+  static const APP_VERSION = "app_version";
 
   static const TAG_STUDENT_PICTURE = "tag_student_picture";
   static const TAG_NEWS_PICTURE = "tag_news_picture";

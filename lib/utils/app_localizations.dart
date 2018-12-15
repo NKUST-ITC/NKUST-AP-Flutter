@@ -134,7 +134,9 @@ class AppLocalizations {
           'Oops! No absent record for this semester~\nPlease choose another semester %s',
       'token_expired_title': 'Re-login Required',
       'token_expired_content': 'Cookie has expired, please re-login!',
-      'update_content': 'Update available for KUAS AP!',
+      'update_content': 'Update available for NKUST AP!',
+      'update_android_content': 'Update available for NKUST AP!',
+      'update_ios_content': 'Update available for NKUST AP!',
       'update_title': 'Updated',
       'update': 'Update',
       'function_not_open': 'Coming Soon~\nDonate to use this feature now!',
@@ -355,7 +357,9 @@ class AppLocalizations {
       'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 %s',
       'token_expired_title': '重新登入',
       'token_expired_content': '登入資訊過期，請重新登入！',
-      'update_content': '高科校務通 在 Google Play 有新版本喲！',
+      'update_content': '高科校務通 有新版本喲！',
+      'update_android_content': '高科校務通 在 Google Play 有新版本喲！',
+      'update_ios_content': '高科校務通 在 Apple store 有新版本喲！',
       'update_title': '版本更新',
       'update': '更新',
       'function_not_open': '功能尚未開放\n私密粉絲團 小編會告訴你何時開放！',
@@ -740,6 +744,10 @@ class AppLocalizations {
   String get appVersion => _vocabularies['app_version'];
 
   String get updateContent => _vocabularies['update_content'];
+
+  String get updateAndroidContent => _vocabularies['update_android_content'];
+
+  String get updateIOSContent => _vocabularies['update_ios_content'];
 
   String get updateTitle => _vocabularies['update_title'];
 

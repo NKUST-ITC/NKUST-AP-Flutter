@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
@@ -115,15 +118,40 @@ class LoginPageState extends State<LoginPage>
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await Future.delayed(Duration(milliseconds: 50));
-    if (prefs.getBool(Constants.PREF_FIRST_ENTER_APP) ?? true)
+    var currentVersion = prefs.getString(Constants.PREF_CURRENT_VERSION) ?? "";
+    if (currentVersion != packageInfo.buildNumber)
       Utils.showDefaultDialog(
           context,
           AppLocalizations.of(context).updateNoteTitle,
           "v${packageInfo.version}\n"
           "${AppLocalizations.of(context).updateNoteContent}",
           AppLocalizations.of(context).ok, () {
-        prefs.setBool(Constants.PREF_FIRST_ENTER_APP, false);
+        prefs.setString(
+            Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
       });
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    await remoteConfig.fetch(expiration: const Duration(seconds: 10));
+    await remoteConfig.activateFetched();
+    String url = "";
+    int versionDiff = 0;
+    if (Platform.isAndroid) {
+      url = "market://details?id=${packageInfo.packageName}";
+      versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
+          int.parse(packageInfo.buildNumber);
+    } else if (Platform.isIOS) {
+      url =
+          "https://itunes.apple.com/tw/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8";
+      versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
+          int.parse(packageInfo.buildNumber);
+    } else {
+      url = "https://www.facebook.com/NKUST.ITC/";
+      versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
+          int.parse(packageInfo.buildNumber);
+    }
+    if (versionDiff <= 5 && versionDiff > 0)
+      Utils.showUpdateDialog(context, url);
+    else
+      Utils.showForceUpdateDialog(context, url);
   }
 
   _onChanged(bool value) async {
