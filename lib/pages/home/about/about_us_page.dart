@@ -72,6 +72,7 @@ class AboutUsPageState extends State<AboutUsPage>
           ];
         },
         body: ListView(
+          physics: const NeverScrollableScrollPhysics(),
           children: <Widget>[
             _item(app.aboutAuthorTitle, app.aboutAuthorContent),
             _item(app.about, app.aboutUsContent),

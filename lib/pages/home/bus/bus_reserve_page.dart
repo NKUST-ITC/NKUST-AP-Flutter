@@ -32,8 +32,9 @@ class BusReservePage extends StatefulWidget {
   BusReservePageState createState() => new BusReservePageState();
 }
 
-class BusReservePageState extends State<BusReservePage>
-    with AutomaticKeepAliveClientMixin {
+class BusReservePageState extends State<BusReservePage> {
+  double top = 0.0;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -78,6 +79,7 @@ class BusReservePageState extends State<BusReservePage>
         );
       default:
         return ListView(
+          physics: const NeverScrollableScrollPhysics(),
           children: busTimeWeights,
         );
     }
@@ -192,54 +194,78 @@ class BusReservePageState extends State<BusReservePage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return Column(
-      children: <Widget>[
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Calendar(
-            isExpandable: false,
-            showTodayAction: false,
-            showCalendarPickerIcon: false,
-            showChevronsToChangeRange: false,
-            onDateSelected: (DateTime datetime) {
-              dateTime = datetime;
-              _getBusTimeTables();
-            },
-            weekdays: app.weekdays,
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Divider(color: Colors.grey),
-        ),
-        Container(
-            margin: EdgeInsets.all(8.0),
-            child: CupertinoSegmentedControl(
-              groupValue: selectStartStation,
-              children: {
-                Station.janGong: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(app.fromJiangong),
+    return Scaffold(
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            SliverAppBar(
+              leading: Container(),
+              expandedHeight: MediaQuery.of(context).size.height * 0.19,
+              floating: true,
+              backgroundColor: Colors.transparent,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Column(
+                  children: <Widget>[
+                    Container(
+                      color: Colors.transparent,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 16.0, vertical: 8.0),
+                      child: Calendar(
+                        isExpandable: false,
+                        showTodayAction: false,
+                        showCalendarPickerIcon: false,
+                        showChevronsToChangeRange: false,
+                        onDateSelected: (DateTime datetime) {
+                          dateTime = datetime;
+                          _getBusTimeTables();
+                        },
+                        weekdays: app.weekdays,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Divider(color: Colors.grey),
+                    ),
+                  ],
                 ),
-                Station.yanchao: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(app.fromYanchao),
-                )
-              },
-              onValueChanged: (Station text) {
-                selectStartStation = text;
-                if (state == _State.finish)
-                  _updateBusTimeTables();
-                else
-                  setState(() {});
-              },
-            )),
-        Expanded(
-          child: _body(),
+              ),
+            ),
+          ];
+        },
+        body: Column(
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: double.infinity),
+                child: CupertinoSegmentedControl(
+                  groupValue: selectStartStation,
+                  children: {
+                    Station.janGong: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(app.fromJiangong),
+                    ),
+                    Station.yanchao: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8.0),
+                      child: Text(app.fromYanchao),
+                    )
+                  },
+                  onValueChanged: (Station text) {
+                    selectStartStation = text;
+                    if (state == _State.finish)
+                      _updateBusTimeTables();
+                    else
+                      setState(() {});
+                  },
+                ),
+              ),
+            ),
+            Expanded(
+              child: _body(),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 

@@ -64,15 +64,15 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(app.bus),
+      appBar: AppBar(
+        title: Text(app.bus),
         backgroundColor: Resource.Colors.blue,
       ),
       body: TabBarView(
           children: _children,
           controller: controller,
-          physics: new NeverScrollableScrollPhysics()),
-      bottomNavigationBar: new BottomNavigationBar(
+          physics: NeverScrollableScrollPhysics()),
+      bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
         fixedColor: Resource.Colors.yellow,

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/date_utils.dart';
 import 'package:tuple/tuple.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
@@ -105,6 +106,7 @@ class _CalendarState extends State<Calendar> {
           displayMonth,
           style: new TextStyle(
             fontSize: 20.0,
+            color: Resource.Colors.grey
           ),
         ),
         rightInnerIcon ?? new Container(),
@@ -126,6 +128,7 @@ class _CalendarState extends State<Calendar> {
           childAspectRatio: 1.5,
           padding: new EdgeInsets.only(bottom: 0.0, top: 0.0),
           children: calendarBuilder(),
+          physics: const NeverScrollableScrollPhysics(),
         ),
       ),
     );
@@ -190,7 +193,7 @@ class _CalendarState extends State<Calendar> {
           ? new TextStyle(color: Colors.black)
           : new TextStyle(color: Colors.black38);
     } else {
-      dateStyles = new TextStyle(color: Colors.black);
+      dateStyles = new TextStyle(color: Resource.Colors.grey);
     }
     return dateStyles;
   }
