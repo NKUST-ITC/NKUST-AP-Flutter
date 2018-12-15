@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:date_utils/date_utils.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/date_utils.dart';
 
 class CalendarTile extends StatelessWidget {
   final VoidCallback onDateSelected;
@@ -46,7 +46,7 @@ class CalendarTile extends StatelessWidget {
               : new BoxDecoration(),
           alignment: Alignment.center,
           child: new Text(
-            Utils.formatDay(date).toString(),
+            DateUtils.formatDay(date).toString(),
             style: isSelected ? new TextStyle(color: Colors.white) : dateStyles,
             textAlign: TextAlign.center,
           ),

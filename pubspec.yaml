@@ -20,7 +20,6 @@ dependencies:
   firebase_remote_config: ^0.0.6+1
   firebase_messaging: ^2.0.2
   tuple: ^1.0.1
-  date_utils: ^0.1.0
   url_launcher: ^4.0.1
   carousel_slider: ^1.0.1
   flutter_crashlytics: 0.1.1
