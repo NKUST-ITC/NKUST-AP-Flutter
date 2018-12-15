@@ -118,12 +118,12 @@ class ScorePageState extends State<ScorePage>
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
-        padding: EdgeInsets.all(16.0),
         child: Flex(
           direction: Axis.vertical,
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
+            SizedBox(height: 8.0),
             Expanded(
               flex: 1,
               child: FlatButton(
@@ -133,7 +133,7 @@ class ScorePageState extends State<ScorePage>
                   children: <Widget>[
                     Text(
                       selectSemester == null ? "" : selectSemester.text,
-                      style: _textBlueStyle(),
+                      style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
                     ),
                     Icon(
                       Icons.keyboard_arrow_down,
@@ -173,55 +173,61 @@ class ScorePageState extends State<ScorePage>
         );
       default:
         return SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              SizedBox(height: 8.0),
-              Container(
-                decoration: new BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(
-                      10.0,
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            height: (MediaQuery.of(context).size.height - 66.0) * (19 / 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                SizedBox(height: 8.0),
+                Container(
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        10.0,
+                      ),
                     ),
+                    border: new Border.all(color: Colors.grey, width: 1.5),
                   ),
-                  border: new Border.all(color: Colors.grey, width: 1.5),
+                  child: Table(
+                    defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                    border: TableBorder.symmetric(
+                        inside: BorderSide(color: Colors.grey)),
+                    children: scoreWeightList,
+                  ),
                 ),
-                child: Table(
-                  defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                  border: TableBorder.symmetric(
-                      inside: BorderSide(color: Colors.grey)),
-                  children: scoreWeightList,
+                SizedBox(
+                  height: 8.0,
                 ),
-              ),
-              SizedBox(
-                height: 8.0,
-              ),
-              Container(
-                decoration: new BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(
-                      10.0,
+                Container(
+                  decoration: new BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(
+                        10.0,
+                      ),
                     ),
+                    border: new Border.all(color: Colors.grey, width: 1.5),
                   ),
-                  border: new Border.all(color: Colors.grey, width: 1.5),
+                  child: Column(
+                    children: <Widget>[
+                      _textBorder(
+                          "${app.conductScore}：${scoreData.content.detail.conduct}",
+                          true),
+                      _textBorder(
+                          "${app.average}：${scoreData.content.detail.average}",
+                          false),
+                      _textBorder(
+                          "${app.rank}：${scoreData.content.detail.classRank}",
+                          false),
+                      _textBorder(
+                          "${app.percentage}：${scoreData.content.detail.classPercentage}",
+                          false),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  children: <Widget>[
-                    _textBorder(
-                        "${app.conductScore}：${scoreData.content.detail.conduct}",
-                        true),
-                    _textBorder(
-                        "${app.average}：${scoreData.content.detail.average}",
-                        false),
-                    _textBorder(
-                        "${app.rank}：${scoreData.content.detail.classRank}",
-                        false),
-                    _textBorder(
-                        "${app.percentage}：${scoreData.content.detail.classPercentage}",
-                        false),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
     }

@@ -152,13 +152,18 @@ class CoursePageState extends State<CoursePage>
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
       default:
-        return GridView.count(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          mainAxisSpacing: 0.0,
-          shrinkWrap: true,
-          childAspectRatio: childAspectRatio,
-          crossAxisCount: base,
-          children: courseWeightList ?? <Widget>[],
+        return SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(vertical: 8.0),
+            mainAxisSpacing: 0.0,
+            shrinkWrap: true,
+            childAspectRatio: childAspectRatio,
+            crossAxisCount: base,
+            children: courseWeightList ?? <Widget>[],
+          ),
         );
     }
   }
@@ -167,15 +172,14 @@ class CoursePageState extends State<CoursePage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(app.course),
+      appBar: AppBar(
+        title: Text(app.course),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Builder(
         builder: (builderContext) {
           scaffold = Scaffold.of(builderContext);
           return Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Flex(
               direction: Axis.vertical,
               mainAxisSize: MainAxisSize.min,
@@ -192,7 +196,7 @@ class CoursePageState extends State<CoursePage>
                         Text(
                           selectSemester == null ? "" : selectSemester.text,
                           style: TextStyle(
-                              color: Resource.Colors.blue, fontSize: 14.0),
+                              color: Resource.Colors.blue, fontSize: 18.0),
                         ),
                         Icon(
                           Icons.keyboard_arrow_down,
@@ -297,13 +301,15 @@ class CoursePageState extends State<CoursePage>
             courseWeightList.add(_textBorder(week));
           if (courseData.courseTables.saturday.isEmpty &&
               courseData.courseTables.sunday.isEmpty) {
-            courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
+            courseWeightList
+                .add(_textBorder(app.weekdaysCourse[4], topRight: true));
             base = 6;
             childAspectRatio = 1.5;
           } else {
             courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
             courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
-            courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
+            courseWeightList
+                .add(_textBorder(app.weekdaysCourse[6], topRight: true));
             weeks.add("Saturday");
             weeks.add("Sunday");
             base = 8;
