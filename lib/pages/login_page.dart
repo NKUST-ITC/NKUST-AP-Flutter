@@ -24,13 +24,14 @@ class LoginPageState extends State<LoginPage>
 
   final TextEditingController _username = new TextEditingController();
   final TextEditingController _password = new TextEditingController();
-  bool isRememberPassword = false;
+  var isRememberPassword = true;
+  var isAutoLogin = false;
 
   @override
   void initState() {
     super.initState();
     FA.setCurrentScreen("LoginPage", "login_page.dart");
-    _isRememberPassword();
+    _getPreference();
     _showDialog();
   }
 
@@ -79,19 +80,39 @@ class LoginPageState extends State<LoginPage>
                 ),
                 style: _editTextStyle(),
               ),
-              GestureDetector(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Checkbox(
-                      activeColor: Colors.blue,
-                      value: isRememberPassword,
-                      onChanged: _onChanged,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Checkbox(
+                          activeColor: Colors.blue,
+                          value: isAutoLogin,
+                          onChanged: _onAutoLoginChanged,
+                        ),
+                        Text(app.autoLogin)
+                      ],
                     ),
-                    Text(AppLocalizations.of(context).remember)
-                  ],
-                ),
-                onTap: () => _onChanged(!isRememberPassword),
+                    onTap: () => _onAutoLoginChanged(!isAutoLogin),
+                  ),
+                  GestureDetector(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: <Widget>[
+                        Checkbox(
+                          activeColor: Colors.blue,
+                          value: isRememberPassword,
+                          onChanged: _onRememberPasswordChanged,
+                        ),
+                        Text(app.remember)
+                      ],
+                    ),
+                    onTap: () =>
+                        _onRememberPasswordChanged(!isRememberPassword),
+                  ),
+                ],
               ),
               RaisedButton(
                 shape: RoundedRectangleBorder(
@@ -153,21 +174,37 @@ class LoginPageState extends State<LoginPage>
       Utils.showForceUpdateDialog(context, url);
   }
 
-  _onChanged(bool value) async {
+  _onRememberPasswordChanged(bool value) async {
     setState(() {
       isRememberPassword = value;
+      if (!isRememberPassword) isAutoLogin = false;
+      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
       prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
     });
   }
 
-  _isRememberPassword() async {
+  _onAutoLoginChanged(bool value) async {
+    setState(() {
+      isAutoLogin = value;
+      isRememberPassword = isAutoLogin;
+      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+    });
+  }
+
+  _getPreference() async {
     prefs = await SharedPreferences.getInstance();
     isRememberPassword =
-        prefs.getBool(Constants.PREF_REMEMBER_PASSWORD) ?? false;
-    _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
-    if (isRememberPassword)
-      _password.text = prefs.getString(Constants.PREF_PASSWORD) ?? "";
-    setState(() {});
+        prefs.getBool(Constants.PREF_REMEMBER_PASSWORD) ?? true;
+    isAutoLogin = prefs.getBool(Constants.PREF_AUTO_LOGIN) ?? false;
+    setState(() {
+      _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
+      if (isRememberPassword)
+        _password.text = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+      if (isAutoLogin) {
+        _login();
+      }
+    });
   }
 
   _login() async {
@@ -187,7 +224,7 @@ class LoginPageState extends State<LoginPage>
         prefs.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword)
           prefs.setString(Constants.PREF_PASSWORD, _password.text);
-        Navigator.of(context).push(HomePageRoute());
+        _navigateToFilterObject(context);
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
         assert(e is DioError);
@@ -204,5 +241,20 @@ class LoginPageState extends State<LoginPage>
         }
       });
     }
+  }
+
+  _navigateToFilterObject(BuildContext context) async {
+    final result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => HomePage()));
+    print(result);
+    clearSetting();
+  }
+
+  void clearSetting() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
+    setState(() {
+      isAutoLogin = false;
+    });
   }
 }

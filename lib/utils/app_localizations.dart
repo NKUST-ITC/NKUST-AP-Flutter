@@ -786,6 +786,8 @@ class AppLocalizations {
   String get logoutCheck => _vocabularies['logout_check'];
 
   String get courseInfo => _vocabularies['course_info'];
+
+  String get autoLogin => _vocabularies['auto_login'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:share/share.dart';
@@ -169,5 +171,10 @@ class Utils {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     Share.share("$content\n\n"
         "Send from ${packageInfo.appName} ${Platform.operatingSystem}");
+  }
+
+  static void clearSetting() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
   }
 }
