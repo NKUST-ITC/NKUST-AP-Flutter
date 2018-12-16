@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -41,7 +42,8 @@ class Utils {
       String content, String actionText, Function function) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
+        builder: (BuildContext context) =>
+            AlertDialog(
               title: Text(title,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Resource.Colors.blue)),
@@ -66,7 +68,8 @@ class Utils {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext context) =>
+          AlertDialog(
             title: Text(app.updateTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.blue)),
@@ -90,7 +93,8 @@ class Utils {
     var app = AppLocalizations.of(context);
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
+      builder: (BuildContext context) =>
+          AlertDialog(
             title: Text(app.updateTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.blue)),
@@ -126,12 +130,10 @@ class Utils {
       return app.updateContent;
   }
 
-  static void showSnackBarBar(
-    ScaffoldState scaffold,
-    String contentText,
-    String actionText,
-    Color actionTextColor,
-  ) {
+  static void showSnackBarBar(ScaffoldState scaffold,
+      String contentText,
+      String actionText,
+      Color actionTextColor,) {
     scaffold.showSnackBar(
       SnackBar(
         content: Text(contentText),
@@ -143,6 +145,31 @@ class Utils {
         ),
       ),
     );
+  }
+
+  static void initConnectivity(BuildContext context,
+      ScaffoldState scaffold) async {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.mobile) {
+        scaffold.removeCurrentSnackBar();
+      } else if (result == ConnectivityResult.wifi) {
+        scaffold.removeCurrentSnackBar();
+      } else {
+        scaffold.showSnackBar(
+          SnackBar(
+            content: Text("無網路連線"),
+            duration: Duration(days: 1),
+            action: SnackBarAction(
+              label: "開啟設定",
+              onPressed: () {
+                //TODO
+              },
+              textColor: Resource.Colors.yellow,
+            ),
+          ),
+        );
+      }
+    });
   }
 
   static Future<void> launchUrl(var url) async {
