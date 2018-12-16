@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:share/share.dart';
@@ -39,12 +42,13 @@ class Utils {
       String content, String actionText, Function function) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
+        builder: (BuildContext context) =>
+            AlertDialog(
               title: Text(title,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Resource.Colors.blue)),
               content: Text(content,
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                   style: TextStyle(color: Resource.Colors.grey)),
               actions: <Widget>[
                 FlatButton(
@@ -59,12 +63,77 @@ class Utils {
             ));
   }
 
-  static void showSnackBarBar(
-    ScaffoldState scaffold,
-    String contentText,
-    String actionText,
-    Color actionTextColor,
-  ) {
+  static void showForceUpdateDialog(BuildContext context, String url) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: Text(app.updateTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.blue)),
+            content: Text(_getPlatformUpdateContent(app),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey)),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(app.update,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  launchUrl(url);
+                },
+              )
+            ],
+          ),
+    );
+  }
+
+  static void showUpdateDialog(BuildContext context, String url) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) =>
+          AlertDialog(
+            title: Text(app.updateTitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.blue)),
+            content: Text(_getPlatformUpdateContent(app),
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey)),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(app.skip,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text(app.update,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  launchUrl(url);
+                },
+              )
+            ],
+          ),
+    );
+  }
+
+  static String _getPlatformUpdateContent(AppLocalizations app) {
+    if (Platform.isAndroid)
+      return app.updateAndroidContent;
+    else if (Platform.isIOS)
+      return app.updateIOSContent;
+    else
+      return app.updateContent;
+  }
+
+  static void showSnackBarBar(ScaffoldState scaffold,
+      String contentText,
+      String actionText,
+      Color actionTextColor,) {
     scaffold.showSnackBar(
       SnackBar(
         content: Text(contentText),
@@ -76,6 +145,31 @@ class Utils {
         ),
       ),
     );
+  }
+
+  static void initConnectivity(BuildContext context,
+      ScaffoldState scaffold) async {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.mobile) {
+        scaffold.removeCurrentSnackBar();
+      } else if (result == ConnectivityResult.wifi) {
+        scaffold.removeCurrentSnackBar();
+      } else {
+        scaffold.showSnackBar(
+          SnackBar(
+            content: Text("無網路連線"),
+            duration: Duration(days: 1),
+            action: SnackBarAction(
+              label: "開啟設定",
+              onPressed: () {
+                //TODO
+              },
+              textColor: Resource.Colors.yellow,
+            ),
+          ),
+        );
+      }
+    });
   }
 
   static Future<void> launchUrl(var url) async {
@@ -104,5 +198,10 @@ class Utils {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     Share.share("$content\n\n"
         "Send from ${packageInfo.appName} ${Platform.operatingSystem}");
+  }
+
+  static void clearSetting() async {
+    var prefs = await SharedPreferences.getInstance();
+    prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
   }
 }

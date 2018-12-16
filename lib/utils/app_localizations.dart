@@ -134,7 +134,9 @@ class AppLocalizations {
           'Oops! No absent record for this semester~\nPlease choose another semester %s',
       'token_expired_title': 'Re-login Required',
       'token_expired_content': 'Cookie has expired, please re-login!',
-      'update_content': 'Update available for KUAS AP!',
+      'update_content': 'Update available for NKUST AP!',
+      'update_android_content': 'Update available for NKUST AP!',
+      'update_ios_content': 'Update available for NKUST AP!',
       'update_title': 'Updated',
       'update': 'Update',
       'function_not_open': 'Coming Soon~\nDonate to use this feature now!',
@@ -238,11 +240,23 @@ class AppLocalizations {
       'fri': 'Fri.',
       'sat': 'Sat.',
       'sun': 'Sun.',
+      'monday': 'Mon',
+      'tuesday': 'Tue',
+      'wednesday': 'Wed',
+      'thursday': 'Thu',
+      'friday': 'Fri',
+      'saturday': 'Sat',
+      'sunday': 'Sun',
       'do_not_empty': 'Don\'t Empty',
       'login_fail': 'student id or password error',
       'bus_fail_infinity': 'Bus system perhaps broken!!!',
       'reserving': 'Reserving...',
       'canceling': 'Canceling...',
+      'calculating': 'Calculating...',
+      'calculate_units': 'Calculate Units(Beta)',
+      'begin_calculate': 'Begin Calculate',
+      'calculate_units_content': 'Calculation is for reference only',
+      'general_eduction_course': 'General education course',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -348,7 +362,9 @@ class AppLocalizations {
       'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 %s',
       'token_expired_title': '重新登入',
       'token_expired_content': '登入資訊過期，請重新登入！',
-      'update_content': '高科校務通 在 Google Play 有新版本喲！',
+      'update_content': '高科校務通 有新版本喲！',
+      'update_android_content': '高科校務通 在 Google Play 有新版本喲！',
+      'update_ios_content': '高科校務通 在 Apple store 有新版本喲！',
       'update_title': '版本更新',
       'update': '更新',
       'function_not_open': '功能尚未開放\n私密粉絲團 小編會告訴你何時開放！',
@@ -445,11 +461,28 @@ class AppLocalizations {
       'fri': ' 五 ',
       'sat': ' 六 ',
       'sun': ' 日 ',
+      'monday': '週一',
+      'tuesday': '週二',
+      'wednesday': '週三',
+      'thursday': '週四',
+      'friday': '週五',
+      'saturday': '週六',
+      'sunday': '週日',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
       'reserving': '預約中...',
       'canceling': '取消中...',
+      'calculating': '計算中...',
+      'calculate_units': '學分試算(Beta)',
+      'required_units': '必修學分',
+      'elective_units': '選修學分',
+      'other_units': '其他學分',
+      'units_total': '總學分',
+      'semester': '學期',
+      'begin_calculate': '開始計算',
+      'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
+      'general_eduction_course': '通識課程',
     },
   };
 
@@ -463,7 +496,7 @@ class AppLocalizations {
         2: events,
       };
 
-  List<String> get weekdays => [
+  List<String> get weekdaysCourse => [
         mon,
         tue,
         wed,
@@ -471,6 +504,16 @@ class AppLocalizations {
         fri,
         sat,
         sun,
+      ];
+
+  List<String> get weekdays => [
+        sunday,
+        monday,
+        tuesday,
+        wednesday,
+        thursday,
+        friday,
+        saturday,
       ];
 
   List<String> get busSegment => [
@@ -643,6 +686,20 @@ class AppLocalizations {
 
   String get sun => _vocabularies['sun'];
 
+  String get monday => _vocabularies['monday'];
+
+  String get tuesday => _vocabularies['tuesday'];
+
+  String get wednesday => _vocabularies['wednesday'];
+
+  String get thursday => _vocabularies['thursday'];
+
+  String get friday => _vocabularies['friday'];
+
+  String get saturday => _vocabularies['saturday'];
+
+  String get sunday => _vocabularies['sunday'];
+
   String get fromJiangong => _vocabularies['from_jiangong'];
 
   String get fromYanchao => _vocabularies['from_yanchao'];
@@ -703,6 +760,10 @@ class AppLocalizations {
 
   String get updateContent => _vocabularies['update_content'];
 
+  String get updateAndroidContent => _vocabularies['update_android_content'];
+
+  String get updateIOSContent => _vocabularies['update_ios_content'];
+
   String get updateTitle => _vocabularies['update_title'];
 
   String get update => _vocabularies['update'];
@@ -740,6 +801,28 @@ class AppLocalizations {
   String get logoutCheck => _vocabularies['logout_check'];
 
   String get courseInfo => _vocabularies['course_info'];
+
+  String get autoLogin => _vocabularies['auto_login'];
+
+  String get calculateUnits => _vocabularies['calculate_units'];
+
+  String get requiredUnits => _vocabularies['required_units'];
+
+  String get electiveUnits => _vocabularies['elective_units'];
+
+  String get otherUnits => _vocabularies['other_units'];
+
+  String get unitsTotal => _vocabularies['units_total'];
+
+  String get semester => _vocabularies['semester'];
+
+  String get beginCalculate => _vocabularies['begin_calculate'];
+
+  String get calculateUnitsContent => _vocabularies['calculate_units_content'];
+
+  String get generalEductionCourse => _vocabularies['general_eduction_course'];
+
+  String get calculating => _vocabularies['calculating'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

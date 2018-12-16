@@ -2,12 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/models.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 
 class AboutUsPageRoute extends MaterialPageRoute {
   AboutUsPageRoute()
@@ -34,6 +29,7 @@ class AboutUsPageState extends State<AboutUsPage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("AboutUsPage", "about_us_page.dart");
   }
 
   @override
@@ -72,6 +68,7 @@ class AboutUsPageState extends State<AboutUsPage>
           ];
         },
         body: ListView(
+          physics: const NeverScrollableScrollPhysics(),
           children: <Widget>[
             _item(app.aboutAuthorTitle, app.aboutAuthorContent),
             _item(app.about, app.aboutUsContent),

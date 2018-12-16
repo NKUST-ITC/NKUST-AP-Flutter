@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/models.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class SchoolInfoPageRoute extends MaterialPageRoute {
   SchoolInfoPageRoute()
@@ -39,6 +35,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("SchoolInfoPage", "school_info_page.dart");
     controller = TabController(length: 3, vsync: this);
   }
 

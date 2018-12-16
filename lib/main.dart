@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -9,6 +10,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
+import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
@@ -36,13 +38,13 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseAnalytics analytics = new FirebaseAnalytics();
+  final FirebaseAnalytics analytics = FirebaseAnalytics();
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    //_firebaseMessaging.requestNotificationPermissions();
+    _initFCM();
+    FA.analytics = analytics;
     return new MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {
@@ -62,20 +64,22 @@ class MyApp extends StatelessWidget {
         AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
         OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
         UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+        CalculateUnitsPage.routerName: (BuildContext context) => CalculateUnitsPage(),
         NewsContentPage.routerName: (BuildContext context) =>
             NewsContentPage(null),
       },
-      theme: new ThemeData(
+      theme: ThemeData(
         hintColor: Colors.white,
         accentColor: Resource.Colors.blue,
-        inputDecorationTheme: new InputDecorationTheme(
-          labelStyle: new TextStyle(color: Colors.white),
-          border: new UnderlineInputBorder(
-              borderSide: new BorderSide(color: Colors.white)),
+        unselectedWidgetColor: Colors.white,
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: TextStyle(color: Colors.white),
+          border:
+              UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
         ),
       ),
       navigatorObservers: [
-        new FirebaseAnalyticsObserver(analytics: analytics),
+        FirebaseAnalyticsObserver(analytics: analytics),
       ],
       localizationsDelegates: [
         const AppLocalizationsDelegate(),
@@ -85,8 +89,41 @@ class MyApp extends StatelessWidget {
       supportedLocales: [
         const Locale('en', 'US'), // English
         const Locale('zh', 'TW'), // Hebrew
-        // ... other locales the app supports
       ],
     );
+  }
+
+  void _initFCM() {
+    _firebaseMessaging.requestNotificationPermissions();
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        if (Constants.isInDebugMode) print("onMessage: $message");
+        //TODO onMessage Notification Display
+        //_showItemDialog(message);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        if (Constants.isInDebugMode) print("onLaunch: $message");
+        //_navigateToItemDetail(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        if (Constants.isInDebugMode) print("onResume: $message");
+        //_navigateToItemDetail(message);
+      },
+    );
+    _firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+    _firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings settings) {
+      print("Settings registered: $settings");
+    });
+    _firebaseMessaging.getToken().then((String token) {
+      assert(token != null);
+      if (Constants.isInDebugMode) {
+        print("Push Messaging token: $token");
+      }
+      if (Platform.isAndroid)
+        _firebaseMessaging.subscribeToTopic("Android");
+      else if (Platform.isIOS) _firebaseMessaging.subscribeToTopic("IOS");
+    });
   }
 }

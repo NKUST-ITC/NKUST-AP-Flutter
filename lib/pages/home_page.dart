@@ -1,16 +1,10 @@
-import 'dart:convert';
-import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -46,6 +40,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("HomePage", "home_page.dart");
     _getAllNews();
   }
 
@@ -66,7 +61,9 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _homebody() {
+  Widget _homebody(Orientation orientation) {
+    var rate =
+        MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
     switch (state) {
       case _Status.loading:
         return Center(
@@ -97,8 +94,11 @@ class HomePageState extends State<HomePage> {
             ),
             cardSlider = CarouselSlider(
               items: newsWidgets,
-              viewportFraction: 0.65,
-              aspectRatio: 7 / 6,
+              viewportFraction:
+                  orientation == Orientation.portrait ? 0.65 : 0.5,
+              aspectRatio: orientation == Orientation.portrait
+                  ? 7 / 6
+                  : (rate > 1.5 ? 21 / 4 : 21 / 9),
               autoPlay: false,
               updateCallback: (int current) {
                 setState(() {
@@ -106,7 +106,7 @@ class HomePageState extends State<HomePage> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -114,12 +114,12 @@ class HomePageState extends State<HomePage> {
                   "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
                       "${_currentNewsIndex + 1}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.red, fontSize: 32.0),
+                  style: TextStyle(color: Resource.Colors.red, fontSize: 24.0),
                 ),
                 Text(
                   " / ${newsWidgets.length}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.grey, fontSize: 32.0),
+                  style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
                 )
               ],
             ),
@@ -135,8 +135,8 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     return WillPopScope(
         child: Scaffold(
-          appBar: new AppBar(
-            title: new Text(app.appName),
+          appBar: AppBar(
+            title: Text(app.appName),
             backgroundColor: Resource.Colors.blue,
             actions: <Widget>[
               IconButton(
@@ -179,12 +179,15 @@ class HomePageState extends State<HomePage> {
             ],
           ),
           drawer: DrawerBody(),
-          body: Container(
-            padding: EdgeInsets.symmetric(vertical: 32.0),
-            child: Center(
-              child: _homebody(),
-            ),
-          ),
+          body: OrientationBuilder(builder: (_, orientation) {
+            return Container(
+              padding: EdgeInsets.symmetric(
+                  vertical: orientation == Orientation.portrait ? 32.0 : 4.0),
+              child: Center(
+                child: _homebody(orientation),
+              ),
+            );
+          }),
           bottomNavigationBar: new BottomNavigationBar(
             fixedColor: Color(0xff737373),
             type: BottomNavigationBarType.fixed,

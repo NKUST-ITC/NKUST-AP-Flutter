@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/models.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 
 class OpenSourcePageRoute extends MaterialPageRoute {
   OpenSourcePageRoute()
@@ -32,6 +27,7 @@ class OpenSourcePageState extends State<OpenSourcePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("OpenSourcePage", "open_source_page.dart");
   }
 
   @override

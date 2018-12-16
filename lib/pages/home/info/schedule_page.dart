@@ -1,11 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
@@ -43,6 +41,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("SchedulePage", "schedule_page.dart");
     _getSchedules();
   }
 

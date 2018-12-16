@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, loadingMore, error, empty }
@@ -40,17 +38,16 @@ class NotificationPageState extends State<NotificationPage>
 
   @override
   void initState() {
-    controller = new ScrollController()..addListener(_scrollListener);
-    state = _State.loading;
-    setState(() {});
-    _getNotifications();
     super.initState();
+    FA.setCurrentScreen("NotificationPage", "notification_page.dart");
+    controller = new ScrollController()..addListener(_scrollListener);
+    _getNotifications();
   }
 
   @override
   void dispose() {
-    controller.removeListener(_scrollListener);
     super.dispose();
+    controller.removeListener(_scrollListener);
   }
 
   _textGreyStyle() {

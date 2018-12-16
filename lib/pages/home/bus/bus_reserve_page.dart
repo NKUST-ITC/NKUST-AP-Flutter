@@ -1,13 +1,10 @@
-import 'package:async/async.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
+import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 
@@ -32,10 +29,8 @@ class BusReservePage extends StatefulWidget {
   BusReservePageState createState() => new BusReservePageState();
 }
 
-class BusReservePageState extends State<BusReservePage>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
+class BusReservePageState extends State<BusReservePage> {
+  double top = 0.0;
 
   _State state = _State.loading;
   BusData busData;
@@ -49,6 +44,7 @@ class BusReservePageState extends State<BusReservePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
     _getBusTimeTables();
   }
 
@@ -78,6 +74,7 @@ class BusReservePageState extends State<BusReservePage>
         );
       default:
         return ListView(
+          physics: const NeverScrollableScrollPhysics(),
           children: busTimeWeights,
         );
     }
@@ -183,11 +180,8 @@ class BusReservePageState extends State<BusReservePage>
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 24.0),
-            child: Divider(
-              color: Colors.grey,
-              indent: 4.0,
-            ),
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(color: Colors.grey, height: 0.0),
           )
         ],
       );
@@ -195,44 +189,84 @@ class BusReservePageState extends State<BusReservePage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return Flex(
-      direction: Axis.vertical,
-      children: <Widget>[
-        Calendar(
-          isExpandable: false,
-          onDateSelected: (DateTime datetime) {
-            dateTime = datetime;
-            _getBusTimeTables();
-          },
-        ),
-        Container(
-            margin: EdgeInsets.all(8.0),
-            child: CupertinoSegmentedControl(
-              groupValue: selectStartStation,
-              children: {
-                Station.janGong: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(app.fromJiangong),
+    return Scaffold(
+      body: OrientationBuilder(builder: (_, orientation) {
+        return NestedScrollView(
+          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+            return <Widget>[
+              SliverAppBar(
+                leading: Container(),
+                expandedHeight: orientation == Orientation.portrait
+                    ? MediaQuery.of(context).size.height * 0.19
+                    : MediaQuery.of(context).size.width * 0.19,
+                floating: true,
+                backgroundColor: Colors.transparent,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Column(
+                    children: <Widget>[
+                      Container(
+                        color: Colors.transparent,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 8.0),
+                        child: Calendar(
+                          isExpandable: false,
+                          showTodayAction: false,
+                          showCalendarPickerIcon: false,
+                          showChevronsToChangeRange: false,
+                          onDateSelected: (DateTime datetime) {
+                            dateTime = datetime;
+                            _getBusTimeTables();
+                          },
+                          dayChildAspectRatio:
+                              orientation == Orientation.portrait ? 1.5 : 3,
+                          weekdays: app.weekdays,
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Divider(color: Colors.grey),
+                      ),
+                    ],
+                  ),
                 ),
-                Station.yanchao: Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 4.0, horizontal: 36.0),
-                  child: Text(app.fromYanchao),
-                )
-              },
-              onValueChanged: (Station text) {
-                selectStartStation = text;
-                if (state == _State.finish)
-                  _updateBusTimeTables();
-                else
-                  setState(() {});
-              },
-            )),
-        Expanded(
-          child: _body(),
-        ),
-      ],
+              ),
+            ];
+          },
+          body: Column(
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: double.infinity),
+                  child: CupertinoSegmentedControl(
+                    groupValue: selectStartStation,
+                    children: {
+                      Station.janGong: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(app.fromJiangong),
+                      ),
+                      Station.yanchao: Container(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(app.fromYanchao),
+                      )
+                    },
+                    onValueChanged: (Station text) {
+                      selectStartStation = text;
+                      if (state == _State.finish)
+                        _updateBusTimeTables();
+                      else
+                        setState(() {});
+                    },
+                  ),
+                ),
+              ),
+              Expanded(
+                child: _body(),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 

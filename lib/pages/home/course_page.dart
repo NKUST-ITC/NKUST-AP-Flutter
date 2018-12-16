@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
@@ -27,14 +25,12 @@ class CoursePage extends StatefulWidget {
   CoursePageState createState() => new CoursePageState();
 }
 
-// SingleTickerProviderStateMixin is used for animation
 class CoursePageState extends State<CoursePage>
     with SingleTickerProviderStateMixin {
   AppLocalizations app;
   ScaffoldState scaffold;
 
   _State state = _State.loading;
-  List<Widget> courseWeightList = [];
 
   int base = 6;
   int selectSemesterIndex;
@@ -47,6 +43,7 @@ class CoursePageState extends State<CoursePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("CoursePage", "course_page.dart");
     _getSemester();
   }
 
@@ -152,13 +149,19 @@ class CoursePageState extends State<CoursePage>
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
       default:
-        return GridView.count(
-          padding: EdgeInsets.symmetric(vertical: 8.0),
-          mainAxisSpacing: 0.0,
-          shrinkWrap: true,
-          childAspectRatio: childAspectRatio,
-          crossAxisCount: base,
-          children: courseWeightList ?? <Widget>[],
+        var list = renderCourseList();
+        return SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: GridView.count(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            mainAxisSpacing: 0.0,
+            shrinkWrap: true,
+            childAspectRatio: childAspectRatio,
+            crossAxisCount: base,
+            children: list ?? <Widget>[],
+          ),
         );
     }
   }
@@ -167,21 +170,20 @@ class CoursePageState extends State<CoursePage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(app.course),
+      appBar: AppBar(
+        title: Text(app.course),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Builder(
         builder: (builderContext) {
           scaffold = Scaffold.of(builderContext);
           return Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Flex(
               direction: Axis.vertical,
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                SizedBox(height: 8.0),
+                SizedBox(height: 16.0),
                 Expanded(
                   flex: 1,
                   child: FlatButton(
@@ -192,8 +194,9 @@ class CoursePageState extends State<CoursePage>
                         Text(
                           selectSemester == null ? "" : selectSemester.text,
                           style: TextStyle(
-                              color: Resource.Colors.blue, fontSize: 14.0),
+                              color: Resource.Colors.blue, fontSize: 18.0),
                         ),
+                        SizedBox(width: 8.0),
                         Icon(
                           Icons.keyboard_arrow_down,
                           color: Resource.Colors.blue,
@@ -202,7 +205,6 @@ class CoursePageState extends State<CoursePage>
                     ),
                   ),
                 ),
-                SizedBox(height: 8.0),
                 Expanded(
                   flex: 19,
                   child: RefreshIndicator(
@@ -271,10 +273,63 @@ class CoursePageState extends State<CoursePage>
         });
   }
 
+  renderCourseList() {
+    List<String> weeks = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ];
+    var courseWeightList = <Widget>[_textBorder("", topLeft: true)];
+    for (var week in app.weekdaysCourse.sublist(0, 4))
+      courseWeightList.add(_textBorder(week));
+    if (courseData.courseTables.saturday.isEmpty &&
+        courseData.courseTables.sunday.isEmpty) {
+      courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
+      base = 6;
+      childAspectRatio = 1.5;
+    } else {
+      courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
+      courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
+      courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
+      weeks.add("Saturday");
+      weeks.add("Sunday");
+      base = 8;
+      childAspectRatio = 1.1;
+    }
+    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
+    int i = 0;
+    for (String text in courseData.courseTables.timeCode) {
+      i++;
+      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
+      text = text.replaceAll(' ', '');
+      if (base == 8) {
+        text = text.replaceAll('第', '');
+        text = text.replaceAll('節', '');
+      }
+      courseWeightList.add(_textBorder(text));
+      for (var i = 0; i < base - 1; i++)
+        courseWeightList.add(_textBorder("", isCenter: true));
+    }
+    var timeCodes = courseData.courseTables.timeCode;
+    for (int i = 0; i < weeks.length; i++) {
+      if (courseData.courseTables.getCourseList(weeks[i]) != null)
+        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
+          for (int j = 0; j < timeCodes.length; j++) {
+            if (timeCodes[j] == data.section) {
+              courseWeightList[(j + 1) * base + i] = _courseBorder(data);
+            }
+          }
+        }
+    }
+    return courseWeightList;
+  }
+
   _getCourseTables() async {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    courseWeightList.clear();
     state = _State.loading;
     setState(() {});
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
@@ -282,65 +337,15 @@ class CoursePageState extends State<CoursePage>
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        courseData = response;
-        if (courseData.status == 200) {
-          List<String> weeks = [
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday"
-          ];
-          courseWeightList = <Widget>[_textBorder("", topLeft: true)];
-          for (var week in app.weekdays.sublist(0, 4))
-            courseWeightList.add(_textBorder(week));
-          if (courseData.courseTables.saturday.isEmpty &&
-              courseData.courseTables.sunday.isEmpty) {
-            courseWeightList.add(_textBorder(app.weekdays[4], topRight: true));
-            base = 6;
-            childAspectRatio = 1.5;
-          } else {
-            courseWeightList.add(_textBorder(app.weekdays[4]));
-            courseWeightList.add(_textBorder(app.weekdays[5]));
-            courseWeightList.add(_textBorder(app.weekdays[6], topRight: true));
-            weeks.add("Saturday");
-            weeks.add("Sunday");
-            base = 8;
-            childAspectRatio = 1.1;
-          }
-          int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
-          int i = 0;
-          for (String text in courseData.courseTables.timeCode) {
-            i++;
-            if (maxTimeCode <= 11 && i > maxTimeCode) continue;
-            text = text.replaceAll(' ', '');
-            if (base == 8) {
-              text = text.replaceAll('第', '');
-              text = text.replaceAll('節', '');
-            }
-            courseWeightList.add(_textBorder(text));
-            for (var i = 0; i < base - 1; i++)
-              courseWeightList.add(_textBorder("", isCenter: true));
-          }
-          var timeCodes = courseData.courseTables.timeCode;
-          for (int i = 0; i < weeks.length; i++) {
-            if (courseData.courseTables.getCourseList(weeks[i]) != null)
-              for (var data
-                  in courseData.courseTables.getCourseList(weeks[i])) {
-                for (int j = 0; j < timeCodes.length; j++) {
-                  if (timeCodes[j] == data.section) {
-                    courseWeightList[(j + 1) * base + i] = _courseBorder(data);
-                  }
-                }
-              }
-          }
-        }
         setState(() {
-          if (courseWeightList.length == 0) {
+          courseData = response;
+          if (courseData.status == 204) {
             state = _State.empty;
-          } else
+          } else if (courseData.status == 200) {
             state = _State.finish;
+          } else {
+            state = _State.error;
+          }
         });
       }).catchError((e) {
         assert(e is DioError);
