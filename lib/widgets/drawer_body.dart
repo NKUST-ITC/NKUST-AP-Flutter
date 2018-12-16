@@ -145,6 +145,7 @@ class DrawerBodyState extends State<DrawerBody> {
               children: <Widget>[
                 _subItem(Icons.class_, app.course, CoursePageRoute()),
                 _subItem(Icons.assignment, app.score, ScorePageRoute()),
+                _subItem(Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
               ],
             ),
             ExpansionTile(

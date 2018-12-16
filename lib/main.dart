@@ -64,6 +64,7 @@ class MyApp extends StatelessWidget {
         AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
         OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
         UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+        CalculateUnitsPage.routerName: (BuildContext context) => CalculateUnitsPage(),
         NewsContentPage.routerName: (BuildContext context) =>
             NewsContentPage(null),
       },

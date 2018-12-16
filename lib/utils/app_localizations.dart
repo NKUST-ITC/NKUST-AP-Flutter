@@ -252,6 +252,11 @@ class AppLocalizations {
       'bus_fail_infinity': 'Bus system perhaps broken!!!',
       'reserving': 'Reserving...',
       'canceling': 'Canceling...',
+      'calculating': 'Calculating...',
+      'calculate_units': 'Calculate Units(Beta)',
+      'begin_calculate': 'Begin Calculate',
+      'calculate_units_content': 'Calculation is for reference only',
+      'general_eduction_course': 'General education course',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -468,6 +473,16 @@ class AppLocalizations {
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
       'reserving': '預約中...',
       'canceling': '取消中...',
+      'calculating': '計算中...',
+      'calculate_units': '學分試算(Beta)',
+      'required_units': '必修學分',
+      'elective_units': '選修學分',
+      'other_units': '其他學分',
+      'units_total': '總學分',
+      'semester': '學期',
+      'begin_calculate': '開始計算',
+      'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
+      'general_eduction_course': '通識課程',
     },
   };
 
@@ -788,6 +803,26 @@ class AppLocalizations {
   String get courseInfo => _vocabularies['course_info'];
 
   String get autoLogin => _vocabularies['auto_login'];
+
+  String get calculateUnits => _vocabularies['calculate_units'];
+
+  String get requiredUnits => _vocabularies['required_units'];
+
+  String get electiveUnits => _vocabularies['elective_units'];
+
+  String get otherUnits => _vocabularies['other_units'];
+
+  String get unitsTotal => _vocabularies['units_total'];
+
+  String get semester => _vocabularies['semester'];
+
+  String get beginCalculate => _vocabularies['begin_calculate'];
+
+  String get calculateUnitsContent => _vocabularies['calculate_units_content'];
+
+  String get generalEductionCourse => _vocabularies['general_eduction_course'];
+
+  String get calculating => _vocabularies['calculating'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

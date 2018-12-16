@@ -5,43 +5,54 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { ready, loading, finish, error, empty }
 
-class ScorePageRoute extends MaterialPageRoute {
-  ScorePageRoute() : super(builder: (BuildContext context) => new ScorePage());
+class CalculateUnitsPageRoute extends MaterialPageRoute {
+  CalculateUnitsPageRoute()
+      : super(builder: (BuildContext context) => new CalculateUnitsPage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new ScorePage());
+    return new FadeTransition(
+        opacity: animation, child: new CalculateUnitsPage());
   }
 }
 
-class ScorePage extends StatefulWidget {
-  static const String routerName = "/score";
+class CalculateUnitsPage extends StatefulWidget {
+  static const String routerName = "/calculateUnits";
 
   @override
-  ScorePageState createState() => new ScorePageState();
+  CalculateUnitsPageState createState() => new CalculateUnitsPageState();
 }
 
-class ScorePageState extends State<ScorePage>
+class CalculateUnitsPageState extends State<CalculateUnitsPage>
     with SingleTickerProviderStateMixin {
   AppLocalizations app;
 
-  _State state = _State.loading;
+  _State state = _State.ready;
 
-  List<TableRow> scoreWeightList = [];
-
-  int selectSemesterIndex;
+  int currentSemesterIndex;
 
   Semester selectSemester;
   SemesterData semesterData;
-  ScoreData scoreData;
+  List<Semester> semesterList;
+  List<ScoreData> scoreDataList;
+
+  double unitsTotal;
+  double requiredUnitsTotal;
+  double electiveUnitsTotal;
+  double otherUnitsTotal;
+
+  int startYear = 0;
+
+  List<Score> coreGeneralEducations;
+  List<Score> extendGeneralEducations;
 
   @override
   void initState() {
     super.initState();
-    FA.setCurrentScreen("ScorePage", "score_page.dart");
+    FA.setCurrentScreen("CalculateUnitsPage", "calculate_units_page.dart");
     _getSemester();
   }
 
@@ -60,8 +71,7 @@ class ScorePageState extends State<ScorePage>
 
   _scoreTitle() => TableRow(
         children: <Widget>[
-          _scoreTextBorder(app.subject, true),
-          _scoreTextBorder(app.midtermScore, true),
+          _scoreTextBorder(app.generalEductionCourse, true),
           _scoreTextBorder(app.finalScore, true),
         ],
       );
@@ -98,11 +108,18 @@ class ScorePageState extends State<ScorePage>
     );
   }
 
-  _scoreBorder(Score score) {
+  _scoreBorder(Semester semester, ScoreData score) {
+    return TableRow(children: <Widget>[
+      _scoreTextBorder(semester.text, false),
+      _scoreTextBorder("${score.content.detail.average}", false),
+      _scoreTextBorder("${score.content.detail.classRank}", false)
+    ]);
+  }
+
+  _generalEducationsBorder(Score score) {
     return TableRow(children: <Widget>[
       _scoreTextBorder(score.title, false),
-      _scoreTextBorder(score.middleScore, false),
-      _scoreTextBorder(score.finalScore, false)
+      _scoreTextBorder(score.finalScore, false),
     ]);
   }
 
@@ -113,7 +130,7 @@ class ScorePageState extends State<ScorePage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(app.score),
+        title: new Text(app.calculateUnits),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
@@ -125,29 +142,15 @@ class ScorePageState extends State<ScorePage>
             SizedBox(height: 16.0),
             Expanded(
               flex: 1,
-              child: FlatButton(
-                onPressed: _selectSemester,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      selectSemester == null ? "" : selectSemester.text,
-                      style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 18.0),
-                    ),
-                    SizedBox(width: 8.0),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Resource.Colors.blue,
-                    )
-                  ],
-                ),
+              child: Text(
+                app.calculateUnitsContent,
+                style: TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
               ),
             ),
             Expanded(
               flex: 19,
               child: RefreshIndicator(
-                onRefresh: () => _getSemesterScore(),
+                onRefresh: () => _calculate(),
                 child: _body(),
               ),
             ),
@@ -161,15 +164,30 @@ class ScorePageState extends State<ScorePage>
     switch (state) {
       case _State.loading:
         return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                SizedBox(height: 16.0),
+                Text(app.calculating, style: _textBlueStyle())
+              ],
+            ),
+            alignment: Alignment.center);
       case _State.error:
       case _State.empty:
         return FlatButton(
-          onPressed:
-              state == _State.error ? _getSemesterScore : _selectSemester,
+          onPressed: _calculate,
           child: HintContent(
             icon: Icons.assignment,
             content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
+          ),
+        );
+      case _State.ready:
+        return FlatButton(
+          onPressed: _calculate,
+          child: HintContent(
+            icon: Icons.apps,
+            content: app.beginCalculate,
           ),
         );
       default:
@@ -192,14 +210,13 @@ class ScorePageState extends State<ScorePage>
                   ),
                   child: Table(
                     columnWidths: const <int, TableColumnWidth>{
-                      0: FlexColumnWidth(2.0),
+                      0: FlexColumnWidth(3.0),
                       1: FlexColumnWidth(1.0),
-                      2: FlexColumnWidth(1.0),
                     },
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     border: TableBorder.symmetric(
                         inside: BorderSide(color: Colors.grey)),
-                    children: scoreWeightList,
+                    children: _renderScoreWidgets(),
                   ),
                 ),
                 SizedBox(height: 20.0),
@@ -215,17 +232,11 @@ class ScorePageState extends State<ScorePage>
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${app.conductScore}：${scoreData.content.detail.conduct}",
-                          true),
+                          "${app.requiredUnits}：$requiredUnitsTotal", true),
                       _textBorder(
-                          "${app.average}：${scoreData.content.detail.average}",
-                          false),
-                      _textBorder(
-                          "${app.rank}：${scoreData.content.detail.classRank}",
-                          false),
-                      _textBorder(
-                          "${app.percentage}：${scoreData.content.detail.classPercentage}",
-                          false),
+                          "${app.electiveUnits}：$electiveUnitsTotal", false),
+                      _textBorder("${app.otherUnits}：$otherUnitsTotal", false),
+                      _textBorder("${app.unitsTotal}：$unitsTotal", false),
                     ],
                   ),
                 ),
@@ -236,31 +247,39 @@ class ScorePageState extends State<ScorePage>
     }
   }
 
-  void _selectSemester() {
-    var semesters = <SimpleDialogOption>[];
-    for (var semester in semesterData.semesters) {
-      semesters.add(_dialogItem(semesters.length, semester.text));
+  List<TableRow> _renderScoreWidgets() {
+    List<TableRow> scoreWeightList = [];
+    scoreWeightList.add(_scoreTitle());
+    /*for (var i = 0; i < scoreDataList.length; i++)
+      scoreWeightList.add(_scoreBorder(semesterList[i], scoreDataList[i]));*/
+    for (var i in coreGeneralEducations) {
+      scoreWeightList.add(_generalEducationsBorder(i));
     }
-    showDialog<int>(
-        context: context,
-        builder: (BuildContext context) => SimpleDialog(
-            title: Text(app.picksSemester),
-            children: semesters)).then<void>((int position) {
-      if (position != null) {
-        selectSemesterIndex = position;
-        selectSemester = semesterData.semesters[selectSemesterIndex];
-        _getSemesterScore();
-        setState(() {});
-      }
-    });
+    for (var i in extendGeneralEducations) {
+      scoreWeightList.add(_generalEducationsBorder(i));
+    }
+    return scoreWeightList;
   }
 
-  void _getSemester() {
+  _calculate() async {
+    unitsTotal = 0.0;
+    requiredUnitsTotal = 0.0;
+    electiveUnitsTotal = 0.0;
+    otherUnitsTotal = 0.0;
+
+    startYear = -1;
+    currentSemesterIndex = 0;
+    semesterList = [];
+    scoreDataList = [];
+    coreGeneralEducations = [];
+    extendGeneralEducations = [];
+    _getSemesterScore();
+  }
+
+  _getSemester() async {
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = 0;
-      _getSemesterScore();
       setState(() {});
     }).catchError((e) {
       assert(e is DioError);
@@ -281,25 +300,55 @@ class ScorePageState extends State<ScorePage>
     });
   }
 
-  _getSemesterScore() async {
+  _getSemesterScore() {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    scoreWeightList.clear();
-    state = _State.loading;
-    setState(() {});
-    var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
+    setState(() {
+      state = _State.loading;
+    });
+    var textList =
+        semesterData.semesters[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
         setState(() {
-          scoreData = response;
-          if (scoreData.status == 204)
-            state = _State.empty;
-          else {
-            scoreWeightList.add(_scoreTitle());
-            for (var score in scoreData.content.scores) {
-              scoreWeightList.add(_scoreBorder(score));
+          if (response.status == 200) {
+            if (startYear == -1) startYear = int.parse(textList[0]);
+            //scoreWeightList.add(_scoreTitle());
+            semesterList.add(semesterData.semesters[currentSemesterIndex]);
+            scoreDataList.add(response);
+            for (var score in response.content.scores) {
+              var finalScore = double.tryParse(score.finalScore);
+              if (finalScore != null) {
+                if (finalScore >= 60.0) {
+                  if (score.required == "【必修】") {
+                    requiredUnitsTotal += double.parse(score.units);
+                  } else if (score.required == "【選修】") {
+                    electiveUnitsTotal += double.parse(score.units);
+                  } else {
+                    otherUnitsTotal += double.parse(score.units);
+                  }
+                  if (score.title.contains("延伸通識")) {
+                    extendGeneralEducations.add(score);
+                  } else if (score.title.contains("核心通識")) {
+                    coreGeneralEducations.add(score);
+                  }
+                }
+              }
             }
-            state = _State.finish;
+          }
+          var currentYear = int.parse(textList[0]);
+          if (currentSemesterIndex < semesterData.semesters.length - 1 &&
+              (startYear - currentYear).abs() <= 6) {
+            currentSemesterIndex++;
+            if (mounted) _getSemesterScore();
+          } else {
+            unitsTotal =
+                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+            if (mounted) {
+              setState(() {
+                state = _State.finish;
+              });
+            }
           }
         });
       }).catchError((e) {
