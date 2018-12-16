@@ -114,12 +114,12 @@ class HomePageState extends State<HomePage> {
                   "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
                       "${_currentNewsIndex + 1}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.red, fontSize: 32.0),
+                  style: TextStyle(color: Resource.Colors.red, fontSize: 28.0),
                 ),
                 Text(
                   " / ${newsWidgets.length}",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.grey, fontSize: 32.0),
+                  style: TextStyle(color: Resource.Colors.grey, fontSize: 28.0),
                 )
               ],
             ),

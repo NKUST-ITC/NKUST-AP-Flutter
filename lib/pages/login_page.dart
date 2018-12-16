@@ -27,10 +27,15 @@ class LoginPageState extends State<LoginPage>
   var isRememberPassword = true;
   var isAutoLogin = false;
 
+  FocusNode usernameFocusNode;
+  FocusNode passwordFocusNode;
+
   @override
   void initState() {
     super.initState();
     FA.setCurrentScreen("LoginPage", "login_page.dart");
+    usernameFocusNode = FocusNode();
+    passwordFocusNode = FocusNode();
     _getPreference();
     _showDialog();
   }
@@ -95,33 +100,46 @@ class LoginPageState extends State<LoginPage>
       TextField(
         maxLines: 1,
         controller: _username,
+        textInputAction: TextInputAction.next,
+        focusNode: usernameFocusNode,
+        onSubmitted: (text) {
+          usernameFocusNode.unfocus();
+          FocusScope.of(context).requestFocus(passwordFocusNode);
+        },
         decoration: InputDecoration(
-          labelText: AppLocalizations.of(context).username,
+          labelText: app.username,
         ),
         style: _editTextStyle(),
       ),
       TextField(
         obscureText: true,
         maxLines: 1,
+        textInputAction: TextInputAction.send,
         controller: _password,
+        focusNode: passwordFocusNode,
+        onSubmitted: (text) {
+          passwordFocusNode.unfocus();
+          _login();
+        },
         decoration: InputDecoration(
-          labelText: AppLocalizations.of(context).password,
+          labelText: app.password,
         ),
         style: _editTextStyle(),
       ),
+      SizedBox(height: 8.0),
       Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Checkbox(
-                  activeColor: Colors.blue,
+                  activeColor: Colors.white,
                   value: isAutoLogin,
                   onChanged: _onAutoLoginChanged,
                 ),
-                Text(app.autoLogin)
+                Text(app.autoLogin, style: TextStyle(color: Colors.white))
               ],
             ),
             onTap: () => _onAutoLoginChanged(!isAutoLogin),
@@ -131,17 +149,18 @@ class LoginPageState extends State<LoginPage>
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
                 Checkbox(
-                  activeColor: Colors.blue,
+                  activeColor: Colors.white,
                   value: isRememberPassword,
                   onChanged: _onRememberPasswordChanged,
                 ),
-                Text(app.remember)
+                Text(app.remember, style: TextStyle(color: Colors.white))
               ],
             ),
             onTap: () => _onRememberPasswordChanged(!isRememberPassword),
           ),
         ],
       ),
+      SizedBox(height: 8.0),
       Container(
         width: double.infinity,
         child: RaisedButton(
@@ -150,7 +169,7 @@ class LoginPageState extends State<LoginPage>
               Radius.circular(30.0),
             ),
           ),
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(14.0),
           onPressed: _login,
           color: Colors.white,
           child: Text(

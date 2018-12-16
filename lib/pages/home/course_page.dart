@@ -155,7 +155,7 @@ class CoursePageState extends State<CoursePage>
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.symmetric(vertical: 16.0),
             mainAxisSpacing: 0.0,
             shrinkWrap: true,
             childAspectRatio: childAspectRatio,
@@ -183,7 +183,7 @@ class CoursePageState extends State<CoursePage>
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                SizedBox(height: 8.0),
+                SizedBox(height: 16.0),
                 Expanded(
                   flex: 1,
                   child: FlatButton(
@@ -196,6 +196,7 @@ class CoursePageState extends State<CoursePage>
                           style: TextStyle(
                               color: Resource.Colors.blue, fontSize: 18.0),
                         ),
+                        SizedBox(width: 8.0),
                         Icon(
                           Icons.keyboard_arrow_down,
                           color: Resource.Colors.blue,
@@ -204,7 +205,6 @@ class CoursePageState extends State<CoursePage>
                     ),
                   ),
                 ),
-                SizedBox(height: 8.0),
                 Expanded(
                   flex: 19,
                   child: RefreshIndicator(

@@ -127,11 +127,7 @@ class NewsContentPageState extends State<NewsContentPage>
                   "你 想遇到誰？\n"
             */
       Text(
-        "高應大文創系畢業展《繫》\n"
-            "一縷輕煙，再厚重的煩悶終究會飄散\n"
-            "一條絲線，釐清了與我交纏共生的信念\n"
-            "一回展覽，好久不見/未曾相見\n"
-            "你 想遇到誰？\n",
+        news.content,
         textAlign: TextAlign.center,
         style: TextStyle(fontSize: 16.0, color: Resource.Colors.grey),
       ),

@@ -122,7 +122,7 @@ class ScorePageState extends State<ScorePage>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            SizedBox(height: 8.0),
+            SizedBox(height: 16.0),
             Expanded(
               flex: 1,
               child: FlatButton(
@@ -134,6 +134,7 @@ class ScorePageState extends State<ScorePage>
                       selectSemester == null ? "" : selectSemester.text,
                       style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
                     ),
+                    SizedBox(width: 8.0),
                     Icon(
                       Icons.keyboard_arrow_down,
                       color: Resource.Colors.blue,
@@ -179,7 +180,6 @@ class ScorePageState extends State<ScorePage>
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                SizedBox(height: 8.0),
                 Container(
                   decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(
