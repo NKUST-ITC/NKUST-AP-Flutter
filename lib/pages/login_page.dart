@@ -139,8 +139,7 @@ class LoginPageState extends State<LoginPage>
       versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
           int.parse(packageInfo.buildNumber);
     } else if (Platform.isIOS) {
-      url =
-          "https://itunes.apple.com/tw/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8";
+      url = "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
       versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
           int.parse(packageInfo.buildNumber);
     } else {
