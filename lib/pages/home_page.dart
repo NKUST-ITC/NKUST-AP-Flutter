@@ -61,7 +61,9 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _homebody() {
+  Widget _homebody(Orientation orientation) {
+    var rate =
+        MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
     switch (state) {
       case _Status.loading:
         return Center(
@@ -92,8 +94,11 @@ class HomePageState extends State<HomePage> {
             ),
             cardSlider = CarouselSlider(
               items: newsWidgets,
-              viewportFraction: 0.65,
-              aspectRatio: 7 / 6,
+              viewportFraction:
+                  orientation == Orientation.portrait ? 0.65 : 0.5,
+              aspectRatio: orientation == Orientation.portrait
+                  ? 7 / 6
+                  : (rate > 1.5 ? 21 / 4 : 21 / 9),
               autoPlay: false,
               updateCallback: (int current) {
                 setState(() {
@@ -101,7 +106,7 @@ class HomePageState extends State<HomePage> {
                 });
               },
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -130,8 +135,8 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     return WillPopScope(
         child: Scaffold(
-          appBar: new AppBar(
-            title: new Text(app.appName),
+          appBar: AppBar(
+            title: Text(app.appName),
             backgroundColor: Resource.Colors.blue,
             actions: <Widget>[
               IconButton(
@@ -174,12 +179,15 @@ class HomePageState extends State<HomePage> {
             ],
           ),
           drawer: DrawerBody(),
-          body: Container(
-            padding: EdgeInsets.symmetric(vertical: 32.0),
-            child: Center(
-              child: _homebody(),
-            ),
-          ),
+          body: OrientationBuilder(builder: (_, orientation) {
+            return Container(
+              padding: EdgeInsets.symmetric(
+                  vertical: orientation == Orientation.portrait ? 32.0 : 4.0),
+              child: Center(
+                child: _homebody(orientation),
+              ),
+            );
+          }),
           bottomNavigationBar: new BottomNavigationBar(
             fixedColor: Color(0xff737373),
             type: BottomNavigationBarType.fixed,

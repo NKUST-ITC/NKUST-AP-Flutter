@@ -18,6 +18,7 @@ class Calendar extends StatefulWidget {
   final bool showCalendarPickerIcon;
   final DateTime initialCalendarDateOverride;
   final List<String> weekdays;
+  final double dayChildAspectRatio;
 
   Calendar(
       {this.onDateSelected,
@@ -28,6 +29,7 @@ class Calendar extends StatefulWidget {
       this.showChevronsToChangeRange: true,
       this.showCalendarPickerIcon: true,
       this.initialCalendarDateOverride,
+      this.dayChildAspectRatio = 1.5,
       this.weekdays: DateUtils.weekdays});
 
   @override
@@ -104,10 +106,7 @@ class _CalendarState extends State<Calendar> {
         leftInnerIcon ?? new Container(),
         new Text(
           displayMonth,
-          style: new TextStyle(
-            fontSize: 20.0,
-            color: Resource.Colors.grey
-          ),
+          style: new TextStyle(fontSize: 20.0, color: Resource.Colors.grey),
         ),
         rightInnerIcon ?? new Container(),
         rightOuterIcon ?? new Container(),
@@ -125,7 +124,7 @@ class _CalendarState extends State<Calendar> {
         child: new GridView.count(
           shrinkWrap: true,
           crossAxisCount: 7,
-          childAspectRatio: 1.5,
+          childAspectRatio: widget.dayChildAspectRatio,
           padding: new EdgeInsets.only(bottom: 0.0, top: 0.0),
           children: calendarBuilder(),
           physics: const NeverScrollableScrollPhysics(),

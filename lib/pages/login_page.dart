@@ -46,93 +46,128 @@ class LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
-      backgroundColor: Resource.Colors.blue,
-      body: Center(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 30.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Center(
-                child: Image.asset(
-                  "assets/images/K.png",
-                  width: 120.0,
-                ),
-              ),
-              SizedBox(height: 30.0),
-              TextField(
-                maxLines: 1,
-                controller: _username,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).username,
-                ),
-                style: _editTextStyle(),
-              ),
-              TextField(
-                obscureText: true,
-                maxLines: 1,
-                controller: _password,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).password,
-                ),
-                style: _editTextStyle(),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  GestureDetector(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Checkbox(
-                          activeColor: Colors.blue,
-                          value: isAutoLogin,
-                          onChanged: _onAutoLoginChanged,
-                        ),
-                        Text(app.autoLogin)
-                      ],
+    return OrientationBuilder(builder: (_, orientation) {
+      return Scaffold(
+          resizeToAvoidBottomPadding: orientation == Orientation.portrait,
+          backgroundColor: Resource.Colors.blue,
+          body: Center(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 30.0),
+              child: orientation == Orientation.portrait
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.min,
+                      children: _renderContent(orientation),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _renderContent(orientation),
                     ),
-                    onTap: () => _onAutoLoginChanged(!isAutoLogin),
-                  ),
-                  GestureDetector(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: <Widget>[
-                        Checkbox(
-                          activeColor: Colors.blue,
-                          value: isRememberPassword,
-                          onChanged: _onRememberPasswordChanged,
-                        ),
-                        Text(app.remember)
-                      ],
-                    ),
-                    onTap: () =>
-                        _onRememberPasswordChanged(!isRememberPassword),
-                  ),
-                ],
+            ),
+          ));
+    });
+  }
+
+  _renderContent(Orientation orientation) {
+    List<Widget> list = orientation == Orientation.portrait
+        ? <Widget>[
+            Center(
+              child: Image.asset(
+                "assets/images/K.png",
+                width: 120.0,
+                height: 120.0,
               ),
-              RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(30.0),
-                  ),
-                ),
-                padding: EdgeInsets.all(16.0),
-                onPressed: _login,
-                color: Colors.white,
-                child: Text(
-                  AppLocalizations.of(context).login,
-                  style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
-                ),
+            ),
+            SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
+          ]
+        : <Widget>[
+            Expanded(
+              child: Image.asset(
+                "assets/images/K.png",
+                width: 120.0,
+                height: 120.0,
               ),
-            ],
+            ),
+            SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
+          ];
+    List<Widget> listB = <Widget>[
+      TextField(
+        maxLines: 1,
+        controller: _username,
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context).username,
+        ),
+        style: _editTextStyle(),
+      ),
+      TextField(
+        obscureText: true,
+        maxLines: 1,
+        controller: _password,
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context).password,
+        ),
+        style: _editTextStyle(),
+      ),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          GestureDetector(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Checkbox(
+                  activeColor: Colors.blue,
+                  value: isAutoLogin,
+                  onChanged: _onAutoLoginChanged,
+                ),
+                Text(app.autoLogin)
+              ],
+            ),
+            onTap: () => _onAutoLoginChanged(!isAutoLogin),
+          ),
+          GestureDetector(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Checkbox(
+                  activeColor: Colors.blue,
+                  value: isRememberPassword,
+                  onChanged: _onRememberPasswordChanged,
+                ),
+                Text(app.remember)
+              ],
+            ),
+            onTap: () => _onRememberPasswordChanged(!isRememberPassword),
+          ),
+        ],
+      ),
+      Container(
+        width: double.infinity,
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(30.0),
+            ),
+          ),
+          padding: EdgeInsets.all(16.0),
+          onPressed: _login,
+          color: Colors.white,
+          child: Text(
+            AppLocalizations.of(context).login,
+            style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
           ),
         ),
       ),
-    );
+    ];
+    if (orientation == Orientation.portrait) {
+      list.addAll(listB);
+    } else {
+      list.add(Expanded(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center, children: listB)));
+    }
+    return list;
   }
 
   _showDialog() async {
@@ -168,10 +203,9 @@ class LoginPageState extends State<LoginPage>
       versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
           int.parse(packageInfo.buildNumber);
     }
-    if (versionDiff <= 5 && versionDiff > 0)
+    if (versionDiff < 5 && versionDiff > 0)
       Utils.showUpdateDialog(context, url);
-    else
-      Utils.showForceUpdateDialog(context, url);
+    else if (versionDiff >= 5) Utils.showForceUpdateDialog(context, url);
   }
 
   _onRememberPasswordChanged(bool value) async {
