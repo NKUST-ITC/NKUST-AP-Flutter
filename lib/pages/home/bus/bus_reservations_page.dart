@@ -194,7 +194,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
@@ -222,7 +222,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
     showDialog(
         context: context,
         builder: (BuildContext context) =>
-            ProgressDialog(AppLocalizations.of(context).canceling),
+            ProgressDialog(app.canceling),
         barrierDismissible: true);
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
@@ -246,7 +246,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;

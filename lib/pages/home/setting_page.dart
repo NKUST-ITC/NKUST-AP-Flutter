@@ -33,7 +33,7 @@ class SettingPageState extends State<SettingPage>
       displayPicture = true,
       vibrateCourse = false;
 
-  AppLocalizations local;
+  AppLocalizations app;
 
   String appVersion = "1.0.0";
 
@@ -51,51 +51,51 @@ class SettingPageState extends State<SettingPage>
 
   @override
   Widget build(BuildContext context) {
-    local = AppLocalizations.of(context);
+    app = AppLocalizations.of(context);
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(local.settings),
+        title: new Text(app.settings),
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              _titleItem(local.notificationItem),
-              _itemSwitch(local.courseNotify, notifyCourse, () {
+              _titleItem(app.notificationItem),
+              _itemSwitch(app.courseNotify, notifyCourse, () {
                 notifyCourse = !notifyCourse;
                 prefs.setBool(Constants.PREF_NOTIFY_COURSE, notifyCourse);
-                Utils.showToast(local.functionNotOpen);
+                Utils.showToast(app.functionNotOpen);
                 //setState(() {});
               }),
-              _itemSwitch(local.busNotify, notifyBus, () {
+              _itemSwitch(app.busNotify, notifyBus, () {
                 notifyBus = !notifyBus;
                 prefs.setBool(Constants.PREF_NOTIFY_BUS, notifyBus);
-                Utils.showToast(local.functionNotOpen);
+                Utils.showToast(app.functionNotOpen);
                 //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
-              _titleItem(local.otherSettings),
-              _itemSwitch(local.headPhotoSetting, displayPicture, () {
+              _titleItem(app.otherSettings),
+              _itemSwitch(app.headPhotoSetting, displayPicture, () {
                 displayPicture = !displayPicture;
                 prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
                 setState(() {});
               }),
-              _itemSwitch(local.courseVibrate, vibrateCourse, () {
+              _itemSwitch(app.courseVibrate, vibrateCourse, () {
                 vibrateCourse = !vibrateCourse;
                 prefs.setBool(Constants.PREF_VIBRATE_COURSE, vibrateCourse);
-                Utils.showToast(local.functionNotOpen);
+                Utils.showToast(app.functionNotOpen);
                 //setState(() {});
               }),
               Container(
                 color: Colors.grey,
                 height: 0.5,
               ),
-              _titleItem(local.otherInfo),
-              _item(local.feedback, local.feedbackViaFacebook, () {
+              _titleItem(app.otherInfo),
+              _item(app.feedback, app.feedbackViaFacebook, () {
                 if (Platform.isAndroid)
                   Utils.launchUrl('fb://messaging/954175941266264').catchError(
                       (onError) => Utils.launchUrl(
@@ -103,11 +103,11 @@ class SettingPageState extends State<SettingPage>
                 else
                   Utils.launchUrl('https://www.facebook.com/954175941266264/');
               }),
-              _item(local.donateTitle, local.donateContent, () {
+              _item(app.donateTitle, app.donateContent, () {
                 Utils.launchUrl(
                     "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d");
               }),
-              _item(local.appVersion, "v$appVersion", () {}),
+              _item(app.appVersion, "v$appVersion", () {}),
             ]),
       ),
     );

@@ -232,7 +232,7 @@ class CoursePageState extends State<CoursePage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
@@ -352,7 +352,7 @@ class CoursePageState extends State<CoursePage>
         DioError dioError = e as DioError;
         switch (dioError.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+            Utils.showToast(app.tokenExpiredContent);
             Navigator.popUntil(
                 context, ModalRoute.withName(Navigator.defaultRouteName));
             break;
