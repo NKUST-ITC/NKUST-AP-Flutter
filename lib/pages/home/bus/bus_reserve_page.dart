@@ -285,7 +285,7 @@ class BusReservePageState extends State<BusReservePage> {
       // dioError.message = HttpException: Connection closed before full header was received
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
@@ -315,7 +315,7 @@ class BusReservePageState extends State<BusReservePage> {
     showDialog(
         context: context,
         builder: (BuildContext context) =>
-            ProgressDialog(AppLocalizations.of(context).reserving),
+            ProgressDialog(app.reserving),
         barrierDismissible: true);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
@@ -338,7 +338,7 @@ class BusReservePageState extends State<BusReservePage> {
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;

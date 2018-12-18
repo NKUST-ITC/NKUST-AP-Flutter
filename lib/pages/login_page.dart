@@ -173,7 +173,7 @@ class LoginPageState extends State<LoginPage>
           onPressed: _login,
           color: Colors.white,
           child: Text(
-            AppLocalizations.of(context).login,
+            app.login,
             style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
           ),
         ),
@@ -197,34 +197,36 @@ class LoginPageState extends State<LoginPage>
     if (currentVersion != packageInfo.buildNumber)
       Utils.showDefaultDialog(
           context,
-          AppLocalizations.of(context).updateNoteTitle,
+          app.updateNoteTitle,
           "v${packageInfo.version}\n"
-          "${AppLocalizations.of(context).updateNoteContent}",
-          AppLocalizations.of(context).ok, () {
+          "${app.updateNoteContent}",
+          app.ok, () {
         prefs.setString(
             Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
       });
-    final RemoteConfig remoteConfig = await RemoteConfig.instance;
-    await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-    await remoteConfig.activateFetched();
-    String url = "";
-    int versionDiff = 0;
-    if (Platform.isAndroid) {
-      url = "market://details?id=${packageInfo.packageName}";
-      versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
-          int.parse(packageInfo.buildNumber);
-    } else if (Platform.isIOS) {
-      url = "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
-      versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
-          int.parse(packageInfo.buildNumber);
-    } else {
-      url = "https://www.facebook.com/NKUST.ITC/";
-      versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
-          int.parse(packageInfo.buildNumber);
+    if(!Constants.isInDebugMode){
+      final RemoteConfig remoteConfig = await RemoteConfig.instance;
+      await remoteConfig.fetch(expiration: const Duration(seconds: 10));
+      await remoteConfig.activateFetched();
+      String url = "";
+      int versionDiff = 0;
+      if (Platform.isAndroid) {
+        url = "market://details?id=${packageInfo.packageName}";
+        versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
+            int.parse(packageInfo.buildNumber);
+      } else if (Platform.isIOS) {
+        url = "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
+        versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
+            int.parse(packageInfo.buildNumber);
+      } else {
+        url = "https://www.facebook.com/NKUST.ITC/";
+        versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
+            int.parse(packageInfo.buildNumber);
+      }
+      if (versionDiff < 5 && versionDiff > 0)
+        Utils.showUpdateDialog(context, url);
+      else if (versionDiff >= 5) Utils.showForceUpdateDialog(context, url);
     }
-    if (versionDiff < 5 && versionDiff > 0)
-      Utils.showUpdateDialog(context, url);
-    else if (versionDiff >= 5) Utils.showForceUpdateDialog(context, url);
   }
 
   _onRememberPasswordChanged(bool value) async {
@@ -262,12 +264,12 @@ class LoginPageState extends State<LoginPage>
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(AppLocalizations.of(context).doNotEmpty);
+      Utils.showToast(app.doNotEmpty);
     } else {
       showDialog(
           context: context,
           builder: (BuildContext context) =>
-              ProgressDialog(AppLocalizations.of(context).logining),
+              ProgressDialog(app.logining),
           barrierDismissible: true);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
@@ -284,7 +286,7 @@ class LoginPageState extends State<LoginPage>
         DioError dioError = e as DioError;
         switch (dioError.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(AppLocalizations.of(context).loginFail);
+            Utils.showToast(app.loginFail);
             break;
           case DioErrorType.CANCEL:
             break;

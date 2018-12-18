@@ -286,7 +286,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+          Utils.showToast(app.tokenExpiredContent);
           Navigator.popUntil(
               context, ModalRoute.withName(Navigator.defaultRouteName));
           break;
@@ -355,7 +355,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(AppLocalizations.of(context).tokenExpiredContent);
+              Utils.showToast(app.tokenExpiredContent);
               Navigator.popUntil(
                   context, ModalRoute.withName(Navigator.defaultRouteName));
               break;
