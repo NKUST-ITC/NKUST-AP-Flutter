@@ -7,8 +7,8 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/api/error_response.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
-const HOST = "kuas.grd.idv.tw";
-const PORT = '14769';
+const HOST = "lab.rainvisitor.me";
+const PORT = '2087';
 
 const VERSION = 'latest';
 
@@ -30,7 +30,7 @@ class Helper {
 
   Helper() {
     options = new Options(
-      baseUrl: 'https://$HOST:$PORT',
+      baseUrl: 'http://$HOST:$PORT',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
