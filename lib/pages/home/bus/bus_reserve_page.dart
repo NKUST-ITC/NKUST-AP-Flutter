@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 
@@ -34,7 +34,6 @@ class BusReservePageState extends State<BusReservePage> {
 
   _State state = _State.loading;
   BusData busData;
-  List<Widget> busTimeWeights = [];
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
@@ -75,9 +74,22 @@ class BusReservePageState extends State<BusReservePage> {
       default:
         return ListView(
           physics: const NeverScrollableScrollPhysics(),
-          children: busTimeWeights,
+          children: _renderBusTimeWidgets(),
         );
     }
+  }
+
+  _renderBusTimeWidgets() {
+    List<Widget> list = [];
+    if (busData != null) {
+      for (var i in busData.timetable) {
+        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
+          list.add(_busTimeWidget(i));
+        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
+          list.add(_busTimeWidget(i));
+      }
+    }
+    return list;
   }
 
   _busTimeWidget(BusTime busTime) => Column(
@@ -251,11 +263,11 @@ class BusReservePageState extends State<BusReservePage> {
                       )
                     },
                     onValueChanged: (Station text) {
-                      selectStartStation = text;
-                      if (state == _State.finish)
-                        _updateBusTimeTables();
-                      else
-                        setState(() {});
+                      if (mounted) {
+                        setState(() {
+                          selectStartStation = text;
+                        });
+                      }
                     },
                   ),
                 ),
@@ -273,40 +285,55 @@ class BusReservePageState extends State<BusReservePage> {
   _getBusTimeTables() {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    state = _State.loading;
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        state = _State.loading;
+      });
+    }
     Helper.instance.getBusTimeTables(dateTime).then((response) {
       busData = response;
-      _updateBusTimeTables();
+      if (mounted) {
+        setState(() {
+          if (busData.timetable.length != 0)
+            state = _State.finish;
+          else
+            state = _State.empty;
+        });
+      }
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      //if bus can't connection:
-      // dioError.message = HttpException: Connection closed before full header was received
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.DEFAULT:
-          if (dioError.message.contains("HttpException")) {
+      if (e is DioError) {
+        DioError dioError = e;
+        //if bus can't connection:
+        // dioError.message = HttpException: Connection closed before full header was received
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.DEFAULT:
+            if (dioError.message.contains("HttpException")) {
+              if (mounted) {
+                setState(() {
+                  state = _State.error;
+                  Utils.showToast(app.busFailInfinity);
+                });
+              }
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(app.busFailInfinity);
+                Utils.handleDioError(dioError, app);
               });
             }
-          }
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          setState(() {
-            state = _State.error;
-            Utils.handleDioError(dioError, app);
-          });
-          break;
+            break;
+        }
+      } else {
+        throw (e);
       }
     });
   }
@@ -314,8 +341,7 @@ class BusReservePageState extends State<BusReservePage> {
   _bookingBus(BusTime busTime) {
     showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            ProgressDialog(app.reserving),
+        builder: (BuildContext context) => ProgressDialog(app.reserving),
         barrierDismissible: true);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
@@ -344,10 +370,12 @@ class BusReservePageState extends State<BusReservePage> {
           break;
         case DioErrorType.DEFAULT:
           if (dioError.message.contains("HttpException")) {
-            setState(() {
-              state = _State.error;
-              Utils.showToast(app.busFailInfinity);
-            });
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.showToast(app.busFailInfinity);
+              });
+            }
           }
           break;
         case DioErrorType.CANCEL:
@@ -357,22 +385,5 @@ class BusReservePageState extends State<BusReservePage> {
           break;
       }
     });
-  }
-
-  _updateBusTimeTables() {
-    busTimeWeights = [];
-    if (busData != null) {
-      for (var i in busData.timetable) {
-        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
-          busTimeWeights.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
-          busTimeWeights.add(_busTimeWidget(i));
-      }
-      if (busData.timetable.length != 0)
-        state = _State.finish;
-      else
-        state = _State.empty;
-      setState(() {});
-    }
   }
 }
