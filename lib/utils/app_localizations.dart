@@ -20,11 +20,11 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content': 'Welcome to NKUST AP\n'
-          'This app backend comes from the backend application of KUAS AP\n'
-          'In theory, it can only be used by Jan Gong and Yanchao Campus\n'
-          'However, the recent school system data integration\n'
-          'Students from other campuses are also welcome to try\n'
-          'Welcome to contact the fans page if there is a problem with the use\n',
+          'The school system data has been integrated\n'
+          'All campuses are available\n'
+          'Graduating alumni may not be able to use\n'
+          'Welcome and give feedback\n'
+          'The author\n',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -248,7 +248,8 @@ class AppLocalizations {
       'saturday': 'Sat',
       'sunday': 'Sun',
       'do_not_empty': 'Don\'t Empty',
-      'login_fail': 'student id or password error',
+      'login_fail':
+          'student id or password error or this student id is not available',
       'bus_fail_infinity': 'Bus system perhaps broken!!!',
       'reserving': 'Reserving...',
       'canceling': 'Canceling...',
@@ -262,8 +263,11 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content':
-          '\n歡迎使用高科校務通\n本APP後端來自於高應校務通的後端應用\n理論上僅可供建工與燕巢校區使用\n但近期校務系統資料陸續整合\n也歡迎其他校區的同學嘗試使用\n有任何問題歡迎私密粉專\n高科校務通作者敬上',
+      'update_note_content': '校務系統資料已陸續整合完畢\n'
+          '全部校區皆可以使用了\n'
+          '畢業校友或許還無法使用\n'
+          '歡迎同學使用並回饋意見\n'
+          '高科校務通作者敬上',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -470,7 +474,7 @@ class AppLocalizations {
       'saturday': '週六',
       'sunday': '週日',
       'do_not_empty': '請勿留空',
-      'login_fail': '帳號或密碼錯誤',
+      'login_fail': '帳號或密碼錯誤或是此帳號無法使用',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
       'reserving': '預約中...',
       'canceling': '取消中...',

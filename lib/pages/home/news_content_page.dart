@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 enum _Status { loading, finish, error, empty }
@@ -119,17 +119,14 @@ class NewsContentPageState extends State<NewsContentPage>
         tag: Constants.TAG_NEWS_ICON,
         child: Icon(Icons.arrow_drop_down),
       ),
-      /*
-            "高應大文創系畢業展《繫》\n"
-                  "一縷輕煙，再厚重的煩悶終究會飄散\n"
-                  "一條絲線，釐清了與我交纏共生的信念\n"
-                  "一回展覽，好久不見/未曾相見\n"
-                  "你 想遇到誰？\n"
-            */
-      Text(
-        news.content,
-        textAlign: TextAlign.center,
-        style: TextStyle(fontSize: 16.0, color: Resource.Colors.grey),
+      Padding(
+        padding: EdgeInsets.symmetric(
+            horizontal: orientation == Orientation.portrait ? 16.0 : 0.0),
+        child: Text(
+          news.content,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 16.0, color: Resource.Colors.grey),
+        ),
       ),
       SizedBox(height: 16.0),
       RaisedButton(
