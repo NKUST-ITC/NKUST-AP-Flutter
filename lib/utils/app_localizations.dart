@@ -257,6 +257,7 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
+      'can_not_use_bus': 'This account can\'t use this feature'
     },
     'zh': {
       'app_name': '高科校務通',
@@ -483,6 +484,7 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
+      'can_not_use_bus': '此帳號無法使用此功能'
     },
   };
 
@@ -823,6 +825,8 @@ class AppLocalizations {
   String get generalEductionCourse => _vocabularies['general_eduction_course'];
 
   String get calculating => _vocabularies['calculating'];
+
+  String get canNotUseBus => _vocabularies['can_not_use_bus'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -14,7 +14,7 @@ dependencies:
   shared_preferences: ^0.4.2
   cupertino_icons: ^0.1.2
   dio: 1.0.9
-  fluttertoast: ^2.1.5
+  fluttertoast: ^2.2.11
   firebase_core: ^0.2.5+1
   firebase_analytics: 1.0.4
   firebase_remote_config: ^0.0.6+1

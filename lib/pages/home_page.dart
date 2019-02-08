@@ -1,10 +1,11 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:nkust_ap/res/colors.dart' as Resource;
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -214,12 +215,17 @@ class HomePageState extends State<HomePage> {
         });
   }
 
-  void onTabTapped(int index) {
+  void onTabTapped(int index) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
     setState(() {
       _currentTabIndex = index;
       switch (_currentTabIndex) {
         case 0:
-          Navigator.of(context).push(BusPageRoute());
+          if (bus)
+            Navigator.of(context).push(BusPageRoute());
+          else
+            Utils.showToast(app.bus);
           break;
         case 1:
           Navigator.of(context).push(CoursePageRoute());

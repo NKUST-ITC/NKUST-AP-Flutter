@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/models/api/login_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -204,7 +205,7 @@ class LoginPageState extends State<LoginPage>
         prefs.setString(
             Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
       });
-    if(!Constants.isInDebugMode){
+    if (!Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       await remoteConfig.fetch(expiration: const Duration(seconds: 10));
       await remoteConfig.activateFetched();
@@ -215,7 +216,8 @@ class LoginPageState extends State<LoginPage>
         versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
             int.parse(packageInfo.buildNumber);
       } else if (Platform.isIOS) {
-        url = "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
+        url =
+            "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
         versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
             int.parse(packageInfo.buildNumber);
       } else {
@@ -268,14 +270,17 @@ class LoginPageState extends State<LoginPage>
     } else {
       showDialog(
           context: context,
-          builder: (BuildContext context) =>
-              ProgressDialog(app.logining),
+          builder: (BuildContext context) => ProgressDialog(app.logining),
           barrierDismissible: true);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
         prefs.setString(Constants.PREF_PASSWORD, _password.text);
-      Helper.instance.login(_username.text, _password.text).then((data) async {
+      Helper.instance
+          .login(_username.text, _password.text)
+          .then((LoginResponse response) async {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        if (response.isLogin != null)
+          prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
         prefs.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword)
           prefs.setString(Constants.PREF_PASSWORD, _password.text);
@@ -310,6 +315,8 @@ class LoginPageState extends State<LoginPage>
     prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
     setState(() {
       isAutoLogin = false;
+      pictureUrl = "";
+      userInfo = null;
     });
   }
 }
