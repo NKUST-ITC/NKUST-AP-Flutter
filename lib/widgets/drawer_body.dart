@@ -204,7 +204,7 @@ class DrawerBodyState extends State<DrawerBody> {
             SharedPreferences prefs = await SharedPreferences.getInstance();
             bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
             if (!bus) {
-              Utils.showToast(app.bus);
+              Utils.showToast(app.canNotUseBus);
               return;
             }
           }

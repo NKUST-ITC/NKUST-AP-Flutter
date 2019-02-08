@@ -225,7 +225,7 @@ class HomePageState extends State<HomePage> {
           if (bus)
             Navigator.of(context).push(BusPageRoute());
           else
-            Utils.showToast(app.bus);
+            Utils.showToast(app.canNotUseBus);
           break;
         case 1:
           Navigator.of(context).push(CoursePageRoute());
