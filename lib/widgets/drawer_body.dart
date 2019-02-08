@@ -53,7 +53,10 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(UserInfoPageRoute());
+                  if (userInfo.status == 200)
+                    Navigator.of(context).push(UserInfoPageRoute());
+                  else
+                    Utils.showToast(userInfo.message);
                 },
                 child: Stack(
                   children: <Widget>[
@@ -105,8 +108,8 @@ class DrawerBodyState extends State<DrawerBody> {
                             child: Text(
                               userInfo == null
                                   ? " \n "
-                                  : "${userInfo.nameCht}\n"
-                                  "${userInfo.id}",
+                                  : "${userInfo.studentNameCht}\n"
+                                  "${userInfo.studentId}",
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -259,7 +262,8 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getPreference() async {
     prefs = await SharedPreferences.getInstance();
-    displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
-    setState(() {});
+    setState(() {
+      displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+    });
   }
 }

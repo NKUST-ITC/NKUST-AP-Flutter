@@ -76,7 +76,7 @@ class UserInfoPageState extends State<UserInfoPage>
                       children: <Widget>[
                         ListTile(
                           title: Text(app.studentNameCht),
-                          subtitle: Text(userInfo.nameCht),
+                          subtitle: Text(userInfo.studentNameCht),
                         ),
                         Divider(height: 1.0),
                         ListTile(
@@ -96,7 +96,7 @@ class UserInfoPageState extends State<UserInfoPage>
                         Divider(height: 1.0),
                         ListTile(
                           title: Text(app.studentId),
-                          subtitle: Text(userInfo.id),
+                          subtitle: Text(userInfo.studentId),
                         ),
                       ],
                     ),
