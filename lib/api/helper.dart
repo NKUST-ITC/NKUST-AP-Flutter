@@ -1,14 +1,13 @@
 import 'dart:async';
-import 'package:dio/dio.dart';
 import 'dart:convert';
+
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/models/api/error_response.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
-const HOST = "kuas.grd.idv.tw";
-const PORT = '14769';
+const HOST = "nkust-ap-staging.rainvisitor.me";
+const PORT = '2087';
 
 const VERSION = 'latest';
 
