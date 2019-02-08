@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 
 enum _Status { loading, finish, error, empty }
@@ -56,12 +56,14 @@ class UserInfoPageState extends State<UserInfoPage>
                 height: 320,
                 child: AspectRatio(
                   aspectRatio: 2.0,
-                  child: Hero(
-                    tag: Constants.TAG_STUDENT_PICTURE,
-                    child: Image.network(
-                      pictureUrl,
-                    ),
-                  ),
+                  child: pictureUrl != ""
+                      ? Hero(
+                          tag: Constants.TAG_STUDENT_PICTURE,
+                          child: Image.network(
+                            pictureUrl,
+                          ),
+                        )
+                      : null,
                 ),
               ),
               SizedBox(height: 8.0),
