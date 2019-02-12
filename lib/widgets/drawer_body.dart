@@ -1,14 +1,12 @@
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/utils/utils.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 var pictureUrl = "";
@@ -55,7 +53,10 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(UserInfoPageRoute());
+                  if (userInfo.status == 200)
+                    Navigator.of(context).push(UserInfoPageRoute());
+                  else
+                    Utils.showToast(userInfo.message);
                 },
                 child: Stack(
                   children: <Widget>[
@@ -107,8 +108,8 @@ class DrawerBodyState extends State<DrawerBody> {
                             child: Text(
                               userInfo == null
                                   ? " \n "
-                                  : "${userInfo.nameCht}\n"
-                                  "${userInfo.id}",
+                                  : "${userInfo.studentNameCht}\n"
+                                  "${userInfo.studentId}",
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -145,7 +146,8 @@ class DrawerBodyState extends State<DrawerBody> {
               children: <Widget>[
                 _subItem(Icons.class_, app.course, CoursePageRoute()),
                 _subItem(Icons.assignment, app.score, ScorePageRoute()),
-                _subItem(Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
+                _subItem(
+                    Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
               ],
             ),
             ExpansionTile(
@@ -200,7 +202,15 @@ class DrawerBodyState extends State<DrawerBody> {
         contentPadding: EdgeInsets.symmetric(horizontal: 72.0),
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle()),
-        onTap: () {
+        onTap: () async {
+          if (route is BusPageRoute) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
+            if (!bus) {
+              Utils.showToast(app.canNotUseBus);
+              return;
+            }
+          }
           Navigator.of(context).pop();
           Navigator.of(context).push(route);
         },
@@ -252,7 +262,8 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getPreference() async {
     prefs = await SharedPreferences.getInstance();
-    displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
-    setState(() {});
+    setState(() {
+      displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+    });
   }
 }

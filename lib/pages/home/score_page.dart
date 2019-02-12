@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
@@ -285,8 +285,11 @@ class ScorePageState extends State<ScorePage>
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     scoreWeightList.clear();
-    state = _State.loading;
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        state = _State.loading;
+      });
+    }
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
