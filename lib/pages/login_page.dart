@@ -212,7 +212,9 @@ class LoginPageState extends State<LoginPage>
       String url = "";
       int versionDiff = 0;
       if (Platform.isAndroid) {
-        url = "market://details?id=${packageInfo.packageName}";
+        //TODO if upload play store url = "market://details?id=${packageInfo.packageName}";
+        url =
+            "https://drive.google.com/open?id=1IivQgMXL6_omB7nHQxQxwoENkq3GgAMn";
         versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
             int.parse(packageInfo.buildNumber);
       } else if (Platform.isIOS) {
