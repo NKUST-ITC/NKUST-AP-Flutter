@@ -228,20 +228,22 @@ class CoursePageState extends State<CoursePage>
       _getCourseTables();
       setState(() {});
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          state = _State.error;
-          Utils.handleDioError(dioError, app);
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            state = _State.error;
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
@@ -345,39 +347,45 @@ class CoursePageState extends State<CoursePage>
       Helper.instance
           .getCourseTables(textList[0], textList[1])
           .then((response) {
-        setState(() {
-          courseData = response;
-          if (courseData.status == 204) {
-            state = _State.empty;
-          } else if (courseData.status == 200) {
-            state = _State.finish;
-          } else {
-            state = _State.error;
-          }
-        });
-      }).catchError((e) {
-        assert(e is DioError);
-        DioError dioError = e as DioError;
-        switch (dioError.type) {
-          case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            setState(() {
+        if (mounted)
+          setState(() {
+            courseData = response;
+            if (courseData.status == 204) {
+              state = _State.empty;
+            } else if (courseData.status == 200) {
+              state = _State.finish;
+            } else {
               state = _State.error;
-            });
-            Utils.handleDioError(dioError, app);
-            break;
+            }
+          });
+      }).catchError((e) {
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.showToast(app.tokenExpiredContent);
+              if (mounted)
+                Navigator.popUntil(
+                    context, ModalRoute.withName(Navigator.defaultRouteName));
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              if (mounted)
+                setState(() {
+                  state = _State.error;
+                });
+              Utils.handleDioError(e, app);
+              break;
+          }
+        } else {
+          throw e;
         }
       });
     } else {
-      setState(() {
-        state = _State.error;
-      });
+      if (mounted)
+        setState(() {
+          state = _State.error;
+        });
     }
   }
 }

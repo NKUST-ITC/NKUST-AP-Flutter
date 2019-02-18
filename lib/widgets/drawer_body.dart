@@ -53,7 +53,7 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  if (userInfo.status == 200)
+                  if ((userInfo.status ?? 200) == 200)
                     Navigator.of(context).push(UserInfoPageRoute());
                   else
                     Utils.showToast(userInfo.message);
@@ -224,16 +224,18 @@ class DrawerBodyState extends State<DrawerBody> {
         });
       }
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        default:
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          default:
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
@@ -246,16 +248,18 @@ class DrawerBodyState extends State<DrawerBody> {
         });
       }
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        default:
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          default:
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }

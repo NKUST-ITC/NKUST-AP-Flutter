@@ -360,29 +360,31 @@ class BusReservePageState extends State<BusReservePage> {
       Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.DEFAULT:
-          if (dioError.message.contains("HttpException")) {
-            if (mounted) {
-              setState(() {
-                state = _State.error;
-                Utils.showToast(app.busFailInfinity);
-              });
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.DEFAULT:
+            if (e.message.contains("HttpException")) {
+              if (mounted) {
+                setState(() {
+                  state = _State.error;
+                  Utils.showToast(app.busFailInfinity);
+                });
+              }
             }
-          }
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          Utils.handleDioError(dioError, app);
-          break;
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }

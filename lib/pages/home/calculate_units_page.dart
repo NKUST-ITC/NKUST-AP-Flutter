@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
@@ -282,20 +282,22 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       selectSemester = semesterData.defaultSemester;
       setState(() {});
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          state = _State.error;
-          Utils.handleDioError(dioError, app);
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            state = _State.error;
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
@@ -310,47 +312,48 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         semesterData.semesters[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
-        setState(() {
-          if (response.status == 200) {
-            if (startYear == -1) startYear = int.parse(textList[0]);
-            //scoreWeightList.add(_scoreTitle());
-            semesterList.add(semesterData.semesters[currentSemesterIndex]);
-            scoreDataList.add(response);
-            for (var score in response.content.scores) {
-              var finalScore = double.tryParse(score.finalScore);
-              if (finalScore != null) {
-                if (finalScore >= 60.0) {
-                  if (score.required == "【必修】") {
-                    requiredUnitsTotal += double.parse(score.units);
-                  } else if (score.required == "【選修】") {
-                    electiveUnitsTotal += double.parse(score.units);
-                  } else {
-                    otherUnitsTotal += double.parse(score.units);
-                  }
-                  if (score.title.contains("延伸通識")) {
-                    extendGeneralEducations.add(score);
-                  } else if (score.title.contains("核心通識")) {
-                    coreGeneralEducations.add(score);
+        if (mounted)
+          setState(() {
+            if (response.status == 200) {
+              if (startYear == -1) startYear = int.parse(textList[0]);
+              //scoreWeightList.add(_scoreTitle());
+              semesterList.add(semesterData.semesters[currentSemesterIndex]);
+              scoreDataList.add(response);
+              for (var score in response.content.scores) {
+                var finalScore = double.tryParse(score.finalScore);
+                if (finalScore != null) {
+                  if (finalScore >= 60.0) {
+                    if (score.required == "【必修】") {
+                      requiredUnitsTotal += double.parse(score.units);
+                    } else if (score.required == "【選修】") {
+                      electiveUnitsTotal += double.parse(score.units);
+                    } else {
+                      otherUnitsTotal += double.parse(score.units);
+                    }
+                    if (score.title.contains("延伸通識")) {
+                      extendGeneralEducations.add(score);
+                    } else if (score.title.contains("核心通識")) {
+                      coreGeneralEducations.add(score);
+                    }
                   }
                 }
               }
             }
-          }
-          var currentYear = int.parse(textList[0]);
-          if (currentSemesterIndex < semesterData.semesters.length - 1 &&
-              (startYear - currentYear).abs() <= 6) {
-            currentSemesterIndex++;
-            if (mounted) _getSemesterScore();
-          } else {
-            unitsTotal =
-                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
-            if (mounted) {
-              setState(() {
-                state = _State.finish;
-              });
+            var currentYear = int.parse(textList[0]);
+            if (currentSemesterIndex < semesterData.semesters.length - 1 &&
+                (startYear - currentYear).abs() <= 6) {
+              currentSemesterIndex++;
+              if (mounted) _getSemesterScore();
+            } else {
+              unitsTotal =
+                  requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+              if (mounted) {
+                setState(() {
+                  state = _State.finish;
+                });
+              }
             }
-          }
-        });
+          });
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {

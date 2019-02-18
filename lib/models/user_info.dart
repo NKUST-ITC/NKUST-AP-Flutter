@@ -5,7 +5,7 @@ class UserInfo {
   String studentId;
   String studentNameCht;
   String studentNameEng;
-  int status;
+  int status = 200;
   String message;
 
   UserInfo(

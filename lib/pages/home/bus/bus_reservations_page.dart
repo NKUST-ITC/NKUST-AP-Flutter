@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
@@ -68,7 +68,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
           onPressed: _getBusReservations,
           child: HintContent(
             icon: Icons.assignment,
-            content: state == _State.error ? app.clickToRetry : app.busReservationEmpty,
+            content: state == _State.error
+                ? app.clickToRetry
+                : app.busReservationEmpty,
           ),
         );
       default:
@@ -190,30 +192,32 @@ class BusReservationsPageState extends State<BusReservationsPage>
         state = _State.empty;
       setState(() {});
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.DEFAULT:
-          if (dioError.message.contains("HttpException")) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.DEFAULT:
+            if (e.message.contains("HttpException")) {
+              setState(() {
+                state = _State.error;
+                Utils.showToast(app.busFailInfinity);
+              });
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
             setState(() {
               state = _State.error;
-              Utils.showToast(app.busFailInfinity);
+              Utils.handleDioError(e, app);
             });
-          }
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          setState(() {
-            state = _State.error;
-            Utils.handleDioError(dioError, app);
-          });
-          break;
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
@@ -221,8 +225,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   _cancelBusReservation(BusReservation busReservation) {
     showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            ProgressDialog(app.canceling),
+        builder: (BuildContext context) => ProgressDialog(app.canceling),
         barrierDismissible: true);
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
@@ -242,27 +245,29 @@ class BusReservationsPageState extends State<BusReservationsPage>
       Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.DEFAULT:
-          if (dioError.message.contains("HttpException")) {
-            setState(() {
-              state = _State.error;
-              Utils.showToast(app.busFailInfinity);
-            });
-          }
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          Utils.handleDioError(dioError, app);
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.DEFAULT:
+            if (e.message.contains("HttpException")) {
+              setState(() {
+                state = _State.error;
+                Utils.showToast(app.busFailInfinity);
+              });
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
