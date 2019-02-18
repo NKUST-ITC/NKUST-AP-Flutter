@@ -259,7 +259,7 @@ class ScorePageState extends State<ScorePage>
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = 0;
+      selectSemesterIndex = semesterData.defaultIndex;
       _getSemesterScore();
       setState(() {});
     }).catchError((e) {

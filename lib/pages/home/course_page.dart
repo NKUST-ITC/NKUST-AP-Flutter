@@ -224,7 +224,7 @@ class CoursePageState extends State<CoursePage>
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = 0;
+      selectSemesterIndex = semesterData.defaultIndex;
       _getCourseTables();
       setState(() {});
     }).catchError((e) {

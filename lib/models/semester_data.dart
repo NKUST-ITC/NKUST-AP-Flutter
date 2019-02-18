@@ -10,7 +10,7 @@ class SemesterData {
   static SemesterData fromJson(Map<String, dynamic> json) {
     return SemesterData(
       semesters: Semester.toList(json['semester']),
-      defaultSemester:Semester.fromJson(json['default']) ,
+      defaultSemester: Semester.fromJson(json['default']),
     );
   }
 
@@ -18,6 +18,13 @@ class SemesterData {
         'semester': semesters,
         'default': defaultSemester,
       };
+
+  int get defaultIndex {
+    if (semesters == null) return -1;
+    for (var i = 0; i < semesters.length; i++)
+      if (semesters[i].text == defaultSemester.text) return i;
+    return 0;
+  }
 }
 
 class Semester {
