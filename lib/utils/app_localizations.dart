@@ -19,12 +19,8 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': 'Welcome to NKUST AP\n'
-          'The school system data has been integrated\n'
-          'All campuses are available\n'
-          'Graduating alumni may not be able to use\n'
-          'Welcome and give feedback\n'
-          'The author\n',
+      'update_note_content': '1.Fix some error.\n'
+          '2.Fix default semesters error in course and score.\n',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -263,11 +259,8 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '校務系統資料已陸續整合完畢\n'
-          '全部校區皆可以使用了\n'
-          '畢業校友或許還無法使用\n'
-          '歡迎同學使用並回饋意見\n'
-          '高科校務通作者敬上',
+      'update_note_content': '1.修正部分錯誤\n'
+          '2.修正課表及成績預設學期錯誤\n',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',

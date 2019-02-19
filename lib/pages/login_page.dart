@@ -207,12 +207,16 @@ class LoginPageState extends State<LoginPage>
       });
     if (!Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
-      await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-      await remoteConfig.activateFetched();
+      try {
+        await remoteConfig.fetch(expiration: const Duration(seconds: 10));
+        await remoteConfig.activateFetched();
+      } on FetchThrottledException catch (exception) {} catch (exception) {}
       String url = "";
       int versionDiff = 0;
       if (Platform.isAndroid) {
-        url = "market://details?id=${packageInfo.packageName}";
+        //TODO if upload play store url = "market://details?id=${packageInfo.packageName}";
+        url =
+            "https://drive.google.com/open?id=1IivQgMXL6_omB7nHQxQxwoENkq3GgAMn";
         versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
             int.parse(packageInfo.buildNumber);
       } else if (Platform.isIOS) {
@@ -287,17 +291,19 @@ class LoginPageState extends State<LoginPage>
         _navigateToFilterObject(context);
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-        assert(e is DioError);
-        DioError dioError = e as DioError;
-        switch (dioError.type) {
-          case DioErrorType.RESPONSE:
-            Utils.showToast(app.loginFail);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(dioError, app);
-            break;
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.showToast(app.loginFail);
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              Utils.handleDioError(e, app);
+              break;
+          }
+        } else {
+          throw e;
         }
       });
     }

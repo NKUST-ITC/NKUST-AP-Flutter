@@ -259,24 +259,26 @@ class ScorePageState extends State<ScorePage>
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = 0;
+      selectSemesterIndex = semesterData.defaultIndex;
       _getSemesterScore();
       setState(() {});
     }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
-          break;
-        case DioErrorType.CANCEL:
-          break;
-        default:
-          state = _State.error;
-          Utils.handleDioError(dioError, app);
-          break;
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            state = _State.error;
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
       }
     });
   }
@@ -293,18 +295,19 @@ class ScorePageState extends State<ScorePage>
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
-        setState(() {
-          scoreData = response;
-          if (scoreData.status == 204)
-            state = _State.empty;
-          else {
-            scoreWeightList.add(_scoreTitle());
-            for (var score in scoreData.content.scores) {
-              scoreWeightList.add(_scoreBorder(score));
+        if (mounted)
+          setState(() {
+            scoreData = response;
+            if (scoreData.status == 204)
+              state = _State.empty;
+            else {
+              scoreWeightList.add(_scoreTitle());
+              for (var score in scoreData.content.scores) {
+                scoreWeightList.add(_scoreBorder(score));
+              }
+              state = _State.finish;
             }
-            state = _State.finish;
-          }
-        });
+          });
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {
