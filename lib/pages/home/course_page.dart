@@ -322,7 +322,8 @@ class CoursePageState extends State<CoursePage>
         for (var data in courseData.courseTables.getCourseList(weeks[i])) {
           for (int j = 0; j < timeCodes.length; j++) {
             if (timeCodes[j] == data.section) {
-              courseWeightList[(j + 1) * base + i] = _courseBorder(data);
+              if (i % base != 0)
+                courseWeightList[(j + 1) * base + i] = _courseBorder(data);
             }
           }
         }
