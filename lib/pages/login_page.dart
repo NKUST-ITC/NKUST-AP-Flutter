@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
@@ -260,8 +261,21 @@ class LoginPageState extends State<LoginPage>
     isAutoLogin = prefs.getBool(Constants.PREF_AUTO_LOGIN) ?? false;
     setState(() {
       _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
-      if (isRememberPassword)
-        _password.text = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+      if (isRememberPassword) {
+        final encrypter =
+            Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+        String password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+        var currentVersion =
+            prefs.getString(Constants.PREF_CURRENT_VERSION) ?? "";
+        //if build number below 604
+        if (int.parse(currentVersion) < 604) {
+          password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+        } else {
+          var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+          password = encrypter.decrypt64(encryptPassword);
+        }
+        _password.text = password;
+      }
       if (isAutoLogin) {
         _login();
       }
@@ -286,8 +300,12 @@ class LoginPageState extends State<LoginPage>
         if (response.isLogin != null)
           prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
         prefs.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword)
-          prefs.setString(Constants.PREF_PASSWORD, _password.text);
+        if (isRememberPassword) {
+          final encrypter =
+              Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+          prefs.setString(Constants.PREF_PASSWORD,
+              encrypter.encrypt(_password.text).base64);
+        }
         _navigateToFilterObject(context);
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
