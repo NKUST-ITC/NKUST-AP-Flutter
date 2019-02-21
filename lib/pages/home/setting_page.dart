@@ -1,10 +1,13 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:package_info/package_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
   SettingPageRoute()
@@ -52,9 +55,9 @@ class SettingPageState extends State<SettingPage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(app.settings),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.settings),
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
@@ -64,15 +67,25 @@ class SettingPageState extends State<SettingPage>
               _titleItem(app.notificationItem),
               _itemSwitch(app.courseNotify, notifyCourse, () {
                 notifyCourse = !notifyCourse;
-                prefs.setBool(Constants.PREF_NOTIFY_COURSE, notifyCourse);
+                prefs.setBool(Constants.PREF_COURSE_NOTIFY, notifyCourse);
                 Utils.showToast(app.functionNotOpen);
                 //setState(() {});
               }),
-              _itemSwitch(app.busNotify, notifyBus, () {
-                notifyBus = !notifyBus;
-                prefs.setBool(Constants.PREF_NOTIFY_BUS, notifyBus);
-                Utils.showToast(app.functionNotOpen);
-                //setState(() {});
+              _itemSwitch(app.busNotify, notifyBus, () async {
+                bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
+                if (bus) {
+                  if (!notifyBus)
+                    _getBusReservations(context);
+                  else {
+                    await Utils.cancelBusNotify();
+                  }
+                  setState(() {
+                    notifyBus = !notifyBus;
+                  });
+                  prefs.setBool(Constants.PREF_BUS_NOTIFY, notifyBus);
+                } else {
+                  Utils.showToast(app.canNotUseBus);
+                }
               }),
               Container(
                 color: Colors.grey,
@@ -86,7 +99,7 @@ class SettingPageState extends State<SettingPage>
               }),
               _itemSwitch(app.courseVibrate, vibrateCourse, () {
                 vibrateCourse = !vibrateCourse;
-                prefs.setBool(Constants.PREF_VIBRATE_COURSE, vibrateCourse);
+                prefs.setBool(Constants.PREF_COURSE_VIBRATE, vibrateCourse);
                 Utils.showToast(app.functionNotOpen);
                 //setState(() {});
               }),
@@ -173,4 +186,44 @@ class SettingPageState extends State<SettingPage>
         ),
         onPressed: function,
       );
+
+  _getBusReservations(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => ProgressDialog(app.loading),
+        barrierDismissible: false);
+    Helper.instance
+        .getBusReservations()
+        .then((BusReservationsData response) async {
+      await Utils.setBusNotify(context, response.reservations);
+      Utils.showToast(app.busNotifyHint);
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+    }).catchError((e) {
+      setState(() {
+        notifyBus = false;
+        prefs.setBool(Constants.PREF_BUS_NOTIFY, notifyBus);
+      });
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.DEFAULT:
+            if (e.message.contains("HttpException")) {
+              Utils.showToast(app.busFailInfinity);
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            break;
+        }
+      } else {
+        throw e;
+      }
+    });
+  }
 }

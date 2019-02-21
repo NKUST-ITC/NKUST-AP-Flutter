@@ -1,16 +1,18 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/pages/page.dart';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
@@ -64,7 +66,8 @@ class MyApp extends StatelessWidget {
         AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
         OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
         UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
-        CalculateUnitsPage.routerName: (BuildContext context) => CalculateUnitsPage(),
+        CalculateUnitsPage.routerName: (BuildContext context) =>
+            CalculateUnitsPage(),
         NewsContentPage.routerName: (BuildContext context) =>
             NewsContentPage(null),
       },
@@ -98,8 +101,8 @@ class MyApp extends StatelessWidget {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onMessage: $message");
-        //TODO onMessage Notification Display
-        //_showItemDialog(message);
+        Utils.showFCMNotification(message['notification']['title'],
+            message['notification']['title'], message['notification']['body']);
       },
       onLaunch: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onLaunch: $message");
@@ -107,7 +110,6 @@ class MyApp extends StatelessWidget {
       },
       onResume: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onResume: $message");
-        //_navigateToItemDetail(message);
       },
     );
     _firebaseMessaging.requestNotificationPermissions(

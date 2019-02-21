@@ -38,7 +38,7 @@ class AppLocalizations {
       'dot_leave': 'Leave',
       'dot_bus': 'Bus',
       'schedule': 'Events',
-      'loading': 'Loading&#8230;',
+      'loading': 'Loading',
       'id_hint': 'Student ID',
       'password_hint': 'Password',
       'remember_password': 'Remember',
@@ -278,7 +278,7 @@ class AppLocalizations {
       'dot_leave': '缺曠',
       'dot_bus': '校車',
       'schedule': '行事曆',
-      'loading': 'Loading&#8230;',
+      'loading': 'Loading',
       'id_hint': '學號',
       'password_hint': '密碼',
       'remember_password': '記住密碼',
@@ -824,6 +824,16 @@ class AppLocalizations {
   String get calculating => _vocabularies['calculating'];
 
   String get canNotUseBus => _vocabularies['can_not_use_bus'];
+
+  String get busNotifyHint => _vocabularies['bus_notify_hint'];
+
+  String get busNotifyContent => _vocabularies['bus_notify_content'];
+
+  String get busNotifyJiangong => _vocabularies['bus_notify_jiangong'];
+
+  String get busNotifyYanchao => _vocabularies['bus_notify_yanchao'];
+
+  String get loading => _vocabularies['loading'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

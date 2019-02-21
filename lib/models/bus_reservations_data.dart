@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusReservationsData {
@@ -75,6 +75,12 @@ class BusReservation {
     var formatterTime = new DateFormat('HH:mm');
     var time = formatter.parse(this.time);
     return formatterTime.format(time);
+  }
+
+  DateTime getDateTime() {
+    initializeDateFormatting();
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    return formatter.parse(this.time);
   }
 
   String getStart(AppLocalizations local) {

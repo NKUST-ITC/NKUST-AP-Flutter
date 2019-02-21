@@ -27,6 +27,8 @@ dependencies:
   share: ^0.5.3
   connectivity: ^0.3.2
   encrypt: ^2.0.0
+  flutter_local_notifications: ^0.4.5
+  sprintf: ^4.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
