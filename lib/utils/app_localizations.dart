@@ -158,8 +158,10 @@ class AppLocalizations {
           'Will turn on silent mode during class, turn back to normal mode after class!',
       'course_vibrate_permission': 'Need "Do Not Disturb access" to auto mute.',
       'course_notify_hint': 'Reminder will pop up 10mins before class starts!',
-      'course_notify_content" formatted="false': 'Class %s will be at room %s!',
+      'course_notify_content': 'Class %s will be at room %s!',
       'course_notify_unknown': 'Outerspace~',
+      'course_notify_empty': 'Oops! No class for this semester~',
+      'course_notify_error': 'Oops! Something was wrong~',
       'calender_app_not_found': 'Can\'t found any calender apps.',
       'go_to_settings': 'Settings',
       'notifications': 'News',
@@ -385,6 +387,8 @@ class AppLocalizations {
       'course_notify_hint': '將於上課前十分鐘提醒！',
       'course_notify_content': '親，%s 上課教室在 %s！',
       'course_notify_unknown': '外太空',
+      'course_notify_empty': 'Oops！本學期沒有任何課哦～',
+      'course_notify_error': 'Oops!發生錯誤~',
       'calender_app_not_found': '找不到支援的行事曆 Apps',
       'go_to_settings': '前往設定',
       'education_system': '學制',
@@ -834,6 +838,16 @@ class AppLocalizations {
   String get busNotifyYanchao => _vocabularies['bus_notify_yanchao'];
 
   String get loading => _vocabularies['loading'];
+
+  String get courseNotifyHint => _vocabularies['course_notify_hint'];
+
+  String get courseNotifyContent => _vocabularies['course_notify_content'];
+
+  String get courseNotifyUnknown => _vocabularies['course_notify_unknown'];
+
+  String get courseNotifyEmpty => _vocabularies['course_notify_empty'];
+
+  String get courseNotifyError => _vocabularies['course_notify_error'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

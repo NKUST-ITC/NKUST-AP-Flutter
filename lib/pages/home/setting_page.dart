@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_ap/models/course_data.dart';
+import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
@@ -31,10 +33,7 @@ class SettingPageState extends State<SettingPage>
     with SingleTickerProviderStateMixin {
   SharedPreferences prefs;
 
-  var notifyBus = false,
-      notifyCourse = false,
-      displayPicture = true,
-      vibrateCourse = false;
+  var busNotify = false, courseNotify = false, displayPicture = true;
 
   AppLocalizations app;
 
@@ -65,24 +64,29 @@ class SettingPageState extends State<SettingPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _titleItem(app.notificationItem),
-              _itemSwitch(app.courseNotify, notifyCourse, () {
-                notifyCourse = !notifyCourse;
-                prefs.setBool(Constants.PREF_COURSE_NOTIFY, notifyCourse);
-                Utils.showToast(app.functionNotOpen);
-                //setState(() {});
+              _itemSwitch(app.courseNotify, courseNotify, () async {
+                if (!courseNotify)
+                  _setupCourseNotify(context);
+                else {
+                  await Utils.cancelCourseNotify();
+                }
+                setState(() {
+                  courseNotify = !courseNotify;
+                });
+                prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
               }),
-              _itemSwitch(app.busNotify, notifyBus, () async {
+              _itemSwitch(app.busNotify, busNotify, () async {
                 bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
                 if (bus) {
-                  if (!notifyBus)
-                    _getBusReservations(context);
+                  if (!busNotify)
+                    _setupBusNotify(context);
                   else {
                     await Utils.cancelBusNotify();
                   }
                   setState(() {
-                    notifyBus = !notifyBus;
+                    busNotify = !busNotify;
                   });
-                  prefs.setBool(Constants.PREF_BUS_NOTIFY, notifyBus);
+                  prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
                 } else {
                   Utils.showToast(app.canNotUseBus);
                 }
@@ -96,12 +100,6 @@ class SettingPageState extends State<SettingPage>
                 displayPicture = !displayPicture;
                 prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
                 setState(() {});
-              }),
-              _itemSwitch(app.courseVibrate, vibrateCourse, () {
-                vibrateCourse = !vibrateCourse;
-                prefs.setBool(Constants.PREF_COURSE_VIBRATE, vibrateCourse);
-                Utils.showToast(app.functionNotOpen);
-                //setState(() {});
               }),
               Container(
                 color: Colors.grey,
@@ -161,7 +159,9 @@ class SettingPageState extends State<SettingPage>
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     appVersion = packageInfo.version;
+    courseNotify = prefs.getBool(Constants.PREF_COURSE_NOTIFY) ?? false;
     displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+    busNotify = prefs.getBool(Constants.PREF_BUS_NOTIFY) ?? false;
     setState(() {});
   }
 
@@ -187,7 +187,85 @@ class SettingPageState extends State<SettingPage>
         onPressed: function,
       );
 
-  _getBusReservations(BuildContext context) {
+  void _setupCourseNotify(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => ProgressDialog(app.loading),
+        barrierDismissible: false);
+    Helper.instance.getSemester().then((SemesterData semesterData) {
+      var textList = semesterData.defaultSemester.value.split(",");
+      if (textList.length == 2) {
+        Helper.instance
+            .getCourseTables(textList[0], textList[1])
+            .then((CourseData courseData) async {
+          switch (courseData.status) {
+            case 200:
+              await Utils.setCourseNotify(context, courseData.courseTables);
+              Utils.showToast(app.courseNotifyHint);
+              break;
+            case 204:
+              Utils.showToast(app.courseNotifyEmpty);
+              break;
+            default:
+              Utils.showToast(app.courseNotifyError);
+              break;
+          }
+          if (courseData.status != 200) {
+            setState(() {
+              busNotify = false;
+              prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+            });
+          }
+          if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        }).catchError((e) {
+          setState(() {
+            busNotify = false;
+            prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+          });
+          if (e is DioError) {
+            switch (e.type) {
+              case DioErrorType.RESPONSE:
+                Utils.showToast(app.tokenExpiredContent);
+                if (mounted)
+                  Navigator.popUntil(
+                      context, ModalRoute.withName(Navigator.defaultRouteName));
+                break;
+              case DioErrorType.CANCEL:
+                break;
+              default:
+                Utils.handleDioError(e, app);
+                break;
+            }
+          } else {
+            throw e;
+          }
+        });
+      }
+    }).catchError((e) {
+      setState(() {
+        busNotify = false;
+        prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+      });
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(app.tokenExpiredContent);
+            Navigator.popUntil(
+                context, ModalRoute.withName(Navigator.defaultRouteName));
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(e, app);
+            break;
+        }
+      } else {
+        throw e;
+      }
+    });
+  }
+
+  _setupBusNotify(BuildContext context) {
     showDialog(
         context: context,
         builder: (BuildContext context) => ProgressDialog(app.loading),
@@ -200,8 +278,8 @@ class SettingPageState extends State<SettingPage>
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
     }).catchError((e) {
       setState(() {
-        notifyBus = false;
-        prefs.setBool(Constants.PREF_BUS_NOTIFY, notifyBus);
+        busNotify = false;
+        prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       });
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
       if (e is DioError) {

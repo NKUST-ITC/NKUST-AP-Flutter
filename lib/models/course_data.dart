@@ -1,3 +1,6 @@
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
+
 class CourseData {
   int status;
   String messages;
@@ -64,7 +67,30 @@ class CourseTables {
       case "Sunday":
         return sunday;
       default:
-        return null;
+        return [];
+    }
+  }
+
+  List<Course> getCourseListByDayObject(Day weeks) {
+    switch (weeks) {
+      case Day.Sunday:
+        return sunday;
+      case Day.Monday:
+        return monday;
+      case Day.Tuesday:
+        return tuesday;
+      case Day.Wednesday:
+        return wednesday;
+      case Day.Thursday:
+        return thursday;
+      case Day.Friday:
+        return friday;
+      case Day.Saturday:
+        return saturday;
+      case Day.Sunday:
+        return sunday;
+      default:
+        return [];
     }
   }
 
@@ -137,25 +163,29 @@ class Course {
 
   static Course fromJson(Map<String, dynamic> json) {
     return Course(
-      title: json['title'],
-      startTime: json['date']["start_time"],
-      endTime: json['date']["end_time"],
-      weekday: json['date']["weekday"],
-      section: json['date']["section"],
-      building: json['location']["building"],
-      room: json['location']["room"],
-        instructors: List<String>.from(json['instructors'])
-    );
+        title: json['title'],
+        startTime: json['date']["start_time"],
+        endTime: json['date']["end_time"],
+        weekday: json['date']["weekday"],
+        section: json['date']["section"],
+        building: json['location']["building"],
+        room: json['location']["room"],
+        instructors: List<String>.from(json['instructors']));
   }
 
   String getInstructors() {
     String text = "";
-    if(instructors.length>0){
+    if (instructors.length > 0) {
       text += instructors[0];
-      for(var i = 1 ; i < instructors.length ; i++)
-        text += ",${instructors[i]}";
+      for (var i = 1; i < instructors.length; i++) text += ",${instructors[i]}";
     }
     return text;
+  }
+
+  Time getCourseNotifyTimeObject() {
+    var formatter = new DateFormat('HH:mm', 'zh');
+    DateTime dateTime = formatter.parse(startTime).add(Duration(minutes: -10));
+    return Time(dateTime.hour, dateTime.minute);
   }
 
   Map<String, dynamic> toJson() => {
