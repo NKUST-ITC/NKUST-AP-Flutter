@@ -63,24 +63,30 @@ class BusReservation {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.time);
+    var time = formatter.parse(this.time).add(Duration(hours: 8));
     return formatterTime.format(time);
   }
 
   String getTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
-    var formatterTime = new DateFormat('HH:mm');
-    var time = formatter.parse(this.time);
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    var formatterTime = new DateFormat('HH:mm', 'uk');
+    var time = formatter.parse(this.time).add(Duration(hours: 8));
     return formatterTime.format(time);
   }
 
   DateTime getDateTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
-    return formatter.parse(this.time);
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    return formatter.parse(this.time).add(Duration(hours: 8));
+  }
+
+  String getDateTimeStr() {
+    initializeDateFormatting();
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    return formatter.format(formatter.parse(this.time).add(Duration(hours: 8)));
   }
 
   String getStart(AppLocalizations local) {
@@ -108,8 +114,9 @@ class BusReservation {
   bool canCancel() {
     var now = new DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
-    var endEnrollDateTime = formatter.parse(this.endTime);
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    var endEnrollDateTime =
+        formatter.parse(this.endTime).add(Duration(hours: 8));
     return now.millisecondsSinceEpoch <
         endEnrollDateTime.millisecondsSinceEpoch;
   }

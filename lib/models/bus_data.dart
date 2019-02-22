@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusData {
@@ -111,7 +111,7 @@ class BusTime {
   bool hasReserve() {
     var now = new DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
     var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
     //print(endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
@@ -132,9 +132,16 @@ class BusTime {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.runDateTime);
+    var time = formatter.parse(this.runDateTime).add(Duration(hours: 8));
+    return formatterTime.format(time);
+  }
+
+  String getTime() {
+    initializeDateFormatting();
+    var formatterTime = new DateFormat('HH:mm', 'uk');
+    var time = formatterTime.parse(this.time).add(Duration(hours: 8));
     return formatterTime.format(time);
   }
 

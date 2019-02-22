@@ -114,7 +114,7 @@ class BusReservePageState extends State<BusReservePage> {
                                       TextStyle(color: Resource.Colors.blue)),
                               content: Text(
                                 "${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n"
-                                    "${busTime.time} $start",
+                                    "${busTime.getTime()} $start",
                                 textAlign: TextAlign.center,
                               ),
                               actions: <Widget>[
@@ -151,7 +151,7 @@ class BusReservePageState extends State<BusReservePage> {
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busTime.time,
+                    busTime.getTime(),
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -353,7 +353,7 @@ class BusReservePageState extends State<BusReservePage> {
         title = app.busReserveSuccess;
         message = "${app.busReserveDate}：${busTime.getDate()}\n"
             "${app.busReserveLocation}：${busTime.getStart(app)}${app.campus}\n"
-            "${app.busReserveTime}：${busTime.time}";
+            "${app.busReserveTime}：${busTime.getTime()}";
         _getBusTimeTables();
       }
       Navigator.pop(context, 'dialog');
