@@ -219,16 +219,17 @@ class BusReservePageState extends State<BusReservePage> {
                       Container(
                         color: Colors.transparent,
                         padding: EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 8.0),
+                            horizontal: 16.0, vertical: 0.0),
                         child: Calendar(
                           isExpandable: false,
                           showTodayAction: false,
                           showCalendarPickerIcon: false,
-                          showChevronsToChangeRange: false,
+                          showChevronsToChangeRange: true,
                           onDateSelected: (DateTime datetime) {
                             dateTime = datetime;
                             _getBusTimeTables();
                           },
+                          initialCalendarDateOverride: dateTime,
                           dayChildAspectRatio:
                               orientation == Orientation.portrait ? 1.5 : 3,
                           weekdays: app.weekdays,
