@@ -237,6 +237,7 @@ class ScorePageState extends State<ScorePage>
   }
 
   void _selectSemester() {
+    if (semesterData.semesters == null) return;
     var semesters = <SimpleDialogOption>[];
     for (var semester in semesterData.semesters) {
       semesters.add(_dialogItem(semesters.length, semester.text));
@@ -292,6 +293,10 @@ class ScorePageState extends State<ScorePage>
         state = _State.loading;
       });
     }
+    if (semesterData.semesters == null) {
+      _getSemester();
+      return;
+    }
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
@@ -319,10 +324,12 @@ class ScorePageState extends State<ScorePage>
             case DioErrorType.CANCEL:
               break;
             default:
-              setState(() {
-                state = _State.error;
-                Utils.handleDioError(e, app);
-              });
+              if (mounted) {
+                setState(() {
+                  state = _State.error;
+                  Utils.handleDioError(e, app);
+                });
+              }
               break;
           }
         } else {

@@ -10,4 +10,11 @@ class FA {
       screenClassOverride: screenClassOverride,
     );
   }
+
+  static Future<void> _testSetUserProperty(String name, String value) async {
+    await analytics.setUserProperty(
+      name: name,
+      value: value,
+    );
+  }
 }
