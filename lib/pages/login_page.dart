@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -40,48 +39,7 @@ class LoginPageState extends State<LoginPage>
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
     _getPreference();
-    _showDialog();
-  }
-
-  _test() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        new FlutterLocalNotificationsPlugin();
-// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
-    var initializationSettingsAndroid =
-        new AndroidInitializationSettings('ic_stat_kuas_ap');
-    var initializationSettingsIOS = new IOSInitializationSettings(
-        onDidReceiveLocalNotification: (a, b, c, d) {
-      print('$a,$b,$c,$d');
-    });
-    var initializationSettings = new InitializationSettings(
-        initializationSettingsAndroid, initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (text) {
-      print('$text');
-    });
-    print('FlutterLocalNotificationsPlugin');
-    var time = new Time(23, 52, 00);
-    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-        '123', 'show weekly channel name', 'show weekly description',
-        priority: Priority.High);
-    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-    var platformChannelSpecifics = new NotificationDetails(
-        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    print('FlutterLocalNotificationsPlugin');
-    await flutterLocalNotificationsPlugin.showDailyAtTime(
-        123,
-        'show weekly title',
-        'test',
-        Time(23, 54, 00),
-        platformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.showDailyAtTime(
-        124,
-        'show weekly title',
-        'test',
-        Time(23, 55, 00),
-        platformChannelSpecifics);
-    flutterLocalNotificationsPlugin.cancel(124);
-    print('show weekly title');
+    _checkUpdate();
   }
 
   @override
@@ -95,7 +53,6 @@ class LoginPageState extends State<LoginPage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    //_test();
     return OrientationBuilder(builder: (_, orientation) {
       return Scaffold(
           resizeToAvoidBottomPadding: orientation == Orientation.portrait,
@@ -234,7 +191,7 @@ class LoginPageState extends State<LoginPage>
     return list;
   }
 
-  _showDialog() async {
+  _checkUpdate() async {
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await Future.delayed(Duration(milliseconds: 50));
@@ -332,7 +289,7 @@ class LoginPageState extends State<LoginPage>
       showDialog(
           context: context,
           builder: (BuildContext context) => ProgressDialog(app.logining),
-          barrierDismissible: true);
+          barrierDismissible: false);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
         prefs.setString(Constants.PREF_PASSWORD, _password.text);

@@ -101,7 +101,8 @@ class HomePageState extends State<HomePage> {
                   ? 7 / 6
                   : (rate > 1.5 ? 21 / 4 : 21 / 9),
               autoPlay: false,
-              updateCallback: (int current) {
+              enlargeCenterPage: true,
+              onPageChanged: (int current) {
                 setState(() {
                   _currentNewsIndex = current;
                 });
