@@ -8,6 +8,37 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:141403473068:android:05ebdd62590fb72e",
+        "android_client_info": {
+          "package_name": "com.kuas.ap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "141403473068-v71akg1vi0v2ohdtqog3tln8ot678qo8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBIKkKaOfI4nDmj_SN738yB_IUVEOZiAo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:141403473068:android:65aa63de8e144164",
         "android_client_info": {
           "package_name": "com.nkust.ap.flutter"
