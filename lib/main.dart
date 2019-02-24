@@ -120,7 +120,7 @@ class MyApp extends StatelessWidget {
       print("Settings registered: $settings");
     });
     _firebaseMessaging.getToken().then((String token) {
-      assert(token != null);
+      if (token == null) return;
       if (Constants.isInDebugMode) {
         print("Push Messaging token: $token");
       }

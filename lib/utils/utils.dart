@@ -66,32 +66,40 @@ class Utils {
             ));
   }
 
-  static void showForceUpdateDialog(BuildContext context, String url) {
+  static void showForceUpdateDialog(
+      BuildContext context, String url, String versionContent) {
     var app = AppLocalizations.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) => AlertDialog(
-            title: Text(app.updateTitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.blue)),
-            content: Text(_getPlatformUpdateContent(app),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.grey)),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(app.update,
-                    style: TextStyle(color: Resource.Colors.blue)),
-                onPressed: () {
-                  launchUrl(url);
-                },
-              )
-            ],
+      builder: (BuildContext context) => WillPopScope(
+            child: AlertDialog(
+              title: Text(app.updateTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.blue)),
+              content: Text(
+                  '${_getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.grey)),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(app.update,
+                      style: TextStyle(color: Resource.Colors.blue)),
+                  onPressed: () {
+                    launchUrl(url);
+                  },
+                )
+              ],
+            ),
+            onWillPop: () async {
+              return false;
+            },
           ),
     );
   }
 
-  static void showUpdateDialog(BuildContext context, String url) {
+  static void showUpdateDialog(
+      BuildContext context, String url, String versionContent) {
     var app = AppLocalizations.of(context);
     showDialog(
       context: context,
@@ -99,7 +107,8 @@ class Utils {
             title: Text(app.updateTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.blue)),
-            content: Text(_getPlatformUpdateContent(app),
+            content: Text(
+                '${_getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.grey)),
             actions: <Widget>[

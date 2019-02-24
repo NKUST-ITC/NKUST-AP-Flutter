@@ -54,7 +54,8 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return OrientationBuilder(builder: (_, orientation) {
-      return Scaffold(
+      return WillPopScope(
+        child: Scaffold(
           resizeToAvoidBottomPadding: orientation == Orientation.portrait,
           backgroundColor: Resource.Colors.blue,
           body: Center(
@@ -72,7 +73,12 @@ class LoginPageState extends State<LoginPage>
                       children: _renderContent(orientation),
                     ),
             ),
-          ));
+          ),
+        ),
+        onWillPop: () async {
+          return false;
+        },
+      );
     });
   }
 
@@ -213,26 +219,38 @@ class LoginPageState extends State<LoginPage>
         await remoteConfig.activateFetched();
       } on FetchThrottledException catch (exception) {} catch (exception) {}
       String url = "";
-      int versionDiff = 0;
+      int versionDiff = 0, newVersion;
       if (Platform.isAndroid) {
         //TODO if upload play store url = "market://details?id=${packageInfo.packageName}";
         url =
             "https://drive.google.com/open?id=1IivQgMXL6_omB7nHQxQxwoENkq3GgAMn";
-        versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
       } else if (Platform.isIOS) {
         url =
             "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
-        versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
       } else {
         url = "https://www.facebook.com/NKUST.ITC/";
-        versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        newVersion = remoteConfig.getInt(Constants.APP_VERSION);
+      }
+      versionDiff = newVersion - int.parse(packageInfo.buildNumber);
+      String versionContent =
+          "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
+      switch (AppLocalizations.locale.languageCode) {
+        case 'zh':
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
+          break;
+        default:
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
+          break;
       }
       if (versionDiff < 5 && versionDiff > 0)
-        Utils.showUpdateDialog(context, url);
-      else if (versionDiff >= 5) Utils.showForceUpdateDialog(context, url);
+        Utils.showUpdateDialog(context, url, versionContent);
+      else if (versionDiff >= 5) {
+        Utils.showForceUpdateDialog(context, url, versionContent);
+      }
     }
   }
 
@@ -288,7 +306,11 @@ class LoginPageState extends State<LoginPage>
     } else {
       showDialog(
           context: context,
-          builder: (BuildContext context) => ProgressDialog(app.logining),
+          builder: (BuildContext context) => WillPopScope(
+              child: ProgressDialog(app.logining),
+              onWillPop: () async {
+                return false;
+              }),
           barrierDismissible: false);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)

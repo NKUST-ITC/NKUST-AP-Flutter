@@ -33,6 +33,8 @@ class Constants {
   static const ANDROID_APP_VERSION = "android_app_version";
   static const IOS_APP_VERSION = "ios_app_version";
   static const APP_VERSION = "app_version";
+  static const NEW_VERSION_CONTENT_ZH = "new_version_content_zh";
+  static const NEW_VERSION_CONTENT_EN = "new_version_content_en";
 
   static const TAG_STUDENT_PICTURE = "tag_student_picture";
   static const TAG_NEWS_PICTURE = "tag_news_picture";

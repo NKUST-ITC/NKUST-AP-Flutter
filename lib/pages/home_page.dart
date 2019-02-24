@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -135,6 +137,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    _setupBusNotify(context);
     return WillPopScope(
         child: Scaffold(
           appBar: AppBar(
@@ -143,40 +146,7 @@ class HomePageState extends State<HomePage> {
             actions: <Widget>[
               IconButton(
                 icon: Icon(Icons.exit_to_app),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                          title: Text(app.logout,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Resource.Colors.blue)),
-                          content: Text(app.logoutCheck,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(color: Resource.Colors.grey)),
-                          actions: <Widget>[
-                            FlatButton(
-                              child: Text(app.cancel,
-                                  style:
-                                      TextStyle(color: Resource.Colors.blue)),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            FlatButton(
-                              child: Text(app.ok,
-                                  style:
-                                      TextStyle(color: Resource.Colors.blue)),
-                              onPressed: () {
-                                Navigator.popUntil(
-                                    context,
-                                    ModalRoute.withName(
-                                        Navigator.defaultRouteName));
-                              },
-                            )
-                          ],
-                        ),
-                  );
-                },
+                onPressed: _showLogoutDialog,
               )
             ],
           ),
@@ -190,7 +160,7 @@ class HomePageState extends State<HomePage> {
               ),
             );
           }),
-          bottomNavigationBar: new BottomNavigationBar(
+          bottomNavigationBar: BottomNavigationBar(
             fixedColor: Color(0xff737373),
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentTabIndex,
@@ -212,6 +182,7 @@ class HomePageState extends State<HomePage> {
           ),
         ),
         onWillPop: () async {
+          if (Platform.isAndroid) _showLogoutDialog();
           return false;
         });
   }
@@ -267,5 +238,61 @@ class HomePageState extends State<HomePage> {
         throw e;
       }
     });
+  }
+
+  _setupBusNotify(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_BUS_NOTIFY) ?? false)
+      Helper.instance
+          .getBusReservations()
+          .then((BusReservationsData response) async {
+        await Utils.setBusNotify(context, response.reservations);
+      }).catchError((e) {
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              break;
+            case DioErrorType.DEFAULT:
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              break;
+          }
+        } else {
+          throw e;
+        }
+      });
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+            title: Text(app.logout,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.blue)),
+            content: Text(app.logoutCheck,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey)),
+            actions: <Widget>[
+              FlatButton(
+                child: Text(app.cancel,
+                    style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child:
+                    Text(app.ok, style: TextStyle(color: Resource.Colors.blue)),
+                onPressed: () {
+                  Navigator.popUntil(
+                      context, ModalRoute.withName(Navigator.defaultRouteName));
+                },
+              )
+            ],
+          ),
+    );
   }
 }
