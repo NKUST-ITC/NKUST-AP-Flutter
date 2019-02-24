@@ -11,21 +11,21 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  shared_preferences: ^0.4.2
   cupertino_icons: ^0.1.2
-  dio: 1.0.9
-  fluttertoast: ^2.2.11
+  shared_preferences: ^0.4.2
   firebase_core: ^0.2.5+1
   firebase_analytics: 1.0.4
   firebase_remote_config: ^0.0.6+1
   firebase_messaging: ^2.0.2
-  tuple: ^1.0.1
   url_launcher: ^4.0.1
-  carousel_slider: ^1.0.1
-  flutter_crashlytics: 0.1.1
   package_info: ^0.3.2
   share: ^0.5.3
   connectivity: ^0.3.2
+  dio: 2.0.11
+  fluttertoast: ^2.2.11
+  tuple: ^1.0.1
+  carousel_slider: ^1.0.1
+  flutter_crashlytics: 0.1.1
   encrypt: ^2.0.0
   flutter_local_notifications: ^0.4.5
   sprintf: ^4.0.2
