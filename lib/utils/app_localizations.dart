@@ -20,7 +20,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release bus notify and course notify.\n2.Fix some error.',
+          '1.Release bus notify and course notify.\n2.Fix bus time error\n3.Fix some crash.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -261,7 +261,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.推出校車通知及上課通知功能\n2.修正部分問題',
+      'update_note_content': '1.推出校車通知及上課通知功能\n2.修正校車時間錯誤\n3.修正部分崩潰',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',

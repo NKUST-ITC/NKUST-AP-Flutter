@@ -11,7 +11,7 @@ class FA {
     );
   }
 
-  static Future<void> _testSetUserProperty(String name, String value) async {
+  static Future<void> setUserProperty(String name, String value) async {
     await analytics.setUserProperty(
       name: name,
       value: value,

@@ -247,7 +247,7 @@ class DrawerBodyState extends State<DrawerBody> {
         setState(() {
           userInfo = response;
         });
-        FA.setCurrentScreen('department', userInfo.department);
+        FA.setUserProperty('department', userInfo.department);
       }
     }).catchError((e) {
       if (e is DioError) {
