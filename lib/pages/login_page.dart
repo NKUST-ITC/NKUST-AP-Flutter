@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
@@ -38,7 +39,7 @@ class LoginPageState extends State<LoginPage>
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
     _getPreference();
-    _showDialog();
+    _checkUpdate();
   }
 
   @override
@@ -53,7 +54,8 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return OrientationBuilder(builder: (_, orientation) {
-      return Scaffold(
+      return WillPopScope(
+        child: Scaffold(
           resizeToAvoidBottomPadding: orientation == Orientation.portrait,
           backgroundColor: Resource.Colors.blue,
           body: Center(
@@ -71,7 +73,12 @@ class LoginPageState extends State<LoginPage>
                       children: _renderContent(orientation),
                     ),
             ),
-          ));
+          ),
+        ),
+        onWillPop: () async {
+          return false;
+        },
+      );
     });
   }
 
@@ -190,7 +197,7 @@ class LoginPageState extends State<LoginPage>
     return list;
   }
 
-  _showDialog() async {
+  _checkUpdate() async {
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await Future.delayed(Duration(milliseconds: 50));
@@ -212,26 +219,36 @@ class LoginPageState extends State<LoginPage>
         await remoteConfig.activateFetched();
       } on FetchThrottledException catch (exception) {} catch (exception) {}
       String url = "";
-      int versionDiff = 0;
+      int versionDiff = 0, newVersion;
       if (Platform.isAndroid) {
-        //TODO if upload play store url = "market://details?id=${packageInfo.packageName}";
-        url =
-            "https://drive.google.com/open?id=1IivQgMXL6_omB7nHQxQxwoENkq3GgAMn";
-        versionDiff = remoteConfig.getInt(Constants.ANDROID_APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        url = "market://details?id=${packageInfo.packageName}";
+        newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
       } else if (Platform.isIOS) {
         url =
             "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
-        versionDiff = remoteConfig.getInt(Constants.IOS_APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
       } else {
         url = "https://www.facebook.com/NKUST.ITC/";
-        versionDiff = remoteConfig.getInt(Constants.APP_VERSION) -
-            int.parse(packageInfo.buildNumber);
+        newVersion = remoteConfig.getInt(Constants.APP_VERSION);
+      }
+      versionDiff = newVersion - int.parse(packageInfo.buildNumber);
+      String versionContent =
+          "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
+      switch (AppLocalizations.locale.languageCode) {
+        case 'zh':
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
+          break;
+        default:
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
+          break;
       }
       if (versionDiff < 5 && versionDiff > 0)
-        Utils.showUpdateDialog(context, url);
-      else if (versionDiff >= 5) Utils.showForceUpdateDialog(context, url);
+        Utils.showUpdateDialog(context, url, versionContent);
+      else if (versionDiff >= 5) {
+        Utils.showForceUpdateDialog(context, url, versionContent);
+      }
     }
   }
 
@@ -260,8 +277,21 @@ class LoginPageState extends State<LoginPage>
     isAutoLogin = prefs.getBool(Constants.PREF_AUTO_LOGIN) ?? false;
     setState(() {
       _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
-      if (isRememberPassword)
-        _password.text = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+      if (isRememberPassword) {
+        final encrypter =
+            Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+        String password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+        var currentVersion =
+            prefs.getString(Constants.PREF_CURRENT_VERSION) ?? "";
+        //if build number below 604
+        if (int.parse(currentVersion) < 604) {
+          password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+        } else {
+          var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+          password = encrypter.decrypt64(encryptPassword);
+        }
+        _password.text = password;
+      }
       if (isAutoLogin) {
         _login();
       }
@@ -274,8 +304,12 @@ class LoginPageState extends State<LoginPage>
     } else {
       showDialog(
           context: context,
-          builder: (BuildContext context) => ProgressDialog(app.logining),
-          barrierDismissible: true);
+          builder: (BuildContext context) => WillPopScope(
+              child: ProgressDialog(app.logining),
+              onWillPop: () async {
+                return false;
+              }),
+          barrierDismissible: false);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
       if (isRememberPassword)
         prefs.setString(Constants.PREF_PASSWORD, _password.text);
@@ -286,8 +320,12 @@ class LoginPageState extends State<LoginPage>
         if (response.isLogin != null)
           prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
         prefs.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword)
-          prefs.setString(Constants.PREF_PASSWORD, _password.text);
+        if (isRememberPassword) {
+          final encrypter =
+              Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+          prefs.setString(Constants.PREF_PASSWORD,
+              encrypter.encrypt(_password.text).base64);
+        }
         _navigateToFilterObject(context);
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');

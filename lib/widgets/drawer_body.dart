@@ -6,6 +6,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -53,7 +54,7 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  if ((userInfo.status ?? 200) == 200)
+                  if ((userInfo.status == null ? 200 : 400) == 200)
                     Navigator.of(context).push(UserInfoPageRoute());
                   else
                     Utils.showToast(userInfo.message);
@@ -246,6 +247,7 @@ class DrawerBodyState extends State<DrawerBody> {
         setState(() {
           userInfo = response;
         });
+        FA.setUserProperty('department', userInfo.department);
       }
     }).catchError((e) {
       if (e is DioError) {

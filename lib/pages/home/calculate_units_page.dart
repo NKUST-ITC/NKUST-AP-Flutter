@@ -308,6 +308,10 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     setState(() {
       state = _State.loading;
     });
+    if (semesterData.semesters == null) {
+      _getSemester();
+      return;
+    }
     var textList =
         semesterData.semesters[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {

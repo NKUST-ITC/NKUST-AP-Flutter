@@ -19,8 +19,8 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': '1.Fix some error.\n'
-          '2.Fix default semesters error in course and score.\n',
+      'update_note_content':
+          '1.Release bus notify and course notify.\n2.Fix bus time error\n3.Fix some crash.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -38,7 +38,7 @@ class AppLocalizations {
       'dot_leave': 'Leave',
       'dot_bus': 'Bus',
       'schedule': 'Events',
-      'loading': 'Loading&#8230;',
+      'loading': 'Loading',
       'id_hint': 'Student ID',
       'password_hint': 'Password',
       'remember_password': 'Remember',
@@ -158,8 +158,10 @@ class AppLocalizations {
           'Will turn on silent mode during class, turn back to normal mode after class!',
       'course_vibrate_permission': 'Need "Do Not Disturb access" to auto mute.',
       'course_notify_hint': 'Reminder will pop up 10mins before class starts!',
-      'course_notify_content" formatted="false': 'Class %s will be at room %s!',
+      'course_notify_content': 'Class %s will be at room %s!',
       'course_notify_unknown': 'Outerspace~',
+      'course_notify_empty': 'Oops! No class for this semester~',
+      'course_notify_error': 'Oops! Something was wrong~',
       'calender_app_not_found': 'Can\'t found any calender apps.',
       'go_to_settings': 'Settings',
       'notifications': 'News',
@@ -184,7 +186,7 @@ class AppLocalizations {
           'The best KUAS Campus App\nKUAS AP\n\nAre you afreshman?\nDon\'t know about school info, telephone numbers, or up coming events?\nBeenhere a few years?\nHave checking class schedule, report card and reserving bus seatsdrove you crazy?\n\nNo more, no more worries, anymore!\n\nKUAS AP lets no matter old or newfellow\nhave control over your life in KUAS!\n\nFrom checking class schedule, report card toyour absence records!\nPlus reserving/canceling bus seats with newest school feeds!\n\n\n\nMuch Simple, Many Convenient, Very instinct, wow!\n\n☆FABULOUS☆',
       'about_author_title': 'Made by',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor)',
       'about_us':
           '“Ask not why nobody is doing this. You are \'nobody\'.”\n\nWe did this cause no one did it.\nWe created KUAS Wifi Login, KUASAP and KUAS Gourmet, Course Selection Sim, etc&#8230;\nTo bring convenience to everyone\'s on campus!',
       'about_recruit_title': 'We Need You !',
@@ -196,7 +198,7 @@ class AppLocalizations {
       'about_contact_us': 'Contact Us',
       'about_open_source_title': 'Open Source License',
       'about_open_source_content':
-          'https://github.com/abc873693/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright &#169; 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
+          'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright &#169; 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'open_drawer': 'Open Menu',
       'close_drawer': 'Close Menu',
       'news': 'News',
@@ -259,8 +261,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.修正部分錯誤\n'
-          '2.修正課表及成績預設學期錯誤\n',
+      'update_note_content': '1.推出校車通知及上課通知功能\n2.修正校車時間錯誤\n3.修正部分崩潰',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -278,7 +279,7 @@ class AppLocalizations {
       'dot_leave': '缺曠',
       'dot_bus': '校車',
       'schedule': '行事曆',
-      'loading': 'Loading&#8230;',
+      'loading': 'Loading',
       'id_hint': '學號',
       'password_hint': '密碼',
       'remember_password': '記住密碼',
@@ -385,6 +386,8 @@ class AppLocalizations {
       'course_notify_hint': '將於上課前十分鐘提醒！',
       'course_notify_content': '親，%s 上課教室在 %s！',
       'course_notify_unknown': '外太空',
+      'course_notify_empty': 'Oops！本學期沒有任何課哦～',
+      'course_notify_error': 'Oops!發生錯誤~',
       'calender_app_not_found': '找不到支援的行事曆 Apps',
       'go_to_settings': '前往設定',
       'education_system': '學制',
@@ -404,19 +407,19 @@ class AppLocalizations {
       'app_version': 'App 版本',
       'about_author_title': '作者群',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor)',
       'about_us':
           '「不要問為何沒有人做這個，\n先承認你就是『沒有人』」。\n因為，「沒有人」是萬能的。\n\n因為沒有人做這些，所以我們跳下來做。\n先後完成了高應無線通、高應校務通，到後來的高應美食通、模擬選課等等.......\n無非是希望帶給大家更便利的校園生活！',
       'about_recruit_title': 'We Need You !',
       'about_recruit_content':
-          '如果你是 Objective-C、Swift 高手，或是 Java 神手，又或是對 Coding充滿著熱誠！\n\n歡迎私訊我們粉絲專頁！\n你的程式碼將有機會出現在周遭同學的手中～',
+          '如果你是 Objective-C、Swift 高手，或是 Java神手，又或是對 Coding充滿著熱誠！\n\n歡迎私訊我們粉絲專頁！\n你的程式碼將有機會出現在周遭同學的手中～',
       'about_itc_content':
           '在103學年度，\n我們也成立了高應大資訊研習社！\n\n如果你對資訊有熱誠或是對我們作品有興趣，歡迎來社課或是講座，也可以來找我們聊聊天。',
       'about_itc_title': '高科資研社',
       'about_contact_us': '聯繫我們',
       'about_open_source_title': '開放原始碼授權',
       'about_open_source_content':
-          'https://github.com/abc873693/NKUST-AP-Flutter\n\n本專案採MIT 開放原始碼授權：\nThe MIT License (MIT)\n\nCopyright &#169; 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
+          'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\n本專案採MIT 開放原始碼授權：\nThe MIT License (MIT)\n\nCopyright &#169; 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'open_drawer': '打開功能表',
       'close_drawer': '關閉功能表',
       'news': '最新消息',
@@ -824,6 +827,26 @@ class AppLocalizations {
   String get calculating => _vocabularies['calculating'];
 
   String get canNotUseBus => _vocabularies['can_not_use_bus'];
+
+  String get busNotifyHint => _vocabularies['bus_notify_hint'];
+
+  String get busNotifyContent => _vocabularies['bus_notify_content'];
+
+  String get busNotifyJiangong => _vocabularies['bus_notify_jiangong'];
+
+  String get busNotifyYanchao => _vocabularies['bus_notify_yanchao'];
+
+  String get loading => _vocabularies['loading'];
+
+  String get courseNotifyHint => _vocabularies['course_notify_hint'];
+
+  String get courseNotifyContent => _vocabularies['course_notify_content'];
+
+  String get courseNotifyUnknown => _vocabularies['course_notify_unknown'];
+
+  String get courseNotifyEmpty => _vocabularies['course_notify_empty'];
+
+  String get courseNotifyError => _vocabularies['course_notify_error'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -13,7 +13,7 @@ const VERSION = 'latest';
 
 class Helper {
   static Helper _instance;
-  static Options options;
+  static BaseOptions options;
   static Dio dio;
   static JsonCodec jsonCodec;
   static CancelToken cancelToken;
@@ -28,7 +28,7 @@ class Helper {
   }
 
   Helper() {
-    options = new Options(
+    options = new BaseOptions(
       baseUrl: 'https://$HOST:$PORT',
       connectTimeout: 10000,
       receiveTimeout: 10000,
