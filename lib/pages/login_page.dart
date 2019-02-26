@@ -54,30 +54,25 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return OrientationBuilder(builder: (_, orientation) {
-      return WillPopScope(
-        child: Scaffold(
-          resizeToAvoidBottomPadding: orientation == Orientation.portrait,
-          backgroundColor: Resource.Colors.blue,
-          body: Center(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: orientation == Orientation.portrait
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      mainAxisSize: MainAxisSize.min,
-                      children: _renderContent(orientation),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _renderContent(orientation),
-                    ),
-            ),
+      return Scaffold(
+        resizeToAvoidBottomPadding: orientation == Orientation.portrait,
+        backgroundColor: Resource.Colors.blue,
+        body: Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 30.0),
+            child: orientation == Orientation.portrait
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize: MainAxisSize.min,
+                    children: _renderContent(orientation),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _renderContent(orientation),
+                  ),
           ),
         ),
-        onWillPop: () async {
-          return false;
-        },
       );
     });
   }
