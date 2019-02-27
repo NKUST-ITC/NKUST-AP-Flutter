@@ -40,12 +40,13 @@ class AboutUsPageState extends State<AboutUsPage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    var expandedHeight = MediaQuery.of(context).size.height * 0.25;
     return new Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
             SliverAppBar(
-              expandedHeight: 200.0,
+              expandedHeight: expandedHeight,
               floating: false,
               pinned: true,
               title: new Text(app.about),
@@ -60,7 +61,7 @@ class AboutUsPageState extends State<AboutUsPage>
               backgroundColor: Resource.Colors.blue,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.asset(
-                  "assets/images/kuasap3.webp",
+                  "assets/images/kuasap2.webp",
                   fit: BoxFit.cover,
                 ),
               ),
