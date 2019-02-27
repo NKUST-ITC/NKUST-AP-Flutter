@@ -60,7 +60,7 @@ class AboutUsPageState extends State<AboutUsPage>
               backgroundColor: Resource.Colors.blue,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.asset(
-                  "assets/images/kuasap3.png",
+                  "assets/images/kuasap3.webp",
                   fit: BoxFit.cover,
                 ),
               ),
@@ -82,7 +82,7 @@ class AboutUsPageState extends State<AboutUsPage>
                   child: Align(
                     alignment: Alignment.topRight,
                     child: Image.asset(
-                      "assets/images/kuas_itc.png",
+                      "assets/images/kuas_itc.webp",
                       width: 64.0,
                       fit: BoxFit.cover,
                     ),
@@ -114,7 +114,7 @@ class AboutUsPageState extends State<AboutUsPage>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           IconButton(
-                            icon: Image.asset("assets/images/ic_fb.png"),
+                            icon: Image.asset("assets/images/ic_fb.webp"),
                             onPressed: () {
                               if (Platform.isAndroid)
                                 Utils.launchUrl('fb://page/735951703168873')
@@ -127,7 +127,7 @@ class AboutUsPageState extends State<AboutUsPage>
                             iconSize: 48.0,
                           ),
                           IconButton(
-                            icon: Image.asset("assets/images/ic_github.png"),
+                            icon: Image.asset("assets/images/ic_github.webp"),
                             onPressed: () {
                               if (Platform.isAndroid)
                                 Utils.launchUrl(
@@ -140,7 +140,7 @@ class AboutUsPageState extends State<AboutUsPage>
                             iconSize: 48.0,
                           ),
                           IconButton(
-                            icon: Image.asset("assets/images/ic_email.png"),
+                            icon: Image.asset("assets/images/ic_email.webp"),
                             onPressed: () {
                               Utils.launchUrl('mailto:abc873693@gmail.com');
                             },

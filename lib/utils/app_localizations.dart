@@ -63,7 +63,7 @@ class AppLocalizations {
       'bus_jiangong_reserved': '√ To YanChao, Departure time：',
       'bus_yanchao_reserved': '√ To JianGong, Departure time：',
       'back': 'Back',
-      'people': 'px',
+      'people': 'PX',
       'bus_reserve': 'Bus Reservation',
       'bus_reservations': 'Bus Record',
       'bus_cancel_reserve': 'Cancel Bus Reservation',

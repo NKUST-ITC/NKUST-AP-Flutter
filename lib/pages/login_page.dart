@@ -82,7 +82,7 @@ class LoginPageState extends State<LoginPage>
         ? <Widget>[
             Center(
               child: Image.asset(
-                "assets/images/K.png",
+                "assets/images/K.webp",
                 width: 120.0,
                 height: 120.0,
               ),
@@ -92,7 +92,7 @@ class LoginPageState extends State<LoginPage>
         : <Widget>[
             Expanded(
               child: Image.asset(
-                "assets/images/K.png",
+                "assets/images/K.webp",
                 width: 120.0,
                 height: 120.0,
               ),

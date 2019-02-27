@@ -54,7 +54,8 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  if ((userInfo.status == null ? 200 : 400) == 200)
+                  if (userInfo == null) return;
+                  if ((userInfo.status == null ? 200 : userInfo.status) == 200)
                     Navigator.of(context).push(UserInfoPageRoute());
                   else
                     Utils.showToast(userInfo.message);
@@ -66,7 +67,7 @@ class DrawerBodyState extends State<DrawerBody> {
                       decoration: new BoxDecoration(
                         image: new DecorationImage(
                             image: new AssetImage(
-                                "assets/images/drawer-backbroud.png"),
+                                "assets/images/drawer-backbroud.webp"),
                             fit: BoxFit.fitWidth,
                             alignment: Alignment.bottomCenter),
                       ),
@@ -122,7 +123,7 @@ class DrawerBodyState extends State<DrawerBody> {
                       right: 20.0,
                       child: Container(
                         child: Image.asset(
-                          "assets/images/drawer-icon.png",
+                          "assets/images/drawer-icon.webp",
                           width: 90.0,
                         ),
                       ),
