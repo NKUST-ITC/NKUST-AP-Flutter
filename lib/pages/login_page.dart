@@ -139,6 +139,7 @@ class LoginPageState extends State<LoginPage>
               children: <Widget>[
                 Checkbox(
                   activeColor: Colors.white,
+                  checkColor: Color(0xff2574ff),
                   value: isAutoLogin,
                   onChanged: _onAutoLoginChanged,
                 ),
@@ -153,6 +154,7 @@ class LoginPageState extends State<LoginPage>
               children: <Widget>[
                 Checkbox(
                   activeColor: Colors.white,
+                  checkColor: Color(0xff2574ff),
                   value: isRememberPassword,
                   onChanged: _onRememberPasswordChanged,
                 ),

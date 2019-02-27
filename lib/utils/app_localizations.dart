@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppLocalizations {
@@ -62,7 +63,7 @@ class AppLocalizations {
       'bus_jiangong_reserved': '√ To YanChao, Departure time：',
       'bus_yanchao_reserved': '√ To JianGong, Departure time：',
       'back': 'Back',
-      'people': 'pl',
+      'people': 'px',
       'bus_reserve': 'Bus Reservation',
       'bus_reservations': 'Bus Record',
       'bus_cancel_reserve': 'Cancel Bus Reservation',
@@ -866,4 +867,22 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   bool shouldReload(AppLocalizationsDelegate old) => false;
+}
+
+class CupertinoEnDefaultLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const CupertinoEnDefaultLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      DefaultCupertinoLocalizations.load(Locale('zh'));
+
+  @override
+  bool shouldReload(CupertinoEnDefaultLocalizationsDelegate old) => false;
+
+  @override
+  String toString() => 'DefaultCupertinoLocalizations.delegate(en_US)';
 }
