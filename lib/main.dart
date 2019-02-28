@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         hintColor: Colors.white,
         accentColor: Resource.Colors.blue,
-        unselectedWidgetColor: Colors.white,
+        unselectedWidgetColor: Resource.Colors.grey,
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.white),
           border:

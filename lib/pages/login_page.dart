@@ -137,11 +137,16 @@ class LoginPageState extends State<LoginPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Checkbox(
-                  activeColor: Colors.white,
-                  checkColor: Color(0xff2574ff),
-                  value: isAutoLogin,
-                  onChanged: _onAutoLoginChanged,
+                Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.white,
+                  ),
+                  child: Checkbox(
+                    activeColor: Colors.white,
+                    checkColor: Color(0xff2574ff),
+                    value: isAutoLogin,
+                    onChanged: _onAutoLoginChanged,
+                  ),
                 ),
                 Text(app.autoLogin, style: TextStyle(color: Colors.white))
               ],
@@ -152,11 +157,16 @@ class LoginPageState extends State<LoginPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Checkbox(
-                  activeColor: Colors.white,
-                  checkColor: Color(0xff2574ff),
-                  value: isRememberPassword,
-                  onChanged: _onRememberPasswordChanged,
+                Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.white,
+                  ),
+                  child: Checkbox(
+                    activeColor: Colors.white,
+                    checkColor: Color(0xff2574ff),
+                    value: isRememberPassword,
+                    onChanged: _onRememberPasswordChanged,
+                  ),
                 ),
                 Text(app.remember, style: TextStyle(color: Colors.white))
               ],
