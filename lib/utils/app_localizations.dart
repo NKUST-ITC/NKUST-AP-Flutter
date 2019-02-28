@@ -163,7 +163,7 @@ class AppLocalizations {
       'course_notify_unknown': 'Outerspace~',
       'course_notify_empty': 'Oops! No class for this semester~',
       'course_notify_error': 'Oops! Something was wrong~',
-      'calender_app_not_found': 'Can\'t found any calender apps.',
+      'calendar_app_not_found': 'Can\'t found any calendar apps.',
       'go_to_settings': 'Settings',
       'notifications': 'News',
       'phones': 'Tel no.',
@@ -257,7 +257,8 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
-      'can_not_use_bus': 'This account can\'t use this feature'
+      'can_not_use_bus': 'This account can\'t use this feature',
+      'add_success': 'Add Success',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -389,7 +390,7 @@ class AppLocalizations {
       'course_notify_unknown': '外太空',
       'course_notify_empty': 'Oops！本學期沒有任何課哦～',
       'course_notify_error': 'Oops!發生錯誤~',
-      'calender_app_not_found': '找不到支援的行事曆 Apps',
+      'calendar_app_not_found': '找不到支援的行事曆 Apps',
       'go_to_settings': '前往設定',
       'education_system': '學制',
       'department': '科系',
@@ -485,7 +486,8 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
-      'can_not_use_bus': '此帳號無法使用此功能'
+      'can_not_use_bus': '此帳號無法使用此功能',
+      'add_success': '新增成功',
     },
   };
 
@@ -848,6 +850,18 @@ class AppLocalizations {
   String get courseNotifyEmpty => _vocabularies['course_notify_empty'];
 
   String get courseNotifyError => _vocabularies['course_notify_error'];
+
+  String get callPhoneTitle => _vocabularies['call_phone_title'];
+
+  String get callPhoneContent => _vocabularies['call_phone_content'];
+
+  String get callPhone => _vocabularies['call_phone'];
+
+  String get addCalendarContent => _vocabularies['add_cal_content'];
+
+  String get calendarAppNotFound => _vocabularies['calendar_app_not_found'];
+
+  String get addSuccess => _vocabularies['add_success'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -66,6 +66,38 @@ class Utils {
             ));
   }
 
+  static void showYesNoDialog(
+      BuildContext context, String title, String content, Function function) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.blue)),
+              content: Text(content,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.grey)),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(app.cancel,
+                      style: TextStyle(color: Resource.Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                  },
+                ),
+                FlatButton(
+                  child: Text(app.determine,
+                      style: TextStyle(color: Resource.Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                    function();
+                  },
+                )
+              ],
+            ));
+  }
+
   static void showForceUpdateDialog(
       BuildContext context, String url, String versionContent) {
     var app = AppLocalizations.of(context);
