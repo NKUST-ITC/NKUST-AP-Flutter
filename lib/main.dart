@@ -71,6 +71,7 @@ class MyApp extends StatelessWidget {
             CalculateUnitsPage(),
         NewsContentPage.routerName: (BuildContext context) =>
             NewsContentPage(null),
+        LeavePage.routerName: (BuildContext context) => LeavePage(),
       },
       theme: ThemeData(
         hintColor: Colors.white,

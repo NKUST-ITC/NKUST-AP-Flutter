@@ -128,7 +128,7 @@ class AppLocalizations {
       'leave_night':
           'Rotate screen to see night school absent record and day of week %s',
       'leave_no_leave':
-          'Oops! No absent record for this semester~\nPlease choose another semester %s',
+          'Oops! No absent record for this semester~\nPlease choose another semester \uD83D\uDE0B',
       'token_expired_title': 'Re-login Required',
       'token_expired_content': 'Cookie has expired, please re-login!',
       'update_content': 'Update available for NKUST AP!',
@@ -259,6 +259,9 @@ class AppLocalizations {
       'general_eduction_course': 'General education course',
       'can_not_use_bus': 'This account can\'t use this feature',
       'add_success': 'Add Success',
+      'date': 'Date',
+      'leave_apply': 'Absent apply',
+      'leave_records': 'Absent records'
     },
     'zh': {
       'app_name': '高科校務通',
@@ -360,7 +363,7 @@ class AppLocalizations {
       'rank': '班名次/班人數',
       'percentage': '班名次百分比',
       'leave_night': '旋轉橫向即可查看夜間缺曠以及星期幾 %s',
-      'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 %s',
+      'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 \uD83D\uDE0B',
       'token_expired_title': '重新登入',
       'token_expired_content': '登入資訊過期，請重新登入！',
       'update_content': '高科校務通 有新版本喲！',
@@ -488,6 +491,9 @@ class AppLocalizations {
       'general_eduction_course': '通識課程',
       'can_not_use_bus': '此帳號無法使用此功能',
       'add_success': '新增成功',
+      'date': '日期',
+      'leave_apply': '線上請假',
+      'leave_records': '缺曠查詢'
     },
   };
 
@@ -862,6 +868,18 @@ class AppLocalizations {
   String get calendarAppNotFound => _vocabularies['calendar_app_not_found'];
 
   String get addSuccess => _vocabularies['add_success'];
+
+  String get leave => _vocabularies['leave'];
+
+  String get leaveNight => _vocabularies['leave_night'];
+
+  String get leaveEmpty => _vocabularies['leave_no_leave'];
+
+  String get date => _vocabularies['date'];
+
+  String get leaveApply => _vocabularies['leave_apply'];
+
+  String get leaveRecords => _vocabularies['leave_records'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
