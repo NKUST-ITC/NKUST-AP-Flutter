@@ -26,6 +26,7 @@ class DrawerBodyState extends State<DrawerBody> {
 
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
+  bool isLeaveExpanded = false;
 
   @override
   void initState() {
@@ -150,6 +151,26 @@ class DrawerBodyState extends State<DrawerBody> {
                 _subItem(Icons.assignment, app.score, ScorePageRoute()),
                 _subItem(
                     Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
+              ],
+            ),
+            ExpansionTile(
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isLeaveExpanded = bool;
+                });
+              },
+              leading: Icon(
+                Icons.calendar_today,
+                color: isLeaveExpanded
+                    ? Resource.Colors.blue
+                    : Resource.Colors.grey,
+              ),
+              title: Text(app.leave, style: _defaultStyle()),
+              children: <Widget>[
+                _subItem(
+                    Icons.edit, app.leaveApply, LeavePageRoute(initIndex: 0)),
+                _subItem(Icons.assignment, app.leaveRecords,
+                    LeavePageRoute(initIndex: 1)),
               ],
             ),
             ExpansionTile(
