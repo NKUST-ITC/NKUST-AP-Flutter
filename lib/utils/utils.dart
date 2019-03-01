@@ -32,6 +32,18 @@ class Utils {
     }
   }
 
+  static void handleResponseError(
+      BuildContext context, bool mounted, DioError e) {
+    var app = AppLocalizations.of(context);
+    if (e.response.statusCode == 401) {
+      Utils.showToast(app.tokenExpiredContent);
+      if (mounted)
+        Navigator.popUntil(
+            context, ModalRoute.withName(Navigator.defaultRouteName));
+    } else
+      Utils.showToast(app.somethingError);
+  }
+
   static void showToast(String message) {
     Fluttertoast.showToast(
         msg: message,

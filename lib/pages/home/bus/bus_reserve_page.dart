@@ -308,9 +308,7 @@ class BusReservePageState extends State<BusReservePage> {
         // dioError.message = HttpException: Connection closed before full header was received
         switch (dioError.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (dioError.message.contains("HttpException")) {
@@ -364,9 +362,7 @@ class BusReservePageState extends State<BusReservePage> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

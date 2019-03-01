@@ -250,9 +250,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           default:
             break;
@@ -275,9 +273,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           default:
             break;

@@ -225,10 +225,7 @@ class SettingPageState extends State<SettingPage>
           if (e is DioError) {
             switch (e.type) {
               case DioErrorType.RESPONSE:
-                Utils.showToast(app.tokenExpiredContent);
-                if (mounted)
-                  Navigator.popUntil(
-                      context, ModalRoute.withName(Navigator.defaultRouteName));
+                Utils.handleResponseError(context, mounted, e);
                 break;
               case DioErrorType.CANCEL:
                 break;
@@ -249,9 +246,7 @@ class SettingPageState extends State<SettingPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -285,9 +280,7 @@ class SettingPageState extends State<SettingPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
