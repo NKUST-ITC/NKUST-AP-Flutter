@@ -125,8 +125,7 @@ class AppLocalizations {
       'average': 'Average',
       'rank': 'You/Total Classmates',
       'percentage': 'Top % in Class',
-      'leave_night':
-          'Rotate screen to see night school absent record and day of week %s',
+      'leave_night': 'Rotate screen to see night school absent record',
       'leave_no_leave':
           'Oops! No absent record for this semester~\nPlease choose another semester \uD83D\uDE0B',
       'token_expired_title': 'Re-login Required',
@@ -362,7 +361,7 @@ class AppLocalizations {
       'average': '總平均',
       'rank': '班名次/班人數',
       'percentage': '班名次百分比',
-      'leave_night': '旋轉橫向即可查看夜間缺曠以及星期幾 %s',
+      'leave_night': '旋轉橫向即可查看夜間缺曠',
       'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 \uD83D\uDE0B',
       'token_expired_title': '重新登入',
       'token_expired_content': '登入資訊過期，請重新登入！',

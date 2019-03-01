@@ -40,6 +40,12 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   SemesterData semesterData;
   LeaveResponse leaveResponse;
 
+  bool hasNight = false;
+
+  Orientation orientation;
+
+  double count = 1.0;
+
   @override
   void initState() {
     super.initState();
@@ -64,8 +70,15 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     List<Widget> widgets = [];
     widgets.add(_scoreTextBorder(app.date, true));
     for (var timeCode in timeCodes) {
-      if (timeCode.length < 2) widgets.add(_scoreTextBorder(timeCode, true));
+      if (hasNight) {
+        if (orientation == Orientation.landscape)
+          widgets.add(_scoreTextBorder(timeCode, true));
+        else if (timeCode.length < 2)
+          widgets.add(_scoreTextBorder(timeCode, true));
+      } else if (timeCode.length < 2)
+        widgets.add(_scoreTextBorder(timeCode, true));
     }
+    count = widgets.length.toDouble();
     return TableRow(children: widgets);
   }
 
@@ -105,7 +118,12 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     List<Widget> widgets = [];
     widgets.add(_scoreTextBorder(leave.date.substring(4), false));
     for (var timeCode in timeCodes) {
-      if (timeCode.length < 2)
+      if (hasNight) {
+        if (orientation == Orientation.landscape)
+          widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
+        else if (timeCode.length < 2)
+          widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
+      } else if (timeCode.length < 2)
         widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
     }
     return TableRow(children: widgets);
@@ -146,7 +164,9 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             flex: 19,
             child: RefreshIndicator(
               onRefresh: () => _getSemesterLeaveRecord(),
-              child: _body(),
+              child: OrientationBuilder(builder: (_, orientation) {
+                return _body(orientation);
+              }),
             ),
           ),
         ],
@@ -154,7 +174,12 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     );
   }
 
-  Widget _body() {
+  Widget _body(Orientation orientation) {
+    this.orientation = orientation;
+    if (state == _State.finish) {
+      hasNight = _checkHasNight();
+      _renderLeavesWidget();
+    }
     switch (state) {
       case _State.loading:
         return Container(
@@ -177,6 +202,10 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
+                hasNight && orientation == Orientation.portrait
+                    ? Text(app.leaveNight)
+                    : Container(height: 0.0),
+                SizedBox(height: 16.0),
                 Container(
                   decoration: new BoxDecoration(
                     borderRadius: BorderRadius.all(
@@ -188,9 +217,9 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                   ),
                   child: Table(
                     columnWidths: {
-                      0: FractionColumnWidth(0.2),
+                      0: FractionColumnWidth(0.15),
                     },
-                    defaultColumnWidth: FractionColumnWidth(0.07),
+                    defaultColumnWidth: FractionColumnWidth(0.85 / count),
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     border: TableBorder.symmetric(
                         inside: BorderSide(color: Colors.grey)),
@@ -302,12 +331,6 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               state = _State.empty;
             else {
               state = _State.finish;
-              leaveWeightList.add(_scoreTitle(leaveResponse.timeCode));
-              for (var leave in leaveResponse.leaves) {
-                leaveWeightList
-                    .add(_leaveBorder(leave, leaveResponse.timeCode));
-              }
-              state = _State.finish;
             }
           });
       }).catchError((e) {
@@ -349,5 +372,26 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         Navigator.pop(context, index);
       },
     );
+  }
+
+  List<TableRow> _renderLeavesWidget() {
+    leaveWeightList.clear();
+    leaveWeightList.add(_scoreTitle(leaveResponse.timeCode));
+    for (var leave in leaveResponse.leaves) {
+      leaveWeightList.add(_leaveBorder(leave, leaveResponse.timeCode));
+    }
+    return leaveWeightList;
+  }
+
+  bool _checkHasNight() {
+    if (leaveResponse == null) return false;
+    if (leaveResponse.leaves == null) return false;
+    for (var leave in leaveResponse.leaves) {
+      if (leave.leaveSections == null) continue;
+      for (var section in leave.leaveSections) {
+        if (section.section.length > 1) return true;
+      }
+    }
+    return false;
   }
 }
