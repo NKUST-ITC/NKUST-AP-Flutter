@@ -4,6 +4,7 @@ import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
@@ -68,40 +69,19 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   _scoreTitle(List<String> timeCodes) {
     List<Widget> widgets = [];
-    widgets.add(_scoreTextBorder(app.date, true));
+    widgets.add(_textBorder(app.date, true));
     for (var timeCode in timeCodes) {
       if (hasNight) {
         if (orientation == Orientation.landscape)
-          widgets.add(_scoreTextBorder(timeCode, true));
-        else if (timeCode.length < 2)
-          widgets.add(_scoreTextBorder(timeCode, true));
-      } else if (timeCode.length < 2)
-        widgets.add(_scoreTextBorder(timeCode, true));
+          widgets.add(_textBorder(timeCode, true));
+        else if (timeCode.length < 2) widgets.add(_textBorder(timeCode, true));
+      } else if (timeCode.length < 2) widgets.add(_textBorder(timeCode, true));
     }
     count = widgets.length.toDouble();
     return TableRow(children: widgets);
   }
 
-  Widget _textBorder(String text, bool isTop) {
-    return new Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(2.0),
-      decoration: new BoxDecoration(
-        border: new Border(
-          top: isTop
-              ? BorderSide.none
-              : BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
-      child: Text(
-        text ?? "",
-        textAlign: TextAlign.center,
-        style: _textBlueStyle(),
-      ),
-    );
-  }
-
-  Widget _scoreTextBorder(String text, bool isTitle) {
+  Widget _textBorder(String text, bool isTitle) {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
@@ -116,15 +96,27 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   _leaveBorder(Leaves leave, List<String> timeCodes) {
     List<Widget> widgets = [];
-    widgets.add(_scoreTextBorder(leave.date.substring(4), false));
+    widgets.add(InkWell(
+      child: _textBorder(leave.date.substring(4), false),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => DefaultDialog(
+              app.leaveContent,
+              '${app.leaveSheetId}：${leave.leaveSheetId}\n'
+              '${app.instructorsComment}：${leave.instructorsComment.length == 0 ? '' : '\n'}'
+              '${leave.instructorsComment.replaceAll('：', ' ')}'),
+        );
+      },
+    ));
     for (var timeCode in timeCodes) {
       if (hasNight) {
         if (orientation == Orientation.landscape)
-          widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
+          widgets.add(_textBorder(leave.getReason(timeCode), false));
         else if (timeCode.length < 2)
-          widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
+          widgets.add(_textBorder(leave.getReason(timeCode), false));
       } else if (timeCode.length < 2)
-        widgets.add(_scoreTextBorder(leave.getReason(timeCode), false));
+        widgets.add(_textBorder(leave.getReason(timeCode), false));
     }
     return TableRow(children: widgets);
   }
@@ -226,33 +218,6 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     children: leaveWeightList,
                   ),
                 ),
-                SizedBox(height: 20.0),
-                /*Container(
-                  decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(
-                        10.0,
-                      ),
-                    ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      _textBorder(
-                          "${app.conductScore}：${leaveResponse.content.detail.conduct}",
-                          true),
-                      _textBorder(
-                          "${app.average}：${leaveResponse.content.detail.average}",
-                          false),
-                      _textBorder(
-                          "${app.rank}：${leaveResponse.content.detail.classRank}",
-                          false),
-                      _textBorder(
-                          "${app.percentage}：${leaveResponse.content.detail.classPercentage}",
-                          false),
-                    ],
-                  ),
-                ),*/
               ],
             ),
           ),

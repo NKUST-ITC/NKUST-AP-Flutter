@@ -260,7 +260,10 @@ class AppLocalizations {
       'add_success': 'Add Success',
       'date': 'Date',
       'leave_apply': 'Absent apply',
-      'leave_records': 'Absent records'
+      'leave_records': 'Absent records',
+      'leave_content': 'Absent Content',
+      'leave_sheet_id': 'Sheet id',
+      'instructors_comment': 'Comment',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -492,7 +495,10 @@ class AppLocalizations {
       'add_success': '新增成功',
       'date': '日期',
       'leave_apply': '線上請假',
-      'leave_records': '缺曠查詢'
+      'leave_records': '缺曠查詢',
+      'leave_content': '假單內容',
+      'leave_sheet_id': '假單編號',
+      'instructors_comment': '師長批註意見',
     },
   };
 
@@ -879,6 +885,12 @@ class AppLocalizations {
   String get leaveApply => _vocabularies['leave_apply'];
 
   String get leaveRecords => _vocabularies['leave_records'];
+
+  String get leaveContent => _vocabularies['leave_content'];
+
+  String get leaveSheetId => _vocabularies['leave_sheet_id'];
+
+  String get instructorsComment => _vocabularies['instructors_comment'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
