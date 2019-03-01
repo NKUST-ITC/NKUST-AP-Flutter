@@ -104,7 +104,7 @@ class AppLocalizations {
       'course_no_course':
           'Oops! No class for this semester~\n Please choose another semester \uD83D\uDE0B',
       'bus_reserve_fail_title': 'Oops Book Fail',
-      'i_know': 'I know',
+      'i_know': 'Got it',
       'ok': 'OK',
       'course_dialog_messages" formatted="false':
           'Class：%s\nProfessor：%s\nLocation：%s\nTime：%s',

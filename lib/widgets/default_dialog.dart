@@ -4,14 +4,19 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 
 class DefaultDialog extends StatelessWidget {
   final String title;
-  final String content;
+  final Widget content;
 
   DefaultDialog(this.title, this.content);
 
   static showSample(BuildContext context) => showDialog(
         context: context,
-        builder: (BuildContext context) =>
-            DefaultDialog('預約成功', '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20'),
+        builder: (BuildContext context) => DefaultDialog(
+              '預約成功',
+              Text(
+                '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
+                style: TextStyle(color: Resource.Colors.grey, height: 1.3),
+              ),
+            ),
       );
 
   @override
@@ -48,10 +53,7 @@ class DefaultDialog extends StatelessWidget {
               ),
             ),
             padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 24.0),
-            child: Text(
-              content,
-              style: TextStyle(color: Resource.Colors.grey, height: 1.3),
-            ),
+            child: content,
           ),
           Container(
             width: double.infinity,

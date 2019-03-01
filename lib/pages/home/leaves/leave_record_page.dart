@@ -102,10 +102,28 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         showDialog(
           context: context,
           builder: (BuildContext context) => DefaultDialog(
-              app.leaveContent,
-              '${app.leaveSheetId}：${leave.leaveSheetId}\n'
-              '${app.instructorsComment}：${leave.instructorsComment.length == 0 ? '' : '\n'}'
-              '${leave.instructorsComment.replaceAll('：', ' ')}'),
+                app.leaveContent,
+                RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                            text: '${app.leaveSheetId}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${leave.leaveSheetId}\n'),
+                        TextSpan(
+                            text: '${app.instructorsComment}：'
+                                '${leave.instructorsComment.length < 8 ? '' : '\n'}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${leave.instructorsComment.replaceAll('：', ' ')}'),
+                      ]),
+                ),
+              ),
         );
       },
     ));

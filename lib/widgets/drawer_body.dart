@@ -268,8 +268,8 @@ class DrawerBodyState extends State<DrawerBody> {
       if (this.mounted) {
         setState(() {
           userInfo = response;
+          FA.setUserProperty('department', userInfo.department);
         });
-        FA.setUserProperty('department', userInfo.department);
       }
     }).catchError((e) {
       if (e is DioError) {
