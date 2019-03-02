@@ -47,7 +47,6 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    FA.setCurrentScreen("BusPage", "bus_page.dart");
     controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
   }
 

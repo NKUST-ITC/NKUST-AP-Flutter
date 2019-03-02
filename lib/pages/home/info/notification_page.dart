@@ -175,7 +175,7 @@ class NotificationPageState extends State<NotificationPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getNotifications', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;

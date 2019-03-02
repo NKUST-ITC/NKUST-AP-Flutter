@@ -245,7 +245,7 @@ class CoursePageState extends State<CoursePage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -402,7 +402,7 @@ class CoursePageState extends State<CoursePage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, mounted, e);
+              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;

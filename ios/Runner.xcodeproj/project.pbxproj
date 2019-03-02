@@ -20,6 +20,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A4465982221FF258008B8826 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A4465984221FF258008B8826 /* InfoPlist.strings */; };
 		A45559A0217B2AE100687009 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A455599F217B2AE100687009 /* GoogleService-Info.plist */; };
+		A461B7E4222AE0E20080F604 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A461B7E3222AE0E20080F604 /* AdSupport.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -62,6 +63,7 @@
 		A4465985221FF25C008B8826 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		A455599F217B2AE100687009 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A45559A5217C871600687009 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		A461B7E3222AE0E20080F604 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A461B7E4222AE0E20080F604 /* AdSupport.framework in Frameworks */,
 				9705A1C61CF904A100538489 /* Flutter.framework in Frameworks */,
 				3B80C3941E831B6300D905FE /* App.framework in Frameworks */,
 				16830D86CF5AEAFD81C84EBD /* Pods_Runner.framework in Frameworks */,
@@ -81,6 +84,7 @@
 		34AB1F91613D54B84C45D9F7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A461B7E3222AE0E20080F604 /* AdSupport.framework */,
 				46B9B6A6AB1EB3B198547386 /* Pods_Runner.framework */,
 			);
 			name = Frameworks;

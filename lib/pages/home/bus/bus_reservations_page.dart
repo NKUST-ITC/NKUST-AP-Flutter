@@ -195,7 +195,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(
+                context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
@@ -246,7 +247,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(
+                context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

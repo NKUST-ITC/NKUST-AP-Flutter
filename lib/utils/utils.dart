@@ -10,6 +10,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -33,8 +34,9 @@ class Utils {
   }
 
   static void handleResponseError(
-      BuildContext context, bool mounted, DioError e) {
+      BuildContext context, String type, bool mounted, DioError e) {
     var app = AppLocalizations.of(context);
+    FA.logApiEvent(type, e.response.statusCode);
     if (e.response.statusCode == 401) {
       Utils.showToast(app.tokenExpiredContent);
       if (mounted)

@@ -225,7 +225,8 @@ class SettingPageState extends State<SettingPage>
           if (e is DioError) {
             switch (e.type) {
               case DioErrorType.RESPONSE:
-                Utils.handleResponseError(context, mounted, e);
+                Utils.handleResponseError(
+                    context, 'getCourseTables', mounted, e);
                 break;
               case DioErrorType.CANCEL:
                 break;
@@ -246,7 +247,7 @@ class SettingPageState extends State<SettingPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -280,7 +281,8 @@ class SettingPageState extends State<SettingPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(
+                context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

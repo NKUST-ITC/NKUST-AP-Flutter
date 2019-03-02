@@ -135,7 +135,7 @@ class UserInfoPageState extends State<UserInfoPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.handleResponseError(context, mounted, e);
+          Utils.handleResponseError(context, 'getUserPicture', mounted, e);
           break;
         default:
           break;
@@ -160,7 +160,7 @@ class UserInfoPageState extends State<UserInfoPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.handleResponseError(context, mounted, e);
+          Utils.handleResponseError(context, 'getUserInfo', mounted, e);
           break;
         default:
           break;

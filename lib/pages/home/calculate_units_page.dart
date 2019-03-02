@@ -285,7 +285,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -360,7 +360,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, mounted, e);
+              Utils.handleResponseError(
+                  context, 'getSemesterScore', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;

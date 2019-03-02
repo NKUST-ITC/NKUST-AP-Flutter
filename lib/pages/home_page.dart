@@ -213,7 +213,10 @@ class HomePageState extends State<HomePage> {
     state = _Status.loading;
     Helper.instance.getAllNews().then((newsList) {
       this.newsList = newsList;
-      newsList.forEach((news) {
+      this.newsList.sort((a, b) {
+        return b.weight.compareTo(a.weight);
+      });
+      this.newsList.forEach((news) {
         newsWidgets.add(_newImage(news));
       });
       setState(() {
@@ -223,7 +226,7 @@ class HomePageState extends State<HomePage> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getAllNews', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;

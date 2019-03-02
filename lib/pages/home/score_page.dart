@@ -270,7 +270,7 @@ class ScorePageState extends State<ScorePage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -318,7 +318,8 @@ class ScorePageState extends State<ScorePage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, mounted, e);
+              Utils.handleResponseError(
+                  context, 'getSemesterScore', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;

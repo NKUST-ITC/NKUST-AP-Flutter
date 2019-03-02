@@ -50,7 +50,6 @@ class LeavePageState extends State<LeavePage>
   @override
   void initState() {
     super.initState();
-    FA.setCurrentScreen("LeavePage", "leave_page.dart");
     controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
   }
 

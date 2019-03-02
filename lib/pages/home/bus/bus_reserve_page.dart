@@ -308,7 +308,7 @@ class BusReservePageState extends State<BusReservePage> {
         // dioError.message = HttpException: Connection closed before full header was received
         switch (dioError.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getBusTimeTables', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (dioError.message.contains("HttpException")) {
@@ -362,7 +362,7 @@ class BusReservePageState extends State<BusReservePage> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'bookingBus', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

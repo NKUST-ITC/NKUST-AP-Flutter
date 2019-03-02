@@ -250,7 +250,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getUserPicture', mounted, e);
             break;
           default:
             break;
@@ -273,7 +273,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, mounted, e);
+            Utils.handleResponseError(context, 'getUserInfo', mounted, e);
             break;
           default:
             break;
