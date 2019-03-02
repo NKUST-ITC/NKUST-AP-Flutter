@@ -21,7 +21,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release absent system.\n2.Add offline access of feature semester course.\n3.Fix some crash.',
+          '1.Release absent system.\n2.Add offline access of feature semester course.\n3.Calendar can add schedule to calendar app.\n4.Fix some crash.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -269,7 +269,8 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.推出缺曠系統\n2.新增學期課表可透過先前紀錄離線存取\n3.修正部分崩潰',
+      'update_note_content':
+          '1.推出缺曠系統\n2.新增學期課表可透過先前紀錄離線存取\n3.行事曆現在可加入行程到手機行事曆了\n4.修正部分崩潰',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
