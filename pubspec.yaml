@@ -1,10 +1,10 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.0.1+30001
+version: 3.0.2+30002
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   shared_preferences: ^0.4.2
   firebase_core: ^0.2.5+1
-  firebase_analytics: 1.0.4
+  firebase_analytics: ^1.1.0
   firebase_remote_config: ^0.0.6+1
   firebase_messaging: ^2.0.2
   url_launcher: ^4.0.1
@@ -29,6 +29,7 @@ dependencies:
   encrypt: ^2.0.0
   flutter_local_notifications: ^0.4.5
   sprintf: ^4.0.2
+  add_2_calendar: ^1.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -46,17 +47,17 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/
-  - assets/images/kuasap.png
-  - assets/images/kuasap2.png
-  - assets/images/kuasap3.png
-  - assets/images/kuas_itc.png
-  - assets/images/ic_fb.png
-  - assets/images/ic_github.png
-  - assets/images/ic_email.png
-  - assets/images/drawer-backbroud.png
-  - assets/images/drawer-icon.png
-  - assets/images/K.png
-  - assets/images/dash_line.png
+  - assets/images/kuasap.webp
+  - assets/images/kuasap2.webp
+  - assets/images/kuasap3.webp
+  - assets/images/kuas_itc.webp
+  - assets/images/ic_fb.webp
+  - assets/images/ic_github.webp
+  - assets/images/ic_email.webp
+  - assets/images/drawer-backbroud.webp
+  - assets/images/drawer-icon.webp
+  - assets/images/K.webp
+  - assets/images/dash_line.webp
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg

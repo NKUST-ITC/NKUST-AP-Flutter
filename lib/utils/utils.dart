@@ -10,6 +10,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,19 @@ class Utils {
       case DioErrorType.CANCEL:
         break;
     }
+  }
+
+  static void handleResponseError(
+      BuildContext context, String type, bool mounted, DioError e) {
+    var app = AppLocalizations.of(context);
+    FA.logApiEvent(type, e.response.statusCode);
+    if (e.response.statusCode == 401) {
+      Utils.showToast(app.tokenExpiredContent);
+      if (mounted)
+        Navigator.popUntil(
+            context, ModalRoute.withName(Navigator.defaultRouteName));
+    } else
+      Utils.showToast(app.somethingError);
   }
 
   static void showToast(String message) {
@@ -56,6 +70,38 @@ class Utils {
               actions: <Widget>[
                 FlatButton(
                   child: Text(actionText,
+                      style: TextStyle(color: Resource.Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                    function();
+                  },
+                )
+              ],
+            ));
+  }
+
+  static void showYesNoDialog(
+      BuildContext context, String title, String content, Function function) {
+    var app = AppLocalizations.of(context);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: Text(title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.blue)),
+              content: Text(content,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Resource.Colors.grey)),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text(app.cancel,
+                      style: TextStyle(color: Resource.Colors.blue)),
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop('dialog');
+                  },
+                ),
+                FlatButton(
+                  child: Text(app.determine,
                       style: TextStyle(color: Resource.Colors.blue)),
                   onPressed: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -330,7 +376,9 @@ class Utils {
         saveCourseList.forEach((Course course) async {
           String content = sprintf(app.courseNotifyContent, [
             course.title,
-            course.room.isEmpty ? app.courseNotifyUnknown : course.room
+            course.location.room.isEmpty
+                ? app.courseNotifyUnknown
+                : course.location.room
           ]);
           await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
             Constants.NOTIFICATION_BUS_ID,

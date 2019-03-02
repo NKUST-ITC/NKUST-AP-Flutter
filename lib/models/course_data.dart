@@ -6,47 +6,120 @@ class CourseData {
   String messages;
   CourseTables courseTables;
 
-  CourseData({
-    this.status,
-    this.messages,
-    this.courseTables,
-  });
+  CourseData({this.status, this.messages, this.courseTables});
 
-  static CourseData fromJson(Map<String, dynamic> json) {
-    return CourseData(
-      status: json['status'],
-      messages: json['messages'],
-      courseTables: CourseTables.fromJson(json['coursetables']),
-    );
+  CourseData.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    messages = json['messages'];
+    if (status == 200)
+      courseTables = json['coursetables'] != null
+          ? CourseTables.fromJson(json['coursetables'])
+          : null;
   }
 
-  Map<String, dynamic> toJson() => {
-        'status': status,
-        'messages': messages,
-        'coursetables': courseTables,
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['status'] = this.status;
+    data['messages'] = this.messages;
+    if (this.courseTables != null) {
+      data['coursetables'] = this.courseTables.toJson();
+    }
+    return data;
+  }
 }
 
 class CourseTables {
-  List<Course> sunday;
+  List<Course> monday;
   List<Course> tuesday;
+  List<Course> wednesday;
+  List<Course> thursday;
   List<Course> friday;
   List<Course> saturday;
-  List<Course> thursday;
-  List<Course> monday;
-  List<Course> wednesday;
+  List<Course> sunday;
   List<String> timeCode;
 
-  CourseTables({
-    this.sunday,
-    this.tuesday,
-    this.friday,
-    this.saturday,
-    this.thursday,
-    this.monday,
-    this.wednesday,
-    this.timeCode,
-  });
+  CourseTables(
+      {this.monday,
+      this.tuesday,
+      this.wednesday,
+      this.thursday,
+      this.friday,
+      this.saturday,
+      this.sunday,
+      this.timeCode});
+
+  CourseTables.fromJson(Map<String, dynamic> json) {
+    if (json['Monday'] != null) {
+      monday = List<Course>();
+      json['Monday'].forEach((v) {
+        monday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Tuesday'] != null) {
+      tuesday = List<Course>();
+      json['Tuesday'].forEach((v) {
+        tuesday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Wednesday'] != null) {
+      wednesday = List<Course>();
+      json['Wednesday'].forEach((v) {
+        wednesday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Thursday'] != null) {
+      thursday = List<Course>();
+      json['Thursday'].forEach((v) {
+        thursday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Friday'] != null) {
+      friday = List<Course>();
+      json['Friday'].forEach((v) {
+        friday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Saturday'] != null) {
+      saturday = List<Course>();
+      json['Saturday'].forEach((v) {
+        saturday.add(Course.fromJson(v));
+      });
+    }
+    if (json['Sunday'] != null) {
+      sunday = List<Course>();
+      json['Sunday'].forEach((v) {
+        sunday.add(Course.fromJson(v));
+      });
+    }
+    timeCode = json['timecode'].cast<String>();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    if (this.monday != null) {
+      data['Monday'] = this.monday.map((v) => v.toJson()).toList();
+    }
+    if (this.tuesday != null) {
+      data['Tuesday'] = this.tuesday.map((v) => v.toJson()).toList();
+    }
+    if (this.wednesday != null) {
+      data['Wednesday'] = this.wednesday.map((v) => v.toJson()).toList();
+    }
+    if (this.thursday != null) {
+      data['Thursday'] = this.thursday.map((v) => v.toJson()).toList();
+    }
+    if (this.friday != null) {
+      data['Friday'] = this.friday.map((v) => v.toJson()).toList();
+    }
+    if (this.saturday != null) {
+      data['Saturday'] = this.saturday.map((v) => v.toJson()).toList();
+    }
+    if (this.sunday != null) {
+      data['Sunday'] = this.sunday.map((v) => v.toJson()).toList();
+    }
+    data['timecode'] = this.timeCode;
+    return data;
+  }
 
   List<Course> getCourseList(String weeks) {
     switch (weeks) {
@@ -98,9 +171,9 @@ class CourseTables {
     int maxTimeCodes = 10;
     for (int i = 0; i < weeks.length; i++) {
       if (getCourseList(weeks[i]) != null)
-        for (var data in getCourseList(weeks[i])) {
+        for (Course data in getCourseList(weeks[i])) {
           for (int j = 0; j < timeCode.length; j++) {
-            if (timeCode[j] == data.section) {
+            if (timeCode[j] == data.date.section) {
               if ((j + 1) > maxTimeCodes) maxTimeCodes = (j + 1);
             }
           }
@@ -108,69 +181,35 @@ class CourseTables {
     }
     return maxTimeCodes;
   }
-
-  static CourseTables fromJson(Map<String, dynamic> json) {
-    return CourseTables(
-      sunday: Course.toList(json['Sunday']),
-      tuesday: Course.toList(json['Tuesday']),
-      friday: Course.toList(json['Friday']),
-      saturday: Course.toList(json['Saturday']),
-      thursday: Course.toList(json['Thursday']),
-      wednesday: Course.toList(json['Wednesday']),
-      monday: Course.toList(json['Monday']),
-      timeCode: List<String>.from(json['timecode'] ?? []),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-        'Sunday': sunday,
-        'Tuesday': tuesday,
-        'Friday': friday,
-        'Saturday': saturday,
-        'Thursday': thursday,
-        'Monday': monday,
-        'Wednesday': wednesday,
-        'timecode': timeCode,
-      };
 }
 
 class Course {
   String title;
-  String startTime;
-  String endTime;
-  String weekday;
-  String section;
-  String building;
-  String room;
+  Date date;
+  Location location;
   List<String> instructors;
 
-  Course({
-    this.title,
-    this.startTime,
-    this.endTime,
-    this.weekday,
-    this.section,
-    this.building,
-    this.room,
-    this.instructors,
-  });
+  Course({this.title, this.date, this.location, this.instructors});
 
-  static List<Course> toList(List<dynamic> jsonArray) {
-    List<Course> list = [];
-    for (var item in (jsonArray ?? [])) list.add(Course.fromJson(item));
-    return list;
+  Course.fromJson(Map<String, dynamic> json) {
+    title = json['title'];
+    date = json['date'] != null ? Date.fromJson(json['date']) : null;
+    location =
+        json['location'] != null ? Location.fromJson(json['location']) : null;
+    instructors = json['instructors'].cast<String>();
   }
 
-  static Course fromJson(Map<String, dynamic> json) {
-    return Course(
-        title: json['title'],
-        startTime: json['date']["start_time"],
-        endTime: json['date']["end_time"],
-        weekday: json['date']["weekday"],
-        section: json['date']["section"],
-        building: json['location']["building"],
-        room: json['location']["room"],
-        instructors: List<String>.from(json['instructors']));
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['title'] = this.title;
+    if (this.date != null) {
+      data['date'] = this.date.toJson();
+    }
+    if (this.location != null) {
+      data['location'] = this.location.toJson();
+    }
+    data['instructors'] = this.instructors;
+    return data;
   }
 
   String getInstructors() {
@@ -184,12 +223,52 @@ class Course {
 
   Time getCourseNotifyTimeObject() {
     var formatter = new DateFormat('HH:mm', 'zh');
-    DateTime dateTime = formatter.parse(startTime).add(Duration(minutes: -10));
+    DateTime dateTime =
+        formatter.parse(date.startTime).add(Duration(minutes: -10));
     return Time(dateTime.hour, dateTime.minute);
   }
+}
 
-  Map<String, dynamic> toJson() => {
-        'title': title,
-        'instructors': instructors,
-      };
+class Date {
+  String startTime;
+  String endTime;
+  String weekday;
+  String section;
+
+  Date({this.startTime, this.endTime, this.weekday, this.section});
+
+  Date.fromJson(Map<String, dynamic> json) {
+    startTime = json['start_time'];
+    endTime = json['end_time'];
+    weekday = json['weekday'];
+    section = json['section'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['start_time'] = this.startTime;
+    data['end_time'] = this.endTime;
+    data['weekday'] = this.weekday;
+    data['section'] = this.section;
+    return data;
+  }
+}
+
+class Location {
+  String building;
+  String room;
+
+  Location({this.building, this.room});
+
+  Location.fromJson(Map<String, dynamic> json) {
+    building = json['building'];
+    room = json['room'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['building'] = this.building;
+    data['room'] = this.room;
+    return data;
+  }
 }

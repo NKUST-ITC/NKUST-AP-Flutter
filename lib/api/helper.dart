@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
+import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
 
 const HOST = "nkust-ap-api.rainvisitor.me";
@@ -162,6 +163,16 @@ class Helper {
     try {
       var response = await dio.delete("/$VERSION/bus/reservations/$cancelKey");
       return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<LeaveResponse> getLeaves(String year, String semester) async {
+    try {
+      var response = await dio.get("/$VERSION/leaves/$year/$semester",
+          cancelToken: cancelToken);
+      return LeaveResponse.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

@@ -135,9 +135,7 @@ class UserInfoPageState extends State<UserInfoPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
+          Utils.handleResponseError(context, 'getUserPicture', mounted, e);
           break;
         default:
           break;
@@ -162,9 +160,7 @@ class UserInfoPageState extends State<UserInfoPage>
       DioError dioError = e as DioError;
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
-          Utils.showToast(app.tokenExpiredContent);
-          Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
+          Utils.handleResponseError(context, 'getUserInfo', mounted, e);
           break;
         default:
           break;

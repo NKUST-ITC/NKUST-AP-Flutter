@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AppLocalizations {
@@ -20,7 +21,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release bus notify and course notify.\n2.Fix bus time error\n3.Fix some crash.',
+          '1.Release absent system.\n2.Add offline access of feature semester course.\n3.Calendar can add schedule to calendar app.\n4.Fix some crash.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -62,7 +63,7 @@ class AppLocalizations {
       'bus_jiangong_reserved': '√ To YanChao, Departure time：',
       'bus_yanchao_reserved': '√ To JianGong, Departure time：',
       'back': 'Back',
-      'people': 'pl',
+      'people': 'PX',
       'bus_reserve': 'Bus Reservation',
       'bus_reservations': 'Bus Record',
       'bus_cancel_reserve': 'Cancel Bus Reservation',
@@ -103,7 +104,7 @@ class AppLocalizations {
       'course_no_course':
           'Oops! No class for this semester~\n Please choose another semester \uD83D\uDE0B',
       'bus_reserve_fail_title': 'Oops Book Fail',
-      'i_know': 'I know',
+      'i_know': 'Got it',
       'ok': 'OK',
       'course_dialog_messages" formatted="false':
           'Class：%s\nProfessor：%s\nLocation：%s\nTime：%s',
@@ -124,10 +125,9 @@ class AppLocalizations {
       'average': 'Average',
       'rank': 'You/Total Classmates',
       'percentage': 'Top % in Class',
-      'leave_night':
-          'Rotate screen to see night school absent record and day of week %s',
+      'leave_night': 'Rotate screen to see night school absent record',
       'leave_no_leave':
-          'Oops! No absent record for this semester~\nPlease choose another semester %s',
+          'Oops! No absent record for this semester~\nPlease choose another semester \uD83D\uDE0B',
       'token_expired_title': 'Re-login Required',
       'token_expired_content': 'Cookie has expired, please re-login!',
       'update_content': 'Update available for NKUST AP!',
@@ -162,7 +162,7 @@ class AppLocalizations {
       'course_notify_unknown': 'Outerspace~',
       'course_notify_empty': 'Oops! No class for this semester~',
       'course_notify_error': 'Oops! Something was wrong~',
-      'calender_app_not_found': 'Can\'t found any calender apps.',
+      'calendar_app_not_found': 'Can\'t found any calendar apps.',
       'go_to_settings': 'Settings',
       'notifications': 'News',
       'phones': 'Tel no.',
@@ -186,7 +186,7 @@ class AppLocalizations {
           'The best KUAS Campus App\nKUAS AP\n\nAre you afreshman?\nDon\'t know about school info, telephone numbers, or up coming events?\nBeenhere a few years?\nHave checking class schedule, report card and reserving bus seatsdrove you crazy?\n\nNo more, no more worries, anymore!\n\nKUAS AP lets no matter old or newfellow\nhave control over your life in KUAS!\n\nFrom checking class schedule, report card toyour absence records!\nPlus reserving/canceling bus seats with newest school feeds!\n\n\n\nMuch Simple, Many Convenient, Very instinct, wow!\n\n☆FABULOUS☆',
       'about_author_title': 'Made by',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor),林義翔(buluni.ha)',
       'about_us':
           '“Ask not why nobody is doing this. You are \'nobody\'.”\n\nWe did this cause no one did it.\nWe created KUAS Wifi Login, KUASAP and KUAS Gourmet, Course Selection Sim, etc&#8230;\nTo bring convenience to everyone\'s on campus!',
       'about_recruit_title': 'We Need You !',
@@ -256,12 +256,21 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
-      'can_not_use_bus': 'This account can\'t use this feature'
+      'can_not_use_feature': 'This account can\'t use this feature',
+      'add_success': 'Add Success',
+      'date': 'Date',
+      'leave_apply': 'Absent apply',
+      'leave_records': 'Absent records',
+      'leave_content': 'Absent Content',
+      'leave_sheet_id': 'Sheet id',
+      'instructors_comment': 'Comment',
+      'load_offline_data': 'Load offline data',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.推出校車通知及上課通知功能\n2.修正校車時間錯誤\n3.修正部分崩潰',
+      'update_note_content':
+          '1.推出缺曠系統\n2.新增學期課表可透過先前紀錄離線存取\n3.行事曆現在可加入行程到手機行事曆了\n4.修正部分崩潰',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -357,8 +366,8 @@ class AppLocalizations {
       'average': '總平均',
       'rank': '班名次/班人數',
       'percentage': '班名次百分比',
-      'leave_night': '旋轉橫向即可查看夜間缺曠以及星期幾 %s',
-      'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 %s',
+      'leave_night': '旋轉橫向即可查看夜間缺曠',
+      'leave_no_leave': 'Oops！本學期沒有任何缺曠課紀錄哦～\n請選擇其他學期 \uD83D\uDE0B',
       'token_expired_title': '重新登入',
       'token_expired_content': '登入資訊過期，請重新登入！',
       'update_content': '高科校務通 有新版本喲！',
@@ -388,7 +397,7 @@ class AppLocalizations {
       'course_notify_unknown': '外太空',
       'course_notify_empty': 'Oops！本學期沒有任何課哦～',
       'course_notify_error': 'Oops!發生錯誤~',
-      'calender_app_not_found': '找不到支援的行事曆 Apps',
+      'calendar_app_not_found': '找不到支援的行事曆 Apps',
       'go_to_settings': '前往設定',
       'education_system': '學制',
       'department': '科系',
@@ -407,7 +416,7 @@ class AppLocalizations {
       'app_version': 'App 版本',
       'about_author_title': '作者群',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor),林義翔(buluni.ha)',
       'about_us':
           '「不要問為何沒有人做這個，\n先承認你就是『沒有人』」。\n因為，「沒有人」是萬能的。\n\n因為沒有人做這些，所以我們跳下來做。\n先後完成了高應無線通、高應校務通，到後來的高應美食通、模擬選課等等.......\n無非是希望帶給大家更便利的校園生活！',
       'about_recruit_title': 'We Need You !',
@@ -484,7 +493,15 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
-      'can_not_use_bus': '此帳號無法使用此功能'
+      'can_not_use_feature': '此帳號無法使用此功能',
+      'add_success': '新增成功',
+      'date': '日期',
+      'leave_apply': '線上請假',
+      'leave_records': '缺曠查詢',
+      'leave_content': '假單內容',
+      'leave_sheet_id': '假單編號',
+      'instructors_comment': '師長批註意見',
+      'load_offline_data': '載入離線資料',
     },
   };
 
@@ -826,7 +843,7 @@ class AppLocalizations {
 
   String get calculating => _vocabularies['calculating'];
 
-  String get canNotUseBus => _vocabularies['can_not_use_bus'];
+  String get canNotUseFeature => _vocabularies['can_not_use_feature'];
 
   String get busNotifyHint => _vocabularies['bus_notify_hint'];
 
@@ -847,6 +864,40 @@ class AppLocalizations {
   String get courseNotifyEmpty => _vocabularies['course_notify_empty'];
 
   String get courseNotifyError => _vocabularies['course_notify_error'];
+
+  String get callPhoneTitle => _vocabularies['call_phone_title'];
+
+  String get callPhoneContent => _vocabularies['call_phone_content'];
+
+  String get callPhone => _vocabularies['call_phone'];
+
+  String get addCalendarContent => _vocabularies['add_cal_content'];
+
+  String get calendarAppNotFound => _vocabularies['calendar_app_not_found'];
+
+  String get addSuccess => _vocabularies['add_success'];
+
+  String get leave => _vocabularies['leave'];
+
+  String get leaveNight => _vocabularies['leave_night'];
+
+  String get leaveEmpty => _vocabularies['leave_no_leave'];
+
+  String get date => _vocabularies['date'];
+
+  String get leaveApply => _vocabularies['leave_apply'];
+
+  String get leaveRecords => _vocabularies['leave_records'];
+
+  String get leaveContent => _vocabularies['leave_content'];
+
+  String get leaveSheetId => _vocabularies['leave_sheet_id'];
+
+  String get instructorsComment => _vocabularies['instructors_comment'];
+
+  String get loadOfflineData => _vocabularies['load_offline_data'];
+
+  String get offlineCourse => _vocabularies['offline_course'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -866,4 +917,22 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   bool shouldReload(AppLocalizationsDelegate old) => false;
+}
+
+class CupertinoEnDefaultLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const CupertinoEnDefaultLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) => true;
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) =>
+      DefaultCupertinoLocalizations.load(Locale('zh'));
+
+  @override
+  bool shouldReload(CupertinoEnDefaultLocalizationsDelegate old) => false;
+
+  @override
+  String toString() => 'DefaultCupertinoLocalizations.delegate(en_US)';
 }

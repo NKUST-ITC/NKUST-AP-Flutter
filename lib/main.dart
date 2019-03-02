@@ -71,11 +71,12 @@ class MyApp extends StatelessWidget {
             CalculateUnitsPage(),
         NewsContentPage.routerName: (BuildContext context) =>
             NewsContentPage(null),
+        LeavePage.routerName: (BuildContext context) => LeavePage(),
       },
       theme: ThemeData(
         hintColor: Colors.white,
         accentColor: Resource.Colors.blue,
-        unselectedWidgetColor: Colors.white,
+        unselectedWidgetColor: Resource.Colors.grey,
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.white),
           border:
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
         const AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
+        CupertinoEnDefaultLocalizationsDelegate(),
       ],
       supportedLocales: [
         const Locale('en', 'US'), // English

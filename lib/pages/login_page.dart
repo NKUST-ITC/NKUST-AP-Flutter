@@ -54,30 +54,25 @@ class LoginPageState extends State<LoginPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return OrientationBuilder(builder: (_, orientation) {
-      return WillPopScope(
-        child: Scaffold(
-          resizeToAvoidBottomPadding: orientation == Orientation.portrait,
-          backgroundColor: Resource.Colors.blue,
-          body: Center(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: orientation == Orientation.portrait
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      mainAxisSize: MainAxisSize.min,
-                      children: _renderContent(orientation),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _renderContent(orientation),
-                    ),
-            ),
+      return Scaffold(
+        resizeToAvoidBottomPadding: orientation == Orientation.portrait,
+        backgroundColor: Resource.Colors.blue,
+        body: Center(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 30.0),
+            child: orientation == Orientation.portrait
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisSize: MainAxisSize.min,
+                    children: _renderContent(orientation),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _renderContent(orientation),
+                  ),
           ),
         ),
-        onWillPop: () async {
-          return false;
-        },
       );
     });
   }
@@ -87,7 +82,7 @@ class LoginPageState extends State<LoginPage>
         ? <Widget>[
             Center(
               child: Image.asset(
-                "assets/images/K.png",
+                "assets/images/K.webp",
                 width: 120.0,
                 height: 120.0,
               ),
@@ -97,7 +92,7 @@ class LoginPageState extends State<LoginPage>
         : <Widget>[
             Expanded(
               child: Image.asset(
-                "assets/images/K.png",
+                "assets/images/K.webp",
                 width: 120.0,
                 height: 120.0,
               ),
@@ -142,10 +137,16 @@ class LoginPageState extends State<LoginPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Checkbox(
-                  activeColor: Colors.white,
-                  value: isAutoLogin,
-                  onChanged: _onAutoLoginChanged,
+                Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.white,
+                  ),
+                  child: Checkbox(
+                    activeColor: Colors.white,
+                    checkColor: Color(0xff2574ff),
+                    value: isAutoLogin,
+                    onChanged: _onAutoLoginChanged,
+                  ),
                 ),
                 Text(app.autoLogin, style: TextStyle(color: Colors.white))
               ],
@@ -156,10 +157,16 @@ class LoginPageState extends State<LoginPage>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Checkbox(
-                  activeColor: Colors.white,
-                  value: isRememberPassword,
-                  onChanged: _onRememberPasswordChanged,
+                Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: Colors.white,
+                  ),
+                  child: Checkbox(
+                    activeColor: Colors.white,
+                    checkColor: Color(0xff2574ff),
+                    value: isRememberPassword,
+                    onChanged: _onRememberPasswordChanged,
+                  ),
                 ),
                 Text(app.remember, style: TextStyle(color: Colors.white))
               ],
@@ -317,8 +324,11 @@ class LoginPageState extends State<LoginPage>
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-        if (response.isLogin != null)
+        if (response.isLogin != null) {
+          prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
           prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
+          prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
+        }
         prefs.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword) {
           final encrypter =

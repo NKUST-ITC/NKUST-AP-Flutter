@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/home/leaves/leave_apply_page.dart';
+import 'package:nkust_ap/pages/home/leaves/leave_record_page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class BusPageRoute extends MaterialPageRoute {
-  BusPageRoute({this.initIndex = 0})
+class LeavePageRoute extends MaterialPageRoute {
+  LeavePageRoute({this.initIndex = 0})
       : super(
             builder: (BuildContext context) =>
-                new BusPage(initIndex: initIndex));
+                new LeavePage(initIndex: initIndex));
 
   final int initIndex;
 
@@ -14,25 +16,26 @@ class BusPageRoute extends MaterialPageRoute {
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return new FadeTransition(
-        opacity: animation, child: new BusPage(initIndex: initIndex));
+        opacity: animation, child: new LeavePage(initIndex: initIndex));
   }
 }
 
-class BusPage extends StatefulWidget {
-  static const String routerName = "/bus";
+class LeavePage extends StatefulWidget {
+  static const String routerName = "/leave";
   final List<Widget> _children = [
-    new BusReservePage(),
-    new BusReservationsPage()
+    LeaveApplyPage(),
+    LeaveRecordPage(),
   ];
   final int initIndex;
 
-  BusPage({this.initIndex = 0});
+  LeavePage({this.initIndex = 0});
 
   @override
-  BusPageState createState() => new BusPageState(_children, initIndex);
+  LeavePageState createState() => new LeavePageState(_children, initIndex);
 }
 
-class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
+class LeavePageState extends State<LeavePage>
+    with SingleTickerProviderStateMixin {
   final List<Widget> _children;
   final int initIndex;
   int _currentIndex = 0;
@@ -40,7 +43,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   TabController controller;
 
-  BusPageState(this._children, this.initIndex) {
+  LeavePageState(this._children, this.initIndex) {
     _currentIndex = initIndex;
   }
 
@@ -59,9 +62,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
-        title: Text(app.bus),
+        title: Text(app.leave),
         backgroundColor: Resource.Colors.blue,
       ),
       body: TabBarView(
@@ -74,12 +77,12 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         fixedColor: Resource.Colors.yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.date_range),
-            title: Text(app.busReserve),
+            icon: Icon(Icons.edit),
+            title: Text(app.leaveApply),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment),
-            title: Text(app.busReservations),
+            title: Text(app.leaveRecords),
           ),
         ],
       ),

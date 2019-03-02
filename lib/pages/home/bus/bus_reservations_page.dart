@@ -195,9 +195,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(
+                context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
@@ -248,9 +247,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(
+                context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

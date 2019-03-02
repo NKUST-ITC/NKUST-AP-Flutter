@@ -26,6 +26,7 @@ class DrawerBodyState extends State<DrawerBody> {
 
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
+  bool isLeaveExpanded = false;
 
   @override
   void initState() {
@@ -54,7 +55,8 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  if ((userInfo.status == null ? 200 : 400) == 200)
+                  if (userInfo == null) return;
+                  if ((userInfo.status == null ? 200 : userInfo.status) == 200)
                     Navigator.of(context).push(UserInfoPageRoute());
                   else
                     Utils.showToast(userInfo.message);
@@ -66,7 +68,7 @@ class DrawerBodyState extends State<DrawerBody> {
                       decoration: new BoxDecoration(
                         image: new DecorationImage(
                             image: new AssetImage(
-                                "assets/images/drawer-backbroud.png"),
+                                "assets/images/drawer-backbroud.webp"),
                             fit: BoxFit.fitWidth,
                             alignment: Alignment.bottomCenter),
                       ),
@@ -122,7 +124,7 @@ class DrawerBodyState extends State<DrawerBody> {
                       right: 20.0,
                       child: Container(
                         child: Image.asset(
-                          "assets/images/drawer-icon.png",
+                          "assets/images/drawer-icon.webp",
                           width: 90.0,
                         ),
                       ),
@@ -149,6 +151,26 @@ class DrawerBodyState extends State<DrawerBody> {
                 _subItem(Icons.assignment, app.score, ScorePageRoute()),
                 _subItem(
                     Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
+              ],
+            ),
+            ExpansionTile(
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isLeaveExpanded = bool;
+                });
+              },
+              leading: Icon(
+                Icons.calendar_today,
+                color: isLeaveExpanded
+                    ? Resource.Colors.blue
+                    : Resource.Colors.grey,
+              ),
+              title: Text(app.leave, style: _defaultStyle()),
+              children: <Widget>[
+                _subItem(
+                    Icons.edit, app.leaveApply, LeavePageRoute(initIndex: 0)),
+                _subItem(Icons.assignment, app.leaveRecords,
+                    LeavePageRoute(initIndex: 1)),
               ],
             ),
             ExpansionTile(
@@ -204,11 +226,18 @@ class DrawerBodyState extends State<DrawerBody> {
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle()),
         onTap: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
           if (route is BusPageRoute) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
             bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
             if (!bus) {
-              Utils.showToast(app.canNotUseBus);
+              Utils.showToast(app.canNotUseFeature);
+              return;
+            }
+          }
+          if (route is LeavePageRoute) {
+            bool leave = prefs.getBool(Constants.PREF_LEAVE_ENABLE) ?? true;
+            if (!leave) {
+              Utils.showToast(app.canNotUseFeature);
               return;
             }
           }
@@ -228,9 +257,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, 'getUserPicture', mounted, e);
             break;
           default:
             break;
@@ -246,16 +273,14 @@ class DrawerBodyState extends State<DrawerBody> {
       if (this.mounted) {
         setState(() {
           userInfo = response;
+          FA.setUserProperty('department', userInfo.department);
         });
-        FA.setUserProperty('department', userInfo.department);
       }
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, 'getUserInfo', mounted, e);
             break;
           default:
             break;

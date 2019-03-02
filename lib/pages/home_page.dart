@@ -197,7 +197,7 @@ class HomePageState extends State<HomePage> {
           if (bus)
             Navigator.of(context).push(BusPageRoute());
           else
-            Utils.showToast(app.canNotUseBus);
+            Utils.showToast(app.canNotUseFeature);
           break;
         case 1:
           Navigator.of(context).push(CoursePageRoute());
@@ -213,7 +213,10 @@ class HomePageState extends State<HomePage> {
     state = _Status.loading;
     Helper.instance.getAllNews().then((newsList) {
       this.newsList = newsList;
-      newsList.forEach((news) {
+      this.newsList.sort((a, b) {
+        return b.weight.compareTo(a.weight);
+      });
+      this.newsList.forEach((news) {
         newsWidgets.add(_newImage(news));
       });
       setState(() {
@@ -223,9 +226,7 @@ class HomePageState extends State<HomePage> {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, 'getAllNews', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;

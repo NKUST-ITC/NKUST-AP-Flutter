@@ -18,7 +18,7 @@ class HintContent extends StatelessWidget {
             padding: EdgeInsets.all(25.0),
             decoration: BoxDecoration(
                 image: DecorationImage(
-              image: AssetImage("assets/images/dash_line.png"),
+              image: AssetImage("assets/images/dash_line.webp"),
             )),
             child: Icon(
               icon,

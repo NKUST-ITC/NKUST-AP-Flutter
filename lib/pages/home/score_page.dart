@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
@@ -126,7 +127,7 @@ class ScorePageState extends State<ScorePage>
             Expanded(
               flex: 1,
               child: FlatButton(
-                onPressed: _selectSemester,
+                onPressed: (semesterData != null) ? _selectSemester : null,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
@@ -177,7 +178,6 @@ class ScorePageState extends State<ScorePage>
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
             padding: EdgeInsets.all(16.0),
-            height: (MediaQuery.of(context).size.height - 66.0) * (19 / 20),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
@@ -257,19 +257,20 @@ class ScorePageState extends State<ScorePage>
   }
 
   void _getSemester() {
+    _loadSemesterData();
     Helper.instance.getSemester().then((semesterData) {
-      this.semesterData = semesterData;
-      selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = semesterData.defaultIndex;
       _getSemesterScore();
-      setState(() {});
+      setState(() {
+        this.semesterData = semesterData;
+        selectSemester = semesterData.defaultSemester;
+        selectSemesterIndex = semesterData.defaultIndex;
+      });
+      CacheUtils.saveSemesterData(semesterData);
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -317,9 +318,8 @@ class ScorePageState extends State<ScorePage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(app.tokenExpiredContent);
-              Navigator.popUntil(
-                  context, ModalRoute.withName(Navigator.defaultRouteName));
+              Utils.handleResponseError(
+                  context, 'getSemesterScore', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;
@@ -349,5 +349,14 @@ class ScorePageState extends State<ScorePage>
         Navigator.pop(context, index);
       },
     );
+  }
+
+  void _loadSemesterData() async {
+    this.semesterData = await CacheUtils.loadSemesterData();
+    if (this.semesterData == null) return;
+    setState(() {
+      selectSemester = semesterData.defaultSemester;
+      selectSemesterIndex = semesterData.defaultIndex;
+    });
   }
 }

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
@@ -39,6 +40,8 @@ class CoursePageState extends State<CoursePage>
   Semester selectSemester;
   SemesterData semesterData;
   CourseData courseData;
+
+  bool isOffline = false;
 
   @override
   void initState() {
@@ -99,8 +102,8 @@ class CoursePageState extends State<CoursePage>
   Widget _courseBorder(Course course) {
     String content = "${app.courseDialogName}：${course.title}\n"
         "${app.courseDialogProfessor}：${course.getInstructors()}\n"
-        "${app.courseDialogLocation}：${course.building}${course.room}\n"
-        "${app.courseDialogTime}：${course.startTime}-${course.endTime}";
+        "${app.courseDialogLocation}：${course.location.building}${course.location.room}\n"
+        "${app.courseDialogTime}：${course.date.startTime}-${course.date.endTime}";
     return new Container(
       decoration: new BoxDecoration(
           border: new Border.all(color: Colors.grey, width: 0.5)),
@@ -155,7 +158,7 @@ class CoursePageState extends State<CoursePage>
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 16.0),
+            padding: EdgeInsets.symmetric(vertical: isOffline ? 8.0 : 16.0),
             mainAxisSpacing: 0.0,
             shrinkWrap: true,
             childAspectRatio: childAspectRatio,
@@ -187,7 +190,7 @@ class CoursePageState extends State<CoursePage>
                 Expanded(
                   flex: 1,
                   child: FlatButton(
-                    onPressed: _selectSemester,
+                    onPressed: (semesterData != null) ? _selectSemester : null,
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
@@ -205,6 +208,14 @@ class CoursePageState extends State<CoursePage>
                     ),
                   ),
                 ),
+                Container(
+                  child: isOffline
+                      ? Text(
+                          app.offlineCourse,
+                          style: TextStyle(color: Resource.Colors.grey),
+                        )
+                      : null,
+                ),
                 Expanded(
                   flex: 19,
                   child: RefreshIndicator(
@@ -221,19 +232,20 @@ class CoursePageState extends State<CoursePage>
   }
 
   void _getSemester() {
+    _loadSemesterData();
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
-      selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = semesterData.defaultIndex;
-      _getCourseTables();
-      setState(() {});
+      CacheUtils.saveSemesterData(semesterData);
+      setState(() {
+        selectSemester = semesterData.defaultSemester;
+        selectSemesterIndex = semesterData.defaultIndex;
+        _getCourseTables();
+      });
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.showToast(app.tokenExpiredContent);
-            Navigator.popUntil(
-                context, ModalRoute.withName(Navigator.defaultRouteName));
+            Utils.handleResponseError(context, 'getSemester', mounted, e);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -244,6 +256,31 @@ class CoursePageState extends State<CoursePage>
         }
       } else {
         throw e;
+      }
+      _loadCourseData(selectSemester.value);
+    });
+  }
+
+  void _loadSemesterData() async {
+    this.semesterData = await CacheUtils.loadSemesterData();
+    if (this.semesterData == null) return;
+    setState(() {
+      selectSemester = semesterData.defaultSemester;
+      selectSemesterIndex = semesterData.defaultIndex;
+    });
+  }
+
+  void _loadCourseData(String value) async {
+    courseData = await CacheUtils.loadCourseData(value);
+    if (this.courseData == null) return;
+    isOffline = true;
+    setState(() {
+      if (courseData.status == 204) {
+        state = _State.empty;
+      } else if (courseData.status == 200) {
+        state = _State.finish;
+      } else {
+        state = _State.error;
       }
     });
   }
@@ -288,8 +325,8 @@ class CoursePageState extends State<CoursePage>
     var courseWeightList = <Widget>[_textBorder("", topLeft: true)];
     for (var week in app.weekdaysCourse.sublist(0, 4))
       courseWeightList.add(_textBorder(week));
-    if (courseData.courseTables.saturday.isEmpty &&
-        courseData.courseTables.sunday.isEmpty) {
+    if (courseData.courseTables.saturday == null &&
+        courseData.courseTables.sunday == null) {
       courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
       base = 6;
       childAspectRatio = 1.5;
@@ -321,7 +358,7 @@ class CoursePageState extends State<CoursePage>
       if (courseData.courseTables.getCourseList(weeks[i]) != null)
         for (var data in courseData.courseTables.getCourseList(weeks[i])) {
           for (int j = 0; j < timeCodes.length; j++) {
-            if (timeCodes[j] == data.section) {
+            if (timeCodes[j] == data.date.section) {
               if (i % base != 0)
                 courseWeightList[(j + 1) * base + i] = _courseBorder(data);
             }
@@ -351,6 +388,8 @@ class CoursePageState extends State<CoursePage>
         if (mounted)
           setState(() {
             courseData = response;
+            isOffline = false;
+            CacheUtils.saveCourseData(selectSemester.value, courseData);
             if (courseData.status == 204) {
               state = _State.empty;
             } else if (courseData.status == 200) {
@@ -363,10 +402,7 @@ class CoursePageState extends State<CoursePage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(app.tokenExpiredContent);
-              if (mounted)
-                Navigator.popUntil(
-                    context, ModalRoute.withName(Navigator.defaultRouteName));
+              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;
@@ -381,6 +417,7 @@ class CoursePageState extends State<CoursePage>
         } else {
           throw e;
         }
+        _loadCourseData(selectSemester.value);
       });
     } else {
       if (mounted)
