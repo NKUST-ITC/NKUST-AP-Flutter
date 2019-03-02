@@ -7,7 +7,7 @@ import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
 
-const HOST = "nkust-ap-staging.rainvisitor.me";
+const HOST = "nkust-ap-api.rainvisitor.me";
 const PORT = '2087';
 
 const VERSION = 'latest';
