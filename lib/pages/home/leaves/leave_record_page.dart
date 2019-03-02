@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -152,7 +153,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           Expanded(
             flex: 1,
             child: FlatButton(
-              onPressed: _selectSemester,
+              onPressed: (semesterData != null) ? _selectSemester : null,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
@@ -264,12 +265,15 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   void _getSemester() {
+    _loadSemesterData();
     Helper.instance.getSemester().then((semesterData) {
-      this.semesterData = semesterData;
-      selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = semesterData.defaultIndex;
+      setState(() {
+        this.semesterData = semesterData;
+        selectSemester = semesterData.defaultSemester;
+        selectSemesterIndex = semesterData.defaultIndex;
+      });
+      CacheUtils.saveSemesterData(semesterData);
       _getSemesterLeaveRecord();
-      setState(() {});
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
@@ -369,5 +373,14 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       }
     }
     return false;
+  }
+
+  void _loadSemesterData() async {
+    this.semesterData = await CacheUtils.loadSemesterData();
+    if (this.semesterData == null) return;
+    setState(() {
+      selectSemester = semesterData.defaultSemester;
+      selectSemesterIndex = semesterData.defaultIndex;
+    });
   }
 }

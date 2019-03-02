@@ -895,6 +895,8 @@ class AppLocalizations {
   String get instructorsComment => _vocabularies['instructors_comment'];
 
   String get loadOfflineData => _vocabularies['load_offline_data'];
+
+  String get offlineCourse => _vocabularies['offline_course'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

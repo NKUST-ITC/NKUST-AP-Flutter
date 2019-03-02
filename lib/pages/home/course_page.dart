@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -42,6 +40,8 @@ class CoursePageState extends State<CoursePage>
   Semester selectSemester;
   SemesterData semesterData;
   CourseData courseData;
+
+  bool isOffline = false;
 
   @override
   void initState() {
@@ -158,7 +158,7 @@ class CoursePageState extends State<CoursePage>
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: GridView.count(
             physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: 16.0),
+            padding: EdgeInsets.symmetric(vertical: isOffline ? 8.0 : 16.0),
             mainAxisSpacing: 0.0,
             shrinkWrap: true,
             childAspectRatio: childAspectRatio,
@@ -208,6 +208,14 @@ class CoursePageState extends State<CoursePage>
                     ),
                   ),
                 ),
+                Container(
+                  child: isOffline
+                      ? Text(
+                          app.offlineCourse,
+                          style: TextStyle(color: Resource.Colors.grey),
+                        )
+                      : null,
+                ),
                 Expanded(
                   flex: 19,
                   child: RefreshIndicator(
@@ -249,7 +257,7 @@ class CoursePageState extends State<CoursePage>
       } else {
         throw e;
       }
-      _loadSemesterData();
+      _loadCourseData(selectSemester.value);
     });
   }
 
@@ -265,6 +273,7 @@ class CoursePageState extends State<CoursePage>
   void _loadCourseData(String value) async {
     courseData = await CacheUtils.loadCourseData(value);
     if (this.courseData == null) return;
+    isOffline = true;
     setState(() {
       if (courseData.status == 204) {
         state = _State.empty;
@@ -274,8 +283,6 @@ class CoursePageState extends State<CoursePage>
         state = _State.error;
       }
     });
-    await Future.delayed(Duration(milliseconds: 500));
-    Utils.showToast(app.loadOfflineData);
   }
 
   void _selectSemester() {
@@ -381,6 +388,7 @@ class CoursePageState extends State<CoursePage>
         if (mounted)
           setState(() {
             courseData = response;
+            isOffline = false;
             CacheUtils.saveCourseData(selectSemester.value, courseData);
             if (courseData.status == 204) {
               state = _State.empty;
