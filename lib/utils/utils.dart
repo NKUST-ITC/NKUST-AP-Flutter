@@ -374,7 +374,9 @@ class Utils {
         saveCourseList.forEach((Course course) async {
           String content = sprintf(app.courseNotifyContent, [
             course.title,
-            course.room.isEmpty ? app.courseNotifyUnknown : course.room
+            course.location.room.isEmpty
+                ? app.courseNotifyUnknown
+                : course.location.room
           ]);
           await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
             Constants.NOTIFICATION_BUS_ID,

@@ -264,6 +264,7 @@ class AppLocalizations {
       'leave_content': 'Absent Content',
       'leave_sheet_id': 'Sheet id',
       'instructors_comment': 'Comment',
+      'load_offline_data': 'Load offline data',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -499,6 +500,7 @@ class AppLocalizations {
       'leave_content': '假單內容',
       'leave_sheet_id': '假單編號',
       'instructors_comment': '師長批註意見',
+      'load_offline_data': '載入離線資料',
     },
   };
 
@@ -891,6 +893,8 @@ class AppLocalizations {
   String get leaveSheetId => _vocabularies['leave_sheet_id'];
 
   String get instructorsComment => _vocabularies['instructors_comment'];
+
+  String get loadOfflineData => _vocabularies['load_offline_data'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

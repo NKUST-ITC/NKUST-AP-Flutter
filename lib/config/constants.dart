@@ -26,6 +26,9 @@ class Constants {
   static const PREF_COURSE_VIBRATE_USER_SETTING =
       "pref_course_vibrate_user_setting";
   static const PREF_DISPLAY_PICTURE = "pref_display_picture";
+  static const PREF_SCORE_DATA = "pref_score_data";
+  static const PREF_COURSE_DATA = "pref_course_data";
+  static const PREF_SEMESTER_DATA = "pref_semester_data";
 
   static const PREF_BUS_ENABLE = "pref_bus_enable";
 
