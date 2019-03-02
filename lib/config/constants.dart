@@ -30,7 +30,9 @@ class Constants {
   static const PREF_COURSE_DATA = "pref_course_data";
   static const PREF_SEMESTER_DATA = "pref_semester_data";
 
+  static const PREF_AP_ENABLE = "pref_ap_enable";
   static const PREF_BUS_ENABLE = "pref_bus_enable";
+  static const PREF_LEAVE_ENABLE = "pref_leave_enable";
 
   static const SCHEDULE_DATA = "schedule_data";
   static const ANDROID_APP_VERSION = "android_app_version";

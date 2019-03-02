@@ -324,8 +324,11 @@ class LoginPageState extends State<LoginPage>
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-        if (response.isLogin != null)
+        if (response.isLogin != null) {
+          prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
           prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
+          prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
+        }
         prefs.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword) {
           final encrypter =

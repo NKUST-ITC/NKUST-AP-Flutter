@@ -88,7 +88,7 @@ class SettingPageState extends State<SettingPage>
                   });
                   prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
                 } else {
-                  Utils.showToast(app.canNotUseBus);
+                  Utils.showToast(app.canNotUseFeature);
                 }
               }),
               Container(

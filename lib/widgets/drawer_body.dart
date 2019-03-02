@@ -226,11 +226,18 @@ class DrawerBodyState extends State<DrawerBody> {
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle()),
         onTap: () async {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
           if (route is BusPageRoute) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
             bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
             if (!bus) {
-              Utils.showToast(app.canNotUseBus);
+              Utils.showToast(app.canNotUseFeature);
+              return;
+            }
+          }
+          if (route is LeavePageRoute) {
+            bool leave = prefs.getBool(Constants.PREF_LEAVE_ENABLE) ?? true;
+            if (!leave) {
+              Utils.showToast(app.canNotUseFeature);
               return;
             }
           }

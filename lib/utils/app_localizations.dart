@@ -256,7 +256,7 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
-      'can_not_use_bus': 'This account can\'t use this feature',
+      'can_not_use_feature': 'This account can\'t use this feature',
       'add_success': 'Add Success',
       'date': 'Date',
       'leave_apply': 'Absent apply',
@@ -492,7 +492,7 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
-      'can_not_use_bus': '此帳號無法使用此功能',
+      'can_not_use_feature': '此帳號無法使用此功能',
       'add_success': '新增成功',
       'date': '日期',
       'leave_apply': '線上請假',
@@ -842,7 +842,7 @@ class AppLocalizations {
 
   String get calculating => _vocabularies['calculating'];
 
-  String get canNotUseBus => _vocabularies['can_not_use_bus'];
+  String get canNotUseFeature => _vocabularies['can_not_use_feature'];
 
   String get busNotifyHint => _vocabularies['bus_notify_hint'];
 
