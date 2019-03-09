@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -94,7 +95,10 @@ class NewsContentPageState extends State<NewsContentPage>
     List<Widget> list = <Widget>[
       AspectRatio(
         aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
-        child: Image.network(news.image),
+        child: CachedNetworkImage(
+          imageUrl: news.image,
+          errorWidget: (context, url, error) => Icon(Icons.error),
+        ),
       ),
       SizedBox(
           height: orientation == Orientation.portrait ? 16.0 : 0.0,
@@ -136,7 +140,7 @@ class NewsContentPageState extends State<NewsContentPage>
           ),
         ),
         onPressed: () {
-          Utils.launchUrl(news.url);
+          if (news.url.isNotEmpty) Utils.launchUrl(news.url);
         },
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
         color: Resource.Colors.yellow,

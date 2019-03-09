@@ -223,7 +223,7 @@ class BusReservePageState extends State<BusReservePage> {
                         child: Calendar(
                           isExpandable: false,
                           showTodayAction: false,
-                          showCalendarPickerIcon: false,
+                          showCalendarPickerIcon: true,
                           showChevronsToChangeRange: true,
                           onDateSelected: (DateTime datetime) {
                             dateTime = datetime;
@@ -252,6 +252,8 @@ class BusReservePageState extends State<BusReservePage> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minWidth: double.infinity),
                   child: CupertinoSegmentedControl(
+                    selectedColor: Resource.Colors.blue,
+                    borderColor: Resource.Colors.blue,
                     groupValue: selectStartStation,
                     children: {
                       Station.janGong: Container(

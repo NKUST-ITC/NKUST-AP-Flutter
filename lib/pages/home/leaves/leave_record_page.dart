@@ -267,11 +267,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   void _getSemester() {
     _loadSemesterData();
     Helper.instance.getSemester().then((semesterData) {
-      setState(() {
-        this.semesterData = semesterData;
-        selectSemester = semesterData.defaultSemester;
-        selectSemesterIndex = semesterData.defaultIndex;
-      });
+      if (mounted) {
+        setState(() {
+          this.semesterData = semesterData;
+          selectSemester = semesterData.defaultSemester;
+          selectSemesterIndex = semesterData.defaultIndex;
+        });
+      }
       CacheUtils.saveSemesterData(semesterData);
       _getSemesterLeaveRecord();
     }).catchError((e) {
