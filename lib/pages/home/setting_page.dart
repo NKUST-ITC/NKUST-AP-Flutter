@@ -212,15 +212,15 @@ class SettingPageState extends State<SettingPage>
           }
           if (courseData.status != 200) {
             setState(() {
-              busNotify = false;
-              prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+              courseNotify = false;
+              prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
             });
           }
           if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
         }).catchError((e) {
           setState(() {
-            busNotify = false;
-            prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+            courseNotify = false;
+            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
           if (e is DioError) {
             switch (e.type) {
@@ -241,8 +241,8 @@ class SettingPageState extends State<SettingPage>
       }
     }).catchError((e) {
       setState(() {
-        busNotify = false;
-        prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+        courseNotify = false;
+        prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
       });
       if (e is DioError) {
         switch (e.type) {

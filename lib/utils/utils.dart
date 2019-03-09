@@ -367,6 +367,7 @@ class Utils {
             courseTables.getCourseListByDayObject(Day.values[i]);
         List<String> keyList = [];
         List<Course> saveCourseList = [];
+        if (course == null) continue;
         for (int j = 0; j < course.length; j++) {
           if (!keyList.contains(course[j].title)) {
             keyList.add(course[j].title);

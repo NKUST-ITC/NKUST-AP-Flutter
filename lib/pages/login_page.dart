@@ -282,27 +282,23 @@ class LoginPageState extends State<LoginPage>
     isRememberPassword =
         prefs.getBool(Constants.PREF_REMEMBER_PASSWORD) ?? true;
     isAutoLogin = prefs.getBool(Constants.PREF_AUTO_LOGIN) ?? false;
+    var username = prefs.getString(Constants.PREF_USERNAME) ?? "";
+    var password = "";
+    if (isRememberPassword) {
+      final encrypter =
+          Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+      var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
+      if (encryptPassword != "")
+        password = encrypter.decrypt64(encryptPassword);
+    }
     setState(() {
-      _username.text = prefs.getString(Constants.PREF_USERNAME) ?? "";
-      if (isRememberPassword) {
-        final encrypter =
-            Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
-        String password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
-        var currentVersion =
-            prefs.getString(Constants.PREF_CURRENT_VERSION) ?? "";
-        //if build number below 604
-        if (int.parse(currentVersion) < 604) {
-          password = prefs.getString(Constants.PREF_PASSWORD) ?? "";
-        } else {
-          var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
-          password = encrypter.decrypt64(encryptPassword);
-        }
-        _password.text = password;
-      }
-      if (isAutoLogin) {
-        _login();
-      }
+      _username.text = username;
+      _password.text = password;
     });
+    await Future.delayed(Duration(microseconds: 50));
+    if (isAutoLogin) {
+      _login();
+    }
   }
 
   _login() async {

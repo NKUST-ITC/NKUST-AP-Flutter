@@ -236,11 +236,13 @@ class CoursePageState extends State<CoursePage>
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       CacheUtils.saveSemesterData(semesterData);
-      setState(() {
-        selectSemester = semesterData.defaultSemester;
-        selectSemesterIndex = semesterData.defaultIndex;
-        _getCourseTables();
-      });
+      if (mounted) {
+        setState(() {
+          selectSemester = semesterData.defaultSemester;
+          selectSemesterIndex = semesterData.defaultIndex;
+          _getCourseTables();
+        });
+      }
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
@@ -274,15 +276,17 @@ class CoursePageState extends State<CoursePage>
     courseData = await CacheUtils.loadCourseData(value);
     if (this.courseData == null) return;
     isOffline = true;
-    setState(() {
-      if (courseData.status == 204) {
-        state = _State.empty;
-      } else if (courseData.status == 200) {
-        state = _State.finish;
-      } else {
-        state = _State.error;
-      }
-    });
+    if (mounted) {
+      setState(() {
+        if (courseData.status == 204) {
+          state = _State.empty;
+        } else if (courseData.status == 200) {
+          state = _State.finish;
+        } else {
+          state = _State.error;
+        }
+      });
+    }
   }
 
   void _selectSemester() {

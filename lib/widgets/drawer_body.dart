@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -88,7 +89,8 @@ class DrawerBodyState extends State<DrawerBody> {
                                       shape: BoxShape.circle,
                                       image: new DecorationImage(
                                         fit: BoxFit.fitWidth,
-                                        image: NetworkImage(pictureUrl),
+                                        image: CachedNetworkImageProvider(
+                                            pictureUrl),
                                       ),
                                     ),
                                   ),

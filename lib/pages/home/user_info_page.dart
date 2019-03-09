@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
@@ -59,8 +60,10 @@ class UserInfoPageState extends State<UserInfoPage>
                   child: pictureUrl != ""
                       ? Hero(
                           tag: Constants.TAG_STUDENT_PICTURE,
-                          child: Image.network(
-                            pictureUrl,
+                          child: CachedNetworkImage(
+                            imageUrl: pictureUrl,
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
                           ),
                         )
                       : null,

@@ -259,12 +259,12 @@ class ScorePageState extends State<ScorePage>
   void _getSemester() {
     _loadSemesterData();
     Helper.instance.getSemester().then((semesterData) {
-      _getSemesterScore();
       setState(() {
         this.semesterData = semesterData;
         selectSemester = semesterData.defaultSemester;
         selectSemesterIndex = semesterData.defaultIndex;
       });
+      _getSemesterScore();
       CacheUtils.saveSemesterData(semesterData);
     }).catchError((e) {
       if (e is DioError) {
