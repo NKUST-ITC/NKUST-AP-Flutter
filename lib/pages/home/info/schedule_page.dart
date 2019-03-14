@@ -31,7 +31,10 @@ class SchedulePage extends StatefulWidget {
 }
 
 class SchedulePageState extends State<SchedulePage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<Widget> scheduleWeights = [];
 
   List<ScheduleData> scheduleList = [];

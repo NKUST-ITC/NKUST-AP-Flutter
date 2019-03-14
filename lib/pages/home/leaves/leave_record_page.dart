@@ -29,7 +29,10 @@ class LeaveRecordPage extends StatefulWidget {
 }
 
 class LeaveRecordPageState extends State<LeaveRecordPage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   AppLocalizations app;
 
   _State state = _State.loading;

@@ -29,7 +29,11 @@ class BusReservePage extends StatefulWidget {
   BusReservePageState createState() => new BusReservePageState();
 }
 
-class BusReservePageState extends State<BusReservePage> {
+class BusReservePageState extends State<BusReservePage>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   double top = 0.0;
 
   _State state = _State.loading;

@@ -27,7 +27,10 @@ class NotificationPage extends StatefulWidget {
 }
 
 class NotificationPageState extends State<NotificationPage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   ScrollController controller;
   List<NotificationModel> notificationList = [];
   int page = 1;

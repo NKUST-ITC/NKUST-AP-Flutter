@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
@@ -24,7 +24,10 @@ class PhonePage extends StatefulWidget {
 }
 
 class PhonePageState extends State<PhonePage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<Widget> phoneWeights = [];
 
   List<PhoneModel> phoneList = [];
