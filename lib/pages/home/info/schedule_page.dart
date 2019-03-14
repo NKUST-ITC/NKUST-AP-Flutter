@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -55,6 +55,59 @@ class SchedulePageState extends State<SchedulePage>
   @override
   void dispose() {
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
+    return _body();
+  }
+
+  Widget _body() {
+    switch (state) {
+      case _State.loading:
+        return Container(
+            child: CircularProgressIndicator(), alignment: Alignment.center);
+      case _State.error:
+      case _State.empty:
+        return FlatButton(
+          onPressed: _getSchedules,
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.busEmpty,
+          ),
+        );
+      default:
+        return CustomScrollView(
+          slivers: scheduleWeights,
+        );
+    }
+  }
+
+  _getSchedules() async {
+    setState(() {
+      state = _State.loading;
+    });
+    final RemoteConfig remoteConfig = await RemoteConfig.instance;
+    await remoteConfig.fetch(expiration: const Duration(days: 7));
+    await remoteConfig.activateFetched();
+    var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
+    if (data == null || data.isEmpty) {
+      setState(() {
+        state = _State.error;
+      });
+    } else {
+      var jsonArray = jsonDecode(data);
+      scheduleList = ScheduleData.toList(jsonArray);
+      scheduleWeights.clear();
+      for (var i in scheduleList) scheduleWeights.addAll(_scheduleItem(i));
+      setState(() {
+        if (scheduleList.length == 0)
+          state = _State.empty;
+        else
+          state = _State.finish;
+      });
+    }
   }
 
   _textBlueStyle() {
@@ -138,57 +191,6 @@ class SchedulePageState extends State<SchedulePage>
         ),
       ),
     ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return _body();
-  }
-
-  Widget _body() {
-    switch (state) {
-      case _State.loading:
-        return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
-      case _State.error:
-      case _State.empty:
-        return FlatButton(
-          onPressed: _getSchedules,
-          child: HintContent(
-            icon: Icons.assignment,
-            content: state == _State.error ? app.clickToRetry : app.busEmpty,
-          ),
-        );
-      default:
-        return CustomScrollView(
-          slivers: scheduleWeights,
-        );
-    }
-  }
-
-  _getSchedules() async {
-    state = _State.loading;
-    setState(() {});
-    final RemoteConfig remoteConfig = await RemoteConfig.instance;
-    await remoteConfig.fetch(expiration: const Duration(hours: 5));
-    await remoteConfig.activateFetched();
-    JsonCodec jsonCodec = JsonCodec();
-    var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
-    if (data.isEmpty)
-      state = _State.error;
-    else {
-      print(data);
-      var jsonArray = jsonCodec.decode(data);
-      scheduleList = ScheduleData.toList(jsonArray);
-      scheduleWeights.clear();
-      for (var i in scheduleList) scheduleWeights.addAll(_scheduleItem(i));
-      if (scheduleList.length == 0)
-        state = _State.empty;
-      else
-        state = _State.finish;
-    }
-    setState(() {});
   }
 
   void _addToCalendar(String msg) {
