@@ -63,30 +63,30 @@ class BusReservation {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.time).add(Duration(hours: 8));
+    var time = formatter.parse(this.time);
     return formatterTime.format(time);
   }
 
   String getTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
-    var formatterTime = new DateFormat('HH:mm', 'uk');
-    var time = formatter.parse(this.time).add(Duration(hours: 8));
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    var formatterTime = new DateFormat('HH:mm', 'zh');
+    var time = formatter.parse(this.time);
     return formatterTime.format(time);
   }
 
   DateTime getDateTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
-    return formatter.parse(this.time).add(Duration(hours: 8));
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    return formatter.parse(this.time);
   }
 
   String getDateTimeStr() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
-    return formatter.format(formatter.parse(this.time).add(Duration(hours: 8)));
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    return formatter.format(formatter.parse(this.time));
   }
 
   String getStart(AppLocalizations local) {
@@ -114,9 +114,8 @@ class BusReservation {
   bool canCancel() {
     var now = new DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
-    var endEnrollDateTime =
-        formatter.parse(this.endTime).add(Duration(hours: 8));
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    var endEnrollDateTime = formatter.parse(this.endTime);
     return now.millisecondsSinceEpoch <
         endEnrollDateTime.millisecondsSinceEpoch;
   }

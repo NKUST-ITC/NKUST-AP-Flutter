@@ -111,7 +111,7 @@ class BusTime {
   bool hasReserve() {
     var now = new DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
     var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
     //print(endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
@@ -132,16 +132,16 @@ class BusTime {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'uk');
+    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.runDateTime).add(Duration(hours: 8));
+    var time = formatter.parse(this.runDateTime);
     return formatterTime.format(time);
   }
 
   String getTime() {
     initializeDateFormatting();
-    var formatterTime = new DateFormat('HH:mm', 'uk');
-    var time = formatterTime.parse(this.time).add(Duration(hours: 8));
+    var formatterTime = new DateFormat('HH:mm', 'zh');
+    var time = formatterTime.parse(this.time);
     return formatterTime.format(time);
   }
 
