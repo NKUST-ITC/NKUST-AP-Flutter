@@ -36,4 +36,17 @@ class FA {
     );
     print('logEvent succeeded');
   }
+
+  static Future<void> logAESErrorEvent(String encryptPassword) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    await analytics.logEvent(
+      name: 'aes-error',
+      parameters: <String, dynamic>{
+        'type': encryptPassword,
+        'version': packageInfo.version,
+        'platform': Platform.operatingSystem,
+      },
+    );
+    print('log encryptPassword succeeded');
+  }
 }

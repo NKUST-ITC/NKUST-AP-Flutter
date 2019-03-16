@@ -89,8 +89,20 @@ class SchedulePageState extends State<SchedulePage>
       state = _State.loading;
     });
     final RemoteConfig remoteConfig = await RemoteConfig.instance;
-    await remoteConfig.fetch(expiration: const Duration(days: 7));
-    await remoteConfig.activateFetched();
+    try {
+      await remoteConfig.fetch(expiration: const Duration(days: 7));
+      await remoteConfig.activateFetched();
+    } on FetchThrottledException catch (exception) {
+      setState(() {
+        state = _State.error;
+      });
+      return;
+    } catch (exception) {
+      setState(() {
+        state = _State.error;
+      });
+      throw exception;
+    }
     var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
     if (data == null || data.isEmpty) {
       setState(() {

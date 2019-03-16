@@ -288,8 +288,14 @@ class LoginPageState extends State<LoginPage>
       final encrypter =
           Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
       var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
-      if (encryptPassword != "")
-        password = encrypter.decrypt64(encryptPassword);
+      if (encryptPassword != "") {
+        try {
+          password = encrypter.decrypt64(encryptPassword);
+        } catch (e) {
+          FA.logAESErrorEvent(encryptPassword);
+          throw e;
+        }
+      }
     }
     setState(() {
       _username.text = username;
