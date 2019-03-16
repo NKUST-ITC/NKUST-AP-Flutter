@@ -179,18 +179,24 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   _getBusReservations() {
     busReservationWeights.clear();
-    state = _State.loading;
-    setState(() {});
+    if (mounted) {
+      setState(() {
+        state = _State.loading;
+      });
+    }
     Helper.instance.getBusReservations().then((response) {
       busReservationsData = response;
       for (var i in busReservationsData.reservations) {
         busReservationWeights.add(_busReservationWidget(i));
       }
-      if (busReservationsData.reservations.length != 0)
-        state = _State.finish;
-      else
-        state = _State.empty;
-      setState(() {});
+      if (mounted) {
+        setState(() {
+          if (busReservationsData.reservations.length != 0)
+            state = _State.finish;
+          else
+            state = _State.empty;
+        });
+      }
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {

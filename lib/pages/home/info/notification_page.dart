@@ -138,8 +138,9 @@ class NotificationPageState extends State<NotificationPage>
       default:
         return RefreshIndicator(
           onRefresh: () {
-            state = _State.loading;
-            setState(() {});
+            setState(() {
+              state = _State.loading;
+            });
             notificationList.clear();
             _getNotifications();
           },
@@ -160,8 +161,8 @@ class NotificationPageState extends State<NotificationPage>
         setState(() {
           page++;
           state = _State.loadingMore;
-          _getNotifications();
         });
+        _getNotifications();
       }
     }
   }
@@ -172,8 +173,11 @@ class NotificationPageState extends State<NotificationPage>
       for (var notification in notificationData.notifications) {
         notificationList.add(notification);
       }
-      state = _State.finish;
-      setState(() {});
+      if (mounted) {
+        setState(() {
+          state = _State.finish;
+        });
+      }
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
