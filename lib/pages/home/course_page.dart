@@ -110,9 +110,9 @@ class CoursePageState extends State<CoursePage>
             showDialog(
               context: context,
               builder: (BuildContext context) => DefaultDialog(
-                    app.courseDialogTitle,
-                    app.iKnow,
-                    RichText(
+                    title: app.courseDialogTitle,
+                    actionText: app.iKnow,
+                    contentWidget: RichText(
                       text: TextSpan(
                           style: TextStyle(
                               color: Resource.Colors.grey,

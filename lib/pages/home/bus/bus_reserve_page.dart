@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
@@ -361,19 +362,58 @@ class BusReservePageState extends State<BusReservePage>
         barrierDismissible: true);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO 優化成物件
-      String title = "", message = "";
+      String title = "";
+      Widget messageWidget;
       if (!response.data["success"]) {
         title = app.busReserveFailTitle;
-        message = response.data["message"];
+        messageWidget = Text(
+          response.data["message"],
+          style: TextStyle(
+              color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+        );
       } else {
         title = app.busReserveSuccess;
-        message = "${app.busReserveDate}：${busTime.getDate()}\n"
-            "${app.busReserveLocation}：${busTime.getStart(app)}${app.campus}\n"
-            "${app.busReserveTime}：${busTime.getTime()}";
+        messageWidget = RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(
+              style: TextStyle(
+                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+              children: [
+                TextSpan(
+                  text: '${app.busReserveDate}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app.busReserveLocation}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app.busReserveTime}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getTime()}',
+                ),
+              ]),
+        );
         _getBusTimeTables();
       }
       Navigator.pop(context, 'dialog');
-      Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+              title: title,
+              contentWidget: messageWidget,
+              actionText: app.iKnow,
+            ),
+      );
+      //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       if (e is DioError) {

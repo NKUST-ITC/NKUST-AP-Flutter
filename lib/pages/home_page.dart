@@ -8,6 +8,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Status { loading, finish, error, empty }
@@ -274,30 +275,17 @@ class HomePageState extends State<HomePage> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-            title: Text(app.logout,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.blue)),
-            content: Text(app.logoutCheck,
+      builder: (BuildContext context) => YesNoDialog(
+            title: app.logout,
+            contentWidget: Text(app.logoutCheck,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.grey)),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(app.cancel,
-                    style: TextStyle(color: Resource.Colors.blue)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child:
-                    Text(app.ok, style: TextStyle(color: Resource.Colors.blue)),
-                onPressed: () {
-                  Navigator.popUntil(
-                      context, ModalRoute.withName(Navigator.defaultRouteName));
-                },
-              )
-            ],
+            leftActionText: app.cancel,
+            rightActionText: app.ok,
+            rightActionFunction: () {
+              Navigator.popUntil(
+                  context, ModalRoute.withName(Navigator.defaultRouteName));
+            },
           ),
     );
   }

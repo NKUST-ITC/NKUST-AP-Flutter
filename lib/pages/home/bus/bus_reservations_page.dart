@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
 enum _State { loading, finish, error, empty }
 
@@ -127,39 +129,22 @@ class BusReservationsPageState extends State<BusReservationsPage>
                           ),
                           onPressed: () {
                             showDialog(
-                                context: context,
-                                builder: (BuildContext context) => AlertDialog(
-                                      title: Text(app.busCancelReserve,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              color: Resource.Colors.blue)),
-                                      content: Text(
-                                        "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                            "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                            "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      actions: <Widget>[
-                                        FlatButton(
-                                          child: Text(app.back),
-                                          onPressed: () {
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop('dialog');
-                                          },
-                                        ),
-                                        FlatButton(
-                                          child: Text(app.busCancelReserve),
-                                          onPressed: () {
-                                            Navigator.of(context,
-                                                    rootNavigator: true)
-                                                .pop('dialog');
-                                            _cancelBusReservation(
-                                                busReservation);
-                                          },
-                                        )
-                                      ],
-                                    ));
+                              context: context,
+                              builder: (BuildContext context) => YesNoDialog(
+                                    title: app.busCancelReserve,
+                                    contentWidget: Text(
+                                      "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                          "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                          "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    leftActionText: app.back,
+                                    rightActionText: app.busCancelReserve,
+                                    rightActionFunction: () {
+                                      _cancelBusReservation(busReservation);
+                                    },
+                                  ),
+                            );
                           },
                         )
                       : Container(),
@@ -236,18 +221,57 @@ class BusReservationsPageState extends State<BusReservationsPage>
         .cancelBusReservation(busReservation.cancelKey)
         .then((response) {
       String title = "", message = "";
+      Widget messageWidget;
       if (!response.data["success"]) {
         title = app.busCancelReserveFail;
-        message = response.data["message"];
+        messageWidget = Text(
+          response.data["message"],
+          style: TextStyle(
+              color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+        );
       } else {
         title = app.busCancelReserveSuccess;
-        message = "${app.busReserveCancelDate}：${busReservation.getDate()}\n"
-            "${app.busReserveCancelLocation}：${busReservation.getStart(app)}${app.campus}\n"
-            "${app.busReserveCancelTime}：${busReservation.getTime()}";
+        messageWidget = RichText(
+          textAlign: TextAlign.left,
+          text: TextSpan(
+              style: TextStyle(
+                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+              children: [
+                TextSpan(
+                  text: '${app.busReserveCancelDate}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busReservation.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app.busReserveCancelLocation}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busReservation.getStart(app)}${app.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app.busReserveCancelTime}：',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busReservation.getTime()}',
+                ),
+              ]),
+        );
         _getBusReservations();
       }
       Navigator.pop(context, 'dialog');
-      Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+              title: title,
+              contentWidget: messageWidget,
+              actionText: app.iKnow,
+            ),
+      );
+      //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       if (e is DioError) {
