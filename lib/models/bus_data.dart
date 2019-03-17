@@ -69,7 +69,7 @@ class BusTime {
     if (specialTrainRemark.length == 0)
       return "";
     else
-      return "${specialTrainRemark.replaceAll("<br />", "\n")}\n";
+      return "${specialTrainRemark.replaceAll("\n", "").replaceAll("<br />", "\n")}\n";
   }
 
   static List<BusTime> toList(List<dynamic> jsonArray) {

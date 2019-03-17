@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/date_utils.dart';
-import 'package:tuple/tuple.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
+import 'package:tuple/tuple.dart';
 
 typedef DayBuilder(BuildContext context, DateTime day);
 
@@ -70,7 +70,10 @@ class _CalendarState extends State<Calendar> {
     if (widget.showCalendarPickerIcon) {
       rightInnerIcon = new IconButton(
         onPressed: () => selectDateFromPicker(),
-        icon: new Icon(Icons.calendar_today),
+        icon: new Icon(
+          Icons.calendar_today,
+          color: Resource.Colors.grey,
+        ),
       );
     } else {
       rightInnerIcon = new Container();
@@ -79,11 +82,17 @@ class _CalendarState extends State<Calendar> {
     if (widget.showChevronsToChangeRange) {
       leftOuterIcon = new IconButton(
         onPressed: isExpanded ? previousMonth : previousWeek,
-        icon: new Icon(Icons.chevron_left),
+        icon: new Icon(
+          Icons.chevron_left,
+          color: Resource.Colors.grey,
+        ),
       );
       rightOuterIcon = new IconButton(
         onPressed: isExpanded ? nextMonth : nextWeek,
-        icon: new Icon(Icons.chevron_right),
+        icon: new Icon(
+          Icons.chevron_right,
+          color: Resource.Colors.grey,
+        ),
       );
     } else {
       leftOuterIcon = new Container();

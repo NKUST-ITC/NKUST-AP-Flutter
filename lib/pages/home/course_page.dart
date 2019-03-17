@@ -4,6 +4,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error, empty }
@@ -100,35 +101,48 @@ class CoursePageState extends State<CoursePage>
   }
 
   Widget _courseBorder(Course course) {
-    String content = "${app.courseDialogName}：${course.title}\n"
-        "${app.courseDialogProfessor}：${course.getInstructors()}\n"
-        "${app.courseDialogLocation}：${course.location.building}${course.location.room}\n"
-        "${app.courseDialogTime}：${course.date.startTime}-${course.date.endTime}";
     return new Container(
       decoration: new BoxDecoration(
-          border: new Border.all(color: Colors.grey, width: 0.5)),
+          border: new Border.all(color: Resource.Colors.grey, width: 0.5)),
       child: FlatButton(
           padding: EdgeInsets.all(0.0),
           onPressed: () {
             showDialog(
-                context: context,
-                builder: (BuildContext context) => AlertDialog(
-                      title: Text(
-                        app.courseDialogTitle,
-                        style: TextStyle(color: Resource.Colors.blue),
-                      ),
-                      content: Text(content),
-                      actions: <Widget>[
-                        FlatButton(
-                          padding: EdgeInsets.all(4.0),
-                          child: Text(app.ok),
-                          onPressed: () {
-                            Navigator.of(context, rootNavigator: true)
-                                .pop('dialog');
-                          },
-                        )
-                      ],
-                    ));
+              context: context,
+              builder: (BuildContext context) => DefaultDialog(
+                    app.courseDialogTitle,
+                    app.iKnow,
+                    RichText(
+                      text: TextSpan(
+                          style: TextStyle(
+                              color: Resource.Colors.grey,
+                              height: 1.3,
+                              fontSize: 16.0),
+                          children: [
+                            TextSpan(
+                                text: '${app.courseDialogName}：',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '${course.title}\n'),
+                            TextSpan(
+                                text: '${app.courseDialogProfessor}：',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '${course.getInstructors()}\n'),
+                            TextSpan(
+                                text: '${app.courseDialogLocation}：',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text:
+                                    '${course.location.building}${course.location.room}\n'),
+                            TextSpan(
+                                text: '${app.courseDialogTime}：',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(
+                                text:
+                                    '${course.date.startTime}-${course.date.endTime}'),
+                          ]),
+                    ),
+                  ),
+            );
           },
           child: Text(
             (course.title[0] + course.title[1]) ?? "",

@@ -107,6 +107,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           context: context,
           builder: (BuildContext context) => DefaultDialog(
                 app.leaveContent,
+                app.iKnow,
                 RichText(
                   text: TextSpan(
                       style: TextStyle(

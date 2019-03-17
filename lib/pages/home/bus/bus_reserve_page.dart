@@ -7,6 +7,7 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
 enum _State { loading, finish, error, empty }
 enum Station { janGong, yanchao }
@@ -108,37 +109,47 @@ class BusReservePageState extends State<BusReservePage>
                     else if (selectStartStation == Station.yanchao)
                       start = app.fromYanchao;
                     showDialog(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                              title: Text(
-                                  "${busTime.getSpecialTrainTitle(app)}"
-                                  "${busTime.specialTrain == "0" ? app.reserve : ""}",
-                                  textAlign: TextAlign.center,
-                                  style:
-                                      TextStyle(color: Resource.Colors.blue)),
-                              content: Text(
-                                "${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n"
-                                    "${busTime.getTime()} $start",
-                                textAlign: TextAlign.center,
-                              ),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text(app.cancel),
-                                  onPressed: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop('dialog');
-                                  },
-                                ),
-                                FlatButton(
-                                  child: Text(app.reserve),
-                                  onPressed: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .pop('dialog');
-                                    _bookingBus(busTime);
-                                  },
-                                )
-                              ],
-                            ));
+                      context: context,
+                      builder: (BuildContext context) => YesNoDialog(
+                            title: '${busTime.getSpecialTrainTitle(app)}'
+                                '${busTime.specialTrain == "0" ? app.reserve : ""}',
+                            contentWidget: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  style: TextStyle(
+                                      color: Resource.Colors.grey,
+                                      height: 1.3,
+                                      fontSize: 16.0),
+                                  children: [
+                                    TextSpan(
+                                      text: '${busTime.getTime()} $start\n',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
+                                      style: TextStyle(
+                                          color: Resource.Colors.grey,
+                                          height: 1.3,
+                                          fontSize: 14.0),
+                                    ),
+                                    TextSpan(
+                                        text: '預約截止時間：\n',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    TextSpan(
+                                        text: '${busTime.endEnrollDateTime}'),
+                                  ]),
+                            ),
+                            leftActionText: app.cancel,
+                            rightActionText: app.reserve,
+                            leftActionFunction: null,
+                            rightActionFunction: () {
+                              _bookingBus(busTime);
+                            },
+                          ),
+                    );
                   }
                 : null,
             child: Row(

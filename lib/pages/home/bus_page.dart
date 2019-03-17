@@ -63,6 +63,14 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       appBar: AppBar(
         title: Text(app.bus),
         backgroundColor: Resource.Colors.blue,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              onPressed: null)
+        ],
       ),
       body: TabBarView(
           children: _children,
