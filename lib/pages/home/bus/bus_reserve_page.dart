@@ -408,10 +408,11 @@ class BusReservePageState extends State<BusReservePage>
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-              title: title,
-              contentWidget: messageWidget,
-              actionText: app.iKnow,
-            ),
+            title: title,
+            contentWidget: messageWidget,
+            actionText: app.iKnow,
+            actionFunction: () =>
+                Navigator.of(context, rootNavigator: true).pop('dialog')),
       );
       //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {

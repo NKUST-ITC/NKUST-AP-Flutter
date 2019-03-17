@@ -8,6 +8,7 @@ import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty }
@@ -174,13 +175,31 @@ class SchedulePageState extends State<SchedulePage>
             return FlatButton(
               padding: EdgeInsets.all(0.0),
               onPressed: () {
-                Utils.showYesNoDialog(
-                  context,
-                  app.events,
-                  sprintf(app.addCalendarContent, [schedule.events[index]]),
-                  () {
-                    _addToCalendar(schedule.events[index]);
-                  },
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => YesNoDialog(
+                        title: app.events,
+                        contentWidget: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                              style: TextStyle(
+                                  color: Resource.Colors.grey,
+                                  height: 1.3,
+                                  fontSize: 16.0),
+                              children: [
+                                TextSpan(
+                                  text: sprintf(app.addCalendarContent,
+                                      [schedule.events[index]]),
+                                ),
+                              ]),
+                        ),
+                        leftActionText: app.cancel,
+                        rightActionText: app.determine,
+                        leftActionFunction: null,
+                        rightActionFunction: () {
+                          _addToCalendar(schedule.events[index]);
+                        },
+                      ),
                 );
               },
               child: Container(

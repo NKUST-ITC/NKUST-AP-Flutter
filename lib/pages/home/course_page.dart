@@ -112,6 +112,9 @@ class CoursePageState extends State<CoursePage>
               builder: (BuildContext context) => DefaultDialog(
                     title: app.courseDialogTitle,
                     actionText: app.iKnow,
+                    actionFunction: () =>
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog'),
                     contentWidget: RichText(
                       text: TextSpan(
                           style: TextStyle(

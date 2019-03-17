@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -209,17 +211,24 @@ class LoginPageState extends State<LoginPage>
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await Future.delayed(Duration(milliseconds: 50));
     var currentVersion = prefs.getString(Constants.PREF_CURRENT_VERSION) ?? "";
-    if (currentVersion != packageInfo.buildNumber)
-      Utils.showDefaultDialog(
-          context,
-          app.updateNoteTitle,
-          "v${packageInfo.version}\n"
-          "${app.updateNoteContent}",
-          app.ok, () {
-        prefs.setString(
-            Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
-      });
-    if (!Constants.isInDebugMode) {
+    if (currentVersion != packageInfo.buildNumber) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+              title: app.updateNoteTitle,
+              contentWidget: Text(
+                "v${packageInfo.version}\n"
+                    "${app.updateNoteContent}",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Resource.Colors.grey),
+              ),
+              actionText: app.iKnow,
+              actionFunction: () =>
+                  Navigator.of(context, rootNavigator: true).pop('dialog'),
+            ),
+      );
+    }
+    if (Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       try {
         await remoteConfig.fetch(expiration: const Duration(seconds: 10));
@@ -251,10 +260,64 @@ class LoginPageState extends State<LoginPage>
               remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
           break;
       }
-      if (versionDiff < 5 && versionDiff > 0)
-        Utils.showUpdateDialog(context, url, versionContent);
-      else if (versionDiff >= 5) {
-        Utils.showForceUpdateDialog(context, url, versionContent);
+      if (versionDiff < 5 && versionDiff > 0) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => YesNoDialog(
+                title: app.updateTitle,
+                contentWidget: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                          text:
+                              '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ]),
+                ),
+                leftActionText: app.skip,
+                rightActionText: app.update,
+                leftActionFunction: null,
+                rightActionFunction: () {
+                  Utils.launchUrl(url);
+                },
+              ),
+        );
+      } else if (versionDiff >= 5) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => WillPopScope(
+                child: DefaultDialog(
+                    title: app.updateTitle,
+                    actionText: app.update,
+                    contentWidget: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                          style: TextStyle(
+                              color: Resource.Colors.grey,
+                              height: 1.3,
+                              fontSize: 16.0),
+                          children: [
+                            TextSpan(
+                                text:
+                                    '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                          ]),
+                    ),
+                    actionFunction: () {
+                      Utils.launchUrl(url);
+                    }),
+                onWillPop: () async {
+                  return false;
+                },
+              ),
+        );
       }
     }
   }
