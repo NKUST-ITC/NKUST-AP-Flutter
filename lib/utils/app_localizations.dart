@@ -255,7 +255,8 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
-      'can_not_use_feature': 'This account can\'t use this feature',
+      'can_not_use_feature':
+          'This account can\'t use this feature or school system happend error',
       'add_success': 'Add Success',
       'date': 'Date',
       'leave_apply': 'Absent apply',
@@ -265,6 +266,7 @@ class AppLocalizations {
       'instructors_comment': 'Comment',
       'load_offline_data': 'Load offline data',
       'reserve_deadline': 'Reserve Deadline',
+      'bus_rule': 'Bus Rule',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -492,7 +494,7 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
-      'can_not_use_feature': '此帳號無法使用此功能',
+      'can_not_use_feature': '此帳號無法使用此功能或是學校系統出了問題',
       'add_success': '新增成功',
       'date': '日期',
       'leave_apply': '線上請假',
@@ -502,6 +504,7 @@ class AppLocalizations {
       'instructors_comment': '師長批註意見',
       'load_offline_data': '載入離線資料',
       'reserve_deadline': '預約截止時間',
+      'bus_rule': '校車搭乘規則',
     },
   };
 
@@ -898,6 +901,7 @@ class AppLocalizations {
   String get loadOfflineData => _vocabularies['load_offline_data'];
 
   String get offlineCourse => _vocabularies['offline_course'];
+  String get busRule => _vocabularies['bus_rule'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
