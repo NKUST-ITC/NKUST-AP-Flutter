@@ -45,9 +45,12 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   double otherUnitsTotal;
 
   int startYear = 0;
+  int count = 0;
 
   List<Score> coreGeneralEducations;
   List<Score> extendGeneralEducations;
+
+  DateTime start;
 
   @override
   void initState() {
@@ -268,19 +271,22 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     otherUnitsTotal = 0.0;
 
     startYear = -1;
+    count = 0;
     currentSemesterIndex = 0;
     semesterList = [];
     scoreDataList = [];
     coreGeneralEducations = [];
     extendGeneralEducations = [];
+    start = DateTime.now();
     _getSemesterScore();
   }
 
   _getSemester() async {
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
-      selectSemester = semesterData.defaultSemester;
-      setState(() {});
+      setState(() {
+        selectSemester = semesterData.defaultSemester;
+      });
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
@@ -306,7 +312,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     setState(() {
       state = _State.loading;
     });
-    if (semesterData.semesters == null) {
+    if (semesterData == null || semesterData.semesters == null) {
       _getSemester();
       return;
     }
@@ -314,48 +320,50 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         semesterData.semesters[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
-        if (mounted)
-          setState(() {
-            if (response.status == 200) {
-              if (startYear == -1) startYear = int.parse(textList[0]);
-              //scoreWeightList.add(_scoreTitle());
-              semesterList.add(semesterData.semesters[currentSemesterIndex]);
-              scoreDataList.add(response);
-              for (var score in response.content.scores) {
-                var finalScore = double.tryParse(score.finalScore);
-                if (finalScore != null) {
-                  if (finalScore >= 60.0) {
-                    if (score.required == "【必修】") {
-                      requiredUnitsTotal += double.parse(score.units);
-                    } else if (score.required == "【選修】") {
-                      electiveUnitsTotal += double.parse(score.units);
-                    } else {
-                      otherUnitsTotal += double.parse(score.units);
-                    }
-                    if (score.title.contains("延伸通識")) {
-                      extendGeneralEducations.add(score);
-                    } else if (score.title.contains("核心通識")) {
-                      coreGeneralEducations.add(score);
-                    }
-                  }
+        if (response.status == 200) {
+          if (startYear == -1) startYear = int.parse(textList[0]);
+          //scoreWeightList.add(_scoreTitle());
+          semesterList.add(semesterData.semesters[currentSemesterIndex]);
+          scoreDataList.add(response);
+          for (var score in response.content.scores) {
+            var finalScore = double.tryParse(score.finalScore);
+            if (finalScore != null) {
+              if (finalScore >= 60.0) {
+                if (score.required == "【必修】") {
+                  requiredUnitsTotal += double.parse(score.units);
+                } else if (score.required == "【選修】") {
+                  electiveUnitsTotal += double.parse(score.units);
+                } else {
+                  otherUnitsTotal += double.parse(score.units);
+                }
+                if (score.title.contains("延伸通識")) {
+                  extendGeneralEducations.add(score);
+                } else if (score.title.contains("核心通識")) {
+                  coreGeneralEducations.add(score);
                 }
               }
             }
-            var currentYear = int.parse(textList[0]);
-            if (currentSemesterIndex < semesterData.semesters.length - 1 &&
-                (startYear - currentYear).abs() <= 6) {
-              currentSemesterIndex++;
-              if (mounted) _getSemesterScore();
-            } else {
-              unitsTotal =
-                  requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
-              if (mounted) {
-                setState(() {
-                  state = _State.finish;
-                });
-              }
-            }
-          });
+          }
+        }
+        var currentYear = int.parse(textList[0]);
+        if (currentSemesterIndex < semesterData.semesters.length - 1 &&
+            ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
+          currentSemesterIndex++;
+          if (mounted) _getSemesterScore();
+        } else {
+          DateTime end = DateTime.now();
+          var second =
+              (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
+                  1000;
+          FA.logCalculateUnits(second);
+          unitsTotal =
+              requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+          if (mounted) {
+            setState(() {
+              state = _State.finish;
+            });
+          }
+        }
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {
@@ -368,8 +376,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             default:
               setState(() {
                 state = _State.error;
-                Utils.handleDioError(e, app);
               });
+              Utils.handleDioError(e, app);
               break;
           }
         } else {
@@ -377,9 +385,94 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         }
       });
     } else {
-      state = _State.error;
-      setState(() {});
+      setState(() {
+        state = _State.error;
+      });
     }
+  }
+
+  void _getByMuti() {
+    Helper.cancelToken.cancel("");
+    Helper.cancelToken = CancelToken();
+    setState(() {
+      state = _State.loading;
+    });
+    print('_getSemesterScore');
+    print(semesterData.semesters.length);
+    if (semesterData == null || semesterData.semesters == null) {
+      _getSemester();
+      return;
+    }
+    semesterData.semesters.forEach((s) {
+      var textList = s.value.split(",");
+      if (textList.length == 2) {
+        Helper.instance.getScores(textList[0], textList[1]).then((response) {
+          if (response.status == 200) {
+            if (startYear == -1) startYear = int.parse(textList[0]);
+            //scoreWeightList.add(_scoreTitle());
+            semesterList.add(s);
+            scoreDataList.add(response);
+            for (var score in response.content.scores) {
+              var finalScore = double.tryParse(score.finalScore);
+              if (finalScore != null) {
+                if (finalScore >= 60.0) {
+                  if (score.required == "【必修】") {
+                    requiredUnitsTotal += double.parse(score.units);
+                  } else if (score.required == "【選修】") {
+                    electiveUnitsTotal += double.parse(score.units);
+                  } else {
+                    otherUnitsTotal += double.parse(score.units);
+                  }
+                  if (score.title.contains("延伸通識")) {
+                    extendGeneralEducations.add(score);
+                  } else if (score.title.contains("核心通識")) {
+                    coreGeneralEducations.add(score);
+                  }
+                }
+              }
+            }
+          }
+          var currentYear = int.parse(textList[0]);
+          print('currentSemesterIndex = $currentSemesterIndex');
+          print('startYear = $startYear');
+          print('currentYear = $currentYear');
+          count++;
+          if (count == semesterData.semesters.length) {
+            unitsTotal =
+                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+            if (mounted) {
+              setState(() {
+                state = _State.finish;
+              });
+            }
+          }
+        }).catchError((e) {
+          count++;
+          if (e is DioError) {
+            switch (e.type) {
+              case DioErrorType.RESPONSE:
+                Utils.handleResponseError(
+                    context, 'getSemesterScore', mounted, e);
+                break;
+              case DioErrorType.CANCEL:
+                break;
+              default:
+                setState(() {
+                  state = _State.error;
+                });
+                Utils.handleDioError(e, app);
+                break;
+            }
+          } else {
+            throw e;
+          }
+        });
+      } else {
+        setState(() {
+          state = _State.error;
+        });
+      }
+    });
   }
 
   SimpleDialogOption _dialogItem(int index, String text) {

@@ -276,6 +276,7 @@ class DrawerBodyState extends State<DrawerBody> {
         setState(() {
           userInfo = response;
           FA.setUserProperty('department', userInfo.department);
+          FA.setUserId(userInfo.studentId);
         });
       }
     }).catchError((e) {

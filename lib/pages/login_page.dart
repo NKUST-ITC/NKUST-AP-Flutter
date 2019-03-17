@@ -227,6 +227,7 @@ class LoginPageState extends State<LoginPage>
                   Navigator.of(context, rootNavigator: true).pop('dialog'),
             ),
       );
+      prefs.setString(Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
     if (Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
