@@ -60,9 +60,12 @@ class HomePageState extends State<HomePage> {
         onTap: () {
           Navigator.of(context).push(NewsContentPageRoute(news));
         },
-        child: CachedNetworkImage(
-          imageUrl: news.image,
-          errorWidget: (context, url, error) => Icon(Icons.error),
+        child: Hero(
+          tag: news.hashCode,
+          child: CachedNetworkImage(
+            imageUrl: news.image,
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
       ),
     );
@@ -108,6 +111,7 @@ class HomePageState extends State<HomePage> {
                   : (rate > 1.5 ? 21 / 4 : 21 / 9),
               autoPlay: false,
               enlargeCenterPage: true,
+              enableInfiniteScroll: false,
               onPageChanged: (int current) {
                 setState(() {
                   _currentNewsIndex = current;
@@ -115,21 +119,18 @@ class HomePageState extends State<HomePage> {
               },
             ),
             SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
-                      "${_currentNewsIndex + 1}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.red, fontSize: 24.0),
-                ),
-                Text(
-                  " / ${newsWidgets.length}",
-                  textAlign: TextAlign.center,
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
                   style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
-                )
-              ],
+                  children: [
+                    TextSpan(
+                        text:
+                            "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
+                            "${_currentNewsIndex + 1}",
+                        style: TextStyle(color: Resource.Colors.red)),
+                    TextSpan(text: ' / ${newsWidgets.length}'),
+                  ]),
             ),
           ],
         );
