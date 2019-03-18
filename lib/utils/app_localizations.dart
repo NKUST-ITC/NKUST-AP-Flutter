@@ -20,7 +20,8 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': '1.Fix some crash.',
+      'update_note_content':
+          '1.Fix some crash.\n2.Fix Calculate Units error.\n3.Update dialog style.\n4.Fix home page slider.\n5.Add bus rule page.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -255,7 +256,8 @@ class AppLocalizations {
       'begin_calculate': 'Begin Calculate',
       'calculate_units_content': 'Calculation is for reference only',
       'general_eduction_course': 'General education course',
-      'can_not_use_feature': 'This account can\'t use this feature',
+      'can_not_use_feature':
+          'This account can\'t use this feature or school system happend error',
       'add_success': 'Add Success',
       'date': 'Date',
       'leave_apply': 'Absent apply',
@@ -264,11 +266,14 @@ class AppLocalizations {
       'leave_sheet_id': 'Sheet id',
       'instructors_comment': 'Comment',
       'load_offline_data': 'Load offline data',
+      'reserve_deadline': 'Reserve Deadline',
+      'bus_rule': 'Bus Rule',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.修正部分崩潰',
+      'update_note_content':
+          '1.修正部分崩潰.\n2.修正學分計算錯誤\n3.修改對話框風格\n4.修改首頁輪播\n5.新增校車規則說明',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -491,7 +496,7 @@ class AppLocalizations {
       'begin_calculate': '開始計算',
       'calculate_units_content': '計算僅供參考 其餘以學校公告為主',
       'general_eduction_course': '通識課程',
-      'can_not_use_feature': '此帳號無法使用此功能',
+      'can_not_use_feature': '此帳號無法使用此功能或是學校系統出了問題',
       'add_success': '新增成功',
       'date': '日期',
       'leave_apply': '線上請假',
@@ -500,6 +505,8 @@ class AppLocalizations {
       'leave_sheet_id': '假單編號',
       'instructors_comment': '師長批註意見',
       'load_offline_data': '載入離線資料',
+      'reserve_deadline': '預約截止時間',
+      'bus_rule': '校車搭乘規則',
     },
   };
 
@@ -896,6 +903,8 @@ class AppLocalizations {
   String get loadOfflineData => _vocabularies['load_offline_data'];
 
   String get offlineCourse => _vocabularies['offline_course'];
+
+  String get busRule => _vocabularies['bus_rule'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

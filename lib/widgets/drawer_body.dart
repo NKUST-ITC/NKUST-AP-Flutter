@@ -218,8 +218,8 @@ class DrawerBodyState extends State<DrawerBody> {
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle()),
         onTap: () {
-          Navigator.of(context).pop();
-          Navigator.of(context).push(route);
+          Navigator.pop(context);
+          Navigator.push(context, route);
         },
       );
 
@@ -276,6 +276,7 @@ class DrawerBodyState extends State<DrawerBody> {
         setState(() {
           userInfo = response;
           FA.setUserProperty('department', userInfo.department);
+          FA.setUserId(userInfo.studentId);
         });
       }
     }).catchError((e) {

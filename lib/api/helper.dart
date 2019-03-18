@@ -10,7 +10,7 @@ import 'package:nkust_ap/models/models.dart';
 const HOST = "nkust-ap-api.rainvisitor.me";
 const PORT = '2087';
 
-const VERSION = 'latest';
+const VERSION = 'v2';
 
 class Helper {
   static Helper _instance;

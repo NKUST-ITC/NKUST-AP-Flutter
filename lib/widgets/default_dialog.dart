@@ -1,18 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class DefaultDialog extends StatelessWidget {
   final String title;
-  final Widget content;
+  final Widget contentWidget;
+  final String actionText;
+  final Function actionFunction;
 
-  DefaultDialog(this.title, this.content);
+  const DefaultDialog(
+      {Key key,
+      this.title,
+      this.contentWidget,
+      this.actionText,
+      this.actionFunction})
+      : super(key: key);
 
   static showSample(BuildContext context) => showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-              '預約成功',
-              Text(
+              title: '預約成功',
+              actionText: '我知道了',
+              actionFunction: () =>
+                  Navigator.of(context, rootNavigator: true).pop('dialog'),
+              contentWidget: Text(
                 '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
                 style: TextStyle(color: Resource.Colors.grey, height: 1.3),
               ),
@@ -21,7 +31,6 @@ class DefaultDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var app = AppLocalizations.of(context);
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
@@ -53,7 +62,7 @@ class DefaultDialog extends StatelessWidget {
               ),
             ),
             padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 24.0),
-            child: content,
+            child: contentWidget,
           ),
           Container(
             width: double.infinity,
@@ -66,16 +75,14 @@ class DefaultDialog extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: Text(
-                  app.iKnow,
+                  actionText,
                   style: TextStyle(
                     color: Resource.Colors.grey,
                     fontSize: 18.0,
                   ),
                 ),
               ),
-              onTap: () {
-                Navigator.of(context, rootNavigator: true).pop('dialog');
-              },
+              onTap: actionFunction,
             ),
           ),
         ],

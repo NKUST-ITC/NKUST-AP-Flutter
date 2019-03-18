@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
@@ -63,6 +64,16 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       appBar: AppBar(
         title: Text(app.bus),
         backgroundColor: Resource.Colors.blue,
+        actions: <Widget>[
+          IconButton(
+              icon: Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.of(context).push(BusRulePageRoute());
+              })
+        ],
       ),
       body: TabBarView(
           children: _children,

@@ -8,6 +8,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Status { loading, finish, error, empty }
@@ -60,9 +61,12 @@ class HomePageState extends State<HomePage> {
         onTap: () {
           Navigator.of(context).push(NewsContentPageRoute(news));
         },
-        child: CachedNetworkImage(
-          imageUrl: news.image,
-          errorWidget: (context, url, error) => Icon(Icons.error),
+        child: Hero(
+          tag: news.hashCode,
+          child: CachedNetworkImage(
+            imageUrl: news.image,
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
       ),
     );
@@ -108,6 +112,7 @@ class HomePageState extends State<HomePage> {
                   : (rate > 1.5 ? 21 / 4 : 21 / 9),
               autoPlay: false,
               enlargeCenterPage: true,
+              enableInfiniteScroll: false,
               onPageChanged: (int current) {
                 setState(() {
                   _currentNewsIndex = current;
@@ -115,21 +120,18 @@ class HomePageState extends State<HomePage> {
               },
             ),
             SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
-                      "${_currentNewsIndex + 1}",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Resource.Colors.red, fontSize: 24.0),
-                ),
-                Text(
-                  " / ${newsWidgets.length}",
-                  textAlign: TextAlign.center,
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
                   style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
-                )
-              ],
+                  children: [
+                    TextSpan(
+                        text:
+                            "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
+                            "${_currentNewsIndex + 1}",
+                        style: TextStyle(color: Resource.Colors.red)),
+                    TextSpan(text: ' / ${newsWidgets.length}'),
+                  ]),
             ),
           ],
         );
@@ -273,30 +275,17 @@ class HomePageState extends State<HomePage> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-            title: Text(app.logout,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.blue)),
-            content: Text(app.logoutCheck,
+      builder: (BuildContext context) => YesNoDialog(
+            title: app.logout,
+            contentWidget: Text(app.logoutCheck,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.grey)),
-            actions: <Widget>[
-              FlatButton(
-                child: Text(app.cancel,
-                    style: TextStyle(color: Resource.Colors.blue)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              FlatButton(
-                child:
-                    Text(app.ok, style: TextStyle(color: Resource.Colors.blue)),
-                onPressed: () {
-                  Navigator.popUntil(
-                      context, ModalRoute.withName(Navigator.defaultRouteName));
-                },
-              )
-            ],
+            leftActionText: app.cancel,
+            rightActionText: app.ok,
+            rightActionFunction: () {
+              Navigator.popUntil(
+                  context, ModalRoute.withName(Navigator.defaultRouteName));
+            },
           ),
     );
   }

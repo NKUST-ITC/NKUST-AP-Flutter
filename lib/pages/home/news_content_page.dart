@@ -95,9 +95,12 @@ class NewsContentPageState extends State<NewsContentPage>
     List<Widget> list = <Widget>[
       AspectRatio(
         aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
-        child: CachedNetworkImage(
-          imageUrl: news.image,
-          errorWidget: (context, url, error) => Icon(Icons.error),
+        child: Hero(
+          tag: news.hashCode,
+          child: CachedNetworkImage(
+            imageUrl: news.image,
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
       ),
       SizedBox(

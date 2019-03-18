@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
         HomePage.routerName: (BuildContext context) => HomePage(),
         CoursePage.routerName: (BuildContext context) => CoursePage(),
         BusPage.routerName: (BuildContext context) => BusPage(),
+        BusRulePage.routerName: (BuildContext context) => BusRulePage(),
         ScorePage.routerName: (BuildContext context) => ScorePage(),
         SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
         SettingPage.routerName: (BuildContext context) => SettingPage(),

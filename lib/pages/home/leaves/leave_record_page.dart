@@ -29,7 +29,10 @@ class LeaveRecordPage extends StatefulWidget {
 }
 
 class LeaveRecordPageState extends State<LeaveRecordPage>
-    with SingleTickerProviderStateMixin {
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   AppLocalizations app;
 
   _State state = _State.loading;
@@ -103,8 +106,11 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         showDialog(
           context: context,
           builder: (BuildContext context) => DefaultDialog(
-                app.leaveContent,
-                RichText(
+                title: app.leaveContent,
+                actionText: app.iKnow,
+                actionFunction: () =>
+                    Navigator.of(context, rootNavigator: true).pop('dialog'),
+                contentWidget: RichText(
                   text: TextSpan(
                       style: TextStyle(
                           color: Resource.Colors.grey,
