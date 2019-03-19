@@ -31,7 +31,7 @@ class FA {
   static Future<void> logApiEvent(String type, int status) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await analytics.logEvent(
-      name: 'ap-api',
+      name: 'ap_api',
       parameters: <String, dynamic>{
         'type': type,
         'status': status,
@@ -45,7 +45,7 @@ class FA {
   static Future<void> logAESErrorEvent(String encryptPassword) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await analytics.logEvent(
-      name: 'aes-error',
+      name: 'aes_error',
       parameters: <String, dynamic>{
         'type': encryptPassword,
         'version': packageInfo.version,

@@ -436,7 +436,6 @@ class LoginPageState extends State<LoginPage>
     setState(() {
       isAutoLogin = false;
       pictureUrl = "";
-      userInfo = null;
     });
   }
 }

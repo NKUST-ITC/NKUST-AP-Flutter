@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.1.1+30101
+version: 3.1.2+30102
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -24,8 +24,7 @@ dependencies:
   dio: 2.0.11
   fluttertoast: ^2.2.11
   tuple: ^1.0.1
-  carousel_slider:
-    path: ../flutter_carousel_slider
+  carousel_slider: ^1.2.0
   flutter_crashlytics: 0.1.1
   encrypt: ^2.0.0
   flutter_local_notifications: ^0.4.5

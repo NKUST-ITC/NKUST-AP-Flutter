@@ -7,14 +7,16 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 var pictureUrl = "";
-UserInfo userInfo;
 
 class DrawerBody extends StatefulWidget {
+  final UserInfo userInfo;
+
+  const DrawerBody({Key key, this.userInfo}) : super(key: key);
+
   @override
   DrawerBodyState createState() => new DrawerBodyState();
 }
@@ -34,7 +36,6 @@ class DrawerBodyState extends State<DrawerBody> {
     super.initState();
     _getPreference();
     _getUserPicture();
-    _getUserInfo();
   }
 
   @override
@@ -56,11 +57,15 @@ class DrawerBodyState extends State<DrawerBody> {
               width: double.infinity,
               child: GestureDetector(
                 onTap: () {
-                  if (userInfo == null) return;
-                  if ((userInfo.status == null ? 200 : userInfo.status) == 200)
-                    Navigator.of(context).push(UserInfoPageRoute());
+                  if (widget.userInfo == null) return;
+                  if ((widget.userInfo.status == null
+                          ? 200
+                          : widget.userInfo.status) ==
+                      200)
+                    Navigator.of(context)
+                        .push(UserInfoPageRoute(widget.userInfo));
                   else
-                    Utils.showToast(userInfo.message);
+                    Utils.showToast(widget.userInfo.message);
                 },
                 child: Stack(
                   children: <Widget>[
@@ -111,10 +116,10 @@ class DrawerBodyState extends State<DrawerBody> {
                           SizedBox(
                             height: 32.0,
                             child: Text(
-                              userInfo == null
+                              widget.userInfo == null
                                   ? " \n "
-                                  : "${userInfo.studentNameCht}\n"
-                                  "${userInfo.studentId}",
+                                  : "${widget.userInfo.studentNameCht}\n"
+                                  "${widget.userInfo.studentId}",
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -260,30 +265,6 @@ class DrawerBodyState extends State<DrawerBody> {
         switch (e.type) {
           case DioErrorType.RESPONSE:
             Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-            break;
-          default:
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
-  }
-
-  _getUserInfo() {
-    Helper.instance.getUsersInfo().then((response) {
-      if (this.mounted) {
-        setState(() {
-          userInfo = response;
-          FA.setUserProperty('department', userInfo.department);
-          FA.setUserId(userInfo.studentId);
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getUserInfo', mounted, e);
             break;
           default:
             break;

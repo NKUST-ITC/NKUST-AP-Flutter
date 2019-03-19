@@ -78,9 +78,12 @@ class BusReservePageState extends State<BusReservePage>
           ),
         );
       default:
-        return ListView(
-          physics: const NeverScrollableScrollPhysics(),
-          children: _renderBusTimeWidgets(),
+        return RefreshIndicator(
+          onRefresh: () => _getBusTimeTables(),
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: _renderBusTimeWidgets(),
+          ),
         );
     }
   }
@@ -225,7 +228,7 @@ class BusReservePageState extends State<BusReservePage>
               SliverAppBar(
                 leading: Container(),
                 expandedHeight: orientation == Orientation.portrait
-                    ? MediaQuery.of(context).size.height * 0.19
+                    ? MediaQuery.of(context).size.height * 0.20
                     : MediaQuery.of(context).size.width * 0.19,
                 floating: true,
                 backgroundColor: Colors.transparent,

@@ -9,14 +9,14 @@ class UserInfo {
   String message;
 
   UserInfo(
-      {this.educationSystem,
-      this.department,
-      this.className,
-      this.studentId,
-      this.studentNameCht,
-      this.studentNameEng,
+      {this.educationSystem = "",
+      this.department = "",
+      this.className = "",
+      this.studentId = "",
+      this.studentNameCht = "",
+      this.studentNameEng = "",
       this.status,
-      this.message});
+      this.message = ""});
 
   UserInfo.fromJson(Map<String, dynamic> json) {
     educationSystem = json['education_system'];
@@ -40,5 +40,16 @@ class UserInfo {
     data['status'] = this.status;
     data['message'] = this.message;
     return data;
+  }
+
+  void setData(UserInfo userInfo) {
+    educationSystem = userInfo.educationSystem;
+    department = userInfo.department;
+    className = userInfo.className;
+    studentId = userInfo.studentId;
+    studentNameCht = userInfo.studentNameCht;
+    studentNameEng = userInfo.studentNameEng;
+    status = userInfo.status;
+    message = userInfo.message;
   }
 }
