@@ -36,6 +36,7 @@ class HomePageState extends State<HomePage> {
 
   int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
+  UserInfo userInfo = UserInfo();
 
   List<Widget> newsWidgets = [];
   List<News> newsList = [];
@@ -47,6 +48,7 @@ class HomePageState extends State<HomePage> {
     super.initState();
     FA.setCurrentScreen("HomePage", "home_page.dart");
     _getAllNews();
+    _getUserInfo();
   }
 
   @override
@@ -156,7 +158,7 @@ class HomePageState extends State<HomePage> {
               )
             ],
           ),
-          drawer: DrawerBody(),
+          drawer: DrawerBody(userInfo: userInfo),
           body: OrientationBuilder(builder: (_, orientation) {
             return Container(
               padding: EdgeInsets.symmetric(
@@ -270,6 +272,30 @@ class HomePageState extends State<HomePage> {
           throw e;
         }
       });
+  }
+
+  _getUserInfo() {
+    Helper.instance.getUsersInfo().then((response) {
+      if (this.mounted) {
+        setState(() {
+          userInfo = response;
+        });
+        FA.setUserProperty('department', userInfo.department);
+        FA.setUserId(userInfo.studentId);
+      }
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.handleResponseError(context, 'getUserInfo', mounted, e);
+            break;
+          default:
+            break;
+        }
+      } else {
+        throw e;
+      }
+    });
   }
 
   void _showLogoutDialog() {

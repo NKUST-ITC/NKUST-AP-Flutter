@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/user_info.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
@@ -8,18 +9,26 @@ import 'package:nkust_ap/widgets/drawer_body.dart';
 enum _Status { loading, finish, error, empty }
 
 class UserInfoPageRoute extends MaterialPageRoute {
-  UserInfoPageRoute()
-      : super(builder: (BuildContext context) => new UserInfoPage());
+  final UserInfo userInfo;
+
+  UserInfoPageRoute(this.userInfo)
+      : super(
+            builder: (BuildContext context) =>
+                new UserInfoPage(userInfo: userInfo));
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new UserInfoPage());
+    return new FadeTransition(
+        opacity: animation, child: new UserInfoPage(userInfo: userInfo));
   }
 }
 
 class UserInfoPage extends StatefulWidget {
-  static const String routerName = "/userInfo";
+  static const String routerName = "/widget.userInfo";
+  final UserInfo userInfo;
+
+  const UserInfoPage({Key key, this.userInfo}) : super(key: key);
 
   @override
   UserInfoPageState createState() => new UserInfoPageState();
@@ -34,7 +43,7 @@ class UserInfoPageState extends State<UserInfoPage>
   void initState() {
     super.initState();
     FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
-    if (userInfo == null) _getUserInfo();
+    if (pictureUrl == null || pictureUrl.isEmpty) _getUserPicture();
   }
 
   @override
@@ -79,27 +88,27 @@ class UserInfoPageState extends State<UserInfoPage>
                       children: <Widget>[
                         ListTile(
                           title: Text(app.studentNameCht),
-                          subtitle: Text(userInfo.studentNameCht),
+                          subtitle: Text(widget.userInfo.studentNameCht),
                         ),
                         Divider(height: 1.0),
                         ListTile(
                           title: Text(app.educationSystem),
-                          subtitle: Text(userInfo.educationSystem),
+                          subtitle: Text(widget.userInfo.educationSystem),
                         ),
                         Divider(height: 1.0),
                         ListTile(
                           title: Text(app.department),
-                          subtitle: Text(userInfo.department),
+                          subtitle: Text(widget.userInfo.department),
                         ),
                         Divider(height: 1.0),
                         ListTile(
                           title: Text(app.studentClass),
-                          subtitle: Text(userInfo.className),
+                          subtitle: Text(widget.userInfo.className),
                         ),
                         Divider(height: 1.0),
                         ListTile(
                           title: Text(app.studentId),
-                          subtitle: Text(userInfo.studentId),
+                          subtitle: Text(widget.userInfo.studentId),
                         ),
                       ],
                     ),
@@ -139,31 +148,6 @@ class UserInfoPageState extends State<UserInfoPage>
       switch (dioError.type) {
         case DioErrorType.RESPONSE:
           Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-          break;
-        default:
-          break;
-      }
-    });
-  }
-
-  _getUserInfo() {
-    setState(() {
-      state = _Status.loading;
-    });
-    Helper.instance.getUsersInfo().then((response) {
-      if (this.mounted) {
-        setState(() {
-          userInfo = response;
-          _getUserPicture();
-          state = _Status.finish;
-        });
-      }
-    }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.handleResponseError(context, 'getUserInfo', mounted, e);
           break;
         default:
           break;
