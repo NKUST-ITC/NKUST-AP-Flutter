@@ -114,12 +114,14 @@ class SchedulePageState extends State<SchedulePage>
       scheduleList = ScheduleData.toList(jsonArray);
       scheduleWeights.clear();
       for (var i in scheduleList) scheduleWeights.addAll(_scheduleItem(i));
-      setState(() {
-        if (scheduleList.length == 0)
-          state = _State.empty;
-        else
-          state = _State.finish;
-      });
+      if (mounted) {
+        setState(() {
+          if (scheduleList.length == 0)
+            state = _State.empty;
+          else
+            state = _State.finish;
+        });
+      }
     }
   }
 

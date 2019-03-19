@@ -76,8 +76,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
           ),
         );
       default:
-        return ListView(
-          children: busReservationWeights,
+        return RefreshIndicator(
+          onRefresh: () => _getBusReservations(),
+          child: ListView(
+            children: busReservationWeights,
+          ),
         );
     }
   }

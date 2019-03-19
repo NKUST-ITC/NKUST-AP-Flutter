@@ -95,7 +95,7 @@ class YesNoDialog extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
-                    leftActionFunction();
+                    if (leftActionFunction != null) leftActionFunction();
                   },
                 ),
               ),
@@ -117,7 +117,7 @@ class YesNoDialog extends StatelessWidget {
                   ),
                   onTap: () {
                     Navigator.of(context, rootNavigator: true).pop('dialog');
-                    rightActionFunction();
+                    if (rightActionFunction != null) rightActionFunction();
                   },
                 ),
               ),

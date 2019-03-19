@@ -78,9 +78,12 @@ class BusReservePageState extends State<BusReservePage>
           ),
         );
       default:
-        return ListView(
-          physics: const NeverScrollableScrollPhysics(),
-          children: _renderBusTimeWidgets(),
+        return RefreshIndicator(
+          onRefresh: () => _getBusTimeTables(),
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: _renderBusTimeWidgets(),
+          ),
         );
     }
   }
