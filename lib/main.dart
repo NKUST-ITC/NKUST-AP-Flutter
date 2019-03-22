@@ -5,6 +5,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,6 +19,7 @@ import 'package:nkust_ap/utils/utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
+  debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
   if (Platform.isIOS || Platform.isAndroid) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (isInDebugMode) {
@@ -47,13 +49,17 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  FirebaseAnalytics analytics;
+  FirebaseMessaging _firebaseMessaging;
 
   @override
   Widget build(BuildContext context) {
-    _initFCM();
-    FA.analytics = analytics;
+    if (Platform.isAndroid || Platform.isIOS) {
+      analytics = FirebaseAnalytics();
+      _firebaseMessaging = FirebaseMessaging();
+      _initFCM();
+      FA.analytics = analytics;
+    }
     return new MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {
@@ -90,9 +96,11 @@ class MyApp extends StatelessWidget {
               UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
         ),
       ),
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
-      ],
+      navigatorObservers: (Platform.isIOS || Platform.isAndroid)
+          ? [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ]
+          : [],
       localizationsDelegates: [
         const AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
