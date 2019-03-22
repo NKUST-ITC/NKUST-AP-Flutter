@@ -153,7 +153,10 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             Expanded(
               flex: 19,
               child: RefreshIndicator(
-                onRefresh: () => _calculate(),
+                onRefresh: () {
+                  FA.logAction('refresh', 'swipe');
+                  _calculate();
+                },
                 child: _body(),
               ),
             ),

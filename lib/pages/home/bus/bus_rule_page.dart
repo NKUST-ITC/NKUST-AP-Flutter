@@ -30,6 +30,7 @@ class BusRulePageState extends State<BusRulePage>
   @override
   void initState() {
     super.initState();
+    FA.setCurrentScreen("BusRulePage", "bus_rule_page.dart");
   }
 
   @override
@@ -40,7 +41,7 @@ class BusRulePageState extends State<BusRulePage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ;
+    //TODO English version
     return new Scaffold(
       appBar: AppBar(
         title: Text(app.busRule),

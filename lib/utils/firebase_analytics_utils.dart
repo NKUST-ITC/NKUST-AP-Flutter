@@ -28,13 +28,15 @@ class FA {
     print('setUserProperty succeeded');
   }
 
-  static Future<void> logApiEvent(String type, int status) async {
+  static Future<void> logApiEvent(String type, int status,
+      {String message}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     await analytics.logEvent(
       name: 'ap_api',
       parameters: <String, dynamic>{
         'type': type,
         'status': status,
+        'message': message,
         'version': packageInfo.version,
         'platform': Platform.operatingSystem,
       },
@@ -66,5 +68,19 @@ class FA {
       },
     );
     print('log CalculateUnits succeeded');
+  }
+
+  static Future<void> logAction(String name, String action,
+      {String message}) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    await analytics.logEvent(
+      name: name,
+      parameters: <String, dynamic>{
+        'action': action,
+        'message': message,
+        'version': packageInfo.version,
+        'platform': Platform.operatingSystem,
+      },
+    );
   }
 }

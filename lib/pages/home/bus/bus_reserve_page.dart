@@ -71,7 +71,10 @@ class BusReservePageState extends State<BusReservePage>
       case _State.error:
       case _State.empty:
         return FlatButton(
-          onPressed: _getBusTimeTables,
+          onPressed: () {
+            _getBusTimeTables();
+            FA.logAction('retry', 'click');
+          },
           child: HintContent(
             icon: Icons.assignment,
             content: state == _State.error ? app.clickToRetry : app.busEmpty,
@@ -79,7 +82,10 @@ class BusReservePageState extends State<BusReservePage>
         );
       default:
         return RefreshIndicator(
-          onRefresh: () => _getBusTimeTables(),
+          onRefresh: () {
+            _getBusTimeTables();
+            FA.logAction('refresh', 'swipe');
+          },
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
             children: _renderBusTimeWidgets(),
@@ -247,6 +253,7 @@ class BusReservePageState extends State<BusReservePage>
                           onDateSelected: (DateTime datetime) {
                             dateTime = datetime;
                             _getBusTimeTables();
+                            FA.logAction('date_select', 'click');
                           },
                           initialCalendarDateOverride: dateTime,
                           dayChildAspectRatio:
@@ -290,6 +297,7 @@ class BusReservePageState extends State<BusReservePage>
                           selectStartStation = text;
                         });
                       }
+                      FA.logAction('segment', 'click');
                     },
                   ),
                 ),
@@ -374,6 +382,8 @@ class BusReservePageState extends State<BusReservePage>
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
+        FA.logAction('book_bus', 'status',
+            message: 'fail_${response.data["message"]}');
       } else {
         title = app.busReserveSuccess;
         messageWidget = RichText(
@@ -406,6 +416,7 @@ class BusReservePageState extends State<BusReservePage>
               ]),
         );
         _getBusTimeTables();
+        FA.logAction('book_bus', 'status', message: 'success');
       }
       Navigator.pop(context, 'dialog');
       showDialog(
@@ -423,7 +434,7 @@ class BusReservePageState extends State<BusReservePage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'bookingBus', mounted, e);
+            Utils.handleResponseError(context, 'book_bus', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

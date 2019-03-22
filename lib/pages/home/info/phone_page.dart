@@ -101,7 +101,9 @@ class PhonePageState extends State<PhonePage>
         ),
       ),
       onPressed: () {
+        //TODO 優化
         Utils.callPhone(phone.number);
+        FA.logAction('call_phone', 'click');
       },
     );
   }
