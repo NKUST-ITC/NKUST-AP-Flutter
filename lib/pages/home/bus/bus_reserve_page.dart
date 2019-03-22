@@ -372,7 +372,7 @@ class BusReservePageState extends State<BusReservePage>
         builder: (BuildContext context) => ProgressDialog(app.reserving),
         barrierDismissible: true);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
-      //TODO 優化成物件
+      //TODO to object
       String title = "";
       Widget messageWidget;
       if (!response.data["success"]) {

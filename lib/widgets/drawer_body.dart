@@ -263,7 +263,6 @@ class DrawerBodyState extends State<DrawerBody> {
         setState(() {
           pictureUrl = url;
         });
-        print(pictureUrl);
       }
     }).catchError((e) {
       if (e is DioError) {

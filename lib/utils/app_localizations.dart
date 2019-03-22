@@ -268,6 +268,7 @@ class AppLocalizations {
       'load_offline_data': 'Load offline data',
       'reserve_deadline': 'Reserve Deadline',
       'bus_rule': 'Bus Rule',
+      'platform_error': 'Current platform can\'t use this feature.',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -507,6 +508,7 @@ class AppLocalizations {
       'load_offline_data': '載入離線資料',
       'reserve_deadline': '預約截止時間',
       'bus_rule': '校車搭乘規則',
+      'platform_error': '此平台無法使用此功能',
     },
   };
 
@@ -905,6 +907,8 @@ class AppLocalizations {
   String get offlineCourse => _vocabularies['offline_course'];
 
   String get busRule => _vocabularies['bus_rule'];
+
+  String get platformError => _vocabularies['platform_error'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

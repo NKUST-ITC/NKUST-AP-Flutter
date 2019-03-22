@@ -130,7 +130,7 @@ class NotificationPageState extends State<NotificationPage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
-        //TODO 優化
+        //TODO improve
         return FlatButton(
           onPressed: () {
             FA.logAction('rerty', 'click');

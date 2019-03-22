@@ -60,79 +60,82 @@ class SettingPageState extends State<SettingPage>
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              _titleItem(app.notificationItem),
-              _itemSwitch(app.courseNotify, courseNotify, () async {
-                FA.logAction('notify_course', 'create');
-                setState(() {
-                  courseNotify = !courseNotify;
-                });
-                if (courseNotify)
-                  _setupCourseNotify(context);
-                else {
-                  await Utils.cancelCourseNotify();
-                }
-                FA.logAction('notify_course', 'create',
-                    message: '$courseNotify');
-                prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-              }),
-              _itemSwitch(app.busNotify, busNotify, () async {
-                FA.logAction('notify_bus', 'create');
-                bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
-                if (bus) {
-                  setState(() {
-                    busNotify = !busNotify;
-                  });
-                  if (busNotify)
-                    _setupBusNotify(context);
-                  else {
-                    await Utils.cancelBusNotify();
-                  }
-                  prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-                  FA.logAction('notify_bus', 'click', message: '$busNotify');
-                } else {
-                  Utils.showToast(app.canNotUseFeature);
-                  FA.logAction('notify_bus', 'staus',
-                      message: 'can\'t use feature');
-                }
-              }),
-              Container(
-                color: Colors.grey,
-                height: 0.5,
-              ),
-              _titleItem(app.otherSettings),
-              _itemSwitch(app.headPhotoSetting, displayPicture, () {
-                prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
-                setState(() {
-                  displayPicture = !displayPicture;
-                });
-                FA.logAction('head_photo', 'click');
-              }),
-              Container(
-                color: Colors.grey,
-                height: 0.5,
-              ),
-              _titleItem(app.otherInfo),
-              _item(app.feedback, app.feedbackViaFacebook, () {
-                if (Platform.isAndroid)
-                  Utils.launchUrl('fb://messaging/954175941266264').catchError(
-                      (onError) => Utils.launchUrl(
-                          'https://www.facebook.com/954175941266264/'));
-                else
-                  Utils.launchUrl('https://www.facebook.com/954175941266264/');
-                FA.logAction('feedback', 'click');
-              }),
-              _item(app.donateTitle, app.donateContent, () {
-                Utils.launchUrl(
-                    "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d");
-                FA.logAction('donate', 'click');
-              }),
-              _item(app.appVersion, "v$appVersion", () {
-                //FA.logAction('donate', 'click');
-              }),
-            ]),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
+            Widget>[
+          _titleItem(app.notificationItem),
+          _itemSwitch(app.courseNotify, courseNotify, () async {
+            FA.logAction('notify_course', 'create');
+            setState(() {
+              courseNotify = !courseNotify;
+            });
+            if (courseNotify)
+              _setupCourseNotify(context);
+            else {
+              await Utils.cancelCourseNotify();
+            }
+            FA.logAction('notify_course', 'create', message: '$courseNotify');
+            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+          }),
+          _itemSwitch(app.busNotify, busNotify, () async {
+            FA.logAction('notify_bus', 'create');
+            bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
+            if (bus) {
+              setState(() {
+                busNotify = !busNotify;
+              });
+              if (busNotify)
+                _setupBusNotify(context);
+              else {
+                await Utils.cancelBusNotify();
+              }
+              prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+              FA.logAction('notify_bus', 'click', message: '$busNotify');
+            } else {
+              Utils.showToast(app.canNotUseFeature);
+              FA.logAction('notify_bus', 'staus',
+                  message: 'can\'t use feature');
+            }
+          }),
+          Container(
+            color: Colors.grey,
+            height: 0.5,
+          ),
+          _titleItem(app.otherSettings),
+          _itemSwitch(app.headPhotoSetting, displayPicture, () {
+            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
+            setState(() {
+              displayPicture = !displayPicture;
+            });
+            FA.logAction('head_photo', 'click');
+          }),
+          Container(
+            color: Colors.grey,
+            height: 0.5,
+          ),
+          _titleItem(app.otherInfo),
+          _item(app.feedback, app.feedbackViaFacebook, () {
+            if (Platform.isAndroid)
+              Utils.launchUrl('fb://messaging/954175941266264').catchError(
+                  (onError) => Utils.launchUrl(
+                      'https://www.facebook.com/954175941266264/'));
+            else if (Platform.isIOS)
+              Utils.launchUrl('https://www.facebook.com/954175941266264/');
+            else {
+              Utils.launchUrl('https://www.facebook.com/954175941266264/')
+                  .catchError((onError) => Utils.showToast(app.platformError));
+            }
+            FA.logAction('feedback', 'click');
+          }),
+          _item(app.donateTitle, app.donateContent, () {
+            Utils.launchUrl(
+                    "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
+                .catchError((onError) => Utils.showToast(app.platformError));
+            FA.logAction('donate', 'click');
+          }),
+          _item(app.appVersion, "v$appVersion", () {
+            //FA.logAction('donate', 'click');
+          }),
+        ]),
       ),
     );
   }
