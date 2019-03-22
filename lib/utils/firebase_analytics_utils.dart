@@ -47,7 +47,7 @@ class FA {
     await analytics.logEvent(
       name: 'aes_error',
       parameters: <String, dynamic>{
-        'type': encryptPassword,
+        'encryptPassword': encryptPassword,
         'version': packageInfo.version,
         'platform': Platform.operatingSystem,
       },

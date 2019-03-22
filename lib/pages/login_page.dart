@@ -384,8 +384,6 @@ class LoginPageState extends State<LoginPage>
               }),
           barrierDismissible: false);
       prefs.setString(Constants.PREF_USERNAME, _username.text);
-      if (isRememberPassword)
-        prefs.setString(Constants.PREF_PASSWORD, _password.text);
       Helper.instance
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
@@ -409,6 +407,7 @@ class LoginPageState extends State<LoginPage>
           switch (e.type) {
             case DioErrorType.RESPONSE:
               Utils.showToast(app.loginFail);
+              Utils.handleResponseError(context, 'login', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;
