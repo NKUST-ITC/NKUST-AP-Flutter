@@ -19,7 +19,6 @@ import 'package:nkust_ap/utils/utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
-  debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
   if (Platform.isIOS || Platform.isAndroid) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (isInDebugMode) {

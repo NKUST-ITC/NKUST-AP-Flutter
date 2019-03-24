@@ -148,7 +148,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                       textAlign: TextAlign.center,
                                     ),
                                     leftActionText: app.back,
-                                    rightActionText: app.busCancelReserve,
+                                    rightActionText: app.determine,
                                     rightActionFunction: () {
                                       _cancelBusReservation(busReservation);
                                       FA.logAction('cancel_bus', 'click');
