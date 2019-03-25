@@ -111,7 +111,7 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           FlatButton(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.hasReserve() && busTime.isReserve == 0
+            onPressed: busTime.canReserve() && busTime.isReserve == 0
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -145,7 +145,7 @@ class BusReservePageState extends State<BusReservePage>
                                           fontSize: 14.0),
                                     ),
                                     TextSpan(
-                                        text: '預約截止時間：\n',
+                                        text: '${app.reserveDeadline}：\n',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     TextSpan(
@@ -161,27 +161,29 @@ class BusReservePageState extends State<BusReservePage>
                           ),
                     );
                   }
-                : () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => YesNoDialog(
-                            title: app.busCancelReserve,
-                            contentWidget: Text(
-                              "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                                  "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                                  "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
-                              textAlign: TextAlign.center,
-                            ),
-                            leftActionText: app.back,
-                            rightActionText: app.determine,
-                            rightActionFunction: () {
-                              _cancelBusReservation(busTime);
-                              FA.logAction('cancel_bus', 'click');
-                            },
-                          ),
-                    );
-                    FA.logAction('cancel_bus', 'create');
-                  },
+                : busTime.isReserve != 0
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => YesNoDialog(
+                                title: app.busCancelReserve,
+                                contentWidget: Text(
+                                  "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
+                                      "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
+                                      "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
+                                  textAlign: TextAlign.center,
+                                ),
+                                leftActionText: app.back,
+                                rightActionText: app.determine,
+                                rightActionFunction: () {
+                                  _cancelBusReservation(busTime);
+                                  FA.logAction('cancel_bus', 'click');
+                                },
+                              ),
+                        );
+                        FA.logAction('cancel_bus', 'create');
+                      }
+                    : null,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

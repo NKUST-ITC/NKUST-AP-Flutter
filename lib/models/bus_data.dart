@@ -108,7 +108,7 @@ class BusTime {
         'cancelKey': cancelKey,
       };
 
-  bool hasReserve() {
+  bool canReserve() {
     var now = new DateTime.now();
     initializeDateFormatting();
     var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
@@ -121,13 +121,13 @@ class BusTime {
   Color getColorState() {
     return isReserve == 1
         ? Resource.Colors.blue
-        : hasReserve() ? Resource.Colors.grey : Colors.grey[400];
+        : canReserve() ? Resource.Colors.grey : Colors.grey[400];
   }
 
   String getReserveState(AppLocalizations local) {
     return isReserve == 1
         ? local.reserved
-        : hasReserve() ? local.reserve : local.canNotReserve;
+        : canReserve() ? local.reserve : local.canNotReserve;
   }
 
   String getDate() {

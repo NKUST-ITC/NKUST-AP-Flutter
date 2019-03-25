@@ -907,6 +907,7 @@ class AppLocalizations {
   String get busRule => _vocabularies['bus_rule'];
 
   String get platformError => _vocabularies['platform_error'];
+  String get reserveDeadline => _vocabularies['reserve_deadline'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
