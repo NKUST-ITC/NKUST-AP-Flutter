@@ -145,7 +145,7 @@ class BusReservePageState extends State<BusReservePage>
                                           fontSize: 14.0),
                                     ),
                                     TextSpan(
-                                        text: '預約截止時間：\n',
+                                        text: '${app.reserveDeadline}：\n',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     TextSpan(
