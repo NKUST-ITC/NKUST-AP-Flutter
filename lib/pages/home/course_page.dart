@@ -146,6 +146,7 @@ class CoursePageState extends State<CoursePage>
                     ),
                   ),
             );
+            FA.logAction('show_course', 'click');
           },
           child: Text(
             (course.title[0] + course.title[1]) ?? "",
@@ -162,7 +163,13 @@ class CoursePageState extends State<CoursePage>
       case _State.empty:
       case _State.error:
         return FlatButton(
-          onPressed: state == _State.error ? _getCourseTables : _selectSemester,
+          onPressed: () {
+            if (state == _State.error)
+              _getCourseTables();
+            else
+              _selectSemester();
+            FA.logAction('retry', 'click');
+          },
           child: HintContent(
               icon: Icons.class_,
               content:
@@ -236,7 +243,10 @@ class CoursePageState extends State<CoursePage>
                 Expanded(
                   flex: 19,
                   child: RefreshIndicator(
-                    onRefresh: () => _getCourseTables(),
+                    onRefresh: () {
+                      _getCourseTables();
+                      FA.logAction('refresh', 'swipe');
+                    },
                     child: _body(),
                   ),
                 ),
@@ -312,6 +322,7 @@ class CoursePageState extends State<CoursePage>
     for (var semester in semesterData.semesters) {
       semesters.add(_dialogItem(semesters.length, semester.text));
     }
+    FA.logAction('pick_yms', 'click');
     showDialog<int>(
         context: context,
         builder: (BuildContext context) => SimpleDialog(

@@ -66,11 +66,15 @@ class NotificationPageState extends State<NotificationPage>
     return GestureDetector(
       onLongPress: () {
         Utils.shareTo("${notification.info.title}\n${notification.link}");
+        FA.logAction('share', 'long_click',
+            message: '${notification.info.title}');
       },
       child: FlatButton(
           padding: EdgeInsets.all(0.0),
           onPressed: () {
             Utils.launchUrl(notification.link);
+            FA.logAction('notification_link"', 'click',
+                message: '${notification.info.title}');
           },
           child: Container(
             width: double.infinity,
@@ -126,9 +130,11 @@ class NotificationPageState extends State<NotificationPage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
-        //TODO 優化
+        //TODO improve
         return FlatButton(
-          onPressed: () {},
+          onPressed: () {
+            FA.logAction('rerty', 'click');
+          },
           child: HintContent(
             icon: Icons.assignment,
             content:
@@ -143,6 +149,7 @@ class NotificationPageState extends State<NotificationPage>
             });
             notificationList.clear();
             _getNotifications();
+            FA.logAction('refresh', 'swipe');
           },
           child: ListView.builder(
             controller: controller,

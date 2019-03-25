@@ -36,14 +36,15 @@ class Utils {
   static void handleResponseError(
       BuildContext context, String type, bool mounted, DioError e) {
     var app = AppLocalizations.of(context);
-    FA.logApiEvent(type, e.response.statusCode);
+    FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
       Utils.showToast(app.tokenExpiredContent);
       if (mounted)
         Navigator.popUntil(
             context, ModalRoute.withName(Navigator.defaultRouteName));
-    } else
+    } else {
       Utils.showToast(app.somethingError);
+    }
   }
 
   static void showToast(String message) {

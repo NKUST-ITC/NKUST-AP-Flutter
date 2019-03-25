@@ -144,6 +144,10 @@ class NewsContentPageState extends State<NewsContentPage>
         ),
         onPressed: () {
           if (news.url.isNotEmpty) Utils.launchUrl(news.url);
+          String message = news.content.length > 12
+              ? news.content
+              : news.content.substring(0, 12);
+          FA.logAction('news_link', 'click', message: message);
         },
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
         color: Resource.Colors.yellow,

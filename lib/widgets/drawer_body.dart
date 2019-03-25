@@ -95,7 +95,11 @@ class DrawerBodyState extends State<DrawerBody> {
                                       image: new DecorationImage(
                                         fit: BoxFit.fitWidth,
                                         image: CachedNetworkImageProvider(
-                                            pictureUrl),
+                                          pictureUrl,
+                                          errorListener: () {
+                                            print('error');
+                                          },
+                                        ),
                                       ),
                                     ),
                                   ),

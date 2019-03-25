@@ -67,7 +67,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.error:
       case _State.empty:
         return FlatButton(
-          onPressed: _getBusReservations,
+          onPressed: () {
+            _getBusReservations();
+            FA.logAction('retry', 'click');
+          },
           child: HintContent(
             icon: Icons.assignment,
             content: state == _State.error
@@ -77,7 +80,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
         );
       default:
         return RefreshIndicator(
-          onRefresh: () => _getBusReservations(),
+          onRefresh: () {
+            _getBusReservations();
+            FA.logAction('refresh', 'swipe');
+          },
           child: ListView(
             children: busReservationWeights,
           ),
@@ -142,12 +148,14 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                       textAlign: TextAlign.center,
                                     ),
                                     leftActionText: app.back,
-                                    rightActionText: app.busCancelReserve,
+                                    rightActionText: app.determine,
                                     rightActionFunction: () {
                                       _cancelBusReservation(busReservation);
+                                      FA.logAction('cancel_bus', 'click');
                                     },
                                   ),
                             );
+                            FA.logAction('cancel_bus', 'create');
                           },
                         )
                       : Container(),
@@ -232,6 +240,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
+        FA.logAction('cancel_bus', 'status',
+            message: 'fail_${response.data["message"]}');
       } else {
         title = app.busCancelReserveSuccess;
         messageWidget = RichText(
@@ -264,6 +274,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               ]),
         );
         _getBusReservations();
+        FA.logAction('cancel_bus', 'status', message: 'success');
       }
       Navigator.pop(context, 'dialog');
       showDialog(
@@ -275,21 +286,19 @@ class BusReservationsPageState extends State<BusReservationsPage>
             actionFunction: () =>
                 Navigator.of(context, rootNavigator: true).pop('dialog')),
       );
-      //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(
-                context, 'getBusReservations', mounted, e);
+            Utils.handleResponseError(context, 'cancel_bus', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(app.busFailInfinity);
               });
+              Utils.showToast(app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

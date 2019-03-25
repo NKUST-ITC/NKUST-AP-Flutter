@@ -148,7 +148,10 @@ class ScorePageState extends State<ScorePage>
             Expanded(
               flex: 19,
               child: RefreshIndicator(
-                onRefresh: () => _getSemesterScore(),
+                onRefresh: () {
+                  _getSemesterScore();
+                  FA.logAction('refresh', 'swipe');
+                },
                 child: _body(),
               ),
             ),
@@ -166,8 +169,13 @@ class ScorePageState extends State<ScorePage>
       case _State.error:
       case _State.empty:
         return FlatButton(
-          onPressed:
-              state == _State.error ? _getSemesterScore : _selectSemester,
+          onPressed: () {
+            if (state == _State.error)
+              _getSemesterScore();
+            else
+              _selectSemester();
+            FA.logAction('retry', 'click');
+          },
           child: HintContent(
             icon: Icons.assignment,
             content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
@@ -242,6 +250,7 @@ class ScorePageState extends State<ScorePage>
     for (var semester in semesterData.semesters) {
       semesters.add(_dialogItem(semesters.length, semester.text));
     }
+    FA.logAction('pick_yms', 'click');
     showDialog<int>(
         context: context,
         builder: (BuildContext context) => SimpleDialog(

@@ -62,6 +62,10 @@ class HomePageState extends State<HomePage> {
       child: GestureDetector(
         onTap: () {
           Navigator.of(context).push(NewsContentPageRoute(news));
+          String message = news.content.length > 12
+              ? news.content
+              : news.content.substring(0, 12);
+          FA.logAction('news_image', 'click', message: message);
         },
         child: Hero(
           tag: news.hashCode,
@@ -119,6 +123,7 @@ class HomePageState extends State<HomePage> {
                 setState(() {
                   _currentNewsIndex = current;
                 });
+                FA.logAction('news_image', 'swipe');
               },
             ),
             SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),

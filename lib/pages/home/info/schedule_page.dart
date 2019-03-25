@@ -177,6 +177,7 @@ class SchedulePageState extends State<SchedulePage>
             return FlatButton(
               padding: EdgeInsets.all(0.0),
               onPressed: () {
+                FA.logAction('add_schedule', 'create');
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
@@ -200,6 +201,7 @@ class SchedulePageState extends State<SchedulePage>
                         leftActionFunction: null,
                         rightActionFunction: () {
                           _addToCalendar(schedule.events[index]);
+                          FA.logAction('add_schedule', 'click');
                         },
                       ),
                 );

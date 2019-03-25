@@ -9,62 +9,84 @@ class FA {
 
   static Future<void> setCurrentScreen(
       String screenName, String screenClassOverride) async {
-    await analytics.setCurrentScreen(
-      screenName: screenName,
-      screenClassOverride: screenClassOverride,
-    );
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.setCurrentScreen(
+        screenName: screenName,
+        screenClassOverride: screenClassOverride,
+      );
   }
 
   static Future<void> setUserId(String id) async {
-    await analytics.setUserId(id);
+    if (Platform.isIOS || Platform.isAndroid) await analytics.setUserId(id);
     print('setUserId succeeded');
   }
 
   static Future<void> setUserProperty(String name, String value) async {
-    await analytics.setUserProperty(
-      name: name,
-      value: value,
-    );
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.setUserProperty(
+        name: name,
+        value: value,
+      );
     print('setUserProperty succeeded');
   }
 
-  static Future<void> logApiEvent(String type, int status) async {
+  static Future<void> logApiEvent(String type, int status,
+      {String message}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    await analytics.logEvent(
-      name: 'ap_api',
-      parameters: <String, dynamic>{
-        'type': type,
-        'status': status,
-        'version': packageInfo.version,
-        'platform': Platform.operatingSystem,
-      },
-    );
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.logEvent(
+        name: 'ap_api',
+        parameters: <String, dynamic>{
+          'type': type,
+          'status': status,
+          'message': message,
+          'version': packageInfo.version,
+          'platform': Platform.operatingSystem,
+        },
+      );
     print('logEvent succeeded');
   }
 
   static Future<void> logAESErrorEvent(String encryptPassword) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    await analytics.logEvent(
-      name: 'aes_error',
-      parameters: <String, dynamic>{
-        'type': encryptPassword,
-        'version': packageInfo.version,
-        'platform': Platform.operatingSystem,
-      },
-    );
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.logEvent(
+        name: 'aes_error',
+        parameters: <String, dynamic>{
+          'encryptPassword': encryptPassword,
+          'version': packageInfo.version,
+          'platform': Platform.operatingSystem,
+        },
+      );
     print('log encryptPassword succeeded');
   }
 
   static Future<void> logCalculateUnits(double seconds) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    await analytics.logEvent(
-      name: 'calculate_units_time',
-      parameters: <String, dynamic>{
-        'time': seconds,
-        'version': packageInfo.version,
-        'platform': Platform.operatingSystem,
-      },
-    );
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.logEvent(
+        name: 'calculate_units_time',
+        parameters: <String, dynamic>{
+          'time': seconds,
+          'version': packageInfo.version,
+          'platform': Platform.operatingSystem,
+        },
+      );
     print('log CalculateUnits succeeded');
+  }
+
+  static Future<void> logAction(String name, String action,
+      {String message}) async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.logEvent(
+        name: name,
+        parameters: <String, dynamic>{
+          'action': action,
+          'message': message,
+          'version': packageInfo.version,
+          'platform': Platform.operatingSystem,
+        },
+      );
   }
 }

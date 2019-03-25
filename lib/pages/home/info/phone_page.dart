@@ -101,7 +101,13 @@ class PhonePageState extends State<PhonePage>
         ),
       ),
       onPressed: () {
-        Utils.callPhone(phone.number);
+        FA.logAction('call_phone', 'click');
+        try {
+          Utils.callPhone(phone.number);
+          FA.logAction('call_phone', 'status', message: 'succes');
+        } catch (e) {
+          FA.logAction('call_phone', 'status', message: 'error');
+        }
       },
     );
   }
@@ -159,8 +165,8 @@ class PhonePageState extends State<PhonePage>
     phoneList.add(PhoneModel("楠梓校區", ""));
     phoneList.add(PhoneModel("總機", "07-3617141"));
     phoneList.add(PhoneModel("課外活動組", "07-3617141 #22070"));
-    phoneList.add(PhoneModel("海洋校區", ""));
-    phoneList.add(PhoneModel("海洋校區", "07-8100888"));
+    phoneList.add(PhoneModel("旗津校區", ""));
+    phoneList.add(PhoneModel("旗津校區", "07-8100888"));
     phoneList.add(PhoneModel("學生事務處", "07-3617141 #2052"));
     phoneList.add(PhoneModel("課外活動組", "07-8100888 #25065"));
     phoneList.add(PhoneModel("生活輔導組", "07-3617141 #23967"));

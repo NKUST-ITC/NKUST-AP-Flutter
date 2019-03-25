@@ -5,6 +5,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -18,37 +19,46 @@ import 'package:nkust_ap/utils/utils.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
-  FlutterError.onError = (FlutterErrorDetails details) {
-    if (isInDebugMode) {
-      // In development mode simply print to console.
-      FlutterError.dumpErrorToConsole(details);
-    } else {
-      // In production mode report to the application zone to report to
-      // Crashlytics.
-      Zone.current.handleUncaughtError(details.exception, details.stack);
-    }
-  };
+  if (Platform.isIOS || Platform.isAndroid) {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (isInDebugMode) {
+        // In development mode simply print to console.
+        FlutterError.dumpErrorToConsole(details);
+      } else {
+        // In production mode report to the application zone to report to
+        // Crashlytics.
+        Zone.current.handleUncaughtError(details.exception, details.stack);
+      }
+    };
 
-  await FlutterCrashlytics().initialize();
+    await FlutterCrashlytics().initialize();
 
-  runZoned<Future<Null>>(() async {
+    runZoned<Future<Null>>(() async {
+      runApp(MyApp());
+    }, onError: (error, stackTrace) async {
+      // Whenever an error occurs, call the `reportCrash` function. This will send
+      // Dart errors to our dev console or Crashlytics depending on the environment.
+      await FlutterCrashlytics()
+          .reportCrash(error, stackTrace, forceCrash: false);
+    });
+  } else {
     runApp(MyApp());
-  }, onError: (error, stackTrace) async {
-    // Whenever an error occurs, call the `reportCrash` function. This will send
-    // Dart errors to our dev console or Crashlytics depending on the environment.
-    await FlutterCrashlytics()
-        .reportCrash(error, stackTrace, forceCrash: false);
-  });
+    //TODO add other platform Crashlytics
+  }
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  FirebaseAnalytics analytics;
+  FirebaseMessaging _firebaseMessaging;
 
   @override
   Widget build(BuildContext context) {
-    _initFCM();
-    FA.analytics = analytics;
+    if (Platform.isAndroid || Platform.isIOS) {
+      analytics = FirebaseAnalytics();
+      _firebaseMessaging = FirebaseMessaging();
+      _initFCM();
+      FA.analytics = analytics;
+    }
     return new MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {
@@ -85,9 +95,11 @@ class MyApp extends StatelessWidget {
               UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
         ),
       ),
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: analytics),
-      ],
+      navigatorObservers: (Platform.isIOS || Platform.isAndroid)
+          ? [
+              FirebaseAnalyticsObserver(analytics: analytics),
+            ]
+          : [],
       localizationsDelegates: [
         const AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
