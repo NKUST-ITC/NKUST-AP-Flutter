@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLocalizations {
   AppLocalizations(Locale locale) {
@@ -268,6 +270,11 @@ class AppLocalizations {
       'reserve_deadline': 'Reserve Deadline',
       'bus_rule': 'Bus Rule',
       'platform_error': 'Current platform can\'t use this feature.',
+      'language': 'Language',
+      'chose_language_title': 'Language',
+      'system_language': 'System Language',
+      'traditional_chinese': '繁體中文',
+      'english': 'English',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -507,6 +514,11 @@ class AppLocalizations {
       'reserve_deadline': '預約截止時間',
       'bus_rule': '校車搭乘規則',
       'platform_error': '此平台無法使用此功能',
+      'language': '語言',
+      'chose_language_title': '語言',
+      'system_language': '系統語言',
+      'traditional_chinese': '繁體中文',
+      'english': 'English',
     },
   };
 
@@ -907,7 +919,18 @@ class AppLocalizations {
   String get busRule => _vocabularies['bus_rule'];
 
   String get platformError => _vocabularies['platform_error'];
+
   String get reserveDeadline => _vocabularies['reserve_deadline'];
+
+  String get choseLanguageTitle => _vocabularies['chose_language_title'];
+
+  String get language => _vocabularies['language'];
+
+  String get systemLanguage => _vocabularies['system_language'];
+
+  String get traditionalChinese => _vocabularies['traditional_chinese'];
+
+  String get english => _vocabularies['english'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -918,7 +941,12 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = new AppLocalizations(locale);
+    SharedPreferences preference = await SharedPreferences.getInstance();
+    String languageCode =
+        preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
+
+    AppLocalizations localizations = AppLocalizations(
+        (languageCode == 'system') ? locale : Locale(languageCode));
 
     print('Load ${locale.languageCode}');
 

@@ -108,7 +108,12 @@ class SettingPageState extends State<SettingPage>
             });
             FA.logAction('head_photo', 'click');
           }),
-          Container(
+          _itemSingle(app.language, () {
+            Utils.showChoseLanguageDialog(context, () {
+              setState(() {});
+            });
+          }),
+          Divider(
             color: Colors.grey,
             height: 0.5,
           ),
@@ -184,7 +189,7 @@ class SettingPageState extends State<SettingPage>
 
   _item(String text, String subText, Function function) => FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -197,6 +202,24 @@ class SettingPageState extends State<SettingPage>
               Text(
                 subText,
                 style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        onPressed: function,
+      );
+
+  _itemSingle(String text, Function function) => FlatButton(
+        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                text,
+                style: TextStyle(fontSize: 16.0),
               ),
             ],
           ),
