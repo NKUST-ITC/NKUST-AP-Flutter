@@ -226,8 +226,12 @@ class BusReservationsPageState extends State<BusReservationsPage>
   _cancelBusReservation(BusReservation busReservation) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ProgressDialog(app.canceling),
-        barrierDismissible: true);
+        builder: (BuildContext context) => WillPopScope(
+            child: ProgressDialog(app.canceling),
+            onWillPop: () async {
+              return false;
+            }),
+        barrierDismissible: false);
     Helper.instance
         .cancelBusReservation(busReservation.cancelKey)
         .then((response) {

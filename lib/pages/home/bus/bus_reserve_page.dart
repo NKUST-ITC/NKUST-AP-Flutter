@@ -391,8 +391,12 @@ class BusReservePageState extends State<BusReservePage>
   _bookingBus(BusTime busTime) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ProgressDialog(app.reserving),
-        barrierDismissible: true);
+        builder: (BuildContext context) => WillPopScope(
+            child: ProgressDialog(app.reserving),
+            onWillPop: () async {
+              return false;
+            }),
+        barrierDismissible: false);
     Helper.instance.bookingBusReservation(busTime.busId).then((response) {
       //TODO to object
       String title = "";
@@ -483,8 +487,12 @@ class BusReservePageState extends State<BusReservePage>
   _cancelBusReservation(BusTime busTime) {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ProgressDialog(app.canceling),
-        barrierDismissible: true);
+        builder: (BuildContext context) => WillPopScope(
+            child: ProgressDialog(app.canceling),
+            onWillPop: () async {
+              return false;
+            }),
+        barrierDismissible: false);
     Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
       String title = "";
       Widget messageWidget;

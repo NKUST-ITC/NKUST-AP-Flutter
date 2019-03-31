@@ -360,7 +360,9 @@ class LoginPageState extends State<LoginPage>
           password = encrypter.decrypt64(encryptPassword);
         } catch (e) {
           FA.logAESErrorEvent(encryptPassword);
-          prefs.setString(Constants.PREF_PASSWORD, '');
+          password = encryptPassword;
+          await prefs.setString(Constants.PREF_PASSWORD,
+              encrypter.encrypt(encryptPassword).base64);
           throw e;
         }
       }
