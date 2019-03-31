@@ -31,7 +31,7 @@ class FA {
   }
 
   static Future<void> logApiEvent(String type, int status,
-      {String message}) async {
+      {String message = ''}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     if (Platform.isIOS || Platform.isAndroid)
       await analytics.logEvent(
@@ -76,7 +76,7 @@ class FA {
   }
 
   static Future<void> logAction(String name, String action,
-      {String message}) async {
+      {String message = ''}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     if (Platform.isIOS || Platform.isAndroid)
       await analytics.logEvent(
