@@ -79,7 +79,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             accentColor: Resource.Colors.blue,
             unselectedWidgetColor: Resource.Colors.grey,
             inputDecorationTheme: InputDecorationTheme(
-              labelStyle: TextStyle(color: Resource.Colors.grey),
+              hintStyle: TextStyle(fontSize: 20.0, color: Resource.Colors.blue),
               border: UnderlineInputBorder(
                 borderSide: BorderSide(color: Resource.Colors.blue),
               ),
@@ -88,24 +88,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           child: ListView(
             padding: EdgeInsets.symmetric(vertical: 24),
             children: <Widget>[
-              ListTile(
-                onTap: () {},
-                contentPadding: EdgeInsets.symmetric(horizontal: 24),
-                leading: Icon(
-                  Icons.access_time,
-                  size: 30,
-                  color: Resource.Colors.grey,
-                ),
-                title: Text(
-                  "時間",
-                  style: TextStyle(color: Resource.Colors.grey, fontSize: 20),
-                ),
-                subtitle: Text(
-                  "2019-04-01～2019-04-05",
-                  style: TextStyle(color: Resource.Colors.grey),
-                ),
-              ),
-              SizedBox(height: 16),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.0),
                 child: ConstrainedBox(
@@ -148,11 +130,46 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 ),
               ),
               SizedBox(height: 16),
+              Divider(color: Resource.Colors.grey, height: 1),
               ListTile(
                 onTap: () {},
-                contentPadding: EdgeInsets.symmetric(horizontal: 24),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                leading: Icon(
+                  Icons.access_time,
+                  size: 30,
+                  color: Resource.Colors.grey,
+                ),
+                trailing: Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 30,
+                  color: Resource.Colors.grey,
+                ),
+                title: Text(
+                  "時間",
+                  style: TextStyle(color: Resource.Colors.grey, fontSize: 20),
+                ),
+                subtitle: Text(
+                  "2019-04-01～2019-04-05",
+                  style: TextStyle(color: Resource.Colors.grey),
+                ),
+              ),
+              Divider(color: Resource.Colors.grey, height: 1),
+              ListTile(
+                onTap: () {},
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
                 leading: Icon(
                   Icons.person,
+                  size: 30,
+                  color: Resource.Colors.grey,
+                ),
+                trailing: Icon(
+                  Icons.keyboard_arrow_down,
                   size: 30,
                   color: Resource.Colors.grey,
                 ),
@@ -162,18 +179,19 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 ),
                 subtitle: Text(
                   "朱紹儀",
-                  style: TextStyle(color: Resource.Colors.grey),
+                  style: TextStyle(color: Resource.Colors.grey, fontSize: 20),
                 ),
               ),
+              Divider(color: Resource.Colors.grey, height: 1),
               SizedBox(height: 24),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
-                  maxLines: 4,
+                  maxLines: 2,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     fillColor: Resource.Colors.blue,
-                    labelText: 'Reason',
+                    labelText: '原因',
                   ),
                 ),
               ),
