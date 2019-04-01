@@ -12,22 +12,22 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_icons: ^0.1.2
-  shared_preferences: ^0.4.2
-  firebase_core: ^0.2.5+1
-  firebase_analytics: ^1.1.0
-  firebase_remote_config: ^0.0.6+1
-  firebase_messaging: ^2.0.2
-  url_launcher: ^4.0.1
-  package_info: ^0.3.2
-  share: ^0.5.3
-  connectivity: ^0.3.2
+  shared_preferences: ^0.5.1+2
+  firebase_core: ^0.3.1+1
+  firebase_analytics: ^2.1.0
+  firebase_remote_config: ^0.1.0
+  firebase_messaging: ^4.0.0+1
+  url_launcher: ^5.0.2
+  package_info: ^0.4.0+2
+  share: ^0.6.0+1
+  connectivity: ^0.4.2
   dio: 2.1.0
-  fluttertoast: ^2.2.11
+  fluttertoast: ^3.0.3
   tuple: ^1.0.1
   carousel_slider: ^1.2.0
-  flutter_crashlytics: 0.1.1
+  flutter_crashlytics: 0.2.1+1
   encrypt: ^2.0.0
-  flutter_local_notifications: ^0.4.5
+  flutter_local_notifications: ^0.5.2
   sprintf: ^4.0.2
   add_2_calendar: ^1.2.2
   cached_network_image: ^0.7.0
