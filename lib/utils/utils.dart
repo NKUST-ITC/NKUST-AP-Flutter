@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_review/app_review.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -338,5 +340,41 @@ class Utils {
                     })
               ]),
     ).then<void>((int position) {});
+  }
+
+  static void showAppReview(BuildContext context) async {
+    await Future.delayed(Duration(seconds: 1));
+    AppLocalizations app = AppLocalizations.of(context);
+    if (Platform.isIOS) {
+      AppReview.requestReview.then((onValue) {
+        print(onValue);
+      });
+    } else if (Platform.isAndroid) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => YesNoDialog(
+              title: app.ratingDialogTitle,
+              contentWidget: RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                    style: TextStyle(
+                        color: Resource.Colors.grey,
+                        height: 1.3,
+                        fontSize: 16.0),
+                    children: [
+                      TextSpan(text: app.ratingDialogContent),
+                    ]),
+              ),
+              leftActionText: app.later,
+              rightActionText: app.rateNow,
+              leftActionFunction: null,
+              rightActionFunction: () {
+                AppReview.requestReview;
+              },
+            ),
+      );
+    } else {
+      //TODO implement other platform system local notification
+    }
   }
 }

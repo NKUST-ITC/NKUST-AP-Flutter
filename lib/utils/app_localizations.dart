@@ -275,6 +275,11 @@ class AppLocalizations {
       'system_language': 'System Language',
       'traditional_chinese': '繁體中文',
       'english': 'English',
+      'rating_dialog_title': 'Rate App',
+      'rating_dialog_content':
+          'Do you like NKUST APP?\nPlease write a comment and rating on the store\nThis is our motivation!',
+      'later': 'LATER',
+      'rate_now': 'RATE NOW',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -519,6 +524,10 @@ class AppLocalizations {
       'system_language': '系統語言',
       'traditional_chinese': '繁體中文',
       'english': 'English',
+      'rating_dialog_title': '評分',
+      'rating_dialog_content': '喜歡高科校務通嗎？\n前往商店給予我們評論\n是我們最大的動力！',
+      'later': '稍後再說',
+      'rate_now': '現在就去',
     },
   };
 
@@ -931,6 +940,14 @@ class AppLocalizations {
   String get traditionalChinese => _vocabularies['traditional_chinese'];
 
   String get english => _vocabularies['english'];
+
+  String get ratingDialogTitle => _vocabularies['rating_dialog_title'];
+
+  String get ratingDialogContent => _vocabularies['rating_dialog_content'];
+
+  String get later => _vocabularies['later'];
+
+  String get rateNow => _vocabularies['rate_now'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
