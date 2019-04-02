@@ -342,14 +342,12 @@ class Utils {
     ).then<void>((int position) {});
   }
 
-  static void showAppReview(BuildContext context) async {
+  static void showAppReviewDialog(BuildContext context) async {
     await Future.delayed(Duration(seconds: 1));
+    var date = DateTime.now();
+    if (date.millisecondsSinceEpoch % 3 == 0) return;
     AppLocalizations app = AppLocalizations.of(context);
-    if (Platform.isIOS) {
-      AppReview.requestReview.then((onValue) {
-        print(onValue);
-      });
-    } else if (Platform.isAndroid) {
+    if (Platform.isAndroid || Platform.isIOS) {
       showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
@@ -369,8 +367,74 @@ class Utils {
               rightActionText: app.rateNow,
               leftActionFunction: null,
               rightActionFunction: () {
-                AppReview.requestReview;
+                AppReview.requestReview.then((onValue) {
+                  print(onValue);
+                });
               },
+            ),
+      );
+    } else {
+      //TODO implement other platform system local notification
+    }
+  }
+
+  static void showAppReviewSheet(BuildContext context) async {
+    // await Future.delayed(Duration(seconds: 1));
+    AppLocalizations app = AppLocalizations.of(context);
+    if (Platform.isAndroid || Platform.isIOS) {
+      showModalBottomSheet(
+        context: context,
+        builder: (BuildContext context) => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      app.ratingDialogTitle,
+                      style: TextStyle(
+                          color: Resource.Colors.blue, fontSize: 20.0),
+                    ),
+                  ),
+                ),
+                RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 18.0),
+                      children: [
+                        TextSpan(text: app.ratingDialogContent),
+                      ]),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    FlatButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(
+                        app.later,
+                        style: TextStyle(
+                            color: Resource.Colors.blue, fontSize: 16.0),
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: () {
+                        AppReview.requestReview;
+                      },
+                      child: Text(
+                        app.rateNow,
+                        style: TextStyle(
+                            color: Resource.Colors.blue, fontSize: 16.0),
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
       );
     } else {

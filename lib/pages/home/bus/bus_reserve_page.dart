@@ -451,8 +451,10 @@ class BusReservePageState extends State<BusReservePage>
             title: title,
             contentWidget: messageWidget,
             actionText: app.iKnow,
-            actionFunction: () =>
-                Navigator.of(context, rootNavigator: true).pop('dialog')),
+            actionFunction: () {
+              Navigator.of(context, rootNavigator: true).pop('dialog');
+              Utils.showAppReviewDialog(context);
+            }),
       );
       //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
     }).catchError((e) {
