@@ -118,13 +118,10 @@ class AboutUsPageState extends State<AboutUsPage>
                           IconButton(
                             icon: Image.asset("assets/images/ic_fb.webp"),
                             onPressed: () {
-                              if (Platform.isAndroid)
+                              if (Platform.isAndroid || Platform.isIOS)
                                 Utils.launchUrl('fb://page/735951703168873')
                                     .catchError((onError) => Utils.launchUrl(
                                         'https://www.facebook.com/NKUST.ITC/'));
-                              else if (Platform.isIOS)
-                                Utils.launchUrl(
-                                    'https://www.facebook.com/NKUST.ITC/');
                               else
                                 Utils.launchUrl(
                                         'https://www.facebook.com/NKUST.ITC/')

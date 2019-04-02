@@ -124,7 +124,9 @@ class SettingPageState extends State<SettingPage>
                   (onError) => Utils.launchUrl(
                       'https://www.facebook.com/954175941266264/'));
             else if (Platform.isIOS)
-              Utils.launchUrl('https://www.facebook.com/954175941266264/');
+              Utils.launchUrl('fb-messenger://user-thread/954175941266264')
+                  .catchError((onError) => Utils.launchUrl(
+                      'https://www.facebook.com/954175941266264/'));
             else {
               Utils.launchUrl('https://www.facebook.com/954175941266264/')
                   .catchError((onError) => Utils.showToast(app.platformError));
