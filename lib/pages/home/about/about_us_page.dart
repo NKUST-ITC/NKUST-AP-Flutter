@@ -127,7 +127,6 @@ class AboutUsPageState extends State<AboutUsPage>
                                         'https://www.facebook.com/NKUST.ITC/')
                                     .catchError((onError) =>
                                         Utils.showToast(app.platformError));
-                              ;
                               FA.logAction('fb', 'click');
                             },
                             iconSize: 48.0,
