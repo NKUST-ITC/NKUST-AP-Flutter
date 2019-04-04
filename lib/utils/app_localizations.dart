@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLocalizations {
   AppLocalizations(Locale locale) {
@@ -20,7 +22,8 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': '1.Fix some crash.\n2.Add bus page cancel bus.',
+      'update_note_content':
+          '1.Add feature change app language.\n2.Now can click to facebook app.\n3.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -185,7 +188,7 @@ class AppLocalizations {
           'The best KUAS Campus App\nKUAS AP\n\nAre you afreshman?\nDon\'t know about school info, telephone numbers, or up coming events?\nBeenhere a few years?\nHave checking class schedule, report card and reserving bus seatsdrove you crazy?\n\nNo more, no more worries, anymore!\n\nKUAS AP lets no matter old or newfellow\nhave control over your life in KUAS!\n\nFrom checking class schedule, report card toyour absence records!\nPlus reserving/canceling bus seats with newest school feeds!\n\n\n\nMuch Simple, Many Convenient, Very instinct, wow!\n\n☆FABULOUS☆',
       'about_author_title': 'Made by',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor),林義翔(takidog)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔\n房志剛(Rainvisitor),林義翔(takidog)',
       'about_us':
           '“Ask not why nobody is doing this. You are \'nobody\'.”\n\nWe did this cause no one did it.\nWe created KUAS Wifi Login, KUASAP and KUAS Gourmet, Course Selection Sim, etc&#8230;\nTo bring convenience to everyone\'s on campus!',
       'about_recruit_title': 'We Need You !',
@@ -268,11 +271,22 @@ class AppLocalizations {
       'reserve_deadline': 'Reserve Deadline',
       'bus_rule': 'Bus Rule',
       'platform_error': 'Current platform can\'t use this feature.',
+      'language': 'Language',
+      'chose_language_title': 'Language',
+      'system_language': 'System Language',
+      'traditional_chinese': '繁體中文',
+      'english': 'English',
+      'rating_dialog_title': 'Rate App',
+      'rating_dialog_content':
+          'Do you like NKUST APP?\nPlease write a comment and rating on the store\nThis is our motivation!',
+      'later': 'LATER',
+      'rate_now': 'RATE NOW',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.修正部分崩潰.\n2.新增校車預定頁面可取消預約',
+      'update_note_content':
+          '1.新增可在App內更換語言\n2.現在可以直接從App跳轉至Facebook相關的App\n3.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -418,7 +432,7 @@ class AppLocalizations {
       'app_version': 'App 版本',
       'about_author_title': '作者群',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), \n房志剛(Rainvisitor),林義翔(takidog)',
+          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔 \n房志剛(Rainvisitor),林義翔(takidog)',
       'about_us':
           '「不要問為何沒有人做這個，\n先承認你就是『沒有人』」。\n因為，「沒有人」是萬能的。\n\n因為沒有人做這些，所以我們跳下來做。\n先後完成了高應無線通、高應校務通，到後來的高應美食通、模擬選課等等.......\n無非是希望帶給大家更便利的校園生活！',
       'about_recruit_title': 'We Need You !',
@@ -507,6 +521,15 @@ class AppLocalizations {
       'reserve_deadline': '預約截止時間',
       'bus_rule': '校車搭乘規則',
       'platform_error': '此平台無法使用此功能',
+      'language': '語言',
+      'chose_language_title': '語言',
+      'system_language': '系統語言',
+      'traditional_chinese': '繁體中文',
+      'english': 'English',
+      'rating_dialog_title': '評分',
+      'rating_dialog_content': '喜歡高科校務通嗎？\n前往商店給予我們評論\n是我們最大的動力！',
+      'later': '稍後再說',
+      'rate_now': '現在就去',
     },
   };
 
@@ -907,7 +930,26 @@ class AppLocalizations {
   String get busRule => _vocabularies['bus_rule'];
 
   String get platformError => _vocabularies['platform_error'];
+
   String get reserveDeadline => _vocabularies['reserve_deadline'];
+
+  String get choseLanguageTitle => _vocabularies['chose_language_title'];
+
+  String get language => _vocabularies['language'];
+
+  String get systemLanguage => _vocabularies['system_language'];
+
+  String get traditionalChinese => _vocabularies['traditional_chinese'];
+
+  String get english => _vocabularies['english'];
+
+  String get ratingDialogTitle => _vocabularies['rating_dialog_title'];
+
+  String get ratingDialogContent => _vocabularies['rating_dialog_content'];
+
+  String get later => _vocabularies['later'];
+
+  String get rateNow => _vocabularies['rate_now'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -918,7 +960,12 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = new AppLocalizations(locale);
+    SharedPreferences preference = await SharedPreferences.getInstance();
+    String languageCode =
+        preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
+
+    AppLocalizations localizations = AppLocalizations(
+        (languageCode == 'system') ? locale : Locale(languageCode));
 
     print('Load ${locale.languageCode}');
 

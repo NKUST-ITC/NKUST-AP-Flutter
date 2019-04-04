@@ -360,6 +360,9 @@ class LoginPageState extends State<LoginPage>
           password = encrypter.decrypt64(encryptPassword);
         } catch (e) {
           FA.logAESErrorEvent(encryptPassword);
+          password = encryptPassword;
+          await prefs.setString(Constants.PREF_PASSWORD,
+              encrypter.encrypt(encryptPassword).base64);
           throw e;
         }
       }
@@ -400,7 +403,7 @@ class LoginPageState extends State<LoginPage>
         if (isRememberPassword) {
           final encrypter =
               Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
-          prefs.setString(Constants.PREF_PASSWORD,
+          await prefs.setString(Constants.PREF_PASSWORD,
               encrypter.encrypt(_password.text).base64);
         }
         _navigateToFilterObject(context);

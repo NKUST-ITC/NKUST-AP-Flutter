@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -38,12 +39,14 @@ class SettingPageState extends State<SettingPage>
   AppLocalizations app;
 
   String appVersion = "1.0.0";
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     FA.setCurrentScreen("SettingPage", "setting_page.dart");
     _getPreference();
+    Utils.showAppReviewDialog(context);
   }
 
   @override
@@ -55,6 +58,7 @@ class SettingPageState extends State<SettingPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(app.settings),
         backgroundColor: Resource.Colors.blue,
@@ -108,7 +112,12 @@ class SettingPageState extends State<SettingPage>
             });
             FA.logAction('head_photo', 'click');
           }),
-          Container(
+          _itemSingle(app.language, () {
+            Utils.showChoseLanguageDialog(context, () {
+              setState(() {});
+            });
+          }),
+          Divider(
             color: Colors.grey,
             height: 0.5,
           ),
@@ -119,7 +128,9 @@ class SettingPageState extends State<SettingPage>
                   (onError) => Utils.launchUrl(
                       'https://www.facebook.com/954175941266264/'));
             else if (Platform.isIOS)
-              Utils.launchUrl('https://www.facebook.com/954175941266264/');
+              Utils.launchUrl('fb-messenger://user-thread/954175941266264')
+                  .catchError((onError) => Utils.launchUrl(
+                      'https://www.facebook.com/954175941266264/'));
             else {
               Utils.launchUrl('https://www.facebook.com/954175941266264/')
                   .catchError((onError) => Utils.showToast(app.platformError));
@@ -184,7 +195,7 @@ class SettingPageState extends State<SettingPage>
 
   _item(String text, String subText, Function function) => FlatButton(
         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Container(
+        child: SizedBox(
           width: double.infinity,
           child: Column(
             mainAxisSize: MainAxisSize.max,
@@ -197,6 +208,24 @@ class SettingPageState extends State<SettingPage>
               Text(
                 subText,
                 style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+              ),
+            ],
+          ),
+        ),
+        onPressed: function,
+      );
+
+  _itemSingle(String text, Function function) => FlatButton(
+        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                text,
+                style: TextStyle(fontSize: 16.0),
               ),
             ],
           ),
@@ -314,6 +343,63 @@ class SettingPageState extends State<SettingPage>
       } else {
         throw e;
       }
+    });
+  }
+
+  _showBottomSheet(BuildContext context) async {
+    _scaffoldKey.currentState.showBottomSheet<Null>((context) {
+      return Material(
+        elevation: 20,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  app.ratingDialogTitle,
+                  style: TextStyle(color: Resource.Colors.blue, fontSize: 20.0),
+                ),
+              ),
+            ),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 18.0),
+                  children: [
+                    TextSpan(text: app.ratingDialogContent),
+                  ]),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    app.later,
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                  ),
+                ),
+                FlatButton(
+                  onPressed: () {
+                    AppReview.requestReview;
+                  },
+                  child: Text(
+                    app.rateNow,
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      );
     });
   }
 }

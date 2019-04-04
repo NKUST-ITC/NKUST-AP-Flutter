@@ -47,6 +47,8 @@ class Helper {
         break;
       case DioErrorType.CONNECT_TIMEOUT:
         throw (dioError);
+      case DioErrorType.SEND_TIMEOUT:
+        throw (dioError);
         break;
       case DioErrorType.RESPONSE:
         throw (dioError);

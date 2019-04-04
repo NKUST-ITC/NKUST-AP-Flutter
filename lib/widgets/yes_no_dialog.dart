@@ -89,7 +89,7 @@ class YesNoDialog extends StatelessWidget {
                       leftActionText,
                       style: TextStyle(
                         color: Resource.Colors.grey,
-                        fontSize: 18.0,
+                        fontSize: 16.0,
                       ),
                     ),
                   ),
@@ -111,7 +111,7 @@ class YesNoDialog extends StatelessWidget {
                       rightActionText,
                       style: TextStyle(
                         color: Resource.Colors.grey,
-                        fontSize: 18.0,
+                        fontSize: 16.0,
                       ),
                     ),
                   ),

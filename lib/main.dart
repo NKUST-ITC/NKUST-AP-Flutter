@@ -89,6 +89,7 @@ class MyApp extends StatelessWidget {
         hintColor: Colors.white,
         accentColor: Resource.Colors.blue,
         unselectedWidgetColor: Resource.Colors.grey,
+        backgroundColor: Colors.black12,
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: TextStyle(color: Colors.white),
           border:
