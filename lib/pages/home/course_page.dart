@@ -55,6 +55,175 @@ class CoursePageState extends State<CoursePage>
     super.dispose();
   }
 
+  @override
+  Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.course),
+        backgroundColor: Resource.Colors.blue,
+      ),
+      body: Builder(
+        builder: (builderContext) {
+          scaffold = Scaffold.of(builderContext);
+          return Flex(
+            direction: Axis.vertical,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              SizedBox(height: 16.0),
+              Expanded(
+                flex: 1,
+                child: FlatButton(
+                  onPressed: (semesterData != null) ? _selectSemester : null,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        selectSemester == null ? "" : selectSemester.text,
+                        style: TextStyle(
+                            color: Resource.Colors.blue, fontSize: 18.0),
+                      ),
+                      SizedBox(width: 8.0),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Resource.Colors.blue,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                child: isOffline
+                    ? Text(
+                        app.offlineCourse,
+                        style: TextStyle(color: Resource.Colors.grey),
+                      )
+                    : null,
+              ),
+              Expanded(
+                flex: 19,
+                child: RefreshIndicator(
+                  onRefresh: () {
+                    _getCourseTables();
+                    FA.logAction('refresh', 'swipe');
+                  },
+                  child: _body(),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _body() {
+    switch (state) {
+      case _State.loading:
+        return Container(
+            child: CircularProgressIndicator(), alignment: Alignment.center);
+      case _State.empty:
+      case _State.error:
+        return FlatButton(
+          onPressed: () {
+            if (state == _State.error)
+              _getCourseTables();
+            else
+              _selectSemester();
+            FA.logAction('retry', 'click');
+          },
+          child: HintContent(
+              icon: Icons.class_,
+              content:
+                  state == _State.error ? app.clickToRetry : app.courseEmpty),
+        );
+      default:
+        var list = renderCourseList();
+        return SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  10.0,
+                ),
+              ),
+              border: Border.all(color: Colors.grey, width: 1.0),
+            ),
+            child: Table(
+              defaultColumnWidth: FractionColumnWidth(1.0 / base),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              border: TableBorder.symmetric(
+                inside: BorderSide(
+                  color: Colors.grey,
+                  width: 0,
+                ),
+              ),
+              children: list,
+            ),
+          ),
+        );
+    }
+  }
+
+  List<TableRow> renderCourseList() {
+    List<String> weeks = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ];
+    var list = <TableRow>[
+      TableRow(children: [_titleBorder("")])
+    ];
+    for (var week in app.weekdaysCourse.sublist(0, 4))
+      list[0].children.add(_titleBorder(week));
+    if (courseData.courseTables.saturday == null &&
+        courseData.courseTables.sunday == null) {
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
+      base = 6;
+      childAspectRatio = 1.5;
+    } else {
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
+      weeks.add("Saturday");
+      weeks.add("Sunday");
+      base = 8;
+      childAspectRatio = 1.1;
+    }
+    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
+    int i = 0;
+    for (String text in courseData.courseTables.timeCode) {
+      i++;
+      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
+      text = text.replaceAll(' ', '');
+      if (base == 8) {
+        text = text.replaceAll('第', '');
+        text = text.replaceAll('節', '');
+      }
+      list.add(TableRow(children: []));
+      list[i].children.add(_titleBorder(text));
+      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(""));
+    }
+    var timeCodes = courseData.courseTables.timeCode;
+    for (int i = 0; i < weeks.length; i++) {
+      if (courseData.courseTables.getCourseList(weeks[i]) != null)
+        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
+          for (int j = 0; j < timeCodes.length; j++) {
+            if (timeCodes[j] == data.date.section) {
+              if (i % base != 0) list[j + 1].children[i] = _courseBorder(data);
+            }
+          }
+        }
+    }
+    return list;
+  }
+
   Widget _titleBorder(String text) {
     return Container(
       padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -116,119 +285,6 @@ class CoursePageState extends State<CoursePage>
           (course.title[0] + course.title[1]) ?? "",
           style: TextStyle(color: Colors.black, fontSize: 14.0),
         ),
-      ),
-    );
-  }
-
-  Widget _body() {
-    switch (state) {
-      case _State.loading:
-        return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
-      case _State.empty:
-      case _State.error:
-        return FlatButton(
-          onPressed: () {
-            if (state == _State.error)
-              _getCourseTables();
-            else
-              _selectSemester();
-            FA.logAction('retry', 'click');
-          },
-          child: HintContent(
-              icon: Icons.class_,
-              content:
-                  state == _State.error ? app.clickToRetry : app.courseEmpty),
-        );
-      default:
-        var list = renderCourseList();
-        return SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  10.0,
-                ),
-              ),
-              border: Border.all(color: Colors.grey, width: 1.0),
-            ),
-            child: Table(
-              defaultColumnWidth: FlexColumnWidth(1.0),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              border: TableBorder.symmetric(
-                inside: BorderSide(
-                  color: Colors.grey,
-                  width: 0,
-                ),
-              ),
-              children: list,
-            ),
-          ),
-        );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(app.course),
-        backgroundColor: Resource.Colors.blue,
-      ),
-      body: Builder(
-        builder: (builderContext) {
-          scaffold = Scaffold.of(builderContext);
-          return Flex(
-            direction: Axis.vertical,
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              SizedBox(height: 16.0),
-              Expanded(
-                flex: 1,
-                child: FlatButton(
-                  onPressed: (semesterData != null) ? _selectSemester : null,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        selectSemester == null ? "" : selectSemester.text,
-                        style: TextStyle(
-                            color: Resource.Colors.blue, fontSize: 18.0),
-                      ),
-                      SizedBox(width: 8.0),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Resource.Colors.blue,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                child: isOffline
-                    ? Text(
-                        app.offlineCourse,
-                        style: TextStyle(color: Resource.Colors.grey),
-                      )
-                    : null,
-              ),
-              Expanded(
-                flex: 19,
-                child: RefreshIndicator(
-                  onRefresh: () {
-                    _getCourseTables();
-                    FA.logAction('refresh', 'swipe');
-                  },
-                  child: _body(),
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }
@@ -318,62 +374,6 @@ class CoursePageState extends State<CoursePage>
         onPressed: () {
           Navigator.pop(context, index);
         });
-  }
-
-  List<TableRow> renderCourseList() {
-    List<String> weeks = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ];
-    var list = <TableRow>[
-      TableRow(children: [_titleBorder("")])
-    ];
-    for (var week in app.weekdaysCourse.sublist(0, 4))
-      list[0].children.add(_titleBorder(week));
-    if (courseData.courseTables.saturday == null &&
-        courseData.courseTables.sunday == null) {
-      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
-      base = 6;
-      childAspectRatio = 1.5;
-    } else {
-      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
-      list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
-      list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
-      weeks.add("Saturday");
-      weeks.add("Sunday");
-      base = 8;
-      childAspectRatio = 1.1;
-    }
-    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
-    int i = 0;
-    for (String text in courseData.courseTables.timeCode) {
-      i++;
-      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
-      text = text.replaceAll(' ', '');
-      if (base == 8) {
-        text = text.replaceAll('第', '');
-        text = text.replaceAll('節', '');
-      }
-      list.add(TableRow(children: []));
-      list[i].children.add(_titleBorder(text));
-      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(""));
-    }
-    var timeCodes = courseData.courseTables.timeCode;
-    for (int i = 0; i < weeks.length; i++) {
-      if (courseData.courseTables.getCourseList(weeks[i]) != null)
-        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
-          for (int j = 0; j < timeCodes.length; j++) {
-            if (timeCodes[j] == data.date.section) {
-              if (i % base != 0) list[j + 1].children[i] = _courseBorder(data);
-            }
-          }
-        }
-    }
-    return list;
   }
 
   _getCourseTables() async {
