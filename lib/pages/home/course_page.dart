@@ -10,13 +10,12 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 enum _State { loading, finish, error, empty }
 
 class CoursePageRoute extends MaterialPageRoute {
-  CoursePageRoute()
-      : super(builder: (BuildContext context) => new CoursePage());
+  CoursePageRoute() : super(builder: (BuildContext context) => CoursePage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new CoursePage());
+    return FadeTransition(opacity: animation, child: CoursePage());
   }
 }
 
@@ -24,7 +23,7 @@ class CoursePage extends StatefulWidget {
   static const String routerName = "/course";
 
   @override
-  CoursePageState createState() => new CoursePageState();
+  CoursePageState createState() => CoursePageState();
 }
 
 class CoursePageState extends State<CoursePage>
@@ -56,102 +55,68 @@ class CoursePageState extends State<CoursePage>
     super.dispose();
   }
 
-  _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 12.0);
-  }
-
-  _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
-  }
-
-  Widget _textBorder(String text,
-      {bool topLeft = false,
-      bool topRight = false,
-      bool bottomLeft = false,
-      bool bottomRight = false,
-      bool isCenter = false}) {
-    return new Container(
-      decoration: new BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(
-            topLeft ? 5.0 : 0.0,
-          ),
-          topRight: Radius.circular(
-            topRight ? 5.0 : 0.0,
-          ),
-          bottomLeft: Radius.circular(
-            bottomLeft ? 5.0 : 0.0,
-          ),
-          bottomRight: Radius.circular(
-            bottomRight ? 5.0 : 0.0,
-          ),
-        ),
-        border: Border.all(color: Colors.grey, width: 0.5),
-      ),
-      child: FlatButton(
-        padding: EdgeInsets.all(0.0),
-        onPressed: null,
-        child: Text(
-          text ?? "",
-          textAlign: TextAlign.center,
-          style: _textBlueStyle(),
-        ),
+  Widget _titleBorder(String text) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      alignment: Alignment.center,
+      child: Text(
+        text ?? '',
+        style: TextStyle(color: Resource.Colors.blue, fontSize: 12.0),
       ),
     );
   }
 
   Widget _courseBorder(Course course) {
-    return new Container(
-      decoration: new BoxDecoration(
-          border: new Border.all(color: Resource.Colors.grey, width: 0.5)),
-      child: FlatButton(
-          padding: EdgeInsets.all(0.0),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => DefaultDialog(
-                    title: app.courseDialogTitle,
-                    actionText: app.iKnow,
-                    actionFunction: () =>
-                        Navigator.of(context, rootNavigator: true)
-                            .pop('dialog'),
-                    contentWidget: RichText(
-                      text: TextSpan(
-                          style: TextStyle(
-                              color: Resource.Colors.grey,
-                              height: 1.3,
-                              fontSize: 16.0),
-                          children: [
-                            TextSpan(
-                                text: '${app.courseDialogName}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: '${course.title}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogProfessor}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: '${course.getInstructors()}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogLocation}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                                text:
-                                    '${course.location.building}${course.location.room}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogTime}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                                text:
-                                    '${course.date.startTime}-${course.date.endTime}'),
-                          ]),
-                    ),
-                  ),
-            );
-            FA.logAction('show_course', 'click');
-          },
-          child: Text(
-            (course.title[0] + course.title[1]) ?? "",
-            style: _textStyle(),
-          )),
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => DefaultDialog(
+                title: app.courseDialogTitle,
+                actionText: app.iKnow,
+                actionFunction: () =>
+                    Navigator.of(context, rootNavigator: true).pop('dialog'),
+                contentWidget: RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                            text: '${app.courseDialogName}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.title}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogProfessor}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.getInstructors()}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogLocation}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${course.location.building}${course.location.room}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogTime}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${course.date.startTime}-${course.date.endTime}'),
+                      ]),
+                ),
+              ),
+        );
+        FA.logAction('show_course', 'click');
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        alignment: Alignment.center,
+        child: Text(
+          (course.title[0] + course.title[1]) ?? "",
+          style: TextStyle(color: Colors.black, fontSize: 14.0),
+        ),
+      ),
     );
   }
 
@@ -179,15 +144,27 @@ class CoursePageState extends State<CoursePage>
         var list = renderCourseList();
         return SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: GridView.count(
-            physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: isOffline ? 8.0 : 16.0),
-            mainAxisSpacing: 0.0,
-            shrinkWrap: true,
-            childAspectRatio: childAspectRatio,
-            crossAxisCount: base,
-            children: list ?? <Widget>[],
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  10.0,
+                ),
+              ),
+              border: Border.all(color: Colors.grey, width: 1.0),
+            ),
+            child: Table(
+              defaultColumnWidth: FlexColumnWidth(1.0),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              border: TableBorder.symmetric(
+                inside: BorderSide(
+                  color: Colors.grey,
+                  width: 0,
+                ),
+              ),
+              children: list,
+            ),
           ),
         );
     }
@@ -196,7 +173,7 @@ class CoursePageState extends State<CoursePage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(app.course),
         backgroundColor: Resource.Colors.blue,
@@ -204,54 +181,52 @@ class CoursePageState extends State<CoursePage>
       body: Builder(
         builder: (builderContext) {
           scaffold = Scaffold.of(builderContext);
-          return Container(
-            child: Flex(
-              direction: Axis.vertical,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                SizedBox(height: 16.0),
-                Expanded(
-                  flex: 1,
-                  child: FlatButton(
-                    onPressed: (semesterData != null) ? _selectSemester : null,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          selectSemester == null ? "" : selectSemester.text,
-                          style: TextStyle(
-                              color: Resource.Colors.blue, fontSize: 18.0),
-                        ),
-                        SizedBox(width: 8.0),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Resource.Colors.blue,
-                        )
-                      ],
-                    ),
+          return Flex(
+            direction: Axis.vertical,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              SizedBox(height: 16.0),
+              Expanded(
+                flex: 1,
+                child: FlatButton(
+                  onPressed: (semesterData != null) ? _selectSemester : null,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Text(
+                        selectSemester == null ? "" : selectSemester.text,
+                        style: TextStyle(
+                            color: Resource.Colors.blue, fontSize: 18.0),
+                      ),
+                      SizedBox(width: 8.0),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Resource.Colors.blue,
+                      )
+                    ],
                   ),
                 ),
-                Container(
-                  child: isOffline
-                      ? Text(
-                          app.offlineCourse,
-                          style: TextStyle(color: Resource.Colors.grey),
-                        )
-                      : null,
+              ),
+              Container(
+                child: isOffline
+                    ? Text(
+                        app.offlineCourse,
+                        style: TextStyle(color: Resource.Colors.grey),
+                      )
+                    : null,
+              ),
+              Expanded(
+                flex: 19,
+                child: RefreshIndicator(
+                  onRefresh: () {
+                    _getCourseTables();
+                    FA.logAction('refresh', 'swipe');
+                  },
+                  child: _body(),
                 ),
-                Expanded(
-                  flex: 19,
-                  child: RefreshIndicator(
-                    onRefresh: () {
-                      _getCourseTables();
-                      FA.logAction('refresh', 'swipe');
-                    },
-                    child: _body(),
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
@@ -345,7 +320,7 @@ class CoursePageState extends State<CoursePage>
         });
   }
 
-  renderCourseList() {
+  List<TableRow> renderCourseList() {
     List<String> weeks = [
       "Sunday",
       "Monday",
@@ -354,18 +329,20 @@ class CoursePageState extends State<CoursePage>
       "Thursday",
       "Friday"
     ];
-    var courseWeightList = <Widget>[_textBorder("", topLeft: true)];
+    var list = <TableRow>[
+      TableRow(children: [_titleBorder("")])
+    ];
     for (var week in app.weekdaysCourse.sublist(0, 4))
-      courseWeightList.add(_textBorder(week));
+      list[0].children.add(_titleBorder(week));
     if (courseData.courseTables.saturday == null &&
         courseData.courseTables.sunday == null) {
-      courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
       base = 6;
       childAspectRatio = 1.5;
     } else {
-      courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
-      courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
-      courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
       weeks.add("Saturday");
       weeks.add("Sunday");
       base = 8;
@@ -381,9 +358,9 @@ class CoursePageState extends State<CoursePage>
         text = text.replaceAll('第', '');
         text = text.replaceAll('節', '');
       }
-      courseWeightList.add(_textBorder(text));
-      for (var i = 0; i < base - 1; i++)
-        courseWeightList.add(_textBorder("", isCenter: true));
+      list.add(TableRow(children: []));
+      list[i].children.add(_titleBorder(text));
+      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(""));
     }
     var timeCodes = courseData.courseTables.timeCode;
     for (int i = 0; i < weeks.length; i++) {
@@ -391,13 +368,12 @@ class CoursePageState extends State<CoursePage>
         for (var data in courseData.courseTables.getCourseList(weeks[i])) {
           for (int j = 0; j < timeCodes.length; j++) {
             if (timeCodes[j] == data.date.section) {
-              if (i % base != 0)
-                courseWeightList[(j + 1) * base + i] = _courseBorder(data);
+              if (i % base != 0) list[j + 1].children[i] = _courseBorder(data);
             }
           }
         }
     }
-    return courseWeightList;
+    return list;
   }
 
   _getCourseTables() async {
