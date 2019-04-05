@@ -50,6 +50,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
+  Brightness brightness = Brightness.light;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class MyApp extends StatelessWidget {
       _initFCM();
       FA.analytics = analytics;
     }
-    return new MaterialApp(
+    return MaterialApp(
       localeResolutionCallback:
           (Locale locale, Iterable<Locale> supportedLocales) {
         return locale;
@@ -86,6 +87,7 @@ class MyApp extends StatelessWidget {
         LeavePage.routerName: (BuildContext context) => LeavePage(),
       },
       theme: ThemeData(
+        brightness: brightness,
         hintColor: Colors.white,
         accentColor: Resource.Colors.blue,
         unselectedWidgetColor: Resource.Colors.grey,
@@ -109,7 +111,7 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: [
         const Locale('en', 'US'), // English
-        const Locale('zh', 'TW'), // Hebrew
+        const Locale('zh', 'TW'), // Chinese
       ],
     );
   }
