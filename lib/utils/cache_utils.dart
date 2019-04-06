@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/course_data.dart';
+import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/models/score_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,5 +58,19 @@ class CacheUtils {
             '';
     if (json == '') return null;
     return ScoreData.fromJson(jsonDecode(json));
+  }
+
+  static void saveScheduleDataList(List<ScheduleData> scheduleDataList) async {
+    if (scheduleDataList == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        Constants.PREF_SCHEDULE_DATA, jsonEncode(scheduleDataList));
+  }
+
+  static Future<List<ScheduleData>> loadScheduleDataList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String json = prefs.getString(Constants.PREF_SCHEDULE_DATA) ?? '';
+    if (json == '') return null;
+    return ScheduleData.toList(jsonDecode(json));
   }
 }

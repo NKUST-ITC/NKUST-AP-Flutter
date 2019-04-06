@@ -35,7 +35,6 @@ class DrawerBodyState extends State<DrawerBody> {
   void initState() {
     super.initState();
     _getPreference();
-    _getUserPicture();
   }
 
   @override
@@ -281,6 +280,9 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getPreference() async {
     prefs = await SharedPreferences.getInstance();
+    if (!prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      _getUserPicture();
+    }
     setState(() {
       displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
     });

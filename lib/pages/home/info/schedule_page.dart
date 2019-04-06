@@ -6,6 +6,7 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
@@ -38,7 +39,7 @@ class SchedulePageState extends State<SchedulePage>
 
   List<Widget> scheduleWeights = [];
 
-  List<ScheduleData> scheduleList = [];
+  List<ScheduleData> scheduleDataList = [];
 
   _State state = _State.loading;
 
@@ -86,8 +87,13 @@ class SchedulePageState extends State<SchedulePage>
   }
 
   _getSchedules() async {
+    scheduleDataList = await CacheUtils.loadScheduleDataList();
     setState(() {
-      state = _State.loading;
+      if (scheduleDataList == null) {
+        scheduleDataList = [];
+        state = _State.loading;
+      } else
+        state = _State.finish;
     });
     final RemoteConfig remoteConfig = await RemoteConfig.instance;
     try {
@@ -111,17 +117,18 @@ class SchedulePageState extends State<SchedulePage>
       });
     } else {
       var jsonArray = jsonDecode(data);
-      scheduleList = ScheduleData.toList(jsonArray);
+      scheduleDataList = ScheduleData.toList(jsonArray);
       scheduleWeights.clear();
-      for (var i in scheduleList) scheduleWeights.addAll(_scheduleItem(i));
+      for (var i in scheduleDataList) scheduleWeights.addAll(_scheduleItem(i));
       if (mounted) {
         setState(() {
-          if (scheduleList.length == 0)
+          if (scheduleDataList.length == 0)
             state = _State.empty;
           else
             state = _State.finish;
         });
       }
+      CacheUtils.saveScheduleDataList(scheduleDataList);
     }
   }
 
