@@ -29,6 +29,8 @@ class Constants {
   static const PREF_SCORE_DATA = "pref_score_data";
   static const PREF_COURSE_DATA = "pref_course_data";
   static const PREF_SEMESTER_DATA = "pref_semester_data";
+  static const PREF_SCHEDULE_DATA = 'pref_schedule_datae';
+
   static const PREF_LANGUAGE_CODE = 'pref_language_code';
 
   static const PREF_AP_ENABLE = "pref_ap_enable";

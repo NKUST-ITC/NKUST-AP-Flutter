@@ -106,6 +106,7 @@ class CoursePageState extends State<CoursePage>
                 flex: 19,
                 child: RefreshIndicator(
                   onRefresh: () async {
+                    if (isOffline) await Helper.instance.initByPreference();
                     _getCourseTables();
                     FA.logAction('refresh', 'swipe');
                     return null;
@@ -141,7 +142,10 @@ class CoursePageState extends State<CoursePage>
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
       case _State.offlineEmpty:
-        return HintContent(icon: Icons.class_, content: app.noOfflineData);
+        return HintContent(
+          icon: Icons.class_,
+          content: app.noOfflineData,
+        );
       default:
         var list = renderCourseList();
         return SingleChildScrollView(
@@ -343,9 +347,7 @@ class CoursePageState extends State<CoursePage>
   }
 
   void _loadCourseData(String value) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
-    courseData = await CacheUtils.loadCourseData(username, value);
+    courseData = await CacheUtils.loadCourseData(value);
     if (mounted) {
       setState(() {
         isOffline = true;
@@ -414,13 +416,10 @@ class CoursePageState extends State<CoursePage>
           .getCourseTables(textList[0], textList[1])
           .then((response) {
         if (mounted)
-          setState(() async {
+          setState(() {
             courseData = response;
             isOffline = false;
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
-            CacheUtils.saveCourseData(
-                username, selectSemester.value, courseData);
+            CacheUtils.saveCourseData(selectSemester.value, courseData);
             if (courseData.status == 204) {
               state = _State.empty;
             } else if (courseData.status == 200) {
