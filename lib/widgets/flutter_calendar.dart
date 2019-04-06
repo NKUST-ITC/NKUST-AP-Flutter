@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/date_utils.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
 import 'package:tuple/tuple.dart';
@@ -326,6 +327,7 @@ class _CalendarState extends State<Calendar> {
       initialDate: _selectedDate ?? new DateTime.now(),
       firstDate: new DateTime(1960),
       lastDate: new DateTime(2050),
+      locale: AppLocalizations.locale,
     );
 
     if (selected != null) {

@@ -281,6 +281,13 @@ class AppLocalizations {
           'Do you like NKUST APP?\nPlease write a comment and rating on the store\nThis is our motivation!',
       'later': 'LATER',
       'rate_now': 'RATE NOW',
+      'offline_login': 'Offline Login',
+      'no_offline_login_data':
+          'No Offline login data, please login at least once.',
+      'offline_login_password_error':
+          'Offline login username or password Error',
+      'offline_mode': 'Offline Mode',
+      'no_offline_data': 'No offline data',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -530,6 +537,11 @@ class AppLocalizations {
       'rating_dialog_content': '喜歡高科校務通嗎？\n前往商店給予我們評論\n是我們最大的動力！',
       'later': '稍後再說',
       'rate_now': '現在就去',
+      'offline_login': '離線登入',
+      'no_offline_login_data': '無離線登入資料 請至少登入一次',
+      'offline_login_password_error': '離線登入學號或密碼錯誤',
+      'offline_mode': '離線模式',
+      'no_offline_data': '無離線資料',
     },
   };
 
@@ -950,6 +962,17 @@ class AppLocalizations {
   String get later => _vocabularies['later'];
 
   String get rateNow => _vocabularies['rate_now'];
+
+  String get offlineLogin => _vocabularies['offline_login'];
+
+  String get noOfflineLoginData => _vocabularies['no_offline_login_data'];
+
+  String get offlineLoginPasswordError =>
+      _vocabularies['offline_login_password_error'];
+
+  String get noOfflineData => _vocabularies['no_offline_data'];
+
+  String get offlineMode => _vocabularies['offline_mode'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

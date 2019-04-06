@@ -6,8 +6,9 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, offlineEmpty }
 
 class CoursePageRoute extends MaterialPageRoute {
   CoursePageRoute() : super(builder: (BuildContext context) => CoursePage());
@@ -104,9 +105,10 @@ class CoursePageState extends State<CoursePage>
               Expanded(
                 flex: 19,
                 child: RefreshIndicator(
-                  onRefresh: () {
+                  onRefresh: () async {
                     _getCourseTables();
                     FA.logAction('refresh', 'swipe');
+                    return null;
                   },
                   child: _body(),
                 ),
@@ -138,6 +140,8 @@ class CoursePageState extends State<CoursePage>
               content:
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
+      case _State.offlineEmpty:
+        return HintContent(icon: Icons.class_, content: app.noOfflineData);
       default:
         var list = renderCourseList();
         return SingleChildScrollView(
@@ -289,8 +293,12 @@ class CoursePageState extends State<CoursePage>
     );
   }
 
-  void _getSemester() {
+  void _getSemester() async {
     _loadSemesterData();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      return;
+    }
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       CacheUtils.saveSemesterData(semesterData);
@@ -328,15 +336,22 @@ class CoursePageState extends State<CoursePage>
       selectSemester = semesterData.defaultSemester;
       selectSemesterIndex = semesterData.defaultIndex;
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      _loadCourseData(semesterData.defaultSemester.value);
+    }
   }
 
   void _loadCourseData(String value) async {
-    courseData = await CacheUtils.loadCourseData(value);
-    if (this.courseData == null) return;
-    isOffline = true;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    courseData = await CacheUtils.loadCourseData(username, value);
     if (mounted) {
       setState(() {
-        if (courseData.status == 204) {
+        isOffline = true;
+        if (this.courseData == null) {
+          state = _State.offlineEmpty;
+        } else if (courseData.status == 204) {
           state = _State.empty;
         } else if (courseData.status == 200) {
           state = _State.finish;
@@ -358,12 +373,17 @@ class CoursePageState extends State<CoursePage>
         context: context,
         builder: (BuildContext context) => SimpleDialog(
             title: Text(app.picksSemester),
-            children: semesters)).then<void>((int position) {
+            children: semesters)).then<void>((int position) async {
       if (position != null) {
-        selectSemesterIndex = position;
-        selectSemester = semesterData.semesters[selectSemesterIndex];
-        _getCourseTables();
-        setState(() {});
+        setState(() {
+          selectSemesterIndex = position;
+          selectSemester = semesterData.semesters[selectSemesterIndex];
+        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
+          _loadCourseData(semesterData.semesters[selectSemesterIndex].value);
+        else
+          _getCourseTables();
       }
     });
   }
@@ -394,10 +414,13 @@ class CoursePageState extends State<CoursePage>
           .getCourseTables(textList[0], textList[1])
           .then((response) {
         if (mounted)
-          setState(() {
+          setState(() async {
             courseData = response;
             isOffline = false;
-            CacheUtils.saveCourseData(selectSemester.value, courseData);
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+            CacheUtils.saveCourseData(
+                username, selectSemester.value, courseData);
             if (courseData.status == 204) {
               state = _State.empty;
             } else if (courseData.status == 200) {

@@ -8,10 +8,11 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum _Status { loading, finish, error, empty }
+enum _Status { loading, finish, error, empty, offline }
 
 class HomePageRoute extends MaterialPageRoute {
   HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
@@ -142,6 +143,12 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         );
+
+      case _Status.offline:
+        return HintContent(
+          icon: Icons.offline_bolt,
+          content: app.offlineMode,
+        );
       default:
         return Container();
     }
@@ -222,7 +229,14 @@ class HomePageState extends State<HomePage> {
     });
   }
 
-  _getAllNews() {
+  _getAllNews() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      setState(() {
+        state = _Status.offline;
+      });
+      return;
+    }
     state = _Status.loading;
     Helper.instance.getAllNews().then((newsList) {
       this.newsList = newsList;
@@ -279,7 +293,14 @@ class HomePageState extends State<HomePage> {
       });
   }
 
-  _getUserInfo() {
+  _getUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      setState(() {
+        state = _Status.offline;
+      });
+      return;
+    }
     Helper.instance.getUsersInfo().then((response) {
       if (this.mounted) {
         setState(() {
