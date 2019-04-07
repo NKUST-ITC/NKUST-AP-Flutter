@@ -10,12 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum _State { loading, finish, error, empty, offlineEmpty }
 
 class ScorePageRoute extends MaterialPageRoute {
-  ScorePageRoute() : super(builder: (BuildContext context) => new ScorePage());
+  ScorePageRoute() : super(builder: (BuildContext context) => ScorePage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new ScorePage());
+    return FadeTransition(opacity: animation, child: ScorePage());
   }
 }
 
@@ -23,7 +23,7 @@ class ScorePage extends StatefulWidget {
   static const String routerName = "/score";
 
   @override
-  ScorePageState createState() => new ScorePageState();
+  ScorePageState createState() => ScorePageState();
 }
 
 class ScorePageState extends State<ScorePage>
@@ -54,70 +54,14 @@ class ScorePageState extends State<ScorePage>
     super.dispose();
   }
 
-  _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
-  }
-
-  _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
-  }
-
-  _scoreTitle() => TableRow(
-        children: <Widget>[
-          _scoreTextBorder(app.subject, true),
-          _scoreTextBorder(app.midtermScore, true),
-          _scoreTextBorder(app.finalScore, true),
-        ],
-      );
-
-  Widget _textBorder(String text, bool isTop) {
-    return new Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(2.0),
-      decoration: new BoxDecoration(
-        border: new Border(
-          top: isTop
-              ? BorderSide.none
-              : BorderSide(color: Colors.grey, width: 0.5),
-        ),
-      ),
-      child: Text(
-        text ?? "",
-        textAlign: TextAlign.center,
-        style: _textBlueStyle(),
-      ),
-    );
-  }
-
-  Widget _scoreTextBorder(String text, bool isTitle) {
-    return Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
-      alignment: Alignment.center,
-      child: Text(
-        text ?? "",
-        textAlign: TextAlign.center,
-        style: isTitle ? _textBlueStyle() : _textStyle(),
-      ),
-    );
-  }
-
-  _scoreBorder(Score score) {
-    return TableRow(children: <Widget>[
-      _scoreTextBorder(score.title, false),
-      _scoreTextBorder(score.middleScore, false),
-      _scoreTextBorder(score.finalScore, false)
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
+    return Scaffold(
       // Appbar
-      appBar: new AppBar(
+      appBar: AppBar(
         // Title
-        title: new Text(app.score),
+        title: Text(app.score),
         backgroundColor: Resource.Colors.blue,
       ),
       body: Container(
@@ -151,7 +95,7 @@ class ScorePageState extends State<ScorePage>
             Container(
               child: isOffline
                   ? Text(
-                      app.offlineCourse,
+                      app.offlineScore,
                       style: TextStyle(color: Resource.Colors.grey),
                     )
                   : null,
@@ -207,13 +151,13 @@ class ScorePageState extends State<ScorePage>
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 Container(
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
                     ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Table(
                     columnWidths: const <int, TableColumnWidth>{
@@ -233,13 +177,13 @@ class ScorePageState extends State<ScorePage>
                 ),
                 SizedBox(height: 20.0),
                 Container(
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
                     ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Column(
                     children: <Widget>[
@@ -263,6 +207,62 @@ class ScorePageState extends State<ScorePage>
           ),
         );
     }
+  }
+
+  _textBlueStyle() {
+    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+  }
+
+  _textStyle() {
+    return TextStyle(color: Colors.black, fontSize: 14.0);
+  }
+
+  _scoreTitle() => TableRow(
+        children: <Widget>[
+          _scoreTextBorder(app.subject, true),
+          _scoreTextBorder(app.midtermScore, true),
+          _scoreTextBorder(app.finalScore, true),
+        ],
+      );
+
+  Widget _textBorder(String text, bool isTop) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(2.0),
+      decoration: BoxDecoration(
+        border: Border(
+          top: isTop
+              ? BorderSide.none
+              : BorderSide(color: Colors.grey, width: 0.5),
+        ),
+      ),
+      child: Text(
+        text ?? "",
+        textAlign: TextAlign.center,
+        style: _textBlueStyle(),
+      ),
+    );
+  }
+
+  Widget _scoreTextBorder(String text, bool isTitle) {
+    return Container(
+      width: double.maxFinite,
+      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+      alignment: Alignment.center,
+      child: Text(
+        text ?? "",
+        textAlign: TextAlign.center,
+        style: isTitle ? _textBlueStyle() : _textStyle(),
+      ),
+    );
+  }
+
+  TableRow _scoreTableRowTitle(Score score) {
+    return TableRow(children: <Widget>[
+      _scoreTextBorder(score.title, false),
+      _scoreTextBorder(score.middleScore, false),
+      _scoreTextBorder(score.finalScore, false)
+    ]);
   }
 
   void _selectSemester() {
@@ -337,7 +337,7 @@ class ScorePageState extends State<ScorePage>
     scoreWeightList.clear();
     scoreWeightList.add(_scoreTitle());
     for (var score in scoreData.content.scores) {
-      scoreWeightList.add(_scoreBorder(score));
+      scoreWeightList.add(_scoreTableRowTitle(score));
     }
   }
 

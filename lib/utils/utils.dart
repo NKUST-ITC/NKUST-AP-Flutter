@@ -424,7 +424,7 @@ class Utils {
                     ),
                     FlatButton(
                       onPressed: () {
-                        AppReview.requestReview;
+                        AppReview.requestReview.then((a) {});
                       },
                       child: Text(
                         app.rateNow,

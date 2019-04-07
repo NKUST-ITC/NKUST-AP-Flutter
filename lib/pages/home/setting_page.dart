@@ -106,10 +106,10 @@ class SettingPageState extends State<SettingPage>
           ),
           _titleItem(app.otherSettings),
           _itemSwitch(app.headPhotoSetting, displayPicture, () {
-            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
             setState(() {
               displayPicture = !displayPicture;
             });
+            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
             FA.logAction('head_photo', 'click');
           }),
           _itemSingle(app.language, () {

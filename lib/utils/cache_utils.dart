@@ -6,6 +6,7 @@ import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/models/score_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/models/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheUtils {
@@ -72,5 +73,22 @@ class CacheUtils {
     String json = prefs.getString(Constants.PREF_SCHEDULE_DATA) ?? '';
     if (json == '') return null;
     return ScheduleData.toList(jsonDecode(json));
+  }
+
+  static void saveUserInfo(UserInfo userInfo) async {
+    if (userInfo == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    await prefs.setString(
+        '${Constants.PREF_USER_INFO}_$username', jsonEncode(userInfo));
+  }
+
+  static Future<UserInfo> loadUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    String json =
+        prefs.getString('${Constants.PREF_USER_INFO}_$username') ?? '';
+    if (json == '') return null;
+    return UserInfo.fromJson(jsonDecode(json));
   }
 }

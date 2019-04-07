@@ -288,6 +288,7 @@ class AppLocalizations {
           'Offline login username or password Error',
       'offline_mode': 'Offline Mode',
       'no_offline_data': 'No offline data',
+      'offline_score': 'Offline Score',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -542,6 +543,7 @@ class AppLocalizations {
       'offline_login_password_error': '離線登入學號或密碼錯誤',
       'offline_mode': '離線模式',
       'no_offline_data': '無離線資料',
+      'offline_score': '離線成績',
     },
   };
 
@@ -973,6 +975,8 @@ class AppLocalizations {
   String get noOfflineData => _vocabularies['no_offline_data'];
 
   String get offlineMode => _vocabularies['offline_mode'];
+
+  String get offlineScore => _vocabularies['offline_score'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

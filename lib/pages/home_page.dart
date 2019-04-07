@@ -6,13 +6,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum _Status { loading, finish, error, empty, offline }
+enum _State { loading, finish, error, empty, offline }
 
 class HomePageRoute extends MaterialPageRoute {
   HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
@@ -32,7 +33,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  _Status state = _Status.loading;
+  _State state = _State.loading;
   AppLocalizations app;
 
   int _currentTabIndex = 0;
@@ -83,11 +84,11 @@ class HomePageState extends State<HomePage> {
     var rate =
         MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
     switch (state) {
-      case _Status.loading:
+      case _State.loading:
         return Center(
           child: CircularProgressIndicator(),
         );
-      case _Status.finish:
+      case _State.finish:
         return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -143,8 +144,7 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         );
-
-      case _Status.offline:
+      case _State.offline:
         return HintContent(
           icon: Icons.offline_bolt,
           content: app.offlineMode,
@@ -157,7 +157,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    _setupBusNotify(context);
+    if (state == _State.offline) _setupBusNotify(context);
     return WillPopScope(
         child: Scaffold(
           appBar: AppBar(
@@ -233,11 +233,11 @@ class HomePageState extends State<HomePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
       setState(() {
-        state = _Status.offline;
+        state = _State.offline;
       });
       return;
     }
-    state = _Status.loading;
+    state = _State.loading;
     Helper.instance.getAllNews().then((newsList) {
       this.newsList = newsList;
       this.newsList.sort((a, b) {
@@ -247,7 +247,7 @@ class HomePageState extends State<HomePage> {
         newsWidgets.add(_newImage(news));
       });
       setState(() {
-        state = newsList.length == 0 ? _Status.empty : _Status.finish;
+        state = newsList.length == 0 ? _State.empty : _State.finish;
       });
     }).catchError((e) {
       if (e is DioError) {
@@ -258,7 +258,7 @@ class HomePageState extends State<HomePage> {
           case DioErrorType.CANCEL:
             break;
           default:
-            state = _Status.error;
+            state = _State.error;
             Utils.handleDioError(e, app);
             break;
         }
@@ -296,8 +296,9 @@ class HomePageState extends State<HomePage> {
   _getUserInfo() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      userInfo = await CacheUtils.loadUserInfo();
       setState(() {
-        state = _Status.offline;
+        state = _State.offline;
       });
       return;
     }
@@ -308,6 +309,7 @@ class HomePageState extends State<HomePage> {
         });
         FA.setUserProperty('department', userInfo.department);
         FA.setUserId(userInfo.studentId);
+        CacheUtils.saveUserInfo(userInfo);
       }
     }).catchError((e) {
       if (e is DioError) {
