@@ -283,12 +283,12 @@ class ScorePageState extends State<ScorePage>
             title: Text(app.picksSemester),
             children: semesters)).then<void>((int position) {
       if (position != null) {
-        _getSemesterScore();
         if (mounted) {
           setState(() {
             selectSemesterIndex = position;
             selectSemester = semesterData.semesters[selectSemesterIndex];
           });
+          _getSemesterScore();
         }
       }
     });

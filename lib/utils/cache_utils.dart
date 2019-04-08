@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/models/score_data.dart';
@@ -90,5 +91,24 @@ class CacheUtils {
         prefs.getString('${Constants.PREF_USER_INFO}_$username') ?? '';
     if (json == '') return null;
     return UserInfo.fromJson(jsonDecode(json));
+  }
+
+  static void saveBusReservationsData(
+      BusReservationsData busReservationsData) async {
+    if (busReservationsData == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    await prefs.setString('${Constants.PREF_BUS_RESERVATIONS_DATA}_$username',
+        jsonEncode(busReservationsData));
+  }
+
+  static Future<BusReservationsData> loadBusReservationsData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    String json =
+        prefs.getString('${Constants.PREF_BUS_RESERVATIONS_DATA}_$username') ??
+            '';
+    if (json == '') return null;
+    return BusReservationsData.fromJson(jsonDecode(json));
   }
 }

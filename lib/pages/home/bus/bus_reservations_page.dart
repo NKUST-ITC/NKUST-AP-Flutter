@@ -2,13 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, offlineEmpty }
 
 class BusReservationsPageRoute extends MaterialPageRoute {
   BusReservationsPageRoute()
@@ -36,10 +38,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   _State state = _State.loading;
   BusReservationsData busReservationsData;
-  List<Widget> busReservationWeights = [];
   DateTime dateTime = DateTime.now();
 
   AppLocalizations app;
+
+  bool isOffline = false;
 
   @override
   void initState() {
@@ -56,7 +59,22 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return _body();
+    return Column(
+      children: <Widget>[
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: isOffline
+              ? Text(
+                  app.offlineBusReservations,
+                  style: TextStyle(color: Resource.Colors.grey),
+                )
+              : null,
+        ),
+        Expanded(
+          child: _body(),
+        ),
+      ],
+    );
   }
 
   Widget _body() {
@@ -78,15 +96,24 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 : app.busReservationEmpty,
           ),
         );
+      case _State.offlineEmpty:
+        return HintContent(
+          icon: Icons.assignment,
+          content: app.noOfflineData,
+        );
       default:
         return RefreshIndicator(
-          onRefresh: () {
+          onRefresh: () async {
             _getBusReservations();
             FA.logAction('refresh', 'swipe');
+            return null;
           },
-          child: ListView(
-            children: busReservationWeights,
-          ),
+          child: ListView.builder(
+              itemCount: busReservationsData.reservations.length,
+              itemBuilder: (context, i) {
+                return _busReservationWidget(
+                    busReservationsData.reservations[i]);
+              }),
         );
     }
   }
@@ -134,29 +161,35 @@ class BusReservationsPageState extends State<BusReservationsPage>
                           icon: Icon(
                             Icons.cancel,
                             size: 20.0,
-                            color: Resource.Colors.red,
+                            color: isOffline
+                                ? Resource.Colors.grey
+                                : Resource.Colors.red,
                           ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) => YesNoDialog(
-                                    title: app.busCancelReserve,
-                                    contentWidget: Text(
-                                      "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                          "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                          "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    leftActionText: app.back,
-                                    rightActionText: app.determine,
-                                    rightActionFunction: () {
-                                      _cancelBusReservation(busReservation);
-                                      FA.logAction('cancel_bus', 'click');
-                                    },
-                                  ),
-                            );
-                            FA.logAction('cancel_bus', 'create');
-                          },
+                          onPressed: isOffline
+                              ? null
+                              : () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        YesNoDialog(
+                                          title: app.busCancelReserve,
+                                          contentWidget: Text(
+                                            "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                                "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                                "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                            textAlign: TextAlign.center,
+                                          ),
+                                          leftActionText: app.back,
+                                          rightActionText: app.determine,
+                                          rightActionFunction: () {
+                                            _cancelBusReservation(
+                                                busReservation);
+                                            FA.logAction('cancel_bus', 'click');
+                                          },
+                                        ),
+                                  );
+                                  FA.logAction('cancel_bus', 'create');
+                                },
                         )
                       : Container(),
                 )
@@ -173,8 +206,23 @@ class BusReservationsPageState extends State<BusReservationsPage>
         ],
       );
 
-  _getBusReservations() {
-    busReservationWeights.clear();
+  _getBusReservations() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      busReservationsData = await CacheUtils.loadBusReservationsData();
+      if (mounted) {
+        setState(() {
+          isOffline = true;
+          if (busReservationsData == null)
+            state = _State.offlineEmpty;
+          else if (busReservationsData.reservations.length != 0)
+            state = _State.finish;
+          else
+            state = _State.empty;
+        });
+      }
+      return;
+    }
     if (mounted) {
       setState(() {
         state = _State.loading;
@@ -182,9 +230,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
     }
     Helper.instance.getBusReservations().then((response) {
       busReservationsData = response;
-      for (var i in busReservationsData.reservations) {
-        busReservationWeights.add(_busReservationWidget(i));
-      }
       if (mounted) {
         setState(() {
           if (busReservationsData.reservations.length != 0)
@@ -193,7 +238,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
             state = _State.empty;
         });
       }
-    }).catchError((e) {
+      CacheUtils.saveBusReservationsData(busReservationsData);
+    }).catchError((e) async {
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
@@ -216,6 +262,18 @@ class BusReservationsPageState extends State<BusReservationsPage>
               Utils.handleDioError(e, app);
             });
             break;
+        }
+        busReservationsData = await CacheUtils.loadBusReservationsData();
+        if (mounted) {
+          setState(() {
+            isOffline = true;
+            if (busReservationsData == null)
+              state = _State.offlineEmpty;
+            else if (busReservationsData.reservations.length != 0)
+              state = _State.finish;
+            else
+              state = _State.empty;
+          });
         }
       } else {
         throw e;

@@ -31,6 +31,7 @@ class Constants {
   static const PREF_SEMESTER_DATA = "pref_semester_data";
   static const PREF_SCHEDULE_DATA = 'pref_schedule_datae';
   static const PREF_USER_INFO = "pref_user_info";
+  static const PREF_BUS_RESERVATIONS_DATA = "pref_bus_reservevations_data";
 
   static const PREF_LANGUAGE_CODE = 'pref_language_code';
 
