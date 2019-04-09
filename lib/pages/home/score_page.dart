@@ -161,7 +161,7 @@ class ScorePageState extends State<ScorePage>
                   ),
                   child: Table(
                     columnWidths: const <int, TableColumnWidth>{
-                      0: FlexColumnWidth(2.0),
+                      0: FlexColumnWidth(2.5),
                       1: FlexColumnWidth(1.0),
                       2: FlexColumnWidth(1.0),
                     },

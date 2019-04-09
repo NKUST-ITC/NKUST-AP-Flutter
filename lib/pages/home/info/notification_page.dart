@@ -4,8 +4,9 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, loadingMore, error, empty }
+enum _State { loading, finish, loadingMore, error, empty, offline }
 
 class NotificationPageRoute extends MaterialPageRoute {
   NotificationPageRoute()
@@ -141,6 +142,11 @@ class NotificationPageState extends State<NotificationPage>
                 state == _State.error ? app.clickToRetry : app.clickToRetry,
           ),
         );
+      case _State.offline:
+        return HintContent(
+          icon: Icons.offline_bolt,
+          content: app.offlineMode,
+        );
       default:
         return RefreshIndicator(
           onRefresh: () {
@@ -175,6 +181,13 @@ class NotificationPageState extends State<NotificationPage>
   }
 
   _getNotifications() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      setState(() {
+        state = _State.offline;
+      });
+      return;
+    }
     Helper.instance.getNotifications(page).then((response) {
       var notificationData = response;
       for (var notification in notificationData.notifications) {
