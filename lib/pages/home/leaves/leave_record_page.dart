@@ -7,17 +7,18 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, offlineEmpty }
 
 class LeaveRecordPageRoute extends MaterialPageRoute {
   LeaveRecordPageRoute()
-      : super(builder: (BuildContext context) => new LeaveRecordPage());
+      : super(builder: (BuildContext context) => LeaveRecordPage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new LeaveRecordPage());
+    return FadeTransition(opacity: animation, child: LeaveRecordPage());
   }
 }
 
@@ -25,7 +26,7 @@ class LeaveRecordPage extends StatefulWidget {
   static const String routerName = "/score";
 
   @override
-  LeaveRecordPageState createState() => new LeaveRecordPageState();
+  LeaveRecordPageState createState() => LeaveRecordPageState();
 }
 
 class LeaveRecordPageState extends State<LeaveRecordPage>
@@ -51,6 +52,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   double count = 1.0;
 
+  bool isOffline = false;
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +74,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     return TextStyle(color: Colors.black, fontSize: 14.0);
   }
 
-  _scoreTitle(List<String> timeCodes) {
+  _leaveTitle(List<String> timeCodes) {
     List<Widget> widgets = [];
     widgets.add(_textBorder(app.date, true));
     for (var timeCode in timeCodes) {
@@ -102,37 +105,42 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     List<Widget> widgets = [];
     widgets.add(InkWell(
       child: _textBorder(leave.date.substring(4), false),
-      onTap: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => DefaultDialog(
-                title: app.leaveContent,
-                actionText: app.iKnow,
-                actionFunction: () =>
-                    Navigator.of(context, rootNavigator: true).pop('dialog'),
-                contentWidget: RichText(
-                  text: TextSpan(
-                      style: TextStyle(
-                          color: Resource.Colors.grey,
-                          height: 1.3,
-                          fontSize: 16.0),
-                      children: [
-                        TextSpan(
-                            text: '${app.leaveSheetId}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${leave.leaveSheetId}\n'),
-                        TextSpan(
-                            text: '${app.instructorsComment}：'
-                                '${leave.instructorsComment.length < 8 ? '' : '\n'}',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                            text:
-                                '${leave.instructorsComment.replaceAll('：', ' ')}'),
-                      ]),
-                ),
-              ),
-        );
-      },
+      onTap: (leave.leaveSheetId.isEmpty && leave.instructorsComment.isEmpty)
+          ? null
+          : () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => DefaultDialog(
+                      title: app.leaveContent,
+                      actionText: app.iKnow,
+                      actionFunction: () =>
+                          Navigator.of(context, rootNavigator: true)
+                              .pop('dialog'),
+                      contentWidget: RichText(
+                        text: TextSpan(
+                            style: TextStyle(
+                                color: Resource.Colors.grey,
+                                height: 1.3,
+                                fontSize: 16.0),
+                            children: [
+                              TextSpan(
+                                  text: '${app.leaveSheetId}：',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: '${leave.leaveSheetId}\n'),
+                              TextSpan(
+                                  text: '${app.instructorsComment}：'
+                                      '${leave.instructorsComment.length < 8 ? '' : '\n'}',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text:
+                                      '${leave.instructorsComment.replaceAll('：', ' ')}'),
+                            ]),
+                      ),
+                    ),
+              );
+            },
     ));
     for (var timeCode in timeCodes) {
       if (hasNight) {
@@ -155,32 +163,40 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          SizedBox(height: 16.0),
-          Expanded(
-            flex: 1,
-            child: FlatButton(
-              onPressed: (semesterData != null) ? _selectSemester : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    selectSemester == null ? "" : selectSemester.text,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
-                  ),
-                  SizedBox(width: 8.0),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Resource.Colors.blue,
-                  )
-                ],
-              ),
+          SizedBox(height: 8.0),
+          FlatButton(
+            onPressed: (semesterData != null) ? _selectSemester : null,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  selectSemester == null ? "" : selectSemester.text,
+                  style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                ),
+                SizedBox(width: 8.0),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Resource.Colors.blue,
+                )
+              ],
             ),
           ),
+          Container(
+            child: isOffline
+                ? Text(
+                    app.offlineCourse,
+                    style: TextStyle(color: Resource.Colors.grey),
+                  )
+                : null,
+          ),
           Expanded(
-            flex: 19,
             child: RefreshIndicator(
-              onRefresh: () => _getSemesterLeaveRecord(),
+              onRefresh: () async {
+                if (isOffline) await Helper.instance.initByPreference();
+                _getSemesterLeaveRecord();
+                FA.logAction('refresh', 'swipe');
+                return null;
+              },
               child: OrientationBuilder(builder: (_, orientation) {
                 return _body(orientation);
               }),
@@ -211,11 +227,16 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             content: state == _State.error ? app.clickToRetry : app.leaveEmpty,
           ),
         );
+      case _State.offlineEmpty:
+        return HintContent(
+          icon: Icons.class_,
+          content: app.noOfflineData,
+        );
       default:
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
@@ -224,13 +245,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     : Container(height: 0.0),
                 SizedBox(height: 16.0),
                 Container(
-                  decoration: new BoxDecoration(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
                     ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Table(
                     columnWidths: {
@@ -262,10 +283,11 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             title: Text(app.picksSemester),
             children: semesters)).then<void>((int position) {
       if (position != null) {
-        selectSemesterIndex = position;
-        selectSemester = semesterData.semesters[selectSemesterIndex];
+        setState(() {
+          selectSemesterIndex = position;
+          selectSemester = semesterData.semesters[selectSemesterIndex];
+        });
         _getSemesterLeaveRecord();
-        setState(() {});
       }
     });
   }
@@ -316,6 +338,11 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     }
     var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
     if (textList.length == 2) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+        _loadOfflineData();
+        return;
+      }
       Helper.instance.getLeaves(textList[0], textList[1]).then((response) {
         if (mounted)
           setState(() {
@@ -326,6 +353,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               state = _State.finish;
             }
           });
+        CacheUtils.saveLeaveData(
+            semesterData.semesters[selectSemesterIndex].value, leaveResponse);
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {
@@ -344,6 +373,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               }
               break;
           }
+          _loadOfflineData();
         } else {
           throw e;
         }
@@ -365,7 +395,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   List<TableRow> _renderLeavesWidget() {
     leaveWeightList.clear();
-    leaveWeightList.add(_scoreTitle(leaveResponse.timeCode));
+    leaveWeightList.add(_leaveTitle(leaveResponse.timeCode));
     for (var leave in leaveResponse.leaves) {
       leaveWeightList.add(_leaveBorder(leave, leaveResponse.timeCode));
     }
@@ -391,5 +421,24 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       selectSemester = semesterData.defaultSemester;
       selectSemesterIndex = semesterData.defaultIndex;
     });
+  }
+
+  void _loadOfflineData() async {
+    leaveResponse = await CacheUtils.loadLeaveData(
+        semesterData.semesters[selectSemesterIndex].value);
+    if (mounted) {
+      setState(() {
+        isOffline = true;
+        if (this.leaveResponse == null) {
+          state = _State.offlineEmpty;
+        } else if (leaveResponse.status == 204) {
+          state = _State.empty;
+        } else if (leaveResponse.status == 200) {
+          state = _State.finish;
+        } else {
+          state = _State.error;
+        }
+      });
+    }
   }
 }

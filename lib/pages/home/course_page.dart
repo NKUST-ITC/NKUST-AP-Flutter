@@ -72,28 +72,26 @@ class CoursePageState extends State<CoursePage>
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              SizedBox(height: 16.0),
-              Expanded(
-                flex: 1,
-                child: FlatButton(
-                  onPressed: (semesterData != null) ? _selectSemester : null,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        selectSemester == null ? "" : selectSemester.text,
-                        style: TextStyle(
-                            color: Resource.Colors.blue, fontSize: 18.0),
-                      ),
-                      SizedBox(width: 8.0),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Resource.Colors.blue,
-                      )
-                    ],
-                  ),
+              SizedBox(height: 8.0),
+              FlatButton(
+                onPressed: (semesterData != null) ? _selectSemester : null,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      selectSemester == null ? "" : selectSemester.text,
+                      style: TextStyle(
+                          color: Resource.Colors.blue, fontSize: 18.0),
+                    ),
+                    SizedBox(width: 8.0),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Resource.Colors.blue,
+                    )
+                  ],
                 ),
               ),
+              SizedBox(height: 4.0),
               Container(
                 child: isOffline
                     ? Text(
@@ -103,7 +101,6 @@ class CoursePageState extends State<CoursePage>
                     : null,
               ),
               Expanded(
-                flex: 19,
                 child: RefreshIndicator(
                   onRefresh: () async {
                     if (isOffline) await Helper.instance.initByPreference();

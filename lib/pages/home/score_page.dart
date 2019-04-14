@@ -70,26 +70,23 @@ class ScorePageState extends State<ScorePage>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            SizedBox(height: 16.0),
-            Expanded(
-              flex: 1,
-              child: FlatButton(
-                onPressed: (semesterData != null) ? _selectSemester : null,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      selectSemester == null ? "" : selectSemester.text,
-                      style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 18.0),
-                    ),
-                    SizedBox(width: 8.0),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Resource.Colors.blue,
-                    )
-                  ],
-                ),
+            SizedBox(height: 8.0),
+            FlatButton(
+              onPressed: (semesterData != null) ? _selectSemester : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    selectSemester == null ? "" : selectSemester.text,
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                  ),
+                  SizedBox(width: 8.0),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Resource.Colors.blue,
+                  )
+                ],
               ),
             ),
             Container(
@@ -101,7 +98,6 @@ class ScorePageState extends State<ScorePage>
                   : null,
             ),
             Expanded(
-              flex: 19,
               child: RefreshIndicator(
                 onRefresh: () async {
                   _getSemesterScore();
@@ -146,7 +142,7 @@ class ScorePageState extends State<ScorePage>
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Column(
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[

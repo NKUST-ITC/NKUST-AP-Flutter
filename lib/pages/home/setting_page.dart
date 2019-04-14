@@ -7,6 +7,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:package_info/package_info.dart';
@@ -40,6 +41,8 @@ class SettingPageState extends State<SettingPage>
 
   String appVersion = "1.0.0";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  bool isOffline = false;
 
   @override
   void initState() {
@@ -186,6 +189,7 @@ class SettingPageState extends State<SettingPage>
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
+      isOffline = prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN) ?? false;
       appVersion = packageInfo.version;
       courseNotify = prefs.getBool(Constants.PREF_COURSE_NOTIFY) ?? false;
       displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
@@ -233,36 +237,43 @@ class SettingPageState extends State<SettingPage>
         onPressed: function,
       );
 
-  void _setupCourseNotify(BuildContext context) {
+  void _setupCourseNotify(BuildContext context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) => ProgressDialog(app.loading),
         barrierDismissible: false);
+    if (isOffline) {
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      SemesterData semesterData = await CacheUtils.loadSemesterData();
+      if (semesterData != null) {
+        CourseData courseData =
+            await CacheUtils.loadCourseData(semesterData.defaultSemester.value);
+        if (courseData != null)
+          _setCourseData(courseData);
+        else {
+          setState(() {
+            courseNotify = false;
+            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+          });
+          Utils.showToast(app.noOfflineData);
+        }
+      } else {
+        setState(() {
+          courseNotify = false;
+          prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+        });
+        Utils.showToast(app.noOfflineData);
+      }
+      return;
+    }
     Helper.instance.getSemester().then((SemesterData semesterData) {
       var textList = semesterData.defaultSemester.value.split(",");
       if (textList.length == 2) {
         Helper.instance
             .getCourseTables(textList[0], textList[1])
-            .then((CourseData courseData) async {
-          switch (courseData.status) {
-            case 200:
-              await Utils.setCourseNotify(context, courseData.courseTables);
-              Utils.showToast(app.courseNotifyHint);
-              break;
-            case 204:
-              Utils.showToast(app.courseNotifyEmpty);
-              break;
-            default:
-              Utils.showToast(app.courseNotifyError);
-              break;
-          }
-          if (courseData.status != 200) {
-            setState(() {
-              courseNotify = false;
-              prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-            });
-          }
+            .then((CourseData courseData) {
           if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+          _setCourseData(courseData);
         }).catchError((e) {
           setState(() {
             courseNotify = false;
@@ -307,11 +318,46 @@ class SettingPageState extends State<SettingPage>
     });
   }
 
-  _setupBusNotify(BuildContext context) {
+  _setCourseData(CourseData courseData) async {
+    switch (courseData.status) {
+      case 200:
+        await Utils.setCourseNotify(context, courseData.courseTables);
+        Utils.showToast(app.courseNotifyHint);
+        break;
+      case 204:
+        Utils.showToast(app.courseNotifyEmpty);
+        break;
+      default:
+        Utils.showToast(app.courseNotifyError);
+        break;
+    }
+    if (courseData.status != 200) {
+      setState(() {
+        courseNotify = false;
+        prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+      });
+    }
+  }
+
+  _setupBusNotify(BuildContext context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) => ProgressDialog(app.loading),
         barrierDismissible: false);
+    if (isOffline) {
+      BusReservationsData response = await CacheUtils.loadBusReservationsData();
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      if (response == null) {
+        setState(() {
+          busNotify = false;
+        });
+        Utils.showToast(app.noOfflineData);
+      } else {
+        await Utils.setBusNotify(context, response.reservations);
+        Utils.showToast(app.busNotifyHint);
+      }
+      return;
+    }
     Helper.instance
         .getBusReservations()
         .then((BusReservationsData response) async {
