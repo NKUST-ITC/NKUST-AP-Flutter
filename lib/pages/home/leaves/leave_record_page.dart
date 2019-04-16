@@ -184,7 +184,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           Container(
             child: isOffline
                 ? Text(
-                    app.offlineCourse,
+                    app.offlineLeaveData,
                     style: TextStyle(color: Resource.Colors.grey),
                   )
                 : null,
@@ -320,6 +320,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       } else {
         throw e;
       }
+      _loadOfflineLeaveData();
     });
   }
 
@@ -340,7 +341,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     if (textList.length == 2) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
-        _loadOfflineData();
+        _loadOfflineLeaveData();
         return;
       }
       Helper.instance.getLeaves(textList[0], textList[1]).then((response) {
@@ -373,7 +374,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               }
               break;
           }
-          _loadOfflineData();
+          _loadOfflineLeaveData();
         } else {
           throw e;
         }
@@ -423,7 +424,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     });
   }
 
-  void _loadOfflineData() async {
+  void _loadOfflineLeaveData() async {
     leaveResponse = await CacheUtils.loadLeaveData(
         semesterData.semesters[selectSemesterIndex].value);
     if (mounted) {

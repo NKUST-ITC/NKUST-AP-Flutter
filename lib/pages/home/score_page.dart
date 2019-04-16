@@ -326,6 +326,7 @@ class ScorePageState extends State<ScorePage>
       } else {
         throw e;
       }
+      _loadOfflineScoreData();
     });
   }
 
@@ -353,7 +354,7 @@ class ScorePageState extends State<ScorePage>
     if (textList.length == 2) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
-        _loadOfflineData();
+        _loadOfflineScoreData();
       else
         Helper.instance.getScores(textList[0], textList[1]).then((response) {
           if (mounted)
@@ -389,7 +390,7 @@ class ScorePageState extends State<ScorePage>
           } else {
             throw e;
           }
-          _loadOfflineData();
+          _loadOfflineScoreData();
         });
     } else {
       setState(() {
@@ -407,7 +408,7 @@ class ScorePageState extends State<ScorePage>
     );
   }
 
-  _loadOfflineData() async {
+  _loadOfflineScoreData() async {
     scoreData = await CacheUtils.loadScoreData(
         semesterData.semesters[selectSemesterIndex].value);
     setState(() {

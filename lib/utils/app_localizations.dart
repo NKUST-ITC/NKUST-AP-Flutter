@@ -290,6 +290,7 @@ class AppLocalizations {
       'no_offline_data': 'No offline data',
       'offline_score': 'Offline Score',
       'offline_bus_reservations': 'Offline Bus Reservations',
+      'offline_leave_data': 'Offline absent Report',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -546,6 +547,7 @@ class AppLocalizations {
       'no_offline_data': '無離線資料',
       'offline_score': '離線成績',
       'offline_bus_reservations': '離線校車紀錄',
+      'offline_leave_data': '離線缺曠資料',
     },
   };
 
@@ -982,6 +984,8 @@ class AppLocalizations {
 
   String get offlineBusReservations =>
       _vocabularies['offline_bus_reservations'];
+
+  String get offlineLeaveData => _vocabularies['offline_leave_data'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

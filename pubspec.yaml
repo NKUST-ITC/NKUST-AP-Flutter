@@ -29,7 +29,7 @@ dependencies:
   carousel_slider: ^1.2.0
   flutter_crashlytics: 0.2.1+1
   encrypt: ^2.0.0
-  flutter_local_notifications: ^0.5.2
+  flutter_local_notifications: ^0.6.1
   sprintf: ^4.0.2
   add_2_calendar: ^1.2.2
   cached_network_image: ^0.7.0

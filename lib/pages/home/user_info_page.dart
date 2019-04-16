@@ -5,6 +5,7 @@ import 'package:nkust_ap/models/user_info.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -135,23 +136,26 @@ class UserInfoPageState extends State<UserInfoPage>
     );
   }
 
-  _getUserPicture() {
-    Helper.instance.getUsersPicture().then((url) {
-      if (this.mounted) {
-        setState(() {
-          pictureUrl = url;
-        });
-      }
-    }).catchError((e) {
-      assert(e is DioError);
-      DioError dioError = e as DioError;
-      switch (dioError.type) {
-        case DioErrorType.RESPONSE:
-          Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-          break;
-        default:
-          break;
-      }
-    });
+  _getUserPicture() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isOffline = prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN) ?? false;
+    if (isOffline)
+      Helper.instance.getUsersPicture().then((url) {
+        if (this.mounted) {
+          setState(() {
+            pictureUrl = url;
+          });
+        }
+      }).catchError((e) {
+        assert(e is DioError);
+        DioError dioError = e as DioError;
+        switch (dioError.type) {
+          case DioErrorType.RESPONSE:
+            Utils.handleResponseError(context, 'getUserPicture', mounted, e);
+            break;
+          default:
+            break;
+        }
+      });
   }
 }
