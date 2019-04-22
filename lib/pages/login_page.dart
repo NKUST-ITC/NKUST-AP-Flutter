@@ -44,8 +44,10 @@ class LoginPageState extends State<LoginPage>
     FA.setCurrentScreen("LoginPage", "login_page.dart");
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
-    _getPreference();
-    _checkUpdate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _getPreference();
+      _checkUpdate();
+    }
   }
 
   @override
@@ -236,7 +238,7 @@ class LoginPageState extends State<LoginPage>
               title: app.updateNoteTitle,
               contentWidget: Text(
                 "v${packageInfo.version}\n"
-                    "${app.updateNoteContent}",
+                "${app.updateNoteContent}",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.grey),
               ),
@@ -345,8 +347,10 @@ class LoginPageState extends State<LoginPage>
     setState(() {
       isRememberPassword = value;
       if (!isRememberPassword) isAutoLogin = false;
-      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      if (Platform.isAndroid || Platform.isIOS) {
+        prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      }
     });
   }
 
@@ -354,8 +358,10 @@ class LoginPageState extends State<LoginPage>
     setState(() {
       isAutoLogin = value;
       isRememberPassword = isAutoLogin;
-      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      if (Platform.isAndroid || Platform.isIOS) {
+        prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      }
     });
   }
 
@@ -402,22 +408,27 @@ class LoginPageState extends State<LoginPage>
                 return false;
               }),
           barrierDismissible: false);
-      prefs.setString(Constants.PREF_USERNAME, _username.text);
+
+      if (Platform.isAndroid || Platform.isIOS)
+        prefs.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-        if (response.isLogin != null) {
-          prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
-          prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
-          prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
+
+        if (Platform.isAndroid || Platform.isIOS) {
+          if (response.isLogin != null) {
+            prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
+            prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
+            prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
+          }
+          prefs.setString(Constants.PREF_USERNAME, _username.text);
+          if (isRememberPassword) {
+            await prefs.setString(Constants.PREF_PASSWORD,
+                encrypter.encrypt(_password.text).base64);
+          }
+          prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         }
-        prefs.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword) {
-          await prefs.setString(Constants.PREF_PASSWORD,
-              encrypter.encrypt(_password.text).base64);
-        }
-        prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         _navigateToFilterObject(context);
       }).catchError((e) {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');

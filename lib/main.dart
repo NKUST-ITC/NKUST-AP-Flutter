@@ -43,6 +43,8 @@ void main() async {
           .reportCrash(error, stackTrace, forceCrash: false);
     });
   } else {
+    // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
     runApp(MyApp());
     //TODO add other platform Crashlytics
   }
