@@ -217,7 +217,7 @@ class HomePageState extends State<HomePage> {
           if (bus)
             Navigator.of(context).push(BusPageRoute());
           else
-            Utils.showToast(app.canNotUseFeature);
+            Utils.showToast(context, app.canNotUseFeature);
           break;
         case 1:
           Navigator.of(context).push(CoursePageRoute());
@@ -259,7 +259,7 @@ class HomePageState extends State<HomePage> {
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {

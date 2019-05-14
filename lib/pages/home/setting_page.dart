@@ -98,7 +98,7 @@ class SettingPageState extends State<SettingPage>
               prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
               FA.logAction('notify_bus', 'click', message: '$busNotify');
             } else {
-              Utils.showToast(app.canNotUseFeature);
+              Utils.showToast(context, app.canNotUseFeature);
               FA.logAction('notify_bus', 'staus',
                   message: 'can\'t use feature');
             }
@@ -136,14 +136,16 @@ class SettingPageState extends State<SettingPage>
                       'https://www.facebook.com/954175941266264/'));
             else {
               Utils.launchUrl('https://www.facebook.com/954175941266264/')
-                  .catchError((onError) => Utils.showToast(app.platformError));
+                  .catchError(
+                      (onError) => Utils.showToast(context, app.platformError));
             }
             FA.logAction('feedback', 'click');
           }),
           _item(app.donateTitle, app.donateContent, () {
             Utils.launchUrl(
                     "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
-                .catchError((onError) => Utils.showToast(app.platformError));
+                .catchError(
+                    (onError) => Utils.showToast(context, app.platformError));
             FA.logAction('donate', 'click');
           }),
           _item(app.appVersion, "v$appVersion", () {
@@ -255,14 +257,14 @@ class SettingPageState extends State<SettingPage>
             courseNotify = false;
             prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
-          Utils.showToast(app.noOfflineData);
+          Utils.showToast(context, app.noOfflineData);
         }
       } else {
         setState(() {
           courseNotify = false;
           prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
-        Utils.showToast(app.noOfflineData);
+        Utils.showToast(context, app.noOfflineData);
       }
       return;
     }
@@ -288,7 +290,7 @@ class SettingPageState extends State<SettingPage>
               case DioErrorType.CANCEL:
                 break;
               default:
-                Utils.handleDioError(e, app);
+                Utils.handleDioError(context, e);
                 break;
             }
           } else {
@@ -309,7 +311,7 @@ class SettingPageState extends State<SettingPage>
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -322,13 +324,13 @@ class SettingPageState extends State<SettingPage>
     switch (courseData.status) {
       case 200:
         await Utils.setCourseNotify(context, courseData.courseTables);
-        Utils.showToast(app.courseNotifyHint);
+        Utils.showToast(context, app.courseNotifyHint);
         break;
       case 204:
-        Utils.showToast(app.courseNotifyEmpty);
+        Utils.showToast(context, app.courseNotifyEmpty);
         break;
       default:
-        Utils.showToast(app.courseNotifyError);
+        Utils.showToast(context, app.courseNotifyError);
         break;
     }
     if (courseData.status != 200) {
@@ -351,10 +353,10 @@ class SettingPageState extends State<SettingPage>
         setState(() {
           busNotify = false;
         });
-        Utils.showToast(app.noOfflineData);
+        Utils.showToast(context, app.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        Utils.showToast(app.busNotifyHint);
+        Utils.showToast(context, app.busNotifyHint);
       }
       return;
     }
@@ -362,7 +364,7 @@ class SettingPageState extends State<SettingPage>
         .getBusReservations()
         .then((BusReservationsData response) async {
       await Utils.setBusNotify(context, response.reservations);
-      Utils.showToast(app.busNotifyHint);
+      Utils.showToast(context, app.busNotifyHint);
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
     }).catchError((e) {
       setState(() {
@@ -378,7 +380,7 @@ class SettingPageState extends State<SettingPage>
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
-              Utils.showToast(app.busFailInfinity);
+              Utils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

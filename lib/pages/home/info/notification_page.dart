@@ -207,7 +207,7 @@ class NotificationPageState extends State<NotificationPage>
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {

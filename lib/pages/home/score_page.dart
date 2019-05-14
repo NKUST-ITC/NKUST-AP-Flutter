@@ -320,7 +320,7 @@ class ScorePageState extends State<ScorePage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -382,7 +382,7 @@ class ScorePageState extends State<ScorePage>
                 if (mounted) {
                   setState(() {
                     state = _State.error;
-                    Utils.handleDioError(e, app);
+                    Utils.handleDioError(context, e);
                   });
                 }
                 break;

@@ -64,7 +64,7 @@ class DrawerBodyState extends State<DrawerBody> {
                     Navigator.of(context)
                         .push(UserInfoPageRoute(widget.userInfo));
                   else
-                    Utils.showToast(widget.userInfo.message);
+                    Utils.showToast(context, widget.userInfo.message);
                 },
                 child: Stack(
                   children: <Widget>[
@@ -122,7 +122,7 @@ class DrawerBodyState extends State<DrawerBody> {
                               widget.userInfo == null
                                   ? " \n "
                                   : "${widget.userInfo.studentNameCht}\n"
-                                  "${widget.userInfo.studentId}",
+                                      "${widget.userInfo.studentId}",
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
@@ -240,14 +240,14 @@ class DrawerBodyState extends State<DrawerBody> {
           if (route is BusPageRoute) {
             bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
             if (!bus) {
-              Utils.showToast(app.canNotUseFeature);
+              Utils.showToast(context, app.canNotUseFeature);
               return;
             }
           }
           if (route is LeavePageRoute) {
             bool leave = prefs.getBool(Constants.PREF_LEAVE_ENABLE) ?? true;
             if (!leave) {
-              Utils.showToast(app.canNotUseFeature);
+              Utils.showToast(context, app.canNotUseFeature);
               return;
             }
           }

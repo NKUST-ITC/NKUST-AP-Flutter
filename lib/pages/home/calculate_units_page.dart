@@ -313,7 +313,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -393,7 +393,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               setState(() {
                 state = _State.error;
               });
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {
@@ -476,7 +476,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                 setState(() {
                   state = _State.error;
                 });
-                Utils.handleDioError(e, app);
+                Utils.handleDioError(context, e);
                 break;
             }
           } else {

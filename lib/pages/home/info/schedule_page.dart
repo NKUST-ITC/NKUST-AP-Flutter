@@ -262,11 +262,11 @@ class SchedulePageState extends State<SchedulePage>
     try {
       if (Platform.isIOS || Platform.isAndroid) {
         Add2Calendar.addEvent2Cal(event);
-        if (Platform.isIOS) Utils.showToast(app.addSuccess);
+        if (Platform.isIOS) Utils.showToast(context, app.addSuccess);
       } else
-        Utils.showToast(app.calendarAppNotFound);
+        Utils.showToast(context, app.calendarAppNotFound);
     } catch (e) {
-      Utils.showToast(app.calendarAppNotFound);
+      Utils.showToast(context, app.calendarAppNotFound);
       throw e;
     }
   }

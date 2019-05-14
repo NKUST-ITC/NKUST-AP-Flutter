@@ -398,7 +398,7 @@ class LoginPageState extends State<LoginPage>
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(app.doNotEmpty);
+      Utils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
           context: context,
@@ -435,14 +435,14 @@ class LoginPageState extends State<LoginPage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(app.loginFail);
+              Utils.showToast(context, app.loginFail);
               Utils.handleResponseError(context, 'login', mounted, e);
               _offlineLogin();
               break;
             case DioErrorType.CANCEL:
               break;
             default:
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {
@@ -456,7 +456,7 @@ class LoginPageState extends State<LoginPage>
     String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
     String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
     if (username.isEmpty) {
-      Utils.showToast(app.noOfflineLoginData);
+      Utils.showToast(context, app.noOfflineLoginData);
     } else {
       String password = '';
       try {
@@ -469,10 +469,10 @@ class LoginPageState extends State<LoginPage>
         throw e;
       }
       if (username != _username.text || password != _password.text)
-        Utils.showToast(app.offlineLoginPasswordError);
+        Utils.showToast(context, app.offlineLoginPasswordError);
       else {
         prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(app.loadOfflineData);
+        Utils.showToast(context, app.loadOfflineData);
         ShareDataWidget.of(context).username =
             prefs.getString(Constants.PREF_USERNAME);
         _navigateToFilterObject(context);

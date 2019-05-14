@@ -314,7 +314,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -369,7 +369,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.handleDioError(e, app);
+                  Utils.handleDioError(context, e);
                 });
               }
               break;

@@ -175,8 +175,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                           title: app.busCancelReserve,
                                           contentWidget: Text(
                                             "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                                "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                                "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                            "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                            "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
                                             textAlign: TextAlign.center,
                                           ),
                                           leftActionText: app.back,
@@ -250,7 +250,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             if (e.message.contains("HttpException")) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(app.busFailInfinity);
+                Utils.showToast(context, app.busFailInfinity);
               });
             }
             break;
@@ -259,7 +259,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           default:
             setState(() {
               state = _State.error;
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
             });
             break;
         }
@@ -360,13 +360,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(app.busFailInfinity);
+              Utils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {

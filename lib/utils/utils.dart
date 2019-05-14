@@ -5,7 +5,6 @@ import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
@@ -17,18 +16,19 @@ import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
+import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
-  static void handleDioError(DioError dioError, AppLocalizations app) {
+  static void handleDioError(BuildContext context, DioError dioError) {
     switch (dioError.type) {
       case DioErrorType.DEFAULT:
-        showToast(app.noInternet);
+        showToast(context, AppLocalizations.of(context).noInternet);
         break;
       case DioErrorType.CONNECT_TIMEOUT:
       case DioErrorType.RECEIVE_TIMEOUT:
       case DioErrorType.SEND_TIMEOUT:
-        showToast(app.timeoutMessage);
+        showToast(context, AppLocalizations.of(context).timeoutMessage);
         break;
       case DioErrorType.RESPONSE:
       case DioErrorType.CANCEL:
@@ -41,23 +41,22 @@ class Utils {
     var app = AppLocalizations.of(context);
     FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
-      Utils.showToast(app.tokenExpiredContent);
+      Utils.showToast(context, app.tokenExpiredContent);
       if (mounted)
         Navigator.popUntil(
             context, ModalRoute.withName(Navigator.defaultRouteName));
     } else {
-      Utils.showToast(app.somethingError);
+      Utils.showToast(context, app.somethingError);
     }
   }
 
-  static void showToast(String message) {
-    Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIos: 1,
-        backgroundColor: Colors.grey[300],
-        textColor: Colors.black);
+  static void showToast(BuildContext context, String message) {
+    Toast.show(
+      message,
+      context,
+      duration: Toast.LENGTH_LONG,
+      gravity: Toast.BOTTOM,
+    );
   }
 
   static String getPlatformUpdateContent(AppLocalizations app) {

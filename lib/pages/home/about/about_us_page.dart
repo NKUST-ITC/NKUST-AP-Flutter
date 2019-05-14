@@ -129,8 +129,8 @@ class AboutUsPageState extends State<AboutUsPage>
                               else
                                 Utils.launchUrl(
                                         'https://www.facebook.com/NKUST.ITC/')
-                                    .catchError((onError) =>
-                                        Utils.showToast(app.platformError));
+                                    .catchError((onError) => Utils.showToast(
+                                        context, app.platformError));
                               FA.logAction('fb', 'click');
                             },
                             iconSize: 48.0,
@@ -147,8 +147,8 @@ class AboutUsPageState extends State<AboutUsPage>
                                 Utils.launchUrl('https://github.com/NKUST-ITC');
                               else
                                 Utils.launchUrl('https://github.com/NKUST-ITC')
-                                    .catchError((onError) =>
-                                        Utils.showToast(app.platformError));
+                                    .catchError((onError) => Utils.showToast(
+                                        context, app.platformError));
                               FA.logAction('github', 'click');
                             },
                             iconSize: 48.0,
@@ -157,8 +157,8 @@ class AboutUsPageState extends State<AboutUsPage>
                             icon: Image.asset("assets/images/ic_email.webp"),
                             onPressed: () {
                               Utils.launchUrl('mailto:abc873693@gmail.com')
-                                  .catchError((onError) =>
-                                      Utils.showToast(app.platformError));
+                                  .catchError((onError) => Utils.showToast(
+                                      context, app.platformError));
                               FA.logAction('email', 'click');
                             },
                             iconSize: 48.0,

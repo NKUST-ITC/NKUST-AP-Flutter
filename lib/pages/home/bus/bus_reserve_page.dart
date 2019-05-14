@@ -264,8 +264,8 @@ class BusReservePageState extends State<BusReservePage>
                                 title: app.busCancelReserve,
                                 contentWidget: Text(
                                   "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                                      "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                                      "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
+                                  "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
+                                  "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
                                   textAlign: TextAlign.center,
                                 ),
                                 leftActionText: app.back,
@@ -367,19 +367,18 @@ class BusReservePageState extends State<BusReservePage>
       }
     }).catchError((e) {
       if (e is DioError) {
-        DioError dioError = e;
         //if bus can't connection:
         // dioError.message = HttpException: Connection closed before full header was received
-        switch (dioError.type) {
+        switch (e.type) {
           case DioErrorType.RESPONSE:
             Utils.handleResponseError(context, 'getBusTimeTables', mounted, e);
             break;
           case DioErrorType.DEFAULT:
-            if (dioError.message.contains("HttpException")) {
+            if (e.message.contains("HttpException")) {
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(app.busFailInfinity);
+                  Utils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -390,7 +389,7 @@ class BusReservePageState extends State<BusReservePage>
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.handleDioError(dioError, app);
+                Utils.handleDioError(context, e);
               });
             }
             break;
@@ -469,7 +468,7 @@ class BusReservePageState extends State<BusReservePage>
               Utils.showAppReviewDialog(context);
             }),
       );
-      //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
+      //Utils.showDefaultDialog(context, title, messagcontext, e.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       if (e is DioError) {
@@ -482,7 +481,7 @@ class BusReservePageState extends State<BusReservePage>
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(app.busFailInfinity);
+                  Utils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -490,7 +489,7 @@ class BusReservePageState extends State<BusReservePage>
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -576,13 +575,13 @@ class BusReservePageState extends State<BusReservePage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(app.busFailInfinity);
+              Utils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {

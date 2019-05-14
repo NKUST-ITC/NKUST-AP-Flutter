@@ -320,7 +320,7 @@ class CoursePageState extends State<CoursePage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -438,7 +438,7 @@ class CoursePageState extends State<CoursePage>
                 setState(() {
                   state = _State.error;
                 });
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {
