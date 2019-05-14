@@ -311,31 +311,40 @@ class Utils {
                     child: Text(app.systemLanguage),
                     onPressed: () async {
                       Navigator.pop(context);
-                      SharedPreferences preference =
-                          await SharedPreferences.getInstance();
-                      preference.setString(
-                          Constants.PREF_LANGUAGE_CODE, 'system');
-                      AppLocalizations.locale = Localizations.localeOf(context);
+                      if (Platform.isAndroid || Platform.isIOS) {
+                        SharedPreferences preference =
+                            await SharedPreferences.getInstance();
+                        preference.setString(
+                            Constants.PREF_LANGUAGE_CODE, 'system');
+                        AppLocalizations.locale =
+                            Localizations.localeOf(context);
+                      }
                       function();
                     }),
                 SimpleDialogOption(
                     child: Text(app.traditionalChinese),
                     onPressed: () async {
                       Navigator.pop(context);
-                      SharedPreferences preference =
-                          await SharedPreferences.getInstance();
-                      preference.setString(Constants.PREF_LANGUAGE_CODE, 'zh');
-                      AppLocalizations.locale = Locale('zh');
+                      if (Platform.isAndroid || Platform.isIOS) {
+                        SharedPreferences preference =
+                            await SharedPreferences.getInstance();
+                        preference.setString(
+                            Constants.PREF_LANGUAGE_CODE, 'zh');
+                        AppLocalizations.locale = Locale('zh');
+                      }
                       function();
                     }),
                 SimpleDialogOption(
                     child: Text(app.english),
                     onPressed: () async {
-                      SharedPreferences preference =
-                          await SharedPreferences.getInstance();
-                      preference.setString(Constants.PREF_LANGUAGE_CODE, 'en');
                       Navigator.pop(context);
-                      AppLocalizations.locale = Locale('en');
+                      if (Platform.isAndroid || Platform.isIOS) {
+                        SharedPreferences preference =
+                            await SharedPreferences.getInstance();
+                        preference.setString(
+                            Constants.PREF_LANGUAGE_CODE, 'en');
+                        AppLocalizations.locale = Locale('en');
+                      }
                       function();
                     })
               ]),

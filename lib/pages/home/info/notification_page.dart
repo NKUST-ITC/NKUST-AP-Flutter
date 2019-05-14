@@ -10,13 +10,12 @@ enum _State { loading, finish, loadingMore, error, empty, offline }
 
 class NotificationPageRoute extends MaterialPageRoute {
   NotificationPageRoute()
-      : super(builder: (BuildContext context) => new NotificationPage());
+      : super(builder: (BuildContext context) => NotificationPage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new NotificationPage());
+    return FadeTransition(opacity: animation, child: NotificationPage());
   }
 }
 
@@ -24,7 +23,7 @@ class NotificationPage extends StatefulWidget {
   static const String routerName = "/info/notification";
 
   @override
-  NotificationPageState createState() => new NotificationPageState();
+  NotificationPageState createState() => NotificationPageState();
 }
 
 class NotificationPageState extends State<NotificationPage>
@@ -44,7 +43,7 @@ class NotificationPageState extends State<NotificationPage>
   void initState() {
     super.initState();
     FA.setCurrentScreen("NotificationPage", "notification_page.dart");
-    controller = new ScrollController()..addListener(_scrollListener);
+    controller = ScrollController()..addListener(_scrollListener);
     _getNotifications();
   }
 
@@ -71,50 +70,51 @@ class NotificationPageState extends State<NotificationPage>
             message: '${notification.info.title}');
       },
       child: FlatButton(
-          padding: EdgeInsets.all(0.0),
-          onPressed: () {
-            Utils.launchUrl(notification.link);
-            FA.logAction('notification_link"', 'click',
-                message: '${notification.info.title}');
-          },
-          child: Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(16.0),
-            decoration: new BoxDecoration(
-              border: new Border(
-                top: BorderSide(color: Colors.grey, width: 0.5),
+        padding: EdgeInsets.all(0.0),
+        onPressed: () {
+          Utils.launchUrl(notification.link);
+          FA.logAction('notification_link"', 'click',
+              message: '${notification.info.title}');
+        },
+        child: Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: Colors.grey, width: 0.5),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                notification.info.title ?? "",
+                style: _textStyle(),
+                textAlign: TextAlign.left,
               ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  notification.info.title ?? "",
-                  style: _textStyle(),
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(height: 8.0),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        notification.info.department ?? "",
-                        style: _textGreyStyle(),
-                        textAlign: TextAlign.left,
-                      ),
+              SizedBox(height: 8.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(
+                      notification.info.department ?? "",
+                      style: _textGreyStyle(),
+                      textAlign: TextAlign.left,
                     ),
-                    Expanded(
-                      child: Text(
-                        notification.info.date ?? "",
-                        style: _textGreyStyle(),
-                        textAlign: TextAlign.right,
-                      ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      notification.info.date ?? "",
+                      style: _textGreyStyle(),
+                      textAlign: TextAlign.right,
                     ),
-                  ],
-                )
-              ],
-            ),
-          )),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
 

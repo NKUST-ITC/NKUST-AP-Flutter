@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -996,16 +998,20 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    SharedPreferences preference = await SharedPreferences.getInstance();
-    String languageCode =
-        preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
-
-    AppLocalizations localizations = AppLocalizations(
-        (languageCode == 'system') ? locale : Locale(languageCode));
-
     print('Load ${locale.languageCode}');
+    if (Platform.isAndroid || Platform.isIOS) {
+      SharedPreferences preference = await SharedPreferences.getInstance();
+      String languageCode =
+          preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
 
-    return localizations;
+      AppLocalizations localizations = AppLocalizations(
+          (languageCode == 'system') ? locale : Locale(languageCode));
+
+      return localizations;
+    } else {
+      //TODO if other platform can use SharedPreferences, need update.
+      return AppLocalizations(locale);
+    }
   }
 
   @override
