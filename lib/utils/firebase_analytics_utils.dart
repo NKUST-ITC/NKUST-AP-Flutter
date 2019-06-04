@@ -80,10 +80,10 @@ class FA {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     if (Platform.isIOS || Platform.isAndroid)
       await analytics.logEvent(
-        name: name,
+        name: name ?? '',
         parameters: <String, dynamic>{
-          'action': action,
-          'message': message,
+          'action': action ?? '',
+          'message': message ?? '',
           'version': packageInfo.version,
           'platform': Platform.operatingSystem,
         },

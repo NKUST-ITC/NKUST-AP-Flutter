@@ -18,7 +18,7 @@ class DrawerBody extends StatefulWidget {
   const DrawerBody({Key key, this.userInfo}) : super(key: key);
 
   @override
-  DrawerBodyState createState() => new DrawerBodyState();
+  DrawerBodyState createState() => DrawerBodyState();
 }
 
 class DrawerBodyState extends State<DrawerBody> {
@@ -51,96 +51,86 @@ class DrawerBodyState extends State<DrawerBody> {
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            Container(
-              color: Color(0xff0071FF),
-              width: double.infinity,
-              child: GestureDetector(
-                onTap: () {
-                  if (widget.userInfo == null) return;
-                  if ((widget.userInfo.status == null
-                          ? 200
-                          : widget.userInfo.status) ==
-                      200)
-                    Navigator.of(context)
-                        .push(UserInfoPageRoute(widget.userInfo));
-                  else
-                    Utils.showToast(context, widget.userInfo.message);
-                },
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      width: double.infinity,
-                      decoration: new BoxDecoration(
-                        image: new DecorationImage(
-                            image: new AssetImage(
-                                "assets/images/drawer-backbroud.webp"),
-                            fit: BoxFit.fitWidth,
-                            alignment: Alignment.bottomCenter),
-                      ),
-                      padding: EdgeInsets.all(20.0),
-                      child: Flex(
-                        direction: Axis.vertical,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(height: 40.0),
-                          pictureUrl != "" && displayPicture
-                              ? Hero(
-                                  tag: Constants.TAG_STUDENT_PICTURE,
-                                  child: Container(
-                                    width: 72.0,
-                                    height: 72.0,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      image: new DecorationImage(
-                                        fit: BoxFit.fitWidth,
-                                        image: CachedNetworkImageProvider(
-                                          pictureUrl,
-                                          errorListener: () {
-                                            print('error');
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  width: 72.0,
-                                  height: 72.0,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Icon(
-                                    Icons.account_circle,
-                                    color: Colors.white,
-                                    size: 72.0,
+            GestureDetector(
+              onTap: () {
+                if (widget.userInfo == null) return;
+                if ((widget.userInfo.status == null
+                        ? 200
+                        : widget.userInfo.status) ==
+                    200)
+                  Navigator.of(context)
+                      .push(UserInfoPageRoute(widget.userInfo));
+                else
+                  Utils.showToast(context, widget.userInfo.message);
+              },
+              child: Stack(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    margin: EdgeInsets.all(0),
+                    currentAccountPicture: pictureUrl != "" && displayPicture
+                        ? Hero(
+                            tag: Constants.TAG_STUDENT_PICTURE,
+                            child: Container(
+                              width: 72.0,
+                              height: 72.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.fitWidth,
+                                  image: CachedNetworkImageProvider(
+                                    pictureUrl,
+                                    errorListener: () {
+                                      print('error');
+                                    },
                                   ),
                                 ),
-                          SizedBox(height: 16.0),
-                          SizedBox(
-                            height: 32.0,
-                            child: Text(
-                              widget.userInfo == null
-                                  ? " \n "
-                                  : "${widget.userInfo.studentNameCht}\n"
-                                      "${widget.userInfo.studentId}",
-                              style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          )
+                        : Container(
+                            width: 72.0,
+                            height: 72.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.account_circle,
+                              color: Colors.white,
+                              size: 72.0,
                             ),
                           ),
-                        ],
+                    accountName: Text(
+                      widget.userInfo == null
+                          ? ""
+                          : "${widget.userInfo.studentNameCht}",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    accountEmail: Text(
+                      widget.userInfo == null
+                          ? ""
+                          : "${widget.userInfo.studentId}",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Color(0xff0071FF),
+                      image: DecorationImage(
+                          image:
+                              AssetImage("assets/images/drawer-backbroud.webp"),
+                          fit: BoxFit.fitWidth,
+                          alignment: Alignment.bottomCenter),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 20.0,
+                    right: 20.0,
+                    child: Container(
+                      child: Image.asset(
+                        "assets/images/drawer-icon.webp",
+                        width: 90.0,
                       ),
                     ),
-                    Positioned(
-                      bottom: 20.0,
-                      right: 20.0,
-                      child: Container(
-                        child: Image.asset(
-                          "assets/images/drawer-icon.webp",
-                          width: 90.0,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             ExpansionTile(
