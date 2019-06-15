@@ -1,8 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:nkust_ap/models/user_info.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -44,7 +45,8 @@ class UserInfoPageState extends State<UserInfoPage>
   void initState() {
     super.initState();
     FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
-    if (pictureUrl == null || pictureUrl.isEmpty) _getUserPicture();
+    print(pictureBytes == null);
+    if (pictureBytes == null) _getUserPicture();
   }
 
   @override
@@ -63,22 +65,18 @@ class UserInfoPageState extends State<UserInfoPage>
           child: Column(
             children: <Widget>[
               SizedBox(height: 8.0),
-              SizedBox(
-                height: 320,
-                child: AspectRatio(
-                  aspectRatio: 2.0,
-                  child: pictureUrl != ""
-                      ? Hero(
+              pictureBytes != null
+                  ? SizedBox(
+                      height: 320,
+                      child: AspectRatio(
+                        aspectRatio: 2.0,
+                        child: Hero(
                           tag: Constants.TAG_STUDENT_PICTURE,
-                          child: CachedNetworkImage(
-                            imageUrl: pictureUrl,
-                            errorWidget: (context, url, error) =>
-                                Icon(Icons.error),
-                          ),
-                        )
-                      : null,
-                ),
-              ),
+                          child: Image.memory(pictureBytes),
+                        ),
+                      ),
+                    )
+                  : SizedBox(height: 0.0),
               SizedBox(height: 8.0),
               Padding(
                 padding: EdgeInsets.all(8.0),
@@ -139,12 +137,21 @@ class UserInfoPageState extends State<UserInfoPage>
   _getUserPicture() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isOffline = prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN) ?? false;
-    if (isOffline)
-      Helper.instance.getUsersPicture().then((url) {
+    if (!isOffline) {
+      Helper.instance.getUsersPicture().then((url) async {
         if (this.mounted) {
-          setState(() {
-            pictureUrl = url;
-          });
+          var response = await http.get(url);
+          if (!response.body.contains('html')) {
+            setState(() {
+              pictureBytes = response.bodyBytes;
+            });
+            CacheUtils.savePictureData(response.bodyBytes);
+          } else {
+            var bytes = await CacheUtils.loadPictureData();
+            setState(() {
+              pictureBytes = bytes;
+            });
+          }
         }
       }).catchError((e) {
         assert(e is DioError);
@@ -157,5 +164,11 @@ class UserInfoPageState extends State<UserInfoPage>
             break;
         }
       });
+    } else {
+      var bytes = await CacheUtils.loadPictureData();
+      setState(() {
+        pictureBytes = bytes;
+      });
+    }
   }
 }

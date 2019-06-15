@@ -492,7 +492,7 @@ class LoginPageState extends State<LoginPage>
     prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
     setState(() {
       isAutoLogin = false;
-      pictureUrl = "";
+      pictureBytes = null;
     });
   }
 }
