@@ -7,6 +7,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:package_info/package_info.dart';
@@ -40,6 +41,8 @@ class SettingPageState extends State<SettingPage>
 
   String appVersion = "1.0.0";
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  bool isOffline = false;
 
   @override
   void initState() {
@@ -95,7 +98,7 @@ class SettingPageState extends State<SettingPage>
               prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
               FA.logAction('notify_bus', 'click', message: '$busNotify');
             } else {
-              Utils.showToast(app.canNotUseFeature);
+              Utils.showToast(context, app.canNotUseFeature);
               FA.logAction('notify_bus', 'staus',
                   message: 'can\'t use feature');
             }
@@ -106,10 +109,10 @@ class SettingPageState extends State<SettingPage>
           ),
           _titleItem(app.otherSettings),
           _itemSwitch(app.headPhotoSetting, displayPicture, () {
-            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
             setState(() {
               displayPicture = !displayPicture;
             });
+            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
             FA.logAction('head_photo', 'click');
           }),
           _itemSingle(app.language, () {
@@ -133,14 +136,16 @@ class SettingPageState extends State<SettingPage>
                       'https://www.facebook.com/954175941266264/'));
             else {
               Utils.launchUrl('https://www.facebook.com/954175941266264/')
-                  .catchError((onError) => Utils.showToast(app.platformError));
+                  .catchError(
+                      (onError) => Utils.showToast(context, app.platformError));
             }
             FA.logAction('feedback', 'click');
           }),
           _item(app.donateTitle, app.donateContent, () {
             Utils.launchUrl(
                     "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
-                .catchError((onError) => Utils.showToast(app.platformError));
+                .catchError(
+                    (onError) => Utils.showToast(context, app.platformError));
             FA.logAction('donate', 'click');
           }),
           _item(app.appVersion, "v$appVersion", () {
@@ -186,6 +191,7 @@ class SettingPageState extends State<SettingPage>
     prefs = await SharedPreferences.getInstance();
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
+      isOffline = prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN) ?? false;
       appVersion = packageInfo.version;
       courseNotify = prefs.getBool(Constants.PREF_COURSE_NOTIFY) ?? false;
       displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
@@ -233,36 +239,43 @@ class SettingPageState extends State<SettingPage>
         onPressed: function,
       );
 
-  void _setupCourseNotify(BuildContext context) {
+  void _setupCourseNotify(BuildContext context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) => ProgressDialog(app.loading),
         barrierDismissible: false);
+    if (isOffline) {
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      SemesterData semesterData = await CacheUtils.loadSemesterData();
+      if (semesterData != null) {
+        CourseData courseData =
+            await CacheUtils.loadCourseData(semesterData.defaultSemester.value);
+        if (courseData != null)
+          _setCourseData(courseData);
+        else {
+          setState(() {
+            courseNotify = false;
+            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+          });
+          Utils.showToast(context, app.noOfflineData);
+        }
+      } else {
+        setState(() {
+          courseNotify = false;
+          prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+        });
+        Utils.showToast(context, app.noOfflineData);
+      }
+      return;
+    }
     Helper.instance.getSemester().then((SemesterData semesterData) {
       var textList = semesterData.defaultSemester.value.split(",");
       if (textList.length == 2) {
         Helper.instance
             .getCourseTables(textList[0], textList[1])
-            .then((CourseData courseData) async {
-          switch (courseData.status) {
-            case 200:
-              await Utils.setCourseNotify(context, courseData.courseTables);
-              Utils.showToast(app.courseNotifyHint);
-              break;
-            case 204:
-              Utils.showToast(app.courseNotifyEmpty);
-              break;
-            default:
-              Utils.showToast(app.courseNotifyError);
-              break;
-          }
-          if (courseData.status != 200) {
-            setState(() {
-              courseNotify = false;
-              prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-            });
-          }
+            .then((CourseData courseData) {
           if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+          _setCourseData(courseData);
         }).catchError((e) {
           setState(() {
             courseNotify = false;
@@ -277,7 +290,7 @@ class SettingPageState extends State<SettingPage>
               case DioErrorType.CANCEL:
                 break;
               default:
-                Utils.handleDioError(e, app);
+                Utils.handleDioError(context, e);
                 break;
             }
           } else {
@@ -298,7 +311,7 @@ class SettingPageState extends State<SettingPage>
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -307,16 +320,51 @@ class SettingPageState extends State<SettingPage>
     });
   }
 
-  _setupBusNotify(BuildContext context) {
+  _setCourseData(CourseData courseData) async {
+    switch (courseData.status) {
+      case 200:
+        await Utils.setCourseNotify(context, courseData.courseTables);
+        Utils.showToast(context, app.courseNotifyHint);
+        break;
+      case 204:
+        Utils.showToast(context, app.courseNotifyEmpty);
+        break;
+      default:
+        Utils.showToast(context, app.courseNotifyError);
+        break;
+    }
+    if (courseData.status != 200) {
+      setState(() {
+        courseNotify = false;
+        prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+      });
+    }
+  }
+
+  _setupBusNotify(BuildContext context) async {
     showDialog(
         context: context,
         builder: (BuildContext context) => ProgressDialog(app.loading),
         barrierDismissible: false);
+    if (isOffline) {
+      BusReservationsData response = await CacheUtils.loadBusReservationsData();
+      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      if (response == null) {
+        setState(() {
+          busNotify = false;
+        });
+        Utils.showToast(context, app.noOfflineData);
+      } else {
+        await Utils.setBusNotify(context, response.reservations);
+        Utils.showToast(context, app.busNotifyHint);
+      }
+      return;
+    }
     Helper.instance
         .getBusReservations()
         .then((BusReservationsData response) async {
       await Utils.setBusNotify(context, response.reservations);
-      Utils.showToast(app.busNotifyHint);
+      Utils.showToast(context, app.busNotifyHint);
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
     }).catchError((e) {
       setState(() {
@@ -332,7 +380,7 @@ class SettingPageState extends State<SettingPage>
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
-              Utils.showToast(app.busFailInfinity);
+              Utils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

@@ -9,18 +9,19 @@ import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, offline }
 enum Station { janGong, yanchao }
 
 class BusReservePageRoute extends MaterialPageRoute {
   BusReservePageRoute()
-      : super(builder: (BuildContext context) => new BusReservePage());
+      : super(builder: (BuildContext context) => BusReservePage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new BusReservePage());
+    return FadeTransition(opacity: animation, child: BusReservePage());
   }
 }
 
@@ -28,7 +29,7 @@ class BusReservePage extends StatefulWidget {
   static const String routerName = "/bus/reserve";
 
   @override
-  BusReservePageState createState() => new BusReservePageState();
+  BusReservePageState createState() => BusReservePageState();
 }
 
 class BusReservePageState extends State<BusReservePage>
@@ -57,193 +58,6 @@ class BusReservePageState extends State<BusReservePage>
   void dispose() {
     super.dispose();
   }
-
-  _textStyle(BusTime busTime) => new TextStyle(
-      color: busTime.getColorState(),
-      fontSize: 18.0,
-      decorationColor: Colors.grey);
-
-  Widget _body() {
-    switch (state) {
-      case _State.loading:
-        return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
-      case _State.error:
-      case _State.empty:
-        return FlatButton(
-          onPressed: () {
-            _getBusTimeTables();
-            FA.logAction('retry', 'click');
-          },
-          child: HintContent(
-            icon: Icons.assignment,
-            content: state == _State.error ? app.clickToRetry : app.busEmpty,
-          ),
-        );
-      default:
-        return RefreshIndicator(
-          onRefresh: () {
-            _getBusTimeTables();
-            FA.logAction('refresh', 'swipe');
-          },
-          child: ListView(
-            physics: const NeverScrollableScrollPhysics(),
-            children: _renderBusTimeWidgets(),
-          ),
-        );
-    }
-  }
-
-  _renderBusTimeWidgets() {
-    List<Widget> list = [];
-    if (busData != null) {
-      for (var i in busData.timetable) {
-        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
-          list.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
-          list.add(_busTimeWidget(i));
-      }
-    }
-    return list;
-  }
-
-  _busTimeWidget(BusTime busTime) => Column(
-        children: <Widget>[
-          FlatButton(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.canReserve() && busTime.isReserve == 0
-                ? () {
-                    String start = "";
-                    if (selectStartStation == Station.janGong)
-                      start = app.fromJiangong;
-                    else if (selectStartStation == Station.yanchao)
-                      start = app.fromYanchao;
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => YesNoDialog(
-                            title: '${busTime.getSpecialTrainTitle(app)}'
-                                '${busTime.specialTrain == "0" ? app.reserve : ""}',
-                            contentWidget: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
-                                  style: TextStyle(
-                                      color: Resource.Colors.grey,
-                                      height: 1.3,
-                                      fontSize: 16.0),
-                                  children: [
-                                    TextSpan(
-                                      text: '${busTime.getTime()} $start\n',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
-                                      style: TextStyle(
-                                          color: Resource.Colors.grey,
-                                          height: 1.3,
-                                          fontSize: 14.0),
-                                    ),
-                                    TextSpan(
-                                        text: '${app.reserveDeadline}：\n',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    TextSpan(
-                                        text: '${busTime.endEnrollDateTime}'),
-                                  ]),
-                            ),
-                            leftActionText: app.cancel,
-                            rightActionText: app.reserve,
-                            leftActionFunction: null,
-                            rightActionFunction: () {
-                              _bookingBus(busTime);
-                            },
-                          ),
-                    );
-                  }
-                : busTime.isReserve != 0
-                    ? () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => YesNoDialog(
-                                title: app.busCancelReserve,
-                                contentWidget: Text(
-                                  "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                                      "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                                      "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
-                                  textAlign: TextAlign.center,
-                                ),
-                                leftActionText: app.back,
-                                rightActionText: app.determine,
-                                rightActionFunction: () {
-                                  _cancelBusReservation(busTime);
-                                  FA.logAction('cancel_bus', 'click');
-                                },
-                              ),
-                        );
-                        FA.logAction('cancel_bus', 'create');
-                      }
-                    : null,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Icon(
-                    Icons.directions_bus,
-                    size: 20.0,
-                    color: busTime.getColorState(),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getTime(),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    "${busTime.reserveCount} ${app.people}",
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getSpecialTrainTitle(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
-                  ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Icon(
-                    Icons.access_time,
-                    size: 20.0,
-                    color: busTime.getColorState(),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getReserveState(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(color: Colors.grey, height: 0.0),
-          )
-        ],
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +148,206 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  _getBusTimeTables() {
+  _textStyle(BusTime busTime) => TextStyle(
+      color: busTime.getColorState(),
+      fontSize: 18.0,
+      decorationColor: Colors.grey);
+
+  Widget _body() {
+    switch (state) {
+      case _State.loading:
+        return Container(
+            child: CircularProgressIndicator(), alignment: Alignment.center);
+      case _State.error:
+      case _State.empty:
+        return FlatButton(
+          onPressed: () {
+            _getBusTimeTables();
+            FA.logAction('retry', 'click');
+          },
+          child: HintContent(
+            icon: Icons.assignment,
+            content: state == _State.error ? app.clickToRetry : app.busEmpty,
+          ),
+        );
+      case _State.offline:
+        return HintContent(
+          icon: Icons.offline_bolt,
+          content: app.offlineMode,
+        );
+      default:
+        return RefreshIndicator(
+          onRefresh: () {
+            _getBusTimeTables();
+            FA.logAction('refresh', 'swipe');
+          },
+          child: ListView(
+            physics: const NeverScrollableScrollPhysics(),
+            children: _renderBusTimeWidgets(),
+          ),
+        );
+    }
+  }
+
+  _renderBusTimeWidgets() {
+    List<Widget> list = [];
+    if (busData != null) {
+      for (var i in busData.timetable) {
+        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
+          list.add(_busTimeWidget(i));
+        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
+          list.add(_busTimeWidget(i));
+      }
+    }
+    return list;
+  }
+
+  _busTimeWidget(BusTime busTime) => Column(
+        children: <Widget>[
+          FlatButton(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            onPressed: busTime.canReserve() && busTime.isReserve == 0
+                ? () {
+                    String start = "";
+                    if (selectStartStation == Station.janGong)
+                      start = app.fromJiangong;
+                    else if (selectStartStation == Station.yanchao)
+                      start = app.fromYanchao;
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) => YesNoDialog(
+                            title: '${busTime.getSpecialTrainTitle(app)}'
+                                '${busTime.specialTrain == "0" ? app.reserve : ""}',
+                            contentWidget: RichText(
+                              textAlign: TextAlign.center,
+                              text: TextSpan(
+                                  style: TextStyle(
+                                      color: Resource.Colors.grey,
+                                      height: 1.3,
+                                      fontSize: 16.0),
+                                  children: [
+                                    TextSpan(
+                                      text: '${busTime.getTime()} $start\n',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
+                                      style: TextStyle(
+                                          color: Resource.Colors.grey,
+                                          height: 1.3,
+                                          fontSize: 14.0),
+                                    ),
+                                    TextSpan(
+                                        text: '${app.reserveDeadline}：\n',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    TextSpan(
+                                        text: '${busTime.endEnrollDateTime}'),
+                                  ]),
+                            ),
+                            leftActionText: app.cancel,
+                            rightActionText: app.reserve,
+                            leftActionFunction: null,
+                            rightActionFunction: () {
+                              _bookingBus(busTime);
+                            },
+                          ),
+                    );
+                  }
+                : busTime.isReserve != 0
+                    ? () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) => YesNoDialog(
+                                title: app.busCancelReserve,
+                                contentWidget: Text(
+                                  "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
+                                  "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
+                                  "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
+                                  textAlign: TextAlign.center,
+                                ),
+                                leftActionText: app.back,
+                                rightActionText: app.determine,
+                                rightActionFunction: () {
+                                  _cancelBusReservation(busTime);
+                                  FA.logAction('cancel_bus', 'click');
+                                },
+                              ),
+                        );
+                        FA.logAction('cancel_bus', 'create');
+                      }
+                    : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  flex: 1,
+                  child: Icon(
+                    Icons.directions_bus,
+                    size: 20.0,
+                    color: busTime.getColorState(),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    busTime.getTime(),
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busTime),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    "${busTime.reserveCount} ${app.people}",
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busTime),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    busTime.getSpecialTrainTitle(app),
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busTime),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Icon(
+                    Icons.access_time,
+                    size: 20.0,
+                    color: busTime.getColorState(),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    busTime.getReserveState(app),
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busTime),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(color: Colors.grey, height: 0.0),
+          )
+        ],
+      );
+
+  _getBusTimeTables() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      setState(() {
+        state = _State.offline;
+      });
+      return;
+    }
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
     if (mounted) {
@@ -354,19 +367,18 @@ class BusReservePageState extends State<BusReservePage>
       }
     }).catchError((e) {
       if (e is DioError) {
-        DioError dioError = e;
         //if bus can't connection:
         // dioError.message = HttpException: Connection closed before full header was received
-        switch (dioError.type) {
+        switch (e.type) {
           case DioErrorType.RESPONSE:
             Utils.handleResponseError(context, 'getBusTimeTables', mounted, e);
             break;
           case DioErrorType.DEFAULT:
-            if (dioError.message.contains("HttpException")) {
+            if (e.message.contains("HttpException")) {
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(app.busFailInfinity);
+                  Utils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -377,7 +389,7 @@ class BusReservePageState extends State<BusReservePage>
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.handleDioError(dioError, app);
+                Utils.handleDioError(context, e);
               });
             }
             break;
@@ -456,7 +468,7 @@ class BusReservePageState extends State<BusReservePage>
               Utils.showAppReviewDialog(context);
             }),
       );
-      //Utils.showDefaultDialog(context, title, message, app.iKnow, () {});
+      //Utils.showDefaultDialog(context, title, messagcontext, e.iKnow, () {});
     }).catchError((e) {
       Navigator.pop(context, 'dialog');
       if (e is DioError) {
@@ -469,7 +481,7 @@ class BusReservePageState extends State<BusReservePage>
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(app.busFailInfinity);
+                  Utils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -477,7 +489,7 @@ class BusReservePageState extends State<BusReservePage>
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -563,13 +575,13 @@ class BusReservePageState extends State<BusReservePage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(app.busFailInfinity);
+              Utils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:
             break;
           default:
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {

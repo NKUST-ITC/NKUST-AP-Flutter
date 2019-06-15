@@ -6,17 +6,17 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, offlineEmpty }
 
 class CoursePageRoute extends MaterialPageRoute {
-  CoursePageRoute()
-      : super(builder: (BuildContext context) => new CoursePage());
+  CoursePageRoute() : super(builder: (BuildContext context) => CoursePage());
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new CoursePage());
+    return FadeTransition(opacity: animation, child: CoursePage());
   }
 }
 
@@ -24,7 +24,7 @@ class CoursePage extends StatefulWidget {
   static const String routerName = "/course";
 
   @override
-  CoursePageState createState() => new CoursePageState();
+  CoursePageState createState() => CoursePageState();
 }
 
 class CoursePageState extends State<CoursePage>
@@ -56,102 +56,65 @@ class CoursePageState extends State<CoursePage>
     super.dispose();
   }
 
-  _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 12.0);
-  }
-
-  _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
-  }
-
-  Widget _textBorder(String text,
-      {bool topLeft = false,
-      bool topRight = false,
-      bool bottomLeft = false,
-      bool bottomRight = false,
-      bool isCenter = false}) {
-    return new Container(
-      decoration: new BoxDecoration(
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(
-            topLeft ? 5.0 : 0.0,
-          ),
-          topRight: Radius.circular(
-            topRight ? 5.0 : 0.0,
-          ),
-          bottomLeft: Radius.circular(
-            bottomLeft ? 5.0 : 0.0,
-          ),
-          bottomRight: Radius.circular(
-            bottomRight ? 5.0 : 0.0,
-          ),
-        ),
-        border: Border.all(color: Colors.grey, width: 0.5),
+  @override
+  Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.course),
+        backgroundColor: Resource.Colors.blue,
       ),
-      child: FlatButton(
-        padding: EdgeInsets.all(0.0),
-        onPressed: null,
-        child: Text(
-          text ?? "",
-          textAlign: TextAlign.center,
-          style: _textBlueStyle(),
-        ),
-      ),
-    );
-  }
-
-  Widget _courseBorder(Course course) {
-    return new Container(
-      decoration: new BoxDecoration(
-          border: new Border.all(color: Resource.Colors.grey, width: 0.5)),
-      child: FlatButton(
-          padding: EdgeInsets.all(0.0),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => DefaultDialog(
-                    title: app.courseDialogTitle,
-                    actionText: app.iKnow,
-                    actionFunction: () =>
-                        Navigator.of(context, rootNavigator: true)
-                            .pop('dialog'),
-                    contentWidget: RichText(
-                      text: TextSpan(
-                          style: TextStyle(
-                              color: Resource.Colors.grey,
-                              height: 1.3,
-                              fontSize: 16.0),
-                          children: [
-                            TextSpan(
-                                text: '${app.courseDialogName}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: '${course.title}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogProfessor}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(text: '${course.getInstructors()}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogLocation}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                                text:
-                                    '${course.location.building}${course.location.room}\n'),
-                            TextSpan(
-                                text: '${app.courseDialogTime}：',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            TextSpan(
-                                text:
-                                    '${course.date.startTime}-${course.date.endTime}'),
-                          ]),
+      body: Builder(
+        builder: (builderContext) {
+          scaffold = Scaffold.of(builderContext);
+          return Flex(
+            direction: Axis.vertical,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              SizedBox(height: 8.0),
+              FlatButton(
+                onPressed: (semesterData != null) ? _selectSemester : null,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      selectSemester == null ? "" : selectSemester.text,
+                      style: TextStyle(
+                          color: Resource.Colors.blue, fontSize: 18.0),
                     ),
-                  ),
-            );
-            FA.logAction('show_course', 'click');
-          },
-          child: Text(
-            (course.title[0] + course.title[1]) ?? "",
-            style: _textStyle(),
-          )),
+                    SizedBox(width: 8.0),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Resource.Colors.blue,
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(height: 4.0),
+              Container(
+                child: isOffline
+                    ? Text(
+                        app.offlineCourse,
+                        style: TextStyle(color: Resource.Colors.grey),
+                      )
+                    : null,
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    if (isOffline) await Helper.instance.initByPreference();
+                    _getCourseTables();
+                    FA.logAction('refresh', 'swipe');
+                    return null;
+                  },
+                  child: _body(),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -175,91 +138,168 @@ class CoursePageState extends State<CoursePage>
               content:
                   state == _State.error ? app.clickToRetry : app.courseEmpty),
         );
+      case _State.offlineEmpty:
+        return HintContent(
+          icon: Icons.class_,
+          content: app.noOfflineData,
+        );
       default:
         var list = renderCourseList();
         return SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: GridView.count(
-            physics: NeverScrollableScrollPhysics(),
-            padding: EdgeInsets.symmetric(vertical: isOffline ? 8.0 : 16.0),
-            mainAxisSpacing: 0.0,
-            shrinkWrap: true,
-            childAspectRatio: childAspectRatio,
-            crossAxisCount: base,
-            children: list ?? <Widget>[],
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(
+                Radius.circular(
+                  10.0,
+                ),
+              ),
+              border: Border.all(color: Colors.grey, width: 1.0),
+            ),
+            child: Table(
+              defaultColumnWidth: FractionColumnWidth(1.0 / base),
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              border: TableBorder.symmetric(
+                inside: BorderSide(
+                  color: Colors.grey,
+                  width: 0,
+                ),
+              ),
+              children: list,
+            ),
           ),
         );
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text(app.course),
-        backgroundColor: Resource.Colors.blue,
-      ),
-      body: Builder(
-        builder: (builderContext) {
-          scaffold = Scaffold.of(builderContext);
-          return Container(
-            child: Flex(
-              direction: Axis.vertical,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                SizedBox(height: 16.0),
-                Expanded(
-                  flex: 1,
-                  child: FlatButton(
-                    onPressed: (semesterData != null) ? _selectSemester : null,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Text(
-                          selectSemester == null ? "" : selectSemester.text,
-                          style: TextStyle(
-                              color: Resource.Colors.blue, fontSize: 18.0),
-                        ),
-                        SizedBox(width: 8.0),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Resource.Colors.blue,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
-                  child: isOffline
-                      ? Text(
-                          app.offlineCourse,
-                          style: TextStyle(color: Resource.Colors.grey),
-                        )
-                      : null,
-                ),
-                Expanded(
-                  flex: 19,
-                  child: RefreshIndicator(
-                    onRefresh: () {
-                      _getCourseTables();
-                      FA.logAction('refresh', 'swipe');
-                    },
-                    child: _body(),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
+  List<TableRow> renderCourseList() {
+    List<String> weeks = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday"
+    ];
+    var list = <TableRow>[
+      TableRow(children: [_titleBorder("")])
+    ];
+    for (var week in app.weekdaysCourse.sublist(0, 4))
+      list[0].children.add(_titleBorder(week));
+    if (courseData.courseTables.saturday == null &&
+        courseData.courseTables.sunday == null) {
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
+      base = 6;
+      childAspectRatio = 1.5;
+    } else {
+      list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
+      list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
+      weeks.add("Saturday");
+      weeks.add("Sunday");
+      base = 8;
+      childAspectRatio = 1.1;
+    }
+    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
+    int i = 0;
+    for (String text in courseData.courseTables.timeCode) {
+      i++;
+      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
+      text = text.replaceAll(' ', '');
+      if (base == 8) {
+        text = text.replaceAll('第', '');
+        text = text.replaceAll('節', '');
+      }
+      list.add(TableRow(children: []));
+      list[i].children.add(_titleBorder(text));
+      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(""));
+    }
+    var timeCodes = courseData.courseTables.timeCode;
+    for (int i = 0; i < weeks.length; i++) {
+      if (courseData.courseTables.getCourseList(weeks[i]) != null)
+        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
+          for (int j = 0; j < timeCodes.length; j++) {
+            if (timeCodes[j] == data.date.section) {
+              if (i % base != 0) list[j + 1].children[i] = _courseBorder(data);
+            }
+          }
+        }
+    }
+    return list;
+  }
+
+  Widget _titleBorder(String text) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 8.0),
+      alignment: Alignment.center,
+      child: Text(
+        text ?? '',
+        style: TextStyle(color: Resource.Colors.blue, fontSize: 12.0),
       ),
     );
   }
 
-  void _getSemester() {
+  Widget _courseBorder(Course course) {
+    return InkWell(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => DefaultDialog(
+                title: app.courseDialogTitle,
+                actionText: app.iKnow,
+                actionFunction: () =>
+                    Navigator.of(context, rootNavigator: true).pop('dialog'),
+                contentWidget: RichText(
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                            text: '${app.courseDialogName}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.title}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogProfessor}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.getInstructors()}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogLocation}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${course.location.building}${course.location.room}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogTime}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${course.date.startTime}-${course.date.endTime}'),
+                      ]),
+                ),
+              ),
+        );
+        FA.logAction('show_course', 'click');
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 8.0),
+        alignment: Alignment.center,
+        child: Text(
+          (course.title[0] + course.title[1]) ?? "",
+          style: TextStyle(color: Colors.black, fontSize: 14.0),
+        ),
+      ),
+    );
+  }
+
+  void _getSemester() async {
     _loadSemesterData();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      return;
+    }
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       CacheUtils.saveSemesterData(semesterData);
@@ -280,7 +320,7 @@ class CoursePageState extends State<CoursePage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -297,15 +337,20 @@ class CoursePageState extends State<CoursePage>
       selectSemester = semesterData.defaultSemester;
       selectSemesterIndex = semesterData.defaultIndex;
     });
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      _loadCourseData(semesterData.defaultSemester.value);
+    }
   }
 
   void _loadCourseData(String value) async {
     courseData = await CacheUtils.loadCourseData(value);
-    if (this.courseData == null) return;
-    isOffline = true;
     if (mounted) {
       setState(() {
-        if (courseData.status == 204) {
+        isOffline = true;
+        if (this.courseData == null) {
+          state = _State.offlineEmpty;
+        } else if (courseData.status == 204) {
           state = _State.empty;
         } else if (courseData.status == 200) {
           state = _State.finish;
@@ -327,12 +372,17 @@ class CoursePageState extends State<CoursePage>
         context: context,
         builder: (BuildContext context) => SimpleDialog(
             title: Text(app.picksSemester),
-            children: semesters)).then<void>((int position) {
+            children: semesters)).then<void>((int position) async {
       if (position != null) {
-        selectSemesterIndex = position;
-        selectSemester = semesterData.semesters[selectSemesterIndex];
-        _getCourseTables();
-        setState(() {});
+        setState(() {
+          selectSemesterIndex = position;
+          selectSemester = semesterData.semesters[selectSemesterIndex];
+        });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
+          _loadCourseData(semesterData.semesters[selectSemesterIndex].value);
+        else
+          _getCourseTables();
       }
     });
   }
@@ -343,61 +393,6 @@ class CoursePageState extends State<CoursePage>
         onPressed: () {
           Navigator.pop(context, index);
         });
-  }
-
-  renderCourseList() {
-    List<String> weeks = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
-    ];
-    var courseWeightList = <Widget>[_textBorder("", topLeft: true)];
-    for (var week in app.weekdaysCourse.sublist(0, 4))
-      courseWeightList.add(_textBorder(week));
-    if (courseData.courseTables.saturday == null &&
-        courseData.courseTables.sunday == null) {
-      courseWeightList.add(_textBorder(app.weekdaysCourse[4], topRight: true));
-      base = 6;
-      childAspectRatio = 1.5;
-    } else {
-      courseWeightList.add(_textBorder(app.weekdaysCourse[4]));
-      courseWeightList.add(_textBorder(app.weekdaysCourse[5]));
-      courseWeightList.add(_textBorder(app.weekdaysCourse[6], topRight: true));
-      weeks.add("Saturday");
-      weeks.add("Sunday");
-      base = 8;
-      childAspectRatio = 1.1;
-    }
-    int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
-    int i = 0;
-    for (String text in courseData.courseTables.timeCode) {
-      i++;
-      if (maxTimeCode <= 11 && i > maxTimeCode) continue;
-      text = text.replaceAll(' ', '');
-      if (base == 8) {
-        text = text.replaceAll('第', '');
-        text = text.replaceAll('節', '');
-      }
-      courseWeightList.add(_textBorder(text));
-      for (var i = 0; i < base - 1; i++)
-        courseWeightList.add(_textBorder("", isCenter: true));
-    }
-    var timeCodes = courseData.courseTables.timeCode;
-    for (int i = 0; i < weeks.length; i++) {
-      if (courseData.courseTables.getCourseList(weeks[i]) != null)
-        for (var data in courseData.courseTables.getCourseList(weeks[i])) {
-          for (int j = 0; j < timeCodes.length; j++) {
-            if (timeCodes[j] == data.date.section) {
-              if (i % base != 0)
-                courseWeightList[(j + 1) * base + i] = _courseBorder(data);
-            }
-          }
-        }
-    }
-    return courseWeightList;
   }
 
   _getCourseTables() async {
@@ -443,7 +438,7 @@ class CoursePageState extends State<CoursePage>
                 setState(() {
                   state = _State.error;
                 });
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {

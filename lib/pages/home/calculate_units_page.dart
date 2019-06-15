@@ -4,8 +4,9 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { ready, loading, finish, error, empty }
+enum _State { ready, loading, finish, error, empty, offline }
 
 class CalculateUnitsPageRoute extends MaterialPageRoute {
   CalculateUnitsPageRoute()
@@ -196,6 +197,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             content: app.beginCalculate,
           ),
         );
+      case _State.offline:
+        return HintContent(
+          icon: Icons.offline_bolt,
+          content: app.offlineMode,
+        );
       default:
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -285,6 +291,13 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _getSemester() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+      setState(() {
+        state = _State.offline;
+      });
+      return;
+    }
     Helper.instance.getSemester().then((semesterData) {
       this.semesterData = semesterData;
       setState(() {
@@ -300,7 +313,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(e, app);
+            Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -380,7 +393,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               setState(() {
                 state = _State.error;
               });
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {
@@ -463,7 +476,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                 setState(() {
                   state = _State.error;
                 });
-                Utils.handleDioError(e, app);
+                Utils.handleDioError(context, e);
                 break;
             }
           } else {

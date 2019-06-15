@@ -10,6 +10,7 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -34,14 +35,19 @@ class LoginPageState extends State<LoginPage>
   FocusNode usernameFocusNode;
   FocusNode passwordFocusNode;
 
+  final encrypter =
+      Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+
   @override
   void initState() {
     super.initState();
     FA.setCurrentScreen("LoginPage", "login_page.dart");
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
-    _getPreference();
-    _checkUpdate();
+    if (Platform.isAndroid || Platform.isIOS) {
+      _getPreference();
+      _checkUpdate();
+    }
   }
 
   @override
@@ -198,6 +204,17 @@ class LoginPageState extends State<LoginPage>
           ),
         ),
       ),
+      Center(
+        child: FlatButton(
+          onPressed: () {
+            _offlineLogin();
+          },
+          child: Text(
+            app.offlineLogin,
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
+          ),
+        ),
+      )
     ];
     if (orientation == Orientation.portrait) {
       list.addAll(listB);
@@ -221,7 +238,7 @@ class LoginPageState extends State<LoginPage>
               title: app.updateNoteTitle,
               contentWidget: Text(
                 "v${packageInfo.version}\n"
-                    "${app.updateNoteContent}",
+                "${app.updateNoteContent}",
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Resource.Colors.grey),
               ),
@@ -330,8 +347,10 @@ class LoginPageState extends State<LoginPage>
     setState(() {
       isRememberPassword = value;
       if (!isRememberPassword) isAutoLogin = false;
-      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      if (Platform.isAndroid || Platform.isIOS) {
+        prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      }
     });
   }
 
@@ -339,8 +358,10 @@ class LoginPageState extends State<LoginPage>
     setState(() {
       isAutoLogin = value;
       isRememberPassword = isAutoLogin;
-      prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      if (Platform.isAndroid || Platform.isIOS) {
+        prefs.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        prefs.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      }
     });
   }
 
@@ -352,8 +373,6 @@ class LoginPageState extends State<LoginPage>
     var username = prefs.getString(Constants.PREF_USERNAME) ?? "";
     var password = "";
     if (isRememberPassword) {
-      final encrypter =
-          Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
       var encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? "";
       if (encryptPassword != "") {
         try {
@@ -379,7 +398,7 @@ class LoginPageState extends State<LoginPage>
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(app.doNotEmpty);
+      Utils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
           context: context,
@@ -389,22 +408,26 @@ class LoginPageState extends State<LoginPage>
                 return false;
               }),
           barrierDismissible: false);
-      prefs.setString(Constants.PREF_USERNAME, _username.text);
+
+      if (Platform.isAndroid || Platform.isIOS)
+        prefs.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
         if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-        if (response.isLogin != null) {
-          prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
-          prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
-          prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
-        }
-        prefs.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword) {
-          final encrypter =
-              Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
-          await prefs.setString(Constants.PREF_PASSWORD,
-              encrypter.encrypt(_password.text).base64);
+
+        if (Platform.isAndroid || Platform.isIOS) {
+          if (response.isLogin != null) {
+            prefs.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
+            prefs.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
+            prefs.setBool(Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
+          }
+          prefs.setString(Constants.PREF_USERNAME, _username.text);
+          if (isRememberPassword) {
+            await prefs.setString(Constants.PREF_PASSWORD,
+                encrypter.encrypt(_password.text).base64);
+          }
+          prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         }
         _navigateToFilterObject(context);
       }).catchError((e) {
@@ -412,19 +435,48 @@ class LoginPageState extends State<LoginPage>
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(app.loginFail);
+              Utils.showToast(context, app.loginFail);
               Utils.handleResponseError(context, 'login', mounted, e);
+              _offlineLogin();
               break;
             case DioErrorType.CANCEL:
               break;
             default:
-              Utils.handleDioError(e, app);
+              Utils.handleDioError(context, e);
               break;
           }
         } else {
           throw e;
         }
       });
+    }
+  }
+
+  _offlineLogin() async {
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
+    if (username.isEmpty) {
+      Utils.showToast(context, app.noOfflineLoginData);
+    } else {
+      String password = '';
+      try {
+        password = encrypter.decrypt64(encryptPassword);
+      } catch (e) {
+        FA.logAESErrorEvent(encryptPassword);
+        password = encryptPassword;
+        await prefs.setString(
+            Constants.PREF_PASSWORD, encrypter.encrypt(encryptPassword).base64);
+        throw e;
+      }
+      if (username != _username.text || password != _password.text)
+        Utils.showToast(context, app.offlineLoginPasswordError);
+      else {
+        prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+        Utils.showToast(context, app.loadOfflineData);
+        ShareDataWidget.of(context).username =
+            prefs.getString(Constants.PREF_USERNAME);
+        _navigateToFilterObject(context);
+      }
     }
   }
 

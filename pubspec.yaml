@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.1.7+30107
+version: 3.1.8+30108
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -12,6 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   cupertino_icons: ^0.1.2
+  #official plugin
   shared_preferences: ^0.5.1+2
   firebase_core: ^0.3.1+1
   firebase_analytics: ^2.1.0
@@ -21,16 +22,17 @@ dependencies:
   package_info: ^0.4.0+2
   share: ^0.6.0+1
   connectivity: ^0.4.2
+  #third party plugin
   dio: 2.1.0
-  fluttertoast: ^3.0.3
+  toast: ^0.1.4
   tuple: ^1.0.1
   carousel_slider: ^1.2.0
   flutter_crashlytics: 0.2.1+1
   encrypt: ^2.0.0
-  flutter_local_notifications: ^0.5.2
+  flutter_local_notifications: ^0.6.1
   sprintf: ^4.0.2
   add_2_calendar: ^1.2.2
-  cached_network_image: ^0.7.0
+  cached_network_image: ^0.8.0
   app_review: ^0.1.0
 dev_dependencies:
   flutter_test:

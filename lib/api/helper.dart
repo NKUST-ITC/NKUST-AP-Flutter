@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:intl/intl.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const HOST = "nkust-ap-api.rainvisitor.me";
 const PORT = '2087';
@@ -57,6 +60,25 @@ class Helper {
         throw (dioError);
         break;
     }
+  }
+
+  Future<Null> initByPreference() async {
+    final encrypter =
+        Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
+    String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
+    String password = '';
+    try {
+      password = encrypter.decrypt64(encryptPassword);
+    } catch (e) {
+      password = encryptPassword;
+      await prefs.setString(
+          Constants.PREF_PASSWORD, encrypter.encrypt(encryptPassword).base64);
+      throw e;
+    }
+    dio.options.headers = _createBasicAuth(username, password);
+    return null;
   }
 
   Future<LoginResponse> login(String username, String password) async {

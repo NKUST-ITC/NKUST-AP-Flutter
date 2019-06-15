@@ -16,6 +16,7 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
@@ -42,6 +43,8 @@ void main() async {
           .reportCrash(error, stackTrace, forceCrash: false);
     });
   } else {
+    // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
     runApp(MyApp());
     //TODO add other platform Crashlytics
   }
@@ -50,6 +53,7 @@ void main() async {
 class MyApp extends StatelessWidget {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
+  Brightness brightness = Brightness.light;
 
   @override
   Widget build(BuildContext context) {
@@ -59,58 +63,61 @@ class MyApp extends StatelessWidget {
       _initFCM();
       FA.analytics = analytics;
     }
-    return new MaterialApp(
-      localeResolutionCallback:
-          (Locale locale, Iterable<Locale> supportedLocales) {
-        return locale;
-      },
-      onGenerateTitle: (context) => AppLocalizations.of(context).appName,
-      debugShowCheckedModeBanner: false,
-      routes: <String, WidgetBuilder>{
-        Navigator.defaultRouteName: (context) => LoginPage(),
-        LoginPage.routerName: (BuildContext context) => LoginPage(),
-        HomePage.routerName: (BuildContext context) => HomePage(),
-        CoursePage.routerName: (BuildContext context) => CoursePage(),
-        BusPage.routerName: (BuildContext context) => BusPage(),
-        BusRulePage.routerName: (BuildContext context) => BusRulePage(),
-        ScorePage.routerName: (BuildContext context) => ScorePage(),
-        SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
-        SettingPage.routerName: (BuildContext context) => SettingPage(),
-        AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
-        OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
-        UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
-        CalculateUnitsPage.routerName: (BuildContext context) =>
-            CalculateUnitsPage(),
-        NewsContentPage.routerName: (BuildContext context) =>
-            NewsContentPage(null),
-        LeavePage.routerName: (BuildContext context) => LeavePage(),
-      },
-      theme: ThemeData(
-        hintColor: Colors.white,
-        accentColor: Resource.Colors.blue,
-        unselectedWidgetColor: Resource.Colors.grey,
-        backgroundColor: Colors.black12,
-        inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white),
-          border:
-              UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+    return ShareDataWidget(
+      child: MaterialApp(
+        localeResolutionCallback:
+            (Locale locale, Iterable<Locale> supportedLocales) {
+          return locale;
+        },
+        onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+        debugShowCheckedModeBanner: false,
+        routes: <String, WidgetBuilder>{
+          Navigator.defaultRouteName: (context) => LoginPage(),
+          LoginPage.routerName: (BuildContext context) => LoginPage(),
+          HomePage.routerName: (BuildContext context) => HomePage(),
+          CoursePage.routerName: (BuildContext context) => CoursePage(),
+          BusPage.routerName: (BuildContext context) => BusPage(),
+          BusRulePage.routerName: (BuildContext context) => BusRulePage(),
+          ScorePage.routerName: (BuildContext context) => ScorePage(),
+          SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
+          SettingPage.routerName: (BuildContext context) => SettingPage(),
+          AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
+          OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
+          UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+          CalculateUnitsPage.routerName: (BuildContext context) =>
+              CalculateUnitsPage(),
+          NewsContentPage.routerName: (BuildContext context) =>
+              NewsContentPage(null),
+          LeavePage.routerName: (BuildContext context) => LeavePage(),
+        },
+        theme: ThemeData(
+          brightness: brightness,
+          hintColor: Colors.white,
+          accentColor: Resource.Colors.blue,
+          unselectedWidgetColor: Resource.Colors.grey,
+          backgroundColor: Colors.black12,
+          inputDecorationTheme: InputDecorationTheme(
+            labelStyle: TextStyle(color: Colors.white),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white)),
+          ),
         ),
+        navigatorObservers: (Platform.isIOS || Platform.isAndroid)
+            ? [
+                FirebaseAnalyticsObserver(analytics: analytics),
+              ]
+            : [],
+        localizationsDelegates: [
+          const AppLocalizationsDelegate(),
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          CupertinoEnDefaultLocalizationsDelegate(),
+        ],
+        supportedLocales: [
+          const Locale('en', 'US'), // English
+          const Locale('zh', 'TW'), // Chinese
+        ],
       ),
-      navigatorObservers: (Platform.isIOS || Platform.isAndroid)
-          ? [
-              FirebaseAnalyticsObserver(analytics: analytics),
-            ]
-          : [],
-      localizationsDelegates: [
-        const AppLocalizationsDelegate(),
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        CupertinoEnDefaultLocalizationsDelegate(),
-      ],
-      supportedLocales: [
-        const Locale('en', 'US'), // English
-        const Locale('zh', 'TW'), // Hebrew
-      ],
     );
   }
 

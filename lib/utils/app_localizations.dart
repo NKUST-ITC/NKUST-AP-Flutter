@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -281,6 +283,16 @@ class AppLocalizations {
           'Do you like NKUST APP?\nPlease write a comment and rating on the store\nThis is our motivation!',
       'later': 'LATER',
       'rate_now': 'RATE NOW',
+      'offline_login': 'Offline Login',
+      'no_offline_login_data':
+          'No Offline login data, please login at least once.',
+      'offline_login_password_error':
+          'Offline login username or password Error',
+      'offline_mode': 'Offline Mode',
+      'no_offline_data': 'No offline data',
+      'offline_score': 'Offline Score',
+      'offline_bus_reservations': 'Offline Bus Reservations',
+      'offline_leave_data': 'Offline absent Report',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -530,6 +542,14 @@ class AppLocalizations {
       'rating_dialog_content': '喜歡高科校務通嗎？\n前往商店給予我們評論\n是我們最大的動力！',
       'later': '稍後再說',
       'rate_now': '現在就去',
+      'offline_login': '離線登入',
+      'no_offline_login_data': '無離線登入資料 請至少登入一次',
+      'offline_login_password_error': '離線登入學號或密碼錯誤',
+      'offline_mode': '離線模式',
+      'no_offline_data': '無離線資料',
+      'offline_score': '離線成績',
+      'offline_bus_reservations': '離線校車紀錄',
+      'offline_leave_data': '離線缺曠資料',
     },
   };
 
@@ -950,6 +970,24 @@ class AppLocalizations {
   String get later => _vocabularies['later'];
 
   String get rateNow => _vocabularies['rate_now'];
+
+  String get offlineLogin => _vocabularies['offline_login'];
+
+  String get noOfflineLoginData => _vocabularies['no_offline_login_data'];
+
+  String get offlineLoginPasswordError =>
+      _vocabularies['offline_login_password_error'];
+
+  String get noOfflineData => _vocabularies['no_offline_data'];
+
+  String get offlineMode => _vocabularies['offline_mode'];
+
+  String get offlineScore => _vocabularies['offline_score'];
+
+  String get offlineBusReservations =>
+      _vocabularies['offline_bus_reservations'];
+
+  String get offlineLeaveData => _vocabularies['offline_leave_data'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -960,16 +998,20 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    SharedPreferences preference = await SharedPreferences.getInstance();
-    String languageCode =
-        preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
-
-    AppLocalizations localizations = AppLocalizations(
-        (languageCode == 'system') ? locale : Locale(languageCode));
-
     print('Load ${locale.languageCode}');
+    if (Platform.isAndroid || Platform.isIOS) {
+      SharedPreferences preference = await SharedPreferences.getInstance();
+      String languageCode =
+          preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
 
-    return localizations;
+      AppLocalizations localizations = AppLocalizations(
+          (languageCode == 'system') ? locale : Locale(languageCode));
+
+      return localizations;
+    } else {
+      //TODO if other platform can use SharedPreferences, need update.
+      return AppLocalizations(locale);
+    }
   }
 
   @override
