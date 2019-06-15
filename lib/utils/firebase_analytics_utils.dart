@@ -30,6 +30,17 @@ class FA {
     print('setUserProperty succeeded');
   }
 
+  static Future<void> logUserInfo(String department) async {
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics.logEvent(
+        name: 'user_info',
+        parameters: <String, dynamic>{
+          'department': department,
+          'platform': Platform.operatingSystem,
+        },
+      );
+  }
+
   static Future<void> logApiEvent(String type, int status,
       {String message = ''}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();

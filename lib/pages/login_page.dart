@@ -249,7 +249,7 @@ class LoginPageState extends State<LoginPage>
       );
       prefs.setString(Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
-    if (Constants.isInDebugMode) {
+    if (!Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       try {
         await remoteConfig.fetch(expiration: const Duration(seconds: 10));
