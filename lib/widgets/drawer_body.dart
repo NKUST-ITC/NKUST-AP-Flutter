@@ -1,16 +1,19 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var pictureUrl = "";
+Uint8List pictureBytes;
 
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
@@ -67,38 +70,36 @@ class DrawerBodyState extends State<DrawerBody> {
                 children: <Widget>[
                   UserAccountsDrawerHeader(
                     margin: EdgeInsets.all(0),
-                    currentAccountPicture: pictureUrl != "" && displayPicture
-                        ? Hero(
-                            tag: Constants.TAG_STUDENT_PICTURE,
-                            child: Container(
-                              width: 72.0,
-                              height: 72.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.fitWidth,
-                                  image: CachedNetworkImageProvider(
-                                    pictureUrl,
-                                    errorListener: () {
-                                      print('error');
-                                    },
+                    currentAccountPicture:
+                        pictureBytes != null && displayPicture
+                            ? Hero(
+                                tag: Constants.TAG_STUDENT_PICTURE,
+                                child: Container(
+                                  width: 72.0,
+                                  height: 72.0,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                      fit: BoxFit.fitWidth,
+                                      image: MemoryImage(
+                                        pictureBytes,
+                                      ),
+                                    ),
                                   ),
                                 ),
+                              )
+                            : Container(
+                                width: 72.0,
+                                height: 72.0,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white,
+                                  size: 72.0,
+                                ),
                               ),
-                            ),
-                          )
-                        : Container(
-                            width: 72.0,
-                            height: 72.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            child: Icon(
-                              Icons.account_circle,
-                              color: Colors.white,
-                              size: 72.0,
-                            ),
-                          ),
                     accountName: Text(
                       widget.userInfo == null
                           ? ""
@@ -247,10 +248,17 @@ class DrawerBodyState extends State<DrawerBody> {
       );
 
   _getUserPicture() {
-    Helper.instance.getUsersPicture().then((url) {
-      if (this.mounted) {
+    Helper.instance.getUsersPicture().then((url) async {
+      var response = await http.get(url);
+      if (!response.body.contains('html')) {
         setState(() {
-          pictureUrl = url;
+          pictureBytes = response.bodyBytes;
+        });
+        CacheUtils.savePictureData(response.bodyBytes);
+      } else {
+        var bytes = await CacheUtils.loadPictureData();
+        setState(() {
+          pictureBytes = bytes;
         });
       }
     }).catchError((e) {

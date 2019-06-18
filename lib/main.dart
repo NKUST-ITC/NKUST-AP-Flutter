@@ -126,8 +126,10 @@ class MyApp extends StatelessWidget {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onMessage: $message");
-        Utils.showFCMNotification(message['notification']['title'],
-            message['notification']['title'], message['notification']['body']);
+        Utils.showFCMNotification(
+            message['notification']['title'] ?? '',
+            message['notification']['title'] ?? '',
+            message['notification']['body'] ?? '');
       },
       onLaunch: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onLaunch: $message");

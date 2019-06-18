@@ -26,6 +26,7 @@ class Constants {
   static const PREF_COURSE_VIBRATE_USER_SETTING =
       "pref_course_vibrate_user_setting";
   static const PREF_DISPLAY_PICTURE = "pref_display_picture";
+  static const PREF_PICTURE_DATA = "pref_picture_data";
   static const PREF_SCORE_DATA = "pref_score_data";
   static const PREF_COURSE_DATA = "pref_course_data";
   static const PREF_LEAVE_DATA = "pref_leave_data";
@@ -60,4 +61,7 @@ class Constants {
   static const int NOTIFICATION_BUS_ID = 100;
   static const int NOTIFICATION_COURSE_ID = 101;
   static const int NOTIFICATION_FCM_ID = 200;
+
+  static const FANS_PAGE_ID = '301942414015612';
+  static const FANS_PAGE_URL = 'https://www.facebook.com/$FANS_PAGE_ID/';
 }

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -35,15 +34,12 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   _State state = _State.loading;
   AppLocalizations app;
+  UserInfo userInfo = UserInfo();
 
   int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
-  UserInfo userInfo = UserInfo();
 
-  List<Widget> newsWidgets = [];
   List<News> newsList = [];
-
-  CarouselSlider cardSlider;
 
   @override
   void initState() {
@@ -58,9 +54,13 @@ class HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  Widget _newImage(News news) {
-    return Container(
-      margin: EdgeInsets.all(5.0),
+  Widget _newsImage(News news, Orientation orientation, bool active) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeOutQuint,
+      margin: EdgeInsets.symmetric(
+          vertical: MediaQuery.of(context).size.height * (active ? 0.05 : 0.15),
+          horizontal: MediaQuery.of(context).size.width * 0.02),
       child: GestureDetector(
         onTap: () {
           Navigator.of(context).push(NewsContentPageRoute(news));
@@ -81,8 +81,22 @@ class HomePageState extends State<HomePage> {
   }
 
   Widget _homebody(Orientation orientation) {
-    var rate =
-        MediaQuery.of(context).size.width / MediaQuery.of(context).size.height;
+    double viewportFraction = 0.65;
+    if (orientation == Orientation.portrait) {
+      viewportFraction = 0.65;
+    } else if (orientation == Orientation.landscape) {
+      viewportFraction = 0.5;
+    }
+    final PageController pageController =
+        PageController(viewportFraction: viewportFraction);
+    pageController.addListener(() {
+      int next = pageController.page.round();
+      if (_currentNewsIndex != next) {
+        setState(() {
+          _currentNewsIndex = next;
+        });
+      }
+    });
     switch (state) {
       case _State.loading:
         return Center(
@@ -111,22 +125,15 @@ class HomePageState extends State<HomePage> {
               tag: Constants.TAG_NEWS_ICON,
               child: Icon(Icons.arrow_drop_down),
             ),
-            cardSlider = CarouselSlider(
-              items: newsWidgets,
-              viewportFraction:
-                  orientation == Orientation.portrait ? 0.65 : 0.5,
-              aspectRatio: orientation == Orientation.portrait
-                  ? 7 / 6
-                  : (rate > 1.5 ? 21 / 4 : 21 / 9),
-              autoPlay: false,
-              enlargeCenterPage: true,
-              enableInfiniteScroll: false,
-              onPageChanged: (int current) {
-                setState(() {
-                  _currentNewsIndex = current;
-                });
-                FA.logAction('news_image', 'swipe');
-              },
+            Expanded(
+              child: PageView.builder(
+                  controller: pageController,
+                  itemCount: newsList.length,
+                  itemBuilder: (context, int currentIndex) {
+                    bool active = (currentIndex == _currentNewsIndex);
+                    return _newsImage(
+                        newsList[currentIndex], orientation, active);
+                  }),
             ),
             SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
             RichText(
@@ -136,10 +143,10 @@ class HomePageState extends State<HomePage> {
                   children: [
                     TextSpan(
                         text:
-                            "${newsWidgets.length >= 10 && _currentNewsIndex < 9 ? "0" : ""}"
-                            "${_currentNewsIndex + 1}",
+                            '${newsList.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
+                            '${_currentNewsIndex + 1}',
                         style: TextStyle(color: Resource.Colors.red)),
-                    TextSpan(text: ' / ${newsWidgets.length}'),
+                    TextSpan(text: ' / ${newsList.length}'),
                   ]),
             ),
           ],
@@ -243,9 +250,6 @@ class HomePageState extends State<HomePage> {
       this.newsList.sort((a, b) {
         return b.weight.compareTo(a.weight);
       });
-      this.newsList.forEach((news) {
-        newsWidgets.add(_newImage(news));
-      });
       setState(() {
         state = newsList.length == 0 ? _State.empty : _State.finish;
       });
@@ -309,6 +313,7 @@ class HomePageState extends State<HomePage> {
         });
         FA.setUserProperty('department', userInfo.department);
         FA.setUserId(userInfo.studentId);
+        FA.logUserInfo(userInfo.department);
         CacheUtils.saveUserInfo(userInfo);
       }
     }).catchError((e) {
