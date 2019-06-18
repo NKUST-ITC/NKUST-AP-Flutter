@@ -25,7 +25,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Add feature change app language.\n2.Now can click to facebook app.\n3.Fix some error.',
+          '1.Add offline mode(Pre-stored data).\n2.Fix some layout.\n3.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -297,8 +297,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content':
-          '1.新增可在App內更換語言\n2.現在可以直接從App跳轉至Facebook相關的App\n3.修正部分錯誤',
+      'update_note_content': '1.新增離線模式(載入之前暫存的資料)\n2.修正部分介面跑版\n3.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
