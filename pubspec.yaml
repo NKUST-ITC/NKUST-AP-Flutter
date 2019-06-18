@@ -13,15 +13,15 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^0.1.2
   #official plugin
-  shared_preferences: ^0.5.1+2
-  firebase_core: ^0.3.1+1
-  firebase_analytics: ^2.1.0
-  firebase_remote_config: ^0.1.0
-  firebase_messaging: ^4.0.0+1
-  url_launcher: ^5.0.2
-  package_info: ^0.4.0+2
-  share: ^0.6.0+1
+  shared_preferences: ^0.5.3+1
+  package_info: ^0.4.0+4
+  url_launcher: ^5.0.3
+  share: ^0.6.1+1
   connectivity: ^0.4.2
+  firebase_core: ^0.4.0+3
+  firebase_analytics: ^3.0.2
+  firebase_remote_config: ^0.2.0+2
+  firebase_messaging: ^5.0.2
   http: ^0.12.0+2
   #third party plugin
   dio: 2.1.0
