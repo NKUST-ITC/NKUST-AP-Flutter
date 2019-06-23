@@ -36,8 +36,7 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content':
-          '1.Add offline mode(Pre-stored data).\n2.Fix some layout.\n3.Fix some error.',
+      'update_note_content': '1.Imporve some UI.\n2.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -320,7 +319,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.新增離線模式(載入之前暫存的資料)\n2.修正部分介面跑版\n3.修正部分錯誤',
+      'update_note_content': '1.優化部分介面\n2.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
