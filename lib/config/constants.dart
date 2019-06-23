@@ -62,6 +62,6 @@ class Constants {
   static const int NOTIFICATION_COURSE_ID = 101;
   static const int NOTIFICATION_FCM_ID = 200;
 
-  static const FANS_PAGE_ID = '301942414015612';
+  static const FANS_PAGE_ID = '954175941266264';
   static const FANS_PAGE_URL = 'https://www.facebook.com/$FANS_PAGE_ID/';
 }

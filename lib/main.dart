@@ -50,19 +50,29 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
   Brightness brightness = Brightness.light;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       _firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ShareDataWidget(
       child: MaterialApp(
         localeResolutionCallback:
