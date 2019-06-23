@@ -15,6 +15,7 @@ import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
@@ -67,6 +68,7 @@ class _MyAppState extends State<MyApp> {
       _firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
+      Preferences.init();
     }
     super.initState();
   }

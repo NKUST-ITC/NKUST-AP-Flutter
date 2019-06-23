@@ -15,9 +15,21 @@ class AppLocalizations {
   }
 
   static Locale locale;
+  static String languageCode = 'system';
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
+
+  String get localeText {
+    switch (languageCode) {
+      case 'zh':
+        return traditionalChinese;
+      case 'en':
+        return english;
+      default:
+        return systemLanguage;
+    }
   }
 
   static Map<String, Map<String, String>> _localizedValues = {
@@ -180,9 +192,12 @@ class AppLocalizations {
       'other_info': 'Other',
       'other_settings': 'Settings',
       'head_photo_setting': 'Show Photo',
+      'head_photo_setting_sub_title': 'Side menu shows the photo sticker',
       'course_notify': 'Class Reminder',
+      'course_notify_sub_title': 'Reminder 10mins before class starts',
       'course_vibrate': 'Silent Mode During Class',
       'bus_notify': 'Bus Reservation Reminder',
+      'bus_notify_sub_title': 'Reminder 30 mins before reserved bus',
       'feedback': 'Suggestions',
       'feedback_via_facebook': 'Message to Facebook Page',
       'app_version': 'App Version',
@@ -323,7 +338,7 @@ class AppLocalizations {
       'dot_leave': '缺曠',
       'dot_bus': '校車',
       'schedule': '行事曆',
-      'loading': 'Loading',
+      'loading': '載入中',
       'id_hint': '學號',
       'password_hint': '密碼',
       'remember_password': '記住密碼',
@@ -443,9 +458,12 @@ class AppLocalizations {
       'other_info': '其他資訊',
       'other_settings': '其他設定',
       'head_photo_setting': '顯示大頭貼',
+      'head_photo_setting_sub_title': '測選單是否顯示大頭貼',
       'course_notify': '上課提醒',
+      'course_notify_sub_title': '上課前十分鐘提醒',
       'course_vibrate': '上課震動',
       'bus_notify': '校車提醒',
+      'bus_notify_sub_title': '發車前三十分鐘提醒',
       'feedback': '回饋意見',
       'feedback_via_facebook': '私訊給粉絲專頁',
       'app_version': 'App 版本',
@@ -821,11 +839,18 @@ class AppLocalizations {
 
   String get headPhotoSetting => _vocabularies['head_photo_setting'];
 
+  String get headPhotoSettingSubTitle =>
+      _vocabularies['head_photo_setting_sub_title'];
+
   String get courseNotify => _vocabularies['course_notify'];
+
+  String get courseNotifySubTitle => _vocabularies['course_notify_sub_title'];
 
   String get courseVibrate => _vocabularies['course_vibrate'];
 
   String get busNotify => _vocabularies['bus_notify'];
+
+  String get busNotifySubTitle => _vocabularies['bus_notify_sub_title'];
 
   String get feedback => _vocabularies['feedback'];
 
@@ -1035,7 +1060,6 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
       AppLocalizations localizations = AppLocalizations(
           (languageCode == 'system') ? locale : Locale(languageCode));
-
       return localizations;
     } else {
       //TODO if other platform can use SharedPreferences, need update.

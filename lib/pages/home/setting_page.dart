@@ -9,18 +9,23 @@ import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:package_info/package_info.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
   SettingPageRoute()
-      : super(builder: (BuildContext context) => new SettingPage());
+      : super(
+          builder: (BuildContext context) => SettingPage(),
+        );
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new SettingPage());
+    return FadeTransition(
+      opacity: animation,
+      child: SettingPage(),
+    );
   }
 }
 
@@ -28,28 +33,24 @@ class SettingPage extends StatefulWidget {
   static const String routerName = "/setting";
 
   @override
-  SettingPageState createState() => new SettingPageState();
+  SettingPageState createState() => SettingPageState();
 }
 
-class SettingPageState extends State<SettingPage>
-    with SingleTickerProviderStateMixin {
-  SharedPreferences prefs;
-
-  var busNotify = false, courseNotify = false, displayPicture = true;
+class SettingPageState extends State<SettingPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   AppLocalizations app;
 
   String appVersion = "1.0.0";
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  bool busNotify = false, courseNotify = false, displayPicture = true;
   bool isOffline = false;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("SettingPage", "setting_page.dart");
     _getPreference();
     Utils.showAppReviewDialog(context);
+    super.initState();
   }
 
   @override
@@ -67,96 +68,136 @@ class SettingPageState extends State<SettingPage>
         backgroundColor: Resource.Colors.blue,
       ),
       body: SingleChildScrollView(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <
-            Widget>[
-          _titleItem(app.notificationItem),
-          _itemSwitch(app.courseNotify, courseNotify, () async {
-            FA.logAction('notify_course', 'create');
-            setState(() {
-              courseNotify = !courseNotify;
-            });
-            if (courseNotify)
-              _setupCourseNotify(context);
-            else {
-              await Utils.cancelCourseNotify();
-            }
-            FA.logAction('notify_course', 'create', message: '$courseNotify');
-            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-          }),
-          _itemSwitch(app.busNotify, busNotify, () async {
-            FA.logAction('notify_bus', 'create');
-            bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
-            if (bus) {
-              setState(() {
-                busNotify = !busNotify;
-              });
-              if (busNotify)
-                _setupBusNotify(context);
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _titleItem(app.notificationItem),
+            _itemSwitch(
+              app.courseNotify,
+              app.courseNotifySubTitle,
+              courseNotify,
+              (b) async {
+                FA.logAction('notify_course', 'create');
+                setState(() {
+                  courseNotify = !courseNotify;
+                });
+                if (courseNotify)
+                  _setupCourseNotify(context);
+                else {
+                  await Utils.cancelCourseNotify();
+                }
+                FA.logAction('notify_course', 'create',
+                    message: '$courseNotify');
+                Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+              },
+            ),
+            _itemSwitch(
+              app.busNotify,
+              app.busNotifySubTitle,
+              busNotify,
+              (b) async {
+                FA.logAction('notify_bus', 'create');
+                bool bus =
+                    await Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+                if (bus) {
+                  setState(() {
+                    busNotify = !busNotify;
+                  });
+                  if (busNotify)
+                    _setupBusNotify(context);
+                  else {
+                    await Utils.cancelBusNotify();
+                  }
+                  Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+                  FA.logAction('notify_bus', 'click', message: '$busNotify');
+                } else {
+                  Utils.showToast(context, app.canNotUseFeature);
+                  FA.logAction('notify_bus', 'staus',
+                      message: 'can\'t use feature');
+                }
+              },
+            ),
+            Divider(
+              color: Colors.grey,
+              height: 0.5,
+            ),
+            _titleItem(app.otherSettings),
+            _itemSwitch(
+              app.headPhotoSetting,
+              app.headPhotoSettingSubTitle,
+              displayPicture,
+              (b) {
+                setState(() {
+                  displayPicture = !displayPicture;
+                });
+                Preferences.setBool(
+                    Constants.PREF_DISPLAY_PICTURE, displayPicture);
+                FA.logAction('head_photo', 'click');
+              },
+            ),
+            _item(
+              app.language,
+              app.localeText,
+              () {
+                Utils.showChoseLanguageDialog(context, (languageCode) {
+                  setState(() {
+                    AppLocalizations.languageCode = languageCode;
+                  });
+                });
+              },
+            ),
+            Divider(
+              color: Colors.grey,
+              height: 0.5,
+            ),
+            _titleItem(app.otherInfo),
+            _item(app.feedback, app.feedbackViaFacebook, () {
+              if (Platform.isAndroid)
+                Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
+                    .catchError((onError) => Utils.launchUrl(
+                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/'));
+              else if (Platform.isIOS)
+                Utils.launchUrl(
+                        'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
+                    .catchError((onError) => Utils.launchUrl(
+                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/'));
               else {
-                await Utils.cancelBusNotify();
+                Utils.launchUrl(
+                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/')
+                    .catchError((onError) =>
+                        Utils.showToast(context, app.platformError));
               }
-              prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-              FA.logAction('notify_bus', 'click', message: '$busNotify');
-            } else {
-              Utils.showToast(context, app.canNotUseFeature);
-              FA.logAction('notify_bus', 'staus',
-                  message: 'can\'t use feature');
-            }
-          }),
-          Container(
-            color: Colors.grey,
-            height: 0.5,
-          ),
-          _titleItem(app.otherSettings),
-          _itemSwitch(app.headPhotoSetting, displayPicture, () {
-            setState(() {
-              displayPicture = !displayPicture;
-            });
-            prefs.setBool(Constants.PREF_DISPLAY_PICTURE, displayPicture);
-            FA.logAction('head_photo', 'click');
-          }),
-          _itemSingle(app.language, () {
-            Utils.showChoseLanguageDialog(context, () {
-              setState(() {});
-            });
-          }),
-          Divider(
-            color: Colors.grey,
-            height: 0.5,
-          ),
-          _titleItem(app.otherInfo),
-          _item(app.feedback, app.feedbackViaFacebook, () {
-            if (Platform.isAndroid)
-              Utils.launchUrl('fb://messaging/954175941266264').catchError(
-                  (onError) => Utils.launchUrl(
-                      'https://www.facebook.com/954175941266264/'));
-            else if (Platform.isIOS)
-              Utils.launchUrl('fb-messenger://user-thread/954175941266264')
-                  .catchError((onError) => Utils.launchUrl(
-                      'https://www.facebook.com/954175941266264/'));
-            else {
-              Utils.launchUrl('https://www.facebook.com/954175941266264/')
+              FA.logAction('feedback', 'click');
+            }),
+            _item(app.donateTitle, app.donateContent, () {
+              Utils.launchUrl(
+                      "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
                   .catchError(
                       (onError) => Utils.showToast(context, app.platformError));
-            }
-            FA.logAction('feedback', 'click');
-          }),
-          _item(app.donateTitle, app.donateContent, () {
-            Utils.launchUrl(
-                    "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
-                .catchError(
-                    (onError) => Utils.showToast(context, app.platformError));
-            FA.logAction('donate', 'click');
-          }),
-          _item(app.appVersion, "v$appVersion", () {
-            //FA.logAction('donate', 'click');
-          }),
-        ]),
+              FA.logAction('donate', 'click');
+            }),
+            _item(app.appVersion, "v$appVersion", () {
+              //FA.logAction('donate', 'click');
+            }),
+          ],
+        ),
       ),
     );
   }
 
-  _titleItem(String text) => Container(
+  _getPreference() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+      appVersion = packageInfo.version;
+      courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
+      displayPicture =
+          Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
+      busNotify = Preferences.getBool(Constants.PREF_BUS_NOTIFY, false);
+    });
+  }
+
+  Widget _titleItem(String text) => Container(
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
@@ -165,78 +206,31 @@ class SettingPageState extends State<SettingPage>
         ),
       );
 
-  _itemSwitch(String text, bool value, Function function) => FlatButton(
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(
-              text,
-              style: TextStyle(fontSize: 16.0),
-            ),
-            Switch(
-              value: value,
-              activeColor: Resource.Colors.blue,
-              activeTrackColor: Resource.Colors.blue,
-              onChanged: (b) {
-                function();
-              },
-            ),
-          ],
+  Widget _itemSwitch(
+          String text, String subText, bool value, Function function) =>
+      SwitchListTile(
+        title: Text(
+          text,
+          style: TextStyle(fontSize: 16.0),
         ),
-        onPressed: function,
+        subtitle: Text(
+          subText,
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+        ),
+        value: value,
+        onChanged: function,
       );
 
-  _getPreference() async {
-    prefs = await SharedPreferences.getInstance();
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      isOffline = prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN) ?? false;
-      appVersion = packageInfo.version;
-      courseNotify = prefs.getBool(Constants.PREF_COURSE_NOTIFY) ?? false;
-      displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
-      busNotify = prefs.getBool(Constants.PREF_BUS_NOTIFY) ?? false;
-    });
-  }
-
-  _item(String text, String subText, Function function) => FlatButton(
-        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                text,
-                style: TextStyle(fontSize: 16.0),
-              ),
-              Text(
-                subText,
-                style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
-              ),
-            ],
-          ),
+  Widget _item(String text, String subText, Function function) => ListTile(
+        title: Text(
+          text,
+          style: TextStyle(fontSize: 16.0),
         ),
-        onPressed: function,
-      );
-
-  _itemSingle(String text, Function function) => FlatButton(
-        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                text,
-                style: TextStyle(fontSize: 16.0),
-              ),
-            ],
-          ),
+        subtitle: Text(
+          subText,
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
         ),
-        onPressed: function,
+        onTap: function,
       );
 
   void _setupCourseNotify(BuildContext context) async {
@@ -255,14 +249,14 @@ class SettingPageState extends State<SettingPage>
         else {
           setState(() {
             courseNotify = false;
-            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+            Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
           Utils.showToast(context, app.noOfflineData);
         }
       } else {
         setState(() {
           courseNotify = false;
-          prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+          Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
         Utils.showToast(context, app.noOfflineData);
       }
@@ -279,7 +273,7 @@ class SettingPageState extends State<SettingPage>
         }).catchError((e) {
           setState(() {
             courseNotify = false;
-            prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+            Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
           if (e is DioError) {
             switch (e.type) {
@@ -302,7 +296,7 @@ class SettingPageState extends State<SettingPage>
       setState(() {
         courseNotify = false;
       });
-      prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
@@ -336,7 +330,7 @@ class SettingPageState extends State<SettingPage>
     if (courseData.status != 200) {
       setState(() {
         courseNotify = false;
-        prefs.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
       });
     }
   }
@@ -370,7 +364,7 @@ class SettingPageState extends State<SettingPage>
       setState(() {
         busNotify = false;
       });
-      prefs.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+      Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
       if (e is DioError) {
         switch (e.type) {

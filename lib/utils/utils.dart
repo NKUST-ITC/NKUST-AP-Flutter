@@ -318,7 +318,7 @@ class Utils {
                         AppLocalizations.locale =
                             Localizations.localeOf(context);
                       }
-                      function();
+                      function('system');
                     }),
                 SimpleDialogOption(
                     child: Text(app.traditionalChinese),
@@ -331,7 +331,7 @@ class Utils {
                             Constants.PREF_LANGUAGE_CODE, 'zh');
                         AppLocalizations.locale = Locale('zh');
                       }
-                      function();
+                      function('zh');
                     }),
                 SimpleDialogOption(
                     child: Text(app.english),
@@ -344,7 +344,7 @@ class Utils {
                             Constants.PREF_LANGUAGE_CODE, 'en');
                         AppLocalizations.locale = Locale('en');
                       }
-                      function();
+                      function('en');
                     })
               ]),
     ).then<void>((int position) {});
