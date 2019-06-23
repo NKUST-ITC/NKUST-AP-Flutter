@@ -382,7 +382,6 @@ class LoginPageState extends State<LoginPage>
           password = encryptPassword;
           await prefs.setString(Constants.PREF_PASSWORD,
               encrypter.encrypt(encryptPassword).base64);
-          throw e;
         }
       }
     }
@@ -455,7 +454,7 @@ class LoginPageState extends State<LoginPage>
   _offlineLogin() async {
     String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
     String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
-    if (username.isEmpty) {
+    if (username.isEmpty || encryptPassword.isEmpty) {
       Utils.showToast(context, app.noOfflineLoginData);
     } else {
       String password = '';
@@ -466,7 +465,6 @@ class LoginPageState extends State<LoginPage>
         password = encryptPassword;
         await prefs.setString(
             Constants.PREF_PASSWORD, encrypter.encrypt(encryptPassword).base64);
-        throw e;
       }
       if (username != _username.text || password != _password.text)
         Utils.showToast(context, app.offlineLoginPasswordError);
