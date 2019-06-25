@@ -15,17 +15,28 @@ class AppLocalizations {
   }
 
   static Locale locale;
+  static String languageCode = 'system';
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  }
+
+  String get localeText {
+    switch (languageCode) {
+      case 'zh':
+        return traditionalChinese;
+      case 'en':
+        return english;
+      default:
+        return systemLanguage;
+    }
   }
 
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content':
-          '1.Add offline mode(Pre-stored data).\n2.Fix some layout.\n3.Fix some error.',
+      'update_note_content': '1.Imporve some UI.\n2.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -180,9 +191,12 @@ class AppLocalizations {
       'other_info': 'Other',
       'other_settings': 'Settings',
       'head_photo_setting': 'Show Photo',
+      'head_photo_setting_sub_title': 'Side menu shows the photo sticker',
       'course_notify': 'Class Reminder',
+      'course_notify_sub_title': 'Reminder 10mins before class starts',
       'course_vibrate': 'Silent Mode During Class',
       'bus_notify': 'Bus Reservation Reminder',
+      'bus_notify_sub_title': 'Reminder 30 mins before reserved bus',
       'feedback': 'Suggestions',
       'feedback_via_facebook': 'Message to Facebook Page',
       'app_version': 'App Version',
@@ -293,11 +307,19 @@ class AppLocalizations {
       'offline_score': 'Offline Score',
       'offline_bus_reservations': 'Offline Bus Reservations',
       'offline_leave_data': 'Offline absent Report',
+      'noData': 'No Data',
+      'contactFansPage': 'Contact',
+      'newsRuleTitle': 'News publication rules',
+      'newsRuleDescription1':
+          'This feature provides information about the school or student\'s publication of the school.\n\nPlease contact the fan page if you need it\n',
+      'newsRuleDescription2':
+          '1. Image and upload to imgur, please use JPEG compressed file. It is recommended not to exceed 100KB. \n2. The title suggests placing the name of the event, not too long. \n3. Activity URL link. \n4. Description of the content. \n5. Must be a non-profit activity.\n\n',
+      'newsRuleDescription3': 'The NKUST AP team has the final right to modify.'
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.新增離線模式(載入之前暫存的資料)\n2.修正部分介面跑版\n3.修正部分錯誤',
+      'update_note_content': '1.優化部分介面\n2.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -315,7 +337,7 @@ class AppLocalizations {
       'dot_leave': '缺曠',
       'dot_bus': '校車',
       'schedule': '行事曆',
-      'loading': 'Loading',
+      'loading': '載入中',
       'id_hint': '學號',
       'password_hint': '密碼',
       'remember_password': '記住密碼',
@@ -435,9 +457,12 @@ class AppLocalizations {
       'other_info': '其他資訊',
       'other_settings': '其他設定',
       'head_photo_setting': '顯示大頭貼',
+      'head_photo_setting_sub_title': '測選單是否顯示大頭貼',
       'course_notify': '上課提醒',
+      'course_notify_sub_title': '上課前十分鐘提醒',
       'course_vibrate': '上課震動',
       'bus_notify': '校車提醒',
+      'bus_notify_sub_title': '發車前三十分鐘提醒',
       'feedback': '回饋意見',
       'feedback_via_facebook': '私訊給粉絲專頁',
       'app_version': 'App 版本',
@@ -549,6 +574,13 @@ class AppLocalizations {
       'offline_score': '離線成績',
       'offline_bus_reservations': '離線校車紀錄',
       'offline_leave_data': '離線缺曠資料',
+      'noData': '無資料',
+      'contactFansPage': '聯絡粉專',
+      'newsRuleTitle': '最新消息刊登規則',
+      'newsRuleDescription1': '本功能提供社團或學生\n刊登學校相關資訊\n\n若需要請聯絡粉絲專頁並提供\n',
+      'newsRuleDescription2':
+          '1. 圖片且上傳至 imgur\n請使用ＪＰＥＧ有壓縮過的檔案\n建議不要超過100KB\n2. 標題建議放活動名稱，不要太長\n3. 活動網址連結\n4. 內容說明\n5.必須為非營利活動\n\n',
+      'newsRuleDescription3': '高科校務通團隊有最終修改權利'
     },
   };
 
@@ -806,11 +838,18 @@ class AppLocalizations {
 
   String get headPhotoSetting => _vocabularies['head_photo_setting'];
 
+  String get headPhotoSettingSubTitle =>
+      _vocabularies['head_photo_setting_sub_title'];
+
   String get courseNotify => _vocabularies['course_notify'];
+
+  String get courseNotifySubTitle => _vocabularies['course_notify_sub_title'];
 
   String get courseVibrate => _vocabularies['course_vibrate'];
 
   String get busNotify => _vocabularies['bus_notify'];
+
+  String get busNotifySubTitle => _vocabularies['bus_notify_sub_title'];
 
   String get feedback => _vocabularies['feedback'];
 
@@ -987,6 +1026,21 @@ class AppLocalizations {
       _vocabularies['offline_bus_reservations'];
 
   String get offlineLeaveData => _vocabularies['offline_leave_data'];
+
+  String get noData => _vocabularies['noData'];
+
+  String get graduationCheckChecklistSummary =>
+      _vocabularies['graduationCheckChecklistSummary'];
+
+  String get contactFansPage => _vocabularies['contactFansPage'];
+
+  String get newsRuleTitle => _vocabularies['newsRuleTitle'];
+
+  String get newsRuleDescription1 => _vocabularies['newsRuleDescription1'];
+
+  String get newsRuleDescription2 => _vocabularies['newsRuleDescription2'];
+
+  String get newsRuleDescription3 => _vocabularies['newsRuleDescription3'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -1005,7 +1059,6 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
       AppLocalizations localizations = AppLocalizations(
           (languageCode == 'system') ? locale : Locale(languageCode));
-
       return localizations;
     } else {
       //TODO if other platform can use SharedPreferences, need update.

@@ -15,6 +15,7 @@ import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
@@ -50,19 +51,30 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
   Brightness brightness = Brightness.light;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       _firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
+      Preferences.init();
     }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ShareDataWidget(
       child: MaterialApp(
         localeResolutionCallback:

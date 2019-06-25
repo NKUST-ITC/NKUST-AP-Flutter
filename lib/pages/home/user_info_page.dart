@@ -78,42 +78,45 @@ class UserInfoPageState extends State<UserInfoPage>
                     )
                   : SizedBox(height: 0.0),
               SizedBox(height: 8.0),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: Column(
-                      children: <Widget>[
-                        ListTile(
-                          title: Text(app.studentNameCht),
-                          subtitle: Text(widget.userInfo.studentNameCht),
-                        ),
-                        Divider(height: 1.0),
-                        ListTile(
-                          title: Text(app.educationSystem),
-                          subtitle: Text(widget.userInfo.educationSystem),
-                        ),
-                        Divider(height: 1.0),
-                        ListTile(
-                          title: Text(app.department),
-                          subtitle: Text(widget.userInfo.department),
-                        ),
-                        Divider(height: 1.0),
-                        ListTile(
-                          title: Text(app.studentClass),
-                          subtitle: Text(widget.userInfo.className),
-                        ),
-                        Divider(height: 1.0),
-                        ListTile(
-                          title: Text(app.studentId),
-                          subtitle: Text(widget.userInfo.studentId),
-                        ),
-                      ],
-                    ),
+              Card(
+                elevation: 4.0,
+                margin: EdgeInsets.all(16.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(height: 8.0),
+                      ListTile(
+                        title: Text(app.studentNameCht),
+                        subtitle: Text(widget.userInfo.studentNameCht),
+                      ),
+                      Divider(height: 1.0),
+                      ListTile(
+                        title: Text(app.educationSystem),
+                        subtitle: Text(widget.userInfo.educationSystem),
+                      ),
+                      Divider(height: 1.0),
+                      ListTile(
+                        title: Text(app.department),
+                        subtitle: Text(widget.userInfo.department),
+                      ),
+                      Divider(height: 1.0),
+                      ListTile(
+                        title: Text(app.studentClass),
+                        subtitle: Text(widget.userInfo.className),
+                      ),
+                      Divider(height: 1.0),
+                      ListTile(
+                        title: Text(app.studentId),
+                        subtitle: Text(widget.userInfo.studentId),
+                      ),
+                    ],
                   ),
                 ),
-              )
+              ),
             ],
           ),
         );
