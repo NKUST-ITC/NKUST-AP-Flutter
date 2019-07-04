@@ -320,7 +320,7 @@ class CoursePageState extends State<CoursePage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(context, e);
+            if (mounted) Utils.handleDioError(context, e);
             break;
         }
       } else {

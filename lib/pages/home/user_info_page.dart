@@ -157,14 +157,14 @@ class UserInfoPageState extends State<UserInfoPage>
           }
         }
       }).catchError((e) {
-        assert(e is DioError);
-        DioError dioError = e as DioError;
-        switch (dioError.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-            break;
-          default:
-            break;
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(context, 'getUserPicture', mounted, e);
+              break;
+            default:
+              break;
+          }
         }
       });
     } else {
