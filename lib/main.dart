@@ -123,7 +123,7 @@ class _MyAppState extends State<MyApp> {
           const AppLocalizationsDelegate(),
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
-          CupertinoEnDefaultLocalizationsDelegate(),
+          GlobalCupertinoLocalizations.delegate,
         ],
         supportedLocales: [
           const Locale('en', 'US'), // English
