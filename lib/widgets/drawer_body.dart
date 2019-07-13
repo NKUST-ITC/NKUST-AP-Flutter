@@ -7,6 +7,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -115,8 +116,7 @@ class DrawerBodyState extends State<DrawerBody> {
                     decoration: BoxDecoration(
                       color: Color(0xff0071FF),
                       image: DecorationImage(
-                          image:
-                              AssetImage("assets/images/drawer-backbroud.webp"),
+                          image: AssetImage(ImageAssets.drawerBackground),
                           fit: BoxFit.fitWidth,
                           alignment: Alignment.bottomCenter),
                     ),
@@ -126,7 +126,7 @@ class DrawerBodyState extends State<DrawerBody> {
                     right: 20.0,
                     child: Container(
                       child: Image.asset(
-                        "assets/images/drawer-icon.webp",
+                        ImageAssets.drawerIcon,
                         width: 90.0,
                       ),
                     ),

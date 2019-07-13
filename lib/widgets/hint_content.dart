@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 
 class HintContent extends StatelessWidget {
   final IconData icon;
   final String content;
 
-  HintContent({this.icon, this.content});
+  HintContent({
+    @required this.icon,
+    @required this.content,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +21,10 @@ class HintContent extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(25.0),
             decoration: BoxDecoration(
-                image: DecorationImage(
-              image: AssetImage("assets/images/dash_line.webp"),
-            )),
+              image: DecorationImage(
+                image: AssetImage(ImageAssets.dashLine),
+              ),
+            ),
             child: Icon(
               icon,
               size: 50.0,
