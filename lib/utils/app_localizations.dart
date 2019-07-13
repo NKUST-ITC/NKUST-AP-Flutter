@@ -16,6 +16,7 @@ class AppLocalizations {
 
   static Locale locale;
   static String languageCode = 'system';
+  static String themeCode = 'light';
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
@@ -27,6 +28,17 @@ class AppLocalizations {
         return traditionalChinese;
       case 'en':
         return english;
+      default:
+        return systemLanguage;
+    }
+  }
+
+  String get themeText {
+    switch (themeCode) {
+      case 'light':
+        return light;
+      case 'dark':
+        return dark;
       default:
         return systemLanguage;
     }
@@ -314,7 +326,11 @@ class AppLocalizations {
           'This feature provides information about the school or student\'s publication of the school.\n\nPlease contact the fan page if you need it\n',
       'newsRuleDescription2':
           '1. Image and upload to imgur, please use JPEG compressed file. It is recommended not to exceed 100KB. \n2. The title suggests placing the name of the event, not too long. \n3. Activity URL link. \n4. Description of the content. \n5. Must be a non-profit activity.\n\n',
-      'newsRuleDescription3': 'The NKUST AP team has the final right to modify.'
+      'newsRuleDescription3':
+          'The NKUST AP team has the final right to modify.',
+      'theme': 'Theme',
+      'light': 'Light',
+      'dark': 'Dark',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -580,7 +596,10 @@ class AppLocalizations {
       'newsRuleDescription1': '本功能提供社團或學生\n刊登學校相關資訊\n\n若需要請聯絡粉絲專頁並提供\n',
       'newsRuleDescription2':
           '1. 圖片且上傳至 imgur\n請使用ＪＰＥＧ有壓縮過的檔案\n建議不要超過100KB\n2. 標題建議放活動名稱，不要太長\n3. 活動網址連結\n4. 內容說明\n5.必須為非營利活動\n\n',
-      'newsRuleDescription3': '高科校務通團隊有最終修改權利'
+      'newsRuleDescription3': '高科校務通團隊有最終修改權利',
+      'theme': '主題',
+      'light': '淺色',
+      'dark': '深色',
     },
   };
 
@@ -1041,6 +1060,12 @@ class AppLocalizations {
   String get newsRuleDescription2 => _vocabularies['newsRuleDescription2'];
 
   String get newsRuleDescription3 => _vocabularies['newsRuleDescription3'];
+
+  String get theme => _vocabularies['theme'];
+
+  String get dark => _vocabularies['dark'];
+
+  String get light => _vocabularies['light'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

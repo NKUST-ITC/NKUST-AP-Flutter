@@ -53,13 +53,46 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
-  Brightness brightness = Brightness.light;
+  ThemeData themeData = ThemeData(
+    brightness: Brightness.light,
+    hintColor: Colors.white,
+    accentColor: Resource.Colors.blue,
+    unselectedWidgetColor: Resource.Colors.grey,
+    backgroundColor: Colors.black12,
+    inputDecorationTheme: InputDecorationTheme(
+      labelStyle: TextStyle(color: Colors.white),
+      border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+    ),
+  );
+
+  setLight() {
+    setState(() {
+      themeData = ThemeData(
+        brightness: Brightness.light,
+        hintColor: Colors.white,
+        accentColor: Resource.Colors.blue,
+        unselectedWidgetColor: Resource.Colors.grey,
+        backgroundColor: Colors.black12,
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: TextStyle(color: Colors.white),
+          border:
+              UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+        ),
+      );
+    });
+  }
+
+  setThemeData(ThemeData themeData) {
+    setState(() {
+      this.themeData = themeData;
+    });
+  }
 
   @override
   void initState() {
@@ -76,6 +109,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ShareDataWidget(
+      this,
       child: MaterialApp(
         localeResolutionCallback:
             (Locale locale, Iterable<Locale> supportedLocales) {
@@ -102,18 +136,7 @@ class _MyAppState extends State<MyApp> {
               NewsContentPage(null),
           LeavePage.routerName: (BuildContext context) => LeavePage(),
         },
-        theme: ThemeData(
-          brightness: brightness,
-          hintColor: Colors.white,
-          accentColor: Resource.Colors.blue,
-          unselectedWidgetColor: Resource.Colors.grey,
-          backgroundColor: Colors.black12,
-          inputDecorationTheme: InputDecorationTheme(
-            labelStyle: TextStyle(color: Colors.white),
-            border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white)),
-          ),
-        ),
+        theme: themeData,
         navigatorObservers: (Platform.isIOS || Platform.isAndroid)
             ? [
                 FirebaseAnalyticsObserver(analytics: analytics),

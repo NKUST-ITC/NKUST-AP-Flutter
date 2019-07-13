@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nkust_ap/main.dart';
 
 class ShareDataWidget extends InheritedWidget {
-  String username = '';
-  bool isOfflineLogin = false;
+  final MyAppState data;
 
-  ShareDataWidget({Widget child}) : super(child: child);
+  ShareDataWidget(this.data, {Widget child}) : super(child: child);
 
   static ShareDataWidget of(BuildContext context) {
     return context.inheritFromWidgetOfExactType(ShareDataWidget);
@@ -12,6 +13,6 @@ class ShareDataWidget extends InheritedWidget {
 
   @override
   bool updateShouldNotify(ShareDataWidget oldWidget) {
-    return oldWidget.username != username;
+    return true;
   }
 }

@@ -11,6 +11,7 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
@@ -144,6 +145,41 @@ class SettingPageState extends State<SettingPage> {
                     AppLocalizations.languageCode = languageCode;
                   });
                 });
+              },
+            ),
+            _item(
+              app.theme,
+              app.themeText,
+              () {
+                showDialog<int>(
+                  context: context,
+                  builder: (BuildContext context) => SimpleDialog(
+                      title: Text(app.theme),
+                      children: <SimpleDialogOption>[
+                        SimpleDialogOption(
+                            child: Text(app.light),
+                            onPressed: () {
+                              ShareDataWidget.of(context)
+                                  .data
+                                  .setThemeData(ThemeData.light());
+                              setState(() {
+                                AppLocalizations.themeCode = 'light';
+                              });
+                              Navigator.pop(context);
+                            }),
+                        SimpleDialogOption(
+                            child: Text(app.dark),
+                            onPressed: () {
+                              ShareDataWidget.of(context)
+                                  .data
+                                  .setThemeData(ThemeData.dark());
+                              setState(() {
+                                AppLocalizations.themeCode = 'dark';
+                              });
+                              Navigator.pop(context);
+                            })
+                      ]),
+                ).then<void>((int position) {});
               },
             ),
             Divider(
