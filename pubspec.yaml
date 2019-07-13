@@ -29,7 +29,7 @@ dependencies:
   toast: ^0.1.4
   tuple: ^1.0.1
   flutter_crashlytics:
-    path: ../flutter_crashlytics
+    git: https://github.com/abc873693/flutter_crashlytics
   encrypt: ^2.0.0
   flutter_local_notifications: ^0.7.1+3
   sprintf: ^4.0.2
