@@ -21,6 +21,13 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
+  String themeCode = AppTheme.LIGHT;
+  if (Platform.isIOS || Platform.isAndroid) {
+    await Preferences.init();
+    themeCode =
+        Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
+  }
+  AppTheme.code = themeCode;
   if (Platform.isIOS || Platform.isAndroid) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (isInDebugMode) {
@@ -36,7 +43,11 @@ void main() async {
     await FlutterCrashlytics().initialize();
 
     runZoned<Future<Null>>(() async {
-      runApp(MyApp());
+      runApp(
+        MyApp(
+          themeData: AppTheme.data,
+        ),
+      );
     }, onError: (error, stackTrace) async {
       // Whenever an error occurs, call the `reportCrash` function. This will send
       // Dart errors to our dev console or Crashlytics depending on the environment.
@@ -46,12 +57,20 @@ void main() async {
   } else {
     // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-    runApp(MyApp());
+    runApp(
+      MyApp(
+        themeData: AppTheme.data,
+      ),
+    );
     //TODO add other platform Crashlytics
   }
 }
 
 class MyApp extends StatefulWidget {
+  final ThemeData themeData;
+
+  const MyApp({Key key, @required this.themeData}) : super(key: key);
+
   @override
   MyAppState createState() => MyAppState();
 }
@@ -59,7 +78,7 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
-  ThemeData themeData = AppTheme.light;
+  ThemeData themeData;
 
   setThemeData(ThemeData themeData) {
     setState(() {
@@ -69,6 +88,7 @@ class MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    themeData = widget.themeData;
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       _firebaseMessaging = FirebaseMessaging();

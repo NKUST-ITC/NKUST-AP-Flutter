@@ -29,7 +29,7 @@ class ProgressDialog extends StatelessWidget {
           Container(
             child: Text(
               content,
-              style: TextStyle(color: Resource.Colors.blueText),
+              style: TextStyle(color: Resource.Colors.blueAccent),
             ),
           ),
         ],

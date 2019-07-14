@@ -167,6 +167,9 @@ class SettingPageState extends State<SettingPage> {
                               setState(() {
                                 AppLocalizations.themeCode = AppTheme.LIGHT;
                               });
+                              if (Platform.isAndroid || Platform.isIOS)
+                                Preferences.setString(
+                                    Constants.PREF_THEME_CODE, AppTheme.LIGHT);
                               Navigator.pop(context);
                             }),
                         SimpleDialogOption(
@@ -179,6 +182,9 @@ class SettingPageState extends State<SettingPage> {
                               setState(() {
                                 AppLocalizations.themeCode = AppTheme.DARK;
                               });
+                              if (Platform.isAndroid || Platform.isIOS)
+                                Preferences.setString(
+                                    Constants.PREF_THEME_CODE, AppTheme.DARK);
                               Navigator.pop(context);
                             })
                       ]),

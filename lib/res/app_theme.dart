@@ -8,6 +8,16 @@ class AppTheme {
 
   static String code = AppTheme.LIGHT;
 
+  static ThemeData get data {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return dark;
+      case AppTheme.LIGHT:
+      default:
+        return light;
+    }
+  }
+
   static ThemeData get light => ThemeData(
         brightness: Brightness.light,
         appBarTheme: AppBarTheme(
