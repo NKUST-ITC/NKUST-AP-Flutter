@@ -188,7 +188,7 @@ class HomePageState extends State<HomePage> {
             );
           }),
           bottomNavigationBar: BottomNavigationBar(
-            fixedColor: Color(0xff737373),
+            fixedColor: Resource.Colors.bottomNavigationSelect,
             type: BottomNavigationBarType.fixed,
             currentIndex: _currentTabIndex,
             onTap: onTabTapped,
@@ -335,17 +335,17 @@ class HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-            title: app.logout,
-            contentWidget: Text(app.logoutCheck,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.grey)),
-            leftActionText: app.cancel,
-            rightActionText: app.ok,
-            rightActionFunction: () {
-              Navigator.popUntil(
-                  context, ModalRoute.withName(Navigator.defaultRouteName));
-            },
-          ),
+        title: app.logout,
+        contentWidget: Text(app.logoutCheck,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Resource.Colors.greyText)),
+        leftActionText: app.cancel,
+        rightActionText: app.ok,
+        rightActionFunction: () {
+          Navigator.popUntil(
+              context, ModalRoute.withName(Navigator.defaultRouteName));
+        },
+      ),
     );
   }
 
@@ -354,42 +354,42 @@ class HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-            title: app.newsRuleTitle,
-            contentWidget: RichText(
-              text: TextSpan(
-                  style: TextStyle(color: Resource.Colors.grey, fontSize: 16.0),
-                  children: [
-                    TextSpan(
-                        text: '${app.newsRuleDescription1}',
-                        style: TextStyle(fontWeight: FontWeight.normal)),
-                    TextSpan(
-                        text: '${app.newsRuleDescription2}',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: '${app.newsRuleDescription3}',
-                        style: TextStyle(fontWeight: FontWeight.normal)),
-                  ]),
-            ),
-            leftActionText: app.cancel,
-            rightActionText: app.contactFansPage,
-            leftActionFunction: () {},
-            rightActionFunction: () {
-              if (Platform.isAndroid)
-                Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
-                    .catchError(
-                        (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
-              else if (Platform.isIOS)
-                Utils.launchUrl(
-                        'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
-                    .catchError(
-                        (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
-              else {
-                Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
-                    (onError) => Utils.showToast(context, app.platformError));
-              }
-              FA.logAction('contact_fans_page', 'click');
-            },
-          ),
+        title: app.newsRuleTitle,
+        contentWidget: RichText(
+          text: TextSpan(
+              style: TextStyle(color: Resource.Colors.grey, fontSize: 16.0),
+              children: [
+                TextSpan(
+                    text: '${app.newsRuleDescription1}',
+                    style: TextStyle(fontWeight: FontWeight.normal)),
+                TextSpan(
+                    text: '${app.newsRuleDescription2}',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                TextSpan(
+                    text: '${app.newsRuleDescription3}',
+                    style: TextStyle(fontWeight: FontWeight.normal)),
+              ]),
+        ),
+        leftActionText: app.cancel,
+        rightActionText: app.contactFansPage,
+        leftActionFunction: () {},
+        rightActionFunction: () {
+          if (Platform.isAndroid)
+            Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
+                .catchError(
+                    (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
+          else if (Platform.isIOS)
+            Utils.launchUrl(
+                    'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
+                .catchError(
+                    (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
+          else {
+            Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
+                (onError) => Utils.showToast(context, app.platformError));
+          }
+          FA.logAction('contact_fans_page', 'click');
+        },
+      ),
     );
   }
 }

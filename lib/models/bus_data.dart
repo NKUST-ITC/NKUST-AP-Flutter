@@ -120,8 +120,8 @@ class BusTime {
 
   Color getColorState() {
     return isReserve == 1
-        ? Resource.Colors.blue
-        : canReserve() ? Resource.Colors.grey : Colors.grey[400];
+        ? Resource.Colors.blueAccent
+        : canReserve() ? Resource.Colors.grey : Resource.Colors.disabled;
   }
 
   String getReserveState(AppLocalizations local) {

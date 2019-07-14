@@ -58,8 +58,7 @@ class NotificationPageState extends State<NotificationPage>
   }
 
   _textStyle() {
-    return TextStyle(
-        color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.bold);
+    return TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
   }
 
   Widget _notificationItem(NotificationModel notification) {

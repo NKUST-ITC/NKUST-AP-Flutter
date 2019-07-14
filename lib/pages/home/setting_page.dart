@@ -240,7 +240,7 @@ class SettingPageState extends State<SettingPage> {
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
-          style: TextStyle(color: Resource.Colors.blue, fontSize: 14.0),
+          style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
           textAlign: TextAlign.start,
         ),
       );
@@ -254,10 +254,11 @@ class SettingPageState extends State<SettingPage> {
         ),
         subtitle: Text(
           subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
         value: value,
         onChanged: function,
+        activeColor: Resource.Colors.blueAccent,
       );
 
   Widget _item(String text, String subText, Function function) => ListTile(
@@ -267,7 +268,7 @@ class SettingPageState extends State<SettingPage> {
         ),
         subtitle: Text(
           subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
         onTap: function,
       );
@@ -440,7 +441,8 @@ class SettingPageState extends State<SettingPage> {
                 alignment: Alignment.center,
                 child: Text(
                   app.ratingDialogTitle,
-                  style: TextStyle(color: Resource.Colors.blue, fontSize: 20.0),
+                  style: TextStyle(
+                      color: Resource.Colors.blueText, fontSize: 20.0),
                 ),
               ),
             ),

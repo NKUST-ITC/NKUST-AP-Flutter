@@ -13,7 +13,7 @@ class AppTheme {
         appBarTheme: AppBarTheme(
           color: Resource.Colors.blue,
         ),
-        accentColor: Resource.Colors.blue,
+        accentColor: Resource.Colors.blueText,
         unselectedWidgetColor: Resource.Colors.grey,
         backgroundColor: Colors.black12,
         inputDecorationTheme: InputDecorationTheme(
@@ -26,10 +26,8 @@ class AppTheme {
 
   static ThemeData get dark => ThemeData(
         brightness: Brightness.dark,
-        appBarTheme: AppBarTheme(
-          color: Resource.Colors.blue800,
-        ),
-        accentColor: Resource.Colors.blue,
+        scaffoldBackgroundColor: Resource.Colors.onyx,
+        accentColor: Resource.Colors.blueAccent,
         unselectedWidgetColor: Resource.Colors.grey,
         backgroundColor: Colors.black12,
         inputDecorationTheme: InputDecorationTheme(

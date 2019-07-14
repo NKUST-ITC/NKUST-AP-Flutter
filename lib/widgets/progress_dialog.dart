@@ -22,13 +22,14 @@ class ProgressDialog extends StatelessWidget {
           SizedBox(height: 8.0),
           CircularProgressIndicator(
             value: null,
-            valueColor: AlwaysStoppedAnimation<Color>(Resource.Colors.blue),
+            valueColor:
+                AlwaysStoppedAnimation<Color>(Resource.Colors.blueAccent),
           ),
           SizedBox(height: 28.0),
           Container(
             child: Text(
               content,
-              style: TextStyle(color: Resource.Colors.blue),
+              style: TextStyle(color: Resource.Colors.blueText),
             ),
           ),
         ],

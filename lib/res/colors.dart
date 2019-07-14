@@ -8,7 +8,7 @@ class Colors {
   static Color get blue {
     switch (AppTheme.code) {
       case AppTheme.DARK:
-        return blue800;
+        return blueDark;
       case AppTheme.LIGHT:
       default:
         return blue500;
@@ -18,7 +18,7 @@ class Colors {
   static Color get blueText {
     switch (AppTheme.code) {
       case AppTheme.DARK:
-        return blue200;
+        return grayChateau;
       case AppTheme.LIGHT:
       default:
         return blue500;
@@ -28,7 +28,17 @@ class Colors {
   static get blueAccent {
     switch (AppTheme.code) {
       case AppTheme.DARK:
-        return blue200;
+        return blue300;
+      case AppTheme.LIGHT:
+      default:
+        return blue500;
+    }
+  }
+
+  static get semesterText {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return Color(0xffffffff);
       case AppTheme.LIGHT:
       default:
         return blue500;
@@ -55,6 +65,26 @@ class Colors {
     }
   }
 
+  static get disabled {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return Color(0xFF424242);
+      case AppTheme.LIGHT:
+      default:
+        return Color(0xFFBDBDBD);
+    }
+  }
+
+  static Color get calendarTileSelect {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return Color(0xff000000);
+      case AppTheme.LIGHT:
+      default:
+        return Color(0xffffffff);
+    }
+  }
+
   static Color get yellow {
     switch (AppTheme.code) {
       case AppTheme.DARK:
@@ -75,7 +105,23 @@ class Colors {
     }
   }
 
+  static Color get bottomNavigationSelect {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return Color(0xffc1c1c1);
+      case AppTheme.LIGHT:
+      default:
+        return Color(0xff737373);
+    }
+  }
+
+  static const Color blueDark = const Color(0xff131a25);
+  static const Color onyx = const Color(0xff121212);
+  static const Color grayChateau = const Color(0xffa5a5a5);
+
   static const Color blue200 = const Color(0xffa7c7ff);
+  static const Color blue300 = const Color(0xff7cabff);
+  static const Color blue400 = const Color(0xff508fff);
   static const Color blue500 = const Color(0xff2574ff);
   static const Color blue800 = const Color(0xff0e2e66);
 

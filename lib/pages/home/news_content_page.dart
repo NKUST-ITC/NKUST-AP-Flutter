@@ -117,7 +117,7 @@ class NewsContentPageState extends State<NewsContentPage>
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 20.0,
-                color: Resource.Colors.grey,
+                color: Resource.Colors.greyText,
                 fontWeight: FontWeight.w500),
           ),
         ),
@@ -132,7 +132,7 @@ class NewsContentPageState extends State<NewsContentPage>
         child: Text(
           news.content,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16.0, color: Resource.Colors.grey),
+          style: TextStyle(fontSize: 16.0, color: Resource.Colors.greyText),
         ),
       ),
       SizedBox(height: 16.0),

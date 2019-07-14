@@ -78,13 +78,13 @@ class ScorePageState extends State<ScorePage>
                 children: <Widget>[
                   Text(
                     selectSemester == null ? "" : selectSemester.text,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                    style: TextStyle(
+                        color: Resource.Colors.semesterText, fontSize: 18.0),
                   ),
                   SizedBox(width: 8.0),
                   Icon(
                     Icons.keyboard_arrow_down,
-                    color: Resource.Colors.blue,
+                    color: Resource.Colors.semesterText,
                   )
                 ],
               ),
@@ -206,11 +206,11 @@ class ScorePageState extends State<ScorePage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
   }
 
   _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
+    return TextStyle(fontSize: 14.0);
   }
 
   _scoreTitle() => TableRow(
@@ -229,7 +229,7 @@ class ScorePageState extends State<ScorePage>
         border: Border(
           top: isTop
               ? BorderSide.none
-              : BorderSide(color: Colors.grey, width: 0.5),
+              : BorderSide(color: Resource.Colors.grey, width: 0.5),
         ),
       ),
       child: Text(
