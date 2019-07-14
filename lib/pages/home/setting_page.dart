@@ -146,6 +146,7 @@ class SettingPageState extends State<SettingPage> {
                     AppLocalizations.languageCode = languageCode;
                   });
                 });
+                FA.logAction('pick_language', 'click');
               },
             ),
             _item(
@@ -189,6 +190,7 @@ class SettingPageState extends State<SettingPage> {
                             })
                       ]),
                 ).then<void>((int position) {});
+                FA.logAction('pick_theme', 'click');
               },
             ),
             Divider(
