@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -159,22 +160,24 @@ class SettingPageState extends State<SettingPage> {
                         SimpleDialogOption(
                             child: Text(app.light),
                             onPressed: () {
+                              AppTheme.code = AppTheme.LIGHT;
                               ShareDataWidget.of(context)
                                   .data
-                                  .setThemeData(ThemeData.light());
+                                  .setThemeData(AppTheme.light);
                               setState(() {
-                                AppLocalizations.themeCode = 'light';
+                                AppLocalizations.themeCode = AppTheme.LIGHT;
                               });
                               Navigator.pop(context);
                             }),
                         SimpleDialogOption(
                             child: Text(app.dark),
                             onPressed: () {
+                              AppTheme.code = AppTheme.DARK;
                               ShareDataWidget.of(context)
                                   .data
-                                  .setThemeData(ThemeData.dark());
+                                  .setThemeData(AppTheme.dark);
                               setState(() {
-                                AppLocalizations.themeCode = 'dark';
+                                AppLocalizations.themeCode = AppTheme.DARK;
                               });
                               Navigator.pop(context);
                             })

@@ -12,7 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -59,34 +59,7 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
-  ThemeData themeData = ThemeData(
-    brightness: Brightness.light,
-    hintColor: Colors.white,
-    accentColor: Resource.Colors.blue,
-    unselectedWidgetColor: Resource.Colors.grey,
-    backgroundColor: Colors.black12,
-    inputDecorationTheme: InputDecorationTheme(
-      labelStyle: TextStyle(color: Colors.white),
-      border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-    ),
-  );
-
-  setLight() {
-    setState(() {
-      themeData = ThemeData(
-        brightness: Brightness.light,
-        hintColor: Colors.white,
-        accentColor: Resource.Colors.blue,
-        unselectedWidgetColor: Resource.Colors.grey,
-        backgroundColor: Colors.black12,
-        inputDecorationTheme: InputDecorationTheme(
-          labelStyle: TextStyle(color: Colors.white),
-          border:
-              UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-        ),
-      );
-    });
-  }
+  ThemeData themeData = AppTheme.light;
 
   setThemeData(ThemeData themeData) {
     setState(() {
