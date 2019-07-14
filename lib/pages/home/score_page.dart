@@ -303,12 +303,14 @@ class ScorePageState extends State<ScorePage>
       return;
     }
     Helper.instance.getSemester().then((semesterData) {
-      setState(() {
-        this.semesterData = semesterData;
-        selectSemester = semesterData.defaultSemester;
-        selectSemesterIndex = semesterData.defaultIndex;
-      });
-      _getSemesterScore();
+      if (mounted) {
+        setState(() {
+          this.semesterData = semesterData;
+          selectSemester = semesterData.defaultSemester;
+          selectSemesterIndex = semesterData.defaultIndex;
+        });
+        _getSemesterScore();
+      }
       CacheUtils.saveSemesterData(semesterData);
     }).catchError((e) {
       if (e is DioError) {
@@ -415,16 +417,18 @@ class ScorePageState extends State<ScorePage>
   _loadOfflineScoreData() async {
     scoreData = await CacheUtils.loadScoreData(
         semesterData.semesters[selectSemesterIndex].value);
-    setState(() {
-      isOffline = true;
-      if (scoreData == null)
-        state = _State.offlineEmpty;
-      else if (scoreData.status == 204)
-        state = _State.empty;
-      else {
-        _renderScoreDataWidget();
-        state = _State.finish;
-      }
-    });
+    if (mounted) {
+      setState(() {
+        isOffline = true;
+        if (scoreData == null)
+          state = _State.offlineEmpty;
+        else if (scoreData.status == 204)
+          state = _State.empty;
+        else {
+          _renderScoreDataWidget();
+          state = _State.finish;
+        }
+      });
+    }
   }
 }

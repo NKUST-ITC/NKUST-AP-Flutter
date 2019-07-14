@@ -249,22 +249,24 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getUserPicture() {
     Helper.instance.getUsersPicture().then((url) async {
-      var response = await http.get(url);
-      if (!response.body.contains('html')) {
-        if (mounted) {
-          setState(() {
-            pictureBytes = response.bodyBytes;
-          });
+      try {
+        var response = await http.get(url);
+        if (!response.body.contains('html')) {
+          if (mounted) {
+            setState(() {
+              pictureBytes = response.bodyBytes;
+            });
+          }
+          CacheUtils.savePictureData(response.bodyBytes);
+        } else {
+          var bytes = await CacheUtils.loadPictureData();
+          if (mounted) {
+            setState(() {
+              pictureBytes = bytes;
+            });
+          }
         }
-        CacheUtils.savePictureData(response.bodyBytes);
-      } else {
-        var bytes = await CacheUtils.loadPictureData();
-        if (mounted) {
-          setState(() {
-            pictureBytes = bytes;
-          });
-        }
-      }
+      } catch (e) {}
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
