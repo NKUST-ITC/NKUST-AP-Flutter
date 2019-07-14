@@ -22,16 +22,16 @@ class YesNoDialog extends StatelessWidget {
   static showSample(BuildContext context) => showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
-              title: '預約成功',
-              contentWidget: Text(
-                '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
-                style: TextStyle(color: Resource.Colors.grey, height: 1.3),
-              ),
-              leftActionText: '取消',
-              rightActionText: '預約',
-              leftActionFunction: null,
-              rightActionFunction: null,
-            ),
+          title: '預約成功',
+          contentWidget: Text(
+            '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
+            style: TextStyle(color: Resource.Colors.greyText, height: 1.3),
+          ),
+          leftActionText: '取消',
+          rightActionText: '預約',
+          leftActionFunction: null,
+          rightActionFunction: null,
+        ),
       );
 
   @override
@@ -46,7 +46,7 @@ class YesNoDialog extends StatelessWidget {
         title,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Resource.Colors.blue,
+          color: Resource.Colors.blueText,
           fontWeight: FontWeight.bold,
           fontSize: 18.0,
         ),
@@ -88,7 +88,7 @@ class YesNoDialog extends StatelessWidget {
                     child: Text(
                       leftActionText,
                       style: TextStyle(
-                        color: Resource.Colors.grey,
+                        color: Resource.Colors.greyText,
                         fontSize: 16.0,
                       ),
                     ),
@@ -110,7 +110,7 @@ class YesNoDialog extends StatelessWidget {
                     child: Text(
                       rightActionText,
                       style: TextStyle(
-                        color: Resource.Colors.grey,
+                        color: Resource.Colors.greyText,
                         fontSize: 16.0,
                       ),
                     ),

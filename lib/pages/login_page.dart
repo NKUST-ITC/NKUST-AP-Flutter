@@ -11,7 +11,6 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -470,8 +469,6 @@ class LoginPageState extends State<LoginPage>
       else {
         prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
         Utils.showToast(context, app.loadOfflineData);
-        ShareDataWidget.of(context).username =
-            prefs.getString(Constants.PREF_USERNAME);
         _navigateToFilterObject(context);
       }
     }

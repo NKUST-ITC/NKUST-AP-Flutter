@@ -143,7 +143,7 @@ class DrawerBodyState extends State<DrawerBody> {
               leading: Icon(
                 Icons.school,
                 color: isStudyExpanded
-                    ? Resource.Colors.blue
+                    ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
               title: Text(app.courseInfo, style: _defaultStyle()),
@@ -163,7 +163,7 @@ class DrawerBodyState extends State<DrawerBody> {
               leading: Icon(
                 Icons.calendar_today,
                 color: isLeaveExpanded
-                    ? Resource.Colors.blue
+                    ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
               title: Text(app.leave, style: _defaultStyle()),
@@ -182,8 +182,9 @@ class DrawerBodyState extends State<DrawerBody> {
               },
               leading: Icon(
                 Icons.directions_bus,
-                color:
-                    isBusExpanded ? Resource.Colors.blue : Resource.Colors.grey,
+                color: isBusExpanded
+                    ? Resource.Colors.blueAccent
+                    : Resource.Colors.grey,
               ),
               title: Text(app.bus, style: _defaultStyle()),
               children: <Widget>[

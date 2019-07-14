@@ -18,15 +18,15 @@ class DefaultDialog extends StatelessWidget {
   static showSample(BuildContext context) => showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-              title: '預約成功',
-              actionText: '我知道了',
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop('dialog'),
-              contentWidget: Text(
-                '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
-                style: TextStyle(color: Resource.Colors.grey, height: 1.3),
-              ),
-            ),
+          title: '預約成功',
+          actionText: '我知道了',
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop('dialog'),
+          contentWidget: Text(
+            '預約日期：2017/09/05\n上車地點：燕巢校區\n預約班次：08:20',
+            style: TextStyle(color: Resource.Colors.grey, height: 1.3),
+          ),
+        ),
       );
 
   @override
@@ -41,7 +41,7 @@ class DefaultDialog extends StatelessWidget {
         title,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: Resource.Colors.blue,
+          color: Resource.Colors.blueText,
           fontWeight: FontWeight.bold,
           fontSize: 18.0,
         ),
@@ -77,7 +77,7 @@ class DefaultDialog extends StatelessWidget {
                 child: Text(
                   actionText,
                   style: TextStyle(
-                    color: Resource.Colors.grey,
+                    color: Resource.Colors.greyText,
                     fontSize: 18.0,
                   ),
                 ),

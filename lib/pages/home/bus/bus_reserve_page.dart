@@ -114,8 +114,8 @@ class BusReservePageState extends State<BusReservePage>
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minWidth: double.infinity),
                   child: CupertinoSegmentedControl(
-                    selectedColor: Resource.Colors.blue,
-                    borderColor: Resource.Colors.blue,
+                    selectedColor: Resource.Colors.blueAccent,
+                    borderColor: Resource.Colors.blueAccent,
                     groupValue: selectStartStation,
                     children: {
                       Station.janGong: Container(
@@ -216,44 +216,42 @@ class BusReservePageState extends State<BusReservePage>
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => YesNoDialog(
-                            title: '${busTime.getSpecialTrainTitle(app)}'
-                                '${busTime.specialTrain == "0" ? app.reserve : ""}',
-                            contentWidget: RichText(
-                              textAlign: TextAlign.center,
-                              text: TextSpan(
+                        title: '${busTime.getSpecialTrainTitle(app)}'
+                            '${busTime.specialTrain == "0" ? app.reserve : ""}',
+                        contentWidget: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                              style: TextStyle(
+                                  color: Resource.Colors.grey,
+                                  height: 1.3,
+                                  fontSize: 16.0),
+                              children: [
+                                TextSpan(
+                                  text: '${busTime.getTime()} $start\n',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                TextSpan(
+                                  text:
+                                      '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
                                   style: TextStyle(
                                       color: Resource.Colors.grey,
                                       height: 1.3,
-                                      fontSize: 16.0),
-                                  children: [
-                                    TextSpan(
-                                      text: '${busTime.getTime()} $start\n',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
-                                      style: TextStyle(
-                                          color: Resource.Colors.grey,
-                                          height: 1.3,
-                                          fontSize: 14.0),
-                                    ),
-                                    TextSpan(
-                                        text: '${app.reserveDeadline}：\n',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold)),
-                                    TextSpan(
-                                        text: '${busTime.endEnrollDateTime}'),
-                                  ]),
-                            ),
-                            leftActionText: app.cancel,
-                            rightActionText: app.reserve,
-                            leftActionFunction: null,
-                            rightActionFunction: () {
-                              _bookingBus(busTime);
-                            },
-                          ),
+                                      fontSize: 14.0),
+                                ),
+                                TextSpan(
+                                    text: '${app.reserveDeadline}：\n',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(text: '${busTime.endEnrollDateTime}'),
+                              ]),
+                        ),
+                        leftActionText: app.cancel,
+                        rightActionText: app.reserve,
+                        leftActionFunction: null,
+                        rightActionFunction: () {
+                          _bookingBus(busTime);
+                        },
+                      ),
                     );
                   }
                 : busTime.isReserve != 0
@@ -261,20 +259,20 @@ class BusReservePageState extends State<BusReservePage>
                         showDialog(
                           context: context,
                           builder: (BuildContext context) => YesNoDialog(
-                                title: app.busCancelReserve,
-                                contentWidget: Text(
-                                  "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                                  "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                                  "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
-                                  textAlign: TextAlign.center,
-                                ),
-                                leftActionText: app.back,
-                                rightActionText: app.determine,
-                                rightActionFunction: () {
-                                  _cancelBusReservation(busTime);
-                                  FA.logAction('cancel_bus', 'click');
-                                },
-                              ),
+                            title: app.busCancelReserve,
+                            contentWidget: Text(
+                              "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
+                              "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
+                              "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
+                              textAlign: TextAlign.center,
+                            ),
+                            leftActionText: app.back,
+                            rightActionText: app.determine,
+                            rightActionFunction: () {
+                              _cancelBusReservation(busTime);
+                              FA.logAction('cancel_bus', 'click');
+                            },
+                          ),
                         );
                         FA.logAction('cancel_bus', 'create');
                       }

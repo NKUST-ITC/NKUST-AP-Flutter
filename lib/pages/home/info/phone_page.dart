@@ -50,7 +50,7 @@ class PhonePageState extends State<PhonePage>
 
   _textBlueStyle() {
     return TextStyle(
-        color: Resource.Colors.blue,
+        color: Resource.Colors.blueText,
         fontSize: 18.0,
         fontWeight: FontWeight.bold);
   }
@@ -60,8 +60,7 @@ class PhonePageState extends State<PhonePage>
   }
 
   _textStyle() {
-    return TextStyle(
-        color: Colors.black, fontSize: 18.0, fontWeight: FontWeight.bold);
+    return TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
   }
 
   Widget _phoneItem(PhoneModel phone) {

@@ -135,7 +135,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   child: Icon(
                     Icons.directions_bus,
                     size: 20.0,
-                    color: Resource.Colors.blue,
+                    color: Resource.Colors.blueAccent,
                   ),
                 ),
                 Expanded(
@@ -172,21 +172,20 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                     context: context,
                                     builder: (BuildContext context) =>
                                         YesNoDialog(
-                                          title: app.busCancelReserve,
-                                          contentWidget: Text(
-                                            "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                            "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                            "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          leftActionText: app.back,
-                                          rightActionText: app.determine,
-                                          rightActionFunction: () {
-                                            _cancelBusReservation(
-                                                busReservation);
-                                            FA.logAction('cancel_bus', 'click');
-                                          },
-                                        ),
+                                      title: app.busCancelReserve,
+                                      contentWidget: Text(
+                                        "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                        "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                        "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      leftActionText: app.back,
+                                      rightActionText: app.determine,
+                                      rightActionFunction: () {
+                                        _cancelBusReservation(busReservation);
+                                        FA.logAction('cancel_bus', 'click');
+                                      },
+                                    ),
                                   );
                                   FA.logAction('cancel_bus', 'create');
                                 },

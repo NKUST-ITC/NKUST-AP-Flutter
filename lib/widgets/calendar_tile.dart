@@ -47,7 +47,9 @@ class CalendarTile extends StatelessWidget {
           alignment: Alignment.center,
           child: new Text(
             DateUtils.formatDay(date).toString(),
-            style: isSelected ? new TextStyle(color: Colors.white) : dateStyles,
+            style: isSelected
+                ? new TextStyle(color: Resource.Colors.calendarTileSelect)
+                : dateStyles,
             textAlign: TextAlign.center,
           ),
         ),

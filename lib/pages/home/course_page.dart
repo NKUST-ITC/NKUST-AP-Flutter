@@ -81,12 +81,12 @@ class CoursePageState extends State<CoursePage>
                     Text(
                       selectSemester == null ? "" : selectSemester.text,
                       style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 18.0),
+                          color: Resource.Colors.semesterText, fontSize: 18.0),
                     ),
                     SizedBox(width: 8.0),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: Resource.Colors.blue,
+                      color: Resource.Colors.semesterText,
                     )
                   ],
                 ),
@@ -231,7 +231,7 @@ class CoursePageState extends State<CoursePage>
       alignment: Alignment.center,
       child: Text(
         text ?? '',
-        style: TextStyle(color: Resource.Colors.blue, fontSize: 12.0),
+        style: TextStyle(color: Resource.Colors.blueText, fontSize: 12.0),
       ),
     );
   }
@@ -282,7 +282,7 @@ class CoursePageState extends State<CoursePage>
         alignment: Alignment.center,
         child: Text(
           (course.title[0] + course.title[1]) ?? "",
-          style: TextStyle(color: Colors.black, fontSize: 14.0),
+          style: TextStyle(fontSize: 14.0),
         ),
       ),
     );

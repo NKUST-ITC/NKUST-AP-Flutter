@@ -28,7 +28,7 @@ class HintContent extends StatelessWidget {
             child: Icon(
               icon,
               size: 50.0,
-              color: Resource.Colors.blue,
+              color: Resource.Colors.blueAccent,
             ),
           ),
           SizedBox(height: 20.0),

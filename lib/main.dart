@@ -12,7 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -21,6 +21,13 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
+  String themeCode = AppTheme.LIGHT;
+  if (Platform.isIOS || Platform.isAndroid) {
+    await Preferences.init();
+    themeCode =
+        Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
+  }
+  AppTheme.code = themeCode;
   if (Platform.isIOS || Platform.isAndroid) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (isInDebugMode) {
@@ -36,7 +43,11 @@ void main() async {
     await FlutterCrashlytics().initialize();
 
     runZoned<Future<Null>>(() async {
-      runApp(MyApp());
+      runApp(
+        MyApp(
+          themeData: AppTheme.data,
+        ),
+      );
     }, onError: (error, stackTrace) async {
       // Whenever an error occurs, call the `reportCrash` function. This will send
       // Dart errors to our dev console or Crashlytics depending on the environment.
@@ -46,23 +57,38 @@ void main() async {
   } else {
     // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-    runApp(MyApp());
+    runApp(
+      MyApp(
+        themeData: AppTheme.data,
+      ),
+    );
     //TODO add other platform Crashlytics
   }
 }
 
 class MyApp extends StatefulWidget {
+  final ThemeData themeData;
+
+  const MyApp({Key key, @required this.themeData}) : super(key: key);
+
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging _firebaseMessaging;
-  Brightness brightness = Brightness.light;
+  ThemeData themeData;
+
+  setThemeData(ThemeData themeData) {
+    setState(() {
+      this.themeData = themeData;
+    });
+  }
 
   @override
   void initState() {
+    themeData = widget.themeData;
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       _firebaseMessaging = FirebaseMessaging();
@@ -76,6 +102,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ShareDataWidget(
+      this,
       child: MaterialApp(
         localeResolutionCallback:
             (Locale locale, Iterable<Locale> supportedLocales) {
@@ -102,18 +129,7 @@ class _MyAppState extends State<MyApp> {
               NewsContentPage(null),
           LeavePage.routerName: (BuildContext context) => LeavePage(),
         },
-        theme: ThemeData(
-          brightness: brightness,
-          hintColor: Colors.white,
-          accentColor: Resource.Colors.blue,
-          unselectedWidgetColor: Resource.Colors.grey,
-          backgroundColor: Colors.black12,
-          inputDecorationTheme: InputDecorationTheme(
-            labelStyle: TextStyle(color: Colors.white),
-            border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.white)),
-          ),
-        ),
+        theme: themeData,
         navigatorObservers: (Platform.isIOS || Platform.isAndroid)
             ? [
                 FirebaseAnalyticsObserver(analytics: analytics),

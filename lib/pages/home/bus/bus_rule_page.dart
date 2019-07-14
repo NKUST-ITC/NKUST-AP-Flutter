@@ -58,9 +58,9 @@ class BusRulePageState extends State<BusRulePage>
                 TextSpan(
                   text: '預約校車\n',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                      color: Colors.black),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
                 ),
                 TextSpan(
                   text: "• 請上 ",
@@ -68,7 +68,7 @@ class BusRulePageState extends State<BusRulePage>
                 TextSpan(
                     text: "http://bus.kuas.edu.tw/",
                     style: TextStyle(
-                      color: Resource.Colors.blue,
+                      color: Resource.Colors.blueAccent,
                       decoration: TextDecoration.underline,
                     ),
                     recognizer: TapGestureRecognizer()
@@ -98,16 +98,16 @@ class BusRulePageState extends State<BusRulePage>
                 TextSpan(
                   text: '上車\n',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                      color: Colors.black),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
                 ),
                 TextSpan(
                   text: "• 每次上車繳款20元",
                 ),
                 TextSpan(
                   text: '（未發卡前先以投幣繳費，請自備20元銅板投幣）\n',
-                  style: TextStyle(color: Resource.Colors.blue),
+                  style: TextStyle(color: Resource.Colors.blueText),
                 ),
                 TextSpan(
                   text: "• 請持學生證或教職員證(未發卡前先採用身分證識別)上車\n",
@@ -131,9 +131,9 @@ class BusRulePageState extends State<BusRulePage>
                 TextSpan(
                   text: '候補上車\n',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24.0,
-                      color: Colors.black),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
                 ),
                 TextSpan(
                   text: "• 未依預約的班次搭乘者，視為違規，計違規點數一次(例如：8:20與9:30視為不同班次）\n" +
@@ -142,9 +142,9 @@ class BusRulePageState extends State<BusRulePage>
                 TextSpan(
                   text: '罰款\n',
                   style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                      fontSize: 24.0),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24.0,
+                  ),
                 ),
                 TextSpan(
                   text: "• 違規罰款金額計算，違規前三次不計點，從第四次開始違規記點，每點應繳納等同車資之罰款\n" +

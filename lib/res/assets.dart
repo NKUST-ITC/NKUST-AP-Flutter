@@ -1,3 +1,5 @@
+import 'app_theme.dart';
+
 class ImageAssets {
   static const String basePath = 'assets/images';
 
@@ -11,5 +13,15 @@ class ImageAssets {
   static const String drawerBackground = '$basePath/drawer-background.webp';
   static const String drawerIcon = '$basePath/drawer-icon.webp';
   static const String K = '$basePath/K.webp';
-  static const String dashLine = '$basePath/dash_line.webp';
+  static const String dashLineLight = '$basePath/dash_line.webp';
+  static const String dashLineDarkTheme = '$basePath/dash_line_dark_theme.webp';
+  static String get dashLine {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return dashLineDarkTheme;
+      case AppTheme.LIGHT:
+      default:
+        return dashLineLight;
+    }
+  }
 }
