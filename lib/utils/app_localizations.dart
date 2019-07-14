@@ -129,6 +129,7 @@ class AppLocalizations {
       'course_dialog_time': 'Time',
       'course_dialog_title': 'Class Info',
       'course_holiday': 'Rotate Screen to see weekend schedule %s',
+      'courseClickHint': 'Click subject show more.',
       'no_internet': 'No internet connection',
       'setting_internet': 'Internet Settings',
       'score_no_score':
@@ -405,6 +406,7 @@ class AppLocalizations {
       'course_dialog_time': '上課時間',
       'course_dialog_title': '課程資訊',
       'course_holiday': '旋轉橫向即可查看周末課表 %s',
+      'courseClickHint': '點擊科目名稱可看詳細資訊',
       'no_internet': '沒有網路連線，請檢查你的網路',
       'setting_internet': '設定網路',
       'score_no_score': 'Oops！本學期沒有任何成績資料哦～\n請選擇其他學期 \uD83D\uDE0B',
@@ -769,6 +771,8 @@ class AppLocalizations {
   String get courseDialogTime => _vocabularies['course_dialog_time'];
 
   String get courseDialogTitle => _vocabularies['course_dialog_title'];
+
+  String get courseClickHint => _vocabularies['courseClickHint'];
 
   String get mon => _vocabularies['mon'];
 
