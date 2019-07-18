@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
 class SettingPageRoute extends MaterialPageRoute {
@@ -144,6 +146,51 @@ class SettingPageState extends State<SettingPage> {
                     AppLocalizations.languageCode = languageCode;
                   });
                 });
+                FA.logAction('pick_language', 'click');
+              },
+            ),
+            _item(
+              app.theme,
+              app.themeText,
+              () {
+                showDialog<int>(
+                  context: context,
+                  builder: (BuildContext context) => SimpleDialog(
+                      title: Text(app.theme),
+                      children: <SimpleDialogOption>[
+                        SimpleDialogOption(
+                            child: Text(app.light),
+                            onPressed: () {
+                              AppTheme.code = AppTheme.LIGHT;
+                              ShareDataWidget.of(context)
+                                  .data
+                                  .setThemeData(AppTheme.light);
+                              setState(() {
+                                AppLocalizations.themeCode = AppTheme.LIGHT;
+                              });
+                              if (Platform.isAndroid || Platform.isIOS)
+                                Preferences.setString(
+                                    Constants.PREF_THEME_CODE, AppTheme.LIGHT);
+                              Navigator.pop(context);
+                            }),
+                        SimpleDialogOption(
+                            child: Text(app.dark),
+                            onPressed: () {
+                              AppTheme.code = AppTheme.DARK;
+                              ShareDataWidget.of(context)
+                                  .data
+                                  .setThemeData(AppTheme.dark);
+                              setState(() {
+                                AppLocalizations.themeCode = AppTheme.DARK;
+                              });
+                              if (Platform.isAndroid || Platform.isIOS)
+                                Preferences.setString(
+                                    Constants.PREF_THEME_CODE, AppTheme.DARK);
+                              Navigator.pop(context);
+                            })
+                      ]),
+                ).then<void>((int position) {});
+                FA.logAction('pick_theme', 'click');
               },
             ),
             Divider(
@@ -201,7 +248,7 @@ class SettingPageState extends State<SettingPage> {
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
-          style: TextStyle(color: Resource.Colors.blue, fontSize: 14.0),
+          style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
           textAlign: TextAlign.start,
         ),
       );
@@ -215,10 +262,11 @@ class SettingPageState extends State<SettingPage> {
         ),
         subtitle: Text(
           subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
         value: value,
         onChanged: function,
+        activeColor: Resource.Colors.blueAccent,
       );
 
   Widget _item(String text, String subText, Function function) => ListTile(
@@ -228,7 +276,7 @@ class SettingPageState extends State<SettingPage> {
         ),
         subtitle: Text(
           subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.grey),
+          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
         onTap: function,
       );
@@ -401,7 +449,8 @@ class SettingPageState extends State<SettingPage> {
                 alignment: Alignment.center,
                 child: Text(
                   app.ratingDialogTitle,
-                  style: TextStyle(color: Resource.Colors.blue, fontSize: 20.0),
+                  style: TextStyle(
+                      color: Resource.Colors.blueText, fontSize: 20.0),
                 ),
               ),
             ),

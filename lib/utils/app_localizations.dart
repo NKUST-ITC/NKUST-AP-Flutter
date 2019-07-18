@@ -16,6 +16,7 @@ class AppLocalizations {
 
   static Locale locale;
   static String languageCode = 'system';
+  static String themeCode = 'light';
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
@@ -32,11 +33,23 @@ class AppLocalizations {
     }
   }
 
+  String get themeText {
+    switch (themeCode) {
+      case 'light':
+        return light;
+      case 'dark':
+        return dark;
+      default:
+        return systemLanguage;
+    }
+  }
+
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': '1.Imporve some UI.\n2.Fix some error.',
+      'update_note_content':
+          '1.Add dark theme.\n2.Imporve some UI.\n3.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -129,6 +142,7 @@ class AppLocalizations {
       'course_dialog_time': 'Time',
       'course_dialog_title': 'Class Info',
       'course_holiday': 'Rotate Screen to see weekend schedule %s',
+      'courseClickHint': 'Click subject show more.',
       'no_internet': 'No internet connection',
       'setting_internet': 'Internet Settings',
       'score_no_score':
@@ -314,12 +328,16 @@ class AppLocalizations {
           'This feature provides information about the school or student\'s publication of the school.\n\nPlease contact the fan page if you need it\n',
       'newsRuleDescription2':
           '1. Image and upload to imgur, please use JPEG compressed file. It is recommended not to exceed 100KB. \n2. The title suggests placing the name of the event, not too long. \n3. Activity URL link. \n4. Description of the content. \n5. Must be a non-profit activity.\n\n',
-      'newsRuleDescription3': 'The NKUST AP team has the final right to modify.'
+      'newsRuleDescription3':
+          'The NKUST AP team has the final right to modify.',
+      'theme': 'Theme',
+      'light': 'Light',
+      'dark': 'Dark',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.優化部分介面\n2.修正部分錯誤',
+      'update_note_content': '1.新增深色主題\n2.優化部分介面\n3.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -405,6 +423,7 @@ class AppLocalizations {
       'course_dialog_time': '上課時間',
       'course_dialog_title': '課程資訊',
       'course_holiday': '旋轉橫向即可查看周末課表 %s',
+      'courseClickHint': '點擊科目名稱可看詳細資訊',
       'no_internet': '沒有網路連線，請檢查你的網路',
       'setting_internet': '設定網路',
       'score_no_score': 'Oops！本學期沒有任何成績資料哦～\n請選擇其他學期 \uD83D\uDE0B',
@@ -580,7 +599,10 @@ class AppLocalizations {
       'newsRuleDescription1': '本功能提供社團或學生\n刊登學校相關資訊\n\n若需要請聯絡粉絲專頁並提供\n',
       'newsRuleDescription2':
           '1. 圖片且上傳至 imgur\n請使用ＪＰＥＧ有壓縮過的檔案\n建議不要超過100KB\n2. 標題建議放活動名稱，不要太長\n3. 活動網址連結\n4. 內容說明\n5.必須為非營利活動\n\n',
-      'newsRuleDescription3': '高科校務通團隊有最終修改權利'
+      'newsRuleDescription3': '高科校務通團隊有最終修改權利',
+      'theme': '主題',
+      'light': '淺色',
+      'dark': '深色',
     },
   };
 
@@ -769,6 +791,8 @@ class AppLocalizations {
   String get courseDialogTime => _vocabularies['course_dialog_time'];
 
   String get courseDialogTitle => _vocabularies['course_dialog_title'];
+
+  String get courseClickHint => _vocabularies['courseClickHint'];
 
   String get mon => _vocabularies['mon'];
 
@@ -1041,6 +1065,12 @@ class AppLocalizations {
   String get newsRuleDescription2 => _vocabularies['newsRuleDescription2'];
 
   String get newsRuleDescription3 => _vocabularies['newsRuleDescription3'];
+
+  String get theme => _vocabularies['theme'];
+
+  String get dark => _vocabularies['dark'];
+
+  String get light => _vocabularies['light'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

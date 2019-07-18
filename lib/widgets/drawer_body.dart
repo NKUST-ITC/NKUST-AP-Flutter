@@ -7,6 +7,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -115,8 +116,7 @@ class DrawerBodyState extends State<DrawerBody> {
                     decoration: BoxDecoration(
                       color: Color(0xff0071FF),
                       image: DecorationImage(
-                          image:
-                              AssetImage("assets/images/drawer-backbroud.webp"),
+                          image: AssetImage(ImageAssets.drawerBackground),
                           fit: BoxFit.fitWidth,
                           alignment: Alignment.bottomCenter),
                     ),
@@ -126,7 +126,7 @@ class DrawerBodyState extends State<DrawerBody> {
                     right: 20.0,
                     child: Container(
                       child: Image.asset(
-                        "assets/images/drawer-icon.webp",
+                        ImageAssets.drawerIcon,
                         width: 90.0,
                       ),
                     ),
@@ -143,7 +143,7 @@ class DrawerBodyState extends State<DrawerBody> {
               leading: Icon(
                 Icons.school,
                 color: isStudyExpanded
-                    ? Resource.Colors.blue
+                    ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
               title: Text(app.courseInfo, style: _defaultStyle()),
@@ -163,7 +163,7 @@ class DrawerBodyState extends State<DrawerBody> {
               leading: Icon(
                 Icons.calendar_today,
                 color: isLeaveExpanded
-                    ? Resource.Colors.blue
+                    ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
               title: Text(app.leave, style: _defaultStyle()),
@@ -182,8 +182,9 @@ class DrawerBodyState extends State<DrawerBody> {
               },
               leading: Icon(
                 Icons.directions_bus,
-                color:
-                    isBusExpanded ? Resource.Colors.blue : Resource.Colors.grey,
+                color: isBusExpanded
+                    ? Resource.Colors.blueAccent
+                    : Resource.Colors.grey,
               ),
               title: Text(app.bus, style: _defaultStyle()),
               children: <Widget>[
@@ -249,22 +250,24 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getUserPicture() {
     Helper.instance.getUsersPicture().then((url) async {
-      var response = await http.get(url);
-      if (!response.body.contains('html')) {
-        if (mounted) {
-          setState(() {
-            pictureBytes = response.bodyBytes;
-          });
+      try {
+        var response = await http.get(url);
+        if (!response.body.contains('html')) {
+          if (mounted) {
+            setState(() {
+              pictureBytes = response.bodyBytes;
+            });
+          }
+          CacheUtils.savePictureData(response.bodyBytes);
+        } else {
+          var bytes = await CacheUtils.loadPictureData();
+          if (mounted) {
+            setState(() {
+              pictureBytes = bytes;
+            });
+          }
         }
-        CacheUtils.savePictureData(response.bodyBytes);
-      } else {
-        var bytes = await CacheUtils.loadPictureData();
-        if (mounted) {
-          setState(() {
-            pictureBytes = bytes;
-          });
-        }
-      }
+      } catch (e) {}
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {

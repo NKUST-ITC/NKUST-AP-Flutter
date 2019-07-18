@@ -67,11 +67,11 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
   }
 
   _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
+    return TextStyle(fontSize: 14.0);
   }
 
   _leaveTitle(List<String> timeCodes) {
@@ -111,34 +111,31 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               showDialog(
                 context: context,
                 builder: (BuildContext context) => DefaultDialog(
-                      title: app.leaveContent,
-                      actionText: app.iKnow,
-                      actionFunction: () =>
-                          Navigator.of(context, rootNavigator: true)
-                              .pop('dialog'),
-                      contentWidget: RichText(
-                        text: TextSpan(
-                            style: TextStyle(
-                                color: Resource.Colors.grey,
-                                height: 1.3,
-                                fontSize: 16.0),
-                            children: [
-                              TextSpan(
-                                  text: '${app.leaveSheetId}：',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: '${leave.leaveSheetId}\n'),
-                              TextSpan(
-                                  text: '${app.instructorsComment}：'
-                                      '${leave.instructorsComment.length < 8 ? '' : '\n'}',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                  text:
-                                      '${leave.instructorsComment.replaceAll('：', ' ')}'),
-                            ]),
-                      ),
-                    ),
+                  title: app.leaveContent,
+                  actionText: app.iKnow,
+                  actionFunction: () =>
+                      Navigator.of(context, rootNavigator: true).pop('dialog'),
+                  contentWidget: RichText(
+                    text: TextSpan(
+                        style: TextStyle(
+                            color: Resource.Colors.grey,
+                            height: 1.3,
+                            fontSize: 16.0),
+                        children: [
+                          TextSpan(
+                              text: '${app.leaveSheetId}：',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(text: '${leave.leaveSheetId}\n'),
+                          TextSpan(
+                              text: '${app.instructorsComment}：'
+                                  '${leave.instructorsComment.length < 8 ? '' : '\n'}',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          TextSpan(
+                              text:
+                                  '${leave.instructorsComment.replaceAll('：', ' ')}'),
+                        ]),
+                  ),
+                ),
               );
             },
     ));
@@ -171,12 +168,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               children: <Widget>[
                 Text(
                   selectSemester == null ? "" : selectSemester.text,
-                  style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                  style: TextStyle(
+                      color: Resource.Colors.semesterText, fontSize: 18.0),
                 ),
                 SizedBox(width: 8.0),
                 Icon(
                   Icons.keyboard_arrow_down,
-                  color: Resource.Colors.blue,
+                  color: Resource.Colors.semesterText,
                 )
               ],
             ),

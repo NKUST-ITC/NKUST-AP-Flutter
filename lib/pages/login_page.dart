@@ -5,12 +5,12 @@ import 'package:encrypt/encrypt.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -90,7 +90,7 @@ class LoginPageState extends State<LoginPage>
         ? <Widget>[
             Center(
               child: Image.asset(
-                "assets/images/K.webp",
+                ImageAssets.K,
                 width: 120.0,
                 height: 120.0,
               ),
@@ -100,7 +100,7 @@ class LoginPageState extends State<LoginPage>
         : <Widget>[
             Expanded(
               child: Image.asset(
-                "assets/images/K.webp",
+                ImageAssets.K,
                 width: 120.0,
                 height: 120.0,
               ),
@@ -235,17 +235,17 @@ class LoginPageState extends State<LoginPage>
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-              title: app.updateNoteTitle,
-              contentWidget: Text(
-                "v${packageInfo.version}\n"
-                "${app.updateNoteContent}",
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Resource.Colors.grey),
-              ),
-              actionText: app.iKnow,
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop('dialog'),
-            ),
+          title: app.updateNoteTitle,
+          contentWidget: Text(
+            "v${packageInfo.version}\n"
+            "${app.updateNoteContent}",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Resource.Colors.grey),
+          ),
+          actionText: app.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop('dialog'),
+        ),
       );
       prefs.setString(Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
@@ -285,7 +285,36 @@ class LoginPageState extends State<LoginPage>
         showDialog(
           context: context,
           builder: (BuildContext context) => YesNoDialog(
+            title: app.updateTitle,
+            contentWidget: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                  children: [
+                    TextSpan(
+                      text:
+                          '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ]),
+            ),
+            leftActionText: app.skip,
+            rightActionText: app.update,
+            leftActionFunction: null,
+            rightActionFunction: () {
+              Utils.launchUrl(url);
+            },
+          ),
+        );
+      } else if (versionDiff >= 5) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => WillPopScope(
+            child: DefaultDialog(
                 title: app.updateTitle,
+                actionText: app.update,
                 contentWidget: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
@@ -295,49 +324,18 @@ class LoginPageState extends State<LoginPage>
                           fontSize: 16.0),
                       children: [
                         TextSpan(
-                          text:
-                              '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                            text:
+                                '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                       ]),
                 ),
-                leftActionText: app.skip,
-                rightActionText: app.update,
-                leftActionFunction: null,
-                rightActionFunction: () {
+                actionFunction: () {
                   Utils.launchUrl(url);
-                },
-              ),
-        );
-      } else if (versionDiff >= 5) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) => WillPopScope(
-                child: DefaultDialog(
-                    title: app.updateTitle,
-                    actionText: app.update,
-                    contentWidget: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                          style: TextStyle(
-                              color: Resource.Colors.grey,
-                              height: 1.3,
-                              fontSize: 16.0),
-                          children: [
-                            TextSpan(
-                                text:
-                                    '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                          ]),
-                    ),
-                    actionFunction: () {
-                      Utils.launchUrl(url);
-                    }),
-                onWillPop: () async {
-                  return false;
-                },
-              ),
+                }),
+            onWillPop: () async {
+              return false;
+            },
+          ),
         );
       }
     }
@@ -471,8 +469,6 @@ class LoginPageState extends State<LoginPage>
       else {
         prefs.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
         Utils.showToast(context, app.loadOfflineData);
-        ShareDataWidget.of(context).username =
-            prefs.getString(Constants.PREF_USERNAME);
         _navigateToFilterObject(context);
       }
     }

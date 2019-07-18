@@ -81,30 +81,27 @@ class CoursePageState extends State<CoursePage>
                     Text(
                       selectSemester == null ? "" : selectSemester.text,
                       style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 18.0),
+                          color: Resource.Colors.semesterText, fontSize: 18.0),
                     ),
                     SizedBox(width: 8.0),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: Resource.Colors.blue,
+                      color: Resource.Colors.semesterText,
                     )
                   ],
                 ),
               ),
-              SizedBox(height: 4.0),
-              Container(
-                child: isOffline
-                    ? Text(
-                        app.offlineCourse,
-                        style: TextStyle(color: Resource.Colors.grey),
-                      )
-                    : null,
+              Text(
+                '${isOffline ? app.offlineCourse + ' ' : ''}'
+                '${app.courseClickHint}',
+                style: TextStyle(color: Resource.Colors.grey),
               ),
+              SizedBox(height: 4.0),
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
                     if (isOffline) await Helper.instance.initByPreference();
-                    _getCourseTables();
+                    await _getCourseTables();
                     FA.logAction('refresh', 'swipe');
                     return null;
                   },
@@ -144,7 +141,6 @@ class CoursePageState extends State<CoursePage>
           content: app.noOfflineData,
         );
       default:
-        var list = renderCourseList();
         return SingleChildScrollView(
           physics: AlwaysScrollableScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -166,7 +162,7 @@ class CoursePageState extends State<CoursePage>
                   width: 0,
                 ),
               ),
-              children: list,
+              children: renderCourseList(),
             ),
           ),
         );
@@ -235,7 +231,7 @@ class CoursePageState extends State<CoursePage>
       alignment: Alignment.center,
       child: Text(
         text ?? '',
-        style: TextStyle(color: Resource.Colors.blue, fontSize: 12.0),
+        style: TextStyle(color: Resource.Colors.blueText, fontSize: 12.0),
       ),
     );
   }
@@ -246,40 +242,38 @@ class CoursePageState extends State<CoursePage>
         showDialog(
           context: context,
           builder: (BuildContext context) => DefaultDialog(
-                title: app.courseDialogTitle,
-                actionText: app.iKnow,
-                actionFunction: () =>
-                    Navigator.of(context, rootNavigator: true).pop('dialog'),
-                contentWidget: RichText(
-                  text: TextSpan(
-                      style: TextStyle(
-                          color: Resource.Colors.grey,
-                          height: 1.3,
-                          fontSize: 16.0),
-                      children: [
-                        TextSpan(
-                            text: '${app.courseDialogName}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${course.title}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogProfessor}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${course.getInstructors()}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogLocation}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                            text:
-                                '${course.location.building}${course.location.room}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogTime}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                            text:
-                                '${course.date.startTime}-${course.date.endTime}'),
-                      ]),
-                ),
-              ),
+            title: app.courseDialogTitle,
+            actionText: app.iKnow,
+            actionFunction: () =>
+                Navigator.of(context, rootNavigator: true).pop('dialog'),
+            contentWidget: RichText(
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                  children: [
+                    TextSpan(
+                        text: '${app.courseDialogName}：',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '${course.title}\n'),
+                    TextSpan(
+                        text: '${app.courseDialogProfessor}：',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '${course.getInstructors()}\n'),
+                    TextSpan(
+                        text: '${app.courseDialogLocation}：',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            '${course.location.building}${course.location.room}\n'),
+                    TextSpan(
+                        text: '${app.courseDialogTime}：',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(
+                        text:
+                            '${course.date.startTime}-${course.date.endTime}'),
+                  ]),
+            ),
+          ),
         );
         FA.logAction('show_course', 'click');
       },
@@ -288,7 +282,7 @@ class CoursePageState extends State<CoursePage>
         alignment: Alignment.center,
         child: Text(
           (course.title[0] + course.title[1]) ?? "",
-          style: TextStyle(color: Colors.black, fontSize: 14.0),
+          style: TextStyle(fontSize: 14.0),
         ),
       ),
     );
@@ -320,7 +314,7 @@ class CoursePageState extends State<CoursePage>
             break;
           default:
             state = _State.error;
-            Utils.handleDioError(context, e);
+            if (mounted) Utils.handleDioError(context, e);
             break;
         }
       } else {
@@ -377,6 +371,7 @@ class CoursePageState extends State<CoursePage>
         setState(() {
           selectSemesterIndex = position;
           selectSemester = semesterData.semesters[selectSemesterIndex];
+          state = _State.loading;
         });
         SharedPreferences prefs = await SharedPreferences.getInstance();
         if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
@@ -398,11 +393,6 @@ class CoursePageState extends State<CoursePage>
   _getCourseTables() async {
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    if (mounted) {
-      setState(() {
-        state = _State.loading;
-      });
-    }
     if (semesterData == null) {
       _getSemester();
       return;

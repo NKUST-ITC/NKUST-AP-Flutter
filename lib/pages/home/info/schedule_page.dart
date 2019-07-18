@@ -134,13 +134,13 @@ class SchedulePageState extends State<SchedulePage>
 
   _textBlueStyle() {
     return TextStyle(
-        color: Resource.Colors.blue,
+        color: Resource.Colors.blueText,
         fontSize: 18.0,
         fontWeight: FontWeight.bold);
   }
 
   _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 16.0);
+    return TextStyle(fontSize: 16.0);
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
@@ -188,29 +188,29 @@ class SchedulePageState extends State<SchedulePage>
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
-                        title: app.events,
-                        contentWidget: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                              style: TextStyle(
-                                  color: Resource.Colors.grey,
-                                  height: 1.3,
-                                  fontSize: 16.0),
-                              children: [
-                                TextSpan(
-                                  text: sprintf(app.addCalendarContent,
-                                      [schedule.events[index]]),
-                                ),
-                              ]),
-                        ),
-                        leftActionText: app.cancel,
-                        rightActionText: app.determine,
-                        leftActionFunction: null,
-                        rightActionFunction: () {
-                          _addToCalendar(schedule.events[index]);
-                          FA.logAction('add_schedule', 'click');
-                        },
-                      ),
+                    title: app.events,
+                    contentWidget: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                          style: TextStyle(
+                              color: Resource.Colors.grey,
+                              height: 1.3,
+                              fontSize: 16.0),
+                          children: [
+                            TextSpan(
+                              text: sprintf(app.addCalendarContent,
+                                  [schedule.events[index]]),
+                            ),
+                          ]),
+                    ),
+                    leftActionText: app.cancel,
+                    rightActionText: app.determine,
+                    leftActionFunction: null,
+                    rightActionFunction: () {
+                      _addToCalendar(schedule.events[index]);
+                      FA.logAction('add_schedule', 'click');
+                    },
+                  ),
                 );
               },
               child: Container(
