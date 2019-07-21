@@ -4,9 +4,10 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
 
@@ -21,21 +22,21 @@ class CoursePageRoute extends MaterialPageRoute {
 }
 
 class CoursePage extends StatefulWidget {
-  static const String routerName = "/course";
+  static const String routerName = '/course';
 
   @override
   CoursePageState createState() => CoursePageState();
 }
 
-class CoursePageState extends State<CoursePage>
-    with SingleTickerProviderStateMixin {
+class CoursePageState extends State<CoursePage> {
+  final key = GlobalKey<SemesterPickerState>();
+
   AppLocalizations app;
   ScaffoldState scaffold;
 
   _State state = _State.loading;
 
   int base = 6;
-  int selectSemesterIndex;
   double childAspectRatio = 0.5;
 
   Semester selectSemester;
@@ -46,9 +47,8 @@ class CoursePageState extends State<CoursePage>
 
   @override
   void initState() {
+    FA.setCurrentScreen('CoursePage', 'course_page.dart');
     super.initState();
-    FA.setCurrentScreen("CoursePage", "course_page.dart");
-    _getSemester();
   }
 
   @override
@@ -73,23 +73,19 @@ class CoursePageState extends State<CoursePage>
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               SizedBox(height: 8.0),
-              FlatButton(
-                onPressed: (semesterData != null) ? _selectSemester : null,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      selectSemester == null ? "" : selectSemester.text,
-                      style: TextStyle(
-                          color: Resource.Colors.semesterText, fontSize: 18.0),
-                    ),
-                    SizedBox(width: 8.0),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Resource.Colors.semesterText,
-                    )
-                  ],
-                ),
+              SemesterPicker(
+                key: key,
+                onSelect: (semester, index) {
+                  setState(() {
+                    selectSemester = semester;
+                    state = _State.loading;
+                  });
+                  if (Preferences.getBool(
+                      Constants.PREF_IS_OFFLINE_LOGIN, false))
+                    _loadCourseData(semester.value);
+                  else
+                    _getCourseTables();
+                },
               ),
               Text(
                 '${isOffline ? app.offlineCourse + ' ' : ''}'
@@ -127,13 +123,13 @@ class CoursePageState extends State<CoursePage>
             if (state == _State.error)
               _getCourseTables();
             else
-              _selectSemester();
+              key.currentState.pickSemester();
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-              icon: Icons.class_,
-              content:
-                  state == _State.error ? app.clickToRetry : app.courseEmpty),
+            icon: Icons.class_,
+            content: state == _State.error ? app.clickToRetry : app.courseEmpty,
+          ),
         );
       case _State.offlineEmpty:
         return HintContent(
@@ -171,15 +167,15 @@ class CoursePageState extends State<CoursePage>
 
   List<TableRow> renderCourseList() {
     List<String> weeks = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday"
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday'
     ];
     var list = <TableRow>[
-      TableRow(children: [_titleBorder("")])
+      TableRow(children: [_titleBorder('')])
     ];
     for (var week in app.weekdaysCourse.sublist(0, 4))
       list[0].children.add(_titleBorder(week));
@@ -192,8 +188,8 @@ class CoursePageState extends State<CoursePage>
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
-      weeks.add("Saturday");
-      weeks.add("Sunday");
+      weeks.add('Saturday');
+      weeks.add('Sunday');
       base = 8;
       childAspectRatio = 1.1;
     }
@@ -209,7 +205,7 @@ class CoursePageState extends State<CoursePage>
       }
       list.add(TableRow(children: []));
       list[i].children.add(_titleBorder(text));
-      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(""));
+      for (var j = 0; j < base - 1; j++) list[i].children.add(_titleBorder(''));
     }
     var timeCodes = courseData.courseTables.timeCode;
     for (int i = 0; i < weeks.length; i++) {
@@ -231,7 +227,7 @@ class CoursePageState extends State<CoursePage>
       alignment: Alignment.center,
       child: Text(
         text ?? '',
-        style: TextStyle(color: Resource.Colors.blueText, fontSize: 12.0),
+        style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
       ),
     );
   }
@@ -281,60 +277,11 @@ class CoursePageState extends State<CoursePage>
         padding: EdgeInsets.symmetric(vertical: 8.0),
         alignment: Alignment.center,
         child: Text(
-          (course.title[0] + course.title[1]) ?? "",
-          style: TextStyle(fontSize: 14.0),
+          (course.title[0] + course.title[1]) ?? '',
+          style: TextStyle(fontSize: 16.0),
         ),
       ),
     );
-  }
-
-  void _getSemester() async {
-    _loadSemesterData();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
-      return;
-    }
-    Helper.instance.getSemester().then((semesterData) {
-      this.semesterData = semesterData;
-      CacheUtils.saveSemesterData(semesterData);
-      if (mounted) {
-        setState(() {
-          selectSemester = semesterData.defaultSemester;
-          selectSemesterIndex = semesterData.defaultIndex;
-          _getCourseTables();
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getSemester', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            state = _State.error;
-            if (mounted) Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-      _loadCourseData(selectSemester.value);
-    });
-  }
-
-  void _loadSemesterData() async {
-    this.semesterData = await CacheUtils.loadSemesterData();
-    if (this.semesterData == null) return;
-    setState(() {
-      selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = semesterData.defaultIndex;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
-      _loadCourseData(semesterData.defaultSemester.value);
-    }
   }
 
   void _loadCourseData(String value) async {
@@ -355,49 +302,10 @@ class CoursePageState extends State<CoursePage>
     }
   }
 
-  void _selectSemester() {
-    var semesters = <SimpleDialogOption>[];
-    if (semesterData == null) return;
-    for (var semester in semesterData.semesters) {
-      semesters.add(_dialogItem(semesters.length, semester.text));
-    }
-    FA.logAction('pick_yms', 'click');
-    showDialog<int>(
-        context: context,
-        builder: (BuildContext context) => SimpleDialog(
-            title: Text(app.picksSemester),
-            children: semesters)).then<void>((int position) async {
-      if (position != null) {
-        setState(() {
-          selectSemesterIndex = position;
-          selectSemester = semesterData.semesters[selectSemesterIndex];
-          state = _State.loading;
-        });
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
-          _loadCourseData(semesterData.semesters[selectSemesterIndex].value);
-        else
-          _getCourseTables();
-      }
-    });
-  }
-
-  SimpleDialogOption _dialogItem(int index, String text) {
-    return SimpleDialogOption(
-        child: Text(text),
-        onPressed: () {
-          Navigator.pop(context, index);
-        });
-  }
-
   _getCourseTables() async {
-    Helper.cancelToken.cancel("");
+    Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    if (semesterData == null) {
-      _getSemester();
-      return;
-    }
-    var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
+    var textList = selectSemester.value.split(',');
     if (textList.length == 2) {
       Helper.instance
           .getCourseTables(textList[0], textList[1])
