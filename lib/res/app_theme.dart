@@ -19,6 +19,7 @@ class AppTheme {
   }
 
   static ThemeData get light => ThemeData(
+        //platform: TargetPlatform.iOS,
         brightness: Brightness.light,
         appBarTheme: AppBarTheme(
           color: Resource.Colors.blue,
@@ -35,6 +36,7 @@ class AppTheme {
       );
 
   static ThemeData get dark => ThemeData(
+        //platform: TargetPlatform.iOS,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Resource.Colors.onyx,
         accentColor: Resource.Colors.blueAccent,

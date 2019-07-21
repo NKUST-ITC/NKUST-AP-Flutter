@@ -20,7 +20,7 @@ class LeaveApplyPageRoute extends MaterialPageRoute {
 }
 
 class LeaveApplyPage extends StatefulWidget {
-  static const String routerName = "/leaves/reservations";
+  static const String routerName = "/leave/apply";
 
   @override
   LeaveApplyPageState createState() => new LeaveApplyPageState();
@@ -53,6 +53,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return _body();
   }
