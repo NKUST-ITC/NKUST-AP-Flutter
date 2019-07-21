@@ -97,6 +97,7 @@ class SemesterPickerState extends State<SemesterPicker> {
       } else {
         throw e;
       }
+      _loadSemesterData();
       //widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
     });
   }
