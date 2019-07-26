@@ -66,11 +66,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blue, fontSize: 16.0);
+    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
   }
 
   _textStyle() {
-    return TextStyle(color: Colors.black, fontSize: 14.0);
+    return TextStyle(fontSize: 14.0);
   }
 
   _scoreTitle() => TableRow(
@@ -148,7 +148,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               flex: 1,
               child: Text(
                 app.calculateUnitsContent,
-                style: TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                style:
+                    TextStyle(color: Resource.Colors.blueText, fontSize: 16.0),
               ),
             ),
             Expanded(

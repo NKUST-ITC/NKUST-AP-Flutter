@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -11,42 +12,41 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Uint8List pictureBytes;
 
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
 
-  const DrawerBody({Key key, this.userInfo}) : super(key: key);
+  const DrawerBody({Key key, @required this.userInfo}) : super(key: key);
 
   @override
   DrawerBodyState createState() => DrawerBodyState();
 }
 
 class DrawerBodyState extends State<DrawerBody> {
-  SharedPreferences prefs;
-  bool displayPicture = true;
-
   AppLocalizations app;
 
+  bool displayPicture = true;
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
   bool isLeaveExpanded = false;
 
+  TextStyle get _defaultStyle =>
+      TextStyle(color: Resource.Colors.grey, fontSize: 16.0);
+
   @override
   void initState() {
-    super.initState();
     _getPreference();
+    super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
   }
-
-  _defaultStyle() => TextStyle(color: Resource.Colors.grey, fontSize: 16.0);
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class DrawerBodyState extends State<DrawerBody> {
               child: Stack(
                 children: <Widget>[
                   UserAccountsDrawerHeader(
-                    margin: EdgeInsets.all(0),
+                    margin: const EdgeInsets.all(0),
                     currentAccountPicture:
                         pictureBytes != null && displayPicture
                             ? Hero(
@@ -102,19 +102,15 @@ class DrawerBodyState extends State<DrawerBody> {
                                 ),
                               ),
                     accountName: Text(
-                      widget.userInfo == null
-                          ? ""
-                          : "${widget.userInfo.studentNameCht}",
+                      '${widget.userInfo?.studentNameCht}',
                       style: TextStyle(color: Colors.white),
                     ),
                     accountEmail: Text(
-                      widget.userInfo == null
-                          ? ""
-                          : "${widget.userInfo.studentId}",
+                      '${widget.userInfo?.studentId}',
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(
-                      color: Color(0xff0071FF),
+                      color: Resource.Colors.blue500,
                       image: DecorationImage(
                           image: AssetImage(ImageAssets.drawerBackground),
                           fit: BoxFit.fitWidth,
@@ -124,11 +120,9 @@ class DrawerBodyState extends State<DrawerBody> {
                   Positioned(
                     bottom: 20.0,
                     right: 20.0,
-                    child: Container(
-                      child: Image.asset(
-                        ImageAssets.drawerIcon,
-                        width: 90.0,
-                      ),
+                    child: Image.asset(
+                      ImageAssets.drawerIcon,
+                      width: 90.0,
                     ),
                   ),
                 ],
@@ -146,12 +140,23 @@ class DrawerBodyState extends State<DrawerBody> {
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
-              title: Text(app.courseInfo, style: _defaultStyle()),
+              title: Text(app.courseInfo, style: _defaultStyle),
               children: <Widget>[
-                _subItem(Icons.class_, app.course, CoursePageRoute()),
-                _subItem(Icons.assignment, app.score, ScorePageRoute()),
                 _subItem(
-                    Icons.apps, app.calculateUnits, CalculateUnitsPageRoute()),
+                  icon: Icons.class_,
+                  title: app.course,
+                  route: CoursePageRoute(),
+                ),
+                _subItem(
+                  icon: Icons.assignment,
+                  title: app.score,
+                  route: ScorePageRoute(),
+                ),
+                _subItem(
+                  icon: Icons.apps,
+                  title: app.calculateUnits,
+                  route: CalculateUnitsPageRoute(),
+                ),
               ],
             ),
             ExpansionTile(
@@ -166,12 +171,18 @@ class DrawerBodyState extends State<DrawerBody> {
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
-              title: Text(app.leave, style: _defaultStyle()),
+              title: Text(app.leave, style: _defaultStyle),
               children: <Widget>[
                 _subItem(
-                    Icons.edit, app.leaveApply, LeavePageRoute(initIndex: 0)),
-                _subItem(Icons.assignment, app.leaveRecords,
-                    LeavePageRoute(initIndex: 1)),
+                  icon: Icons.edit,
+                  title: app.leaveApply,
+                  route: LeavePageRoute(initIndex: 0),
+                ),
+                _subItem(
+                  icon: Icons.assignment,
+                  title: app.leaveRecords,
+                  route: LeavePageRoute(initIndex: 1),
+                ),
               ],
             ),
             ExpansionTile(
@@ -186,17 +197,35 @@ class DrawerBodyState extends State<DrawerBody> {
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
               ),
-              title: Text(app.bus, style: _defaultStyle()),
+              title: Text(app.bus, style: _defaultStyle),
               children: <Widget>[
-                _subItem(Icons.date_range, app.busReserve,
-                    BusPageRoute(initIndex: 0)),
-                _subItem(Icons.assignment, app.busReservations,
-                    BusPageRoute(initIndex: 1)),
+                _subItem(
+                  icon: Icons.date_range,
+                  title: app.busReserve,
+                  route: BusPageRoute(initIndex: 0),
+                ),
+                _subItem(
+                  icon: Icons.assignment,
+                  title: app.busReservations,
+                  route: BusPageRoute(initIndex: 1),
+                ),
               ],
             ),
-            _item(Icons.info, app.schoolInfo, SchoolInfoPageRoute()),
-            _item(Icons.face, app.about, AboutUsPageRoute()),
-            _item(Icons.settings, app.settings, SettingPageRoute()),
+            _item(
+              icon: Icons.info,
+              title: app.schoolInfo,
+              route: SchoolInfoPageRoute(),
+            ),
+            _item(
+              icon: Icons.face,
+              title: app.about,
+              route: AboutUsPageRoute(),
+            ),
+            _item(
+              icon: Icons.settings,
+              title: app.settings,
+              route: SettingPageRoute(),
+            ),
             ListTile(
               leading: Icon(
                 Icons.power_settings_new,
@@ -206,7 +235,7 @@ class DrawerBodyState extends State<DrawerBody> {
                 Navigator.popUntil(
                     context, ModalRoute.withName(Navigator.defaultRouteName));
               },
-              title: Text(app.logout, style: _defaultStyle()),
+              title: Text(app.logout, style: _defaultStyle),
             ),
           ],
         ),
@@ -214,33 +243,43 @@ class DrawerBodyState extends State<DrawerBody> {
     );
   }
 
-  _item(IconData icon, String title, MaterialPageRoute route) => ListTile(
+  _item({
+    @required IconData icon,
+    @required String title,
+    @required MaterialPageRoute route,
+  }) =>
+      ListTile(
         leading: Icon(icon, color: Resource.Colors.grey),
-        title: Text(title, style: _defaultStyle()),
+        title: Text(title, style: _defaultStyle),
         onTap: () {
           Navigator.pop(context);
           Navigator.push(context, route);
         },
       );
 
-  _subItem(IconData icon, String title, MaterialPageRoute route) => ListTile(
+  _subItem({
+    @required IconData icon,
+    @required String title,
+    @required MaterialPageRoute route,
+  }) =>
+      ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 72.0),
         leading: Icon(icon, color: Resource.Colors.grey),
-        title: Text(title, style: _defaultStyle()),
+        title: Text(title, style: _defaultStyle),
         onTap: () async {
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          if (route is BusPageRoute) {
-            bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
-            if (!bus) {
-              Utils.showToast(context, app.canNotUseFeature);
-              return;
-            }
-          }
-          if (route is LeavePageRoute) {
-            bool leave = prefs.getBool(Constants.PREF_LEAVE_ENABLE) ?? true;
-            if (!leave) {
-              Utils.showToast(context, app.canNotUseFeature);
-              return;
+          if (Platform.isAndroid || Platform.isIOS) {
+            if (route is BusPageRoute) {
+              bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+              if (!bus) {
+                Utils.showToast(context, app.canNotUseFeature);
+                return;
+              }
+            } else if (route is LeavePageRoute) {
+              bool leave = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+              if (!leave) {
+                Utils.showToast(context, app.canNotUseFeature);
+                return;
+              }
             }
           }
           Navigator.of(context).pop();
@@ -284,12 +323,12 @@ class DrawerBodyState extends State<DrawerBody> {
   }
 
   _getPreference() async {
-    prefs = await SharedPreferences.getInstance();
-    if (!prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       _getUserPicture();
     }
     setState(() {
-      displayPicture = prefs.getBool(Constants.PREF_DISPLAY_PICTURE) ?? true;
+      displayPicture =
+          Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
     });
   }
 }

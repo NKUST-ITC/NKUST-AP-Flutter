@@ -4,8 +4,9 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
 
@@ -20,21 +21,18 @@ class ScorePageRoute extends MaterialPageRoute {
 }
 
 class ScorePage extends StatefulWidget {
-  static const String routerName = "/score";
+  static const String routerName = '/score';
 
   @override
   ScorePageState createState() => ScorePageState();
 }
 
-class ScorePageState extends State<ScorePage>
-    with SingleTickerProviderStateMixin {
+class ScorePageState extends State<ScorePage> {
+  final key = GlobalKey<SemesterPickerState>();
+
   AppLocalizations app;
 
   _State state = _State.loading;
-
-  List<TableRow> scoreWeightList = [];
-
-  int selectSemesterIndex;
 
   Semester selectSemester;
   SemesterData semesterData;
@@ -42,11 +40,15 @@ class ScorePageState extends State<ScorePage>
 
   bool isOffline = false;
 
+  TextStyle get _textBlueStyle =>
+      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+
+  TextStyle get _textStyle => TextStyle(fontSize: 15.0);
+
   @override
   void initState() {
+    FA.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
-    FA.setCurrentScreen("ScorePage", "score_page.dart");
-    _getSemester();
   }
 
   @override
@@ -58,9 +60,7 @@ class ScorePageState extends State<ScorePage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return Scaffold(
-      // Appbar
       appBar: AppBar(
-        // Title
         title: Text(app.score),
         backgroundColor: Resource.Colors.blue,
       ),
@@ -71,36 +71,28 @@ class ScorePageState extends State<ScorePage>
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             SizedBox(height: 8.0),
-            FlatButton(
-              onPressed: (semesterData != null) ? _selectSemester : null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    selectSemester == null ? "" : selectSemester.text,
-                    style: TextStyle(
-                        color: Resource.Colors.semesterText, fontSize: 18.0),
-                  ),
-                  SizedBox(width: 8.0),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Resource.Colors.semesterText,
-                  )
-                ],
+            SemesterPicker(
+                key: key,
+                onSelect: (semester, index) {
+                  setState(() {
+                    selectSemester = semester;
+                    state = _State.loading;
+                  });
+                  if (Preferences.getBool(
+                      Constants.PREF_IS_OFFLINE_LOGIN, false))
+                    _loadOfflineScoreData();
+                  else
+                    _getSemesterScore();
+                }),
+            if (isOffline)
+              Text(
+                app.offlineScore,
+                style: TextStyle(color: Resource.Colors.grey),
               ),
-            ),
-            Container(
-              child: isOffline
-                  ? Text(
-                      app.offlineScore,
-                      style: TextStyle(color: Resource.Colors.grey),
-                    )
-                  : null,
-            ),
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  _getSemesterScore();
+                  await _getSemesterScore();
                   FA.logAction('refresh', 'swipe');
                   return null;
                 },
@@ -125,7 +117,7 @@ class ScorePageState extends State<ScorePage>
             if (state == _State.error)
               _getSemesterScore();
             else
-              _selectSemester();
+              key.currentState.pickSemester();
             FA.logAction('retry', 'click');
           },
           child: HintContent(
@@ -168,7 +160,17 @@ class ScorePageState extends State<ScorePage>
                         width: 0.5,
                       ),
                     ),
-                    children: scoreWeightList,
+                    children: [
+                      TableRow(
+                        children: <Widget>[
+                          _scoreTextBorder(app.subject, true),
+                          _scoreTextBorder(app.midtermScore, true),
+                          _scoreTextBorder(app.finalScore, true),
+                        ],
+                      ),
+                      for (var score in scoreData.content.scores)
+                        _scoreTableRowTitle(score)
+                    ],
                   ),
                 ),
                 SizedBox(height: 20.0),
@@ -184,16 +186,16 @@ class ScorePageState extends State<ScorePage>
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${app.conductScore}：${scoreData.content.detail.conduct}",
+                          '${app.conductScore}：${scoreData.content.detail.conduct}',
                           true),
                       _textBorder(
-                          "${app.average}：${scoreData.content.detail.average}",
+                          '${app.average}：${scoreData.content.detail.average}',
                           false),
                       _textBorder(
-                          "${app.rank}：${scoreData.content.detail.classRank}",
+                          '${app.rank}：${scoreData.content.detail.classRank}',
                           false),
                       _textBorder(
-                          "${app.percentage}：${scoreData.content.detail.classPercentage}",
+                          '${app.percentage}：${scoreData.content.detail.classPercentage}',
                           false),
                     ],
                   ),
@@ -204,22 +206,6 @@ class ScorePageState extends State<ScorePage>
         );
     }
   }
-
-  _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
-  }
-
-  _textStyle() {
-    return TextStyle(fontSize: 14.0);
-  }
-
-  _scoreTitle() => TableRow(
-        children: <Widget>[
-          _scoreTextBorder(app.subject, true),
-          _scoreTextBorder(app.midtermScore, true),
-          _scoreTextBorder(app.finalScore, true),
-        ],
-      );
 
   Widget _textBorder(String text, bool isTop) {
     return Container(
@@ -233,22 +219,9 @@ class ScorePageState extends State<ScorePage>
         ),
       ),
       child: Text(
-        text ?? "",
+        text ?? '',
         textAlign: TextAlign.center,
-        style: _textBlueStyle(),
-      ),
-    );
-  }
-
-  Widget _scoreTextBorder(String text, bool isTitle) {
-    return Container(
-      width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
-      alignment: Alignment.center,
-      child: Text(
-        text ?? "",
-        textAlign: TextAlign.center,
-        style: isTitle ? _textBlueStyle() : _textStyle(),
+        style: _textBlueStyle,
       ),
     );
   }
@@ -261,105 +234,30 @@ class ScorePageState extends State<ScorePage>
     ]);
   }
 
-  void _selectSemester() {
-    if (semesterData.semesters == null) return;
-    var semesters = <SimpleDialogOption>[];
-    for (var semester in semesterData.semesters) {
-      semesters.add(_dialogItem(semesters.length, semester.text));
-    }
-    FA.logAction('pick_yms', 'click');
-    showDialog<int>(
-        context: context,
-        builder: (BuildContext context) => SimpleDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(
-                Radius.circular(8),
-              ),
-            ),
-            title: Text(app.picksSemester),
-            children: semesters)).then<void>((int position) {
-      if (position != null) {
-        if (mounted) {
-          setState(() {
-            selectSemesterIndex = position;
-            selectSemester = semesterData.semesters[selectSemesterIndex];
-          });
-          _getSemesterScore();
-        }
-      }
-    });
-  }
-
-  void _getSemester() async {
-    this.semesterData = await CacheUtils.loadSemesterData();
-    if (this.semesterData == null) return;
-    setState(() {
-      selectSemester = semesterData.defaultSemester;
-      selectSemesterIndex = semesterData.defaultIndex;
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
-      _getSemesterScore();
-      return;
-    }
-    Helper.instance.getSemester().then((semesterData) {
-      if (mounted) {
-        setState(() {
-          this.semesterData = semesterData;
-          selectSemester = semesterData.defaultSemester;
-          selectSemesterIndex = semesterData.defaultIndex;
-        });
-        _getSemesterScore();
-      }
-      CacheUtils.saveSemesterData(semesterData);
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            if (mounted) {
-              Utils.handleResponseError(context, 'getSemester', mounted, e);
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            state = _State.error;
-            if (mounted) {
-              Utils.handleDioError(context, e);
-            }
-            break;
-        }
-      } else {
-        throw e;
-      }
-      _loadOfflineScoreData();
-    });
-  }
-
-  _renderScoreDataWidget() {
-    scoreWeightList.clear();
-    scoreWeightList.add(_scoreTitle());
-    for (var score in scoreData.content.scores) {
-      scoreWeightList.add(_scoreTableRowTitle(score));
-    }
+  Widget _scoreTextBorder(String text, bool isTitle) {
+    return Container(
+      width: double.maxFinite,
+      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+      alignment: Alignment.center,
+      child: Text(
+        text ?? '',
+        textAlign: TextAlign.center,
+        style: isTitle ? _textBlueStyle : _textStyle,
+      ),
+    );
   }
 
   _getSemesterScore() async {
-    Helper.cancelToken?.cancel("");
+    Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
     if (mounted) {
       setState(() {
         state = _State.loading;
       });
     }
-    if (semesterData.semesters == null) {
-      _getSemester();
-      return;
-    }
-    var textList = semesterData.semesters[selectSemesterIndex].value.split(",");
+    var textList = selectSemester.value.split(',');
     if (textList.length == 2) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN))
+      if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
         _loadOfflineScoreData();
       else
         Helper.instance.getScores(textList[0], textList[1]).then((response) {
@@ -369,11 +267,9 @@ class ScorePageState extends State<ScorePage>
               if (scoreData.status == 204)
                 state = _State.empty;
               else {
-                _renderScoreDataWidget();
                 state = _State.finish;
               }
-              CacheUtils.saveScoreData(
-                  semesterData.semesters[selectSemesterIndex].value, scoreData);
+              CacheUtils.saveScoreData(selectSemester.value, scoreData);
             });
         }).catchError((e) {
           if (e is DioError) {
@@ -415,8 +311,7 @@ class ScorePageState extends State<ScorePage>
   }
 
   _loadOfflineScoreData() async {
-    scoreData = await CacheUtils.loadScoreData(
-        semesterData.semesters[selectSemesterIndex].value);
+    scoreData = await CacheUtils.loadScoreData(selectSemester.value);
     if (mounted) {
       setState(() {
         isOffline = true;
@@ -425,7 +320,6 @@ class ScorePageState extends State<ScorePage>
         else if (scoreData.status == 204)
           state = _State.empty;
         else {
-          _renderScoreDataWidget();
           state = _State.finish;
         }
       });
