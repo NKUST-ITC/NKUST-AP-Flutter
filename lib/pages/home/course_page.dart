@@ -36,14 +36,18 @@ class CoursePageState extends State<CoursePage> {
 
   _State state = _State.loading;
 
-  int base = 6;
-  double childAspectRatio = 0.5;
-
   Semester selectSemester;
   SemesterData semesterData;
   CourseData courseData;
 
   bool isOffline = false;
+
+  bool get hasHoliday => (courseData?.courseTables?.saturday == null &&
+      courseData?.courseTables?.sunday == null);
+
+  int get base => (hasHoliday) ? 6 : 8;
+
+  double get childAspectRatio => (hasHoliday) ? 1.5 : 1.1;
 
   @override
   void initState() {
@@ -182,16 +186,12 @@ class CoursePageState extends State<CoursePage> {
     if (courseData.courseTables.saturday == null &&
         courseData.courseTables.sunday == null) {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
-      base = 6;
-      childAspectRatio = 1.5;
     } else {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
       weeks.add('Saturday');
       weeks.add('Sunday');
-      base = 8;
-      childAspectRatio = 1.1;
     }
     int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
     int i = 0;
