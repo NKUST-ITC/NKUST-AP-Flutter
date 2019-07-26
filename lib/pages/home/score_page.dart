@@ -250,11 +250,6 @@ class ScorePageState extends State<ScorePage> {
   _getSemesterScore() async {
     Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
-    if (mounted) {
-      setState(() {
-        state = _State.loading;
-      });
-    }
     var textList = selectSemester.value.split(',');
     if (textList.length == 2) {
       if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
@@ -299,15 +294,6 @@ class ScorePageState extends State<ScorePage> {
         state = _State.error;
       });
     }
-  }
-
-  SimpleDialogOption _dialogItem(int index, String text) {
-    return SimpleDialogOption(
-      child: Text(text),
-      onPressed: () {
-        Navigator.pop(context, index);
-      },
-    );
   }
 
   _loadOfflineScoreData() async {

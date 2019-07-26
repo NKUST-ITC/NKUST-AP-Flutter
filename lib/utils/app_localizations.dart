@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLocalizations {
   static const SYSTEM = 'system';
-  static const ZH = 'ZH';
+  static const ZH = 'zh';
   static const EN = 'en';
 
   AppLocalizations(Locale locale) {

@@ -302,7 +302,7 @@ class Utils {
   static void showAppReviewDialog(BuildContext context) async {
     await Future.delayed(Duration(seconds: 1));
     var date = DateTime.now();
-    if (date.millisecondsSinceEpoch % 5 == 0) return;
+    if (date.millisecondsSinceEpoch % 5 != 0) return;
     AppLocalizations app = AppLocalizations.of(context);
     if (Platform.isAndroid || Platform.isIOS) {
       showDialog(

@@ -19,11 +19,14 @@ class DialogOption extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text(
-              text,
-              style: TextStyle(
-                  fontSize: 16.0,
-                  color: check ? Resource.Colors.blueAccent : null),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 2.0),
+              child: Text(
+                text,
+                style: TextStyle(
+                    fontSize: 16.0,
+                    color: check ? Resource.Colors.blueAccent : null),
+              ),
             ),
             if (check)
               Icon(
