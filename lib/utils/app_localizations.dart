@@ -3,9 +3,14 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLocalizations {
+  static const SYSTEM = 'system';
+  static const ZH = 'ZH';
+  static const EN = 'en';
+
   AppLocalizations(Locale locale) {
     init(locale);
   }
@@ -15,8 +20,7 @@ class AppLocalizations {
   }
 
   static Locale locale;
-  static String languageCode = 'system';
-  static String themeCode = 'light';
+  static String languageCode = AppLocalizations.SYSTEM;
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
@@ -34,7 +38,7 @@ class AppLocalizations {
   }
 
   String get themeText {
-    switch (themeCode) {
+    switch (AppTheme.code) {
       case 'light':
         return light;
       case 'dark':

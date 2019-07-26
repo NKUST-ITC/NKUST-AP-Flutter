@@ -64,5 +64,12 @@ class Constants {
   static const int NOTIFICATION_FCM_ID = 200;
 
   static const FANS_PAGE_ID = '954175941266264';
+  static const FANS_PAGE_URL_SCHEME_ANDROID =
+      'fb://messaging/${Constants.FANS_PAGE_ID}';
+  static const FANS_PAGE_URL_SCHEME_IOS =
+      'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}';
   static const FANS_PAGE_URL = 'https://www.facebook.com/$FANS_PAGE_ID/';
+
+  static const DONATE_URL =
+      'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';
 }

@@ -10,6 +10,8 @@ import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+import 'dialog_option.dart';
+
 typedef SemesterCallback = void Function(Semester semester, int index);
 
 class SemesterPicker extends StatefulWidget {
@@ -114,26 +116,9 @@ class SemesterPickerState extends State<SemesterPicker> {
         ),
         children: [
           for (var i = 0; i < semesterData.semesters.length; i++) ...[
-            SimpleDialogOption(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      semesterData.semesters[i].text,
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          color: (semesterData.semesters[i].text ==
-                                  selectSemester.text)
-                              ? Resource.Colors.blueAccent
-                              : null),
-                    ),
-                    if (semesterData.semesters[i].text == selectSemester.text)
-                      Icon(
-                        Icons.check,
-                        color: Resource.Colors.blueAccent,
-                      )
-                  ],
-                ),
+            DialogOption(
+                text: semesterData.semesters[i].text,
+                check: semesterData.semesters[i].text == selectSemester.text,
                 onPressed: () {
                   Navigator.pop(context, i);
                 }),
