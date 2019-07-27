@@ -151,7 +151,7 @@ class LoginPageState extends State<LoginPage>
                   ),
                   child: Checkbox(
                     activeColor: Colors.white,
-                    checkColor: Color(0xff2574ff),
+                    checkColor: Resource.Colors.blue,
                     value: isAutoLogin,
                     onChanged: _onAutoLoginChanged,
                   ),
@@ -171,7 +171,7 @@ class LoginPageState extends State<LoginPage>
                   ),
                   child: Checkbox(
                     activeColor: Colors.white,
-                    checkColor: Color(0xff2574ff),
+                    checkColor: Resource.Colors.blue,
                     value: isRememberPassword,
                     onChanged: _onRememberPasswordChanged,
                   ),

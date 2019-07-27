@@ -167,6 +167,8 @@ class SettingPageState extends State<SettingPage> {
                                     (item.value == AppLocalizations.SYSTEM)
                                         ? Localizations.localeOf(context)
                                         : Locale(item.value);
+                                if (AppLocalizations.languageCode != item.value)
+                                  FA.logAction('change_language', item.value);
                                 setState(() {
                                   AppLocalizations.languageCode = item.value;
                                 });
@@ -203,17 +205,20 @@ class SettingPageState extends State<SettingPage> {
                               text: item.text,
                               check: AppIcon.code == item.value,
                               onPressed: () {
+                                if (AppIcon.code != item.value)
+                                  FA.logAction('change_icon_style', item.value);
                                 setState(() {
                                   AppIcon.code = item.value;
                                 });
-//                                if (Platform.isAndroid || Platform.isIOS)
-//                                  Preferences.setString(
-//                                      Constants.PREF_THEME_CODE, item.value);
+                                if (Platform.isAndroid || Platform.isIOS)
+                                  Preferences.setString(
+                                      Constants.PREF_ICON_STYLE_CODE,
+                                      item.value);
                                 Navigator.pop(context);
                               }),
                       ]),
                 ).then<void>((int position) {});
-                //FA.logAction('pick_theme', 'click');
+                FA.logAction('pick_icon_style', 'click');
               },
             ),
             _item(
@@ -238,6 +243,8 @@ class SettingPageState extends State<SettingPage> {
                               text: item.text,
                               check: AppTheme.code == item.value,
                               onPressed: () {
+                                if (AppTheme.code != item.value)
+                                  FA.logAction('change_theme', item.value);
                                 setState(() {
                                   AppTheme.code = item.value;
                                   ShareDataWidget.of(context)

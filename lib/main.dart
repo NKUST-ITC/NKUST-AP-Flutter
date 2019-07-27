@@ -12,6 +12,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
@@ -24,6 +25,8 @@ void main() async {
   String themeCode = AppTheme.LIGHT;
   if (Platform.isIOS || Platform.isAndroid) {
     await Preferences.init();
+    AppIcon.code =
+        Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
     themeCode =
         Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
   }
