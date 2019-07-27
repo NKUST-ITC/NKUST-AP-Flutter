@@ -7,6 +7,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -178,6 +179,41 @@ class SettingPageState extends State<SettingPage> {
                       ]),
                 ).then<void>((int position) {});
                 FA.logAction('pick_language', 'click');
+              },
+            ),
+            _item(
+              text: app.iconStyle,
+              subText: app.iconText,
+              onTap: () {
+                showDialog<int>(
+                  context: context,
+                  builder: (_) => SimpleDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                      title: Text(app.iconStyle),
+                      children: [
+                        for (var item in [
+                          Item(app.outlined, AppIcon.OUTLINED),
+                          Item(app.filled, AppIcon.FILLED),
+                        ])
+                          DialogOption(
+                              text: item.text,
+                              check: AppIcon.code == item.value,
+                              onPressed: () {
+                                setState(() {
+                                  AppIcon.code = item.value;
+                                });
+//                                if (Platform.isAndroid || Platform.isIOS)
+//                                  Preferences.setString(
+//                                      Constants.PREF_THEME_CODE, item.value);
+                                Navigator.pop(context);
+                              }),
+                      ]),
+                ).then<void>((int position) {});
+                //FA.logAction('pick_theme', 'click');
               },
             ),
             _item(

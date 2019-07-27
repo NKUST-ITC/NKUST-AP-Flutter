@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,6 +46,16 @@ class AppLocalizations {
         return dark;
       default:
         return systemLanguage;
+    }
+  }
+
+  String get iconText {
+    switch (AppIcon.code) {
+      case AppIcon.FILLED:
+        return filled;
+      case AppIcon.OUTLINED:
+      default:
+        return outlined;
     }
   }
 
@@ -337,6 +348,9 @@ class AppLocalizations {
       'theme': 'Theme',
       'light': 'Light',
       'dark': 'Dark',
+      'iconStyle': 'Icon Style',
+      'filled': 'Filled',
+      'outlined': 'Outlined',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -607,6 +621,9 @@ class AppLocalizations {
       'theme': '主題',
       'light': '淺色',
       'dark': '深色',
+      'iconStyle': '圖案風格',
+      'filled': '填充',
+      'outlined': '輪廓',
     },
   };
 
@@ -1075,6 +1092,12 @@ class AppLocalizations {
   String get dark => _vocabularies['dark'];
 
   String get light => _vocabularies['light'];
+
+  String get iconStyle => _vocabularies['iconStyle'];
+
+  String get filled => _vocabularies['filled'];
+
+  String get outlined => _vocabularies['outlined'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

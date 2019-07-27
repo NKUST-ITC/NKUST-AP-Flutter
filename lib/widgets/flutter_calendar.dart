@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/date_utils.dart';
@@ -72,7 +73,7 @@ class _CalendarState extends State<Calendar> {
       rightInnerIcon = new IconButton(
         onPressed: () => selectDateFromPicker(),
         icon: new Icon(
-          Icons.calendar_today,
+          AppIcon.calendarToday,
           color: Resource.Colors.grey,
         ),
       );
@@ -84,14 +85,14 @@ class _CalendarState extends State<Calendar> {
       leftOuterIcon = new IconButton(
         onPressed: isExpanded ? previousMonth : previousWeek,
         icon: new Icon(
-          Icons.chevron_left,
+          AppIcon.chevronLeft,
           color: Resource.Colors.grey,
         ),
       );
       rightOuterIcon = new IconButton(
         onPressed: isExpanded ? nextMonth : nextWeek,
         icon: new Icon(
-          Icons.chevron_right,
+          AppIcon.chevronRight,
           color: Resource.Colors.grey,
         ),
       );
@@ -218,8 +219,8 @@ class _CalendarState extends State<Calendar> {
             padding: new EdgeInsets.all(0.0),
             onPressed: toggleExpanded,
             icon: isExpanded
-                ? new Icon(Icons.arrow_drop_up)
-                : new Icon(Icons.arrow_drop_down),
+                ? new Icon(AppIcon.arrowDropUp)
+                : new Icon(AppIcon.arrowDropDown),
           ),
         ],
       );

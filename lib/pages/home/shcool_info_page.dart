@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
+import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPageRoute extends MaterialPageRoute {
   SchoolInfoPageRoute()
@@ -63,15 +64,15 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         fixedColor: Resource.Colors.yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.fiber_new),
+            icon: Icon(AppIcon.fiberNew),
             title: Text(app.notifications),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.phone),
+            icon: Icon(AppIcon.phone),
             title: Text(app.phones),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.date_range),
+            icon: Icon(AppIcon.dateRange),
             title: Text(app.events),
           ),
         ],

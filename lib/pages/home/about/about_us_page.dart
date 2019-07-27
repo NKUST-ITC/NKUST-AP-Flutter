@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -53,7 +54,7 @@ class AboutUsPageState extends State<AboutUsPage>
               title: new Text(app.about),
               actions: <Widget>[
                 IconButton(
-                    icon: Icon(Icons.code),
+                    icon: Icon(AppIcon.codeIcon),
                     onPressed: () {
                       Navigator.of(context)
                           .pushNamed(OpenSourcePage.routerName);

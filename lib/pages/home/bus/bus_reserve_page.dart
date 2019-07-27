@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
@@ -167,13 +168,13 @@ class BusReservePageState extends State<BusReservePage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: Icons.assignment,
+            icon: AppIcon.assignment,
             content: state == _State.error ? app.clickToRetry : app.busEmpty,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: Icons.offline_bolt,
+          icon: AppIcon.offlineBolt,
           content: app.offlineMode,
         );
       default:
@@ -284,7 +285,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 1,
                   child: Icon(
-                    Icons.directions_bus,
+                    AppIcon.directionsBus,
                     size: 20.0,
                     color: busTime.getColorState(),
                   ),
@@ -316,7 +317,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 2,
                   child: Icon(
-                    Icons.access_time,
+                    AppIcon.accessTime,
                     size: 20.0,
                     color: busTime.getColorState(),
                   ),

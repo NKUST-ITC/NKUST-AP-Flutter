@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
@@ -67,7 +68,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         actions: <Widget>[
           IconButton(
               icon: Icon(
-                Icons.info,
+                AppIcon.info,
                 color: Colors.white,
               ),
               onPressed: () {
@@ -85,11 +86,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         fixedColor: Resource.Colors.yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.date_range),
+            icon: Icon(AppIcon.dateRange),
             title: Text(app.busReserve),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
+            icon: Icon(AppIcon.assignment),
             title: Text(app.busReservations),
           ),
         ],

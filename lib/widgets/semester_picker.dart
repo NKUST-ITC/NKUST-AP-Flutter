@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -52,7 +53,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           ),
           SizedBox(width: 8.0),
           Icon(
-            Icons.keyboard_arrow_down,
+            AppIcon.keyboardArrowDown,
             color: Resource.Colors.semesterText,
           )
         ],

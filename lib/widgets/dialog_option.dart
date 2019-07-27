@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 
 class DialogOption extends StatelessWidget {
@@ -30,7 +31,7 @@ class DialogOption extends StatelessWidget {
             ),
             if (check)
               Icon(
-                Icons.check,
+                AppIcon.check,
                 color: Resource.Colors.blueAccent,
               )
           ],

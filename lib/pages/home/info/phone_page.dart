@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -116,7 +117,7 @@ class PhonePageState extends State<PhonePage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
         return HintContent(
-          icon: Icons.assignment,
+          icon: AppIcon.assignment,
           content: app.clickToRetry,
         );
       default:
