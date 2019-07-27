@@ -18,6 +18,16 @@ class AppTheme {
     }
   }
 
+  static double get drawerIconOpacity {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return 0.75;
+      case AppTheme.LIGHT:
+      default:
+        return 1.0;
+    }
+  }
+
   static ThemeData get light => ThemeData(
         //platform: TargetPlatform.iOS,
         brightness: Brightness.light,

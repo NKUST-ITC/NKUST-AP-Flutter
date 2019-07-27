@@ -189,7 +189,11 @@ class HomePageState extends State<HomePage> {
           }),
           bottomNavigationBar: BottomNavigationBar(
             fixedColor: Resource.Colors.bottomNavigationSelect,
+            unselectedItemColor: Resource.Colors.bottomNavigationSelect,
             type: BottomNavigationBarType.fixed,
+            selectedFontSize: 12.0,
+            unselectedFontSize: 12.0,
+            selectedIconTheme: IconThemeData(size: 24.0),
             currentIndex: _currentTabIndex,
             onTap: onTabTapped,
             items: [

@@ -116,6 +116,7 @@ class BusReservePageState extends State<BusReservePage>
                   child: CupertinoSegmentedControl(
                     selectedColor: Resource.Colors.blueAccent,
                     borderColor: Resource.Colors.blueAccent,
+                    unselectedColor: Resource.Colors.segmentControlUnSelect,
                     groupValue: selectStartStation,
                     children: {
                       Station.janGong: Container(
