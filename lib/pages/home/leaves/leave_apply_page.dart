@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -68,7 +69,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         return FlatButton(
           onPressed: null,
           child: HintContent(
-            icon: Icons.perm_identity,
+            icon: AppIcon.permIdentity,
             content: state == _State.error
                 ? app.functionNotOpen
                 : app.functionNotOpen,
@@ -139,12 +140,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   vertical: 8,
                 ),
                 leading: Icon(
-                  Icons.access_time,
+                  AppIcon.accessTime,
                   size: 30,
                   color: Resource.Colors.grey,
                 ),
                 trailing: Icon(
-                  Icons.keyboard_arrow_down,
+                  AppIcon.keyboardArrowDown,
                   size: 30,
                   color: Resource.Colors.grey,
                 ),
@@ -165,12 +166,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   vertical: 8,
                 ),
                 leading: Icon(
-                  Icons.person,
+                  AppIcon.person,
                   size: 30,
                   color: Resource.Colors.grey,
                 ),
                 trailing: Icon(
-                  Icons.keyboard_arrow_down,
+                  AppIcon.keyboardArrowDown,
                   size: 30,
                   color: Resource.Colors.grey,
                 ),

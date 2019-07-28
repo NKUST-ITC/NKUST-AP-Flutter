@@ -53,7 +53,7 @@ class BusRulePageState extends State<BusRulePage>
           textAlign: TextAlign.left,
           text: TextSpan(
               style: TextStyle(
-                  color: Colors.grey[700], height: 1.3, fontSize: 16.0),
+                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
               children: [
                 TextSpan(
                   text: '預約校車\n',

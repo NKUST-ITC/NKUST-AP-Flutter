@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leaves/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leaves/leave_record_page.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
@@ -77,11 +78,11 @@ class LeavePageState extends State<LeavePage>
         fixedColor: Resource.Colors.yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.edit),
+            icon: Icon(AppIcon.edit),
             title: Text(app.leaveApply),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.assignment),
+            icon: Icon(AppIcon.assignment),
             title: Text(app.leaveRecords),
           ),
         ],

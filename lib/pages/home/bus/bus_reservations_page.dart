@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -90,7 +91,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: Icons.assignment,
+            icon: AppIcon.assignment,
             content: state == _State.error
                 ? app.clickToRetry
                 : app.busReservationEmpty,
@@ -98,7 +99,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: Icons.assignment,
+          icon: AppIcon.assignment,
           content: app.noOfflineData,
         );
       default:
@@ -133,7 +134,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 1,
                   child: Icon(
-                    Icons.directions_bus,
+                    AppIcon.directionsBus,
                     size: 20.0,
                     color: Resource.Colors.blueAccent,
                   ),
@@ -159,7 +160,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   child: busReservation.canCancel()
                       ? IconButton(
                           icon: Icon(
-                            Icons.cancel,
+                            AppIcon.cancel,
                             size: 20.0,
                             color: isOffline
                                 ? Resource.Colors.grey

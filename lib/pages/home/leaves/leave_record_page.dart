@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -132,13 +133,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: Icons.assignment,
+            icon: AppIcon.assignment,
             content: state == _State.error ? app.clickToRetry : app.leaveEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: Icons.class_,
+          icon: AppIcon.classIcon,
           content: app.noOfflineData,
         );
       default:

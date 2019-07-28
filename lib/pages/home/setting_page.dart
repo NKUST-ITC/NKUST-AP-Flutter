@@ -5,12 +5,15 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
+import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
+import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
@@ -73,12 +76,12 @@ class SettingPageState extends State<SettingPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _titleItem(app.notificationItem),
-            _itemSwitch(
-              app.courseNotify,
-              app.courseNotifySubTitle,
-              courseNotify,
-              (b) async {
+            _title(text: app.notificationItem),
+            _switch(
+              text: app.courseNotify,
+              subText: app.courseNotifySubTitle,
+              value: courseNotify,
+              onChanged: (b) async {
                 FA.logAction('notify_course', 'create');
                 setState(() {
                   courseNotify = !courseNotify;
@@ -93,14 +96,13 @@ class SettingPageState extends State<SettingPage> {
                 Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
               },
             ),
-            _itemSwitch(
-              app.busNotify,
-              app.busNotifySubTitle,
-              busNotify,
-              (b) async {
+            _switch(
+              text: app.busNotify,
+              subText: app.busNotifySubTitle,
+              value: busNotify,
+              onChanged: (b) async {
                 FA.logAction('notify_bus', 'create');
-                bool bus =
-                    await Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+                bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
                 if (bus) {
                   setState(() {
                     busNotify = !busNotify;
@@ -123,12 +125,12 @@ class SettingPageState extends State<SettingPage> {
               color: Colors.grey,
               height: 0.5,
             ),
-            _titleItem(app.otherSettings),
-            _itemSwitch(
-              app.headPhotoSetting,
-              app.headPhotoSettingSubTitle,
-              displayPicture,
-              (b) {
+            _title(text: app.otherSettings),
+            _switch(
+              text: app.headPhotoSetting,
+              subText: app.headPhotoSettingSubTitle,
+              value: displayPicture,
+              onChanged: (b) {
                 setState(() {
                   displayPicture = !displayPicture;
                 });
@@ -138,56 +140,122 @@ class SettingPageState extends State<SettingPage> {
               },
             ),
             _item(
-              app.language,
-              app.localeText,
-              () {
-                Utils.showChoseLanguageDialog(context, (languageCode) {
-                  setState(() {
-                    AppLocalizations.languageCode = languageCode;
-                  });
-                });
+              text: app.language,
+              subText: app.localeText,
+              onTap: () {
+                showDialog<int>(
+                  context: context,
+                  builder: (BuildContext context) => SimpleDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                      title: Text(app.choseLanguageTitle),
+                      children: [
+                        for (var item in [
+                          Item(app.systemLanguage, AppLocalizations.SYSTEM),
+                          Item(app.traditionalChinese, AppLocalizations.ZH),
+                          Item(app.english, AppLocalizations.EN),
+                        ])
+                          DialogOption(
+                              text: item.text,
+                              check:
+                                  AppLocalizations.languageCode == item.value,
+                              onPressed: () {
+                                AppLocalizations.locale =
+                                    (item.value == AppLocalizations.SYSTEM)
+                                        ? Localizations.localeOf(context)
+                                        : Locale(item.value);
+                                if (AppLocalizations.languageCode != item.value)
+                                  FA.logAction('change_language', item.value);
+                                setState(() {
+                                  AppLocalizations.languageCode = item.value;
+                                });
+                                if (Platform.isAndroid || Platform.isIOS) {
+                                  Preferences.setString(
+                                      Constants.PREF_LANGUAGE_CODE, item.value);
+                                }
+                                Navigator.pop(context);
+                              }),
+                      ]),
+                ).then<void>((int position) {});
                 FA.logAction('pick_language', 'click');
               },
             ),
             _item(
-              app.theme,
-              app.themeText,
-              () {
+              text: app.iconStyle,
+              subText: app.iconText,
+              onTap: () {
                 showDialog<int>(
                   context: context,
-                  builder: (BuildContext context) => SimpleDialog(
+                  builder: (_) => SimpleDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
+                      title: Text(app.iconStyle),
+                      children: [
+                        for (var item in [
+                          Item(app.outlined, AppIcon.OUTLINED),
+                          Item(app.filled, AppIcon.FILLED),
+                        ])
+                          DialogOption(
+                              text: item.text,
+                              check: AppIcon.code == item.value,
+                              onPressed: () {
+                                if (AppIcon.code != item.value)
+                                  FA.logAction('change_icon_style', item.value);
+                                setState(() {
+                                  AppIcon.code = item.value;
+                                });
+                                if (Platform.isAndroid || Platform.isIOS)
+                                  Preferences.setString(
+                                      Constants.PREF_ICON_STYLE_CODE,
+                                      item.value);
+                                Navigator.pop(context);
+                              }),
+                      ]),
+                ).then<void>((int position) {});
+                FA.logAction('pick_icon_style', 'click');
+              },
+            ),
+            _item(
+              text: app.theme,
+              subText: app.themeText,
+              onTap: () {
+                showDialog<int>(
+                  context: context,
+                  builder: (_) => SimpleDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(16),
+                        ),
+                      ),
                       title: Text(app.theme),
-                      children: <SimpleDialogOption>[
-                        SimpleDialogOption(
-                            child: Text(app.light),
-                            onPressed: () {
-                              AppTheme.code = AppTheme.LIGHT;
-                              ShareDataWidget.of(context)
-                                  .data
-                                  .setThemeData(AppTheme.light);
-                              setState(() {
-                                AppLocalizations.themeCode = AppTheme.LIGHT;
-                              });
-                              if (Platform.isAndroid || Platform.isIOS)
-                                Preferences.setString(
-                                    Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-                              Navigator.pop(context);
-                            }),
-                        SimpleDialogOption(
-                            child: Text(app.dark),
-                            onPressed: () {
-                              AppTheme.code = AppTheme.DARK;
-                              ShareDataWidget.of(context)
-                                  .data
-                                  .setThemeData(AppTheme.dark);
-                              setState(() {
-                                AppLocalizations.themeCode = AppTheme.DARK;
-                              });
-                              if (Platform.isAndroid || Platform.isIOS)
-                                Preferences.setString(
-                                    Constants.PREF_THEME_CODE, AppTheme.DARK);
-                              Navigator.pop(context);
-                            })
+                      children: [
+                        for (var item in [
+                          Item(app.light, AppTheme.LIGHT),
+                          Item(app.dark, AppTheme.DARK),
+                        ])
+                          DialogOption(
+                              text: item.text,
+                              check: AppTheme.code == item.value,
+                              onPressed: () {
+                                if (AppTheme.code != item.value)
+                                  FA.logAction('change_theme', item.value);
+                                setState(() {
+                                  AppTheme.code = item.value;
+                                  ShareDataWidget.of(context)
+                                      .data
+                                      .setThemeData(AppTheme.data);
+                                });
+                                if (Platform.isAndroid || Platform.isIOS)
+                                  Preferences.setString(
+                                      Constants.PREF_THEME_CODE, item.value);
+                                Navigator.pop(context);
+                              }),
                       ]),
                 ).then<void>((int position) {});
                 FA.logAction('pick_theme', 'click');
@@ -197,35 +265,40 @@ class SettingPageState extends State<SettingPage> {
               color: Colors.grey,
               height: 0.5,
             ),
-            _titleItem(app.otherInfo),
-            _item(app.feedback, app.feedbackViaFacebook, () {
-              if (Platform.isAndroid)
-                Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
-                    .catchError((onError) => Utils.launchUrl(
-                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/'));
-              else if (Platform.isIOS)
-                Utils.launchUrl(
-                        'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
-                    .catchError((onError) => Utils.launchUrl(
-                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/'));
-              else {
-                Utils.launchUrl(
-                        'https://www.facebook.com/${Constants.FANS_PAGE_ID}/')
-                    .catchError((onError) =>
-                        Utils.showToast(context, app.platformError));
-              }
-              FA.logAction('feedback', 'click');
-            }),
-            _item(app.donateTitle, app.donateContent, () {
-              Utils.launchUrl(
-                      "https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d")
-                  .catchError(
+            _title(text: app.otherInfo),
+            _item(
+                text: app.feedback,
+                subText: app.feedbackViaFacebook,
+                onTap: () {
+                  if (Platform.isAndroid)
+                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_ANDROID)
+                        .catchError((onError) =>
+                            Utils.launchUrl(Constants.FANS_PAGE_URL));
+                  else if (Platform.isIOS)
+                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_IOS)
+                        .catchError((onError) =>
+                            Utils.launchUrl(Constants.FANS_PAGE_URL));
+                  else {
+                    Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
+                        (onError) =>
+                            Utils.showToast(context, app.platformError));
+                  }
+                  FA.logAction('feedback', 'click');
+                }),
+            _item(
+                text: app.donateTitle,
+                subText: app.donateContent,
+                onTap: () {
+                  Utils.launchUrl(Constants.DONATE_URL).catchError(
                       (onError) => Utils.showToast(context, app.platformError));
-              FA.logAction('donate', 'click');
-            }),
-            _item(app.appVersion, "v$appVersion", () {
-              //FA.logAction('donate', 'click');
-            }),
+                  FA.logAction('donate', 'click');
+                }),
+            _item(
+                text: app.appVersion,
+                subText: "v$appVersion",
+                onTap: () {
+                  FA.logAction('app_version', 'click');
+                }),
           ],
         ),
       ),
@@ -244,7 +317,7 @@ class SettingPageState extends State<SettingPage> {
     });
   }
 
-  Widget _titleItem(String text) => Container(
+  Widget _title({@required String text}) => Padding(
         padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
         child: Text(
           text,
@@ -253,8 +326,12 @@ class SettingPageState extends State<SettingPage> {
         ),
       );
 
-  Widget _itemSwitch(
-          String text, String subText, bool value, Function function) =>
+  Widget _switch({
+    @required String text,
+    @required String subText,
+    @required bool value,
+    @required Function onChanged,
+  }) =>
       SwitchListTile(
         title: Text(
           text,
@@ -265,11 +342,16 @@ class SettingPageState extends State<SettingPage> {
           style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
         value: value,
-        onChanged: function,
+        onChanged: onChanged,
         activeColor: Resource.Colors.blueAccent,
       );
 
-  Widget _item(String text, String subText, Function function) => ListTile(
+  Widget _item({
+    @required String text,
+    @required String subText,
+    @required Function onTap,
+  }) =>
+      ListTile(
         title: Text(
           text,
           style: TextStyle(fontSize: 16.0),
@@ -278,7 +360,7 @@ class SettingPageState extends State<SettingPage> {
           subText,
           style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
         ),
-        onTap: function,
+        onTap: onTap,
       );
 
   void _setupCourseNotify(BuildContext context) async {

@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -172,7 +173,7 @@ class HomePageState extends State<HomePage> {
             backgroundColor: Resource.Colors.blue,
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.info),
+                icon: Icon(AppIcon.info),
                 onPressed: _showInformationDialog,
               )
             ],
@@ -189,20 +190,24 @@ class HomePageState extends State<HomePage> {
           }),
           bottomNavigationBar: BottomNavigationBar(
             fixedColor: Resource.Colors.bottomNavigationSelect,
+            unselectedItemColor: Resource.Colors.bottomNavigationSelect,
             type: BottomNavigationBarType.fixed,
+            selectedFontSize: 12.0,
+            unselectedFontSize: 12.0,
+            selectedIconTheme: IconThemeData(size: 24.0),
             currentIndex: _currentTabIndex,
             onTap: onTabTapped,
             items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.directions_bus),
+                icon: Icon(AppIcon.directionsBus),
                 title: Text(app.bus),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.class_),
+                icon: Icon(AppIcon.classIcon),
                 title: Text(app.course),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.assignment),
+                icon: Icon(AppIcon.assignment),
                 title: Text(app.score),
               ),
             ],

@@ -299,87 +299,34 @@ class Utils {
     return flutterLocalNotificationsPlugin;
   }
 
-  static void showChoseLanguageDialog(BuildContext context, Function function) {
-    var app = AppLocalizations.of(context);
-    showDialog<int>(
-      context: context,
-      builder: (BuildContext context) => SimpleDialog(
-              title: Text(app.choseLanguageTitle),
-              children: <SimpleDialogOption>[
-                SimpleDialogOption(
-                    child: Text(app.systemLanguage),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      if (Platform.isAndroid || Platform.isIOS) {
-                        SharedPreferences preference =
-                            await SharedPreferences.getInstance();
-                        preference.setString(
-                            Constants.PREF_LANGUAGE_CODE, 'system');
-                        AppLocalizations.locale =
-                            Localizations.localeOf(context);
-                      }
-                      function('system');
-                    }),
-                SimpleDialogOption(
-                    child: Text(app.traditionalChinese),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      if (Platform.isAndroid || Platform.isIOS) {
-                        SharedPreferences preference =
-                            await SharedPreferences.getInstance();
-                        preference.setString(
-                            Constants.PREF_LANGUAGE_CODE, 'zh');
-                        AppLocalizations.locale = Locale('zh');
-                      }
-                      function('zh');
-                    }),
-                SimpleDialogOption(
-                    child: Text(app.english),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                      if (Platform.isAndroid || Platform.isIOS) {
-                        SharedPreferences preference =
-                            await SharedPreferences.getInstance();
-                        preference.setString(
-                            Constants.PREF_LANGUAGE_CODE, 'en');
-                        AppLocalizations.locale = Locale('en');
-                      }
-                      function('en');
-                    })
-              ]),
-    ).then<void>((int position) {});
-  }
-
   static void showAppReviewDialog(BuildContext context) async {
     await Future.delayed(Duration(seconds: 1));
     var date = DateTime.now();
-    if (date.millisecondsSinceEpoch % 3 == 0) return;
+    if (date.millisecondsSinceEpoch % 5 != 0) return;
     AppLocalizations app = AppLocalizations.of(context);
     if (Platform.isAndroid || Platform.isIOS) {
       showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
-              title: app.ratingDialogTitle,
-              contentWidget: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                    style: TextStyle(
-                        color: Resource.Colors.grey,
-                        height: 1.3,
-                        fontSize: 16.0),
-                    children: [
-                      TextSpan(text: app.ratingDialogContent),
-                    ]),
-              ),
-              leftActionText: app.later,
-              rightActionText: app.rateNow,
-              leftActionFunction: null,
-              rightActionFunction: () {
-                AppReview.requestReview.then((onValue) {
-                  print(onValue);
-                });
-              },
-            ),
+          title: app.ratingDialogTitle,
+          contentWidget: RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+                style: TextStyle(
+                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                children: [
+                  TextSpan(text: app.ratingDialogContent),
+                ]),
+          ),
+          leftActionText: app.later,
+          rightActionText: app.rateNow,
+          leftActionFunction: null,
+          rightActionFunction: () {
+            AppReview.requestReview.then((onValue) {
+              print(onValue);
+            });
+          },
+        ),
       );
     } else {
       //TODO implement other platform system local notification
@@ -393,57 +340,54 @@ class Utils {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) => Column(
-              mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  app.ratingDialogTitle,
+                  style: TextStyle(color: Resource.Colors.blue, fontSize: 20.0),
+                ),
+              ),
+            ),
+            RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 18.0),
+                  children: [
+                    TextSpan(text: app.ratingDialogContent),
+                  ]),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      app.ratingDialogTitle,
-                      style: TextStyle(
-                          color: Resource.Colors.blue, fontSize: 20.0),
-                    ),
+                FlatButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    app.later,
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
                   ),
                 ),
-                RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                      style: TextStyle(
-                          color: Resource.Colors.grey,
-                          height: 1.3,
-                          fontSize: 18.0),
-                      children: [
-                        TextSpan(text: app.ratingDialogContent),
-                      ]),
+                FlatButton(
+                  onPressed: () {
+                    AppReview.requestReview.then((a) {});
+                  },
+                  child: Text(
+                    app.rateNow,
+                    style:
+                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    FlatButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(
-                        app.later,
-                        style: TextStyle(
-                            color: Resource.Colors.blue, fontSize: 16.0),
-                      ),
-                    ),
-                    FlatButton(
-                      onPressed: () {
-                        AppReview.requestReview.then((a) {});
-                      },
-                      child: Text(
-                        app.rateNow,
-                        style: TextStyle(
-                            color: Resource.Colors.blue, fontSize: 16.0),
-                      ),
-                    ),
-                  ],
-                )
               ],
-            ),
+            )
+          ],
+        ),
       );
     } else {
       //TODO implement other platform system local notification

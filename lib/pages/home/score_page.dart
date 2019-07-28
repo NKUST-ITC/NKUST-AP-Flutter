@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -121,13 +122,13 @@ class ScorePageState extends State<ScorePage> {
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: Icons.assignment,
+            icon: AppIcon.assignment,
             content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: Icons.class_,
+          icon: AppIcon.classIcon,
           content: app.noOfflineData,
         );
       default:
@@ -250,11 +251,6 @@ class ScorePageState extends State<ScorePage> {
   _getSemesterScore() async {
     Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
-    if (mounted) {
-      setState(() {
-        state = _State.loading;
-      });
-    }
     var textList = selectSemester.value.split(',');
     if (textList.length == 2) {
       if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
@@ -299,15 +295,6 @@ class ScorePageState extends State<ScorePage> {
         state = _State.error;
       });
     }
-  }
-
-  SimpleDialogOption _dialogItem(int index, String text) {
-    return SimpleDialogOption(
-      child: Text(text),
-      onPressed: () {
-        Navigator.pop(context, index);
-      },
-    );
   }
 
   _loadOfflineScoreData() async {

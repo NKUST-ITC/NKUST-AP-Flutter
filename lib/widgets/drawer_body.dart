@@ -8,6 +8,8 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/res/app_icon.dart';
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
@@ -96,7 +98,7 @@ class DrawerBodyState extends State<DrawerBody> {
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  Icons.account_circle,
+                                  AppIcon.accountCircle,
                                   color: Colors.white,
                                   size: 72.0,
                                 ),
@@ -110,7 +112,7 @@ class DrawerBodyState extends State<DrawerBody> {
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(
-                      color: Resource.Colors.blue500,
+                      color: Resource.Colors.blue,
                       image: DecorationImage(
                           image: AssetImage(ImageAssets.drawerBackground),
                           fit: BoxFit.fitWidth,
@@ -120,9 +122,12 @@ class DrawerBodyState extends State<DrawerBody> {
                   Positioned(
                     bottom: 20.0,
                     right: 20.0,
-                    child: Image.asset(
-                      ImageAssets.drawerIcon,
-                      width: 90.0,
+                    child: Opacity(
+                      opacity: AppTheme.drawerIconOpacity,
+                      child: Image.asset(
+                        ImageAssets.drawerIcon,
+                        width: 90.0,
+                      ),
                     ),
                   ),
                 ],
@@ -135,7 +140,7 @@ class DrawerBodyState extends State<DrawerBody> {
                 });
               },
               leading: Icon(
-                Icons.school,
+                AppIcon.school,
                 color: isStudyExpanded
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
@@ -143,17 +148,17 @@ class DrawerBodyState extends State<DrawerBody> {
               title: Text(app.courseInfo, style: _defaultStyle),
               children: <Widget>[
                 _subItem(
-                  icon: Icons.class_,
+                  icon: AppIcon.classIcon,
                   title: app.course,
                   route: CoursePageRoute(),
                 ),
                 _subItem(
-                  icon: Icons.assignment,
+                  icon: AppIcon.assignment,
                   title: app.score,
                   route: ScorePageRoute(),
                 ),
                 _subItem(
-                  icon: Icons.apps,
+                  icon: AppIcon.apps,
                   title: app.calculateUnits,
                   route: CalculateUnitsPageRoute(),
                 ),
@@ -166,7 +171,7 @@ class DrawerBodyState extends State<DrawerBody> {
                 });
               },
               leading: Icon(
-                Icons.calendar_today,
+                AppIcon.calendarToday,
                 color: isLeaveExpanded
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
@@ -174,12 +179,12 @@ class DrawerBodyState extends State<DrawerBody> {
               title: Text(app.leave, style: _defaultStyle),
               children: <Widget>[
                 _subItem(
-                  icon: Icons.edit,
+                  icon: AppIcon.edit,
                   title: app.leaveApply,
                   route: LeavePageRoute(initIndex: 0),
                 ),
                 _subItem(
-                  icon: Icons.assignment,
+                  icon: AppIcon.assignment,
                   title: app.leaveRecords,
                   route: LeavePageRoute(initIndex: 1),
                 ),
@@ -192,7 +197,7 @@ class DrawerBodyState extends State<DrawerBody> {
                 });
               },
               leading: Icon(
-                Icons.directions_bus,
+                AppIcon.directionsBus,
                 color: isBusExpanded
                     ? Resource.Colors.blueAccent
                     : Resource.Colors.grey,
@@ -200,35 +205,35 @@ class DrawerBodyState extends State<DrawerBody> {
               title: Text(app.bus, style: _defaultStyle),
               children: <Widget>[
                 _subItem(
-                  icon: Icons.date_range,
+                  icon: AppIcon.dateRange,
                   title: app.busReserve,
                   route: BusPageRoute(initIndex: 0),
                 ),
                 _subItem(
-                  icon: Icons.assignment,
+                  icon: AppIcon.assignment,
                   title: app.busReservations,
                   route: BusPageRoute(initIndex: 1),
                 ),
               ],
             ),
             _item(
-              icon: Icons.info,
+              icon: AppIcon.info,
               title: app.schoolInfo,
               route: SchoolInfoPageRoute(),
             ),
             _item(
-              icon: Icons.face,
+              icon: AppIcon.face,
               title: app.about,
               route: AboutUsPageRoute(),
             ),
             _item(
-              icon: Icons.settings,
+              icon: AppIcon.settings,
               title: app.settings,
               route: SettingPageRoute(),
             ),
             ListTile(
               leading: Icon(
-                Icons.power_settings_new,
+                AppIcon.powerSettingsNew,
                 color: Resource.Colors.grey,
               ),
               onTap: () {

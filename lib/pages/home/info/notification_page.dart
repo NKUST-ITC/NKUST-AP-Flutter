@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -136,14 +137,14 @@ class NotificationPageState extends State<NotificationPage>
             FA.logAction('rerty', 'click');
           },
           child: HintContent(
-            icon: Icons.assignment,
+            icon: AppIcon.assignment,
             content:
                 state == _State.error ? app.clickToRetry : app.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: Icons.offline_bolt,
+          icon: AppIcon.offlineBolt,
           content: app.offlineMode,
         );
       default:

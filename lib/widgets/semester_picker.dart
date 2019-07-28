@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
+
+import 'dialog_option.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 
@@ -50,7 +53,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           ),
           SizedBox(width: 8.0),
           Icon(
-            Icons.keyboard_arrow_down,
+            AppIcon.keyboardArrowDown,
             color: Resource.Colors.semesterText,
           )
         ],
@@ -114,26 +117,9 @@ class SemesterPickerState extends State<SemesterPicker> {
         ),
         children: [
           for (var i = 0; i < semesterData.semesters.length; i++) ...[
-            SimpleDialogOption(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Text(
-                      semesterData.semesters[i].text,
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          color: (semesterData.semesters[i].text ==
-                                  selectSemester.text)
-                              ? Resource.Colors.blueAccent
-                              : null),
-                    ),
-                    if (semesterData.semesters[i].text == selectSemester.text)
-                      Icon(
-                        Icons.check,
-                        color: Resource.Colors.blueAccent,
-                      )
-                  ],
-                ),
+            DialogOption(
+                text: semesterData.semesters[i].text,
+                check: semesterData.semesters[i].text == selectSemester.text,
                 onPressed: () {
                   Navigator.pop(context, i);
                 }),

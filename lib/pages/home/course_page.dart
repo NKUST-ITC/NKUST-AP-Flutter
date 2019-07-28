@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -36,14 +37,18 @@ class CoursePageState extends State<CoursePage> {
 
   _State state = _State.loading;
 
-  int base = 6;
-  double childAspectRatio = 0.5;
-
   Semester selectSemester;
   SemesterData semesterData;
   CourseData courseData;
 
   bool isOffline = false;
+
+  bool get hasHoliday => (courseData?.courseTables?.saturday == null &&
+      courseData?.courseTables?.sunday == null);
+
+  int get base => (hasHoliday) ? 6 : 8;
+
+  double get childAspectRatio => (hasHoliday) ? 1.5 : 1.1;
 
   @override
   void initState() {
@@ -127,13 +132,13 @@ class CoursePageState extends State<CoursePage> {
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: Icons.class_,
+            icon: AppIcon.classIcon,
             content: state == _State.error ? app.clickToRetry : app.courseEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: Icons.class_,
+          icon: AppIcon.classIcon,
           content: app.noOfflineData,
         );
       default:
@@ -182,16 +187,12 @@ class CoursePageState extends State<CoursePage> {
     if (courseData.courseTables.saturday == null &&
         courseData.courseTables.sunday == null) {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
-      base = 6;
-      childAspectRatio = 1.5;
     } else {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[5]));
       list[0].children.add(_titleBorder(app.weekdaysCourse[6]));
       weeks.add('Saturday');
       weeks.add('Sunday');
-      base = 8;
-      childAspectRatio = 1.1;
     }
     int maxTimeCode = courseData.courseTables.getMaxTimeCode(weeks);
     int i = 0;

@@ -3,9 +3,15 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/res/app_icon.dart';
+import 'package:nkust_ap/res/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppLocalizations {
+  static const SYSTEM = 'system';
+  static const ZH = 'zh';
+  static const EN = 'en';
+
   AppLocalizations(Locale locale) {
     init(locale);
   }
@@ -15,8 +21,7 @@ class AppLocalizations {
   }
 
   static Locale locale;
-  static String languageCode = 'system';
-  static String themeCode = 'light';
+  static String languageCode = AppLocalizations.SYSTEM;
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
@@ -34,7 +39,7 @@ class AppLocalizations {
   }
 
   String get themeText {
-    switch (themeCode) {
+    switch (AppTheme.code) {
       case 'light':
         return light;
       case 'dark':
@@ -44,12 +49,22 @@ class AppLocalizations {
     }
   }
 
+  String get iconText {
+    switch (AppIcon.code) {
+      case AppIcon.FILLED:
+        return filled;
+      case AppIcon.OUTLINED:
+      default:
+        return outlined;
+    }
+  }
+
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Add dark theme.\n2.Imporve some UI.\n3.Fix some error.',
+          '1.Add dark theme(switch in setting).\n2.Add new icon style(switch in setting).\n3.Imporve pick semester dialog UI.\n4.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -333,11 +348,15 @@ class AppLocalizations {
       'theme': 'Theme',
       'light': 'Light',
       'dark': 'Dark',
+      'iconStyle': 'Icon Style',
+      'filled': 'Filled',
+      'outlined': 'Outlined',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.新增深色主題\n2.優化部分介面\n3.修正部分錯誤',
+      'update_note_content':
+          '1.新增深色主題(可至設定切換)\n2.推出新風格圖案(可至設定切換)\n3.優化選擇學期列表對話框\n4.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -603,6 +622,9 @@ class AppLocalizations {
       'theme': '主題',
       'light': '淺色',
       'dark': '深色',
+      'iconStyle': '圖案風格',
+      'filled': '填充',
+      'outlined': '輪廓',
     },
   };
 
@@ -1071,6 +1093,12 @@ class AppLocalizations {
   String get dark => _vocabularies['dark'];
 
   String get light => _vocabularies['light'];
+
+  String get iconStyle => _vocabularies['iconStyle'];
+
+  String get filled => _vocabularies['filled'];
+
+  String get outlined => _vocabularies['outlined'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

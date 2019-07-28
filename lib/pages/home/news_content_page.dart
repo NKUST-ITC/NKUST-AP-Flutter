@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
@@ -99,7 +100,7 @@ class NewsContentPageState extends State<NewsContentPage>
           tag: news.hashCode,
           child: CachedNetworkImage(
             imageUrl: news.image,
-            errorWidget: (context, url, error) => Icon(Icons.error),
+            errorWidget: (context, url, error) => Icon(AppIcon.error),
           ),
         ),
       ),
@@ -124,7 +125,7 @@ class NewsContentPageState extends State<NewsContentPage>
       ),
       Hero(
         tag: Constants.TAG_NEWS_ICON,
-        child: Icon(Icons.arrow_drop_down),
+        child: Icon(AppIcon.arrowDropDown),
       ),
       Padding(
         padding: EdgeInsets.symmetric(
@@ -151,7 +152,7 @@ class NewsContentPageState extends State<NewsContentPage>
         },
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
         color: Resource.Colors.yellow,
-        child: Icon(Icons.exit_to_app, color: Colors.white),
+        child: Icon(AppIcon.exitToApp, color: Colors.white),
       )
     ];
     if (orientation == Orientation.portrait) {
