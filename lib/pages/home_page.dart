@@ -8,10 +8,10 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { loading, finish, error, empty, offline }
 
@@ -72,10 +72,12 @@ class HomePageState extends State<HomePage> {
         },
         child: Hero(
           tag: news.hashCode,
-          child: CachedNetworkImage(
-            imageUrl: news.image,
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
+          child: (Platform.isIOS || Platform.isAndroid)
+              ? CachedNetworkImage(
+                  imageUrl: news.image,
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                )
+              : Image.network(news.image),
         ),
       ),
     );
@@ -220,8 +222,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void onTabTapped(int index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
+    bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
     setState(() {
       _currentTabIndex = index;
       switch (_currentTabIndex) {
@@ -242,8 +243,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAllNews() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() {
         state = _State.offline;
       });
@@ -278,8 +278,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _setupBusNotify(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_BUS_NOTIFY) ?? false)
+    if (Preferences.getBool(Constants.PREF_BUS_NOTIFY, false) ?? false)
       Helper.instance
           .getBusReservations()
           .then((BusReservationsData response) async {
@@ -303,8 +302,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       userInfo = await CacheUtils.loadUserInfo();
       setState(() {
         state = _State.offline;
@@ -320,7 +318,7 @@ class HomePageState extends State<HomePage> {
         FA.setUserProperty('student_id', userInfo.studentId);
         FA.setUserId(userInfo.studentId);
         FA.logUserInfo(userInfo.department);
-        CacheUtils.saveUserInfo(userInfo);
+        //CacheUtils.saveUserInfo(userInfo);
       }
     }).catchError((e) {
       if (e is DioError) {

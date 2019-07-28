@@ -4,8 +4,8 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { loading, finish, loadingMore, error, empty, offline }
 
@@ -181,8 +181,7 @@ class NotificationPageState extends State<NotificationPage>
   }
 
   _getNotifications() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() {
         state = _State.offline;
       });

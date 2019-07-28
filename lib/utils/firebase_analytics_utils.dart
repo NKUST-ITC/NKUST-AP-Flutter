@@ -88,8 +88,8 @@ class FA {
 
   static Future<void> logAction(String name, String action,
       {String message = ''}) async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    if (Platform.isIOS || Platform.isAndroid)
+    if (Platform.isIOS || Platform.isAndroid) {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
       await analytics.logEvent(
         name: name ?? '',
         parameters: <String, dynamic>{
@@ -99,5 +99,6 @@ class FA {
           'platform': Platform.operatingSystem,
         },
       );
+    }
   }
 }
