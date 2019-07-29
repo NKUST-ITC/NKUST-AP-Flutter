@@ -179,9 +179,10 @@ class BusReservePageState extends State<BusReservePage>
         );
       default:
         return RefreshIndicator(
-          onRefresh: () {
-            _getBusTimeTables();
+          onRefresh: () async {
+            await _getBusTimeTables();
             FA.logAction('refresh', 'swipe');
+            return null;
           },
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
