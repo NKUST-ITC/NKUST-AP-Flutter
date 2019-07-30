@@ -23,7 +23,7 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
   String themeCode = AppTheme.LIGHT;
-  if (Platform.isIOS || Platform.isAndroid) {
+  if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
     await Preferences.init();
     AppIcon.code =
         Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);

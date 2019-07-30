@@ -1110,7 +1110,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     print('Load ${locale.languageCode}');
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       SharedPreferences preference = await SharedPreferences.getInstance();
       String languageCode =
           preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
