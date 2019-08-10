@@ -351,6 +351,16 @@ class AppLocalizations {
       'iconStyle': 'Icon Style',
       'filled': 'Filled',
       'outlined': 'Outlined',
+      'searchUsername': 'Search Student ID',
+      'search': 'Search',
+      'name': 'Name',
+      'id': 'id',
+      'searchResult': 'Result',
+      'autoFill': 'Auto Fill',
+      'firstLoginHint':
+          'For first-time login, please fill in the last four number of your ID as your password',
+      'searchStudentIdFormat': 'Name：%s\nStudent ID：%s\n',
+      'searchStudentIdError': 'Search no data.',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -625,6 +635,15 @@ class AppLocalizations {
       'iconStyle': '圖案風格',
       'filled': '填充',
       'outlined': '輪廓',
+      'searchUsername': '學號查詢',
+      'search': '查詢',
+      'name': '名字',
+      'id': '身分證字號',
+      'searchResult': '查詢結果',
+      'autoFill': '自動填入',
+      'firstLoginHint': '首次登入密碼預設為身分證末四碼',
+      'searchStudentIdFormat': '姓名：%s\n學號：%s\n',
+      'searchStudentIdError': '查無資料',
     },
   };
 
@@ -1099,6 +1118,24 @@ class AppLocalizations {
   String get filled => _vocabularies['filled'];
 
   String get outlined => _vocabularies['outlined'];
+
+  String get searchUsername => _vocabularies['searchUsername'];
+
+  String get search => _vocabularies['search'];
+
+  String get name => _vocabularies['name'];
+
+  String get id => _vocabularies['id'];
+
+  String get searchResult => _vocabularies['searchResult'];
+
+  String get autoFill => _vocabularies['autoFill'];
+
+  String get firstLoginHint => _vocabularies['firstLoginHint'];
+
+  String get searchStudentIdFormat => _vocabularies['searchStudentIdFormat'];
+
+  String get searchStudentIdError => _vocabularies['searchError'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
