@@ -9,20 +9,6 @@ import 'package:nkust_ap/utils/global.dart';
 
 enum _Status { loading, finish, error, empty }
 
-class NewsContentPageRoute extends MaterialPageRoute {
-  NewsContentPageRoute(this.news)
-      : super(builder: (BuildContext context) => new NewsContentPage(news));
-
-  final News news;
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new NewsContentPage(news));
-  }
-}
-
 class NewsContentPage extends StatefulWidget {
   static const String routerName = "/news/content";
 
@@ -31,22 +17,17 @@ class NewsContentPage extends StatefulWidget {
   NewsContentPage(this.news);
 
   @override
-  NewsContentPageState createState() => new NewsContentPageState(news);
+  NewsContentPageState createState() => NewsContentPageState();
 }
 
-class NewsContentPageState extends State<NewsContentPage>
-    with SingleTickerProviderStateMixin {
+class NewsContentPageState extends State<NewsContentPage> {
   _Status state = _Status.finish;
   AppLocalizations app;
 
-  final News news;
-
-  NewsContentPageState(this.news);
-
   @override
   void initState() {
+    FA.setCurrentScreen("NewsContentPage", "widget.s_content_page.dart");
     super.initState();
-    FA.setCurrentScreen("NewsContentPage", "news_content_page.dart");
   }
 
   @override
@@ -54,76 +35,68 @@ class NewsContentPageState extends State<NewsContentPage>
     super.dispose();
   }
 
-  Widget _homebody(Orientation orientation) {
+  @override
+  Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.news),
+        backgroundColor: Resource.Colors.blue,
+      ),
+      body: _homebody(),
+    );
+  }
+
+  Widget _homebody() {
     switch (state) {
       case _Status.loading:
         return Center(
           child: CircularProgressIndicator(),
         );
       case _Status.finish:
-        return OrientationBuilder(builder: (_, orientation) {
-          if (orientation == Orientation.portrait)
-            return Column(
+        return OrientationBuilder(
+          builder: (_, orientation) {
+            return Flex(
+              direction: orientation == Orientation.portrait
+                  ? Axis.vertical
+                  : Axis.horizontal,
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: _renderContent(orientation),
             );
-          else
-            return Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _renderContent(orientation),
-            );
-        });
+          },
+        );
       default:
         return Container();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: new AppBar(
-        title: new Text(app.news),
-        backgroundColor: Resource.Colors.blue,
-      ),
-      body: OrientationBuilder(builder: (_, orientation) {
-        return _homebody(orientation);
-      }),
-    );
-  }
-
   _renderContent(Orientation orientation) {
-    List<Widget> list = <Widget>[
-      AspectRatio(
-        aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
-        child: Hero(
-          tag: news.hashCode,
-          child: (Platform.isIOS || Platform.isAndroid)
-              ? CachedNetworkImage(
-                  imageUrl: news.image,
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                )
-              : Image.network(news.image),
-        ),
+    final Widget image = AspectRatio(
+      aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
+      child: Hero(
+        tag: widget.news.hashCode,
+        child: (Platform.isIOS || Platform.isAndroid)
+            ? CachedNetworkImage(
+                imageUrl: widget.news.image,
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              )
+            : Image.network(widget.news.image),
       ),
-      SizedBox(
-          height: orientation == Orientation.portrait ? 16.0 : 0.0,
-          width: orientation == Orientation.portrait ? 0.0 : 32.0),
-    ];
-    List<Widget> listB = <Widget>[
+    );
+    final List<Widget> newsContent = <Widget>[
       Hero(
         tag: Constants.TAG_NEWS_TITLE,
         child: Material(
           color: Colors.transparent,
           child: Text(
-            news.title,
+            widget.news.title,
             textAlign: TextAlign.center,
             style: TextStyle(
-                fontSize: 20.0,
-                color: Resource.Colors.greyText,
-                fontWeight: FontWeight.w500),
+              fontSize: 20.0,
+              color: Resource.Colors.greyText,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ),
@@ -135,36 +108,55 @@ class NewsContentPageState extends State<NewsContentPage>
         padding: EdgeInsets.symmetric(
             horizontal: orientation == Orientation.portrait ? 16.0 : 0.0),
         child: Text(
-          news.content,
+          widget.news.content,
           textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 16.0, color: Resource.Colors.greyText),
-        ),
-      ),
-      SizedBox(height: 16.0),
-      RaisedButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(30.0),
+          style: TextStyle(
+            fontSize: 16.0,
+            color: Resource.Colors.greyText,
           ),
         ),
-        onPressed: () {
-          if (news.url.isNotEmpty) Utils.launchUrl(news.url);
-          String message = news.content.length > 12
-              ? news.content
-              : news.content.substring(0, 12);
-          FA.logAction('news_link', 'click', message: message);
-        },
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
-        color: Resource.Colors.yellow,
-        child: Icon(AppIcon.exitToApp, color: Colors.white),
-      )
+      ),
+      if (widget.news.url.isNotEmpty) ...[
+        SizedBox(height: 16.0),
+        RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(
+              Radius.circular(30.0),
+            ),
+          ),
+          onPressed: () {
+            Utils.launchUrl(widget.news.url);
+            String message = widget.news.content.length > 12
+                ? widget.news.content
+                : widget.news.content.substring(0, 12);
+            FA.logAction('news_link', 'click', message: message);
+          },
+          padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),
+          color: Resource.Colors.yellow,
+          child: Icon(
+            AppIcon.exitToApp,
+            color: Colors.white,
+          ),
+        ),
+      ],
     ];
     if (orientation == Orientation.portrait) {
-      list.addAll(listB);
+      return <Widget>[
+        image,
+        SizedBox(height: 16.0),
+        ...newsContent,
+      ];
     } else {
-      list.add(
-          Column(mainAxisAlignment: MainAxisAlignment.center, children: listB));
+      return <Widget>[
+        Expanded(child: image),
+        SizedBox(width: 32.0),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: newsContent,
+          ),
+        ),
+      ];
     }
-    return list;
   }
 }

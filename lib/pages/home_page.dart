@@ -66,7 +66,10 @@ class HomePageState extends State<HomePage> {
           horizontal: MediaQuery.of(context).size.width * 0.02),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).push(NewsContentPageRoute(news));
+          Utils.pushCupertinoStyle(
+            context,
+            NewsContentPage(news),
+          );
           String message = news.content.length > 12
               ? news.content
               : news.content.substring(0, 12);

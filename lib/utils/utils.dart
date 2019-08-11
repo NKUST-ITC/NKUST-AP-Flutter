@@ -4,6 +4,7 @@ import 'package:app_review/app_review.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -517,5 +518,13 @@ class Utils {
         );
       }
     }
+  }
+
+  static pushCupertinoStyle(BuildContext context, Widget page) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(builder: (BuildContext context) {
+        return page;
+      }),
+    );
   }
 }
