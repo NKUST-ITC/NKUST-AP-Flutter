@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:encrypt/encrypt.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +16,8 @@ class Preferences {
   static SharedPreferences prefs;
 
   static init() async {
-    prefs = await SharedPreferences.getInstance();
+    if (Platform.isIOS || Platform.isAndroid)
+      prefs = await SharedPreferences.getInstance();
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {

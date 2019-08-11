@@ -13,8 +13,7 @@ class ScoreData {
     return ScoreData(
       status: json['status'],
       messages: json['messages'],
-      content:
-          json['scores'].length != 0 ? Content.fromJson(json['scores']) : null,
+      content: json['scores'] != null ? Content.fromJson(json['scores']) : null,
     );
   }
 

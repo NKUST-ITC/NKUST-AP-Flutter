@@ -928,7 +928,14 @@ class AppLocalizations {
 
   String get appVersion => _vocabularies['app_version'];
 
-  String get updateContent => _vocabularies['update_content'];
+  String get updateContent {
+    if (Platform.isAndroid)
+      return updateAndroidContent;
+    else if (Platform.isIOS)
+      return updateIOSContent;
+    else
+      return _vocabularies['update_content'];
+  }
 
   String get updateAndroidContent => _vocabularies['update_android_content'];
 
@@ -1147,7 +1154,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     print('Load ${locale.languageCode}');
-    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+    if (Platform.isAndroid || Platform.isIOS) {
       SharedPreferences preference = await SharedPreferences.getInstance();
       String languageCode =
           preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';

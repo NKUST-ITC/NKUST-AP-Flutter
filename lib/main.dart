@@ -23,15 +23,11 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
-  String themeCode = AppTheme.LIGHT;
-  if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
-    await Preferences.init();
-    AppIcon.code =
-        Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
-    themeCode =
-        Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  }
-  AppTheme.code = themeCode;
+  await Preferences.init();
+  AppIcon.code =
+      Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
+  AppTheme.code =
+      Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
   if (Platform.isIOS || Platform.isAndroid) {
     FlutterError.onError = (FlutterErrorDetails details) {
       if (isInDebugMode) {
@@ -81,8 +77,9 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
-  FirebaseMessaging _firebaseMessaging;
+  FirebaseMessaging firebaseMessaging;
   ThemeData themeData;
+  bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {
     setState(() {
@@ -95,7 +92,7 @@ class MyAppState extends State<MyApp> {
     themeData = widget.themeData;
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
-      _firebaseMessaging = FirebaseMessaging();
+      firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
       Preferences.init();
@@ -154,8 +151,8 @@ class MyAppState extends State<MyApp> {
   }
 
   void _initFCM() {
-    _firebaseMessaging.requestNotificationPermissions();
-    _firebaseMessaging.configure(
+    firebaseMessaging.requestNotificationPermissions();
+    firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onMessage: $message");
         Utils.showFCMNotification(
@@ -171,20 +168,25 @@ class MyAppState extends State<MyApp> {
         if (Constants.isInDebugMode) print("onResume: $message");
       },
     );
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-    _firebaseMessaging.onIosSettingsRegistered
+    firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(
+        sound: true,
+        badge: true,
+        alert: true,
+      ),
+    );
+    firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
-    _firebaseMessaging.getToken().then((String token) {
+    firebaseMessaging.getToken().then((String token) {
       if (token == null) return;
       if (Constants.isInDebugMode) {
         print("Push Messaging token: $token");
       }
       if (Platform.isAndroid)
-        _firebaseMessaging.subscribeToTopic("Android");
-      else if (Platform.isIOS) _firebaseMessaging.subscribeToTopic("IOS");
+        firebaseMessaging.subscribeToTopic("Android");
+      else if (Platform.isIOS) firebaseMessaging.subscribeToTopic("IOS");
     });
   }
 }

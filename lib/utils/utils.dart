@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:app_review/app_review.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -11,6 +12,8 @@ import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/utils/preferences.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
@@ -59,13 +62,13 @@ class Utils {
     );
   }
 
-  static String getPlatformUpdateContent(AppLocalizations app) {
+  static String getPlatformUpdateContent(BuildContext context) {
     if (Platform.isAndroid)
-      return app.updateAndroidContent;
+      return AppLocalizations.of(context).updateAndroidContent;
     else if (Platform.isIOS)
-      return app.updateIOSContent;
+      return AppLocalizations.of(context).updateIOSContent;
     else
-      return app.updateContent;
+      return AppLocalizations.of(context).updateContent;
   }
 
   static void showSnackBarBar(
@@ -391,6 +394,128 @@ class Utils {
       );
     } else {
       //TODO implement other platform system local notification
+    }
+  }
+
+  static checkUpdate(BuildContext context) async {
+    await Future.delayed(
+      Duration(milliseconds: 50),
+    );
+    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    final app = AppLocalizations.of(context);
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    var currentVersion =
+        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
+    if (currentVersion != packageInfo.buildNumber) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app.updateNoteTitle,
+          contentWidget: Text(
+            "v${packageInfo.version}\n"
+            "${app.updateNoteContent}",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Resource.Colors.grey),
+          ),
+          actionText: app.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop('dialog'),
+        ),
+      );
+      Preferences.setString(
+          Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
+    }
+    if (!Constants.isInDebugMode) {
+      final RemoteConfig remoteConfig = await RemoteConfig.instance;
+      try {
+        await remoteConfig.fetch(
+          expiration: const Duration(seconds: 10),
+        );
+        await remoteConfig.activateFetched();
+      } on FetchThrottledException catch (exception) {} catch (exception) {}
+      String url = "";
+      int versionDiff = 0, newVersion;
+      if (Platform.isAndroid) {
+        url = "market://details?id=${packageInfo.packageName}";
+        newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
+      } else if (Platform.isIOS) {
+        url =
+            "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
+        newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
+      } else {
+        url = "https://www.facebook.com/NKUST.ITC/";
+        newVersion = remoteConfig.getInt(Constants.APP_VERSION);
+      }
+      versionDiff = newVersion - int.parse(packageInfo.buildNumber);
+      String versionContent =
+          "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
+      switch (AppLocalizations.locale.languageCode) {
+        case 'zh':
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
+          break;
+        default:
+          versionContent +=
+              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
+          break;
+      }
+      if (versionDiff < 5 && versionDiff > 0) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => YesNoDialog(
+            title: app.updateTitle,
+            contentWidget: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                  children: [
+                    TextSpan(
+                      text: '${app.updateContent}\n'
+                          '${versionContent.replaceAll('\\n', '\n')}',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ]),
+            ),
+            leftActionText: app.skip,
+            rightActionText: app.update,
+            leftActionFunction: null,
+            rightActionFunction: () {
+              Utils.launchUrl(url);
+            },
+          ),
+        );
+      } else if (versionDiff >= 5) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) => WillPopScope(
+            child: DefaultDialog(
+                title: app.updateTitle,
+                actionText: app.update,
+                contentWidget: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                            text: '${app.updateContent}\n'
+                                '${versionContent.replaceAll('\\n', '\n')}',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ]),
+                ),
+                actionFunction: () {
+                  Utils.launchUrl(url);
+                }),
+            onWillPop: () async {
+              return false;
+            },
+          ),
+        );
+      }
     }
   }
 }

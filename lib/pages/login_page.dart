@@ -1,55 +1,49 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:encrypt/encrypt.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
-import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/yes_no_dialog.dart';
-import 'package:package_info/package_info.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
 
   @override
-  LoginPageState createState() => new LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
 class LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   AppLocalizations app;
 
-  final TextEditingController _username = new TextEditingController();
-  final TextEditingController _password = new TextEditingController();
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _password = TextEditingController();
   var isRememberPassword = true;
   var isAutoLogin = false;
 
   FocusNode usernameFocusNode;
   FocusNode passwordFocusNode;
 
-  final encrypter =
-      Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
+  TextStyle get _editTextStyle => TextStyle(
+        color: Colors.white,
+        fontSize: 18.0,
+        decorationColor: Colors.white,
+      );
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("LoginPage", "login_page.dart");
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
     _getPreference();
-    if (Platform.isAndroid || Platform.isIOS) {
-      _checkUpdate();
-    }
+    if (!Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
+      Utils.checkUpdate(context);
+    super.initState();
   }
 
   @override
@@ -57,38 +51,37 @@ class LoginPageState extends State<LoginPage>
     super.dispose();
   }
 
-  _editTextStyle() => new TextStyle(
-      color: Colors.white, fontSize: 18.0, decorationColor: Colors.white);
-
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return OrientationBuilder(builder: (_, orientation) {
-      return Scaffold(
-        resizeToAvoidBottomPadding: orientation == Orientation.portrait,
-        backgroundColor: Resource.Colors.blue,
-        body: Center(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 30.0),
-            child: orientation == Orientation.portrait
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    mainAxisSize: MainAxisSize.min,
-                    children: _renderContent(orientation),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _renderContent(orientation),
-                  ),
+    return OrientationBuilder(
+      builder: (_, orientation) {
+        return Scaffold(
+          resizeToAvoidBottomPadding: orientation == Orientation.portrait,
+          backgroundColor: Resource.Colors.blue,
+          body: Center(
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 30.0),
+              child: orientation == Orientation.portrait
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.min,
+                      children: _renderContent(orientation),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _renderContent(orientation),
+                    ),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   _renderContent(Orientation orientation) {
-    List<Widget> list = orientation == Orientation.portrait
+    List<Widget> section = orientation == Orientation.portrait
         ? <Widget>[
             Center(
               child: Image.asset(
@@ -109,7 +102,7 @@ class LoginPageState extends State<LoginPage>
             ),
             SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
           ];
-    List<Widget> listB = <Widget>[
+    List<Widget> sectionInput = <Widget>[
       TextField(
         maxLines: 1,
         controller: _username,
@@ -122,7 +115,7 @@ class LoginPageState extends State<LoginPage>
         decoration: InputDecoration(
           labelText: app.username,
         ),
-        style: _editTextStyle(),
+        style: _editTextStyle,
       ),
       TextField(
         obscureText: true,
@@ -137,7 +130,7 @@ class LoginPageState extends State<LoginPage>
         decoration: InputDecoration(
           labelText: app.password,
         ),
-        style: _editTextStyle(),
+        style: _editTextStyle,
       ),
       SizedBox(height: 8.0),
       Row(
@@ -158,7 +151,10 @@ class LoginPageState extends State<LoginPage>
                     onChanged: _onAutoLoginChanged,
                   ),
                 ),
-                Text(app.autoLogin, style: TextStyle(color: Colors.white))
+                Text(
+                  app.autoLogin,
+                  style: TextStyle(color: Colors.white),
+                )
               ],
             ),
             onTap: () => _onAutoLoginChanged(!isAutoLogin),
@@ -178,7 +174,10 @@ class LoginPageState extends State<LoginPage>
                     onChanged: _onRememberPasswordChanged,
                   ),
                 ),
-                Text(app.remember, style: TextStyle(color: Colors.white))
+                Text(
+                  app.remember,
+                  style: TextStyle(color: Colors.white),
+                )
               ],
             ),
             onTap: () => _onRememberPasswordChanged(!isRememberPassword),
@@ -217,153 +216,42 @@ class LoginPageState extends State<LoginPage>
           ),
         ),
       ),
-      Center(
-        child: FlatButton(
-          onPressed: () async {
-            var username = await Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (_) => SearchStudentIdPage(),
-              ),
-            );
-            if (username != null && username is String) {
-              setState(() {
-                _username.text = username;
-              });
-              Utils.showToast(context, app.firstLoginHint);
-            }
-          },
-          child: Text(
-            app.searchUsername,
-            style: TextStyle(color: Colors.white, fontSize: 16.0),
-          ),
-        ),
-      ),
+//      Center(
+//        child: FlatButton(
+//          onPressed: () async {
+//            var username = await Navigator.push(
+//              context,
+//              CupertinoPageRoute(
+//                builder: (_) => SearchStudentIdPage(),
+//              ),
+//            );
+//            if (username != null && username is String) {
+//              setState(() {
+//                _username.text = username;
+//              });
+//              Utils.showToast(context, app.firstLoginHint);
+//            }
+//          },
+//          child: Text(
+//            app.searchUsername,
+//            style: TextStyle(color: Colors.white, fontSize: 16.0),
+//          ),
+//        ),
+//      ),
     ];
     if (orientation == Orientation.portrait) {
-      list.addAll(listB);
+      section.addAll(sectionInput);
     } else {
-      list.add(Expanded(
+      section.add(
+        Expanded(
           child: Column(
-              mainAxisAlignment: MainAxisAlignment.center, children: listB)));
-    }
-    return list;
-  }
-
-  _checkUpdate() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    await Future.delayed(Duration(milliseconds: 50));
-    var currentVersion =
-        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
-    if (currentVersion != packageInfo.buildNumber) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: app.updateNoteTitle,
-          contentWidget: Text(
-            "v${packageInfo.version}\n"
-            "${app.updateNoteContent}",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Resource.Colors.grey),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: sectionInput,
           ),
-          actionText: app.iKnow,
-          actionFunction: () =>
-              Navigator.of(context, rootNavigator: true).pop('dialog'),
         ),
       );
-      Preferences.setString(
-          Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
-    if (!Constants.isInDebugMode) {
-      final RemoteConfig remoteConfig = await RemoteConfig.instance;
-      try {
-        await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-        await remoteConfig.activateFetched();
-      } on FetchThrottledException catch (exception) {} catch (exception) {}
-      String url = "";
-      int versionDiff = 0, newVersion;
-      if (Platform.isAndroid) {
-        url = "market://details?id=${packageInfo.packageName}";
-        newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
-      } else if (Platform.isIOS) {
-        url =
-            "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
-        newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
-      } else {
-        url = "https://www.facebook.com/NKUST.ITC/";
-        newVersion = remoteConfig.getInt(Constants.APP_VERSION);
-      }
-      versionDiff = newVersion - int.parse(packageInfo.buildNumber);
-      String versionContent =
-          "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
-      switch (AppLocalizations.locale.languageCode) {
-        case 'zh':
-          versionContent +=
-              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
-          break;
-        default:
-          versionContent +=
-              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
-          break;
-      }
-      if (versionDiff < 5 && versionDiff > 0) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => YesNoDialog(
-            title: app.updateTitle,
-            contentWidget: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
-                  children: [
-                    TextSpan(
-                      text:
-                          '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ]),
-            ),
-            leftActionText: app.skip,
-            rightActionText: app.update,
-            leftActionFunction: null,
-            rightActionFunction: () {
-              Utils.launchUrl(url);
-            },
-          ),
-        );
-      } else if (versionDiff >= 5) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) => WillPopScope(
-            child: DefaultDialog(
-                title: app.updateTitle,
-                actionText: app.update,
-                contentWidget: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                      style: TextStyle(
-                          color: Resource.Colors.grey,
-                          height: 1.3,
-                          fontSize: 16.0),
-                      children: [
-                        TextSpan(
-                            text:
-                                '${Utils.getPlatformUpdateContent(app)}\n${versionContent.replaceAll('\\n', '\n')}',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ]),
-                ),
-                actionFunction: () {
-                  Utils.launchUrl(url);
-                }),
-            onWillPop: () async {
-              return false;
-            },
-          ),
-        );
-      }
-    }
+    return section;
   }
 
   _onRememberPasswordChanged(bool value) async {
@@ -388,14 +276,11 @@ class LoginPageState extends State<LoginPage>
     isRememberPassword =
         Preferences.getBool(Constants.PREF_REMEMBER_PASSWORD, true);
     isAutoLogin = Preferences.getBool(Constants.PREF_AUTO_LOGIN, false);
-    var username = Preferences.getString(Constants.PREF_USERNAME, '');
-    var password = '';
-    if (isRememberPassword) {
-      password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    }
     setState(() {
-      _username.text = username;
-      _password.text = password;
+      _username.text = Preferences.getString(Constants.PREF_USERNAME, '');
+      _password.text = isRememberPassword
+          ? Preferences.getStringSecurity(Constants.PREF_PASSWORD, '')
+          : '';
     });
     await Future.delayed(Duration(microseconds: 50));
     if (isAutoLogin) {
@@ -408,37 +293,37 @@ class LoginPageState extends State<LoginPage>
       Utils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
-          context: context,
-          builder: (BuildContext context) => WillPopScope(
-              child: ProgressDialog(app.logining),
-              onWillPop: () async {
-                return false;
-              }),
-          barrierDismissible: false);
+        context: context,
+        builder: (BuildContext context) => WillPopScope(
+            child: ProgressDialog(app.logining),
+            onWillPop: () async {
+              return false;
+            }),
+        barrierDismissible: false,
+      );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance
           .login(_username.text, _password.text)
           .then((LoginResponse response) async {
-        if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-
-        if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-          if (response.isLogin != null) {
-            Preferences.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
-            Preferences.setBool(
-                Constants.PREF_BUS_ENABLE, response.isLogin.bus);
-            Preferences.setBool(
-                Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
-          }
-          Preferences.setString(Constants.PREF_USERNAME, _username.text);
-          if (isRememberPassword) {
-            Preferences.setStringSecurity(
-                Constants.PREF_PASSWORD, _password.text);
-          }
-          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+        if (Navigator.canPop(context))
+          Navigator.of(context, rootNavigator: true).pop();
+        if (response.isLogin != null) {
+          Preferences.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
+          Preferences.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
+          Preferences.setBool(
+              Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
         }
+        Preferences.setString(Constants.PREF_USERNAME, _username.text);
+        if (isRememberPassword) {
+          Preferences.setStringSecurity(
+              Constants.PREF_PASSWORD, _password.text);
+        }
+        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+        ShareDataWidget.of(context).data.isLogin = true;
         _navigateToFilterObject(context);
       }).catchError((e) {
-        if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        if (Navigator.canPop(context))
+          Navigator.of(context, rootNavigator: true).pop();
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
@@ -478,14 +363,17 @@ class LoginPageState extends State<LoginPage>
 
   _navigateToFilterObject(BuildContext context) async {
     final result = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomePage()));
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomePage(),
+      ),
+    );
     print(result);
     clearSetting();
   }
 
   void clearSetting() async {
-    var prefs = await SharedPreferences.getInstance();
-    prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
+    Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
     setState(() {
       isAutoLogin = false;
       pictureBytes = null;

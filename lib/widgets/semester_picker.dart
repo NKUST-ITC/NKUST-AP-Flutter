@@ -65,9 +65,11 @@ class SemesterPickerState extends State<SemesterPicker> {
     this.semesterData = await CacheUtils.loadSemesterData();
     if (this.semesterData == null) return;
     widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
-    setState(() {
-      selectSemester = semesterData.defaultSemester;
-    });
+    if (mounted) {
+      setState(() {
+        selectSemester = semesterData.defaultSemester;
+      });
+    }
   }
 
   void _getSemester() async {

@@ -44,10 +44,12 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("HomePage", "home_page.dart");
     _getAllNews();
     _getUserInfo();
+    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
+      Utils.checkUpdate(context);
+    super.initState();
   }
 
   @override

@@ -306,8 +306,10 @@ class ScorePageState extends State<ScorePage> {
           state = _State.offlineEmpty;
         else if (scoreData.status == 204)
           state = _State.empty;
-        else {
+        else if (scoreData.status == 200) {
           state = _State.finish;
+        } else {
+          state = _State.error;
         }
       });
     }
