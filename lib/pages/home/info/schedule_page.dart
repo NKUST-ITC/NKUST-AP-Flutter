@@ -15,17 +15,6 @@ import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty }
 
-class SchedulePageRoute extends MaterialPageRoute {
-  SchedulePageRoute()
-      : super(builder: (BuildContext context) => new SchedulePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new SchedulePage());
-  }
-}
-
 class SchedulePage extends StatefulWidget {
   static const String routerName = "/info/schedule";
 
@@ -38,7 +27,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   bool get wantKeepAlive => true;
 
-  List<Widget> scheduleWeights = [];
+  AppLocalizations app;
 
   List<ScheduleData> scheduleDataList = [];
 
@@ -46,13 +35,21 @@ class SchedulePageState extends State<SchedulePage>
 
   int page = 1;
 
-  AppLocalizations app;
+  TextStyle get _textBlueStyle => TextStyle(
+        color: Resource.Colors.blueText,
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+      );
+
+  TextStyle get _textStyle => TextStyle(
+        fontSize: 16.0,
+      );
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("SchedulePage", "schedule_page.dart");
     _getSchedules();
+    super.initState();
   }
 
   @override
@@ -62,6 +59,7 @@ class SchedulePageState extends State<SchedulePage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return _body();
   }
@@ -82,7 +80,9 @@ class SchedulePageState extends State<SchedulePage>
         );
       default:
         return CustomScrollView(
-          slivers: scheduleWeights,
+          slivers: [
+            for (var value in scheduleDataList) ..._scheduleItem(value),
+          ],
         );
     }
   }
@@ -119,8 +119,6 @@ class SchedulePageState extends State<SchedulePage>
     } else {
       var jsonArray = jsonDecode(data);
       scheduleDataList = ScheduleData.toList(jsonArray);
-      scheduleWeights.clear();
-      for (var i in scheduleDataList) scheduleWeights.addAll(_scheduleItem(i));
       if (mounted) {
         setState(() {
           if (scheduleDataList.length == 0)
@@ -133,17 +131,6 @@ class SchedulePageState extends State<SchedulePage>
     }
   }
 
-  _textBlueStyle() {
-    return TextStyle(
-        color: Resource.Colors.blueText,
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold);
-  }
-
-  _textStyle() {
-    return TextStyle(fontSize: 16.0);
-  }
-
   List<Widget> _scheduleItem(ScheduleData schedule) {
     List<Widget> events = [];
     for (var i in schedule.events) {
@@ -153,7 +140,7 @@ class SchedulePageState extends State<SchedulePage>
           padding: EdgeInsets.symmetric(horizontal: 12.0),
           child: Text(
             i,
-            style: _textStyle(),
+            style: _textStyle,
             textAlign: TextAlign.left,
           ),
         ),
@@ -173,7 +160,7 @@ class SchedulePageState extends State<SchedulePage>
             padding: EdgeInsets.symmetric(horizontal: 12.0),
             child: Text(
               schedule.week ?? "",
-              style: _textBlueStyle(),
+              style: _textBlueStyle,
               textAlign: TextAlign.left,
             ),
           ),
@@ -224,7 +211,7 @@ class SchedulePageState extends State<SchedulePage>
                 alignment: Alignment.centerLeft,
                 child: Text(
                   schedule.events[index],
-                  style: _textStyle(),
+                  style: _textStyle,
                   textAlign: TextAlign.left,
                 ),
               ),

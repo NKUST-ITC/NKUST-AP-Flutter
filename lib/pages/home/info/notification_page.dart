@@ -9,17 +9,6 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, loadingMore, error, empty, offline }
 
-class NotificationPageRoute extends MaterialPageRoute {
-  NotificationPageRoute()
-      : super(builder: (BuildContext context) => NotificationPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: NotificationPage());
-  }
-}
-
 class NotificationPage extends StatefulWidget {
   static const String routerName = "/info/notification";
 
@@ -32,34 +21,37 @@ class NotificationPageState extends State<NotificationPage>
   @override
   bool get wantKeepAlive => true;
 
-  ScrollController controller;
-  List<NotificationModel> notificationList = [];
-  int page = 1;
-
   _State state = _State.loading;
 
   AppLocalizations app;
 
+  ScrollController controller;
+  List<NotificationModel> notificationList = [];
+
+  int page = 1;
+
+  TextStyle get _textStyle => TextStyle(
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+      );
+
+  TextStyle get _textGreyStyle => TextStyle(
+        color: Resource.Colors.grey,
+        fontSize: 14.0,
+      );
+
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("NotificationPage", "notification_page.dart");
     controller = ScrollController()..addListener(_scrollListener);
     _getNotifications();
+    super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
     controller.removeListener(_scrollListener);
-  }
-
-  _textGreyStyle() {
-    return TextStyle(color: Resource.Colors.grey, fontSize: 14.0);
-  }
-
-  _textStyle() {
-    return TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
   }
 
   Widget _notificationItem(NotificationModel notification) {
@@ -88,8 +80,8 @@ class NotificationPageState extends State<NotificationPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Text(
-                notification.info.title ?? "",
-                style: _textStyle(),
+                notification.info.title ?? '',
+                style: _textStyle,
                 textAlign: TextAlign.left,
               ),
               SizedBox(height: 8.0),
@@ -97,15 +89,15 @@ class NotificationPageState extends State<NotificationPage>
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      notification.info.department ?? "",
-                      style: _textGreyStyle(),
+                      notification.info.department ?? '',
+                      style: _textGreyStyle,
                       textAlign: TextAlign.left,
                     ),
                   ),
                   Expanded(
                     child: Text(
-                      notification.info.date ?? "",
-                      style: _textGreyStyle(),
+                      notification.info.date ?? '',
+                      style: _textGreyStyle,
                       textAlign: TextAlign.right,
                     ),
                   ),
@@ -120,6 +112,7 @@ class NotificationPageState extends State<NotificationPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return _body();
   }
@@ -149,13 +142,14 @@ class NotificationPageState extends State<NotificationPage>
         );
       default:
         return RefreshIndicator(
-          onRefresh: () {
+          onRefresh: () async {
             setState(() {
               state = _State.loading;
             });
             notificationList.clear();
-            _getNotifications();
+            await _getNotifications();
             FA.logAction('refresh', 'swipe');
+            return null;
           },
           child: ListView.builder(
             controller: controller,
