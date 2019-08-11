@@ -43,7 +43,6 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
 
-  int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
 
   List<News> newsList = [];
@@ -97,7 +96,6 @@ class HomePageState extends State<HomePage> {
             selectedFontSize: 12.0,
             unselectedFontSize: 12.0,
             selectedIconTheme: IconThemeData(size: 24.0),
-            currentIndex: _currentTabIndex,
             onTap: onTabTapped,
             items: [
               BottomNavigationBarItem(
@@ -237,7 +235,7 @@ class HomePageState extends State<HomePage> {
 
   void onTabTapped(int index) async {
     bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
-    switch (_currentTabIndex) {
+    switch (index) {
       case 0:
         if (bus)
           Utils.pushCupertinoStyle(context, BusPage());
