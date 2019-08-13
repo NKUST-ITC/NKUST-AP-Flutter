@@ -9,17 +9,6 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 enum _State { loading, finish, error, empty }
 enum Leave { normal, sick, official, funeral, maternity }
 
-class LeaveApplyPageRoute extends MaterialPageRoute {
-  LeaveApplyPageRoute()
-      : super(builder: (BuildContext context) => new LeaveApplyPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new LeaveApplyPage());
-  }
-}
-
 class LeaveApplyPage extends StatefulWidget {
   static const String routerName = "/leave/apply";
 

@@ -6,17 +6,6 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class AboutUsPageRoute extends MaterialPageRoute {
-  AboutUsPageRoute()
-      : super(builder: (BuildContext context) => new AboutUsPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new AboutUsPage());
-  }
-}
-
 class AboutUsPage extends StatefulWidget {
   static const String routerName = "/aboutUs";
 

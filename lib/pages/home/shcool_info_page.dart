@@ -3,17 +3,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class SchoolInfoPageRoute extends MaterialPageRoute {
-  SchoolInfoPageRoute()
-      : super(builder: (BuildContext context) => SchoolInfoPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: SchoolInfoPage());
-  }
-}
-
 class SchoolInfoPage extends StatefulWidget {
   static const String routerName = "/ShcoolInfo";
 

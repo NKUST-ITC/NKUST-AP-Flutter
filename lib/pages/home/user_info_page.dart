@@ -10,22 +10,6 @@ import 'package:nkust_ap/widgets/drawer_body.dart';
 
 enum _Status { loading, finish, error, empty }
 
-class UserInfoPageRoute extends MaterialPageRoute {
-  final UserInfo userInfo;
-
-  UserInfoPageRoute(this.userInfo)
-      : super(
-            builder: (BuildContext context) =>
-                new UserInfoPage(userInfo: userInfo));
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new UserInfoPage(userInfo: userInfo));
-  }
-}
-
 class UserInfoPage extends StatefulWidget {
   static const String routerName = "/widget.userInfo";
   final UserInfo userInfo;

@@ -15,17 +15,6 @@ import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 enum _State { loading, finish, error, empty, offline }
 enum Station { janGong, yanchao }
 
-class BusReservePageRoute extends MaterialPageRoute {
-  BusReservePageRoute()
-      : super(builder: (BuildContext context) => BusReservePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: BusReservePage());
-  }
-}
-
 class BusReservePage extends StatefulWidget {
   static const String routerName = "/bus/reserve";
 

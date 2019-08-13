@@ -18,22 +18,6 @@ import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
-class SettingPageRoute extends MaterialPageRoute {
-  SettingPageRoute()
-      : super(
-          builder: (BuildContext context) => SettingPage(),
-        );
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(
-      opacity: animation,
-      child: SettingPage(),
-    );
-  }
-}
-
 class SettingPage extends StatefulWidget {
   static const String routerName = "/setting";
 

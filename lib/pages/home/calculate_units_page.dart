@@ -9,18 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { ready, loading, finish, error, empty, offline }
 
-class CalculateUnitsPageRoute extends MaterialPageRoute {
-  CalculateUnitsPageRoute()
-      : super(builder: (BuildContext context) => new CalculateUnitsPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new CalculateUnitsPage());
-  }
-}
-
 class CalculateUnitsPage extends StatefulWidget {
   static const String routerName = "/calculateUnits";
 

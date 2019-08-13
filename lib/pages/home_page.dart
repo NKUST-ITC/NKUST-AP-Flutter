@@ -15,22 +15,6 @@ import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
 enum _State { loading, finish, error, empty, offline }
 
-class HomePageRoute extends MaterialPageRoute {
-  HomePageRoute()
-      : super(
-          builder: (BuildContext context) => HomePage(),
-        );
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(
-      opacity: animation,
-      child: HomePage(),
-    );
-  }
-}
-
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
 

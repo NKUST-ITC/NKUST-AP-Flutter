@@ -3,17 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class BusRulePageRoute extends MaterialPageRoute {
-  BusRulePageRoute()
-      : super(builder: (BuildContext context) => new BusRulePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new BusRulePage());
-  }
-}
-
 class BusRulePage extends StatefulWidget {
   static const String routerName = "/bus/rule";
 

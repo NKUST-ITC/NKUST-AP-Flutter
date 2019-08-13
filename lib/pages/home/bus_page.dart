@@ -4,22 +4,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class BusPageRoute extends MaterialPageRoute {
-  BusPageRoute({this.initIndex = 0})
-      : super(
-            builder: (BuildContext context) =>
-                new BusPage(initIndex: initIndex));
-
-  final int initIndex;
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new BusPage(initIndex: initIndex));
-  }
-}
-
 class BusPage extends StatefulWidget {
   static const String routerName = "/bus";
   final List<Widget> _children = [

@@ -5,22 +5,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class LeavePageRoute extends MaterialPageRoute {
-  LeavePageRoute({this.initIndex = 0})
-      : super(
-            builder: (BuildContext context) =>
-                new LeavePage(initIndex: initIndex));
-
-  final int initIndex;
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new LeavePage(initIndex: initIndex));
-  }
-}
-
 class LeavePage extends StatefulWidget {
   static const String routerName = "/leave";
   final List<Widget> _children = [
