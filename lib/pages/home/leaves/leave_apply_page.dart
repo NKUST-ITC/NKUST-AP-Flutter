@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -21,19 +20,17 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   bool get wantKeepAlive => true;
 
-  _State state = _State.empty;
-  BusReservationsData busReservationsData;
-  List<Widget> busReservationWeights = [];
-  DateTime dateTime = DateTime.now();
-
   AppLocalizations app;
 
+  _State state = _State.empty;
+
+  DateTime dateTime = DateTime.now();
   Leave _leave = Leave.normal;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("LeaveApplyPage", "leave_apply_page.dart");
+    super.initState();
   }
 
   @override
