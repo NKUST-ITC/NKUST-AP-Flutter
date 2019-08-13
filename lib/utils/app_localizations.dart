@@ -64,7 +64,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Add dark theme(switch in setting).\n2.Add new icon style(switch in setting).\n3.Imporve pick semester dialog UI.\n4.Fix some error.',
+          '1.Add search student id page.\n2.Page can swipe to back(Android).\n3.Add other section picture\n4.Fix some error.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -366,7 +366,7 @@ class AppLocalizations {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
       'update_note_content':
-          '1.新增深色主題(可至設定切換)\n2.推出新風格圖案(可至設定切換)\n3.優化選擇學期列表對話框\n4.修正部分錯誤',
+          '1.新增查詢學號頁面\n2.可滑動返回上一頁(Android)\n3.新增其他校區照片\n4.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
