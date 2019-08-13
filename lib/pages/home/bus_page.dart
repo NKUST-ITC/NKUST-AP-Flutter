@@ -15,25 +15,21 @@ class BusPage extends StatefulWidget {
   BusPage({this.initIndex = 0});
 
   @override
-  BusPageState createState() => new BusPageState(_children, initIndex);
+  BusPageState createState() => new BusPageState();
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  final List<Widget> _children;
-  final int initIndex;
-  int _currentIndex = 0;
   AppLocalizations app;
 
   TabController controller;
 
-  BusPageState(this._children, this.initIndex) {
-    _currentIndex = initIndex;
-  }
+  int _currentIndex = 0;
 
   @override
   void initState() {
+    controller =
+        TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
     super.initState();
-    controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
   }
 
   @override
@@ -61,7 +57,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         ],
       ),
       body: TabBarView(
-          children: _children,
+          children: widget._children,
           controller: controller,
           physics: NeverScrollableScrollPhysics()),
       bottomNavigationBar: BottomNavigationBar(

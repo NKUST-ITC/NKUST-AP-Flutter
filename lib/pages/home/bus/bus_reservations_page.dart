@@ -35,9 +35,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("BusReservationsPage", "bus_reservations_page.dart");
     _getBusReservations();
+    super.initState();
   }
 
   @override
@@ -47,6 +47,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return Column(
       children: <Widget>[

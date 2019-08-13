@@ -12,14 +12,13 @@ class BusRulePage extends StatefulWidget {
   BusRulePageState createState() => new BusRulePageState();
 }
 
-class BusRulePageState extends State<BusRulePage>
-    with SingleTickerProviderStateMixin {
+class BusRulePageState extends State<BusRulePage> {
   AppLocalizations app;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("BusRulePage", "bus_rule_page.dart");
+    super.initState();
   }
 
   @override

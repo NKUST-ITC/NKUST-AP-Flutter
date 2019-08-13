@@ -27,21 +27,22 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  double top = 0.0;
+  AppLocalizations app;
 
   _State state = _State.loading;
-  BusData busData;
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations app;
+  BusData busData;
+
+  double top = 0.0;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
     _getBusTimeTables();
+    super.initState();
   }
 
   @override
@@ -51,6 +52,7 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return Scaffold(
       body: OrientationBuilder(builder: (_, orientation) {
