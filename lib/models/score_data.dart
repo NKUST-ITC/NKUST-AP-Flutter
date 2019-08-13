@@ -36,7 +36,7 @@ class Content {
   static Content fromJson(Map<String, dynamic> json) {
     return Content(
       scores: Score.toList(json['scores']),
-      detail: Detail.fromJson(json['detail']),
+      detail: json['detail'] == null ? null : Detail.fromJson(json['detail']),
     );
   }
 

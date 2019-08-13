@@ -29,31 +29,39 @@ void main() async {
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
   if (Platform.isIOS || Platform.isAndroid) {
-    FlutterError.onError = (FlutterErrorDetails details) {
-      if (isInDebugMode) {
-        // In development mode simply print to console.
-        FlutterError.dumpErrorToConsole(details);
-      } else {
-        // In production mode report to the application zone to report to
-        // Crashlytics.
-        Zone.current.handleUncaughtError(details.exception, details.stack);
-      }
-    };
+    if (!Constants.isInDebugMode) {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        if (isInDebugMode) {
+          // In development mode simply print to console.
+          FlutterError.dumpErrorToConsole(details);
+        } else {
+          // In production mode report to the application zone to report to
+          // Crashlytics.
+          Zone.current.handleUncaughtError(details.exception, details.stack);
+        }
+      };
 
-    await FlutterCrashlytics().initialize();
+      await FlutterCrashlytics().initialize();
 
-    runZoned<Future<Null>>(() async {
+      runZoned<Future<Null>>(() async {
+        runApp(
+          MyApp(
+            themeData: AppTheme.data,
+          ),
+        );
+      }, onError: (error, stackTrace) async {
+        // Whenever an error occurs, call the `reportCrash` function. This will send
+        // Dart errors to our dev console or Crashlytics depending on the environment.
+        await FlutterCrashlytics()
+            .reportCrash(error, stackTrace, forceCrash: false);
+      });
+    } else {
       runApp(
         MyApp(
           themeData: AppTheme.data,
         ),
       );
-    }, onError: (error, stackTrace) async {
-      // Whenever an error occurs, call the `reportCrash` function. This will send
-      // Dart errors to our dev console or Crashlytics depending on the environment.
-      await FlutterCrashlytics()
-          .reportCrash(error, stackTrace, forceCrash: false);
-    });
+    }
   } else {
     // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
