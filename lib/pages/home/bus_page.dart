@@ -72,7 +72,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 color: Colors.white,
               ),
               onPressed: () {
-                Navigator.of(context).push(BusRulePageRoute());
+                Utils.pushCupertinoStyle(context, BusRulePage());
               })
         ],
       ),

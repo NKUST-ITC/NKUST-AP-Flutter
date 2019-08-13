@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/api/login_response.dart';
+import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -65,7 +66,7 @@ class LoginPageState extends State<LoginPage>
               child: orientation == Orientation.portrait
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: _renderContent(orientation),
                     )
@@ -207,6 +208,7 @@ class LoginPageState extends State<LoginPage>
       ),
       Center(
         child: FlatButton(
+          padding: EdgeInsets.all(0.0),
           onPressed: () {
             _offlineLogin();
           },
@@ -216,28 +218,29 @@ class LoginPageState extends State<LoginPage>
           ),
         ),
       ),
-//      Center(
-//        child: FlatButton(
-//          onPressed: () async {
-//            var username = await Navigator.push(
-//              context,
-//              CupertinoPageRoute(
-//                builder: (_) => SearchStudentIdPage(),
-//              ),
-//            );
-//            if (username != null && username is String) {
-//              setState(() {
-//                _username.text = username;
-//              });
-//              Utils.showToast(context, app.firstLoginHint);
-//            }
-//          },
-//          child: Text(
-//            app.searchUsername,
-//            style: TextStyle(color: Colors.white, fontSize: 16.0),
-//          ),
-//        ),
-//      ),
+      Center(
+        child: FlatButton(
+          padding: EdgeInsets.all(0.0),
+          onPressed: () async {
+            var username = await Navigator.push(
+              context,
+              CupertinoPageRoute(
+                builder: (_) => SearchStudentIdPage(),
+              ),
+            );
+            if (username != null && username is String) {
+              setState(() {
+                _username.text = username;
+              });
+              Utils.showToast(context, app.firstLoginHint);
+            }
+          },
+          child: Text(
+            app.searchUsername,
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
+          ),
+        ),
+      ),
     ];
     if (orientation == Orientation.portrait) {
       section.addAll(sectionInput);

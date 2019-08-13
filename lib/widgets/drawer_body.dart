@@ -64,8 +64,10 @@ class DrawerBodyState extends State<DrawerBody> {
                         ? 200
                         : widget.userInfo.status) ==
                     200)
-                  Navigator.of(context)
-                      .push(UserInfoPageRoute(widget.userInfo));
+                  Utils.pushCupertinoStyle(
+                    context,
+                    UserInfoPage(userInfo: widget.userInfo),
+                  );
                 else
                   Utils.showToast(context, widget.userInfo.message);
               },
@@ -150,17 +152,17 @@ class DrawerBodyState extends State<DrawerBody> {
                 _subItem(
                   icon: AppIcon.classIcon,
                   title: app.course,
-                  route: CoursePageRoute(),
+                  page: CoursePage(),
                 ),
                 _subItem(
                   icon: AppIcon.assignment,
                   title: app.score,
-                  route: ScorePageRoute(),
+                  page: ScorePage(),
                 ),
                 _subItem(
                   icon: AppIcon.apps,
                   title: app.calculateUnits,
-                  route: CalculateUnitsPageRoute(),
+                  page: CalculateUnitsPage(),
                 ),
               ],
             ),
@@ -181,12 +183,12 @@ class DrawerBodyState extends State<DrawerBody> {
                 _subItem(
                   icon: AppIcon.edit,
                   title: app.leaveApply,
-                  route: LeavePageRoute(initIndex: 0),
+                  page: LeavePage(initIndex: 0),
                 ),
                 _subItem(
                   icon: AppIcon.assignment,
                   title: app.leaveRecords,
-                  route: LeavePageRoute(initIndex: 1),
+                  page: LeavePage(initIndex: 1),
                 ),
               ],
             ),
@@ -207,29 +209,29 @@ class DrawerBodyState extends State<DrawerBody> {
                 _subItem(
                   icon: AppIcon.dateRange,
                   title: app.busReserve,
-                  route: BusPageRoute(initIndex: 0),
+                  page: BusPage(initIndex: 0),
                 ),
                 _subItem(
                   icon: AppIcon.assignment,
                   title: app.busReservations,
-                  route: BusPageRoute(initIndex: 1),
+                  page: BusPage(initIndex: 1),
                 ),
               ],
             ),
             _item(
               icon: AppIcon.info,
               title: app.schoolInfo,
-              route: SchoolInfoPageRoute(),
+              page: SchoolInfoPage(),
             ),
             _item(
               icon: AppIcon.face,
               title: app.about,
-              route: AboutUsPageRoute(),
+              page: AboutUsPage(),
             ),
             _item(
               icon: AppIcon.settings,
               title: app.settings,
-              route: SettingPageRoute(),
+              page: SettingPage(),
             ),
             ListTile(
               leading: Icon(
@@ -251,21 +253,21 @@ class DrawerBodyState extends State<DrawerBody> {
   _item({
     @required IconData icon,
     @required String title,
-    @required MaterialPageRoute route,
+    @required Widget page,
   }) =>
       ListTile(
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle),
         onTap: () {
           Navigator.pop(context);
-          Navigator.push(context, route);
+          Utils.pushCupertinoStyle(context, page);
         },
       );
 
   _subItem({
     @required IconData icon,
     @required String title,
-    @required MaterialPageRoute route,
+    @required Widget page,
   }) =>
       ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 72.0),
@@ -273,13 +275,13 @@ class DrawerBodyState extends State<DrawerBody> {
         title: Text(title, style: _defaultStyle),
         onTap: () async {
           if (Platform.isAndroid || Platform.isIOS) {
-            if (route is BusPageRoute) {
+            if (page is BusPage) {
               bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
               if (!bus) {
                 Utils.showToast(context, app.canNotUseFeature);
                 return;
               }
-            } else if (route is LeavePageRoute) {
+            } else if (page is LeavePage) {
               bool leave = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
               if (!leave) {
                 Utils.showToast(context, app.canNotUseFeature);
@@ -288,7 +290,7 @@ class DrawerBodyState extends State<DrawerBody> {
             }
           }
           Navigator.of(context).pop();
-          Navigator.of(context).push(route);
+          Utils.pushCupertinoStyle(context, page);
         },
       );
 
