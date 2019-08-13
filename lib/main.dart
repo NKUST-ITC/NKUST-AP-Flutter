@@ -21,6 +21,8 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'models/user_info.dart';
+
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
@@ -87,6 +89,7 @@ class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging firebaseMessaging;
   ThemeData themeData;
+  UserInfo userInfo;
   bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {

@@ -11,6 +11,7 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
 enum _State { loading, finish, error, empty, offline }
@@ -308,6 +309,7 @@ class HomePageState extends State<HomePage> {
           FA.setUserProperty('student_id', userInfo.studentId);
           FA.setUserId(userInfo.studentId);
           FA.logUserInfo(userInfo.department);
+          ShareDataWidget.of(context).data.userInfo = userInfo;
           CacheUtils.saveUserInfo(userInfo);
         }
       }).catchError((e) {

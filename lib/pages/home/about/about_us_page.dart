@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class AboutUsPage extends StatefulWidget {
   static const String routerName = "/aboutUs";
@@ -25,6 +27,26 @@ class AboutUsPageState extends State<AboutUsPage> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  String get sectionImage {
+    final department = ShareDataWidget.of(context).data.userInfo.department;
+    Random random = Random();
+    bool halfSnapFingerChance = random.nextInt(2000) % 2 == 0;
+    if (department.contains('建工') || department.contains('燕巢'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionJiangong
+          : ImageAssets.sectionYanchao;
+    else if (department.contains('第一'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionFirst1
+          : ImageAssets.sectionFirst2;
+    else if (department.contains('旗津') || department.contains('楠梓'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionQijin
+          : ImageAssets.sectionNanzi;
+    else
+      return ImageAssets.kuasap2;
   }
 
   @override
@@ -52,7 +74,7 @@ class AboutUsPageState extends State<AboutUsPage> {
               backgroundColor: Resource.Colors.blue,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.asset(
-                  ImageAssets.kuasap2,
+                  sectionImage,
                   fit: BoxFit.cover,
                 ),
               ),

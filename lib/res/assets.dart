@@ -20,6 +20,13 @@ class ImageAssets {
   static const String dashLineLight = '$basePath/dash_line.webp';
   static const String dashLineDarkTheme = '$basePath/dash_line_dark_theme.webp';
 
+  static String sectionJiangong = '$basePath/section_jiangong.webp';
+  static String sectionYanchao = '$basePath/section_yanchao.webp';
+  static String sectionFirst1 = '$basePath/section_first1.webp';
+  static String sectionFirst2 = '$basePath/section_first2.webp';
+  static String sectionNanzi = '$basePath/section_nanzi.webp';
+  static String sectionQijin = '$basePath/section_qijin.webp';
+
   static String get dashLine {
     switch (AppTheme.code) {
       case AppTheme.DARK:
