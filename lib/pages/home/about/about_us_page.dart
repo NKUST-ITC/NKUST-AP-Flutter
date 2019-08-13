@@ -10,17 +10,16 @@ class AboutUsPage extends StatefulWidget {
   static const String routerName = "/aboutUs";
 
   @override
-  AboutUsPageState createState() => new AboutUsPageState();
+  AboutUsPageState createState() => AboutUsPageState();
 }
 
-class AboutUsPageState extends State<AboutUsPage>
-    with SingleTickerProviderStateMixin {
+class AboutUsPageState extends State<AboutUsPage> {
   AppLocalizations app;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("AboutUsPage", "about_us_page.dart");
+    super.initState();
   }
 
   @override
@@ -32,7 +31,7 @@ class AboutUsPageState extends State<AboutUsPage>
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     var expandedHeight = MediaQuery.of(context).size.height * 0.25;
-    return new Scaffold(
+    return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -40,7 +39,7 @@ class AboutUsPageState extends State<AboutUsPage>
               expandedHeight: expandedHeight,
               floating: false,
               pinned: true,
-              title: new Text(app.about),
+              title: Text(app.about),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(AppIcon.codeIcon),
