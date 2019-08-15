@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:html/parser.dart';
+import 'package:http/http.dart' as http;
 import 'package:nkust_ap/models/user_info.dart';
 
 class NKUSTHelper {
@@ -16,18 +15,21 @@ class NKUSTHelper {
   }
 
   Future<UserInfo> getUsername(String rocId) async {
-    final client = HttpClient();
-    List<int> bodyBytes = utf8.encode("uid=$rocId"); // utf8 encode
-    final request = await client.postUrl(
-      Uri.parse('https://webap.nkust.edu.tw/nkust/system/getuid_1.jsp'),
+    var response = await http.get(
+      Uri(
+        scheme: 'https',
+        host: 'webap.nkust.edu.tw',
+        path: '/nkust/system/getuid_1.jsp',
+        queryParameters: {
+          'uid': rocId,
+          'kind': '2',
+        },
+      ),
+      headers: {
+        'Connection': 'close',
+      },
     );
-    request.headers.add('Connection', 'keep-alive');
-    request.headers.add('Content-Length', "uid=$rocId".length.toString());
-    request.headers.add('Content-Type', 'application/x-www-form-urlencoded');
-    request.add(bodyBytes);
-    final response = await request.close();
-    var text = await utf8.decoder.bind(response).first;
-    var document = parse(text);
+    var document = parse(response.body);
     var elements = document.getElementsByTagName('b');
     if (elements.length >= 4)
       return UserInfo(
