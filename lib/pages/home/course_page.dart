@@ -12,16 +12,6 @@ import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
 
-class CoursePageRoute extends MaterialPageRoute {
-  CoursePageRoute() : super(builder: (BuildContext context) => CoursePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: CoursePage());
-  }
-}
-
 class CoursePage extends StatefulWidget {
   static const String routerName = '/course';
 

@@ -7,16 +7,6 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error }
 
-class PhonePageRoute extends MaterialPageRoute {
-  PhonePageRoute() : super(builder: (BuildContext context) => PhonePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: PhonePage());
-  }
-}
-
 class PhonePage extends StatefulWidget {
   static const String routerName = "/info/phone";
 
@@ -29,19 +19,33 @@ class PhonePageState extends State<PhonePage>
   @override
   bool get wantKeepAlive => true;
 
-  List<PhoneModel> phoneModelList = [];
-
   _State state = _State.loading;
-
-  int page = 1;
 
   AppLocalizations app;
 
+  List<PhoneModel> phoneModelList = [];
+
+  TextStyle get _textStyle => TextStyle(
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+      );
+
+  TextStyle get _textBlueStyle => TextStyle(
+        color: Resource.Colors.blueText,
+        fontSize: 18.0,
+        fontWeight: FontWeight.bold,
+      );
+
+  TextStyle get _textGreyStyle => TextStyle(
+        color: Resource.Colors.grey,
+        fontSize: 14.0,
+      );
+
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("PhonePage", "phone_page.dart");
     _getPhones();
+    super.initState();
   }
 
   @override
@@ -49,19 +53,45 @@ class PhonePageState extends State<PhonePage>
     super.dispose();
   }
 
-  _textBlueStyle() {
-    return TextStyle(
-        color: Resource.Colors.blueText,
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold);
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    app = AppLocalizations.of(context);
+    return _body();
   }
 
-  _textGreyStyle() {
-    return TextStyle(color: Resource.Colors.grey, fontSize: 14.0);
-  }
-
-  _textStyle() {
-    return TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold);
+  Widget _body() {
+    switch (state) {
+      case _State.loading:
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      case _State.error:
+        return HintContent(
+          icon: AppIcon.assignment,
+          content: app.clickToRetry,
+        );
+      default:
+        return ListView.builder(
+          itemCount: phoneModelList.length,
+          itemBuilder: (context, index) {
+            if (phoneModelList[index].number.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                child: Text(
+                  phoneModelList[index].name,
+                  style: _textBlueStyle,
+                  textAlign: TextAlign.left,
+                ),
+              );
+            } else
+              return _phoneItem(phoneModelList[index]);
+          },
+        );
+    }
   }
 
   Widget _phoneItem(PhoneModel phone) {
@@ -80,13 +110,13 @@ class PhonePageState extends State<PhonePage>
           children: <Widget>[
             Text(
               phone.name ?? '',
-              style: _textStyle(),
+              style: _textStyle,
               textAlign: TextAlign.left,
             ),
             SizedBox(height: 8.0),
             Text(
               phone.number ?? '',
-              style: _textGreyStyle(),
+              style: _textGreyStyle,
               textAlign: TextAlign.left,
             )
           ],
@@ -102,42 +132,6 @@ class PhonePageState extends State<PhonePage>
         }
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return _body();
-  }
-
-  Widget _body() {
-    switch (state) {
-      case _State.loading:
-        return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
-      case _State.error:
-        return HintContent(
-          icon: AppIcon.assignment,
-          content: app.clickToRetry,
-        );
-      default:
-        return ListView.builder(
-          itemCount: phoneModelList.length,
-          itemBuilder: (context, index) {
-            if (phoneModelList[index].number.isEmpty) {
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                child: Text(
-                  phoneModelList[index].name,
-                  style: _textBlueStyle(),
-                  textAlign: TextAlign.left,
-                ),
-              );
-            } else
-              return _phoneItem(phoneModelList[index]);
-          },
-        );
-    }
   }
 
   _getPhones() async {

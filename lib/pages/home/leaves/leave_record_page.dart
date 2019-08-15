@@ -13,17 +13,6 @@ import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
 
-class LeaveRecordPageRoute extends MaterialPageRoute {
-  LeaveRecordPageRoute()
-      : super(builder: (BuildContext context) => LeaveRecordPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: LeaveRecordPage());
-  }
-}
-
 class LeaveRecordPage extends StatefulWidget {
   static const String routerName = '/leave/record';
 

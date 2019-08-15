@@ -5,26 +5,15 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { loading, finish, error, empty, offline }
 enum Station { janGong, yanchao }
-
-class BusReservePageRoute extends MaterialPageRoute {
-  BusReservePageRoute()
-      : super(builder: (BuildContext context) => BusReservePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: BusReservePage());
-  }
-}
 
 class BusReservePage extends StatefulWidget {
   static const String routerName = "/bus/reserve";
@@ -38,21 +27,22 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  double top = 0.0;
+  AppLocalizations app;
 
   _State state = _State.loading;
-  BusData busData;
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations app;
+  BusData busData;
+
+  double top = 0.0;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
     _getBusTimeTables();
+    super.initState();
   }
 
   @override
@@ -62,6 +52,7 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     app = AppLocalizations.of(context);
     return Scaffold(
       body: OrientationBuilder(builder: (_, orientation) {
@@ -179,9 +170,10 @@ class BusReservePageState extends State<BusReservePage>
         );
       default:
         return RefreshIndicator(
-          onRefresh: () {
-            _getBusTimeTables();
+          onRefresh: () async {
+            await _getBusTimeTables();
             FA.logAction('refresh', 'swipe');
+            return null;
           },
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
@@ -341,8 +333,7 @@ class BusReservePageState extends State<BusReservePage>
       );
 
   _getBusTimeTables() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() {
         state = _State.offline;
       });

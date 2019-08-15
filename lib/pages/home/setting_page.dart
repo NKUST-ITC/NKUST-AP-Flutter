@@ -18,22 +18,6 @@ import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
-class SettingPageRoute extends MaterialPageRoute {
-  SettingPageRoute()
-      : super(
-          builder: (BuildContext context) => SettingPage(),
-        );
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(
-      opacity: animation,
-      child: SettingPage(),
-    );
-  }
-}
-
 class SettingPage extends StatefulWidget {
   static const String routerName = "/setting";
 
@@ -172,10 +156,8 @@ class SettingPageState extends State<SettingPage> {
                                 setState(() {
                                   AppLocalizations.languageCode = item.value;
                                 });
-                                if (Platform.isAndroid || Platform.isIOS) {
-                                  Preferences.setString(
-                                      Constants.PREF_LANGUAGE_CODE, item.value);
-                                }
+                                Preferences.setString(
+                                    Constants.PREF_LANGUAGE_CODE, item.value);
                                 Navigator.pop(context);
                               }),
                       ]),
@@ -210,10 +192,8 @@ class SettingPageState extends State<SettingPage> {
                                 setState(() {
                                   AppIcon.code = item.value;
                                 });
-                                if (Platform.isAndroid || Platform.isIOS)
-                                  Preferences.setString(
-                                      Constants.PREF_ICON_STYLE_CODE,
-                                      item.value);
+                                Preferences.setString(
+                                    Constants.PREF_ICON_STYLE_CODE, item.value);
                                 Navigator.pop(context);
                               }),
                       ]),
@@ -251,9 +231,8 @@ class SettingPageState extends State<SettingPage> {
                                       .data
                                       .setThemeData(AppTheme.data);
                                 });
-                                if (Platform.isAndroid || Platform.isIOS)
-                                  Preferences.setString(
-                                      Constants.PREF_THEME_CODE, item.value);
+                                Preferences.setString(
+                                    Constants.PREF_THEME_CODE, item.value);
                                 Navigator.pop(context);
                               }),
                       ]),
@@ -306,10 +285,12 @@ class SettingPageState extends State<SettingPage> {
   }
 
   _getPreference() async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    PackageInfo packageInfo;
+    if (Platform.isAndroid || Platform.isIOS)
+      packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      appVersion = packageInfo.version;
+      appVersion = packageInfo?.version ?? '1.0.0';
       courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);

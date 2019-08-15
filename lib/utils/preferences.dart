@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:encrypt/encrypt.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,15 +16,16 @@ class Preferences {
   static SharedPreferences prefs;
 
   static init() async {
-    prefs = await SharedPreferences.getInstance();
+    if (Platform.isIOS || Platform.isAndroid)
+      prefs = await SharedPreferences.getInstance();
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {
-    await prefs.setString(key, encrypter.encrypt(data).base64);
+    await prefs?.setString(key, encrypter.encrypt(data).base64);
   }
 
   static String getStringSecurity(String key, String defaultValue) {
-    String data = prefs.getString(key) ?? '';
+    String data = prefs?.getString(key) ?? '';
     if (data == '')
       return defaultValue;
     else
@@ -30,42 +33,42 @@ class Preferences {
   }
 
   static Future<Null> setString(String key, String data) async {
-    await prefs.setString(key, data);
+    await prefs?.setString(key, data);
   }
 
   static String getString(String key, String defaultValue) {
-    return prefs.getString(key) ?? defaultValue;
+    return prefs?.getString(key) ?? defaultValue;
   }
 
   static Future<Null> setInt(String key, int data) async {
-    await prefs.setInt(key, data);
+    await prefs?.setInt(key, data);
   }
 
   static int getInt(String key, int defaultValue) {
-    return prefs.getInt(key) ?? defaultValue;
+    return prefs?.getInt(key) ?? defaultValue;
   }
 
   static Future<Null> setDouble(String key, double data) async {
-    await prefs.setDouble(key, data);
+    await prefs?.setDouble(key, data);
   }
 
   static double getDouble(String key, double defaultValue) {
-    return prefs.getDouble(key) ?? defaultValue;
+    return prefs?.getDouble(key) ?? defaultValue;
   }
 
   static Future<Null> setBool(String key, bool data) async {
-    await prefs.setBool(key, data);
+    await prefs?.setBool(key, data);
   }
 
   static bool getBool(String key, bool defaultValue) {
-    return prefs.getBool(key) ?? defaultValue;
+    return prefs?.getBool(key) ?? defaultValue;
   }
 
   static Future<Null> setStringList(String key, List<String> data) async {
-    await prefs.setStringList(key, data);
+    await prefs?.setStringList(key, data);
   }
 
   static List<String> getStringList(String key, List<String> defaultValue) {
-    return prefs.getStringList(key) ?? defaultValue;
+    return prefs?.getStringList(key) ?? defaultValue;
   }
 }

@@ -8,28 +8,19 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { loading, finish, error, empty, offline }
-
-class HomePageRoute extends MaterialPageRoute {
-  HomePageRoute() : super(builder: (BuildContext context) => new HomePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new HomePage());
-  }
-}
 
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
 
   @override
-  HomePageState createState() => new HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
 class HomePageState extends State<HomePage> {
@@ -37,22 +28,80 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
 
-  int _currentTabIndex = 0;
   int _currentNewsIndex = 0;
 
   List<News> newsList = [];
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("HomePage", "home_page.dart");
-    _getAllNews();
+    _getNewsAll();
     _getUserInfo();
+    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
+      Utils.checkUpdate(context);
+    super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
+    if (state != _State.offline) _setupBusNotify(context);
+    return WillPopScope(
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(app.appName),
+            backgroundColor: Resource.Colors.blue,
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(AppIcon.info),
+                onPressed: _showInformationDialog,
+              )
+            ],
+          ),
+          drawer: DrawerBody(userInfo: userInfo),
+          body: OrientationBuilder(builder: (_, orientation) {
+            return Container(
+              padding: EdgeInsets.symmetric(
+                  vertical: orientation == Orientation.portrait ? 32.0 : 4.0),
+              child: Center(
+                child: _homebody(orientation),
+              ),
+            );
+          }),
+          bottomNavigationBar: BottomNavigationBar(
+            elevation: 12.0,
+            fixedColor: Resource.Colors.bottomNavigationSelect,
+            unselectedItemColor: Resource.Colors.bottomNavigationSelect,
+            type: BottomNavigationBarType.fixed,
+            selectedFontSize: 12.0,
+            unselectedFontSize: 12.0,
+            selectedIconTheme: IconThemeData(size: 24.0),
+            onTap: onTabTapped,
+            items: [
+              BottomNavigationBarItem(
+                icon: Icon(AppIcon.directionsBus),
+                title: Text(app.bus),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(AppIcon.classIcon),
+                title: Text(app.course),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(AppIcon.assignment),
+                title: Text(app.score),
+              ),
+            ],
+          ),
+        ),
+        onWillPop: () async {
+          if (Platform.isAndroid) _showLogoutDialog();
+          return false;
+        });
   }
 
   Widget _newsImage(News news, Orientation orientation, bool active) {
@@ -64,7 +113,10 @@ class HomePageState extends State<HomePage> {
           horizontal: MediaQuery.of(context).size.width * 0.02),
       child: GestureDetector(
         onTap: () {
-          Navigator.of(context).push(NewsContentPageRoute(news));
+          Utils.pushCupertinoStyle(
+            context,
+            NewsContentPage(news),
+          );
           String message = news.content.length > 12
               ? news.content
               : news.content.substring(0, 12);
@@ -72,10 +124,12 @@ class HomePageState extends State<HomePage> {
         },
         child: Hero(
           tag: news.hashCode,
-          child: CachedNetworkImage(
-            imageUrl: news.image,
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
+          child: (Platform.isIOS || Platform.isAndroid)
+              ? CachedNetworkImage(
+                  imageUrl: news.image,
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                )
+              : Image.network(news.image),
         ),
       ),
     );
@@ -128,27 +182,29 @@ class HomePageState extends State<HomePage> {
             ),
             Expanded(
               child: PageView.builder(
-                  controller: pageController,
-                  itemCount: newsList.length,
-                  itemBuilder: (context, int currentIndex) {
-                    bool active = (currentIndex == _currentNewsIndex);
-                    return _newsImage(
-                        newsList[currentIndex], orientation, active);
-                  }),
+                controller: pageController,
+                itemCount: newsList.length,
+                itemBuilder: (context, int currentIndex) {
+                  bool active = (currentIndex == _currentNewsIndex);
+                  return _newsImage(
+                      newsList[currentIndex], orientation, active);
+                },
+              ),
             ),
             SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
             RichText(
               textAlign: TextAlign.center,
               text: TextSpan(
-                  style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
-                  children: [
-                    TextSpan(
-                        text:
-                            '${newsList.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
-                            '${_currentNewsIndex + 1}',
-                        style: TextStyle(color: Resource.Colors.red)),
-                    TextSpan(text: ' / ${newsList.length}'),
-                  ]),
+                style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
+                children: [
+                  TextSpan(
+                      text:
+                          '${newsList.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
+                          '${_currentNewsIndex + 1}',
+                      style: TextStyle(color: Resource.Colors.red)),
+                  TextSpan(text: ' / ${newsList.length}'),
+                ],
+              ),
             ),
           ],
         );
@@ -162,124 +218,59 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    if (state == _State.offline) _setupBusNotify(context);
-    return WillPopScope(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(app.appName),
-            backgroundColor: Resource.Colors.blue,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(AppIcon.info),
-                onPressed: _showInformationDialog,
-              )
-            ],
-          ),
-          drawer: DrawerBody(userInfo: userInfo),
-          body: OrientationBuilder(builder: (_, orientation) {
-            return Container(
-              padding: EdgeInsets.symmetric(
-                  vertical: orientation == Orientation.portrait ? 32.0 : 4.0),
-              child: Center(
-                child: _homebody(orientation),
-              ),
-            );
-          }),
-          bottomNavigationBar: BottomNavigationBar(
-            fixedColor: Resource.Colors.bottomNavigationSelect,
-            unselectedItemColor: Resource.Colors.bottomNavigationSelect,
-            type: BottomNavigationBarType.fixed,
-            selectedFontSize: 12.0,
-            unselectedFontSize: 12.0,
-            selectedIconTheme: IconThemeData(size: 24.0),
-            currentIndex: _currentTabIndex,
-            onTap: onTabTapped,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.directionsBus),
-                title: Text(app.bus),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.classIcon),
-                title: Text(app.course),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.assignment),
-                title: Text(app.score),
-              ),
-            ],
-          ),
-        ),
-        onWillPop: () async {
-          if (Platform.isAndroid) _showLogoutDialog();
-          return false;
-        });
-  }
-
   void onTabTapped(int index) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool bus = prefs.getBool(Constants.PREF_BUS_ENABLE) ?? true;
-    setState(() {
-      _currentTabIndex = index;
-      switch (_currentTabIndex) {
-        case 0:
-          if (bus)
-            Navigator.of(context).push(BusPageRoute());
-          else
-            Utils.showToast(context, app.canNotUseFeature);
-          break;
-        case 1:
-          Navigator.of(context).push(CoursePageRoute());
-          break;
-        case 2:
-          Navigator.of(context).push(ScorePageRoute());
-          break;
-      }
-    });
+    bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+    switch (index) {
+      case 0:
+        if (bus)
+          Utils.pushCupertinoStyle(context, BusPage());
+        else
+          Utils.showToast(context, app.canNotUseFeature);
+        break;
+      case 1:
+        Utils.pushCupertinoStyle(context, CoursePage());
+        break;
+      case 2:
+        Utils.pushCupertinoStyle(context, ScorePage());
+        break;
+    }
   }
 
-  _getAllNews() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+  _getNewsAll() async {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() {
         state = _State.offline;
       });
-      return;
-    }
-    state = _State.loading;
-    Helper.instance.getAllNews().then((newsList) {
-      this.newsList = newsList;
-      this.newsList.sort((a, b) {
-        return b.weight.compareTo(a.weight);
-      });
-      setState(() {
-        state = newsList.length == 0 ? _State.empty : _State.finish;
-      });
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getAllNews', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            state = _State.error;
-            Utils.handleDioError(context, e);
-            break;
+    } else
+      Helper.instance.getAllNews().then((newsList) {
+        this.newsList = newsList;
+        this.newsList.sort((a, b) {
+          return b.weight.compareTo(a.weight);
+        });
+        setState(() {
+          state = newsList.length == 0 ? _State.empty : _State.finish;
+        });
+      }).catchError((e) {
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(context, 'getAllNews', mounted, e);
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              state = _State.error;
+              Utils.handleDioError(context, e);
+              break;
+          }
+        } else {
+          throw e;
         }
-      } else {
-        throw e;
-      }
-    });
+      });
   }
 
   _setupBusNotify(BuildContext context) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_BUS_NOTIFY) ?? false)
+    if (Preferences.getBool(Constants.PREF_BUS_NOTIFY, false))
       Helper.instance
           .getBusReservations()
           .then((BusReservationsData response) async {
@@ -303,38 +294,37 @@ class HomePageState extends State<HomePage> {
   }
 
   _getUserInfo() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       userInfo = await CacheUtils.loadUserInfo();
       setState(() {
         state = _State.offline;
       });
-      return;
-    }
-    Helper.instance.getUsersInfo().then((response) {
-      if (this.mounted) {
-        setState(() {
-          userInfo = response;
-        });
-        FA.setUserProperty('department', userInfo.department);
-        FA.setUserProperty('student_id', userInfo.studentId);
-        FA.setUserId(userInfo.studentId);
-        FA.logUserInfo(userInfo.department);
-        CacheUtils.saveUserInfo(userInfo);
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getUserInfo', mounted, e);
-            break;
-          default:
-            break;
+    } else
+      Helper.instance.getUsersInfo().then((userInfo) {
+        if (this.mounted) {
+          setState(() {
+            this.userInfo = userInfo;
+          });
+          FA.setUserProperty('department', userInfo.department);
+          FA.setUserProperty('student_id', userInfo.studentId);
+          FA.setUserId(userInfo.studentId);
+          FA.logUserInfo(userInfo.department);
+          ShareDataWidget.of(context).data.userInfo = userInfo;
+          CacheUtils.saveUserInfo(userInfo);
         }
-      } else {
-        throw e;
-      }
-    });
+      }).catchError((e) {
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(context, 'getUserInfo', mounted, e);
+              break;
+            default:
+              break;
+          }
+        } else {
+          throw e;
+        }
+      });
   }
 
   void _showLogoutDialog() {
@@ -349,7 +339,9 @@ class HomePageState extends State<HomePage> {
         rightActionText: app.ok,
         rightActionFunction: () {
           Navigator.popUntil(
-              context, ModalRoute.withName(Navigator.defaultRouteName));
+            context,
+            ModalRoute.withName(Navigator.defaultRouteName),
+          );
         },
       ),
     );

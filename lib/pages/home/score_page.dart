@@ -11,16 +11,6 @@ import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
 
-class ScorePageRoute extends MaterialPageRoute {
-  ScorePageRoute() : super(builder: (BuildContext context) => ScorePage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return FadeTransition(opacity: animation, child: ScorePage());
-  }
-}
-
 class ScorePage extends StatefulWidget {
   static const String routerName = '/score';
 
@@ -306,8 +296,10 @@ class ScorePageState extends State<ScorePage> {
           state = _State.offlineEmpty;
         else if (scoreData.status == 204)
           state = _State.empty;
-        else {
+        else if (scoreData.status == 200) {
           state = _State.finish;
+        } else {
+          state = _State.error;
         }
       });
     }

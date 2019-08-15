@@ -1,37 +1,27 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-
-class AboutUsPageRoute extends MaterialPageRoute {
-  AboutUsPageRoute()
-      : super(builder: (BuildContext context) => new AboutUsPage());
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(opacity: animation, child: new AboutUsPage());
-  }
-}
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class AboutUsPage extends StatefulWidget {
   static const String routerName = "/aboutUs";
 
   @override
-  AboutUsPageState createState() => new AboutUsPageState();
+  AboutUsPageState createState() => AboutUsPageState();
 }
 
-class AboutUsPageState extends State<AboutUsPage>
-    with SingleTickerProviderStateMixin {
+class AboutUsPageState extends State<AboutUsPage> {
   AppLocalizations app;
 
   @override
   void initState() {
-    super.initState();
     FA.setCurrentScreen("AboutUsPage", "about_us_page.dart");
+    super.initState();
   }
 
   @override
@@ -39,11 +29,31 @@ class AboutUsPageState extends State<AboutUsPage>
     super.dispose();
   }
 
+  String get sectionImage {
+    final department = ShareDataWidget.of(context).data.userInfo.department;
+    Random random = Random();
+    bool halfSnapFingerChance = random.nextInt(2000) % 2 == 0;
+    if (department.contains('建工') || department.contains('燕巢'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionJiangong
+          : ImageAssets.sectionYanchao;
+    else if (department.contains('第一'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionFirst1
+          : ImageAssets.sectionFirst2;
+    else if (department.contains('旗津') || department.contains('楠梓'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionQijin
+          : ImageAssets.sectionNanzi;
+    else
+      return ImageAssets.kuasap2;
+  }
+
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     var expandedHeight = MediaQuery.of(context).size.height * 0.25;
-    return new Scaffold(
+    return Scaffold(
       body: NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return <Widget>[
@@ -51,7 +61,7 @@ class AboutUsPageState extends State<AboutUsPage>
               expandedHeight: expandedHeight,
               floating: false,
               pinned: true,
-              title: new Text(app.about),
+              title: Text(app.about),
               actions: <Widget>[
                 IconButton(
                     icon: Icon(AppIcon.codeIcon),
@@ -64,7 +74,7 @@ class AboutUsPageState extends State<AboutUsPage>
               backgroundColor: Resource.Colors.blue,
               flexibleSpace: FlexibleSpaceBar(
                 background: Image.asset(
-                  ImageAssets.kuasap2,
+                  sectionImage,
                   fit: BoxFit.cover,
                 ),
               ),

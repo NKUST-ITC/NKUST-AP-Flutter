@@ -5,22 +5,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class LeavePageRoute extends MaterialPageRoute {
-  LeavePageRoute({this.initIndex = 0})
-      : super(
-            builder: (BuildContext context) =>
-                new LeavePage(initIndex: initIndex));
-
-  final int initIndex;
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new LeavePage(initIndex: initIndex));
-  }
-}
-
 class LeavePage extends StatefulWidget {
   static const String routerName = "/leave";
   final List<Widget> _children = [
@@ -32,26 +16,22 @@ class LeavePage extends StatefulWidget {
   LeavePage({this.initIndex = 0});
 
   @override
-  LeavePageState createState() => new LeavePageState(_children, initIndex);
+  LeavePageState createState() => LeavePageState();
 }
 
 class LeavePageState extends State<LeavePage>
     with SingleTickerProviderStateMixin {
-  final List<Widget> _children;
-  final int initIndex;
-  int _currentIndex = 0;
   AppLocalizations app;
 
   TabController controller;
 
-  LeavePageState(this._children, this.initIndex) {
-    _currentIndex = initIndex;
-  }
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
+    controller =
+        TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
   }
 
   @override
@@ -69,7 +49,7 @@ class LeavePageState extends State<LeavePage>
         backgroundColor: Resource.Colors.blue,
       ),
       body: TabBarView(
-          children: _children,
+          children: widget._children,
           controller: controller,
           physics: NeverScrollableScrollPhysics()),
       bottomNavigationBar: BottomNavigationBar(

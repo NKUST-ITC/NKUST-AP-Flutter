@@ -4,22 +4,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
-class BusPageRoute extends MaterialPageRoute {
-  BusPageRoute({this.initIndex = 0})
-      : super(
-            builder: (BuildContext context) =>
-                new BusPage(initIndex: initIndex));
-
-  final int initIndex;
-
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
-    return new FadeTransition(
-        opacity: animation, child: new BusPage(initIndex: initIndex));
-  }
-}
-
 class BusPage extends StatefulWidget {
   static const String routerName = "/bus";
   final List<Widget> _children = [
@@ -31,25 +15,21 @@ class BusPage extends StatefulWidget {
   BusPage({this.initIndex = 0});
 
   @override
-  BusPageState createState() => new BusPageState(_children, initIndex);
+  BusPageState createState() => new BusPageState();
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  final List<Widget> _children;
-  final int initIndex;
-  int _currentIndex = 0;
   AppLocalizations app;
 
   TabController controller;
 
-  BusPageState(this._children, this.initIndex) {
-    _currentIndex = initIndex;
-  }
+  int _currentIndex = 0;
 
   @override
   void initState() {
+    controller =
+        TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
     super.initState();
-    controller = TabController(length: 2, initialIndex: initIndex, vsync: this);
   }
 
   @override
@@ -72,12 +52,12 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 color: Colors.white,
               ),
               onPressed: () {
-                Navigator.of(context).push(BusRulePageRoute());
+                Utils.pushCupertinoStyle(context, BusRulePage());
               })
         ],
       ),
       body: TabBarView(
-          children: _children,
+          children: widget._children,
           controller: controller,
           physics: NeverScrollableScrollPhysics()),
       bottomNavigationBar: BottomNavigationBar(

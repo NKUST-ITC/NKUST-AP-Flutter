@@ -5,7 +5,8 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,43 +21,49 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'models/user_info.dart';
+
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
-  String themeCode = AppTheme.LIGHT;
+  await Preferences.init();
+  AppIcon.code =
+      Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
+  AppTheme.code =
+      Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
   if (Platform.isIOS || Platform.isAndroid) {
-    await Preferences.init();
-    AppIcon.code =
-        Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
-    themeCode =
-        Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  }
-  AppTheme.code = themeCode;
-  if (Platform.isIOS || Platform.isAndroid) {
-    FlutterError.onError = (FlutterErrorDetails details) {
-      if (isInDebugMode) {
-        // In development mode simply print to console.
-        FlutterError.dumpErrorToConsole(details);
-      } else {
-        // In production mode report to the application zone to report to
-        // Crashlytics.
-        Zone.current.handleUncaughtError(details.exception, details.stack);
-      }
-    };
+    if (!Constants.isInDebugMode) {
+      FlutterError.onError = (FlutterErrorDetails details) {
+        if (isInDebugMode) {
+          // In development mode simply print to console.
+          FlutterError.dumpErrorToConsole(details);
+        } else {
+          // In production mode report to the application zone to report to
+          // Crashlytics.
+          Zone.current.handleUncaughtError(details.exception, details.stack);
+        }
+      };
 
-    await FlutterCrashlytics().initialize();
+      await FlutterCrashlytics().initialize();
 
-    runZoned<Future<Null>>(() async {
+      runZoned<Future<Null>>(() async {
+        runApp(
+          MyApp(
+            themeData: AppTheme.data,
+          ),
+        );
+      }, onError: (error, stackTrace) async {
+        // Whenever an error occurs, call the `reportCrash` function. This will send
+        // Dart errors to our dev console or Crashlytics depending on the environment.
+        await FlutterCrashlytics()
+            .reportCrash(error, stackTrace, forceCrash: false);
+      });
+    } else {
       runApp(
         MyApp(
           themeData: AppTheme.data,
         ),
       );
-    }, onError: (error, stackTrace) async {
-      // Whenever an error occurs, call the `reportCrash` function. This will send
-      // Dart errors to our dev console or Crashlytics depending on the environment.
-      await FlutterCrashlytics()
-          .reportCrash(error, stackTrace, forceCrash: false);
-    });
+    }
   } else {
     // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
@@ -80,8 +87,10 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
-  FirebaseMessaging _firebaseMessaging;
+  FirebaseMessaging firebaseMessaging;
   ThemeData themeData;
+  UserInfo userInfo;
+  bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {
     setState(() {
@@ -94,7 +103,7 @@ class MyAppState extends State<MyApp> {
     themeData = widget.themeData;
     if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
-      _firebaseMessaging = FirebaseMessaging();
+      firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
       Preferences.init();
@@ -153,8 +162,8 @@ class MyAppState extends State<MyApp> {
   }
 
   void _initFCM() {
-    _firebaseMessaging.requestNotificationPermissions();
-    _firebaseMessaging.configure(
+    firebaseMessaging.requestNotificationPermissions();
+    firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         if (Constants.isInDebugMode) print("onMessage: $message");
         Utils.showFCMNotification(
@@ -170,20 +179,25 @@ class MyAppState extends State<MyApp> {
         if (Constants.isInDebugMode) print("onResume: $message");
       },
     );
-    _firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, badge: true, alert: true));
-    _firebaseMessaging.onIosSettingsRegistered
+    firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(
+        sound: true,
+        badge: true,
+        alert: true,
+      ),
+    );
+    firebaseMessaging.onIosSettingsRegistered
         .listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
-    _firebaseMessaging.getToken().then((String token) {
+    firebaseMessaging.getToken().then((String token) {
       if (token == null) return;
       if (Constants.isInDebugMode) {
         print("Push Messaging token: $token");
       }
       if (Platform.isAndroid)
-        _firebaseMessaging.subscribeToTopic("Android");
-      else if (Platform.isIOS) _firebaseMessaging.subscribeToTopic("IOS");
+        firebaseMessaging.subscribeToTopic("Android");
+      else if (Platform.isIOS) firebaseMessaging.subscribeToTopic("IOS");
     });
   }
 }
