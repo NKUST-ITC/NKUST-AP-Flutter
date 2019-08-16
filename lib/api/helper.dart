@@ -10,10 +10,10 @@ import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const HOST = "nkust-ap-api.rainvisitor.me";
-const PORT = '2087';
+const HOST = 'nkust.taki.dog';
+const PORT = '443';
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 
 class Helper {
   static Helper _instance;
