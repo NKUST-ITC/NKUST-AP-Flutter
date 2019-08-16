@@ -227,4 +227,10 @@ class Helper {
       "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
     };
   }
+
+  _createBearerTokenAuth(String token) {
+    return {
+      'Authorization': 'Bearer $token',
+    };
+  }
 }
