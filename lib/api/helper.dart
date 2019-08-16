@@ -131,7 +131,7 @@ class Helper {
 
   Future<SemesterData> getSemester() async {
     try {
-      var response = await dio.get("/$VERSION/ap/semester");
+      var response = await dio.get("/user/semesters");
       return SemesterData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;

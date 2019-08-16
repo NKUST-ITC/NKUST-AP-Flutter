@@ -103,7 +103,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   _scoreBorder(Semester semester, ScoreData score) {
     return TableRow(children: <Widget>[
-      _scoreTextBorder(semester.text, false),
+      _scoreTextBorder(semester.year, false),
       _scoreTextBorder("${score.content.detail.average}", false),
       _scoreTextBorder("${score.content.detail.classRank}", false)
     ]);
@@ -318,18 +318,17 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     setState(() {
       state = _State.loading;
     });
-    if (semesterData == null || semesterData.semesters == null) {
+    if (semesterData == null || semesterData.data == null) {
       _getSemester();
       return;
     }
-    var textList =
-        semesterData.semesters[currentSemesterIndex].value.split(",");
+    var textList = semesterData.data[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
         if (response.status == 200) {
           if (startYear == -1) startYear = int.parse(textList[0]);
           //scoreWeightList.add(_scoreTitle());
-          semesterList.add(semesterData.semesters[currentSemesterIndex]);
+          semesterList.add(semesterData.data[currentSemesterIndex]);
           scoreDataList.add(response);
           for (var score in response.content.scores) {
             var finalScore = double.tryParse(score.finalScore);
@@ -352,7 +351,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           }
         }
         var currentYear = int.parse(textList[0]);
-        if (currentSemesterIndex < semesterData.semesters.length - 1 &&
+        if (currentSemesterIndex < semesterData.data.length - 1 &&
             ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
           currentSemesterIndex++;
           if (mounted) _getSemesterScore();
@@ -404,12 +403,12 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       state = _State.loading;
     });
     print('_getSemesterScore');
-    print(semesterData.semesters.length);
-    if (semesterData == null || semesterData.semesters == null) {
+    print(semesterData.data.length);
+    if (semesterData == null || semesterData.data == null) {
       _getSemester();
       return;
     }
-    semesterData.semesters.forEach((s) {
+    semesterData.data.forEach((s) {
       var textList = s.value.split(",");
       if (textList.length == 2) {
         Helper.instance.getScores(textList[0], textList[1]).then((response) {
@@ -443,7 +442,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           print('startYear = $startYear');
           print('currentYear = $currentYear');
           count++;
-          if (count == semesterData.semesters.length) {
+          if (count == semesterData.data.length) {
             unitsTotal =
                 requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
             if (mounted) {
