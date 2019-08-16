@@ -84,9 +84,17 @@ class Helper {
   Future<LoginResponse> login(String username, String password) async {
     dio.options.headers = _createBasicAuth(username, password);
     try {
-      var response = await dio.get("/$VERSION/token");
-      if (response == null) print("null");
-      return LoginResponse.fromJson(response.data);
+      var response = await dio.post(
+        '/oauth/token',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
+      if (response == null) print('null');
+      var loginResponse = LoginResponse.fromJson(response.data);
+      options.headers = _createBearerTokenAuth(loginResponse.token);
+      return loginResponse;
     } on DioError catch (dioError) {
       throw dioError;
     }

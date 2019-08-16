@@ -1,50 +1,27 @@
+import 'dart:convert';
+
 class LoginResponse {
-  String authToken;
-  int duration;
-  IsLogin isLogin;
-  String tokenType;
+  DateTime expireTime;
+  String token;
 
-  LoginResponse({this.authToken, this.duration, this.isLogin, this.tokenType});
+  LoginResponse({
+    this.expireTime,
+    this.token,
+  });
 
-  LoginResponse.fromJson(Map<String, dynamic> json) {
-    authToken = json['auth_token'];
-    duration = json['duration'];
-    isLogin = json['is_login'] != null
-        ? new IsLogin.fromJson(json['is_login'])
-        : null;
-    tokenType = json['token_type'];
-  }
+  factory LoginResponse.fromRawJson(String str) =>
+      LoginResponse.fromJson(json.decode(str));
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['auth_token'] = this.authToken;
-    data['duration'] = this.duration;
-    if (this.isLogin != null) {
-      data['is_login'] = this.isLogin.toJson();
-    }
-    data['token_type'] = this.tokenType;
-    return data;
-  }
-}
+  String toRawJson() => json.encode(toJson());
 
-class IsLogin {
-  bool ap;
-  bool bus;
-  bool leave;
+  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+      new LoginResponse(
+        expireTime: DateTime.parse(json["expireTime"]),
+        token: json["token"],
+      );
 
-  IsLogin({this.ap, this.bus, this.leave});
-
-  IsLogin.fromJson(Map<String, dynamic> json) {
-    ap = json['ap'];
-    bus = json['bus'];
-    leave = json['leave'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['ap'] = this.ap;
-    data['bus'] = this.bus;
-    data['leave'] = this.leave;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "expireTime": expireTime.toIso8601String(),
+        "token": token,
+      };
 }
