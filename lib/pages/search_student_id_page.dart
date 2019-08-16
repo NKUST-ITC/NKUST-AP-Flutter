@@ -183,7 +183,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     } else {
       UserInfo result = await NKUSTHelper.instance.getUsername(_id.text);
       if (result != null && isAutoFill) {
-        Navigator.pop(context, result.studentId);
+        Navigator.pop(context, result.id);
       } else {
         showDialog(
           context: context,
@@ -206,8 +206,8 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
                         : sprintf(
                             app.searchStudentIdFormat,
                             [
-                              result.studentNameCht,
-                              result.studentId,
+                              result.name,
+                              result.id,
                             ],
                           ),
                     style: TextStyle(fontWeight: FontWeight.bold),

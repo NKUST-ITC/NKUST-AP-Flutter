@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -59,17 +57,11 @@ class DrawerBodyState extends State<DrawerBody> {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                if (widget.userInfo == null) return;
-                if ((widget.userInfo.status == null
-                        ? 200
-                        : widget.userInfo.status) ==
-                    200)
+                if (widget.userInfo != null)
                   Utils.pushCupertinoStyle(
                     context,
                     UserInfoPage(userInfo: widget.userInfo),
                   );
-                else
-                  Utils.showToast(context, widget.userInfo.message);
               },
               child: Stack(
                 children: <Widget>[
@@ -106,11 +98,11 @@ class DrawerBodyState extends State<DrawerBody> {
                                 ),
                               ),
                     accountName: Text(
-                      '${widget.userInfo?.studentNameCht}',
+                      '${widget.userInfo?.name}',
                       style: TextStyle(color: Colors.white),
                     ),
                     accountEmail: Text(
-                      '${widget.userInfo?.studentId}',
+                      '${widget.userInfo?.id}',
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(
@@ -294,39 +286,27 @@ class DrawerBodyState extends State<DrawerBody> {
         },
       );
 
-  _getUserPicture() {
-    Helper.instance.getUsersPicture().then((url) async {
-      try {
-        var response = await http.get(url);
-        if (!response.body.contains('html')) {
-          if (mounted) {
-            setState(() {
-              pictureBytes = response.bodyBytes;
-            });
-          }
-          CacheUtils.savePictureData(response.bodyBytes);
-        } else {
-          var bytes = await CacheUtils.loadPictureData();
-          if (mounted) {
-            setState(() {
-              pictureBytes = bytes;
-            });
-          }
+  _getUserPicture() async {
+    try {
+      var response = await http.get(widget.userInfo.pictureUrl);
+      if (!response.body.contains('html')) {
+        if (mounted) {
+          setState(() {
+            pictureBytes = response.bodyBytes;
+          });
         }
-      } catch (e) {}
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-            break;
-          default:
-            break;
-        }
+        CacheUtils.savePictureData(response.bodyBytes);
       } else {
-        throw e;
+        var bytes = await CacheUtils.loadPictureData();
+        if (mounted) {
+          setState(() {
+            pictureBytes = bytes;
+          });
+        }
       }
-    });
+    } catch (e) {
+      throw e;
+    }
   }
 
   _getPreference() async {

@@ -113,9 +113,8 @@ class Helper {
 
   Future<UserInfo> getUsersInfo() async {
     try {
-      var response = await dio.get("/$VERSION/ap/users/info");
-      var json = jsonCodec.decode(response.data);
-      return UserInfo.fromJson(json);
+      var response = await dio.get('/user/info');
+      return UserInfo.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

@@ -24,7 +24,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  _State state = _State.loading;
+  _State state = _State.offline;
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
 
@@ -35,7 +35,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
-    _getNewsAll();
+//    _getNewsAll();
     _getUserInfo();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
       Utils.checkUpdate(context);
@@ -306,8 +306,8 @@ class HomePageState extends State<HomePage> {
             this.userInfo = userInfo;
           });
           FA.setUserProperty('department', userInfo.department);
-          FA.setUserProperty('student_id', userInfo.studentId);
-          FA.setUserId(userInfo.studentId);
+          FA.setUserProperty('student_id', userInfo.id);
+          FA.setUserId(userInfo.id);
           FA.logUserInfo(userInfo.department);
           ShareDataWidget.of(context).data.userInfo = userInfo;
           CacheUtils.saveUserInfo(userInfo);
