@@ -141,8 +141,13 @@ class Helper {
   Future<ScoreData> getScores(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/scores/" + year + "/" + semester,
-          cancelToken: cancelToken);
+        "/user/scores",
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
       return ScoreData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
