@@ -365,6 +365,10 @@ class AppLocalizations {
       'midtermAlertsEmpty':
           'Very Good！ No Midterm warning class for this semester~\n Please choose another semester \uD83D\uDE0B',
       'midtermAlertsContent': 'Reason：%s\nRemark：%s',
+      'rewardAndPenalty': 'Reward and Penalty',
+      'rewardAndPenaltyEmpty':
+          'Oops！No reward and penalty for this semester~\n Please choose another semester \uD83D\uDE0B',
+      'rewardAndPenaltyContent': 'Counts：%s\nDate：%s',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -651,6 +655,9 @@ class AppLocalizations {
       'midtermAlerts': '期中預警',
       'midtermAlertsEmpty': '太好了！本學期沒有任何科目被預警哦～\n請選擇其他學期 \uD83D\uDE0B',
       'midtermAlertsContent': '原因：%s\n備註：%s',
+      'rewardAndPenalty': '獎懲紀錄',
+      'rewardAndPenaltyEmpty': 'Oops！本學期沒有任何獎懲紀錄哦～\n請選擇其他學期 \uD83D\uDE0B',
+      'rewardAndPenaltyContent': '數量：%s\n日期：%s',
     },
   };
 
@@ -1156,6 +1163,13 @@ class AppLocalizations {
   String get midtermAlertsEmpty => _vocabularies['midtermAlertsEmpty'];
 
   String get midtermAlertsContent => _vocabularies['midtermAlertsContent'];
+
+  String get rewardAndPenalty => _vocabularies['rewardAndPenalty'];
+
+  String get rewardAndPenaltyEmpty => _vocabularies['rewardAndPenaltyEmpty'];
+
+  String get rewardAndPenaltyContent =>
+      _vocabularies['rewardAndPenaltyContent'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -9,6 +9,7 @@ import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const HOST = 'nkust.taki.dog';
@@ -184,6 +185,26 @@ class Helper {
       var response = await dio.get("/$VERSION/bus/timetables?date=$date",
           cancelToken: cancelToken);
       return BusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<RewardAndPenaltyData> getRewardAndPenalty(
+      String year, String semester) async {
+    try {
+      var response = await dio.get(
+        "/user/reward-and-penalty",
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return RewardAndPenaltyData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

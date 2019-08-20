@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/home/midterm_alerts_page.dart';
+import 'package:nkust_ap/pages/home/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
@@ -161,6 +162,11 @@ class DrawerBodyState extends State<DrawerBody> {
                   icon: Icons.warning,
                   title: app.midtermAlerts,
                   page: MidtermAlertsPage(),
+                ),
+                _subItem(
+                  icon: Icons.folder,
+                  title: app.rewardAndPenalty,
+                  page: RewardAndPenaltyPage(),
                 ),
               ],
             ),
