@@ -148,7 +148,10 @@ class Helper {
         },
         cancelToken: cancelToken,
       );
-      return ScoreData.fromJson(response.data);
+      if (response.statusCode == 204)
+        return null;
+      else
+        return ScoreData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -157,9 +160,17 @@ class Helper {
   Future<CourseData> getCourseTables(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/coursetables/" + year + "/" + semester,
-          cancelToken: cancelToken);
-      return CourseData.fromJson(response.data);
+        '/user/coursetable',
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return CourseData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
