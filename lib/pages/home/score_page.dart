@@ -247,25 +247,20 @@ class ScorePageState extends State<ScorePage> {
           .then((response) {
         if (mounted)
           setState(() {
-            scoreData = response;
-            state = _State.finish;
-            CacheUtils.saveScoreData(selectSemester.value, scoreData);
+            if (response == null) {
+              state = _State.empty;
+            } else {
+              scoreData = response;
+              state = _State.finish;
+              CacheUtils.saveScoreData(selectSemester.value, scoreData);
+            }
           });
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              print(e.response.data);
-              if (e.response.statusCode == 204) {
-                if (mounted) {
-                  setState(() {
-                    state = _State.empty;
-                    Utils.handleDioError(context, e);
-                  });
-                }
-              } else
-                Utils.handleResponseError(
-                    context, 'getSemesterScore', mounted, e);
+              Utils.handleResponseError(
+                  context, 'getSemesterScore', mounted, e);
               break;
             case DioErrorType.CANCEL:
               break;

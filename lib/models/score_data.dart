@@ -31,10 +31,10 @@ class ScoreData {
 }
 
 class Detail {
-  int conduct;
-  int average;
+  double conduct;
+  double average;
   String classRank;
-  int classPercentage;
+  double classPercentage;
 
   Detail({
     this.conduct,
