@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/pages/home/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
@@ -155,6 +156,11 @@ class DrawerBodyState extends State<DrawerBody> {
                   icon: AppIcon.apps,
                   title: app.calculateUnits,
                   page: CalculateUnitsPage(),
+                ),
+                _subItem(
+                  icon: Icons.warning,
+                  title: app.midtermAlerts,
+                  page: MidtermAlertsPage(),
                 ),
               ],
             ),

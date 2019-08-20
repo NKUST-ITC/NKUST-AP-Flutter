@@ -361,6 +361,10 @@ class AppLocalizations {
           'For first-time login, please fill in the last four number of your ID as your password',
       'searchStudentIdFormat': 'Name：%s\nStudent ID：%s\n',
       'searchStudentIdError': 'Search no data.',
+      'midtermAlerts': 'Midterm Alerts',
+      'midtermAlertsEmpty':
+          'Very Good！ No Midterm warning class for this semester~\n Please choose another semester \uD83D\uDE0B',
+      'midtermAlertsContent': 'Reason：%s\nRemark：%s',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -644,6 +648,9 @@ class AppLocalizations {
       'firstLoginHint': '首次登入密碼預設為身分證末四碼',
       'searchStudentIdFormat': '姓名：%s\n學號：%s\n',
       'searchStudentIdError': '查無資料',
+      'midtermAlerts': '期中預警',
+      'midtermAlertsEmpty': '太好了！本學期沒有任何科目被預警哦～\n請選擇其他學期 \uD83D\uDE0B',
+      'midtermAlertsContent': '原因：%s\n備註：%s',
     },
   };
 
@@ -1143,6 +1150,12 @@ class AppLocalizations {
   String get searchStudentIdFormat => _vocabularies['searchStudentIdFormat'];
 
   String get searchStudentIdError => _vocabularies['searchError'];
+
+  String get midtermAlerts => _vocabularies['midtermAlerts'];
+
+  String get midtermAlertsEmpty => _vocabularies['midtermAlertsEmpty'];
+
+  String get midtermAlertsContent => _vocabularies['midtermAlertsContent'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
