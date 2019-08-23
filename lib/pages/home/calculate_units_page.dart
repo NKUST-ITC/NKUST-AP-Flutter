@@ -27,7 +27,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   Semester selectSemester;
   SemesterData semesterData;
   List<Semester> semesterList;
-  List<ScoreData> scoreDataList;
+  List<Score> scores;
 
   double unitsTotal;
   double requiredUnitsTotal;
@@ -99,14 +99,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         style: isTitle ? _textBlueStyle() : _textStyle(),
       ),
     );
-  }
-
-  _scoreBorder(Semester semester, ScoreData score) {
-    return TableRow(children: <Widget>[
-      _scoreTextBorder(semester.text, false),
-      _scoreTextBorder("${score.content.detail.average}", false),
-      _scoreTextBorder("${score.content.detail.classRank}", false)
-    ]);
   }
 
   _generalEducationsBorder(Score score) {
@@ -273,7 +265,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     count = 0;
     currentSemesterIndex = 0;
     semesterList = [];
-    scoreDataList = [];
+    scores = [];
     coreGeneralEducations = [];
     extendGeneralEducations = [];
     start = DateTime.now();
@@ -318,41 +310,38 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     setState(() {
       state = _State.loading;
     });
-    if (semesterData == null || semesterData.semesters == null) {
+    if (semesterData == null || semesterData.data == null) {
       _getSemester();
       return;
     }
-    var textList =
-        semesterData.semesters[currentSemesterIndex].value.split(",");
+    var textList = semesterData.data[currentSemesterIndex].value.split(",");
     if (textList.length == 2) {
       Helper.instance.getScores(textList[0], textList[1]).then((response) {
-        if (response.status == 200) {
-          if (startYear == -1) startYear = int.parse(textList[0]);
-          //scoreWeightList.add(_scoreTitle());
-          semesterList.add(semesterData.semesters[currentSemesterIndex]);
-          scoreDataList.add(response);
-          for (var score in response.content.scores) {
-            var finalScore = double.tryParse(score.finalScore);
-            if (finalScore != null) {
-              if (finalScore >= 60.0) {
-                if (score.required == "【必修】") {
-                  requiredUnitsTotal += double.parse(score.units);
-                } else if (score.required == "【選修】") {
-                  electiveUnitsTotal += double.parse(score.units);
-                } else {
-                  otherUnitsTotal += double.parse(score.units);
-                }
-                if (score.title.contains("延伸通識")) {
-                  extendGeneralEducations.add(score);
-                } else if (score.title.contains("核心通識")) {
-                  coreGeneralEducations.add(score);
-                }
+        if (startYear == -1) startYear = int.parse(textList[0]);
+        //scoreWeightList.add(_scoreTitle());
+        semesterList.add(semesterData.data[currentSemesterIndex]);
+        scores = response.scores;
+        for (var score in response.scores) {
+          var finalScore = double.tryParse(score.finalScore);
+          if (finalScore != null) {
+            if (finalScore >= 60.0) {
+              if (score.required == "【必修】") {
+                requiredUnitsTotal += double.parse(score.units);
+              } else if (score.required == "【選修】") {
+                electiveUnitsTotal += double.parse(score.units);
+              } else {
+                otherUnitsTotal += double.parse(score.units);
+              }
+              if (score.title.contains("延伸通識")) {
+                extendGeneralEducations.add(score);
+              } else if (score.title.contains("核心通識")) {
+                coreGeneralEducations.add(score);
               }
             }
           }
         }
         var currentYear = int.parse(textList[0]);
-        if (currentSemesterIndex < semesterData.semesters.length - 1 &&
+        if (currentSemesterIndex < semesterData.data.length - 1 &&
             ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
           currentSemesterIndex++;
           if (mounted) _getSemesterScore();
@@ -404,36 +393,34 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       state = _State.loading;
     });
     print('_getSemesterScore');
-    print(semesterData.semesters.length);
-    if (semesterData == null || semesterData.semesters == null) {
+    print(semesterData.data.length);
+    if (semesterData == null || semesterData.data == null) {
       _getSemester();
       return;
     }
-    semesterData.semesters.forEach((s) {
+    semesterData.data.forEach((s) {
       var textList = s.value.split(",");
       if (textList.length == 2) {
         Helper.instance.getScores(textList[0], textList[1]).then((response) {
-          if (response.status == 200) {
-            if (startYear == -1) startYear = int.parse(textList[0]);
-            //scoreWeightList.add(_scoreTitle());
-            semesterList.add(s);
-            scoreDataList.add(response);
-            for (var score in response.content.scores) {
-              var finalScore = double.tryParse(score.finalScore);
-              if (finalScore != null) {
-                if (finalScore >= 60.0) {
-                  if (score.required == "【必修】") {
-                    requiredUnitsTotal += double.parse(score.units);
-                  } else if (score.required == "【選修】") {
-                    electiveUnitsTotal += double.parse(score.units);
-                  } else {
-                    otherUnitsTotal += double.parse(score.units);
-                  }
-                  if (score.title.contains("延伸通識")) {
-                    extendGeneralEducations.add(score);
-                  } else if (score.title.contains("核心通識")) {
-                    coreGeneralEducations.add(score);
-                  }
+          if (startYear == -1) startYear = int.parse(textList[0]);
+          //scoreWeightList.add(_scoreTitle());
+          semesterList.add(s);
+          scores = response.scores;
+          for (var score in response.scores) {
+            var finalScore = double.tryParse(score.finalScore);
+            if (finalScore != null) {
+              if (finalScore >= 60.0) {
+                if (score.required == "【必修】") {
+                  requiredUnitsTotal += double.parse(score.units);
+                } else if (score.required == "【選修】") {
+                  electiveUnitsTotal += double.parse(score.units);
+                } else {
+                  otherUnitsTotal += double.parse(score.units);
+                }
+                if (score.title.contains("延伸通識")) {
+                  extendGeneralEducations.add(score);
+                } else if (score.title.contains("核心通識")) {
+                  coreGeneralEducations.add(score);
                 }
               }
             }
@@ -443,7 +430,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           print('startYear = $startYear');
           print('currentYear = $currentYear');
           count++;
-          if (count == semesterData.semesters.length) {
+          if (count == semesterData.data.length) {
             unitsTotal =
                 requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
             if (mounted) {

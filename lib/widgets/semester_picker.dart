@@ -118,10 +118,10 @@ class SemesterPickerState extends State<SemesterPicker> {
           ),
         ),
         children: [
-          for (var i = 0; i < semesterData.semesters.length; i++) ...[
+          for (var i = 0; i < semesterData.data.length; i++) ...[
             DialogOption(
-                text: semesterData.semesters[i].text,
-                check: semesterData.semesters[i].text == selectSemester.text,
+                text: semesterData.data[i].text,
+                check: semesterData.data[i].text == selectSemester.text,
                 onPressed: () {
                   Navigator.pop(context, i);
                 }),
@@ -133,9 +133,9 @@ class SemesterPickerState extends State<SemesterPicker> {
       ),
     ).then<void>((int position) async {
       if (position != null) {
-        widget.onSelect(semesterData.semesters[position], position);
+        widget.onSelect(semesterData.data[position], position);
         setState(() {
-          selectSemester = semesterData.semesters[position];
+          selectSemester = semesterData.data[position];
         });
       }
     });

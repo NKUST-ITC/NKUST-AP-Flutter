@@ -1,60 +1,69 @@
+// To parse this JSON data, do
+//
+//     final semesterData = semesterDataFromJson(jsonString);
+
+import 'dart:convert';
+
 class SemesterData {
-  List<Semester> semesters;
+  List<Semester> data;
   Semester defaultSemester;
+  int defaultIndex;
 
   SemesterData({
-    this.semesters,
+    this.data,
     this.defaultSemester,
-  });
-
-  static SemesterData fromJson(Map<String, dynamic> json) {
-    return SemesterData(
-      semesters: Semester.toList(json['semester']),
-      defaultSemester: Semester.fromJson(json['default']),
-    );
+  }) {
+    defaultIndex = getDefaultIndex();
   }
 
-  Map<String, dynamic> toJson() => {
-        'semester': semesters,
-        'default': defaultSemester,
-      };
-
-  int get defaultIndex {
-    if (semesters == null) return -1;
-    for (var i = 0; i < semesters.length; i++)
-      if (semesters[i].text == defaultSemester.text) return i;
+  getDefaultIndex() {
+    for (var i = 0; i < data.length; i++)
+      if (defaultSemester.text == data[i].text) return i;
     return 0;
   }
+
+  factory SemesterData.fromRawJson(String str) =>
+      SemesterData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory SemesterData.fromJson(Map<String, dynamic> json) => new SemesterData(
+        data: new List<Semester>.from(
+            json["data"].map((x) => Semester.fromJson(x))),
+        defaultSemester: Semester.fromJson(json["default"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "data": new List<dynamic>.from(data.map((x) => x.toJson())),
+        "default": defaultSemester.toJson(),
+      };
 }
 
 class Semester {
+  String year;
   String value;
-  int selected;
   String text;
 
   Semester({
+    this.year,
     this.value,
-    this.selected,
     this.text,
   });
 
-  static List<Semester> toList(List<dynamic> jsonArray) {
-    List<Semester> list = [];
-    for (var item in (jsonArray ?? [])) list.add(Semester.fromJson(item));
-    return list;
-  }
+  factory Semester.fromRawJson(String str) =>
+      Semester.fromJson(json.decode(str));
 
-  static Semester fromJson(Map<String, dynamic> json) {
-    return Semester(
-      value: json['value'],
-      selected: json['selected'],
-      text: json['text'],
-    );
-  }
+  String toRawJson() => json.encode(toJson());
+
+  factory Semester.fromJson(Map<String, dynamic> json) => new Semester(
+        year: json["year"],
+        value: json["value"],
+        text: json["text"],
+      );
 
   Map<String, dynamic> toJson() => {
-        'value': value,
-        'selected': selected,
-        'text': text,
+        "year": year,
+        "value": value,
+        "text": text,
       };
 }

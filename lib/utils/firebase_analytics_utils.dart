@@ -35,7 +35,7 @@ class FA {
       await analytics.logEvent(
         name: 'user_info',
         parameters: <String, dynamic>{
-          'department': department,
+          'department': department ?? '',
           'platform': Platform.operatingSystem,
         },
       );

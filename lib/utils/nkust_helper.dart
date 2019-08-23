@@ -33,8 +33,8 @@ class NKUSTHelper {
     var elements = document.getElementsByTagName('b');
     if (elements.length >= 4)
       return UserInfo(
-        studentId: elements[4].text.replaceAll(' ', ''),
-        studentNameCht: elements[2].text,
+        id: elements[4].text.replaceAll(' ', ''),
+        name: elements[2].text,
       );
     else
       return null;

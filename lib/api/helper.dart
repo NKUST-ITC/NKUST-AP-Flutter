@@ -7,7 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
+import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const HOST = 'nkust.taki.dog';
@@ -113,9 +115,8 @@ class Helper {
 
   Future<UserInfo> getUsersInfo() async {
     try {
-      var response = await dio.get("/$VERSION/ap/users/info");
-      var json = jsonCodec.decode(response.data);
-      return UserInfo.fromJson(json);
+      var response = await dio.get('/user/info');
+      return UserInfo.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -132,7 +133,7 @@ class Helper {
 
   Future<SemesterData> getSemester() async {
     try {
-      var response = await dio.get("/$VERSION/ap/semester");
+      var response = await dio.get("/user/semesters");
       return SemesterData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
@@ -142,9 +143,17 @@ class Helper {
   Future<ScoreData> getScores(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/scores/" + year + "/" + semester,
-          cancelToken: cancelToken);
-      return ScoreData.fromJson(response.data);
+        "/user/scores",
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return ScoreData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -153,9 +162,17 @@ class Helper {
   Future<CourseData> getCourseTables(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/coursetables/" + year + "/" + semester,
-          cancelToken: cancelToken);
-      return CourseData.fromJson(response.data);
+        '/user/coursetable',
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return CourseData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -168,6 +185,46 @@ class Helper {
       var response = await dio.get("/$VERSION/bus/timetables?date=$date",
           cancelToken: cancelToken);
       return BusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<RewardAndPenaltyData> getRewardAndPenalty(
+      String year, String semester) async {
+    try {
+      var response = await dio.get(
+        "/user/reward-and-penalty",
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return RewardAndPenaltyData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<MidtermAlertsData> getMidtermAlerts(
+      String year, String semester) async {
+    try {
+      var response = await dio.get(
+        "/user/midterm-alerts",
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return MidtermAlertsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
