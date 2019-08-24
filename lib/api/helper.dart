@@ -178,26 +178,6 @@ class Helper {
     }
   }
 
-  Future<BusData> getBusTimeTables(DateTime dateTime) async {
-    var formatter = new DateFormat('yyyy-MM-dd');
-    var date = formatter.format(dateTime);
-    try {
-      var response = await dio.get(
-        '/$VERSION/bus/timetables',
-        queryParameters: {
-          'date': date,
-        },
-        cancelToken: cancelToken,
-      );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return BusData.fromJson(response.data);
-    } on DioError catch (dioError) {
-      throw dioError;
-    }
-  }
-
   Future<RewardAndPenaltyData> getRewardAndPenalty(
       String year, String semester) async {
     try {
@@ -238,10 +218,33 @@ class Helper {
     }
   }
 
+  Future<BusData> getBusTimeTables(DateTime dateTime) async {
+    var formatter = new DateFormat('yyyy-MM-dd');
+    var date = formatter.format(dateTime);
+    try {
+      var response = await dio.get(
+        '/$VERSION/bus/timetables',
+        queryParameters: {
+          'date': date,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
   Future<BusReservationsData> getBusReservations() async {
     try {
-      var response = await dio.get("/$VERSION/bus/reservations");
-      return BusReservationsData.fromJson(response.data);
+      var response = await dio.get("/bus/reservations");
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusReservationsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -249,7 +252,12 @@ class Helper {
 
   Future<Response> bookingBusReservation(String busId) async {
     try {
-      var response = await dio.put("/$VERSION/bus/reservations/$busId");
+      var response = await dio.put(
+        "/$VERSION/bus/reservations",
+        queryParameters: {
+          'busId': busId,
+        },
+      );
       return response;
     } on DioError catch (dioError) {
       throw dioError;
@@ -258,7 +266,12 @@ class Helper {
 
   Future<Response> cancelBusReservation(String cancelKey) async {
     try {
-      var response = await dio.delete("/$VERSION/bus/reservations/$cancelKey");
+      var response = await dio.delete(
+        "/bus/reservations/",
+        queryParameters: {
+          'cancelKey': cancelKey,
+        },
+      );
       return response;
     } on DioError catch (dioError) {
       throw dioError;

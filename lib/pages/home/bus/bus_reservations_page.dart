@@ -25,7 +25,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   bool get wantKeepAlive => true;
 
-  _State state = _State.loading;
+  _State state = _State.finish;
   BusReservationsData busReservationsData;
   DateTime dateTime = DateTime.now();
 
@@ -36,7 +36,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   void initState() {
     FA.setCurrentScreen("BusReservationsPage", "bus_reservations_page.dart");
-    _getBusReservations();
+    //_getBusReservations();
+    busReservationsData = BusReservationsData.sample();
     super.initState();
   }
 
@@ -220,10 +221,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
       busReservationsData = response;
       if (mounted) {
         setState(() {
-          if (busReservationsData.reservations.length != 0)
-            state = _State.finish;
-          else
+          if (busReservationsData == null)
             state = _State.empty;
+          else
+            state = _State.finish;
         });
       }
       CacheUtils.saveBusReservationsData(busReservationsData);
