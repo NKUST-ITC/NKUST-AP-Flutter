@@ -105,9 +105,8 @@ class Helper {
 
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
-      var response = await dio.get("/$VERSION/news/all");
-      var jsonArray = jsonCodec.decode(response.data);
-      return AnnouncementsData.fromJson(jsonArray);
+      var response = await dio.get("/news/announcements/all");
+      return AnnouncementsData.fromJson(response.data);
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
@@ -268,10 +267,10 @@ class Helper {
     }
   }
 
-  Future<NotificationData> getNotifications(int page) async {
+  Future<NotificationsData> getNotifications(int page) async {
     try {
-      var response = await dio.get("/$VERSION/notifications/$page");
-      return NotificationData.fromJson(response.data);
+      var response = await dio.get("/news/school/$page");
+      return NotificationsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

@@ -21,12 +21,12 @@ class NotificationPageState extends State<NotificationPage>
   @override
   bool get wantKeepAlive => true;
 
-  _State state = _State.loading;
+  _State state = _State.finish;
 
   AppLocalizations app;
 
   ScrollController controller;
-  List<NotificationModel> notificationList = [];
+  List<Notifications> notificationList = [];
 
   int page = 1;
 
@@ -44,7 +44,9 @@ class NotificationPageState extends State<NotificationPage>
   void initState() {
     FA.setCurrentScreen("NotificationPage", "notification_page.dart");
     controller = ScrollController()..addListener(_scrollListener);
-    _getNotifications();
+    //_getNotifications();
+    //TODO: Revert getData from v3 api
+    notificationList = NotificationsData.sample().data.notifications;
     super.initState();
   }
 
@@ -54,7 +56,7 @@ class NotificationPageState extends State<NotificationPage>
     controller.removeListener(_scrollListener);
   }
 
-  Widget _notificationItem(NotificationModel notification) {
+  Widget _notificationItem(Notifications notification) {
     return GestureDetector(
       onLongPress: () {
         Utils.shareTo("${notification.info.title}\n${notification.link}");
@@ -183,7 +185,7 @@ class NotificationPageState extends State<NotificationPage>
     }
     Helper.instance.getNotifications(page).then((response) {
       var notificationData = response;
-      for (var notification in notificationData.notifications) {
+      for (var notification in notificationData.data.notifications) {
         notificationList.add(notification);
       }
       if (mounted) {
