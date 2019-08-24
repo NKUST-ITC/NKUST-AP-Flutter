@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
@@ -24,18 +25,20 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  _State state = _State.offline;
+  _State state = _State.finish;
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
 
   int _currentNewsIndex = 0;
 
-  List<News> newsList = [];
+  AnnouncementsData announcementsResponse;
 
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
-//    _getNewsAll();
+    //    _getNewsAll();
+    //TODO: Revert getData from v3 api
+    announcementsResponse = AnnouncementsData.sample();
     _getUserInfo();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
       Utils.checkUpdate(context);
@@ -104,7 +107,8 @@ class HomePageState extends State<HomePage> {
         });
   }
 
-  Widget _newsImage(News news, Orientation orientation, bool active) {
+  Widget _newsImage(
+      Announcements announcement, Orientation orientation, bool active) {
     return AnimatedContainer(
       duration: Duration(milliseconds: 500),
       curve: Curves.easeOutQuint,
@@ -115,21 +119,21 @@ class HomePageState extends State<HomePage> {
         onTap: () {
           Utils.pushCupertinoStyle(
             context,
-            NewsContentPage(news),
+            NewsContentPage(announcement),
           );
-          String message = news.content.length > 12
-              ? news.content
-              : news.content.substring(0, 12);
+          String message = announcement.description.length > 12
+              ? announcement.description
+              : announcement.description.substring(0, 12);
           FA.logAction('news_image', 'click', message: message);
         },
         child: Hero(
-          tag: news.hashCode,
+          tag: announcement.hashCode,
           child: (Platform.isIOS || Platform.isAndroid)
               ? CachedNetworkImage(
-                  imageUrl: news.image,
+                  imageUrl: announcement.imgUrl,
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 )
-              : Image.network(news.image),
+              : Image.network(announcement.imgUrl),
         ),
       ),
     );
@@ -167,7 +171,7 @@ class HomePageState extends State<HomePage> {
               child: Material(
                 color: Colors.transparent,
                 child: Text(
-                  newsList[_currentNewsIndex].title,
+                  announcementsResponse.data[_currentNewsIndex].title,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 20.0,
@@ -183,11 +187,11 @@ class HomePageState extends State<HomePage> {
             Expanded(
               child: PageView.builder(
                 controller: pageController,
-                itemCount: newsList.length,
+                itemCount: announcementsResponse.data.length,
                 itemBuilder: (context, int currentIndex) {
                   bool active = (currentIndex == _currentNewsIndex);
-                  return _newsImage(
-                      newsList[currentIndex], orientation, active);
+                  return _newsImage(announcementsResponse.data[currentIndex],
+                      orientation, active);
                 },
               ),
             ),
@@ -199,10 +203,10 @@ class HomePageState extends State<HomePage> {
                 children: [
                   TextSpan(
                       text:
-                          '${newsList.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
+                          '${announcementsResponse.data.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
                           '${_currentNewsIndex + 1}',
                       style: TextStyle(color: Resource.Colors.red)),
-                  TextSpan(text: ' / ${newsList.length}'),
+                  TextSpan(text: ' / ${announcementsResponse.data.length}'),
                 ],
               ),
             ),
@@ -242,13 +246,15 @@ class HomePageState extends State<HomePage> {
         state = _State.offline;
       });
     } else
-      Helper.instance.getAllNews().then((newsList) {
-        this.newsList = newsList;
-        this.newsList.sort((a, b) {
-          return b.weight.compareTo(a.weight);
-        });
+      Helper.instance.getAllAnnouncements().then((announcementsResponse) {
+        this.announcementsResponse = announcementsResponse;
+//        this.announcementsList.data.sort((a, b) {
+//          return b.weight.compareTo(a.weight);
+//        });
         setState(() {
-          state = newsList.length == 0 ? _State.empty : _State.finish;
+          state = announcementsResponse.data.length == 0
+              ? _State.empty
+              : _State.finish;
         });
       }).catchError((e) {
         if (e is DioError) {

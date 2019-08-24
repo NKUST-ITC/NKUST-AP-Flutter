@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -102,11 +103,11 @@ class Helper {
     }
   }
 
-  Future<List<News>> getAllNews() async {
+  Future<AnnouncementsData> getAllAnnouncements() async {
     try {
       var response = await dio.get("/$VERSION/news/all");
       var jsonArray = jsonCodec.decode(response.data);
-      return News.toList(jsonArray);
+      return AnnouncementsData.fromJson(jsonArray);
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
