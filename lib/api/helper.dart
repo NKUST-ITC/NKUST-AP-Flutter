@@ -8,6 +8,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/api/api_models.dart';
 import 'package:nkust_ap/models/api/leave_response.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
@@ -283,6 +284,18 @@ class Helper {
       var response = await dio.get("/$VERSION/leaves/$year/$semester",
           cancelToken: cancelToken);
       return LeaveResponse.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<BusViolationRecordsData> getBusViolationRecords() async {
+    try {
+      var response = await dio.get('/bus/violation-records');
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusViolationRecordsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
