@@ -182,9 +182,17 @@ class Helper {
     var formatter = new DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
-      var response = await dio.get("/$VERSION/bus/timetables?date=$date",
-          cancelToken: cancelToken);
-      return BusData.fromJson(response.data);
+      var response = await dio.get(
+        '/$VERSION/bus/timetables',
+        queryParameters: {
+          'date': date,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

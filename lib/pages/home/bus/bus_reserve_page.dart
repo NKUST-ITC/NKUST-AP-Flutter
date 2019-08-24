@@ -29,7 +29,7 @@ class BusReservePageState extends State<BusReservePage>
 
   AppLocalizations app;
 
-  _State state = _State.loading;
+  _State state = _State.finish;
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
@@ -41,7 +41,9 @@ class BusReservePageState extends State<BusReservePage>
   @override
   void initState() {
     FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
-    _getBusTimeTables();
+    //_getBusTimeTables();
+    busData = BusData.sample();
+    print(busData.timetable.length);
     super.initState();
   }
 
@@ -187,10 +189,10 @@ class BusReservePageState extends State<BusReservePage>
     List<Widget> list = [];
     if (busData != null) {
       for (var i in busData.timetable) {
-        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
+        if (selectStartStation == Station.janGong && i.startStation == "建工")
           list.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
-          list.add(_busTimeWidget(i));
+        else if (selectStartStation == Station.yanchao &&
+            i.startStation == "燕巢") list.add(_busTimeWidget(i));
       }
     }
     return list;
@@ -200,7 +202,7 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           FlatButton(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.canReserve() && busTime.isReserve == 0
+            onPressed: busTime.canReserve() && busTime.isReserve
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -226,7 +228,7 @@ class BusReservePageState extends State<BusReservePage>
                                 ),
                                 TextSpan(
                                   text:
-                                      '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
+                                      '${busTime.specialTrain}${app.busReserveConfirmTitle}\n',
                                   style: TextStyle(
                                       color: Resource.Colors.grey,
                                       height: 1.3,
@@ -248,7 +250,7 @@ class BusReservePageState extends State<BusReservePage>
                       ),
                     );
                   }
-                : busTime.isReserve != 0
+                : busTime.isReserve
                     ? () {
                         showDialog(
                           context: context,
@@ -350,10 +352,10 @@ class BusReservePageState extends State<BusReservePage>
       busData = response;
       if (mounted) {
         setState(() {
-          if (busData.timetable.length != 0)
-            state = _State.finish;
-          else
+          if (busData == null)
             state = _State.empty;
+          else
+            state = _State.finish;
         });
       }
     }).catchError((e) {
