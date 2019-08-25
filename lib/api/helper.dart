@@ -108,6 +108,28 @@ class Helper {
     }
   }
 
+  Future<Response> deleteToken() async {
+    try {
+      var response = await dio.delete(
+        '/oauth/token',
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<Response> deleteAllToken() async {
+    try {
+      var response = await dio.delete(
+        '/oauth/token/all',
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
       var response = await dio.get("/news/announcements/all");
