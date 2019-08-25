@@ -15,6 +15,7 @@ import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
+import 'package:nkust_ap/models/room_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const HOST = 'nkust.taki.dog';
@@ -217,6 +218,46 @@ class Helper {
         return null;
       else
         return MidtermAlertsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
+  Future<RoomData> getRoomList(int campus) async {
+    try {
+      var response = await dio.get(
+        '/user/room/list',
+        queryParameters: {
+          'campus': campus,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return RoomData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<CourseData> getRoomCourseTables(
+      String roomId, String year, String semester) async {
+    try {
+      var response = await dio.get(
+        '/user/empty-room/info',
+        queryParameters: {
+          'roomId': roomId,
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return CourseData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
