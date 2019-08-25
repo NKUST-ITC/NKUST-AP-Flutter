@@ -279,16 +279,6 @@ class Helper {
     }
   }
 
-  Future<LeaveResponse> getLeaves(String year, String semester) async {
-    try {
-      var response = await dio.get("/$VERSION/leaves/$year/$semester",
-          cancelToken: cancelToken);
-      return LeaveResponse.fromJson(response.data);
-    } on DioError catch (dioError) {
-      throw dioError;
-    }
-  }
-
   Future<BusViolationRecordsData> getBusViolationRecords() async {
     try {
       var response = await dio.get('/bus/violation-records');
@@ -305,6 +295,22 @@ class Helper {
     try {
       var response = await dio.get("/news/school/$page");
       return NotificationsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<LeavesData> getLeaves(String year, String semester) async {
+    try {
+      var response = await dio.get(
+        '/leaves',
+        queryParameters: {
+          'year': year,
+          'value': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      return LeavesData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

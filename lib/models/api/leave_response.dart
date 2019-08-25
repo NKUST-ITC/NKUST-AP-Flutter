@@ -1,32 +1,33 @@
-class LeaveResponse {
-  int status;
-  String messages;
+import 'dart:convert';
+
+class LeavesData {
   List<Leaves> leaves;
-  List<String> timeCode;
+  List<String> timeCodes;
 
-  LeaveResponse({this.status, this.messages, this.leaves, this.timeCode});
+  LeavesData({
+    this.leaves,
+    this.timeCodes,
+  });
 
-  LeaveResponse.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    messages = json['messages'];
-    if (json['leaves'] != null) {
-      leaves = new List<Leaves>();
-      json['leaves'].forEach((v) {
-        leaves.add(new Leaves.fromJson(v));
-      });
-    }
-    if (json['timecode'] != null) timeCode = json['timecode'].cast<String>();
-  }
+  factory LeavesData.fromRawJson(String str) =>
+      LeavesData.fromJson(json.decode(str));
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['messages'] = this.messages;
-    if (this.leaves != null) {
-      data['leaves'] = this.leaves.map((v) => v.toJson()).toList();
-    }
-    data['timecode'] = this.timeCode;
-    return data;
+  String toRawJson() => json.encode(toJson());
+
+  factory LeavesData.fromJson(Map<String, dynamic> json) => new LeavesData(
+        leaves:
+            new List<Leaves>.from(json["leave"].map((x) => Leaves.fromJson(x))),
+        timeCodes: new List<String>.from(json["timeCodes"].map((x) => x)),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "leave": new List<dynamic>.from(leaves.map((x) => x.toJson())),
+        "timeCodes": new List<dynamic>.from(timeCodes.map((x) => x)),
+      };
+
+  static LeavesData sample() {
+    return LeavesData.fromRawJson(
+        '{ "leave": [ { "leaveSheetId": "", "date": "107/11/14", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }');
   }
 }
 
@@ -42,29 +43,25 @@ class Leaves {
       this.instructorsComment,
       this.leaveSections});
 
-  Leaves.fromJson(Map<String, dynamic> json) {
-    leaveSheetId = json['leave_sheet_id'];
-    date = json['date'];
-    instructorsComment = json['instructors_comment'];
-    if (json['leave_sections'] != null) {
-      leaveSections = new List<LeaveSections>();
-      json['leave_sections'].forEach((v) {
-        leaveSections.add(new LeaveSections.fromJson(v));
-      });
-    }
-  }
+  factory Leaves.fromRawJson(String str) => Leaves.fromJson(json.decode(str));
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['leave_sheet_id'] = this.leaveSheetId;
-    data['date'] = this.date;
-    data['instructors_comment'] = this.instructorsComment;
-    if (this.leaveSections != null) {
-      data['leave_sections'] =
-          this.leaveSections.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  String toRawJson() => json.encode(toJson());
+
+  factory Leaves.fromJson(Map<String, dynamic> json) => new Leaves(
+        leaveSheetId: json["leaveSheetId"],
+        date: json["date"],
+        instructorsComment: json["instructorsComment"],
+        leaveSections: new List<LeaveSections>.from(
+            json["sections"].map((x) => LeaveSections.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "leaveSheetId": leaveSheetId,
+        "date": date,
+        "instructorsComment": instructorsComment,
+        "sections":
+            new List<dynamic>.from(leaveSections.map((x) => x.toJson())),
+      };
 
   String getReason(String timeCode) {
     if (leaveSections == null) return "";

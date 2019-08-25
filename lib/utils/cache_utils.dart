@@ -86,7 +86,7 @@ class CacheUtils {
     return UserInfo.fromJson(jsonDecode(json));
   }
 
-  static void saveLeaveData(String value, LeaveResponse leaveData) async {
+  static void saveLeaveData(String value, LeavesData leaveData) async {
     if (leaveData == null) return;
     String username = Preferences.getString(Constants.PREF_USERNAME, '');
     await Preferences.setString(
@@ -94,12 +94,12 @@ class CacheUtils {
         jsonEncode(leaveData));
   }
 
-  static Future<LeaveResponse> loadLeaveData(String value) async {
+  static Future<LeavesData> loadLeaveData(String value) async {
     String username = Preferences.getString(Constants.PREF_USERNAME, '');
     String json = Preferences.getString(
         '${Constants.PREF_LEAVE_DATA}_${username}_$value', '');
     if (json == '') return null;
-    return LeaveResponse.fromJson(jsonDecode(json));
+    return LeavesData.fromJson(jsonDecode(json));
   }
 
   static void saveBusReservationsData(
