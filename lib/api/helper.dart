@@ -16,6 +16,7 @@ import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
+import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const HOST = 'nkust.taki.dog';
@@ -125,6 +126,15 @@ class Helper {
         '/oauth/token/all',
       );
       return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<ServerInfoData> getServerInfoData() async {
+    try {
+      var response = await dio.get("​/server​/info");
+      return ServerInfoData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
