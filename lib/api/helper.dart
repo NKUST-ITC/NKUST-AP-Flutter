@@ -11,6 +11,7 @@ import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/leave_info_data.dart';
 import 'package:nkust_ap/models/leaves_submit_data.dart';
+import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
@@ -338,6 +339,21 @@ class Helper {
         cancelToken: cancelToken,
       );
       return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<LibraryInfo> getLibraryInfo() async {
+    try {
+      var response = await dio.get(
+        '/leaves/submit/info',
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return LibraryInfoData.fromJson(response.data).data;
     } on DioError catch (dioError) {
       throw dioError;
     }
