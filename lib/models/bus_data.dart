@@ -19,10 +19,10 @@ class BusData {
 
   String toRawJson() => json.encode(toJson());
 
-  factory BusData.fromJson(Map<String, dynamic> json) => new BusData(
+  factory BusData.fromJson(Map<String, dynamic> json) => BusData(
         date: json["date"],
-        timetable: new List<BusTime>.from(
-            json["data"].map((x) => BusTime.fromJson(x))),
+        timetable:
+            List<BusTime>.from(json["data"].map((x) => BusTime.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
@@ -92,7 +92,7 @@ class BusTime {
 
   String toRawJson() => json.encode(toJson());
 
-  factory BusTime.fromJson(Map<String, dynamic> json) => new BusTime(
+  factory BusTime.fromJson(Map<String, dynamic> json) => BusTime(
         endEnrollDateTime: json["endEnrollDateTime"],
         departureTime: json["departureTime"],
         startStation: json["startStation"],
@@ -100,7 +100,7 @@ class BusTime {
         reserveCount: json["reserveCount"],
         limitCount: json["limitCount"],
         isReserve: json["isReserve"],
-        specialTrain: json["SpecialTrain"],
+        specialTrain: json["specialTrain"],
         discription: json["discription"],
         cancelKey: json["cancelKey"],
         homeCharteredBus: json["homeCharteredBus"],
@@ -114,18 +114,17 @@ class BusTime {
         "reserveCount": reserveCount,
         "limitCount": limitCount,
         "isReserve": isReserve,
-        "SpecialTrain": specialTrain,
+        "specialTrain": specialTrain,
         "discription": discription,
         "cancelKey": cancelKey,
         "homeCharteredBus": homeCharteredBus,
       };
 
   bool canReserve() {
-    var now = new DateTime.now();
+    var now = DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
     var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
-    print(endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
         endEnrollDateTime.millisecondsSinceEpoch;
   }

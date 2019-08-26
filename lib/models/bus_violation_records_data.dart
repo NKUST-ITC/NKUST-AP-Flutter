@@ -29,7 +29,7 @@ class Reservation {
   String startStation;
   bool homeCharteredBus;
   int amountend;
-  String isPayment;
+  bool isPayment;
 
   Reservation({
     this.time,

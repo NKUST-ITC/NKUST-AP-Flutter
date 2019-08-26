@@ -41,9 +41,7 @@ class BusReservePageState extends State<BusReservePage>
   @override
   void initState() {
     FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
-    //_getBusTimeTables();
-    busData = BusData.sample();
-    print(busData.timetable.length);
+    _getBusTimeTables();
     super.initState();
   }
 
@@ -202,7 +200,7 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           FlatButton(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.canReserve() && busTime.isReserve
+            onPressed: busTime.canReserve() && !busTime.isReserve
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -217,29 +215,30 @@ class BusReservePageState extends State<BusReservePage>
                         contentWidget: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                              style: TextStyle(
-                                  color: Resource.Colors.grey,
-                                  height: 1.3,
-                                  fontSize: 16.0),
-                              children: [
-                                TextSpan(
-                                  text: '${busTime.getTime()} $start\n',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text:
-                                      '${busTime.specialTrain}${app.busReserveConfirmTitle}\n',
-                                  style: TextStyle(
-                                      color: Resource.Colors.grey,
-                                      height: 1.3,
-                                      fontSize: 14.0),
-                                ),
-                                TextSpan(
-                                    text: '${app.reserveDeadline}：\n',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                TextSpan(text: '${busTime.endEnrollDateTime}'),
-                              ]),
+                            style: TextStyle(
+                                color: Resource.Colors.grey,
+                                height: 1.3,
+                                fontSize: 16.0),
+                            children: [
+                              TextSpan(
+                                text: '${busTime.getTime()} $start\n',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text:
+                                    '${busTime.discription}${app.busReserveConfirmTitle}\n',
+                                style: TextStyle(
+                                    color: Resource.Colors.grey,
+                                    height: 1.3,
+                                    fontSize: 14.0),
+                              ),
+                              TextSpan(
+                                  text: '${app.reserveDeadline}：\n',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(text: '${busTime.endEnrollDateTime}'),
+                            ],
+                          ),
                         ),
                         leftActionText: app.cancel,
                         rightActionText: app.reserve,
@@ -364,7 +363,13 @@ class BusReservePageState extends State<BusReservePage>
         // dioError.message = HttpException: Connection closed before full header was received
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getBusTimeTables', mounted, e);
+            if (e.response.statusCode == 401) {
+              setState(() {
+                state = _State.error;
+              });
+            } else
+              Utils.handleResponseError(
+                  context, 'getBusTimeTables', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

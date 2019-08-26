@@ -36,8 +36,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   void initState() {
     FA.setCurrentScreen("BusReservationsPage", "bus_reservations_page.dart");
-    //_getBusReservations();
-    busReservationsData = BusReservationsData.sample();
+    _getBusReservations();
     super.initState();
   }
 
@@ -221,7 +220,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       busReservationsData = response;
       if (mounted) {
         setState(() {
-          if (busReservationsData == null)
+          if (busReservationsData == null ||
+              busReservationsData.reservations.length == 0)
             state = _State.empty;
           else
             state = _State.finish;
@@ -232,8 +232,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(
-                context, 'getBusReservations', mounted, e);
+            if (e.response.statusCode == 401) {
+              setState(() {
+                state = _State.error;
+              });
+            } else
+              Utils.handleResponseError(
+                  context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

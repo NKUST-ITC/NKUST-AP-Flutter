@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -278,21 +277,21 @@ class DrawerBodyState extends State<DrawerBody> {
         leading: Icon(icon, color: Resource.Colors.grey),
         title: Text(title, style: _defaultStyle),
         onTap: () async {
-          if (Platform.isAndroid || Platform.isIOS) {
-            if (page is BusPage) {
-              bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
-              if (!bus) {
-                Utils.showToast(context, app.canNotUseFeature);
-                return;
-              }
-            } else if (page is LeavePage) {
-              bool leave = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
-              if (!leave) {
-                Utils.showToast(context, app.canNotUseFeature);
-                return;
-              }
-            }
-          }
+//          if (Platform.isAndroid || Platform.isIOS) {
+//            if (page is BusPage) {
+//              bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+//              if (!bus) {
+//                Utils.showToast(context, app.canNotUseFeature);
+//                return;
+//              }
+//            } else if (page is LeavePage) {
+//              bool leave = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
+//              if (!leave) {
+//                Utils.showToast(context, app.canNotUseFeature);
+//                return;
+//              }
+//            }
+//          }
           Navigator.of(context).pop();
           Utils.pushCupertinoStyle(context, page);
         },

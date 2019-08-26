@@ -223,13 +223,12 @@ class HomePageState extends State<HomePage> {
   }
 
   void onTabTapped(int index) async {
-    bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
     switch (index) {
       case 0:
-        if (bus)
-          Utils.pushCupertinoStyle(context, BusPage());
-        else
-          Utils.showToast(context, app.canNotUseFeature);
+//        if (bus)
+        Utils.pushCupertinoStyle(context, BusPage());
+//        else
+//          Utils.showToast(context, app.canNotUseFeature);
         break;
       case 1:
         Utils.pushCupertinoStyle(context, CoursePage());

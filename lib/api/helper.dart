@@ -296,11 +296,11 @@ class Helper {
   }
 
   Future<BusData> getBusTimeTables(DateTime dateTime) async {
-    var formatter = new DateFormat('yyyy-MM-dd');
+    var formatter = DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
       var response = await dio.get(
-        '/$VERSION/bus/timetables',
+        '/bus/timetables',
         queryParameters: {
           'date': date,
         },
@@ -358,6 +358,8 @@ class Helper {
   Future<BusViolationRecordsData> getBusViolationRecords() async {
     try {
       var response = await dio.get('/bus/violation-records');
+      print(response.statusCode);
+      print(response.data);
       if (response.statusCode == 204)
         return null;
       else
