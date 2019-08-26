@@ -126,7 +126,7 @@ class BusTime {
     var formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
     var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
-        endEnrollDateTime.millisecondsSinceEpoch;
+        endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
   }
 
   Color getColorState() {
@@ -146,7 +146,7 @@ class BusTime {
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd');
     var time = formatter.parse(this.departureTime);
-    return formatterTime.format(time);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   String getTime() {
@@ -154,7 +154,7 @@ class BusTime {
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm', 'zh');
     var time = formatter.parse(this.departureTime);
-    return formatterTime.format(time);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   String getStart(AppLocalizations local) {

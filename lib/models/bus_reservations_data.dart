@@ -90,7 +90,7 @@ class BusReservation {
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd');
     var time = formatter.parse(this.dateTime);
-    return formatterTime.format(time);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   String getTime() {
@@ -98,7 +98,7 @@ class BusReservation {
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm');
     var time = formatter.parse(this.dateTime);
-    return formatterTime.format(time);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   DateTime getDateTime() {
@@ -111,7 +111,8 @@ class BusReservation {
     initializeDateFormatting();
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd HH:mm');
-    return formatterTime.format(formatter.parse(this.dateTime));
+    return formatterTime
+        .format(formatter.parse(this.dateTime).add(Duration(hours: 8)));
   }
 
   String getStart(AppLocalizations local) {
