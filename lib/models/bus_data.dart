@@ -129,6 +129,14 @@ class BusTime {
         endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
   }
 
+  String getEndEnrollDateTime() {
+    initializeDateFormatting();
+    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+    var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
+    var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
+    return dateFormat.format(endEnrollDateTime.add(Duration(hours: 8)));
+  }
+
   Color getColorState() {
     return isReserve
         ? Resource.Colors.blueAccent

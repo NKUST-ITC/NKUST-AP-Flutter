@@ -236,7 +236,8 @@ class BusReservePageState extends State<BusReservePage>
                                   text: '${app.reserveDeadline}：\n',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(text: '${busTime.endEnrollDateTime}'),
+                              TextSpan(
+                                  text: '${busTime.getEndEnrollDateTime()}'),
                             ],
                           ),
                         ),
@@ -411,15 +412,14 @@ class BusReservePageState extends State<BusReservePage>
       //TODO to object
       String title = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (response.success) {
         title = app.busReserveFailTitle;
         messageWidget = Text(
-          response.data["message"],
+          response.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
-        FA.logAction('book_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+        FA.logAction('book_bus', 'status', message: 'fail_${response.message}');
       } else {
         title = app.busReserveSuccess;
         messageWidget = RichText(
@@ -508,15 +508,15 @@ class BusReservePageState extends State<BusReservePage>
     Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
       String title = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (!response.success) {
         title = app.busCancelReserveFail;
         messageWidget = Text(
-          response.data["message"],
+          response.data.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
         FA.logAction('cancel_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+            message: 'fail_${response.data.message}');
       } else {
         title = app.busCancelReserveSuccess;
         messageWidget = RichText(

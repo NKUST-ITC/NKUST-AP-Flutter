@@ -6,7 +6,9 @@ import 'package:encrypt/encrypt.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
+import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/leave_info_data.dart';
 import 'package:nkust_ap/models/leaves_data.dart';
 import 'package:nkust_ap/models/leaves_submit_data.dart';
@@ -327,7 +329,7 @@ class Helper {
     }
   }
 
-  Future<Response> bookingBusReservation(String busId) async {
+  Future<BookingBusData> bookingBusReservation(String busId) async {
     try {
       var response = await dio.put(
         "/bus/reservations",
@@ -335,13 +337,13 @@ class Helper {
           'busId': busId,
         },
       );
-      return response;
+      return BookingBusData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<Response> cancelBusReservation(String cancelKey) async {
+  Future<CancelBusData> cancelBusReservation(String cancelKey) async {
     try {
       var response = await dio.delete(
         "/bus/reservations",
@@ -349,7 +351,7 @@ class Helper {
           'cancelKey': cancelKey,
         },
       );
-      return response;
+      return CancelBusData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }

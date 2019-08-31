@@ -289,15 +289,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
         .then((response) {
       String title = "", message = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (!response.success) {
         title = app.busCancelReserveFail;
         messageWidget = Text(
-          response.data["message"],
+          response.data.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
         FA.logAction('cancel_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+            message: 'fail_${response.data.message}');
       } else {
         title = app.busCancelReserveSuccess;
         messageWidget = RichText(
