@@ -351,7 +351,7 @@ class BusReservePageState extends State<BusReservePage>
       busData = response;
       if (mounted) {
         setState(() {
-          if (busData == null)
+          if (busData == null || busData.timetable.length == 0)
             state = _State.empty;
           else
             state = _State.finish;

@@ -330,7 +330,7 @@ class Helper {
   Future<Response> bookingBusReservation(String busId) async {
     try {
       var response = await dio.put(
-        "/$VERSION/bus/reservations",
+        "/bus/reservations",
         queryParameters: {
           'busId': busId,
         },
@@ -344,7 +344,7 @@ class Helper {
   Future<Response> cancelBusReservation(String cancelKey) async {
     try {
       var response = await dio.delete(
-        "/bus/reservations/",
+        "/bus/reservations",
         queryParameters: {
           'cancelKey': cancelKey,
         },
