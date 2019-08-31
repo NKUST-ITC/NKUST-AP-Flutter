@@ -27,7 +27,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   Semester selectSemester;
   SemesterData semesterData;
   List<Semester> semesterList;
-  List<Score> scores;
 
   double unitsTotal;
   double requiredUnitsTotal;
@@ -265,7 +264,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     count = 0;
     currentSemesterIndex = 0;
     semesterList = [];
-    scores = [];
     coreGeneralEducations = [];
     extendGeneralEducations = [];
     start = DateTime.now();
@@ -314,13 +312,16 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
-    var textList = semesterData.data[currentSemesterIndex].value.split(",");
-    if (textList.length == 2) {
-      Helper.instance.getScores(textList[0], textList[1]).then((response) {
-        if (startYear == -1) startYear = int.parse(textList[0]);
-        //scoreWeightList.add(_scoreTitle());
-        semesterList.add(semesterData.data[currentSemesterIndex]);
-        scores = response.scores;
+    Helper.instance
+        .getScores(semesterData.data[currentSemesterIndex].year,
+            semesterData.data[currentSemesterIndex].value)
+        .then((response) {
+      if (startYear == -1)
+        startYear = int.parse(semesterData.data[currentSemesterIndex].year);
+      //scoreWeightList.add(_scoreTitle());
+      semesterList.add(semesterData.data[currentSemesterIndex]);
+
+      if (response?.scores != null) {
         for (var score in response.scores) {
           var finalScore = double.tryParse(score.finalScore);
           if (finalScore != null) {
@@ -340,50 +341,43 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             }
           }
         }
-        var currentYear = int.parse(textList[0]);
-        if (currentSemesterIndex < semesterData.data.length - 1 &&
-            ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
-          currentSemesterIndex++;
-          if (mounted) _getSemesterScore();
-        } else {
-          DateTime end = DateTime.now();
-          var second =
-              (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
-                  1000;
-          FA.logCalculateUnits(second);
-          unitsTotal =
-              requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
-          if (mounted) {
+      }
+      var currentYear = int.parse(semesterData.data[currentSemesterIndex].year);
+      if (currentSemesterIndex < semesterData.data.length - 1 &&
+          ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
+        currentSemesterIndex++;
+        if (mounted) _getSemesterScore();
+      } else {
+        DateTime end = DateTime.now();
+        var second =
+            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) / 1000;
+        FA.logCalculateUnits(second);
+        unitsTotal = requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+        if (mounted) {
+          setState(() {
+            state = _State.finish;
+          });
+        }
+      }
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.handleResponseError(context, 'getSemesterScore', mounted, e);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
             setState(() {
-              state = _State.finish;
+              state = _State.error;
             });
-          }
+            Utils.handleDioError(context, e);
+            break;
         }
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(
-                  context, 'getSemesterScore', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              setState(() {
-                state = _State.error;
-              });
-              Utils.handleDioError(context, e);
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
-    } else {
-      setState(() {
-        state = _State.error;
-      });
-    }
+      } else {
+        throw e;
+      }
+    });
   }
 
   void _getByMuti() {
@@ -405,22 +399,23 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           if (startYear == -1) startYear = int.parse(textList[0]);
           //scoreWeightList.add(_scoreTitle());
           semesterList.add(s);
-          scores = response.scores;
-          for (var score in response.scores) {
-            var finalScore = double.tryParse(score.finalScore);
-            if (finalScore != null) {
-              if (finalScore >= 60.0) {
-                if (score.required == "【必修】") {
-                  requiredUnitsTotal += double.parse(score.units);
-                } else if (score.required == "【選修】") {
-                  electiveUnitsTotal += double.parse(score.units);
-                } else {
-                  otherUnitsTotal += double.parse(score.units);
-                }
-                if (score.title.contains("延伸通識")) {
-                  extendGeneralEducations.add(score);
-                } else if (score.title.contains("核心通識")) {
-                  coreGeneralEducations.add(score);
+          if (response?.scores == null) {
+            for (var score in response.scores) {
+              var finalScore = double.tryParse(score.finalScore);
+              if (finalScore != null) {
+                if (finalScore >= 60.0) {
+                  if (score.required == "【必修】") {
+                    requiredUnitsTotal += double.parse(score.units);
+                  } else if (score.required == "【選修】") {
+                    electiveUnitsTotal += double.parse(score.units);
+                  } else {
+                    otherUnitsTotal += double.parse(score.units);
+                  }
+                  if (score.title.contains("延伸通識")) {
+                    extendGeneralEducations.add(score);
+                  } else if (score.title.contains("核心通識")) {
+                    coreGeneralEducations.add(score);
+                  }
                 }
               }
             }
