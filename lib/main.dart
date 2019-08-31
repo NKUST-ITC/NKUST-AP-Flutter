@@ -21,7 +21,7 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-import 'models/api/login_response.dart';
+import 'models/login_response.dart';
 import 'models/user_info.dart';
 
 void main() async {

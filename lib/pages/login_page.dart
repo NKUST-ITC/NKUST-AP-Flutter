@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/api/login_response.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;

@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/api/leave_response.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
+import 'package:nkust_ap/models/leaves_data.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/models/score_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
