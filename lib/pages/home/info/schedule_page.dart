@@ -195,7 +195,8 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionText: app.determine,
                     leftActionFunction: null,
                     rightActionFunction: () {
-                      _addToCalendar(schedule.events[index]);
+                      if (schedule.events != null || schedule.events.length > 0)
+                        _addToCalendar(schedule.events[index]);
                       FA.logAction('add_schedule', 'click');
                     },
                   ),
