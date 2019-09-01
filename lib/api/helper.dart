@@ -185,7 +185,7 @@ class Helper {
         "/user/scores",
         queryParameters: {
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
@@ -204,7 +204,7 @@ class Helper {
         '/user/coursetable',
         queryParameters: {
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
@@ -224,7 +224,7 @@ class Helper {
         "/user/reward-and-penalty",
         queryParameters: {
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
@@ -244,7 +244,7 @@ class Helper {
         "/user/midterm-alerts",
         queryParameters: {
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
@@ -284,7 +284,7 @@ class Helper {
         queryParameters: {
           'roomId': roomId,
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
@@ -386,7 +386,7 @@ class Helper {
         '/leaves',
         queryParameters: {
           'year': year,
-          'value': semester,
+          'semester': semester,
         },
         cancelToken: cancelToken,
       );
