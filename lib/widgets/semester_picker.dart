@@ -108,28 +108,41 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void pickSemester() {
+    int index = 0;
+    for (var i = 0; i < semesterData.semesters.length; i++) {
+      if (semesterData.semesters[i].text == selectSemester.text) index = i;
+    }
     showDialog<int>(
       context: context,
-      builder: (BuildContext context) => SimpleDialog(
+      builder: (BuildContext context) => AlertDialog(
         title: Text(AppLocalizations.of(context).picksSemester),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(8),
           ),
         ),
-        children: [
-          for (var i = 0; i < semesterData.semesters.length; i++) ...[
-            DialogOption(
-                text: semesterData.semesters[i].text,
-                check: semesterData.semesters[i].text == selectSemester.text,
-                onPressed: () {
-                  Navigator.pop(context, i);
-                }),
-            Divider(
-              height: 6.0,
-            )
-          ]
-        ],
+        contentPadding: EdgeInsets.all(0.0),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.7,
+          height: MediaQuery.of(context).size.height * 0.8,
+          child: ListView(
+            controller: ScrollController(initialScrollOffset: index * 48.0),
+            children: [
+              for (var i = 0; i < semesterData.semesters.length; i++) ...[
+                DialogOption(
+                    text: semesterData.semesters[i].text,
+                    check:
+                        semesterData.semesters[i].text == selectSemester.text,
+                    onPressed: () {
+                      Navigator.pop(context, i);
+                    }),
+                Divider(
+                  height: 6.0,
+                )
+              ]
+            ],
+          ),
+        ),
       ),
     ).then<void>((int position) async {
       if (position != null) {
