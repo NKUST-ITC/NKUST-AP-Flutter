@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -12,7 +12,7 @@ enum _Status { loading, finish, error, empty }
 class NewsContentPage extends StatefulWidget {
   static const String routerName = "/news/content";
 
-  final News news;
+  final Announcements news;
 
   NewsContentPage(this.news);
 
@@ -78,10 +78,10 @@ class NewsContentPageState extends State<NewsContentPage> {
         tag: widget.news.hashCode,
         child: (Platform.isIOS || Platform.isAndroid)
             ? CachedNetworkImage(
-                imageUrl: widget.news.image,
+                imageUrl: widget.news.imgUrl,
                 errorWidget: (context, url, error) => Icon(Icons.error),
               )
-            : Image.network(widget.news.image),
+            : Image.network(widget.news.imgUrl),
       ),
     );
     final List<Widget> newsContent = <Widget>[
@@ -108,7 +108,7 @@ class NewsContentPageState extends State<NewsContentPage> {
         padding: EdgeInsets.symmetric(
             horizontal: orientation == Orientation.portrait ? 16.0 : 0.0),
         child: Text(
-          widget.news.content,
+          widget.news.description,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16.0,
@@ -116,7 +116,7 @@ class NewsContentPageState extends State<NewsContentPage> {
           ),
         ),
       ),
-      if (widget.news.url.isNotEmpty) ...[
+      if (widget.news.url != null && widget.news.url.isNotEmpty) ...[
         SizedBox(height: 16.0),
         RaisedButton(
           shape: RoundedRectangleBorder(
@@ -126,9 +126,9 @@ class NewsContentPageState extends State<NewsContentPage> {
           ),
           onPressed: () {
             Utils.launchUrl(widget.news.url);
-            String message = widget.news.content.length > 12
-                ? widget.news.content
-                : widget.news.content.substring(0, 12);
+            String message = widget.news.description.length > 12
+                ? widget.news.description
+                : widget.news.description.substring(0, 12);
             FA.logAction('news_link', 'click', message: message);
           },
           padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 0.0),

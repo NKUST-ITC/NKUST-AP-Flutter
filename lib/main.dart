@@ -21,6 +21,7 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'models/login_response.dart';
 import 'models/user_info.dart';
 
 void main() async {
@@ -90,6 +91,7 @@ class MyAppState extends State<MyApp> {
   FirebaseMessaging firebaseMessaging;
   ThemeData themeData;
   UserInfo userInfo;
+  LoginResponse loginResponse;
   bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {

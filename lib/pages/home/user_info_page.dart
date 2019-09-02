@@ -75,7 +75,7 @@ class UserInfoPageState extends State<UserInfoPage>
                       SizedBox(height: 8.0),
                       ListTile(
                         title: Text(app.studentNameCht),
-                        subtitle: Text(widget.userInfo.studentNameCht),
+                        subtitle: Text(widget.userInfo.name),
                       ),
                       Divider(height: 1.0),
                       ListTile(
@@ -95,7 +95,7 @@ class UserInfoPageState extends State<UserInfoPage>
                       Divider(height: 1.0),
                       ListTile(
                         title: Text(app.studentId),
-                        subtitle: Text(widget.userInfo.studentId),
+                        subtitle: Text(widget.userInfo.id),
                       ),
                     ],
                   ),

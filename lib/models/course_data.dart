@@ -9,20 +9,20 @@ class CourseData {
   CourseData({this.status, this.messages, this.courseTables});
 
   CourseData.fromJson(Map<String, dynamic> json) {
-    status = json['status'];
-    messages = json['messages'];
-    if (status == 200)
-      courseTables = json['coursetables'] != null
-          ? CourseTables.fromJson(json['coursetables'])
-          : null;
+    courseTables = json['coursetable'] != null
+        ? CourseTables.fromJson(json['coursetable'])
+        : null;
+  }
+
+  bool get hasHoliday {
+    return ((courseTables.saturday?.isEmpty) ?? false) &&
+        ((courseTables.sunday?.isEmpty) ?? false);
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
-    data['status'] = this.status;
-    data['messages'] = this.messages;
     if (this.courseTables != null) {
-      data['coursetables'] = this.courseTables.toJson();
+      data['coursetable'] = this.courseTables.toJson();
     }
     return data;
   }
@@ -91,7 +91,7 @@ class CourseTables {
         sunday.add(Course.fromJson(v));
       });
     }
-    timeCode = json['timecode'].cast<String>();
+    timeCode = new List<String>.from(json["timeCodes"].map((x) => x));
   }
 
   Map<String, dynamic> toJson() {
@@ -117,7 +117,7 @@ class CourseTables {
     if (this.sunday != null) {
       data['Sunday'] = this.sunday.map((v) => v.toJson()).toList();
     }
-    data['timecode'] = this.timeCode;
+    data['timeCodes'] = this.timeCode;
     return data;
   }
 
@@ -238,16 +238,16 @@ class Date {
   Date({this.startTime, this.endTime, this.weekday, this.section});
 
   Date.fromJson(Map<String, dynamic> json) {
-    startTime = json['start_time'];
-    endTime = json['end_time'];
-    weekday = json['weekday'];
-    section = json['section'];
+    startTime = json['startTime'] ?? '';
+    endTime = json['endTime'] ?? '';
+    weekday = json['weekday'] ?? '';
+    section = json['section'] ?? '';
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
-    data['start_time'] = this.startTime;
-    data['end_time'] = this.endTime;
+    data['startTime'] = this.startTime;
+    data['endTime'] = this.endTime;
     data['weekday'] = this.weekday;
     data['section'] = this.section;
     return data;
@@ -261,8 +261,8 @@ class Location {
   Location({this.building, this.room});
 
   Location.fromJson(Map<String, dynamic> json) {
-    building = json['building'];
-    room = json['room'];
+    building = json['building'] ?? '';
+    room = json['room'] ?? '';
   }
 
   Map<String, dynamic> toJson() {

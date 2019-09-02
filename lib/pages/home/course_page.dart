@@ -33,12 +33,9 @@ class CoursePageState extends State<CoursePage> {
 
   bool isOffline = false;
 
-  bool get hasHoliday => (courseData?.courseTables?.saturday == null &&
-      courseData?.courseTables?.sunday == null);
+  int get base => (courseData.hasHoliday) ? 6 : 8;
 
-  int get base => (hasHoliday) ? 6 : 8;
-
-  double get childAspectRatio => (hasHoliday) ? 1.5 : 1.1;
+  double get childAspectRatio => (courseData.hasHoliday) ? 1.5 : 1.1;
 
   @override
   void initState() {
@@ -174,8 +171,7 @@ class CoursePageState extends State<CoursePage> {
     ];
     for (var week in app.weekdaysCourse.sublist(0, 4))
       list[0].children.add(_titleBorder(week));
-    if (courseData.courseTables.saturday == null &&
-        courseData.courseTables.sunday == null) {
+    if (courseData.hasHoliday) {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
     } else {
       list[0].children.add(_titleBorder(app.weekdaysCourse[4]));
@@ -296,50 +292,40 @@ class CoursePageState extends State<CoursePage> {
   _getCourseTables() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    var textList = selectSemester.value.split(',');
-    if (textList.length == 2) {
-      Helper.instance
-          .getCourseTables(textList[0], textList[1])
-          .then((response) {
-        if (mounted)
-          setState(() {
+    Helper.instance
+        .getCourseTables(selectSemester.year, selectSemester.value)
+        .then((response) {
+      if (mounted)
+        setState(() {
+          if (response == null) {
+            state = _State.empty;
+          } else {
             courseData = response;
             isOffline = false;
             CacheUtils.saveCourseData(selectSemester.value, courseData);
-            if (courseData.status == 204) {
-              state = _State.empty;
-            } else if (courseData.status == 200) {
-              state = _State.finish;
-            } else {
-              state = _State.error;
-            }
-          });
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              if (mounted)
-                setState(() {
-                  state = _State.error;
-                });
-              Utils.handleDioError(context, e);
-              break;
+            state = _State.finish;
           }
-        } else {
-          throw e;
-        }
-        _loadCourseData(selectSemester.value);
-      });
-    } else {
-      if (mounted)
-        setState(() {
-          state = _State.error;
         });
-    }
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.handleResponseError(context, 'getCourseTables', mounted, e);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            if (mounted)
+              setState(() {
+                state = _State.error;
+              });
+            Utils.handleDioError(context, e);
+            break;
+        }
+      } else {
+        throw e;
+      }
+      _loadCourseData(selectSemester.value);
+    });
   }
 }

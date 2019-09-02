@@ -25,7 +25,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   bool get wantKeepAlive => true;
 
-  _State state = _State.loading;
+  _State state = _State.finish;
   BusReservationsData busReservationsData;
   DateTime dateTime = DateTime.now();
 
@@ -220,10 +220,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
       busReservationsData = response;
       if (mounted) {
         setState(() {
-          if (busReservationsData.reservations.length != 0)
-            state = _State.finish;
-          else
+          if (busReservationsData == null ||
+              busReservationsData.reservations.length == 0)
             state = _State.empty;
+          else
+            state = _State.finish;
         });
       }
       CacheUtils.saveBusReservationsData(busReservationsData);
@@ -231,8 +232,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(
-                context, 'getBusReservations', mounted, e);
+            if (e.response.statusCode == 401) {
+              setState(() {
+                state = _State.error;
+              });
+            } else
+              Utils.handleResponseError(
+                  context, 'getBusReservations', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
@@ -283,15 +289,15 @@ class BusReservationsPageState extends State<BusReservationsPage>
         .then((response) {
       String title = "", message = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (!response.success) {
         title = app.busCancelReserveFail;
         messageWidget = Text(
-          response.data["message"],
+          response.data.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
         FA.logAction('cancel_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+            message: 'fail_${response.data.message}');
       } else {
         title = app.busCancelReserveSuccess;
         messageWidget = RichText(

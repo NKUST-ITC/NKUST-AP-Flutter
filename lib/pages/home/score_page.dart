@@ -159,7 +159,7 @@ class ScorePageState extends State<ScorePage> {
                           _scoreTextBorder(app.finalScore, true),
                         ],
                       ),
-                      for (var score in scoreData.content.scores)
+                      for (var score in scoreData.scores)
                         _scoreTableRowTitle(score)
                     ],
                   ),
@@ -177,16 +177,14 @@ class ScorePageState extends State<ScorePage> {
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          '${app.conductScore}：${scoreData.content.detail.conduct}',
+                          '${app.conductScore}：${scoreData.detail.conduct}',
                           true),
                       _textBorder(
-                          '${app.average}：${scoreData.content.detail.average}',
-                          false),
+                          '${app.average}：${scoreData.detail.average}', false),
                       _textBorder(
-                          '${app.rank}：${scoreData.content.detail.classRank}',
-                          false),
+                          '${app.rank}：${scoreData.detail.classRank}', false),
                       _textBorder(
-                          '${app.percentage}：${scoreData.content.detail.classPercentage}',
+                          '${app.percentage}：${scoreData.detail.classPercentage}',
                           false),
                     ],
                   ),
@@ -241,50 +239,46 @@ class ScorePageState extends State<ScorePage> {
   _getSemesterScore() async {
     Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
-    var textList = selectSemester.value.split(',');
-    if (textList.length == 2) {
-      if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
-        _loadOfflineScoreData();
-      else
-        Helper.instance.getScores(textList[0], textList[1]).then((response) {
-          if (mounted)
-            setState(() {
+    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
+      _loadOfflineScoreData();
+    else
+      Helper.instance
+          .getScores(selectSemester.year, selectSemester.value)
+          .then((response) {
+        if (mounted)
+          setState(() {
+            if (response == null) {
+              state = _State.empty;
+            } else {
               scoreData = response;
-              if (scoreData.status == 204)
-                state = _State.empty;
-              else {
-                state = _State.finish;
-              }
+              state = _State.finish;
               CacheUtils.saveScoreData(selectSemester.value, scoreData);
-            });
-        }).catchError((e) {
-          if (e is DioError) {
-            switch (e.type) {
-              case DioErrorType.RESPONSE:
-                Utils.handleResponseError(
-                    context, 'getSemesterScore', mounted, e);
-                break;
-              case DioErrorType.CANCEL:
-                break;
-              default:
-                if (mounted) {
-                  setState(() {
-                    state = _State.error;
-                    Utils.handleDioError(context, e);
-                  });
-                }
-                break;
             }
-          } else {
-            throw e;
+          });
+      }).catchError((e) {
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(
+                  context, 'getSemesterScore', mounted, e);
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              if (mounted) {
+                setState(() {
+                  state = _State.error;
+                  Utils.handleDioError(context, e);
+                });
+              }
+              throw e;
+              break;
           }
-          _loadOfflineScoreData();
-        });
-    } else {
-      setState(() {
-        state = _State.error;
+        } else {
+          throw e;
+        }
+        _loadOfflineScoreData();
       });
-    }
   }
 
   _loadOfflineScoreData() async {
@@ -292,15 +286,14 @@ class ScorePageState extends State<ScorePage> {
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (scoreData == null)
-          state = _State.offlineEmpty;
-        else if (scoreData.status == 204)
-          state = _State.empty;
-        else if (scoreData.status == 200) {
-          state = _State.finish;
-        } else {
-          state = _State.error;
-        }
+        if (scoreData == null) state = _State.offlineEmpty;
+//        else if (scoreData.status == 204)
+//          state = _State.empty;
+//        else if (scoreData.status == 200) {
+//          state = _State.finish;
+//        } else {
+//          state = _State.error;
+//        }
       });
     }
   }
