@@ -23,7 +23,7 @@ class LeavesData {
       );
 
   Map<String, dynamic> toJson() => {
-        "leave": new List<dynamic>.from(leaves.map((x) => x.toJson())),
+        "data": new List<dynamic>.from(leaves.map((x) => x.toJson())),
         "timeCodes": new List<dynamic>.from(timeCodes.map((x) => x)),
       };
 
