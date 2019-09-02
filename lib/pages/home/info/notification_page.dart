@@ -21,7 +21,7 @@ class NotificationPageState extends State<NotificationPage>
   @override
   bool get wantKeepAlive => true;
 
-  _State state = _State.finish;
+  _State state = _State.loading;
 
   AppLocalizations app;
 
@@ -44,9 +44,7 @@ class NotificationPageState extends State<NotificationPage>
   void initState() {
     FA.setCurrentScreen("NotificationPage", "notification_page.dart");
     controller = ScrollController()..addListener(_scrollListener);
-    //_getNotifications();
-    //TODO: Revert getData from v3 api
-    notificationList = NotificationsData.sample().data.notifications;
+    _getNotifications();
     super.initState();
   }
 
@@ -194,6 +192,7 @@ class NotificationPageState extends State<NotificationPage>
         });
       }
     }).catchError((e) {
+      throw e;
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:

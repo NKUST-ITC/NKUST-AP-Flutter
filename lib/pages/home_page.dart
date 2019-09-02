@@ -25,7 +25,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  _State state = _State.finish;
+  _State state = _State.loading;
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
 
@@ -36,9 +36,7 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
-    //    _getNewsAll();
-    //TODO: Revert getData from v3 api
-    announcementsResponse = AnnouncementsData.sample();
+    _getNewsAll();
     _getUserInfo();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
       Utils.checkUpdate(context);

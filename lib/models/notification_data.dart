@@ -84,7 +84,7 @@ class Notifications {
 }
 
 class Info {
-  String id;
+  int id;
   String title;
   String department;
   String date;

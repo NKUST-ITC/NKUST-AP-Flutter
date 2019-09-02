@@ -116,7 +116,7 @@ class NewsContentPageState extends State<NewsContentPage> {
           ),
         ),
       ),
-      if (widget.news.url.isNotEmpty) ...[
+      if (widget.news.url != null && widget.news.url.isNotEmpty) ...[
         SizedBox(height: 16.0),
         RaisedButton(
           shape: RoundedRectangleBorder(

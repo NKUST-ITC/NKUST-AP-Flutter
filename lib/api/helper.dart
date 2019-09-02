@@ -373,7 +373,10 @@ class Helper {
 
   Future<NotificationsData> getNotifications(int page) async {
     try {
-      var response = await dio.get("/news/school/$page");
+      var response = await dio.get(
+        "/news/school",
+        queryParameters: {'page': page},
+      );
       return NotificationsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
