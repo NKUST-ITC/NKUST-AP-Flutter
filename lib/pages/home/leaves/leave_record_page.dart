@@ -268,22 +268,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   _getSemesterLeaveRecord() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    setState(() {
-      leaveData = LeavesData.sample();
-      if (leaveData == null)
-        state = _State.empty;
-      else {
-        state = _State.finish;
-      }
-    });
-    return;
     Helper.instance
         .getLeaves(selectSemester.year, selectSemester.value)
         .then((response) {
       if (mounted)
         setState(() {
           leaveData = response;
-          if (leaveData == null)
+          if (leaveData == null || leaveData.leaves.length == 0)
             state = _State.empty;
           else {
             state = _State.finish;

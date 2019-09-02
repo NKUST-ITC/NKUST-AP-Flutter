@@ -16,8 +16,10 @@ class LeavesData {
 
   factory LeavesData.fromJson(Map<String, dynamic> json) => new LeavesData(
         leaves:
-            new List<Leaves>.from(json["leave"].map((x) => Leaves.fromJson(x))),
-        timeCodes: new List<String>.from(json["timeCodes"].map((x) => x)),
+            new List<Leaves>.from(json["data"].map((x) => Leaves.fromJson(x))),
+        timeCodes: json["timeCodes"] == null
+            ? null
+            : new List<String>.from(json["timeCodes"].map((x) => x)),
       );
 
   Map<String, dynamic> toJson() => {
