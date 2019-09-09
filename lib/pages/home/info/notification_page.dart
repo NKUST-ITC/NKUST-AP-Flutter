@@ -26,7 +26,7 @@ class NotificationPageState extends State<NotificationPage>
   AppLocalizations app;
 
   ScrollController controller;
-  List<NotificationModel> notificationList = [];
+  List<Notifications> notificationList = [];
 
   int page = 1;
 
@@ -54,7 +54,7 @@ class NotificationPageState extends State<NotificationPage>
     controller.removeListener(_scrollListener);
   }
 
-  Widget _notificationItem(NotificationModel notification) {
+  Widget _notificationItem(Notifications notification) {
     return GestureDetector(
       onLongPress: () {
         Utils.shareTo("${notification.info.title}\n${notification.link}");
@@ -183,7 +183,7 @@ class NotificationPageState extends State<NotificationPage>
     }
     Helper.instance.getNotifications(page).then((response) {
       var notificationData = response;
-      for (var notification in notificationData.notifications) {
+      for (var notification in notificationData.data.notifications) {
         notificationList.add(notification);
       }
       if (mounted) {
@@ -192,6 +192,7 @@ class NotificationPageState extends State<NotificationPage>
         });
       }
     }).catchError((e) {
+      throw e;
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:

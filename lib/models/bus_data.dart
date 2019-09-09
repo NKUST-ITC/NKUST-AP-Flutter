@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -13,44 +15,52 @@ class BusData {
     this.timetable,
   });
 
-  static BusData fromJson(Map<String, dynamic> json) {
-    return BusData(
-      date: json['date'],
-      timetable: BusTime.toList(json["timetable"]),
-    );
-  }
+  factory BusData.fromRawJson(String str) => BusData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory BusData.fromJson(Map<String, dynamic> json) => BusData(
+        date: json["date"],
+        timetable:
+            List<BusTime>.from(json["data"].map((x) => BusTime.fromJson(x))),
+      );
 
   Map<String, dynamic> toJson() => {
-        'date': date,
-        'timetable': timetable,
+        "date": date,
+        "data": List<dynamic>.from(timetable.map((x) => x.toJson())),
       };
+
+  static BusData sample() {
+    return BusData.fromRawJson(
+        '{ "date": "2019-03-17T16:51:57Z", "data": [ { "endEnrollDateTime": "2019-03-17T16:51:57Z", "departureTime": "2019-03-17T16:51:57Z", "startStation": "建工", "busId": "42705", "reserveCount": 2, "limitCount": 999, "isReserve": true, "specialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false }, { "endEnrollDateTime": "2020-03-17T16:51:57Z", "departureTime": "2020-03-17T16:51:57Z", "startStation": "建工", "busId": "42711", "reserveCount": 11, "limitCount": 999, "isReserve": false, "SpecialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false } ] }');
+  }
 }
 
 class BusTime {
   String endEnrollDateTime;
-  String runDateTime;
-  String time;
-  String endStation;
+  String departureTime;
+  String startStation;
   String busId;
-  String reserveCount;
-  String limitCount;
-  int isReserve;
+  int reserveCount;
+  int limitCount;
+  bool isReserve;
   String specialTrain;
-  String specialTrainRemark;
+  String discription;
   String cancelKey;
+  bool homeCharteredBus;
 
   BusTime({
     this.endEnrollDateTime,
-    this.runDateTime,
-    this.time,
-    this.endStation,
+    this.departureTime,
+    this.startStation,
     this.busId,
     this.reserveCount,
     this.limitCount,
     this.isReserve,
     this.specialTrain,
-    this.specialTrainRemark,
+    this.discription,
     this.cancelKey,
+    this.homeCharteredBus,
   });
 
   String getSpecialTrainTitle(AppLocalizations local) {
@@ -64,13 +74,13 @@ class BusTime {
     }
   }
 
-  String getSpecialTrainRemark() {
-    print(specialTrainRemark);
-    if (specialTrainRemark.length == 0)
-      return "";
-    else
-      return "${specialTrainRemark.replaceAll("\n", "").replaceAll("<br />", "\n")}\n";
-  }
+//  String getSpecialTrainRemark() {
+//    print(specialTrainRemark);
+//    if (specialTrainRemark.length == 0)
+//      return "";
+//    else
+//      return "${specialTrainRemark.replaceAll("\n", "").replaceAll("<br />", "\n")}\n";
+//  }
 
   static List<BusTime> toList(List<dynamic> jsonArray) {
     List<BusTime> list = [];
@@ -78,75 +88,85 @@ class BusTime {
     return list;
   }
 
-  static BusTime fromJson(Map<String, dynamic> json) {
-    return BusTime(
-      endEnrollDateTime: json['EndEnrollDateTime'],
-      runDateTime: json['runDateTime'],
-      time: json['Time'],
-      endStation: json['endStation'],
-      busId: json['busId'],
-      reserveCount: json['reserveCount'],
-      limitCount: json['limitCount'],
-      isReserve: json['isReserve'],
-      specialTrain: json['SpecialTrain'],
-      specialTrainRemark: json['SpecialTrainRemark'],
-      cancelKey: "${json['cancelKey']}",
-    );
-  }
+  factory BusTime.fromRawJson(String str) => BusTime.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory BusTime.fromJson(Map<String, dynamic> json) => BusTime(
+        endEnrollDateTime: json["endEnrollDateTime"],
+        departureTime: json["departureTime"],
+        startStation: json["startStation"],
+        busId: json["busId"],
+        reserveCount: json["reserveCount"],
+        limitCount: json["limitCount"],
+        isReserve: json["isReserve"],
+        specialTrain: json["specialTrain"],
+        discription: json["discription"],
+        cancelKey: json["cancelKey"],
+        homeCharteredBus: json["homeCharteredBus"],
+      );
 
   Map<String, dynamic> toJson() => {
-        'EndEnrollDateTime': endEnrollDateTime,
-        'runDateTime': runDateTime,
-        'Time': time,
-        'endStation': endStation,
-        'busId': busId,
-        'reserveCount': reserveCount,
-        'limitCount': limitCount,
-        'isReserve': isReserve,
-        'SpecialTrain': specialTrain,
-        'SpecialTrainRemark': specialTrainRemark,
-        'cancelKey': cancelKey,
+        "endEnrollDateTime": endEnrollDateTime,
+        "departureTime": departureTime,
+        "startStation": startStation,
+        "busId": busId,
+        "reserveCount": reserveCount,
+        "limitCount": limitCount,
+        "isReserve": isReserve,
+        "specialTrain": specialTrain,
+        "discription": discription,
+        "cancelKey": cancelKey,
+        "homeCharteredBus": homeCharteredBus,
       };
 
   bool canReserve() {
-    var now = new DateTime.now();
+    var now = DateTime.now();
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
     var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
-    //print(endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
-        endEnrollDateTime.millisecondsSinceEpoch;
+        endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
+  }
+
+  String getEndEnrollDateTime() {
+    initializeDateFormatting();
+    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+    var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
+    var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
+    return dateFormat.format(endEnrollDateTime.add(Duration(hours: 8)));
   }
 
   Color getColorState() {
-    return isReserve == 1
+    return isReserve
         ? Resource.Colors.blueAccent
         : canReserve() ? Resource.Colors.grey : Resource.Colors.disabled;
   }
 
   String getReserveState(AppLocalizations local) {
-    return isReserve == 1
+    return isReserve
         ? local.reserved
         : canReserve() ? local.reserve : local.canNotReserve;
   }
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-dd HH:mm', 'zh');
+    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.runDateTime);
-    return formatterTime.format(time);
+    var time = formatter.parse(this.departureTime);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   String getTime() {
     initializeDateFormatting();
+    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm', 'zh');
-    var time = formatterTime.parse(this.time);
-    return formatterTime.format(time);
+    var time = formatter.parse(this.departureTime);
+    return formatterTime.format(time.add(Duration(hours: 8)));
   }
 
   String getStart(AppLocalizations local) {
-    switch (endStation) {
+    switch (startStation) {
       case "建工":
         return local.yanchao;
       case "燕巢":
@@ -157,7 +177,7 @@ class BusTime {
   }
 
   String getEnd(AppLocalizations local) {
-    switch (endStation) {
+    switch (startStation) {
       case "建工":
         return local.jiangong;
       case "燕巢":

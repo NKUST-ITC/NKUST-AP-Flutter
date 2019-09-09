@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/api/login_response.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
@@ -310,12 +310,7 @@ class LoginPageState extends State<LoginPage>
           .then((LoginResponse response) async {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();
-        if (response.isLogin != null) {
-          Preferences.setBool(Constants.PREF_AP_ENABLE, response.isLogin.ap);
-          Preferences.setBool(Constants.PREF_BUS_ENABLE, response.isLogin.bus);
-          Preferences.setBool(
-              Constants.PREF_LEAVE_ENABLE, response.isLogin.leave);
-        }
+        ShareDataWidget.of(context).data.loginResponse = response;
         Preferences.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword) {
           Preferences.setStringSecurity(

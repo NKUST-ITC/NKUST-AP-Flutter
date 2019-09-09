@@ -5,15 +5,26 @@ import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/api/api_models.dart';
-import 'package:nkust_ap/models/api/leave_response.dart';
+import 'package:nkust_ap/models/announcements_data.dart';
+import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/leave_info_data.dart';
+import 'package:nkust_ap/models/leaves_data.dart';
+import 'package:nkust_ap/models/leaves_submit_data.dart';
+import 'package:nkust_ap/models/library_info_data.dart';
+import 'package:nkust_ap/models/login_response.dart';
+import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/models/reward_and_penalty_data.dart';
+import 'package:nkust_ap/models/room_data.dart';
+import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const HOST = "nkust-ap-api.rainvisitor.me";
-const PORT = '2087';
+const HOST = 'nkust.taki.dog';
+const PORT = '443';
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 
 class Helper {
   static Helper _instance;
@@ -84,19 +95,57 @@ class Helper {
   Future<LoginResponse> login(String username, String password) async {
     dio.options.headers = _createBasicAuth(username, password);
     try {
-      var response = await dio.get("/$VERSION/token");
-      if (response == null) print("null");
-      return LoginResponse.fromJson(response.data);
+      var response = await dio.post(
+        '/oauth/token',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
+      if (response == null) print('null');
+      var loginResponse = LoginResponse.fromJson(response.data);
+      options.headers = _createBearerTokenAuth(loginResponse.token);
+      return loginResponse;
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<List<News>> getAllNews() async {
+  Future<Response> deleteToken() async {
     try {
-      var response = await dio.get("/$VERSION/news/all");
-      var jsonArray = jsonCodec.decode(response.data);
-      return News.toList(jsonArray);
+      var response = await dio.delete(
+        '/oauth/token',
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<Response> deleteAllToken() async {
+    try {
+      var response = await dio.delete(
+        '/oauth/token/all',
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<ServerInfoData> getServerInfoData() async {
+    try {
+      var response = await dio.get("​/server​/info");
+      return ServerInfoData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<AnnouncementsData> getAllAnnouncements() async {
+    try {
+      var response = await dio.get("/news/announcements/all");
+      return AnnouncementsData.fromJson(response.data);
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
@@ -105,9 +154,8 @@ class Helper {
 
   Future<UserInfo> getUsersInfo() async {
     try {
-      var response = await dio.get("/$VERSION/ap/users/info");
-      var json = jsonCodec.decode(response.data);
-      return UserInfo.fromJson(json);
+      var response = await dio.get('/user/info');
+      return UserInfo.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -124,7 +172,7 @@ class Helper {
 
   Future<SemesterData> getSemester() async {
     try {
-      var response = await dio.get("/$VERSION/ap/semester");
+      var response = await dio.get("/user/semesters");
       return SemesterData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
@@ -134,9 +182,17 @@ class Helper {
   Future<ScoreData> getScores(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/scores/" + year + "/" + semester,
-          cancelToken: cancelToken);
-      return ScoreData.fromJson(response.data);
+        "/user/scores",
+        queryParameters: {
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return ScoreData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -145,21 +201,117 @@ class Helper {
   Future<CourseData> getCourseTables(String year, String semester) async {
     try {
       var response = await dio.get(
-          "/$VERSION/ap/users/coursetables/" + year + "/" + semester,
-          cancelToken: cancelToken);
-      return CourseData.fromJson(response.data);
+        '/user/coursetable',
+        queryParameters: {
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return CourseData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<RewardAndPenaltyData> getRewardAndPenalty(
+      String year, String semester) async {
+    try {
+      var response = await dio.get(
+        "/user/reward-and-penalty",
+        queryParameters: {
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return RewardAndPenaltyData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<MidtermAlertsData> getMidtermAlerts(
+      String year, String semester) async {
+    try {
+      var response = await dio.get(
+        "/user/midterm-alerts",
+        queryParameters: {
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return MidtermAlertsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
+  Future<RoomData> getRoomList(int campus) async {
+    try {
+      var response = await dio.get(
+        '/user/room/list',
+        queryParameters: {
+          'campus': campus,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return RoomData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<CourseData> getRoomCourseTables(
+      String roomId, String year, String semester) async {
+    try {
+      var response = await dio.get(
+        '/user/empty-room/info',
+        queryParameters: {
+          'roomId': roomId,
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return CourseData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
   Future<BusData> getBusTimeTables(DateTime dateTime) async {
-    var formatter = new DateFormat('yyyy-MM-dd');
+    var formatter = DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
-      var response = await dio.get("/$VERSION/bus/timetables?date=$date",
-          cancelToken: cancelToken);
-      return BusData.fromJson(response.data);
+      var response = await dio.get(
+        '/bus/timetables',
+        queryParameters: {
+          'date': date,
+        },
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -167,45 +319,121 @@ class Helper {
 
   Future<BusReservationsData> getBusReservations() async {
     try {
-      var response = await dio.get("/$VERSION/bus/reservations");
-      return BusReservationsData.fromJson(response.data);
+      var response = await dio.get("/bus/reservations");
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusReservationsData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<Response> bookingBusReservation(String busId) async {
+  Future<BookingBusData> bookingBusReservation(String busId) async {
     try {
-      var response = await dio.put("/$VERSION/bus/reservations/$busId");
+      var response = await dio.put(
+        "/bus/reservations",
+        queryParameters: {
+          'busId': busId,
+        },
+      );
+      return BookingBusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<CancelBusData> cancelBusReservation(String cancelKey) async {
+    try {
+      var response = await dio.delete(
+        "/bus/reservations",
+        queryParameters: {
+          'cancelKey': cancelKey,
+        },
+      );
+      return CancelBusData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<BusViolationRecordsData> getBusViolationRecords() async {
+    try {
+      var response = await dio.get('/bus/violation-records');
+      print(response.statusCode);
+      print(response.data);
+      if (response.statusCode == 204)
+        return null;
+      else
+        return BusViolationRecordsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<NotificationsData> getNotifications(int page) async {
+    try {
+      var response = await dio.get(
+        "/news/school",
+        queryParameters: {'page': page},
+      );
+      return NotificationsData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<LeavesData> getLeaves(String year, String semester) async {
+    try {
+      var response = await dio.get(
+        '/leaves',
+        queryParameters: {
+          'year': year,
+          'semester': semester,
+        },
+        cancelToken: cancelToken,
+      );
+      return LeavesData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<LeavesSubmitInfoData> getLeavesSubmitInfo() async {
+    try {
+      var response = await dio.get(
+        '/leaves/submit/info',
+        cancelToken: cancelToken,
+      );
+      return LeavesSubmitInfoData.fromJson(response.data);
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<Response> sendLeavesSubmit(LeavesSubmitData data) async {
+    try {
+      var response = await dio.post(
+        '/leaves/submit',
+        data: data.toJson(),
+        cancelToken: cancelToken,
+      );
       return response;
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<Response> cancelBusReservation(String cancelKey) async {
+  Future<LibraryInfo> getLibraryInfo() async {
     try {
-      var response = await dio.delete("/$VERSION/bus/reservations/$cancelKey");
-      return response;
-    } on DioError catch (dioError) {
-      throw dioError;
-    }
-  }
-
-  Future<LeaveResponse> getLeaves(String year, String semester) async {
-    try {
-      var response = await dio.get("/$VERSION/leaves/$year/$semester",
-          cancelToken: cancelToken);
-      return LeaveResponse.fromJson(response.data);
-    } on DioError catch (dioError) {
-      throw dioError;
-    }
-  }
-
-  Future<NotificationData> getNotifications(int page) async {
-    try {
-      var response = await dio.get("/$VERSION/notifications/$page");
-      return NotificationData.fromJson(response.data);
+      var response = await dio.get(
+        '/leaves/submit/info',
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 204)
+        return null;
+      else
+        return LibraryInfoData.fromJson(response.data).data;
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -217,6 +445,12 @@ class Helper {
     return {
       "Connection": "Keep-Alive",
       "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
+    };
+  }
+
+  _createBearerTokenAuth(String token) {
+    return {
+      'Authorization': 'Bearer $token',
     };
   }
 }

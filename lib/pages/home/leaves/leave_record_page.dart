@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/api/leave_response.dart';
+import 'package:nkust_ap/models/leaves_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -35,7 +35,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   Semester selectSemester;
   SemesterData semesterData;
-  LeaveResponse leaveResponse;
+  LeavesData leaveData;
 
   double count = 1.0;
 
@@ -133,7 +133,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         );
       default:
         hasNight = _checkHasNight();
-        final leaveTitle = _leaveTitle(leaveResponse.timeCode);
+        final leaveTitle = _leaveTitle(leaveData.timeCodes);
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -164,8 +164,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     ),
                     children: [
                       leaveTitle,
-                      for (var leave in leaveResponse.leaves)
-                        _leaveBorder(leave, leaveResponse.timeCode)
+                      for (var leave in leaveData.leaves)
+                        _leaveBorder(leave, leaveData.timeCodes)
                     ],
                   ),
                 ),
@@ -177,9 +177,9 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   bool _checkHasNight() {
-    if (leaveResponse == null) return false;
-    if (leaveResponse.leaves == null) return false;
-    for (var leave in leaveResponse.leaves) {
+    if (leaveData == null) return false;
+    if (leaveData.leaves == null) return false;
+    for (var leave in leaveData.leaves) {
       if (leave.leaveSections == null) continue;
       for (var section in leave.leaveSections) {
         if (section.section.length > 1) return true;
@@ -268,62 +268,53 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   _getSemesterLeaveRecord() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    var textList = selectSemester.value.split(',');
-    if (textList.length == 2) {
-      Helper.instance.getLeaves(textList[0], textList[1]).then((response) {
-        if (mounted)
-          setState(() {
-            leaveResponse = response;
-            if (leaveResponse.status == 204)
-              state = _State.empty;
-            else {
-              state = _State.finish;
-            }
-          });
-        CacheUtils.saveLeaveData(selectSemester.value, leaveResponse);
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(
-                  context, 'getSemesterLeaveRecord', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              if (mounted) {
-                setState(() {
-                  state = _State.error;
-                  Utils.handleDioError(context, e);
-                });
-              }
-              break;
+    Helper.instance
+        .getLeaves(selectSemester.year, selectSemester.value)
+        .then((response) {
+      if (mounted)
+        setState(() {
+          leaveData = response;
+          if (leaveData == null || leaveData.leaves.length == 0)
+            state = _State.empty;
+          else {
+            state = _State.finish;
           }
-          _loadOfflineLeaveData();
-        } else {
-          throw e;
+        });
+      CacheUtils.saveLeaveData(selectSemester.value, leaveData);
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.handleResponseError(
+                context, 'getSemesterLeaveRecord', mounted, e);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.handleDioError(context, e);
+              });
+            }
+            break;
         }
-      });
-    } else {
-      setState(() {
-        state = _State.error;
-      });
-    }
+        _loadOfflineLeaveData();
+      } else {
+        throw e;
+      }
+    });
   }
 
   void _loadOfflineLeaveData() async {
-    leaveResponse = await CacheUtils.loadLeaveData(selectSemester.value);
+    leaveData = await CacheUtils.loadLeaveData(selectSemester.value);
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (this.leaveResponse == null) {
+        if (this.leaveData == null) {
           state = _State.offlineEmpty;
-        } else if (leaveResponse.status == 204) {
-          state = _State.empty;
-        } else if (leaveResponse.status == 200) {
-          state = _State.finish;
         } else {
-          state = _State.error;
+          state = _State.finish;
         }
       });
     }

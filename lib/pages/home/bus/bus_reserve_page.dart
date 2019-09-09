@@ -29,7 +29,7 @@ class BusReservePageState extends State<BusReservePage>
 
   AppLocalizations app;
 
-  _State state = _State.loading;
+  _State state = _State.finish;
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
@@ -187,10 +187,10 @@ class BusReservePageState extends State<BusReservePage>
     List<Widget> list = [];
     if (busData != null) {
       for (var i in busData.timetable) {
-        if (selectStartStation == Station.janGong && i.endStation == "燕巢")
+        if (selectStartStation == Station.janGong && i.startStation == "建工")
           list.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.yanchao && i.endStation == "建工")
-          list.add(_busTimeWidget(i));
+        else if (selectStartStation == Station.yanchao &&
+            i.startStation == "燕巢") list.add(_busTimeWidget(i));
       }
     }
     return list;
@@ -200,7 +200,7 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           FlatButton(
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.canReserve() && busTime.isReserve == 0
+            onPressed: busTime.canReserve() && !busTime.isReserve
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -215,29 +215,31 @@ class BusReservePageState extends State<BusReservePage>
                         contentWidget: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
-                              style: TextStyle(
-                                  color: Resource.Colors.grey,
-                                  height: 1.3,
-                                  fontSize: 16.0),
-                              children: [
-                                TextSpan(
-                                  text: '${busTime.getTime()} $start\n',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                TextSpan(
-                                  text:
-                                      '${busTime.getSpecialTrainRemark()}${app.busReserveConfirmTitle}\n',
-                                  style: TextStyle(
-                                      color: Resource.Colors.grey,
-                                      height: 1.3,
-                                      fontSize: 14.0),
-                                ),
-                                TextSpan(
-                                    text: '${app.reserveDeadline}：\n',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                TextSpan(text: '${busTime.endEnrollDateTime}'),
-                              ]),
+                            style: TextStyle(
+                                color: Resource.Colors.grey,
+                                height: 1.3,
+                                fontSize: 16.0),
+                            children: [
+                              TextSpan(
+                                text: '${busTime.getTime()} $start\n',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              TextSpan(
+                                text:
+                                    '${busTime.discription}${app.busReserveConfirmTitle}\n',
+                                style: TextStyle(
+                                    color: Resource.Colors.grey,
+                                    height: 1.3,
+                                    fontSize: 14.0),
+                              ),
+                              TextSpan(
+                                  text: '${app.reserveDeadline}：\n',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              TextSpan(
+                                  text: '${busTime.getEndEnrollDateTime()}'),
+                            ],
+                          ),
                         ),
                         leftActionText: app.cancel,
                         rightActionText: app.reserve,
@@ -248,7 +250,7 @@ class BusReservePageState extends State<BusReservePage>
                       ),
                     );
                   }
-                : busTime.isReserve != 0
+                : busTime.isReserve
                     ? () {
                         showDialog(
                           context: context,
@@ -350,10 +352,10 @@ class BusReservePageState extends State<BusReservePage>
       busData = response;
       if (mounted) {
         setState(() {
-          if (busData.timetable.length != 0)
-            state = _State.finish;
-          else
+          if (busData == null || busData.timetable.length == 0)
             state = _State.empty;
+          else
+            state = _State.finish;
         });
       }
     }).catchError((e) {
@@ -362,7 +364,13 @@ class BusReservePageState extends State<BusReservePage>
         // dioError.message = HttpException: Connection closed before full header was received
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getBusTimeTables', mounted, e);
+            if (e.response.statusCode == 401) {
+              setState(() {
+                state = _State.error;
+              });
+            } else
+              Utils.handleResponseError(
+                  context, 'getBusTimeTables', mounted, e);
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
@@ -404,15 +412,14 @@ class BusReservePageState extends State<BusReservePage>
       //TODO to object
       String title = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (response.success) {
         title = app.busReserveFailTitle;
         messageWidget = Text(
-          response.data["message"],
+          response.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
-        FA.logAction('book_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+        FA.logAction('book_bus', 'status', message: 'fail_${response.message}');
       } else {
         title = app.busReserveSuccess;
         messageWidget = RichText(
@@ -501,15 +508,15 @@ class BusReservePageState extends State<BusReservePage>
     Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
       String title = "";
       Widget messageWidget;
-      if (!response.data["success"]) {
+      if (!response.success) {
         title = app.busCancelReserveFail;
         messageWidget = Text(
-          response.data["message"],
+          response.data.message,
           style: TextStyle(
               color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
         );
         FA.logAction('cancel_bus', 'status',
-            message: 'fail_${response.data["message"]}');
+            message: 'fail_${response.data.message}');
       } else {
         title = app.busCancelReserveSuccess;
         messageWidget = RichText(
