@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,7 +32,13 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (Platform.isIOS || Platform.isAndroid) {
+  if (kIsWeb) {
+    runApp(
+      MyApp(
+        themeData: AppTheme.data,
+      ),
+    );
+  } else if (Platform.isIOS || Platform.isAndroid) {
     if (!Constants.isInDebugMode) {
       FlutterError.onError = (FlutterErrorDetails details) {
         if (isInDebugMode) {
@@ -103,7 +110,8 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     themeData = widget.themeData;
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb) {
+    } else if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
@@ -144,11 +152,13 @@ class MyAppState extends State<MyApp> {
           LeavePage.routerName: (BuildContext context) => LeavePage(),
         },
         theme: themeData,
-        navigatorObservers: (Platform.isIOS || Platform.isAndroid)
-            ? [
-                FirebaseAnalyticsObserver(analytics: analytics),
-              ]
-            : [],
+        navigatorObservers: (kIsWeb)
+            ? []
+            : (Platform.isIOS || Platform.isAndroid)
+                ? [
+                    FirebaseAnalyticsObserver(analytics: analytics),
+                  ]
+                : [],
         localizationsDelegates: [
           const AppLocalizationsDelegate(),
           GlobalMaterialLocalizations.delegate,

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:encrypt/encrypt.dart';
+import 'package:flutter/foundation.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,7 +17,8 @@ class Preferences {
   static SharedPreferences prefs;
 
   static init() async {
-    if (Platform.isIOS || Platform.isAndroid)
+    if (kIsWeb) {
+    } else if (Platform.isIOS || Platform.isAndroid)
       prefs = await SharedPreferences.getInstance();
   }
 
