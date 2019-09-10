@@ -374,35 +374,32 @@ class SettingPageState extends State<SettingPage> {
       return;
     }
     Helper.instance.getSemester().then((SemesterData semesterData) {
-      var textList = semesterData.defaultSemester.value.split(",");
-      if (textList.length == 2) {
-        Helper.instance
-            .getCourseTables(textList[0], textList[1])
-            .then((CourseData courseData) {
-          if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-          _setCourseData(courseData);
-        }).catchError((e) {
-          setState(() {
-            courseNotify = false;
-            Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-          });
-          if (e is DioError) {
-            switch (e.type) {
-              case DioErrorType.RESPONSE:
-                Utils.handleResponseError(
-                    context, 'getCourseTables', mounted, e);
-                break;
-              case DioErrorType.CANCEL:
-                break;
-              default:
-                Utils.handleDioError(context, e);
-                break;
-            }
-          } else {
-            throw e;
-          }
+      Helper.instance
+          .getCourseTables(semesterData.defaultSemester.year,
+              semesterData.defaultSemester.value)
+          .then((CourseData courseData) {
+        if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+        _setCourseData(courseData);
+      }).catchError((e) {
+        setState(() {
+          courseNotify = false;
+          Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
-      }
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              Utils.handleDioError(context, e);
+              break;
+          }
+        } else {
+          throw e;
+        }
+      });
     }).catchError((e) {
       setState(() {
         courseNotify = false;
