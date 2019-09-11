@@ -3,12 +3,13 @@ import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
     show debugDefaultTargetPlatformOverride;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_crashlytics/flutter_crashlytics.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
@@ -31,50 +32,21 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (Platform.isIOS || Platform.isAndroid) {
-    if (!Constants.isInDebugMode) {
-      FlutterError.onError = (FlutterErrorDetails details) {
-        if (isInDebugMode) {
-          // In development mode simply print to console.
-          FlutterError.dumpErrorToConsole(details);
-        } else {
-          // In production mode report to the application zone to report to
-          // Crashlytics.
-          Zone.current.handleUncaughtError(details.exception, details.stack);
-        }
-      };
-
-      await FlutterCrashlytics().initialize();
-
-      runZoned<Future<Null>>(() async {
-        runApp(
-          MyApp(
-            themeData: AppTheme.data,
-          ),
-        );
-      }, onError: (error, stackTrace) async {
-        // Whenever an error occurs, call the `reportCrash` function. This will send
-        // Dart errors to our dev console or Crashlytics depending on the environment.
-        await FlutterCrashlytics()
-            .reportCrash(error, stackTrace, forceCrash: false);
-      });
-    } else {
-      runApp(
-        MyApp(
-          themeData: AppTheme.data,
-        ),
-      );
-    }
+  if (kIsWeb) {
+  } else if (Platform.isIOS || Platform.isAndroid) {
+    Crashlytics.instance.enableInDevMode = true;
+    // Pass all uncaught errors from the framework to Crashlytics.
+    FlutterError.onError = Crashlytics.instance.recordFlutterError;
   } else {
     // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-    runApp(
-      MyApp(
-        themeData: AppTheme.data,
-      ),
-    );
     //TODO add other platform Crashlytics
   }
+  runApp(
+    MyApp(
+      themeData: AppTheme.data,
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -103,7 +75,8 @@ class MyAppState extends State<MyApp> {
   @override
   void initState() {
     themeData = widget.themeData;
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb) {
+    } else if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
@@ -144,11 +117,13 @@ class MyAppState extends State<MyApp> {
           LeavePage.routerName: (BuildContext context) => LeavePage(),
         },
         theme: themeData,
-        navigatorObservers: (Platform.isIOS || Platform.isAndroid)
-            ? [
-                FirebaseAnalyticsObserver(analytics: analytics),
-              ]
-            : [],
+        navigatorObservers: (kIsWeb)
+            ? []
+            : (Platform.isIOS || Platform.isAndroid)
+                ? [
+                    FirebaseAnalyticsObserver(analytics: analytics),
+                  ]
+                : [],
         localizationsDelegates: [
           const AppLocalizationsDelegate(),
           GlobalMaterialLocalizations.delegate,

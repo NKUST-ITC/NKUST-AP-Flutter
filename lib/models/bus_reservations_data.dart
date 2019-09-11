@@ -104,7 +104,7 @@ class BusReservation {
   DateTime getDateTime() {
     initializeDateFormatting();
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
-    return formatter.parse(this.dateTime);
+    return formatter.parse(this.dateTime).add(Duration(hours: 8));
   }
 
   String getDateTimeStr() {
@@ -137,12 +137,12 @@ class BusReservation {
     }
   }
 
-  bool canCancel() {
-    var now = new DateTime.now();
-    initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
-    var endEnrollDateTime = formatter.parse(this.endTime);
-    return now.millisecondsSinceEpoch <
-        endEnrollDateTime.millisecondsSinceEpoch;
-  }
+//  bool canCancel() {
+//    var now = new DateTime.now();
+//    initializeDateFormatting();
+//    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+//    var endEnrollDateTime = formatter.parse(this.endTime);
+//    return now.millisecondsSinceEpoch <
+//        endEnrollDateTime.millisecondsSinceEpoch;
+//  }
 }

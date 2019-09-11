@@ -276,13 +276,9 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 			);
 			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -456,7 +452,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R7BC26UNC9;
 				FRAMEWORK_SEARCH_PATHS = (
-					$PROJECT_DIR/Flutter/ephemeral,
+					"$PROJECT_DIR/Flutter/ephemeral",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info.plist;
@@ -480,7 +476,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = R7BC26UNC9;
 				FRAMEWORK_SEARCH_PATHS = (
-					$PROJECT_DIR/Flutter/ephemeral,
+					"$PROJECT_DIR/Flutter/ephemeral",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = Info.plist;

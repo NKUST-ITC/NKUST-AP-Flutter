@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
@@ -374,35 +375,33 @@ class SettingPageState extends State<SettingPage> {
       return;
     }
     Helper.instance.getSemester().then((SemesterData semesterData) {
-      var textList = semesterData.defaultSemester.value.split(",");
-      if (textList.length == 2) {
-        Helper.instance
-            .getCourseTables(textList[0], textList[1])
-            .then((CourseData courseData) {
-          if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
-          _setCourseData(courseData);
-        }).catchError((e) {
-          setState(() {
-            courseNotify = false;
-            Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-          });
-          if (e is DioError) {
-            switch (e.type) {
-              case DioErrorType.RESPONSE:
-                Utils.handleResponseError(
-                    context, 'getCourseTables', mounted, e);
-                break;
-              case DioErrorType.CANCEL:
-                break;
-              default:
-                Utils.handleDioError(context, e);
-                break;
-            }
-          } else {
-            throw e;
-          }
+      Helper.instance
+          .getCourseTables(semesterData.defaultSemester.year,
+              semesterData.defaultSemester.value)
+          .then((CourseData courseData) {
+        if (Navigator.canPop(context))
+          Navigator.of(context, rootNavigator: true).pop();
+        _setCourseData(courseData);
+      }).catchError((e) {
+        setState(() {
+          courseNotify = false;
+          Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
-      }
+        if (e is DioError) {
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              Utils.handleDioError(context, e);
+              break;
+          }
+        } else {
+          throw e;
+        }
+      });
     }).catchError((e) {
       setState(() {
         courseNotify = false;
@@ -426,34 +425,33 @@ class SettingPageState extends State<SettingPage> {
   }
 
   _setCourseData(CourseData courseData) async {
-    switch (courseData.status) {
-      case 200:
+    try {
+      if (courseData == null) {
+        Utils.showToast(context, app.courseNotifyEmpty);
+      } else {
         await Utils.setCourseNotify(context, courseData.courseTables);
         Utils.showToast(context, app.courseNotifyHint);
-        break;
-      case 204:
-        Utils.showToast(context, app.courseNotifyEmpty);
-        break;
-      default:
-        Utils.showToast(context, app.courseNotifyError);
-        break;
-    }
-    if (courseData.status != 200) {
+      }
+    } on Exception catch (e) {
+      Utils.showToast(context, app.courseNotifyError);
       setState(() {
         courseNotify = false;
         Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
       });
+      throw e;
     }
   }
 
   _setupBusNotify(BuildContext context) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) => ProgressDialog(app.loading),
-        barrierDismissible: false);
+      context: context,
+      builder: (BuildContext context) => ProgressDialog(app.loading),
+      barrierDismissible: false,
+    );
     if (isOffline) {
       BusReservationsData response = await CacheUtils.loadBusReservationsData();
-      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      if (Navigator.canPop(context))
+        Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() {
           busNotify = false;
@@ -468,15 +466,19 @@ class SettingPageState extends State<SettingPage> {
     Helper.instance
         .getBusReservations()
         .then((BusReservationsData response) async {
-      await Utils.setBusNotify(context, response.reservations);
+      if (Navigator.canPop(context))
+        Navigator.of(context, rootNavigator: true).pop();
+      if (response != null) {
+        await Utils.setBusNotify(context, response.reservations);
+      }
       Utils.showToast(context, app.busNotifyHint);
-      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
     }).catchError((e) {
       setState(() {
         busNotify = false;
       });
       Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      if (Navigator.canPop(context))
+        Navigator.of(context, rootNavigator: true).pop();
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:

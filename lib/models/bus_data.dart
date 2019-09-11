@@ -45,7 +45,7 @@ class BusTime {
   int limitCount;
   bool isReserve;
   String specialTrain;
-  String discription;
+  String description;
   String cancelKey;
   bool homeCharteredBus;
 
@@ -58,7 +58,7 @@ class BusTime {
     this.limitCount,
     this.isReserve,
     this.specialTrain,
-    this.discription,
+    this.description,
     this.cancelKey,
     this.homeCharteredBus,
   });
@@ -101,7 +101,7 @@ class BusTime {
         limitCount: json["limitCount"],
         isReserve: json["isReserve"],
         specialTrain: json["specialTrain"],
-        discription: json["discription"],
+        description: json["description"],
         cancelKey: json["cancelKey"],
         homeCharteredBus: json["homeCharteredBus"],
       );
@@ -115,7 +115,7 @@ class BusTime {
         "limitCount": limitCount,
         "isReserve": isReserve,
         "specialTrain": specialTrain,
-        "discription": discription,
+        "description": description,
         "cancelKey": cancelKey,
         "homeCharteredBus": homeCharteredBus,
       };

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -146,41 +147,38 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 ),
                 Expanded(
                   flex: 2,
-                  child: busReservation.canCancel()
-                      ? IconButton(
-                          icon: Icon(
-                            AppIcon.cancel,
-                            size: 20.0,
-                            color: isOffline
-                                ? Resource.Colors.grey
-                                : Resource.Colors.red,
-                          ),
-                          onPressed: isOffline
-                              ? null
-                              : () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) =>
-                                        YesNoDialog(
-                                      title: app.busCancelReserve,
-                                      contentWidget: Text(
-                                        "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                        "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                        "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      leftActionText: app.back,
-                                      rightActionText: app.determine,
-                                      rightActionFunction: () {
-                                        _cancelBusReservation(busReservation);
-                                        FA.logAction('cancel_bus', 'click');
-                                      },
-                                    ),
-                                  );
-                                  FA.logAction('cancel_bus', 'create');
+                  child: IconButton(
+                    icon: Icon(
+                      AppIcon.cancel,
+                      size: 20.0,
+                      color: isOffline
+                          ? Resource.Colors.grey
+                          : Resource.Colors.red,
+                    ),
+                    onPressed: isOffline
+                        ? null
+                        : () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) => YesNoDialog(
+                                title: app.busCancelReserve,
+                                contentWidget: Text(
+                                  "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                  "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                  "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                  textAlign: TextAlign.center,
+                                ),
+                                leftActionText: app.back,
+                                rightActionText: app.determine,
+                                rightActionFunction: () {
+                                  cancelBusReservation(busReservation);
+                                  FA.logAction('cancel_bus', 'click');
                                 },
-                        )
-                      : Container(),
+                              ),
+                            );
+                            FA.logAction('cancel_bus', 'create');
+                          },
+                  ),
                 )
               ],
             ),
@@ -275,79 +273,83 @@ class BusReservationsPageState extends State<BusReservationsPage>
     });
   }
 
-  _cancelBusReservation(BusReservation busReservation) {
+  cancelBusReservation(BusReservation busTime) {
     showDialog(
-        context: context,
-        builder: (BuildContext context) => WillPopScope(
-            child: ProgressDialog(app.canceling),
-            onWillPop: () async {
-              return false;
-            }),
-        barrierDismissible: false);
-    Helper.instance
-        .cancelBusReservation(busReservation.cancelKey)
-        .then((response) {
-      String title = "", message = "";
-      Widget messageWidget;
-      if (!response.success) {
-        title = app.busCancelReserveFail;
-        messageWidget = Text(
-          response.data.message,
-          style: TextStyle(
-              color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
-        );
-        FA.logAction('cancel_bus', 'status',
-            message: 'fail_${response.data.message}');
-      } else {
-        title = app.busCancelReserveSuccess;
-        messageWidget = RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(
-              style: TextStyle(
-                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
-              children: [
-                TextSpan(
-                  text: '${app.busReserveCancelDate}：',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: '${busReservation.getDate()}\n',
-                ),
-                TextSpan(
-                  text: '${app.busReserveCancelLocation}：',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: '${busReservation.getStart(app)}${app.campus}\n',
-                ),
-                TextSpan(
-                  text: '${app.busReserveCancelTime}：',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                TextSpan(
-                  text: '${busReservation.getTime()}',
-                ),
-              ]),
-        );
-        _getBusReservations();
-        FA.logAction('cancel_bus', 'status', message: 'success');
-      }
-      Navigator.pop(context, 'dialog');
+      context: context,
+      builder: (BuildContext context) => WillPopScope(
+        child: ProgressDialog(app.canceling),
+        onWillPop: () async {
+          return false;
+        },
+      ),
+      barrierDismissible: false,
+    );
+    Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
+      _getBusReservations();
+      FA.logAction('cancel_bus', 'status', message: 'success');
+      Navigator.of(context, rootNavigator: true).pop();
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-            title: title,
-            contentWidget: messageWidget,
-            actionText: app.iKnow,
-            actionFunction: () =>
-                Navigator.of(context, rootNavigator: true).pop('dialog')),
+          title: app.busCancelReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+                style: TextStyle(
+                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                children: [
+                  TextSpan(
+                    text: '${app.busReserveCancelDate}：',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: '${busTime.getDate()}\n',
+                  ),
+                  TextSpan(
+                    text: '${app.busReserveCancelLocation}：',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: '${busTime.getStart(app)}${app.campus}\n',
+                  ),
+                  TextSpan(
+                    text: '${app.busReserveCancelTime}：',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: '${busTime.getTime()}',
+                  ),
+                ]),
+          ),
+          actionText: app.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop(),
+        ),
       );
     }).catchError((e) {
-      Navigator.pop(context, 'dialog');
+      Navigator.of(context, rootNavigator: false).pop();
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'cancel_bus', mounted, e);
+            ErrorResponse errorResponse =
+                ErrorResponse.fromJson(e.response.data);
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => DefaultDialog(
+                title: app.busReserveFailTitle,
+                contentWidget: Text(
+                  errorResponse.description,
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                ),
+                actionText: app.iKnow,
+                actionFunction: () {
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                },
+              ),
+            );
+            FA.logAction('book_bus', 'status',
+                message: 'fail_${errorResponse.description}');
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

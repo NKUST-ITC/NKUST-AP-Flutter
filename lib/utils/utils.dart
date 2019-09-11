@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:app_review/app_review.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
@@ -89,31 +88,6 @@ class Utils {
         ),
       ),
     );
-  }
-
-  static void initConnectivity(
-      BuildContext context, ScaffoldState scaffold) async {
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.mobile) {
-        scaffold.removeCurrentSnackBar();
-      } else if (result == ConnectivityResult.wifi) {
-        scaffold.removeCurrentSnackBar();
-      } else {
-        scaffold.showSnackBar(
-          SnackBar(
-            content: Text("無網路連線"),
-            duration: Duration(days: 1),
-            action: SnackBarAction(
-              label: "開啟設定",
-              onPressed: () {
-                //TODO
-              },
-              textColor: Resource.Colors.yellow,
-            ),
-          ),
-        );
-      }
-    });
   }
 
   static Future<void> launchUrl(var url) async {

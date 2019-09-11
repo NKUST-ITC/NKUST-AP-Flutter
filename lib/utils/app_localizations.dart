@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/app_icon.dart';
@@ -1181,7 +1182,9 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     print('Load ${locale.languageCode}');
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (kIsWeb) {
+      return AppLocalizations(locale);
+    } else if (Platform.isAndroid || Platform.isIOS) {
       SharedPreferences preference = await SharedPreferences.getInstance();
       String languageCode =
           preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
