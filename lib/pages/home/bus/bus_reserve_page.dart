@@ -13,7 +13,15 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
-enum _State { loading, finish, error, empty, offline }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  campusNotSupport,
+  userNotSupport,
+  offline
+}
 enum Station { janGong, yanchao }
 
 class BusReservePage extends StatefulWidget {
@@ -56,89 +64,92 @@ class BusReservePageState extends State<BusReservePage>
     super.build(context);
     app = AppLocalizations.of(context);
     return Scaffold(
-      body: OrientationBuilder(builder: (_, orientation) {
-        return NestedScrollView(
-          headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
-            return <Widget>[
-              SliverAppBar(
-                leading: Container(),
-                expandedHeight: orientation == Orientation.portrait
-                    ? MediaQuery.of(context).size.height * 0.20
-                    : MediaQuery.of(context).size.width * 0.19,
-                floating: true,
-                backgroundColor: Colors.transparent,
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Column(
-                    children: <Widget>[
-                      Container(
-                        color: Colors.transparent,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 16.0, vertical: 0.0),
-                        child: Calendar(
-                          isExpandable: false,
-                          showTodayAction: false,
-                          showCalendarPickerIcon: true,
-                          showChevronsToChangeRange: true,
-                          onDateSelected: (DateTime datetime) {
-                            dateTime = datetime;
-                            _getBusTimeTables();
-                            FA.logAction('date_select', 'click');
-                          },
-                          initialCalendarDateOverride: dateTime,
-                          dayChildAspectRatio:
-                              orientation == Orientation.portrait ? 1.5 : 3,
-                          weekdays: app.weekdays,
+      body: OrientationBuilder(
+        builder: (_, orientation) {
+          return NestedScrollView(
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
+                SliverAppBar(
+                  leading: Container(),
+                  expandedHeight: orientation == Orientation.portrait
+                      ? MediaQuery.of(context).size.height * 0.20
+                      : MediaQuery.of(context).size.width * 0.19,
+                  floating: true,
+                  backgroundColor: Colors.transparent,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Column(
+                      children: <Widget>[
+                        Container(
+                          color: Colors.transparent,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 0.0),
+                          child: Calendar(
+                            isExpandable: false,
+                            showTodayAction: false,
+                            showCalendarPickerIcon: true,
+                            showChevronsToChangeRange: true,
+                            onDateSelected: (DateTime datetime) {
+                              dateTime = datetime;
+                              _getBusTimeTables();
+                              FA.logAction('date_select', 'click');
+                            },
+                            initialCalendarDateOverride: dateTime,
+                            dayChildAspectRatio:
+                                orientation == Orientation.portrait ? 1.5 : 3,
+                            weekdays: app.weekdays,
+                          ),
                         ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Divider(color: Colors.grey),
-                      ),
-                    ],
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Divider(color: Colors.grey),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ];
-          },
-          body: Column(
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: double.infinity),
-                  child: CupertinoSegmentedControl(
-                    selectedColor: Resource.Colors.blueAccent,
-                    borderColor: Resource.Colors.blueAccent,
-                    unselectedColor: Resource.Colors.segmentControlUnSelect,
-                    groupValue: selectStartStation,
-                    children: {
-                      Station.janGong: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(app.fromJiangong),
-                      ),
-                      Station.yanchao: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(app.fromYanchao),
-                      )
-                    },
-                    onValueChanged: (Station text) {
-                      if (mounted) {
-                        setState(() {
-                          selectStartStation = text;
-                        });
-                      }
-                      FA.logAction('segment', 'click');
-                    },
+              ];
+            },
+            body: Column(
+              children: <Widget>[
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: double.infinity),
+                    child: CupertinoSegmentedControl(
+                      selectedColor: Resource.Colors.blueAccent,
+                      borderColor: Resource.Colors.blueAccent,
+                      unselectedColor: Resource.Colors.segmentControlUnSelect,
+                      groupValue: selectStartStation,
+                      children: {
+                        Station.janGong: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(app.fromJiangong),
+                        ),
+                        Station.yanchao: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(app.fromYanchao),
+                        )
+                      },
+                      onValueChanged: (Station text) {
+                        if (mounted) {
+                          setState(() {
+                            selectStartStation = text;
+                          });
+                        }
+                        FA.logAction('segment', 'click');
+                      },
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: _body(),
-              ),
-            ],
-          ),
-        );
-      }),
+                Expanded(
+                  child: _body(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -147,6 +158,21 @@ class BusReservePageState extends State<BusReservePage>
       fontSize: 18.0,
       decorationColor: Colors.grey);
 
+  String get errorText {
+    switch (state) {
+      case _State.error:
+        return app.clickToRetry;
+      case _State.empty:
+        return app.busEmpty;
+      case _State.campusNotSupport:
+        return app.campusNotSupport;
+      case _State.userNotSupport:
+        return app.userNotSupport;
+      default:
+        return '';
+    }
+  }
+
   Widget _body() {
     switch (state) {
       case _State.loading:
@@ -154,6 +180,8 @@ class BusReservePageState extends State<BusReservePage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
+      case _State.campusNotSupport:
+      case _State.userNotSupport:
         return FlatButton(
           onPressed: () {
             _getBusTimeTables();
@@ -161,7 +189,7 @@ class BusReservePageState extends State<BusReservePage>
           },
           child: HintContent(
             icon: AppIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.busEmpty,
+            content: errorText,
           ),
         );
       case _State.offline:
@@ -367,11 +395,19 @@ class BusReservePageState extends State<BusReservePage>
           case DioErrorType.RESPONSE:
             if (e.response.statusCode == 401) {
               setState(() {
+                state = _State.userNotSupport;
+              });
+            } else if (e.response.statusCode == 403) {
+              setState(() {
+                state = _State.campusNotSupport;
+              });
+            } else {
+              setState(() {
                 state = _State.error;
               });
-            } else
               Utils.handleResponseError(
                   context, 'getBusTimeTables', mounted, e);
+            }
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

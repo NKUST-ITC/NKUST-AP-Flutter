@@ -87,23 +87,16 @@ class SettingPageState extends State<SettingPage> {
               value: busNotify,
               onChanged: (b) async {
                 FA.logAction('notify_bus', 'create');
-                bool bus = Preferences.getBool(Constants.PREF_BUS_ENABLE, true);
-                if (bus) {
-                  setState(() {
-                    busNotify = !busNotify;
-                  });
-                  if (busNotify)
-                    _setupBusNotify(context);
-                  else {
-                    await Utils.cancelBusNotify();
-                  }
-                  Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-                  FA.logAction('notify_bus', 'click', message: '$busNotify');
-                } else {
-                  Utils.showToast(context, app.canNotUseFeature);
-                  FA.logAction('notify_bus', 'staus',
-                      message: 'can\'t use feature');
+                setState(() {
+                  busNotify = !busNotify;
+                });
+                if (busNotify)
+                  _setupBusNotify(context);
+                else {
+                  await Utils.cancelBusNotify();
                 }
+                Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+                FA.logAction('notify_bus', 'click', message: '$busNotify');
               },
             ),
             Divider(
