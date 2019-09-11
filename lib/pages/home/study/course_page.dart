@@ -74,7 +74,7 @@ class CoursePageState extends State<CoursePage> {
                   });
                   if (Preferences.getBool(
                       Constants.PREF_IS_OFFLINE_LOGIN, false))
-                    _loadCourseData(semester.value);
+                    _loadCourseData(semester.code);
                   else
                     _getCourseTables();
                 },
@@ -278,12 +278,8 @@ class CoursePageState extends State<CoursePage> {
         isOffline = true;
         if (this.courseData == null) {
           state = _State.offlineEmpty;
-        } else if (courseData.status == 204) {
-          state = _State.empty;
-        } else if (courseData.status == 200) {
-          state = _State.finish;
         } else {
-          state = _State.error;
+          state = _State.finish;
         }
       });
     }
@@ -302,7 +298,7 @@ class CoursePageState extends State<CoursePage> {
           } else {
             courseData = response;
             isOffline = false;
-            CacheUtils.saveCourseData(selectSemester.value, courseData);
+            CacheUtils.saveCourseData(selectSemester.code, courseData);
             state = _State.finish;
           }
         });
@@ -325,7 +321,7 @@ class CoursePageState extends State<CoursePage> {
       } else {
         throw e;
       }
-      _loadCourseData(selectSemester.value);
+      _loadCourseData(selectSemester.code);
     });
   }
 }

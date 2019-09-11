@@ -252,7 +252,7 @@ class ScorePageState extends State<ScorePage> {
             } else {
               scoreData = response;
               state = _State.finish;
-              CacheUtils.saveScoreData(selectSemester.value, scoreData);
+              CacheUtils.saveScoreData(selectSemester.code, scoreData);
             }
           });
       }).catchError((e) {
@@ -282,18 +282,15 @@ class ScorePageState extends State<ScorePage> {
   }
 
   _loadOfflineScoreData() async {
-    scoreData = await CacheUtils.loadScoreData(selectSemester.value);
+    scoreData = await CacheUtils.loadScoreData(selectSemester.code);
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (scoreData == null) state = _State.offlineEmpty;
-//        else if (scoreData.status == 204)
-//          state = _State.empty;
-//        else if (scoreData.status == 200) {
-//          state = _State.finish;
-//        } else {
-//          state = _State.error;
-//        }
+        if (scoreData == null)
+          state = _State.offlineEmpty;
+        else {
+          state = _State.finish;
+        }
       });
     }
   }
