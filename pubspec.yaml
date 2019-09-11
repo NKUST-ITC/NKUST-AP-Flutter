@@ -17,7 +17,6 @@ dependencies:
   package_info: ^0.4.0+6
   url_launcher: ^5.1.2
   share: ^0.6.2+1
-  connectivity: ^0.4.3+7
   firebase_core: ^0.4.0+8
   firebase_analytics: ^5.0.0
   firebase_remote_config: ^0.2.0+5
