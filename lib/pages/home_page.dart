@@ -245,9 +245,9 @@ class HomePageState extends State<HomePage> {
     } else
       Helper.instance.getAllAnnouncements().then((announcementsResponse) {
         this.announcementsResponse = announcementsResponse;
-//        this.announcementsList.data.sort((a, b) {
-//          return b.weight.compareTo(a.weight);
-//        });
+        this.announcementsResponse.data.sort((a, b) {
+          return b.weight.compareTo(a.weight);
+        });
         setState(() {
           state = announcementsResponse.data.length == 0
               ? _State.empty
@@ -277,7 +277,8 @@ class HomePageState extends State<HomePage> {
       Helper.instance
           .getBusReservations()
           .then((BusReservationsData response) async {
-        await Utils.setBusNotify(context, response.reservations);
+        if (response != null)
+          await Utils.setBusNotify(context, response.reservations);
       }).catchError((e) {
         if (e is DioError) {
           switch (e.type) {

@@ -296,4 +296,24 @@ class AppIcon {
         return OMIcons.exitToApp;
     }
   }
+
+  static IconData get warning {
+    switch (AppIcon.code) {
+      case AppIcon.FILLED:
+        return Icons.warning;
+      case AppIcon.OUTLINED:
+      default:
+        return OMIcons.warning;
+    }
+  }
+
+  static IconData get folder {
+    switch (AppIcon.code) {
+      case AppIcon.FILLED:
+        return Icons.folder;
+      case AppIcon.OUTLINED:
+      default:
+        return OMIcons.folder;
+    }
+  }
 }
