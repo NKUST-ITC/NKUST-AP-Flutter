@@ -44,6 +44,8 @@ class Semester {
   String value;
   String text;
 
+  String get code => '$year$value';
+
   Semester({
     this.year,
     this.value,

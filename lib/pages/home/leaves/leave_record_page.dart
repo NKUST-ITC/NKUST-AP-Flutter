@@ -280,7 +280,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             state = _State.finish;
           }
         });
-      CacheUtils.saveLeaveData(selectSemester.value, leaveData);
+      CacheUtils.saveLeaveData(selectSemester.code, leaveData);
     }).catchError((e) {
       if (e is DioError) {
         switch (e.type) {
@@ -307,7 +307,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   void _loadOfflineLeaveData() async {
-    leaveData = await CacheUtils.loadLeaveData(selectSemester.value);
+    leaveData = await CacheUtils.loadLeaveData(selectSemester.code);
     if (mounted) {
       setState(() {
         isOffline = true;

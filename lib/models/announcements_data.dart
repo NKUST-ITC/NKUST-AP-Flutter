@@ -33,6 +33,7 @@ class Announcements {
   int id;
   int nextId;
   int lastId;
+  int weight;
   String imgUrl;
   String url;
   String description;
@@ -43,6 +44,7 @@ class Announcements {
     this.id,
     this.nextId,
     this.lastId,
+    this.weight,
     this.imgUrl,
     this.url,
     this.description,
@@ -59,6 +61,7 @@ class Announcements {
         id: json["id"],
         nextId: json["nextId"],
         lastId: json["lastId"],
+        weight: json["weight"],
         imgUrl: json["imgUrl"],
         url: json["url"],
         description: json["description"],
@@ -70,6 +73,7 @@ class Announcements {
         "id": id,
         "nextId": nextId,
         "lastId": lastId,
+        "weight": weight,
         "imgUrl": imgUrl,
         "url": url,
         "description": description,

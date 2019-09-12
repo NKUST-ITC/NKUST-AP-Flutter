@@ -12,7 +12,15 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
-enum _State { loading, finish, error, empty, offlineEmpty }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  campusNotSupport,
+  userNotSupport,
+  offlineEmpty,
+}
 
 class BusReservationsPage extends StatefulWidget {
   static const String routerName = "/bus/reservations";
@@ -68,13 +76,31 @@ class BusReservationsPageState extends State<BusReservationsPage>
     );
   }
 
+  String get errorText {
+    switch (state) {
+      case _State.error:
+        return app.clickToRetry;
+      case _State.empty:
+        return app.busEmpty;
+      case _State.campusNotSupport:
+        return app.campusNotSupport;
+      case _State.userNotSupport:
+        return app.userNotSupport;
+      default:
+        return '';
+    }
+  }
+
   Widget _body() {
     switch (state) {
       case _State.loading:
-        return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+        return Center(
+          child: CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
+      case _State.campusNotSupport:
+      case _State.userNotSupport:
         return FlatButton(
           onPressed: () {
             _getBusReservations();
@@ -82,9 +108,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           },
           child: HintContent(
             icon: AppIcon.assignment,
-            content: state == _State.error
-                ? app.clickToRetry
-                : app.busReservationEmpty,
+            content: errorText,
           ),
         );
       case _State.offlineEmpty:
@@ -232,11 +256,19 @@ class BusReservationsPageState extends State<BusReservationsPage>
           case DioErrorType.RESPONSE:
             if (e.response.statusCode == 401) {
               setState(() {
+                state = _State.userNotSupport;
+              });
+            } else if (e.response.statusCode == 403) {
+              setState(() {
+                state = _State.campusNotSupport;
+              });
+            } else {
+              setState(() {
                 state = _State.error;
               });
-            } else
               Utils.handleResponseError(
                   context, 'getBusReservations', mounted, e);
+            }
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {

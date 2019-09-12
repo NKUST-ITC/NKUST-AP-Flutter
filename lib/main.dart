@@ -32,7 +32,7 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (kIsWeb) {
+  if (kIsWeb || Constants.isInDebugMode) {
   } else if (Platform.isIOS || Platform.isAndroid) {
     Crashlytics.instance.enableInDevMode = true;
     // Pass all uncaught errors from the framework to Crashlytics.
