@@ -29,8 +29,6 @@ class UserInfoPageState extends State<UserInfoPage>
   void initState() {
     super.initState();
     FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
-    print(pictureBytes == null);
-    if (pictureBytes == null) _getUserPicture();
   }
 
   @override
@@ -119,43 +117,5 @@ class UserInfoPageState extends State<UserInfoPage>
       ),
       body: _homebody(),
     );
-  }
-
-  _getUserPicture() async {
-    bool isOffline =
-        Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-    if (!isOffline) {
-      Helper.instance.getUsersPicture().then((url) async {
-        if (this.mounted) {
-          var response = await http.get(url);
-          if (!response.body.contains('html')) {
-            setState(() {
-              pictureBytes = response.bodyBytes;
-            });
-            CacheUtils.savePictureData(response.bodyBytes);
-          } else {
-            var bytes = await CacheUtils.loadPictureData();
-            setState(() {
-              pictureBytes = bytes;
-            });
-          }
-        }
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, 'getUserPicture', mounted, e);
-              break;
-            default:
-              break;
-          }
-        }
-      });
-    } else {
-      var bytes = await CacheUtils.loadPictureData();
-      setState(() {
-        pictureBytes = bytes;
-      });
-    }
   }
 }

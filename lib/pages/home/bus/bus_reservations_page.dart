@@ -81,7 +81,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.error:
         return app.clickToRetry;
       case _State.empty:
-        return app.busEmpty;
+        return app.busReservationEmpty;
       case _State.campusNotSupport:
         return app.campusNotSupport;
       case _State.userNotSupport:

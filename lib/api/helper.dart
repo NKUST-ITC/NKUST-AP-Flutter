@@ -33,6 +33,14 @@ class Helper {
   static JsonCodec jsonCodec;
   static CancelToken cancelToken;
 
+  static String username;
+  static String password;
+  static DateTime expireTime;
+
+  bool isExpire() {
+    return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
+  }
+
   static Helper get instance {
     if (_instance == null) {
       _instance = Helper();
@@ -93,7 +101,6 @@ class Helper {
   }
 
   Future<LoginResponse> login(String username, String password) async {
-    dio.options.headers = _createBasicAuth(username, password);
     try {
       var response = await dio.post(
         '/oauth/token',
@@ -105,6 +112,9 @@ class Helper {
       if (response == null) print('null');
       var loginResponse = LoginResponse.fromJson(response.data);
       options.headers = _createBearerTokenAuth(loginResponse.token);
+      expireTime = loginResponse.expireTime;
+      Helper.username = username;
+      Helper.password = password;
       return loginResponse;
     } on DioError catch (dioError) {
       throw dioError;
@@ -153,6 +163,7 @@ class Helper {
   }
 
   Future<UserInfo> getUsersInfo() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get('/user/info');
       return UserInfo.fromJson(response.data);
@@ -161,16 +172,8 @@ class Helper {
     }
   }
 
-  Future<String> getUsersPicture() async {
-    try {
-      var response = await dio.get("/$VERSION/ap/users/picture");
-      return response.data;
-    } on DioError catch (dioError) {
-      throw dioError;
-    }
-  }
-
   Future<SemesterData> getSemester() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get("/user/semesters");
       return SemesterData.fromJson(response.data);
@@ -180,6 +183,7 @@ class Helper {
   }
 
   Future<ScoreData> getScores(String year, String semester) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         "/user/scores",
@@ -199,6 +203,7 @@ class Helper {
   }
 
   Future<CourseData> getCourseTables(String year, String semester) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         '/user/coursetable',
@@ -219,6 +224,7 @@ class Helper {
 
   Future<RewardAndPenaltyData> getRewardAndPenalty(
       String year, String semester) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         "/user/reward-and-penalty",
@@ -239,6 +245,7 @@ class Helper {
 
   Future<MidtermAlertsData> getMidtermAlerts(
       String year, String semester) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         "/user/midterm-alerts",
@@ -298,6 +305,7 @@ class Helper {
   }
 
   Future<BusData> getBusTimeTables(DateTime dateTime) async {
+    if (isExpire()) await login(username, password);
     var formatter = DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
@@ -318,6 +326,7 @@ class Helper {
   }
 
   Future<BusReservationsData> getBusReservations() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get("/bus/reservations");
       if (response.statusCode == 204)
@@ -330,6 +339,7 @@ class Helper {
   }
 
   Future<BookingBusData> bookingBusReservation(String busId) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.put(
         "/bus/reservations",
@@ -344,6 +354,7 @@ class Helper {
   }
 
   Future<CancelBusData> cancelBusReservation(String cancelKey) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.delete(
         "/bus/reservations",
@@ -358,6 +369,7 @@ class Helper {
   }
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get('/bus/violation-records');
       print(response.statusCode);
@@ -372,6 +384,7 @@ class Helper {
   }
 
   Future<NotificationsData> getNotifications(int page) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         "/news/school",
@@ -384,6 +397,7 @@ class Helper {
   }
 
   Future<LeavesData> getLeaves(String year, String semester) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         '/leaves',
@@ -400,6 +414,7 @@ class Helper {
   }
 
   Future<LeavesSubmitInfoData> getLeavesSubmitInfo() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         '/leaves/submit/info',
@@ -412,6 +427,7 @@ class Helper {
   }
 
   Future<Response> sendLeavesSubmit(LeavesSubmitData data) async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
         '/leaves/submit',
@@ -425,6 +441,7 @@ class Helper {
   }
 
   Future<LibraryInfo> getLibraryInfo() async {
+    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         '/leaves/submit/info',
@@ -439,6 +456,7 @@ class Helper {
     }
   }
 
+  @deprecated
   _createBasicAuth(String username, String password) {
     var text = username + ":" + password;
     var encoded = utf8.encode(text);
@@ -448,6 +466,7 @@ class Helper {
     };
   }
 
+  // v3 api Authorization
   _createBearerTokenAuth(String token) {
     return {
       'Authorization': 'Bearer $token',
