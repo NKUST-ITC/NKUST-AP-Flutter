@@ -384,7 +384,6 @@ class Helper {
   }
 
   Future<NotificationsData> getNotifications(int page) async {
-    if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
         "/news/school",
