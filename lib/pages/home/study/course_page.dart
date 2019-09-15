@@ -11,6 +11,7 @@ import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
+enum _ContentStyle { card, table }
 
 class CoursePage extends StatefulWidget {
   static const String routerName = '/course';
@@ -26,6 +27,7 @@ class CoursePageState extends State<CoursePage> {
   ScaffoldState scaffold;
 
   _State state = _State.loading;
+  _ContentStyle _contentStyle = _ContentStyle.table;
 
   Semester selectSemester;
   SemesterData semesterData;
@@ -79,11 +81,16 @@ class CoursePageState extends State<CoursePage> {
                     _getCourseTables();
                 },
               ),
-              Text(
-                '${isOffline ? app.offlineCourse + ' ' : ''}'
-                '${app.courseClickHint}',
-                style: TextStyle(color: Resource.Colors.grey),
-              ),
+              if (isOffline)
+                Text(
+                  app.offlineCourse,
+                  style: TextStyle(color: Resource.Colors.grey),
+                ),
+              if (_contentStyle == _ContentStyle.table)
+                Text(
+                  app.courseClickHint,
+                  style: TextStyle(color: Resource.Colors.grey),
+                ),
               SizedBox(height: 4.0),
               Expanded(
                 child: RefreshIndicator(
@@ -99,6 +106,45 @@ class CoursePageState extends State<CoursePage> {
             ],
           );
         },
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        onPressed: () {
+          key.currentState.pickSemester();
+        },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            IconButton(
+              iconSize: _contentStyle == _ContentStyle.table ? 24 : 20,
+              color: _contentStyle == _ContentStyle.table
+                  ? Resource.Colors.yellow
+                  : Resource.Colors.grey,
+              icon: Icon(Icons.grid_on),
+              onPressed: () {
+                setState(() {
+                  _contentStyle = _ContentStyle.table;
+                });
+              },
+            ),
+            IconButton(
+              iconSize: _contentStyle == _ContentStyle.card ? 24 : 20,
+              color: _contentStyle == _ContentStyle.card
+                  ? Resource.Colors.yellow
+                  : Resource.Colors.grey,
+              icon: Icon(Icons.format_list_bulleted),
+              onPressed: () {
+                setState(() {
+                  _contentStyle = _ContentStyle.card;
+                });
+              },
+            ),
+            Container(height: 0),
+          ],
+        ),
       ),
     );
   }
@@ -129,31 +175,92 @@ class CoursePageState extends State<CoursePage> {
           content: app.noOfflineData,
         );
       default:
-        return SingleChildScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(
-                Radius.circular(
-                  10.0,
+        if (_contentStyle == _ContentStyle.card) {
+          return ListView.builder(
+            itemBuilder: (_, index) {
+              var course = courseData.courses[index];
+              return Card(
+                elevation: 4.0,
+                margin: EdgeInsets.all(8.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
-              ),
-              border: Border.all(color: Colors.grey, width: 1.0),
-            ),
-            child: Table(
-              defaultColumnWidth: FractionColumnWidth(1.0 / base),
-              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-              border: TableBorder.symmetric(
-                inside: BorderSide(
-                  color: Colors.grey,
-                  width: 0,
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(16.0),
+                  title: Text(
+                    courseData.courses[index].title,
+                    style: TextStyle(
+                      height: 1.3,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                  trailing: Text(
+                    '${course.required}',
+                    style: TextStyle(
+                      color: Resource.Colors.blueAccent,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  subtitle: SelectableText.rich(
+                    TextSpan(
+                      style: TextStyle(
+                        color: Resource.Colors.grey,
+                        fontSize: 16.0,
+                      ),
+                      children: [
+                        TextSpan(
+                            text: '\n${app.studentClass}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.className}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogProfessor}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.getInstructors()}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogLocation}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(
+                            text:
+                                '${course.location.building}${course.location.room}\n'),
+                        TextSpan(
+                            text: '${app.courseDialogTime}：',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: '${course.times}'),
+                      ],
+                    ),
+                  ),
                 ),
+              );
+            },
+            itemCount: courseData.courses.length,
+          );
+        } else {
+          return SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    10.0,
+                  ),
+                ),
+                border: Border.all(color: Colors.grey, width: 1.0),
               ),
-              children: renderCourseList(),
+              child: Table(
+                defaultColumnWidth: FractionColumnWidth(1.0 / base),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                border: TableBorder.symmetric(
+                  inside: BorderSide(
+                    color: Colors.grey,
+                    width: 0,
+                  ),
+                ),
+                children: renderCourseList(),
+              ),
             ),
-          ),
-        );
+          );
+        }
     }
   }
 

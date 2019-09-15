@@ -1,30 +1,115 @@
+import 'dart:convert';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
 class CourseData {
-  int status;
-  String messages;
+  List<CourseDetail> courses;
   CourseTables courseTables;
 
-  CourseData({this.status, this.messages, this.courseTables});
+  CourseData({this.courses, this.courseTables});
 
-  CourseData.fromJson(Map<String, dynamic> json) {
-    courseTables = json['coursetable'] != null
-        ? CourseTables.fromJson(json['coursetable'])
-        : null;
-  }
+  factory CourseData.fromRawJson(String str) =>
+      CourseData.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory CourseData.fromJson(Map<String, dynamic> json) => CourseData(
+        courses: json["courses"] == null
+            ? null
+            : List<CourseDetail>.from(
+                json["courses"].map((x) => CourseDetail.fromJson(x))),
+        courseTables: json["coursetable"] == null
+            ? null
+            : CourseTables.fromJson(json["coursetable"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "courses": courses == null
+            ? null
+            : List<dynamic>.from(courses.map((x) => x.toJson())),
+        "coursetable": courseTables == null ? null : courseTables.toJson(),
+      };
 
   bool get hasHoliday {
     return ((courseTables.saturday?.isEmpty) ?? false) &&
         ((courseTables.sunday?.isEmpty) ?? false);
   }
+}
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    if (this.courseTables != null) {
-      data['coursetable'] = this.courseTables.toJson();
+class CourseDetail {
+  String code;
+  String title;
+  String className;
+  String group;
+  String units;
+  String hours;
+  String required;
+  String at;
+  String times;
+  Location location;
+  List<String> instructors;
+
+  CourseDetail({
+    this.code,
+    this.title,
+    this.className,
+    this.group,
+    this.units,
+    this.hours,
+    this.required,
+    this.at,
+    this.times,
+    this.location,
+    this.instructors,
+  });
+
+  factory CourseDetail.fromRawJson(String str) =>
+      CourseDetail.fromJson(json.decode(str));
+
+  String toRawJson() => json.encode(toJson());
+
+  factory CourseDetail.fromJson(Map<String, dynamic> json) => CourseDetail(
+        code: json["code"] == null ? null : json["code"],
+        title: json["title"] == null ? null : json["title"],
+        className: json["className"] == null ? null : json["className"],
+        group: json["group"] == null ? null : json["group"],
+        units: json["units"] == null ? null : json["units"],
+        hours: json["hours"] == null ? null : json["hours"],
+        required: json["required"] == null ? null : json["required"],
+        at: json["at"] == null ? null : json["at"],
+        times: json["times"] == null ? null : json["times"],
+        location: json["location"] == null
+            ? null
+            : Location.fromJson(json["location"]),
+        instructors: json["instructors"] == null
+            ? null
+            : List<String>.from(json["instructors"].map((x) => x)),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "code": code == null ? null : code,
+        "title": title == null ? null : title,
+        "className": className == null ? null : className,
+        "group": group == null ? null : group,
+        "units": units == null ? null : units,
+        "hours": hours == null ? null : hours,
+        "required": required == null ? null : required,
+        "at": at == null ? null : at,
+        "times": times == null ? null : times,
+        "location": location == null ? null : location.toJson(),
+        "instructors": instructors == null
+            ? null
+            : List<dynamic>.from(instructors.map((x) => x)),
+      };
+
+  String getInstructors() {
+    String text = "";
+    if (instructors.length > 0) {
+      text += instructors[0];
+      for (var i = 1; i < instructors.length; i++) text += ",${instructors[i]}";
     }
-    return data;
+    return text;
   }
 }
 
