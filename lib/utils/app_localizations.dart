@@ -8,6 +8,8 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'firebase_analytics_utils.dart';
+
 class AppLocalizations {
   static const SYSTEM = 'system';
   static const ZH = 'zh';
@@ -1195,10 +1197,17 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
     } else if (Platform.isAndroid || Platform.isIOS) {
       SharedPreferences preference = await SharedPreferences.getInstance();
       String languageCode =
-          preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
-
+          preference.getString(Constants.PREF_LANGUAGE_CODE) ??
+              AppLocalizations.SYSTEM;
       AppLocalizations localizations = AppLocalizations(
-          (languageCode == 'system') ? locale : Locale(languageCode));
+          (languageCode == AppLocalizations.SYSTEM)
+              ? locale
+              : Locale(languageCode));
+      FA.setUserProperty(
+          'language',
+          (languageCode == AppLocalizations.SYSTEM)
+              ? locale.languageCode
+              : languageCode);
       return localizations;
     } else {
       //TODO if other platform can use SharedPreferences, need update.

@@ -119,9 +119,9 @@ class HomePageState extends State<HomePage> {
             context,
             NewsContentPage(announcement),
           );
-          String message = announcement.description.length > 12
-              ? announcement.description
-              : announcement.description.substring(0, 12);
+          String message = announcement.title.length > 12
+              ? announcement.title
+              : announcement.title.substring(0, 12);
           FA.logAction('news_image', 'click', message: message);
         },
         child: Hero(

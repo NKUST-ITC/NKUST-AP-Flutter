@@ -18,8 +18,7 @@ class LoginPage extends StatefulWidget {
   LoginPageState createState() => LoginPageState();
 }
 
-class LoginPageState extends State<LoginPage>
-    with SingleTickerProviderStateMixin {
+class LoginPageState extends State<LoginPage> {
   AppLocalizations app;
 
   final TextEditingController _username = TextEditingController();

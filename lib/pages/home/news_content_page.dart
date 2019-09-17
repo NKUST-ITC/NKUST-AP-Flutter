@@ -27,7 +27,7 @@ class NewsContentPageState extends State<NewsContentPage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("NewsContentPage", "widget.s_content_page.dart");
+    FA.setCurrentScreen("NewsContentPage", "news_content_page.dart");
     super.initState();
   }
 

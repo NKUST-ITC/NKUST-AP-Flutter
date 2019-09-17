@@ -81,6 +81,8 @@ class MyAppState extends State<MyApp> {
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
+      FA.setUserProperty('theme', AppTheme.code);
+      FA.setUserProperty('icon_style', AppIcon.code);
       Preferences.init();
     }
     super.initState();
@@ -88,6 +90,7 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    print(AppLocalizations.languageCode);
     return ShareDataWidget(
       this,
       child: MaterialApp(
