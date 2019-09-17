@@ -37,9 +37,8 @@ class BusRulePageState extends State<BusRulePage> {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
-        child: RichText(
-          textAlign: TextAlign.left,
-          text: TextSpan(
+        child: SelectableText.rich(
+          TextSpan(
               style: TextStyle(
                   color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
               children: [

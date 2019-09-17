@@ -107,6 +107,9 @@ class AboutUsPageState extends State<AboutUsPage> {
             Card(
               margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               elevation: 4.0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
               child: Container(
                 padding: EdgeInsets.only(
                     top: 24.0, left: 16.0, bottom: 16.0, right: 16.0),
@@ -192,6 +195,9 @@ class AboutUsPageState extends State<AboutUsPage> {
   _item(String text, String subText) => Card(
         margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         elevation: 4.0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
         child: Container(
           padding:
               EdgeInsets.only(top: 24.0, left: 16.0, bottom: 16.0, right: 16.0),

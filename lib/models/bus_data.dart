@@ -168,9 +168,9 @@ class BusTime {
   String getStart(AppLocalizations local) {
     switch (startStation) {
       case "建工":
-        return local.yanchao;
-      case "燕巢":
         return local.jiangong;
+      case "燕巢":
+        return local.yanchao;
       default:
         return local.unknown;
     }
@@ -179,9 +179,9 @@ class BusTime {
   String getEnd(AppLocalizations local) {
     switch (startStation) {
       case "建工":
-        return local.jiangong;
-      case "燕巢":
         return local.yanchao;
+      case "燕巢":
+        return local.jiangong;
       default:
         return local.unknown;
     }

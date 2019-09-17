@@ -127,6 +127,7 @@ class NotificationPageState extends State<NotificationPage>
         //TODO improve
         return FlatButton(
           onPressed: () {
+            _getNotifications();
             FA.logAction('rerty', 'click');
           },
           child: HintContent(
@@ -182,8 +183,7 @@ class NotificationPageState extends State<NotificationPage>
       return;
     }
     Helper.instance.getNotifications(page).then((response) {
-      var notificationData = response;
-      for (var notification in notificationData.data.notifications) {
+      for (var notification in response.data.notifications) {
         notificationList.add(notification);
       }
       if (mounted) {
@@ -192,7 +192,6 @@ class NotificationPageState extends State<NotificationPage>
         });
       }
     }).catchError((e) {
-      throw e;
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:

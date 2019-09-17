@@ -65,7 +65,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release new API version(will clear old preference data).\n2.Add midterm warning page.\n3.Add reward and penalty page.',
+          '1.Release new API version(will clear old preference data).\n2.Add midterm warning page.\n3.Add reward and penalty page.\n4.Impove course page.\n5.Fix some bug',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -234,7 +234,7 @@ class AppLocalizations {
           'The best KUAS Campus App\nKUAS AP\n\nAre you afreshman?\nDon\'t know about school info, telephone numbers, or up coming events?\nBeenhere a few years?\nHave checking class schedule, report card and reserving bus seatsdrove you crazy?\n\nNo more, no more worries, anymore!\n\nKUAS AP lets no matter old or newfellow\nhave control over your life in KUAS!\n\nFrom checking class schedule, report card toyour absence records!\nPlus reserving/canceling bus seats with newest school feeds!\n\n\n\nMuch Simple, Many Convenient, Very instinct, wow!\n\n☆FABULOUS☆',
       'about_author_title': 'Made by',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔\n房志剛(Rainvisitor),林義翔(takidog)',
+          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔\nv3\n房志剛(Rainvisitor),林義翔(takidog)',
       'about_us':
           '“Ask not why nobody is doing this. You are \'nobody\'.”\n\nWe did this cause no one did it.\nWe created KUAS Wifi Login, KUASAP and KUAS Gourmet, Course Selection Sim, etc&#8230;\nTo bring convenience to everyone\'s on campus!',
       'about_recruit_title': 'We Need You !',
@@ -377,7 +377,7 @@ class AppLocalizations {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
       'update_note_content':
-          '1.全新推出新的API(此更新會清除先前資料)\n2.新增期中預警\n3.新增獎懲紀錄\n4.修正部分錯誤',
+          '1.全新推出新的API(此更新會清除先前資料)\n2.新增期中預警\n3.新增獎懲紀錄\n4.改善課表顯示\n5.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -527,7 +527,7 @@ class AppLocalizations {
       'app_version': 'App 版本',
       'about_author_title': '作者群',
       'about_author_content':
-          '呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔 \n房志剛(Rainvisitor),林義翔(takidog)',
+          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔 \nv3\n房志剛(Rainvisitor),林義翔(takidog)',
       'about_us':
           '「不要問為何沒有人做這個，\n先承認你就是『沒有人』」。\n因為，「沒有人」是萬能的。\n\n因為沒有人做這些，所以我們跳下來做。\n先後完成了高應無線通、高應校務通，到後來的高應美食通、模擬選課等等.......\n無非是希望帶給大家更便利的校園生活！',
       'about_recruit_title': 'We Need You !',
