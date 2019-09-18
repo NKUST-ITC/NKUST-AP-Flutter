@@ -295,6 +295,8 @@ class AppLocalizations {
       'friday': 'Fri',
       'saturday': 'Sat',
       'sunday': 'Sun',
+      'units': 'Units',
+      'courseHours': 'Hours',
       'do_not_empty': 'Don\'t Empty',
       'login_fail':
           'student id or password error or this student id is not available',
@@ -591,6 +593,8 @@ class AppLocalizations {
       'friday': '週五',
       'saturday': '週六',
       'sunday': '週日',
+      'units': '學分',
+      'courseHours': '時數',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤或是此帳號無法使用',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
@@ -883,6 +887,10 @@ class AppLocalizations {
   String get saturday => _vocabularies['saturday'];
 
   String get sunday => _vocabularies['sunday'];
+
+  String get units => _vocabularies['units'];
+
+  String get courseHours => _vocabularies['courseHours'];
 
   String get fromJiangong => _vocabularies['from_jiangong'];
 
