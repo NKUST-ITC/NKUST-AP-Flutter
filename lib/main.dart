@@ -32,21 +32,31 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (kIsWeb || Constants.isInDebugMode) {
+  if (kIsWeb) {
   } else if (Platform.isIOS || Platform.isAndroid) {
     Crashlytics.instance.enableInDevMode = true;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
   } else {
-    // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
-    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-    //TODO add other platform Crashlytics
+    _setTargetPlatformForDesktop();
   }
   runApp(
     MyApp(
       themeData: AppTheme.data,
     ),
   );
+}
+
+void _setTargetPlatformForDesktop() {
+  TargetPlatform targetPlatform;
+  if (Platform.isMacOS) {
+    targetPlatform = TargetPlatform.iOS;
+  } else if (Platform.isLinux || Platform.isWindows) {
+    targetPlatform = TargetPlatform.android;
+  }
+  if (targetPlatform != null) {
+    debugDefaultTargetPlatformOverride = targetPlatform;
+  }
 }
 
 class MyApp extends StatefulWidget {

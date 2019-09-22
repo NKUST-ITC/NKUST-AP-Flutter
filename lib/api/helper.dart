@@ -38,7 +38,10 @@ class Helper {
   static DateTime expireTime;
 
   bool isExpire() {
-    return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
+    if (expireTime == null)
+      return false;
+    else
+      return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
   }
 
   static Helper get instance {
