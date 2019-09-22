@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
@@ -12,6 +14,7 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
+import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
@@ -25,6 +28,8 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
   _State state = _State.loading;
   AppLocalizations app;
   UserInfo userInfo = UserInfo();
@@ -37,9 +42,12 @@ class HomePageState extends State<HomePage> {
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
     _getNewsAll();
-    _getUserInfo();
-    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
-      Utils.checkUpdate(context);
+    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
+      _login();
+    } else {
+      checkLogin();
+    }
+    Utils.checkUpdate(context);
     super.initState();
   }
 
@@ -53,56 +61,62 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     if (state != _State.offline) _setupBusNotify(context);
     return WillPopScope(
-        child: Scaffold(
-          appBar: AppBar(
-            title: Text(app.appName),
-            backgroundColor: Resource.Colors.blue,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(AppIcon.info),
-                onPressed: _showInformationDialog,
-              )
-            ],
-          ),
-          drawer: DrawerBody(userInfo: userInfo),
-          body: OrientationBuilder(builder: (_, orientation) {
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text(app.appName),
+          backgroundColor: Resource.Colors.blue,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(AppIcon.info),
+              onPressed: _showInformationDialog,
+            )
+          ],
+        ),
+        drawer: DrawerBody(
+          userInfo: userInfo,
+        ),
+        body: OrientationBuilder(
+          builder: (_, orientation) {
             return Container(
               padding: EdgeInsets.symmetric(
-                  vertical: orientation == Orientation.portrait ? 32.0 : 4.0),
-              child: Center(
-                child: _homebody(orientation),
+                vertical: orientation == Orientation.portrait ? 32.0 : 4.0,
               ),
+              alignment: Alignment.center,
+              child: _homebody(orientation),
             );
-          }),
-          bottomNavigationBar: BottomNavigationBar(
-            elevation: 12.0,
-            fixedColor: Resource.Colors.bottomNavigationSelect,
-            unselectedItemColor: Resource.Colors.bottomNavigationSelect,
-            type: BottomNavigationBarType.fixed,
-            selectedFontSize: 12.0,
-            unselectedFontSize: 12.0,
-            selectedIconTheme: IconThemeData(size: 24.0),
-            onTap: onTabTapped,
-            items: [
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.directionsBus),
-                title: Text(app.bus),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.classIcon),
-                title: Text(app.course),
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(AppIcon.assignment),
-                title: Text(app.score),
-              ),
-            ],
-          ),
+          },
         ),
-        onWillPop: () async {
-          if (Platform.isAndroid) _showLogoutDialog();
-          return false;
-        });
+        bottomNavigationBar: BottomNavigationBar(
+          elevation: 12.0,
+          fixedColor: Resource.Colors.bottomNavigationSelect,
+          unselectedItemColor: Resource.Colors.bottomNavigationSelect,
+          type: BottomNavigationBarType.fixed,
+          selectedFontSize: 12.0,
+          unselectedFontSize: 12.0,
+          selectedIconTheme: IconThemeData(size: 24.0),
+          onTap: onTabTapped,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(AppIcon.directionsBus),
+              title: Text(app.bus),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(AppIcon.classIcon),
+              title: Text(app.course),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(AppIcon.assignment),
+              title: Text(app.score),
+            ),
+          ],
+        ),
+      ),
+      onWillPop: () async {
+        if (Platform.isAndroid) _showLogoutDialog();
+        return false;
+      },
+    );
   }
 
   Widget _newsImage(
@@ -208,6 +222,7 @@ class HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+            SizedBox(height: orientation == Orientation.portrait ? 24.0 : 0.0),
           ],
         );
       case _State.offline:
@@ -393,5 +408,80 @@ class HomePageState extends State<HomePage> {
         },
       ),
     );
+  }
+
+  Future _login() async {
+    await Future.delayed(Duration(microseconds: 30));
+    var username = Preferences.getString(Constants.PREF_USERNAME, '');
+    var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => WillPopScope(
+          child: ProgressDialog(app.logining),
+          onWillPop: () async {
+            return false;
+          }),
+      barrierDismissible: false,
+    );
+    Helper.instance
+        .login(username, password)
+        .then((LoginResponse response) async {
+      if (Navigator.canPop(context))
+        Navigator.of(context, rootNavigator: true).pop();
+      ShareDataWidget.of(context).data.loginResponse = response;
+      ShareDataWidget.of(context).data.isLogin = true;
+      _getUserInfo();
+    }).catchError((e) {
+      if (Navigator.canPop(context))
+        Navigator.of(context, rootNavigator: true).pop();
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            Utils.showToast(context, app.loginFail);
+            Utils.handleResponseError(context, 'login', mounted, e);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(context, e);
+            break;
+        }
+      } else {
+        throw e;
+      }
+    });
+  }
+
+  void checkLogin() async {
+    await Future.delayed(Duration(microseconds: 30));
+    print(ShareDataWidget.of(context).data.isLogin);
+    if (ShareDataWidget.of(context).data.isLogin) {
+      // _scaffoldKey.currentState.hideCurrentSnackBar();
+    } else {
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(app.notLogin),
+          duration: Duration(days: 1),
+          action: SnackBarAction(
+            onPressed: () async {
+              var result = await Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (_) => LoginPage(),
+                ),
+              );
+              if (result ?? false) {
+                _getUserInfo();
+                setState(() {
+                  ShareDataWidget.of(context).data.isLogin = true;
+                });
+              } else {
+                checkLogin();
+              }
+            },
+            label: app.login,
+          ),
+        ),
+      );
+    }
   }
 }

@@ -41,8 +41,6 @@ class LoginPageState extends State<LoginPage> {
     usernameFocusNode = FocusNode();
     passwordFocusNode = FocusNode();
     _getPreference();
-    if (!Preferences.getBool(Constants.PREF_AUTO_LOGIN, false))
-      Utils.checkUpdate(context);
     super.initState();
   }
 
@@ -316,8 +314,7 @@ class LoginPageState extends State<LoginPage> {
               Constants.PREF_PASSWORD, _password.text);
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-        ShareDataWidget.of(context).data.isLogin = true;
-        _navigateToFilterObject(context);
+        Navigator.of(context).pop(true);
       }).catchError((e) {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();
@@ -353,20 +350,9 @@ class LoginPageState extends State<LoginPage> {
       else {
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
         Utils.showToast(context, app.loadOfflineData);
-        _navigateToFilterObject(context);
+        Navigator.of(context).pop(true);
       }
     }
-  }
-
-  _navigateToFilterObject(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => HomePage(),
-      ),
-    );
-    print(result);
-    clearSetting();
   }
 
   void clearSetting() async {

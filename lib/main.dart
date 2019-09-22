@@ -72,6 +72,12 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  logout() {
+    setState(() {
+      this.isLogin = false;
+    });
+  }
+
   @override
   void initState() {
     themeData = widget.themeData;
@@ -101,7 +107,7 @@ class MyAppState extends State<MyApp> {
         onGenerateTitle: (context) => AppLocalizations.of(context).appName,
         debugShowCheckedModeBanner: false,
         routes: <String, WidgetBuilder>{
-          Navigator.defaultRouteName: (context) => LoginPage(),
+          Navigator.defaultRouteName: (context) => HomePage(),
           LoginPage.routerName: (BuildContext context) => LoginPage(),
           HomePage.routerName: (BuildContext context) => HomePage(),
           CoursePage.routerName: (BuildContext context) => CoursePage(),

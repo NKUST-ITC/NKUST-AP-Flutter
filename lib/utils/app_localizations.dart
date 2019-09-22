@@ -376,6 +376,8 @@ class AppLocalizations {
       'rewardAndPenaltyContent': 'Counts：%s\nDate：%s',
       'campusNotSupport': 'Campus not support this feature ~',
       'userNotSupport': 'User can\'t use this feature ~',
+      'notLogin': 'Not Login',
+      'notLoginHint': 'Not Login, please check login status.',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -669,6 +671,8 @@ class AppLocalizations {
       'rewardAndPenaltyContent': '數量：%s\n日期：%s',
       'campusNotSupport': '所在的校區無法使用此功能',
       'userNotSupport': '使用者無法使用此功能',
+      'notLogin': '尚未登入',
+      'notLoginHint': '尚未登入 請檢查登入狀態',
     },
   };
 
@@ -1189,6 +1193,10 @@ class AppLocalizations {
   String get campusNotSupport => _vocabularies['campusNotSupport'];
 
   String get userNotSupport => _vocabularies['userNotSupport'];
+
+  String get notLogin => _vocabularies['notLogin'];
+
+  String get notLoginHint => _vocabularies['notLoginHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -15,13 +15,17 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 Uint8List pictureBytes;
 
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
 
-  const DrawerBody({Key key, @required this.userInfo}) : super(key: key);
+  const DrawerBody({
+    Key key,
+    @required this.userInfo,
+  }) : super(key: key);
 
   @override
   DrawerBodyState createState() => DrawerBodyState();
@@ -58,7 +62,8 @@ class DrawerBodyState extends State<DrawerBody> {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                if (widget.userInfo != null)
+                if (widget.userInfo != null &&
+                    ShareDataWidget.of(context).data.isLogin)
                   Utils.pushCupertinoStyle(
                     context,
                     UserInfoPage(userInfo: widget.userInfo),
@@ -99,11 +104,13 @@ class DrawerBodyState extends State<DrawerBody> {
                                 ),
                               ),
                     accountName: Text(
-                      '${widget.userInfo?.name}',
+                      ShareDataWidget.of(context).data.isLogin
+                          ? '${widget.userInfo?.name ?? ''}'
+                          : app.notLogin,
                       style: TextStyle(color: Colors.white),
                     ),
                     accountEmail: Text(
-                      '${widget.userInfo?.id}',
+                      '${widget.userInfo?.id ?? ''}',
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(
@@ -237,17 +244,26 @@ class DrawerBodyState extends State<DrawerBody> {
               title: app.settings,
               page: SettingPage(),
             ),
-            ListTile(
-              leading: Icon(
-                AppIcon.powerSettingsNew,
-                color: Resource.Colors.grey,
-              ),
-              onTap: () {
-                Navigator.popUntil(
-                    context, ModalRoute.withName(Navigator.defaultRouteName));
-              },
-              title: Text(app.logout, style: _defaultStyle),
-            ),
+//            ListTile(
+//              leading: Icon(
+//                AppIcon.powerSettingsNew,
+//                color: Resource.Colors.grey,
+//              ),
+//              onTap: () async {
+//                print(
+//                    'login ${Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)} ');
+//                if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
+//                  await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+//                  ShareDataWidget.of(context).data.logout();
+//                } else {
+//                  Navigator.popUntil(
+//                    context,
+//                    ModalRoute.withName(Navigator.defaultRouteName),
+//                  );
+//                }
+//              },
+//              title: Text(app.logout, style: _defaultStyle),
+//            ),
           ],
         ),
       ),
