@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_autofill/flutter_autofill.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -101,35 +102,60 @@ class LoginPageState extends State<LoginPage> {
             SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
           ];
     List<Widget> sectionInput = <Widget>[
-      TextField(
-        maxLines: 1,
-        controller: _username,
-        textInputAction: TextInputAction.next,
-        focusNode: usernameFocusNode,
-        onSubmitted: (text) {
-          usernameFocusNode.unfocus();
-          FocusScope.of(context).requestFocus(passwordFocusNode);
+      Autofill(
+        onAutofilled: (val) {
+          // set value in controller & cursor position after auto-filled value
+          _username.value = TextEditingValue(
+              text: val,
+              selection:
+                  TextSelection.fromPosition(TextPosition(offset: val.length)));
         },
-        decoration: InputDecoration(
-          labelText: app.username,
+        autofillHints: [FlutterAutofill.AUTOFILL_HINT_USERNAME],
+        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+        textController: _username,
+        child: TextField(
+          maxLines: 1,
+          controller: _username,
+          textInputAction: TextInputAction.next,
+          focusNode: usernameFocusNode,
+          onSubmitted: (text) {
+            usernameFocusNode.unfocus();
+            FocusScope.of(context).requestFocus(passwordFocusNode);
+          },
+          decoration: InputDecoration(
+            labelText: app.username,
+          ),
+          style: _editTextStyle,
         ),
-        style: _editTextStyle,
       ),
-      TextField(
-        obscureText: true,
-        maxLines: 1,
-        textInputAction: TextInputAction.send,
-        controller: _password,
-        focusNode: passwordFocusNode,
-        onSubmitted: (text) {
-          passwordFocusNode.unfocus();
-          _login();
+      Autofill(
+        onAutofilled: (val) {
+          // set value in controller & cursor position after auto-filled value
+          _password.value = TextEditingValue(
+              text: val,
+              selection:
+              TextSelection.fromPosition(TextPosition(offset: val.length)));
         },
-        decoration: InputDecoration(
-          labelText: app.password,
+        autofillHints: [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
+        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+        textController: _password,
+        child: TextField(
+          obscureText: true,
+          maxLines: 1,
+          textInputAction: TextInputAction.send,
+          controller: _password,
+          focusNode: passwordFocusNode,
+          onSubmitted: (text) {
+            passwordFocusNode.unfocus();
+            _login();
+          },
+          decoration: InputDecoration(
+            labelText: app.password,
+          ),
+          style: _editTextStyle,
         ),
-        style: _editTextStyle,
       ),
+
       SizedBox(height: 8.0),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -315,6 +341,7 @@ class LoginPageState extends State<LoginPage> {
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         Navigator.of(context).pop(true);
+        await FlutterAutofill.commit();
       }).catchError((e) {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();
