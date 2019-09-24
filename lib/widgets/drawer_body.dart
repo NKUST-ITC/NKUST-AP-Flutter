@@ -17,14 +17,14 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-Uint8List pictureBytes;
-
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
+  final Function onClickLogout;
 
   const DrawerBody({
     Key key,
     @required this.userInfo,
+    @required this.onClickLogout,
   }) : super(key: key);
 
   @override
@@ -74,7 +74,8 @@ class DrawerBodyState extends State<DrawerBody> {
                   UserAccountsDrawerHeader(
                     margin: const EdgeInsets.all(0),
                     currentAccountPicture:
-                        pictureBytes != null && displayPicture
+                        ShareDataWidget.of(context).data.pictureBytes != null &&
+                                displayPicture
                             ? Hero(
                                 tag: Constants.TAG_STUDENT_PICTURE,
                                 child: Container(
@@ -85,7 +86,9 @@ class DrawerBodyState extends State<DrawerBody> {
                                     image: DecorationImage(
                                       fit: BoxFit.fitWidth,
                                       image: MemoryImage(
-                                        pictureBytes,
+                                        ShareDataWidget.of(context)
+                                            .data
+                                            .pictureBytes,
                                       ),
                                     ),
                                   ),
@@ -244,26 +247,19 @@ class DrawerBodyState extends State<DrawerBody> {
               title: app.settings,
               page: SettingPage(),
             ),
-//            ListTile(
-//              leading: Icon(
-//                AppIcon.powerSettingsNew,
-//                color: Resource.Colors.grey,
-//              ),
-//              onTap: () async {
-//                print(
-//                    'login ${Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)} ');
-//                if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
-//                  await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-//                  ShareDataWidget.of(context).data.logout();
-//                } else {
-//                  Navigator.popUntil(
-//                    context,
-//                    ModalRoute.withName(Navigator.defaultRouteName),
-//                  );
-//                }
-//              },
-//              title: Text(app.logout, style: _defaultStyle),
-//            ),
+            ListTile(
+              leading: Icon(
+                AppIcon.powerSettingsNew,
+                color: Resource.Colors.grey,
+              ),
+              onTap: () async {
+                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                ShareDataWidget.of(context).data.logout();
+                Navigator.of(context).pop();
+                widget.onClickLogout();
+              },
+              title: Text(app.logout, style: _defaultStyle),
+            ),
           ],
         ),
       ),
@@ -321,7 +317,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (!response.body.contains('html')) {
         if (mounted) {
           setState(() {
-            pictureBytes = response.bodyBytes;
+            ShareDataWidget.of(context).data.pictureBytes = response.bodyBytes;
           });
         }
         CacheUtils.savePictureData(response.bodyBytes);
@@ -329,7 +325,7 @@ class DrawerBodyState extends State<DrawerBody> {
         var bytes = await CacheUtils.loadPictureData();
         if (mounted) {
           setState(() {
-            pictureBytes = bytes;
+            ShareDataWidget.of(context).data.pictureBytes = bytes;
           });
         }
       }
@@ -339,6 +335,7 @@ class DrawerBodyState extends State<DrawerBody> {
   }
 
   _getPreference() async {
+    //TODO implement by future builder
     if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       _getUserPicture();
     }

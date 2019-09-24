@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_autofill/flutter_autofill.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -134,7 +137,7 @@ class LoginPageState extends State<LoginPage> {
           _password.value = TextEditingValue(
               text: val,
               selection:
-              TextSelection.fromPosition(TextPosition(offset: val.length)));
+                  TextSelection.fromPosition(TextPosition(offset: val.length)));
         },
         autofillHints: [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
         autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
@@ -155,7 +158,6 @@ class LoginPageState extends State<LoginPage> {
           style: _editTextStyle,
         ),
       ),
-
       SizedBox(height: 8.0),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -341,7 +343,7 @@ class LoginPageState extends State<LoginPage> {
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         Navigator.of(context).pop(true);
-        await FlutterAutofill.commit();
+        if (!kIsWeb && Platform.isAndroid) await FlutterAutofill.commit();
       }).catchError((e) {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();
@@ -386,7 +388,6 @@ class LoginPageState extends State<LoginPage> {
     Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
     setState(() {
       isAutoLogin = false;
-      pictureBytes = null;
     });
   }
 }

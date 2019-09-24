@@ -474,4 +474,10 @@ class Helper {
       'Authorization': 'Bearer $token',
     };
   }
+
+  static void clearSetting() {
+    expireTime = null;
+    username = null;
+    password = null;
+  }
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -32,7 +33,6 @@ class HomePageState extends State<HomePage> {
 
   _State state = _State.loading;
   AppLocalizations app;
-  UserInfo userInfo = UserInfo();
 
   int _currentNewsIndex = 0;
 
@@ -74,8 +74,10 @@ class HomePageState extends State<HomePage> {
           ],
         ),
         drawer: DrawerBody(
-          userInfo: userInfo,
-        ),
+            userInfo: ShareDataWidget.of(context).data.userInfo,
+            onClickLogout: () {
+              checkLogin();
+            }),
         body: OrientationBuilder(
           builder: (_, orientation) {
             return Container(
@@ -314,7 +316,8 @@ class HomePageState extends State<HomePage> {
 
   _getUserInfo() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      userInfo = await CacheUtils.loadUserInfo();
+      ShareDataWidget.of(context).data.userInfo =
+          await CacheUtils.loadUserInfo();
       setState(() {
         state = _State.offline;
       });
@@ -322,7 +325,7 @@ class HomePageState extends State<HomePage> {
       Helper.instance.getUsersInfo().then((userInfo) {
         if (this.mounted) {
           setState(() {
-            this.userInfo = userInfo;
+            ShareDataWidget.of(context).data.userInfo = userInfo;
           });
           FA.setUserProperty('department', userInfo.department);
           FA.setUserProperty('student_id', userInfo.id);
@@ -357,10 +360,7 @@ class HomePageState extends State<HomePage> {
         leftActionText: app.cancel,
         rightActionText: app.ok,
         rightActionFunction: () {
-          Navigator.popUntil(
-            context,
-            ModalRoute.withName(Navigator.defaultRouteName),
-          );
+          ShareDataWidget.of(context).data.logout();
         },
       ),
     );

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -20,8 +21,10 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'api/helper.dart';
 import 'models/login_response.dart';
 import 'models/user_info.dart';
 
@@ -74,6 +77,7 @@ class MyAppState extends State<MyApp> {
   ThemeData themeData;
   UserInfo userInfo;
   LoginResponse loginResponse;
+  Uint8List pictureBytes;
   bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {
@@ -85,6 +89,11 @@ class MyAppState extends State<MyApp> {
   logout() {
     setState(() {
       this.isLogin = false;
+      this.offlineLogin = false;
+      this.userInfo = null;
+      this.loginResponse = null;
+      this.pictureBytes = null;
+      Helper.clearSetting();
     });
   }
 
