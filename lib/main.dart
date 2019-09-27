@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -20,8 +21,10 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'api/helper.dart';
 import 'models/login_response.dart';
 import 'models/user_info.dart';
 
@@ -32,21 +35,31 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (kIsWeb || Constants.isInDebugMode) {
+  if (kIsWeb) {
   } else if (Platform.isIOS || Platform.isAndroid) {
     Crashlytics.instance.enableInDevMode = true;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
   } else {
-    // See https://github.com/flutter/flutter/wiki/Desktop-shells#target-platform-override
-    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-    //TODO add other platform Crashlytics
+    _setTargetPlatformForDesktop();
   }
   runApp(
     MyApp(
       themeData: AppTheme.data,
     ),
   );
+}
+
+void _setTargetPlatformForDesktop() {
+  TargetPlatform targetPlatform;
+  if (Platform.isMacOS) {
+    targetPlatform = TargetPlatform.iOS;
+  } else if (Platform.isLinux || Platform.isWindows) {
+    targetPlatform = TargetPlatform.android;
+  }
+  if (targetPlatform != null) {
+    debugDefaultTargetPlatformOverride = targetPlatform;
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -64,11 +77,23 @@ class MyAppState extends State<MyApp> {
   ThemeData themeData;
   UserInfo userInfo;
   LoginResponse loginResponse;
+  Uint8List pictureBytes;
   bool isLogin = false, offlineLogin = false;
 
   setThemeData(ThemeData themeData) {
     setState(() {
       this.themeData = themeData;
+    });
+  }
+
+  logout() {
+    setState(() {
+      this.isLogin = false;
+      this.offlineLogin = false;
+      this.userInfo = null;
+      this.loginResponse = null;
+      this.pictureBytes = null;
+      Helper.clearSetting();
     });
   }
 
@@ -81,6 +106,8 @@ class MyAppState extends State<MyApp> {
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
+      FA.setUserProperty('theme', AppTheme.code);
+      FA.setUserProperty('icon_style', AppIcon.code);
       Preferences.init();
     }
     super.initState();
@@ -88,6 +115,7 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    print(AppLocalizations.languageCode);
     return ShareDataWidget(
       this,
       child: MaterialApp(
@@ -98,7 +126,7 @@ class MyAppState extends State<MyApp> {
         onGenerateTitle: (context) => AppLocalizations.of(context).appName,
         debugShowCheckedModeBanner: false,
         routes: <String, WidgetBuilder>{
-          Navigator.defaultRouteName: (context) => LoginPage(),
+          Navigator.defaultRouteName: (context) => HomePage(),
           LoginPage.routerName: (BuildContext context) => LoginPage(),
           HomePage.routerName: (BuildContext context) => HomePage(),
           CoursePage.routerName: (BuildContext context) => CoursePage(),

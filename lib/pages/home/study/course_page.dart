@@ -186,7 +186,8 @@ class CoursePageState extends State<CoursePage> {
                   borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: ListTile(
-                  contentPadding: EdgeInsets.all(16.0),
+                  contentPadding:
+                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
                   title: Text(
                     courseData.courses[index].title,
                     style: TextStyle(
@@ -194,40 +195,95 @@ class CoursePageState extends State<CoursePage> {
                       fontSize: 20.0,
                     ),
                   ),
-                  trailing: Text(
-                    '${course.required}',
-                    style: TextStyle(
-                      color: Resource.Colors.blueAccent,
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  subtitle: SelectableText.rich(
-                    TextSpan(
-                      style: TextStyle(
-                        color: Resource.Colors.grey,
-                        fontSize: 16.0,
-                      ),
-                      children: [
-                        TextSpan(
-                            text: '\n${app.studentClass}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${course.className}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogProfessor}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${course.getInstructors()}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogLocation}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(
-                            text:
-                                '${course.location.building}${course.location.room}\n'),
-                        TextSpan(
-                            text: '${app.courseDialogTime}：',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                        TextSpan(text: '${course.times}'),
+                  subtitle: Padding(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Expanded(
+                          flex: 2,
+                          child: SelectableText.rich(
+                            TextSpan(
+                              style: TextStyle(
+                                color: Resource.Colors.grey,
+                                fontSize: 16.0,
+                              ),
+                              children: [
+                                TextSpan(
+                                    text: '${app.studentClass}：',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(text: '${course.className}\n'),
+                                TextSpan(
+                                    text: '${app.courseDialogProfessor}：',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(text: '${course.getInstructors()}\n'),
+                                TextSpan(
+                                    text: '${app.courseDialogLocation}：',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(
+                                    text:
+                                        '${course.location.building}${course.location.room}\n'),
+                                TextSpan(
+                                    text: '${app.courseDialogTime}：',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                                TextSpan(text: '${course.times}'),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                '${course.required}',
+                                style: TextStyle(
+                                  color: Resource.Colors.blueAccent,
+                                  fontSize: 18.0,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 16.0),
+                              SelectableText.rich(
+                                TextSpan(
+                                  style: TextStyle(
+                                    color: Resource.Colors.grey,
+                                    fontSize: 16.0,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                        text: '${app.units}：',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    TextSpan(text: '${course.units}'),
+                                  ],
+                                ),
+                              ),
+                              SelectableText.rich(
+                                TextSpan(
+                                  style: TextStyle(
+                                    color: Resource.Colors.grey,
+                                    fontSize: 16.0,
+                                  ),
+                                  children: [
+                                    TextSpan(
+                                        text: '${app.courseHours}：',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                    TextSpan(text: '${course.hours}'),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
+                    padding: EdgeInsets.symmetric(vertical: 8.0),
                   ),
                 ),
               );
@@ -368,11 +424,12 @@ class CoursePageState extends State<CoursePage> {
         FA.logAction('show_course', 'click');
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 8.0),
+        padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
         alignment: Alignment.center,
         child: Text(
           (course.title[0] + course.title[1]) ?? '',
           style: TextStyle(fontSize: 16.0),
+          textAlign: TextAlign.center,
         ),
       ),
     );

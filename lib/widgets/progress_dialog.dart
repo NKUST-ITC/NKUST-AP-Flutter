@@ -30,6 +30,7 @@ class ProgressDialog extends StatelessWidget {
             child: Text(
               content,
               style: TextStyle(color: Resource.Colors.blueAccent),
+              textAlign: TextAlign.center,
             ),
           ),
         ],

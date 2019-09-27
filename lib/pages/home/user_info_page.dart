@@ -7,6 +7,7 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -47,14 +48,15 @@ class UserInfoPageState extends State<UserInfoPage>
           child: Column(
             children: <Widget>[
               SizedBox(height: 8.0),
-              pictureBytes != null
+              ShareDataWidget.of(context).data.pictureBytes != null
                   ? SizedBox(
                       height: 320,
                       child: AspectRatio(
                         aspectRatio: 2.0,
                         child: Hero(
                           tag: Constants.TAG_STUDENT_PICTURE,
-                          child: Image.memory(pictureBytes),
+                          child: Image.memory(
+                              ShareDataWidget.of(context).data.pictureBytes),
                         ),
                       ),
                     )

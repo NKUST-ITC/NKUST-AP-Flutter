@@ -15,13 +15,17 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-
-Uint8List pictureBytes;
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
+  final Function onClickLogout;
 
-  const DrawerBody({Key key, @required this.userInfo}) : super(key: key);
+  const DrawerBody({
+    Key key,
+    @required this.userInfo,
+    @required this.onClickLogout,
+  }) : super(key: key);
 
   @override
   DrawerBodyState createState() => DrawerBodyState();
@@ -58,7 +62,8 @@ class DrawerBodyState extends State<DrawerBody> {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                if (widget.userInfo != null)
+                if (widget.userInfo != null &&
+                    ShareDataWidget.of(context).data.isLogin)
                   Utils.pushCupertinoStyle(
                     context,
                     UserInfoPage(userInfo: widget.userInfo),
@@ -69,7 +74,8 @@ class DrawerBodyState extends State<DrawerBody> {
                   UserAccountsDrawerHeader(
                     margin: const EdgeInsets.all(0),
                     currentAccountPicture:
-                        pictureBytes != null && displayPicture
+                        ShareDataWidget.of(context).data.pictureBytes != null &&
+                                displayPicture
                             ? Hero(
                                 tag: Constants.TAG_STUDENT_PICTURE,
                                 child: Container(
@@ -80,7 +86,9 @@ class DrawerBodyState extends State<DrawerBody> {
                                     image: DecorationImage(
                                       fit: BoxFit.fitWidth,
                                       image: MemoryImage(
-                                        pictureBytes,
+                                        ShareDataWidget.of(context)
+                                            .data
+                                            .pictureBytes,
                                       ),
                                     ),
                                   ),
@@ -99,11 +107,13 @@ class DrawerBodyState extends State<DrawerBody> {
                                 ),
                               ),
                     accountName: Text(
-                      '${widget.userInfo?.name}',
+                      ShareDataWidget.of(context).data.isLogin
+                          ? '${widget.userInfo?.name ?? ''}'
+                          : app.notLogin,
                       style: TextStyle(color: Colors.white),
                     ),
                     accountEmail: Text(
-                      '${widget.userInfo?.id}',
+                      '${widget.userInfo?.id ?? ''}',
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(
@@ -242,9 +252,11 @@ class DrawerBodyState extends State<DrawerBody> {
                 AppIcon.powerSettingsNew,
                 color: Resource.Colors.grey,
               ),
-              onTap: () {
-                Navigator.popUntil(
-                    context, ModalRoute.withName(Navigator.defaultRouteName));
+              onTap: () async {
+                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                ShareDataWidget.of(context).data.logout();
+                Navigator.of(context).pop();
+                widget.onClickLogout();
               },
               title: Text(app.logout, style: _defaultStyle),
             ),
@@ -305,7 +317,7 @@ class DrawerBodyState extends State<DrawerBody> {
       if (!response.body.contains('html')) {
         if (mounted) {
           setState(() {
-            pictureBytes = response.bodyBytes;
+            ShareDataWidget.of(context).data.pictureBytes = response.bodyBytes;
           });
         }
         CacheUtils.savePictureData(response.bodyBytes);
@@ -313,7 +325,7 @@ class DrawerBodyState extends State<DrawerBody> {
         var bytes = await CacheUtils.loadPictureData();
         if (mounted) {
           setState(() {
-            pictureBytes = bytes;
+            ShareDataWidget.of(context).data.pictureBytes = bytes;
           });
         }
       }
@@ -323,6 +335,7 @@ class DrawerBodyState extends State<DrawerBody> {
   }
 
   _getPreference() async {
+    //TODO implement by future builder
     if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       _getUserPicture();
     }

@@ -9,12 +9,14 @@ class LeavesSubmitData {
   String leaveTypeId;
   String teacherId;
   String reasonText;
+  String delayReasonText;
 
   LeavesSubmitData({
     this.days,
     this.leaveTypeId,
     this.teacherId,
     this.reasonText,
+    this.delayReasonText,
   });
 
   factory LeavesSubmitData.fromRawJson(String str) =>
@@ -28,6 +30,7 @@ class LeavesSubmitData {
         leaveTypeId: json["leaveType"],
         teacherId: json["teacherId"],
         reasonText: json["reasonText"],
+        delayReasonText: json["delayReason"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -35,6 +38,7 @@ class LeavesSubmitData {
         "leaveType": leaveTypeId,
         "teacherId": teacherId,
         "reasonText": reasonText,
+        "delayReason": delayReasonText,
       };
 }
 

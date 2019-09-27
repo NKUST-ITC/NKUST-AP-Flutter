@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
@@ -9,7 +10,7 @@ import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
-import 'package:nkust_ap/models/leave_info_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leaves_data.dart';
 import 'package:nkust_ap/models/leaves_submit_data.dart';
 import 'package:nkust_ap/models/library_info_data.dart';
@@ -38,7 +39,10 @@ class Helper {
   static DateTime expireTime;
 
   bool isExpire() {
-    return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
+    if (expireTime == null)
+      return false;
+    else
+      return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
   }
 
   static Helper get instance {
@@ -155,7 +159,10 @@ class Helper {
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
       var response = await dio.get("/news/announcements/all");
-      return AnnouncementsData.fromJson(response.data);
+      if (response.statusCode == 204)
+        return AnnouncementsData(data: []);
+      else
+        return AnnouncementsData.fromJson(response.data);
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
@@ -425,12 +432,17 @@ class Helper {
     }
   }
 
-  Future<Response> sendLeavesSubmit(LeavesSubmitData data) async {
+  Future<Response> sendLeavesSubmit(LeavesSubmitData data, File image) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
         '/leaves/submit',
-        data: data.toJson(),
+        data: {
+          'leavesData': data.toJson(),
+          'leavesProof': image == null
+              ? null
+              : UploadFileInfo(image, image.path.split('/').last),
+        },
         cancelToken: cancelToken,
       );
       return response;
@@ -470,5 +482,11 @@ class Helper {
     return {
       'Authorization': 'Bearer $token',
     };
+  }
+
+  static void clearSetting() {
+    expireTime = null;
+    username = null;
+    password = null;
   }
 }

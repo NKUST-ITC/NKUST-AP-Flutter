@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.2.6+30206
+version: 3.2.7+30207
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -17,6 +17,7 @@ dependencies:
   package_info: 0.4.0+6
   url_launcher: 5.1.2
   share: 0.6.2+1
+  image_picker: 0.6.1+4
   firebase_core: 0.4.0+9
   firebase_analytics: 5.0.2
   firebase_remote_config: 0.2.0+7
@@ -35,6 +36,9 @@ dependencies:
   cached_network_image: 1.1.1
   app_review: 1.0.0
   outline_material_icons: 0.1.0
+  photo_view: 0.5.0
+  date_range_picker: 1.0.6
+  flutter_autofill: 0.4.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -52,3 +56,4 @@ flutter:
   uses-material-design: true
   assets:
   - assets/images/
+  - assets/leaves_campus_data.json

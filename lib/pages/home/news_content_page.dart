@@ -6,6 +6,7 @@ import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
+import 'package:photo_view/photo_view.dart';
 
 enum _Status { loading, finish, error, empty }
 
@@ -26,7 +27,7 @@ class NewsContentPageState extends State<NewsContentPage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("NewsContentPage", "widget.s_content_page.dart");
+    FA.setCurrentScreen("NewsContentPage", "news_content_page.dart");
     super.initState();
   }
 
@@ -72,17 +73,32 @@ class NewsContentPageState extends State<NewsContentPage> {
   }
 
   _renderContent(Orientation orientation) {
-    final Widget image = AspectRatio(
-      aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
-      child: Hero(
-        tag: widget.news.hashCode,
-        child: (Platform.isIOS || Platform.isAndroid)
-            ? CachedNetworkImage(
-                imageUrl: widget.news.imgUrl,
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              )
-            : Image.network(widget.news.imgUrl),
+    final Widget image = GestureDetector(
+      child: AspectRatio(
+        aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
+        child: Hero(
+          tag: widget.news.hashCode,
+          child: (Platform.isIOS || Platform.isAndroid)
+              ? CachedNetworkImage(
+                  imageUrl: widget.news.imgUrl,
+                  errorWidget: (context, url, error) => Icon(Icons.error),
+                )
+              : Image.network(widget.news.imgUrl),
+        ),
       ),
+      onTap: () {
+        Utils.pushCupertinoStyle(
+          context,
+          Scaffold(
+            appBar: AppBar(
+              title: Text(widget.news.title),
+            ),
+            body: PhotoView(
+              imageProvider: NetworkImage(widget.news.imgUrl),
+            ),
+          ),
+        );
+      },
     );
     final List<Widget> newsContent = <Widget>[
       Hero(

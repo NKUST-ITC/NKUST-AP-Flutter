@@ -8,6 +8,8 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'firebase_analytics_utils.dart';
+
 class AppLocalizations {
   static const SYSTEM = 'system';
   static const ZH = 'zh';
@@ -65,7 +67,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release new API version(will clear old preference data).\n2.Add midterm warning page.\n3.Add reward and penalty page.\n4.Impove course page.\n5.Fix some bug',
+          '1.Release new API version(will clear old preference data).\n2.Add midterm warning page.\n3.Add reward and penalty page.\n4.Impove course page.\n5.Add feature leave apply.\n6.Fix some bug',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -293,6 +295,8 @@ class AppLocalizations {
       'friday': 'Fri',
       'saturday': 'Sat',
       'sunday': 'Sun',
+      'units': 'Units',
+      'courseHours': 'Hours',
       'do_not_empty': 'Don\'t Empty',
       'login_fail':
           'student id or password error or this student id is not available',
@@ -372,12 +376,30 @@ class AppLocalizations {
       'rewardAndPenaltyContent': 'Counts：%s\nDate：%s',
       'campusNotSupport': 'Campus not support this feature ~',
       'userNotSupport': 'User can\'t use this feature ~',
+      'notLogin': 'Not Login',
+      'notLoginHint': 'Not Login, please check login status.',
+      'addDate': 'Add Date',
+      'tutor': 'Tutor',
+      'leavesType': 'Leaves Type',
+      'reason': 'Reason',
+      'delayReason': 'Delay Reason',
+      'submit': 'Submit',
+      'leavesSubmitUploadHint':
+          'Uploading\nPlease waiting for finish before close App',
+      'confirm': 'Confirm',
+      'teacher': 'Teacher',
+      'pickTeacher': 'Pick Teacher',
+      'leavesProof': 'Leaves Proof',
+      'pleasePick': 'Please Pick one',
+      'pleasePickDateAndSection': 'Please pick date and section.',
+      'leavesSubmitSuccess': 'Leaves submit successful.',
+      'leavesDelayHint': 'Because over time, need to fill delay reason.',
     },
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
       'update_note_content':
-          '1.全新推出新的API(此更新會清除先前資料)\n2.新增期中預警\n3.新增獎懲紀錄\n4.改善課表顯示\n5.修正部分錯誤',
+          '1.全新推出新的API(此更新會清除先前資料)\n2.新增期中預警\n3.新增獎懲紀錄\n4.改善課表顯示\n5.新增請假申請\n6.修正部分錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
@@ -589,6 +611,8 @@ class AppLocalizations {
       'friday': '週五',
       'saturday': '週六',
       'sunday': '週日',
+      'units': '學分',
+      'courseHours': '時數',
       'do_not_empty': '請勿留空',
       'login_fail': '帳號或密碼錯誤或是此帳號無法使用',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
@@ -663,6 +687,23 @@ class AppLocalizations {
       'rewardAndPenaltyContent': '數量：%s\n日期：%s',
       'campusNotSupport': '所在的校區無法使用此功能',
       'userNotSupport': '使用者無法使用此功能',
+      'notLogin': '尚未登入',
+      'notLoginHint': '尚未登入 請檢查登入狀態',
+      'addDate': '新增日期',
+      'tutor': '導師',
+      'leavesType': '請假類別',
+      'reason': '原因',
+      'delayReason': '請假延遲原因',
+      'submit': '送出',
+      'leavesSubmitUploadHint': '上傳中\n請等候上傳完畢再關閉App',
+      'confirm': '確認',
+      'teacher': '老師',
+      'pickTeacher': '選擇老師',
+      'leavesProof': '請假證明',
+      'pleasePick': '請選擇',
+      'pleasePickDateAndSection': '請選擇日期及節次',
+      'leavesSubmitSuccess': '請假送出成功',
+      'leavesDelayHint': '因為超出請假時間 請填寫延遲原因',
     },
   };
 
@@ -881,6 +922,10 @@ class AppLocalizations {
   String get saturday => _vocabularies['saturday'];
 
   String get sunday => _vocabularies['sunday'];
+
+  String get units => _vocabularies['units'];
+
+  String get courseHours => _vocabularies['courseHours'];
 
   String get fromJiangong => _vocabularies['from_jiangong'];
 
@@ -1179,6 +1224,41 @@ class AppLocalizations {
   String get campusNotSupport => _vocabularies['campusNotSupport'];
 
   String get userNotSupport => _vocabularies['userNotSupport'];
+
+  String get notLogin => _vocabularies['notLogin'];
+
+  String get notLoginHint => _vocabularies['notLoginHint'];
+
+  String get addDate => _vocabularies['addDate'];
+
+  String get tutor => _vocabularies['tutor'];
+
+  String get leavesType => _vocabularies['leavesType'];
+
+  String get reason => _vocabularies['reason'];
+
+  String get delayReason => _vocabularies['delayReason'];
+
+  String get submit => _vocabularies['submit'];
+
+  String get leavesSubmitUploadHint => _vocabularies['leavesSubmitUploadHint'];
+
+  String get confirm => _vocabularies['confirm'];
+
+  String get teacher => _vocabularies['teacher'];
+
+  String get pickTeacher => _vocabularies['pickTeacher'];
+
+  String get leavesProof => _vocabularies['leavesProof'];
+
+  String get pleasePick => _vocabularies['pleasePick'];
+
+  String get pleasePickDateAndSection =>
+      _vocabularies['pleasePickDateAndSection'];
+
+  String get leavesSubmitSuccess => _vocabularies['leavesSubmitSuccess'];
+
+  String get leavesDelayHint => _vocabularies['leavesDelayHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -1195,10 +1275,17 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
     } else if (Platform.isAndroid || Platform.isIOS) {
       SharedPreferences preference = await SharedPreferences.getInstance();
       String languageCode =
-          preference.getString(Constants.PREF_LANGUAGE_CODE) ?? 'system';
-
+          preference.getString(Constants.PREF_LANGUAGE_CODE) ??
+              AppLocalizations.SYSTEM;
       AppLocalizations localizations = AppLocalizations(
-          (languageCode == 'system') ? locale : Locale(languageCode));
+          (languageCode == AppLocalizations.SYSTEM)
+              ? locale
+              : Locale(languageCode));
+      FA.setUserProperty(
+          'language',
+          (languageCode == AppLocalizations.SYSTEM)
+              ? locale.languageCode
+              : languageCode);
       return localizations;
     } else {
       //TODO if other platform can use SharedPreferences, need update.

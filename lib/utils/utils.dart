@@ -9,11 +9,19 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
+import 'package:nkust_ap/pages/home/bus_page.dart';
+import 'package:nkust_ap/pages/home/leave_page.dart';
+import 'package:nkust_ap/pages/home/study/calculate_units_page.dart';
+import 'package:nkust_ap/pages/home/study/course_page.dart';
+import 'package:nkust_ap/pages/home/study/midterm_alerts_page.dart';
+import 'package:nkust_ap/pages/home/study/reward_and_penalty_page.dart';
+import 'package:nkust_ap/pages/home/study/score_page.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
+import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
 import 'package:share/share.dart';
@@ -494,11 +502,21 @@ class Utils {
     }
   }
 
-  static pushCupertinoStyle(BuildContext context, Widget page) {
-    Navigator.of(context).push(
-      CupertinoPageRoute(builder: (BuildContext context) {
-        return page;
-      }),
-    );
+  static Future pushCupertinoStyle(BuildContext context, Widget page) async {
+    if ((page is ScorePage ||
+            page is CoursePage ||
+            page is BusPage ||
+            page is LeavePage ||
+            page is MidtermAlertsPage ||
+            page is RewardAndPenaltyPage ||
+            page is CalculateUnitsPage) &&
+        !ShareDataWidget.of(context).data.isLogin) {
+      Utils.showToast(context, AppLocalizations.of(context).notLoginHint);
+    } else
+      Navigator.of(context).push(
+        CupertinoPageRoute(builder: (BuildContext context) {
+          return page;
+        }),
+      );
   }
 }
