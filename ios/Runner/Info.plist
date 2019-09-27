@@ -61,6 +61,12 @@
 	<true/>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Feature calendar would be add schedule to calendar app</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Feature leaves apply would be select photos to apply leaves</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Feature leaves apply would be select photos to apply leaves</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

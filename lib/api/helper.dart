@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
@@ -428,12 +429,17 @@ class Helper {
     }
   }
 
-  Future<Response> sendLeavesSubmit(LeavesSubmitData data) async {
+  Future<Response> sendLeavesSubmit(LeavesSubmitData data, File image) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
         '/leaves/submit',
-        data: data.toJson(),
+        data: {
+          'leavesData': data.toJson(),
+          'leavesProof': image == null
+              ? null
+              : UploadFileInfo(image, image.path.split('/').last),
+        },
         cancelToken: cancelToken,
       );
       return response;

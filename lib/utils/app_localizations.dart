@@ -378,6 +378,22 @@ class AppLocalizations {
       'userNotSupport': 'User can\'t use this feature ~',
       'notLogin': 'Not Login',
       'notLoginHint': 'Not Login, please check login status.',
+      'addDate': 'Add Date',
+      'tutor': 'Tutor',
+      'leavesType': 'Leaves Type',
+      'reason': 'Reason',
+      'delayReason': 'Delay Reason',
+      'submit': 'Submit',
+      'leavesSubmitUploadHint':
+          'Uploading\nPlease waiting for finish before close App',
+      'confirm': 'Confirm',
+      'teacher': 'Teacher',
+      'pickTeacher': 'Pick Teacher',
+      'leavesProof': 'Leaves Proof',
+      'pleasePick': 'Please Pick one',
+      'pleasePickDateAndSection': 'Please pick date and section.',
+      'leavesSubmitSuccess': 'Leaves submit successful.',
+      'leavesDelayHint': 'Because over time, need to fill delay reason.',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -673,6 +689,21 @@ class AppLocalizations {
       'userNotSupport': '使用者無法使用此功能',
       'notLogin': '尚未登入',
       'notLoginHint': '尚未登入 請檢查登入狀態',
+      'addDate': '新增日期',
+      'tutor': '導師',
+      'leavesType': '請假類別',
+      'reason': '原因',
+      'delayReason': '請假延遲原因',
+      'submit': '送出',
+      'leavesSubmitUploadHint': '上傳中\n請等候上傳完畢再關閉App',
+      'confirm': '確認',
+      'teacher': '老師',
+      'pickTeacher': '選擇老師',
+      'leavesProof': '請假證明',
+      'pleasePick': '請選擇',
+      'pleasePickDateAndSection': '請選擇日期及節次',
+      'leavesSubmitSuccess': '請假送出成功',
+      'leavesDelayHint': '因為超出請假時間 請填寫延遲原因',
     },
   };
 
@@ -1197,6 +1228,37 @@ class AppLocalizations {
   String get notLogin => _vocabularies['notLogin'];
 
   String get notLoginHint => _vocabularies['notLoginHint'];
+
+  String get addDate => _vocabularies['addDate'];
+
+  String get tutor => _vocabularies['tutor'];
+
+  String get leavesType => _vocabularies['leavesType'];
+
+  String get reason => _vocabularies['reason'];
+
+  String get delayReason => _vocabularies['delayReason'];
+
+  String get submit => _vocabularies['submit'];
+
+  String get leavesSubmitUploadHint => _vocabularies['leavesSubmitUploadHint'];
+
+  String get confirm => _vocabularies['confirm'];
+
+  String get teacher => _vocabularies['teacher'];
+
+  String get pickTeacher => _vocabularies['pickTeacher'];
+
+  String get leavesProof => _vocabularies['leavesProof'];
+
+  String get pleasePick => _vocabularies['pleasePick'];
+
+  String get pleasePickDateAndSection =>
+      _vocabularies['pleasePickDateAndSection'];
+
+  String get leavesSubmitSuccess => _vocabularies['leavesSubmitSuccess'];
+
+  String get leavesDelayHint => _vocabularies['leavesDelayHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
