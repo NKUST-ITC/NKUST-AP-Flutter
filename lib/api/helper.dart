@@ -10,7 +10,7 @@ import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
-import 'package:nkust_ap/models/leave_info_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leaves_data.dart';
 import 'package:nkust_ap/models/leaves_submit_data.dart';
 import 'package:nkust_ap/models/library_info_data.dart';
@@ -159,7 +159,10 @@ class Helper {
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
       var response = await dio.get("/news/announcements/all");
-      return AnnouncementsData.fromJson(response.data);
+      if (response.statusCode == 204)
+        return AnnouncementsData(data: []);
+      else
+        return AnnouncementsData.fromJson(response.data);
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
