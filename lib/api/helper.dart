@@ -441,7 +441,8 @@ class Helper {
           'leavesData': data.toJson(),
           'leavesProof': image == null
               ? null
-              : UploadFileInfo(image, image.path.split('/').last),
+              : MultipartFile.fromFile(image.path,
+                  filename: image.path.split('/').last),
         },
         cancelToken: cancelToken,
       );
