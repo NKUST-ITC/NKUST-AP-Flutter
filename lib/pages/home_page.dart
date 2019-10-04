@@ -74,10 +74,14 @@ class HomePageState extends State<HomePage> {
           ],
         ),
         drawer: DrawerBody(
-            userInfo: ShareDataWidget.of(context).data.userInfo,
-            onClickLogout: () {
-              checkLogin();
-            }),
+          userInfo: ShareDataWidget.of(context).data.userInfo,
+          onClickLogin: () {
+            openLoginPage();
+          },
+          onClickLogout: () {
+            checkLogin();
+          },
+        ),
         body: OrientationBuilder(
           builder: (_, orientation) {
             return Container(
@@ -452,33 +456,36 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  Future openLoginPage() async {
+    var result = await Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (_) => LoginPage(),
+      ),
+    );
+    print((result));
+    checkLogin();
+    if (result ?? false) {
+      _getUserInfo();
+      setState(() {
+        ShareDataWidget.of(context).data.isLogin = true;
+      });
+    }
+  }
+
   void checkLogin() async {
     await Future.delayed(Duration(microseconds: 30));
     print(ShareDataWidget.of(context).data.isLogin);
     if (ShareDataWidget.of(context).data.isLogin) {
-      // _scaffoldKey.currentState.hideCurrentSnackBar();
+      _scaffoldKey.currentState.hideCurrentSnackBar();
     } else {
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
           content: Text(app.notLogin),
           duration: Duration(days: 1),
           action: SnackBarAction(
-            onPressed: () async {
-              var result = await Navigator.of(context).push(
-                CupertinoPageRoute(
-                  builder: (_) => LoginPage(),
-                ),
-              );
-              if (result ?? false) {
-                _getUserInfo();
-                setState(() {
-                  ShareDataWidget.of(context).data.isLogin = true;
-                });
-              } else {
-                checkLogin();
-              }
-            },
+            onPressed: openLoginPage,
             label: app.login,
+            textColor: Resource.Colors.snackBarActionTextColor,
           ),
         ),
       );

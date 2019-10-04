@@ -125,6 +125,16 @@ class Colors {
     }
   }
 
+  static get snackBarActionTextColor {
+    switch (AppTheme.code) {
+      case AppTheme.DARK:
+        return yellow500;
+      case AppTheme.LIGHT:
+      default:
+        return yellow500;
+    }
+  }
+
   static const Color blueDark = const Color(0xff141e2f);
   static const Color onyx = const Color(0xff121212);
   static const Color grayChateau = const Color(0xffa5a5a5);

@@ -125,21 +125,21 @@ class SemesterPickerState extends State<SemesterPicker> {
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
           height: MediaQuery.of(context).size.height * 0.8,
-          child: ListView(
+          child: ListView.separated(
             controller: ScrollController(initialScrollOffset: index * 48.0),
-            children: [
-              for (var i = 0; i < semesterData.data.length; i++) ...[
-                DialogOption(
-                    text: semesterData.data[i].text,
-                    check: semesterData.data[i].text == selectSemester.text,
-                    onPressed: () {
-                      Navigator.pop(context, i);
-                    }),
-                Divider(
-                  height: 6.0,
-                )
-              ]
-            ],
+            itemCount: semesterData.data.length,
+            separatorBuilder: (BuildContext context, int index) {
+              return Divider(height: 6.0);
+            },
+            itemBuilder: (BuildContext context, int index) {
+              return DialogOption(
+                text: semesterData.data[index].text,
+                check: semesterData.data[index].text == selectSemester.text,
+                onPressed: () {
+                  Navigator.pop(context, index);
+                },
+              );
+            },
           ),
         ),
       ),

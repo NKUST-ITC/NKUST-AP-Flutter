@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:nkust_ap/config/constants.dart';
@@ -19,11 +20,13 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class DrawerBody extends StatefulWidget {
   final UserInfo userInfo;
+  final Function onClickLogin;
   final Function onClickLogout;
 
   const DrawerBody({
     Key key,
     @required this.userInfo,
+    @required this.onClickLogin,
     @required this.onClickLogout,
   }) : super(key: key);
 
@@ -61,14 +64,19 @@ class DrawerBodyState extends State<DrawerBody> {
         child: Column(
           children: <Widget>[
             GestureDetector(
-              onTap: () {
-                if (widget.userInfo != null &&
-                    ShareDataWidget.of(context).data.isLogin)
-                  Utils.pushCupertinoStyle(
-                    context,
-                    UserInfoPage(userInfo: widget.userInfo),
-                  );
-              },
+              onTap: ShareDataWidget.of(context).data.isLogin
+                  ? () {
+                      if (widget.userInfo != null &&
+                          ShareDataWidget.of(context).data.isLogin)
+                        Utils.pushCupertinoStyle(
+                          context,
+                          UserInfoPage(userInfo: widget.userInfo),
+                        );
+                    }
+                  : () async {
+                      Navigator.of(context).pop();
+                      widget.onClickLogin();
+                    },
               child: Stack(
                 children: <Widget>[
                   UserAccountsDrawerHeader(
@@ -247,19 +255,20 @@ class DrawerBodyState extends State<DrawerBody> {
               title: app.settings,
               page: SettingPage(),
             ),
-            ListTile(
-              leading: Icon(
-                AppIcon.powerSettingsNew,
-                color: Resource.Colors.grey,
+            if (ShareDataWidget.of(context).data.isLogin)
+              ListTile(
+                leading: Icon(
+                  AppIcon.powerSettingsNew,
+                  color: Resource.Colors.grey,
+                ),
+                onTap: () async {
+                  await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                  ShareDataWidget.of(context).data.logout();
+                  Navigator.of(context).pop();
+                  widget.onClickLogout();
+                },
+                title: Text(app.logout, style: _defaultStyle),
               ),
-              onTap: () async {
-                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-                ShareDataWidget.of(context).data.logout();
-                Navigator.of(context).pop();
-                widget.onClickLogout();
-              },
-              title: Text(app.logout, style: _defaultStyle),
-            ),
           ],
         ),
       ),

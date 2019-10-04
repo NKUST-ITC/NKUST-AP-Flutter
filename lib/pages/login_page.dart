@@ -104,60 +104,68 @@ class LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
           ];
+    Widget usernameTextField = TextField(
+      maxLines: 1,
+      controller: _username,
+      textInputAction: TextInputAction.next,
+      focusNode: usernameFocusNode,
+      onSubmitted: (text) {
+        usernameFocusNode.unfocus();
+        FocusScope.of(context).requestFocus(passwordFocusNode);
+      },
+      decoration: InputDecoration(
+        labelText: app.username,
+      ),
+      style: _editTextStyle,
+    );
+    Widget passwordTextField = TextField(
+      obscureText: true,
+      maxLines: 1,
+      textInputAction: TextInputAction.send,
+      controller: _password,
+      focusNode: passwordFocusNode,
+      onSubmitted: (text) {
+        passwordFocusNode.unfocus();
+        _login();
+      },
+      decoration: InputDecoration(
+        labelText: app.password,
+      ),
+      style: _editTextStyle,
+    );
     List<Widget> sectionInput = <Widget>[
-      Autofill(
-        onAutofilled: (val) {
-          // set value in controller & cursor position after auto-filled value
-          _username.value = TextEditingValue(
-              text: val,
-              selection:
-                  TextSelection.fromPosition(TextPosition(offset: val.length)));
-        },
-        autofillHints: [FlutterAutofill.AUTOFILL_HINT_USERNAME],
-        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-        textController: _username,
-        child: TextField(
-          maxLines: 1,
-          controller: _username,
-          textInputAction: TextInputAction.next,
-          focusNode: usernameFocusNode,
-          onSubmitted: (text) {
-            usernameFocusNode.unfocus();
-            FocusScope.of(context).requestFocus(passwordFocusNode);
-          },
-          decoration: InputDecoration(
-            labelText: app.username,
-          ),
-          style: _editTextStyle,
-        ),
-      ),
-      Autofill(
-        onAutofilled: (val) {
-          // set value in controller & cursor position after auto-filled value
-          _password.value = TextEditingValue(
-              text: val,
-              selection:
-                  TextSelection.fromPosition(TextPosition(offset: val.length)));
-        },
-        autofillHints: [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
-        autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-        textController: _password,
-        child: TextField(
-          obscureText: true,
-          maxLines: 1,
-          textInputAction: TextInputAction.send,
-          controller: _password,
-          focusNode: passwordFocusNode,
-          onSubmitted: (text) {
-            passwordFocusNode.unfocus();
-            _login();
-          },
-          decoration: InputDecoration(
-            labelText: app.password,
-          ),
-          style: _editTextStyle,
-        ),
-      ),
+      (Platform.isAndroid)
+          ? Autofill(
+              onAutofilled: (val) {
+                // set value in controller & cursor position after auto-filled value
+                _username.value = TextEditingValue(
+                  text: val,
+                  selection: TextSelection.fromPosition(
+                    TextPosition(offset: val.length),
+                  ),
+                );
+              },
+              autofillHints: [FlutterAutofill.AUTOFILL_HINT_USERNAME],
+              autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+              textController: _username,
+              child: usernameTextField,
+            )
+          : usernameTextField,
+      (Platform.isAndroid)
+          ? Autofill(
+              onAutofilled: (val) {
+                // set value in controller & cursor position after auto-filled value
+                _password.value = TextEditingValue(
+                    text: val,
+                    selection: TextSelection.fromPosition(
+                        TextPosition(offset: val.length)));
+              },
+              autofillHints: [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
+              autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
+              textController: _password,
+              child: passwordTextField,
+            )
+          : passwordTextField,
       SizedBox(height: 8.0),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
