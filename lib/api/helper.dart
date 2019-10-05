@@ -56,7 +56,7 @@ class Helper {
 
   Helper() {
     options = new BaseOptions(
-      baseUrl: 'https://$HOST:$PORT',
+      baseUrl: 'https://$HOST:$PORT/$VERSION',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
