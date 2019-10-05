@@ -30,7 +30,7 @@ class LeavesSubmitData {
         leaveTypeId: json["leaveType"],
         teacherId: json["teacherId"],
         reasonText: json["reasonText"],
-        delayReasonText: json["delayReason"],
+        delayReasonText: json["delayReasonText"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -38,7 +38,7 @@ class LeavesSubmitData {
         "leaveType": leaveTypeId,
         "teacherId": teacherId,
         "reasonText": reasonText,
-        "delayReason": delayReasonText,
+        "delayReasonText": delayReasonText,
       };
 }
 
@@ -64,4 +64,17 @@ class Day {
         "day": day,
         "class": new List<dynamic>.from(dayClass.map((x) => x)),
       };
+
+  @override
+  String toString() {
+    if (day == null && dayClass == null)
+      return 'empty';
+    else {
+      String text = day;
+      dayClass.forEach((item) {
+        text = '$text ($item)';
+      });
+      return text;
+    }
+  }
 }

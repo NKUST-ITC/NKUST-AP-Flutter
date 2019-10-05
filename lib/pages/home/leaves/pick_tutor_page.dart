@@ -116,14 +116,14 @@ class _PickTutorPageState extends State<PickTutorPage> {
             ListTile(
               leading: Icon(Icons.person),
               title: Text(app.teacher),
-              subtitle: Text('${teacher.teacherName}'),
+              subtitle: Text('${teacher.name}'),
               onTap: () {
                 pickItem(
                   _Type.teacher,
                   teacherIndex,
                   department.teacherList.map(
                     (item) {
-                      return item.teacherName;
+                      return item.name;
                     },
                   ).toList(),
                 );

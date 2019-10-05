@@ -73,12 +73,12 @@ class LeavesDepartment {
 }
 
 class LeavesTeacher {
-  String teacherName;
-  String teacherId;
+  String name;
+  String id;
 
   LeavesTeacher({
-    this.teacherName,
-    this.teacherId,
+    this.name,
+    this.id,
   });
 
   factory LeavesTeacher.fromRawJson(String str) => LeavesTeacher.fromJson(json.decode(str));
@@ -86,12 +86,12 @@ class LeavesTeacher {
   String toRawJson() => json.encode(toJson());
 
   factory LeavesTeacher.fromJson(Map<String, dynamic> json) => LeavesTeacher(
-    teacherName: json["teacherName"] == null ? null : json["teacherName"],
-    teacherId: json["teacherId"] == null ? null : json["teacherId"],
+    name: json["teacherName"] == null ? null : json["teacherName"],
+    id: json["teacherId"] == null ? null : json["teacherId"],
   );
 
   Map<String, dynamic> toJson() => {
-    "teacherName": teacherName == null ? null : teacherName,
-    "teacherId": teacherId == null ? null : teacherId,
+    "teacherName": name == null ? null : name,
+    "teacherId": id == null ? null : id,
   };
 }

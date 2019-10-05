@@ -4,6 +4,7 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 class YesNoDialog extends StatelessWidget {
   final String title;
   final Widget contentWidget;
+  final EdgeInsetsGeometry contentWidgetPadding;
   final String leftActionText;
   final String rightActionText;
   final Function leftActionFunction;
@@ -13,6 +14,7 @@ class YesNoDialog extends StatelessWidget {
       {Key key,
       this.title,
       this.contentWidget,
+      this.contentWidgetPadding,
       this.leftActionText,
       this.rightActionText,
       this.leftActionFunction,
@@ -66,7 +68,8 @@ class YesNoDialog extends StatelessWidget {
                 bottom: BorderSide(color: Colors.grey, width: 0.5),
               ),
             ),
-            padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 24.0),
+            padding: contentWidgetPadding ??
+                EdgeInsets.symmetric(horizontal: 30.0, vertical: 24.0),
             child: contentWidget,
           ),
           Row(

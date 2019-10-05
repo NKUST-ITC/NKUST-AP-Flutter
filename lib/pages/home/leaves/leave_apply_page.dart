@@ -16,6 +16,7 @@ import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty }
@@ -139,40 +140,53 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               SizedBox(height: 16),
               Divider(color: Resource.Colors.grey, height: 1),
               SizedBox(height: 16),
-              MaterialButton(
-                onPressed: () async {
-                  final List<DateTime> picked =
-                      await DateRagePicker.showDatePicker(
-                    context: context,
-                    initialFirstDate: DateTime.now(),
-                    initialLastDate: (DateTime.now()).add(Duration(days: 7)),
-                    firstDate: DateTime(2015),
-                    lastDate: DateTime(2020),
-                  );
-                  if (picked != null && picked.length == 2) {
-                    DateTime dateTime = picked[0],
-                        end = picked[1].add(Duration(days: 1));
-                    while (dateTime.isBefore(end)) {
-                      bool hasRepeat = false;
-                      for (var i = 0; i < leavesModels.length; i++) {
-                        if (leavesModels[i].isSameDay(dateTime))
-                          hasRepeat = true;
+              FractionallySizedBox(
+                widthFactor: 0.3,
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
+                  ),
+                  padding: EdgeInsets.all(4.0),
+                  color: Resource.Colors.blueAccent,
+                  onPressed: () async {
+                    final List<DateTime> picked =
+                        await DateRagePicker.showDatePicker(
+                      context: context,
+                      initialFirstDate: DateTime.now(),
+                      initialLastDate: (DateTime.now()).add(Duration(days: 7)),
+                      firstDate: DateTime(2015),
+                      lastDate: DateTime(2020),
+                    );
+                    if (picked != null && picked.length == 2) {
+                      DateTime dateTime = picked[0],
+                          end = picked[1].add(Duration(days: 1));
+                      while (dateTime.isBefore(end)) {
+                        bool hasRepeat = false;
+                        for (var i = 0; i < leavesModels.length; i++) {
+                          if (leavesModels[i].isSameDay(dateTime))
+                            hasRepeat = true;
+                        }
+                        if (!hasRepeat) {
+                          leavesModels.add(
+                            LeavesModel(
+                              dateTime,
+                              leavesSubmitInfo.timeCodes.length,
+                            ),
+                          );
+                        }
+                        dateTime = dateTime.add(Duration(days: 1));
                       }
-                      if (!hasRepeat) {
-                        leavesModels.add(
-                          LeavesModel(
-                            dateTime,
-                            leavesSubmitInfo.timeCodes.length,
-                          ),
-                        );
-                      }
-                      dateTime = dateTime.add(Duration(days: 1));
+                      checkIsDelay();
+                      setState(() {});
                     }
-                    checkIsDelay();
-                    setState(() {});
-                  }
-                },
-                child: Text(app.addDate),
+                  },
+                  child: Text(
+                    app.addDate,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
               SizedBox(height: 16),
               Container(
@@ -311,7 +325,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 ),
                 subtitle: Text(
                   leavesSubmitInfo.tutor == null
-                      ? (teacher?.teacherName ?? app.pleasePick)
+                      ? (teacher?.name ?? app.pleasePick)
                       : (leavesSubmitInfo.tutor?.name ?? ''),
                   style: TextStyle(fontSize: 20),
                 ),
@@ -419,11 +433,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   padding: EdgeInsets.all(14.0),
                   onPressed: () {
                     _leaveSubmit();
-//                  FA.logAction('leaves_submit', 'click');
+                    FA.logAction('leaves_submit', 'click');
                   },
                   color: Resource.Colors.blueAccent,
                   child: Text(
-                    app.submit,
+                    app.confirm,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18.0,
@@ -481,103 +495,194 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         );
       }
     });
-    LeavesSubmitData data = LeavesSubmitData(
-      days: days,
-      leaveTypeId: leavesSubmitInfo.type[typeIndex].id,
-      teacherId: leavesSubmitInfo.tutor?.id,
-      reasonText: _reason.text ?? '',
-      delayReasonText: isDelay ? (_delayReason.text ?? '') : '',
-    );
-    print(data.toJson());
-    print(teacher?.teacherName);
     if (days.length == 0) {
       Utils.showToast(context, app.pleasePickDateAndSection);
     } else if (leavesSubmitInfo.tutor == null && teacher == null) {
       Utils.showToast(context, app.pickTeacher);
     } else if (_formKey.currentState.validate()) {
       //TODO submit summary
-      Utils.showToast(context, '上傳中，測試功能');
+      String tutorId, tutorName;
+      if (leavesSubmitInfo.tutor == null) {
+        tutorId = teacher.id;
+        tutorName = teacher.name;
+      } else {
+        tutorId = leavesSubmitInfo.tutor.id;
+        tutorName = leavesSubmitInfo.tutor.name;
+      }
+      LeavesSubmitData data = LeavesSubmitData(
+        days: days,
+        leaveTypeId: leavesSubmitInfo.type[typeIndex].id,
+        teacherId: tutorId,
+        reasonText: _reason.text ?? '',
+        delayReasonText: isDelay ? (_delayReason.text ?? '') : '',
+      );
+      print(data.toJson());
       showDialog(
         context: context,
-        builder: (BuildContext context) => WillPopScope(
-          child: ProgressDialog(app.leavesSubmitUploadHint),
-          onWillPop: () async {
-            return false;
+        builder: (BuildContext context) => YesNoDialog(
+          title: app.leavesSubmit,
+          contentWidgetPadding: EdgeInsets.all(0.0),
+          contentWidget: SizedBox(
+            height: MediaQuery.of(context).size.height *
+                ((image == null) ? 0.3 : 0.5),
+            width: MediaQuery.of(context).size.width * 0.7,
+            child: ListView(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.only(
+                    top: 16.0,
+                    left: 30.0,
+                    right: 30.0,
+                  ),
+                  child: RichText(
+                    textAlign: TextAlign.left,
+                    text: TextSpan(
+                      style: TextStyle(
+                          color: Resource.Colors.grey,
+                          height: 1.5,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                          text: '${app.leavesType}：',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                            text:
+                                '${leavesSubmitInfo.type[typeIndex].title}\n'),
+                        TextSpan(
+                          text: '${app.tutor}：',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(text: '$tutorName\n'),
+                        TextSpan(
+                          text: '${app.reason}：\n',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(text: '${_reason.text}'),
+                        if (isDelay) ...[
+                          TextSpan(
+                            text: '${app.delayReason}：\n',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${_delayReason.text}\n'),
+                        ],
+                        TextSpan(
+                          text: '${app.leavesDateAndSection}：\n',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        for (var day in days)
+                          TextSpan(text: '${day.toString()}\n'),
+                        TextSpan(
+                          text:
+                              '${app.leavesProof}：${(image == null ? app.none : '')}\n',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                if (image != null)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 16.0,
+                      left: 30.0,
+                      right: 30.0,
+                    ),
+                    child: Image.file(image),
+                  ),
+              ],
+            ),
+          ),
+          leftActionText: app.cancel,
+          rightActionText: app.submit,
+          leftActionFunction: null,
+          rightActionFunction: () {
+            _leaveUpload(data);
+            Utils.showToast(context, '上傳中，測試功能');
           },
         ),
-        barrierDismissible: false,
       );
-      //TODO image crop or resize
-      Helper.instance.sendLeavesSubmit(data, image).then((Response response) {
-        Navigator.of(context, rootNavigator: true).pop();
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => DefaultDialog(
-            title: response.statusCode == 200
-                ? app.leavesSubmitSuccess
-                : '${response.statusCode}',
-            contentWidget: RichText(
-              textAlign: TextAlign.left,
-              text: TextSpan(
-                style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
-                children: [
-                  TextSpan(
-                    text: response.statusCode == 200
-                        ? app.leavesSubmitSuccess
-                        : '${response.data}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            actionText: app.iKnow,
-            actionFunction: () =>
-                Navigator.of(context, rootNavigator: true).pop(),
-          ),
-        );
-      }).catchError((e) {
-        Navigator.of(context, rootNavigator: true).pop();
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              ErrorResponse errorResponse =
-                  ErrorResponse.fromJson(e.response.data);
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => DefaultDialog(
-                  title: app.busReserveFailTitle,
-                  contentWidget: Text(
-                    errorResponse.description,
-                    style: TextStyle(
-                        color: Resource.Colors.grey,
-                        height: 1.3,
-                        fontSize: 16.0),
-                  ),
-                  actionText: app.iKnow,
-                  actionFunction: () {
-                    Navigator.of(context, rootNavigator: true).pop();
-                  },
-                ),
-              );
-              break;
-            case DioErrorType.DEFAULT:
-              setState(() {
-                state = _State.error;
-              });
-              Utils.showToast(context, app.somethingError);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              Utils.handleDioError(context, e);
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
     }
+  }
+
+  void _leaveUpload(LeavesSubmitData data) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => WillPopScope(
+        child: ProgressDialog(app.leavesSubmitUploadHint),
+        onWillPop: () async {
+          return false;
+        },
+      ),
+      barrierDismissible: false,
+    );
+    Helper.instance.sendLeavesSubmit(data, image).then((Response response) {
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: response.statusCode == 200
+              ? app.leavesSubmitSuccess
+              : '${response.statusCode}',
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+              children: [
+                TextSpan(
+                  text: response.statusCode == 200
+                      ? app.leavesSubmitSuccess
+                      : '${response.data}',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          actionText: app.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop(),
+        ),
+      );
+    }).catchError((e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            ErrorResponse errorResponse =
+                ErrorResponse.fromJson(e.response.data);
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => DefaultDialog(
+                title: app.busReserveFailTitle,
+                contentWidget: Text(
+                  errorResponse.description,
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                ),
+                actionText: app.iKnow,
+                actionFunction: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+              ),
+            );
+            break;
+          case DioErrorType.DEFAULT:
+            setState(() {
+              state = _State.error;
+            });
+            Utils.showToast(context, app.somethingError);
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            Utils.handleDioError(context, e);
+            break;
+        }
+      } else {
+        throw e;
+      }
+    });
   }
 
   Future resizeImage(File image) async {
@@ -588,9 +693,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context,
         sprintf(
           app.imageCompressHint,
-          [
-            (result.lengthSync() / 1024 / 1024)
-          ],
+          [(result.lengthSync() / 1024 / 1024)],
         ),
       );
       setState(() {
