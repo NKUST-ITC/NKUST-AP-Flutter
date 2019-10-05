@@ -16,6 +16,7 @@ import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:nkust_ap/widgets/progress_dialog.dart';
+import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty }
 enum Leave { normal, sick, official, funeral, maternity }
@@ -317,13 +318,22 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               ),
               Divider(color: Resource.Colors.grey, height: 1),
               ListTile(
-                onTap: () async {
-                  image =
-                      await ImagePicker.pickImage(source: ImageSource.gallery);
-                  if (image != null) {
-                    print(image.lengthSync() / 1024 / 1024);
-                    setState(() {});
-                  }
+                onTap: () {
+                  ImagePicker.pickImage(source: ImageSource.gallery).then(
+                    (image) async {
+                      if (image != null) {
+                        FA.logLeavesImageSize(image);
+                        if ((image.lengthSync() / 1024 / 1024) >=
+                            Constants.MAX_IMAGE_SIZE) {
+                          resizeImage(image);
+                        } else {
+                          setState(() {
+                            this.image = image;
+                          });
+                        }
+                      }
+                    },
+                  );
                 },
                 contentPadding: EdgeInsets.symmetric(
                   horizontal: 24,
@@ -344,7 +354,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   style: TextStyle(fontSize: 20),
                 ),
                 subtitle: Text(
-                  image?.path?.split('/')?.last ?? '',
+                  image?.path?.split('/')?.last ?? app.leavesProofHint,
                   style: TextStyle(fontSize: 20),
                 ),
               ),
@@ -567,6 +577,28 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           throw e;
         }
       });
+    }
+  }
+
+  Future resizeImage(File image) async {
+    File result = await Utils.resizeImageByNative(image);
+    FA.logLeavesImageCompressSize(image, result);
+    if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
+      Utils.showToast(
+        context,
+        sprintf(
+          app.imageCompressHint,
+          [
+            (result.lengthSync() / 1024 / 1024)
+          ],
+        ),
+      );
+      setState(() {
+        this.image = result;
+      });
+    } else {
+      Utils.showToast(context, app.imageTooBigHint);
+      FA.logEvent('leaves_pick_fail');
     }
   }
 }

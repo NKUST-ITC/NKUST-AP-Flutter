@@ -394,6 +394,10 @@ class AppLocalizations {
       'pleasePickDateAndSection': 'Please pick date and section.',
       'leavesSubmitSuccess': 'Leaves submit successful.',
       'leavesDelayHint': 'Because over time, need to fill delay reason.',
+      'leavesProofHint': 'Please pick image',
+      'imageCompressHint': 'Because file big than 4MB, so compress to %.2f MB',
+      'imageTooBigHint':
+          'Image size is too big, can\'t compress in except. Plese pick another one.',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -704,6 +708,9 @@ class AppLocalizations {
       'pleasePickDateAndSection': '請選擇日期及節次',
       'leavesSubmitSuccess': '請假送出成功',
       'leavesDelayHint': '因為超出請假時間 請填寫延遲原因',
+      'leavesProofHint': '請選擇照片',
+      'imageCompressHint': '因檔案超出 4MB 自動將其壓縮至 %.2f MB',
+      'imageTooBigHint': '圖片大小過大 無法預期壓縮 請重新挑選',
     },
   };
 
@@ -1259,6 +1266,12 @@ class AppLocalizations {
   String get leavesSubmitSuccess => _vocabularies['leavesSubmitSuccess'];
 
   String get leavesDelayHint => _vocabularies['leavesDelayHint'];
+
+  String get leavesProofHint => _vocabularies['leavesProofHint'];
+
+  String get imageCompressHint => _vocabularies['imageCompressHint'];
+
+  String get imageTooBigHint => _vocabularies['imageTooBigHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
