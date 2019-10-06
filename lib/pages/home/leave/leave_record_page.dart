@@ -62,45 +62,56 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
-    return Container(
-      child: Flex(
-        direction: Axis.vertical,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          SizedBox(height: 8.0),
-          SemesterPicker(
-            key: key,
-            onSelect: (semester, index) {
-              setState(() {
-                selectSemester = semester;
-                state = _State.loading;
-              });
-              if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
-                _loadOfflineLeaveData();
-              else
-                _getSemesterLeaveRecord();
-            },
-          ),
-          if (isOffline)
-            Text(
-              app.offlineLeaveData,
-              style: TextStyle(color: Resource.Colors.grey),
-            ),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {
-                if (isOffline) await Helper.instance.initByPreference();
-                await _getSemesterLeaveRecord();
-                FA.logAction('refresh', 'swipe');
-                return null;
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        onPressed: () {
+          key.currentState.pickSemester();
+        },
+      ),
+      body: SizedBox(
+        width: double.infinity,
+        child: Flex(
+          direction: Axis.vertical,
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            SizedBox(height: 8.0),
+            SemesterPicker(
+              key: key,
+              onSelect: (semester, index) {
+                setState(() {
+                  selectSemester = semester;
+                  state = _State.loading;
+                });
+                if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
+                  _loadOfflineLeaveData();
+                else
+                  _getSemesterLeaveRecord();
               },
-              child: OrientationBuilder(builder: (_, orientation) {
-                return _body(orientation);
-              }),
             ),
-          ),
-        ],
+            if (isOffline)
+              Text(
+                app.offlineLeaveData,
+                style: TextStyle(color: Resource.Colors.grey),
+              ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  if (isOffline) await Helper.instance.initByPreference();
+                  await _getSemesterLeaveRecord();
+                  FA.logAction('refresh', 'swipe');
+                  return null;
+                },
+                child: OrientationBuilder(
+                  builder: (_, orientation) {
+                    return _body(orientation);
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -60,6 +60,12 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         title: Text(app.midtermAlerts),
         backgroundColor: Resource.Colors.blue,
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        onPressed: () {
+          key.currentState.pickSemester();
+        },
+      ),
       body: Container(
         child: Flex(
           direction: Axis.vertical,
