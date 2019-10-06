@@ -310,7 +310,77 @@ class OpenSourcePageState extends State<OpenSourcePage> {
           "WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" +
           "See the License for the specific language governing permissions and\n" +
           "limitations under the License.",
-    )
+    ),
+    _Item(
+      'photo_view',
+      "Copyright 2018 Renan C. Araújo\n" +
+          "\n" +
+          "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n" +
+          "\n" +
+          "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n" +
+          "\n" +
+          "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+    ),
+    _Item(
+      'date_range_picker',
+      "The MIT License (MIT)\n" +
+          "\n" +
+          "Copyright (c) 2018 anicdh\n" +
+          "\n" +
+          "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+          "of this software and associated documentation files (the \"Software\"), to deal\n" +
+          "in the Software without restriction, including without limitation the rights\n" +
+          "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+          "copies of the Software, and to permit persons to whom the Software is\n" +
+          "furnished to do so, subject to the following conditions:\n" +
+          "\n" +
+          "The above copyright notice and this permission notice shall be included in all\n" +
+          "copies or substantial portions of the Software.\n" +
+          "\n" +
+          "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+          "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+          "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+          "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+          "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+          "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+          "SOFTWARE.",
+    ),
+    _Item(
+      'flutter_autofill',
+      "Copyright 2019-present Applaud Software Inc.\n" +
+          "\n" +
+          "Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\n" +
+          "\n" +
+          "1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\n" +
+          "\n" +
+          "2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\n" +
+          "\n" +
+          "THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.",
+    ),
+    _Item(
+      'flutter_native_image',
+      "MIT License\n" +
+          "\n" +
+          "Copyright (c) 2018 Ben Konsemüller\n" +
+          "\n" +
+          "Permission is hereby granted, free of charge, to any person obtaining a copy\n" +
+          "of this software and associated documentation files (the \"Software\"), to deal\n" +
+          "in the Software without restriction, including without limitation the rights\n" +
+          "to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n" +
+          "copies of the Software, and to permit persons to whom the Software is\n" +
+          "furnished to do so, subject to the following conditions:\n" +
+          "\n" +
+          "The above copyright notice and this permission notice shall be included in all\n" +
+          "copies or substantial portions of the Software.\n" +
+          "\n" +
+          "THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n" +
+          "IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n" +
+          "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n" +
+          "AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n" +
+          "LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n" +
+          "OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\n" +
+          "SOFTWARE.",
+    ),
   ];
 
   AppLocalizations app;

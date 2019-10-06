@@ -236,7 +236,7 @@ class AppLocalizations {
           'The best KUAS Campus App\nKUAS AP\n\nAre you afreshman?\nDon\'t know about school info, telephone numbers, or up coming events?\nBeenhere a few years?\nHave checking class schedule, report card and reserving bus seatsdrove you crazy?\n\nNo more, no more worries, anymore!\n\nKUAS AP lets no matter old or newfellow\nhave control over your life in KUAS!\n\nFrom checking class schedule, report card toyour absence records!\nPlus reserving/canceling bus seats with newest school feeds!\n\n\n\nMuch Simple, Many Convenient, Very instinct, wow!\n\n☆FABULOUS☆',
       'about_author_title': 'Made by',
       'about_author_content':
-          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔\nv3\n房志剛(Rainvisitor),林義翔(takidog)',
+          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔\nv3\n房志剛(Rainvisitor),林義翔(takidog)\n周鈺禮(CHOU YU-LI)',
       'about_us':
           '“Ask not why nobody is doing this. You are \'nobody\'.”\n\nWe did this cause no one did it.\nWe created KUAS Wifi Login, KUASAP and KUAS Gourmet, Course Selection Sim, etc&#8230;\nTo bring convenience to everyone\'s on campus!',
       'about_recruit_title': 'We Need You !',
@@ -394,6 +394,13 @@ class AppLocalizations {
       'pleasePickDateAndSection': 'Please pick date and section.',
       'leavesSubmitSuccess': 'Leaves submit successful.',
       'leavesDelayHint': 'Because over time, need to fill delay reason.',
+      'leavesProofHint': 'Please pick image',
+      'imageCompressHint': 'Because file big than 4MB, so compress to %.2f MB',
+      'imageTooBigHint':
+          'Image size is too big, can\'t compress in except. Plese pick another one.',
+      'leavesDateAndSection': 'Date & Section',
+      'none': 'None',
+      'leavesSubmit': 'Leaves Submit',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -549,7 +556,7 @@ class AppLocalizations {
       'app_version': 'App 版本',
       'about_author_title': '作者群',
       'about_author_content':
-          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔 \nv3\n房志剛(Rainvisitor),林義翔(takidog)',
+          'v1 & v2\n呂紹榕(Louie Lu), 姜尚德(JohnThunder), \nregisterAutumn, 詹濬鍵(Evans), \n陳建霖(HearSilent), 陳冠蓁, 徐羽柔 \nv3\n房志剛(Rainvisitor),林義翔(takidog)\n周鈺禮(CHOU YU-LI)',
       'about_us':
           '「不要問為何沒有人做這個，\n先承認你就是『沒有人』」。\n因為，「沒有人」是萬能的。\n\n因為沒有人做這些，所以我們跳下來做。\n先後完成了高應無線通、高應校務通，到後來的高應美食通、模擬選課等等.......\n無非是希望帶給大家更便利的校園生活！',
       'about_recruit_title': 'We Need You !',
@@ -704,6 +711,12 @@ class AppLocalizations {
       'pleasePickDateAndSection': '請選擇日期及節次',
       'leavesSubmitSuccess': '請假送出成功',
       'leavesDelayHint': '因為超出請假時間 請填寫延遲原因',
+      'leavesProofHint': '請選擇照片',
+      'imageCompressHint': '因檔案超出 4MB 自動將其壓縮至 %.2f MB',
+      'imageTooBigHint': '圖片大小過大 無法預期壓縮 請重新挑選',
+      'leavesDateAndSection': '日期與節次',
+      'none': '無',
+      'leavesSubmit': '假單送出',
     },
   };
 
@@ -1259,6 +1272,18 @@ class AppLocalizations {
   String get leavesSubmitSuccess => _vocabularies['leavesSubmitSuccess'];
 
   String get leavesDelayHint => _vocabularies['leavesDelayHint'];
+
+  String get leavesProofHint => _vocabularies['leavesProofHint'];
+
+  String get imageCompressHint => _vocabularies['imageCompressHint'];
+
+  String get imageTooBigHint => _vocabularies['imageTooBigHint'];
+
+  String get leavesDateAndSection => _vocabularies['leavesDateAndSection'];
+
+  String get none => _vocabularies['none'];
+
+  String get leavesSubmit => _vocabularies['leavesSubmit'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

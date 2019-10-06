@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/models/leaves_campus_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
@@ -115,14 +116,14 @@ class _PickTutorPageState extends State<PickTutorPage> {
             ListTile(
               leading: Icon(Icons.person),
               title: Text(app.teacher),
-              subtitle: Text('${teacher.teacherName}'),
+              subtitle: Text('${teacher.name}'),
               onTap: () {
                 pickItem(
                   _Type.teacher,
                   teacherIndex,
                   department.teacherList.map(
                     (item) {
-                      return item.teacherName;
+                      return item.name;
                     },
                   ).toList(),
                 );
@@ -163,7 +164,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   Future<void> getFileData() async {
     var start = DateTime.now();
-    String text = await rootBundle.loadString('assets/leaves_campus_data.json');
+    String text = await rootBundle.loadString(FileAssets.leavesCampusData);
     setState(() {
       leavesCampusData = LeavesCampusData.fromRawJson(text);
       if (leavesCampusData != null) {

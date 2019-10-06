@@ -73,4 +73,7 @@ class Constants {
 
   static const DONATE_URL =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';
+
+  static const MAX_IMAGE_SIZE = 4.0;
+  static const IMAGE_RESIZE_RATE = 2.5;
 }

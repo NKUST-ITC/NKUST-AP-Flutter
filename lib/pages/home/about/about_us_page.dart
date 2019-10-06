@@ -30,7 +30,7 @@ class AboutUsPageState extends State<AboutUsPage> {
   }
 
   String get sectionImage {
-    final department = ShareDataWidget.of(context).data.userInfo.department;
+    final department = ShareDataWidget.of(context).data.userInfo?.department ?? '';
     Random random = Random();
     bool halfSnapFingerChance = random.nextInt(2000) % 2 == 0;
     if (department.contains('建工') || department.contains('燕巢'))

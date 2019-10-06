@@ -6,6 +6,8 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:image/image.dart' as ImageUtils;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
@@ -24,6 +26,7 @@ import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:package_info/package_info.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
@@ -518,5 +521,33 @@ class Utils {
           return page;
         }),
       );
+  }
+
+  static Future<File> resizeImageByDart(File source) async {
+    ImageUtils.Image image = ImageUtils.decodeImage(source.readAsBytesSync());
+    double sourceSize = source.lengthSync() / 1024 / 1024;
+    double rate = sourceSize / Constants.IMAGE_RESIZE_RATE;
+    ImageUtils.Image thumbnail = ImageUtils.copyResize(
+      image,
+      width: (image.width / rate).ceil(),
+      height: (image.height / rate).ceil(),
+    );
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    File result = File('${appDocDir.path}/proof.jpg')
+      ..writeAsBytesSync(ImageUtils.encodeJpg(thumbnail));
+    return result;
+  }
+
+  static Future<File> resizeImageByNative(File source) async {
+    ImageProperties properties =
+        await FlutterNativeImage.getImageProperties(source.path);
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    File result = await FlutterNativeImage.compressImage(
+      '${appDocDir.path}/proof.jpg',
+      quality: 80,
+      targetWidth: properties.width,
+      targetHeight: properties.height,
+    );
+    return result;
   }
 }

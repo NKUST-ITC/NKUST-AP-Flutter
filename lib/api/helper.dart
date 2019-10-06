@@ -56,7 +56,7 @@ class Helper {
 
   Helper() {
     options = new BaseOptions(
-      baseUrl: 'https://$HOST:$PORT',
+      baseUrl: 'https://$HOST:$PORT/$VERSION',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
@@ -441,7 +441,8 @@ class Helper {
           'leavesData': data.toJson(),
           'leavesProof': image == null
               ? null
-              : UploadFileInfo(image, image.path.split('/').last),
+              : MultipartFile.fromFile(image.path,
+                  filename: image.path.split('/').last),
         },
         cancelToken: cancelToken,
       );

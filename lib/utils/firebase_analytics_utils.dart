@@ -41,6 +41,14 @@ class FA {
       );
   }
 
+  static Future<void> logEvent(String name) async {
+    if (Platform.isIOS || Platform.isAndroid) {
+      await analytics?.logEvent(
+        name: name ?? '',
+      );
+    }
+  }
+
   static Future<void> logApiEvent(String type, int status,
       {String message = ''}) async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -100,5 +108,27 @@ class FA {
         },
       );
     }
+  }
+
+  static Future<void> logLeavesImageSize(File source) async {
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics?.logEvent(
+        name: 'leaves_image_pick',
+        parameters: <String, dynamic>{
+          'image_size': source.lengthSync() / 1024 / 1024,
+        },
+      );
+  }
+
+  static Future<void> logLeavesImageCompressSize(
+      File source, File result) async {
+    if (Platform.isIOS || Platform.isAndroid)
+      await analytics?.logEvent(
+        name: 'leaves_image_compress',
+        parameters: <String, dynamic>{
+          'image_original_size': source.lengthSync() / 1024 / 1024,
+          'image_compress_size': result.lengthSync() / 1024 / 1024,
+        },
+      );
   }
 }

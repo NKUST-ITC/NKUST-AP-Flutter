@@ -57,3 +57,9 @@ class ImageAssets {
     }
   }
 }
+
+class FileAssets {
+  static const String basePath = 'assets/';
+
+  static String leavesCampusData = '$basePath/leaves_campus_data.json';
+}
