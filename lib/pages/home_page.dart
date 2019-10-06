@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -119,8 +120,11 @@ class HomePageState extends State<HomePage> {
         ),
       ),
       onWillPop: () async {
-        if (Platform.isAndroid) _showLogoutDialog();
-        return false;
+        if (Platform.isAndroid) {
+          _showLogoutDialog();
+          return false;
+        }
+        return true;
       },
     );
   }
@@ -357,14 +361,16 @@ class HomePageState extends State<HomePage> {
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-        title: app.logout,
-        contentWidget: Text(app.logoutCheck,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Resource.Colors.greyText)),
+        title: app.closeAppTitle,
+        contentWidget: Text(
+          app.closeAppHint,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Resource.Colors.greyText),
+        ),
         leftActionText: app.cancel,
-        rightActionText: app.ok,
+        rightActionText: app.confirm,
         rightActionFunction: () {
-          ShareDataWidget.of(context).data.logout();
+          SystemNavigator.pop();
         },
       ),
     );

@@ -401,6 +401,9 @@ class AppLocalizations {
       'leavesDateAndSection': 'Date & Section',
       'none': 'None',
       'leavesSubmit': 'Leaves Submit',
+      'leaveAppHint': 'Do you want to leave App?',
+      'closeAppTitle': 'Close App',
+      'closeAppHint': 'Do you want to close App?',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -717,6 +720,8 @@ class AppLocalizations {
       'leavesDateAndSection': '日期與節次',
       'none': '無',
       'leavesSubmit': '假單送出',
+      'closeAppTitle': '關閉App',
+      'closeAppHint': '是否關閉App?',
     },
   };
 
@@ -1284,6 +1289,10 @@ class AppLocalizations {
   String get none => _vocabularies['none'];
 
   String get leavesSubmit => _vocabularies['leavesSubmit'];
+
+  String get closeAppTitle => _vocabularies['closeAppTitle'];
+
+  String get closeAppHint => _vocabularies['closeAppHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
