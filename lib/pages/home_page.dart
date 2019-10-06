@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -144,8 +145,8 @@ class HomePageState extends State<HomePage> {
             NewsContentPage(announcement),
           );
           String message = announcement.title.length > 12
-              ? announcement.title
-              : announcement.title.substring(0, 12);
+              ? announcement.title.substring(0, 12)
+              : announcement.title;
           FA.logAction('news_image', 'click', message: message);
         },
         child: Hero(

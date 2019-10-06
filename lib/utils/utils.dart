@@ -4,6 +4,7 @@ import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
@@ -387,6 +388,7 @@ class Utils {
     await Future.delayed(
       Duration(milliseconds: 50),
     );
+    if (kIsWeb) return;
     if (!(Platform.isAndroid || Platform.isIOS)) return;
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -419,6 +421,8 @@ class Utils {
         );
         await remoteConfig.activateFetched();
       } on FetchThrottledException catch (exception) {} catch (exception) {}
+      Preferences.setString(
+          Constants.API_HOST, remoteConfig.getString(Constants.API_HOST));
       String url = "";
       int versionDiff = 0, newVersion;
       if (Platform.isAndroid) {

@@ -57,6 +57,8 @@ class Constants {
   static const TAG_NEWS_ICON = "tag_news_icon";
   static const TAG_NEWS_TITLE = "tag_news_title";
 
+  static const String API_HOST = 'api_host';
+
   static const ANDROID_DEFAULT_NOTIFICATION_NAME = 'ic_stat_kuas_ap';
 
   // Notification ID

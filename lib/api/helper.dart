@@ -20,14 +20,14 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const HOST = 'nkust.taki.dog';
-const PORT = '443';
-
-const VERSION = 'v3';
-
 class Helper {
+  static const HOST = 'nkust.taki.dog';
+
+  static const VERSION = 'v3';
+
   static Helper _instance;
   static BaseOptions options;
   static Dio dio;
@@ -55,12 +55,14 @@ class Helper {
   }
 
   Helper() {
-    options = new BaseOptions(
-      baseUrl: 'https://$HOST:$PORT/$VERSION',
+    var host = Preferences.getString(Constants.API_HOST, HOST);
+    print(host);
+    options = BaseOptions(
+      baseUrl: 'https://$host/$VERSION',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
-    dio = new Dio(options);
+    dio = Dio(options);
   }
 
   handleDioError(DioError dioError) {
@@ -158,7 +160,7 @@ class Helper {
 
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
-      var response = await dio.get("/news/announcements/all");
+      var response = await dio.get("/s/announcements/all");
       if (response.statusCode == 204)
         return AnnouncementsData(data: []);
       else
@@ -393,7 +395,7 @@ class Helper {
   Future<NotificationsData> getNotifications(int page) async {
     try {
       var response = await dio.get(
-        "/news/school",
+        "/s/school",
         queryParameters: {'page': page},
       );
       return NotificationsData.fromJson(response.data);

@@ -259,14 +259,6 @@ class SettingPageState extends State<SettingPage> {
                   FA.logAction('feedback', 'click');
                 }),
             _item(
-                text: app.donateTitle,
-                subText: app.donateContent,
-                onTap: () {
-                  Utils.launchUrl(Constants.DONATE_URL).catchError(
-                      (onError) => Utils.showToast(context, app.platformError));
-                  FA.logAction('donate', 'click');
-                }),
-            _item(
                 text: app.appVersion,
                 subText: "v$appVersion",
                 onTap: () {
