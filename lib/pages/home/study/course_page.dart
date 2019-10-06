@@ -95,7 +95,6 @@ class CoursePageState extends State<CoursePage> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    if (isOffline) await Helper.instance.initByPreference();
                     await _getCourseTables();
                     FA.logAction('refresh', 'swipe');
                     return null;

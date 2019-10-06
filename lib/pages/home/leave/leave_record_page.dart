@@ -98,7 +98,6 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  if (isOffline) await Helper.instance.initByPreference();
                   await _getSemesterLeaveRecord();
                   FA.logAction('refresh', 'swipe');
                   return null;

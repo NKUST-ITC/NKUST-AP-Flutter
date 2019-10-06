@@ -10,7 +10,6 @@ class Preferences {
   static final encrypter = Encrypter(
     AES(
       Constants.key,
-      Constants.iv,
       mode: AESMode.cbc,
     ),
   );
@@ -33,7 +32,7 @@ class Preferences {
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {
-    await prefs?.setString(key, encrypter.encrypt(data).base64);
+    await prefs?.setString(key, encrypter.encrypt(data, iv: Constants.iv).base64);
   }
 
   static String getStringSecurity(String key, String defaultValue) {
@@ -41,7 +40,7 @@ class Preferences {
     if (data == '')
       return defaultValue;
     else
-      return encrypter.decrypt64(data);
+      return encrypter.decrypt64(data, iv: Constants.iv);
   }
 
   static Future<Null> setString(String key, String data) async {

@@ -87,25 +87,6 @@ class Helper {
     }
   }
 
-  Future<Null> initByPreference() async {
-    final encrypter =
-        Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
-    String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
-    String password = '';
-    try {
-      password = encrypter.decrypt64(encryptPassword);
-    } catch (e) {
-      password = encryptPassword;
-      await prefs.setString(
-          Constants.PREF_PASSWORD, encrypter.encrypt(encryptPassword).base64);
-      throw e;
-    }
-    dio.options.headers = _createBasicAuth(username, password);
-    return null;
-  }
-
   Future<LoginResponse> login(String username, String password) async {
     try {
       var response = await dio.post(
