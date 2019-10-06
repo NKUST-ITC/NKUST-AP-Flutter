@@ -19,7 +19,14 @@ import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  userNotSupport,
+  offline,
+}
 enum Leave { normal, sick, official, funeral, maternity }
 
 class LeaveApplyPage extends StatefulWidget {
@@ -56,6 +63,24 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   File image;
 
+  String get errorTitle {
+    switch (state) {
+      case _State.loading:
+      case _State.finish:
+        return '';
+      case _State.error:
+      case _State.empty:
+        return app.somethingError;
+      case _State.userNotSupport:
+        return app.userNotSupport;
+        break;
+      case _State.offline:
+        return app.offlineMode;
+        break;
+    }
+    return '';
+  }
+
   @override
   void initState() {
     FA.setCurrentScreen("LeaveApplyPage", "leave_apply_page.dart");
@@ -84,13 +109,15 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         );
       case _State.error:
       case _State.empty:
+      case _State.offline:
+      case _State.userNotSupport:
         return FlatButton(
           onPressed: null,
           child: HintContent(
-            icon: AppIcon.permIdentity,
-            content: state == _State.error
-                ? app.somethingError
-                : app.canNotUseFeature,
+            icon: state == _State.offline
+                ? AppIcon.offlineBolt
+                : AppIcon.permIdentity,
+            content: errorTitle,
           ),
         );
       default:
@@ -453,13 +480,52 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   }
 
   Future _getLeavesInfo() async {
-    var leavesSubmitInfo = await Helper.instance.getLeavesSubmitInfo();
-    if (leavesSubmitInfo != null) {
-      setState(() {
-        this.state = _State.finish;
-        this.leavesSubmitInfo = leavesSubmitInfo;
-      });
-    }
+    Helper.instance.getLeavesSubmitInfo().then((leavesSubmitInfo) {
+      if (leavesSubmitInfo != null) {
+        setState(() {
+          this.state = _State.finish;
+          this.leavesSubmitInfo = leavesSubmitInfo;
+        });
+      }
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            if (e.response.statusCode == 401 || e.response.statusCode == 403) {
+              setState(() {
+                state = _State.userNotSupport;
+              });
+            } else {
+              setState(() {
+                state = _State.error;
+              });
+              Utils.handleResponseError(
+                  context, 'getLeaveSubmitInfo', mounted, e);
+            }
+            break;
+          case DioErrorType.DEFAULT:
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.showToast(context, app.busFailInfinity);
+              });
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.handleDioError(context, e);
+              });
+            }
+            break;
+        }
+      } else {
+        throw (e);
+      }
+    });
   }
 
   void checkIsDelay() {
