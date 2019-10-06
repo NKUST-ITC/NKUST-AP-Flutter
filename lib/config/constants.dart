@@ -51,13 +51,13 @@ class Constants {
   static const APP_VERSION = "app_version";
   static const NEW_VERSION_CONTENT_ZH = "new_version_content_zh";
   static const NEW_VERSION_CONTENT_EN = "new_version_content_en";
+  static const API_HOST = 'api_host';
+  static const LEAVE_CAMPUS_DATA = 'leave_campus_data';
 
   static const TAG_STUDENT_PICTURE = "tag_student_picture";
   static const TAG_NEWS_PICTURE = "tag_news_picture";
   static const TAG_NEWS_ICON = "tag_news_icon";
   static const TAG_NEWS_TITLE = "tag_news_title";
-
-  static const String API_HOST = 'api_host';
 
   static const ANDROID_DEFAULT_NOTIFICATION_NAME = 'ic_stat_kuas_ap';
 

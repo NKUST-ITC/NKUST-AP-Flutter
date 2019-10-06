@@ -160,7 +160,7 @@ class Helper {
 
   Future<AnnouncementsData> getAllAnnouncements() async {
     try {
-      var response = await dio.get("/s/announcements/all");
+      var response = await dio.get("/news/announcements/all");
       if (response.statusCode == 204)
         return AnnouncementsData(data: []);
       else
@@ -395,7 +395,7 @@ class Helper {
   Future<NotificationsData> getNotifications(int page) async {
     try {
       var response = await dio.get(
-        "/s/school",
+        "/news/school",
         queryParameters: {'page': page},
       );
       return NotificationsData.fromJson(response.data);

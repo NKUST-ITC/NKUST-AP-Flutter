@@ -61,5 +61,5 @@ class ImageAssets {
 class FileAssets {
   static const String basePath = 'assets/';
 
-  static String leavesCampusData = '$basePath/leaves_campus_data.json';
+  static String leaveCampusData = '$basePath/leave_campus_data.json';
 }
