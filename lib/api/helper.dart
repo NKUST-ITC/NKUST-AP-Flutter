@@ -11,8 +11,8 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
-import 'package:nkust_ap/models/leaves_data.dart';
-import 'package:nkust_ap/models/leaves_submit_data.dart';
+import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -402,44 +402,44 @@ class Helper {
     }
   }
 
-  Future<LeavesData> getLeaves(String year, String semester) async {
+  Future<LeaveData> getLeaves(String year, String semester) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
-        '/leaves',
+        '/leave/all',
         queryParameters: {
           'year': year,
           'semester': semester,
         },
         cancelToken: cancelToken,
       );
-      return LeavesData.fromJson(response.data);
+      return LeaveData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<LeavesSubmitInfoData> getLeavesSubmitInfo() async {
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
-        '/leaves/submit/info',
+        '/leave/submit/info',
         cancelToken: cancelToken,
       );
-      return LeavesSubmitInfoData.fromJson(response.data);
+      return LeaveSubmitInfoData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<Response> sendLeavesSubmit(LeavesSubmitData data, File image) async {
+  Future<Response> sendLeavesSubmit(LeaveSubmitData data, File image) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
-        '/leaves/submit',
+        '/leave/submit',
         data: {
           'leavesData': data.toJson(),
-          'leavesProof': image == null
+          'proofImage': image == null
               ? null
               : MultipartFile.fromFile(image.path,
                   filename: image.path.split('/').last),

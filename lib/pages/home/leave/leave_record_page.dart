@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/leaves_data.dart';
+import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -35,7 +35,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   Semester selectSemester;
   SemesterData semesterData;
-  LeavesData leaveData;
+  LeaveData leaveData;
 
   double count = 1.0;
 
@@ -215,7 +215,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     );
   }
 
-  TableRow _leaveBorder(Leaves leave, List<String> timeCodes) {
+  TableRow _leaveBorder(Leave leave, List<String> timeCodes) {
     List<Widget> widgets = [];
     widgets.add(InkWell(
       child: _textBorder(leave.date.substring(4), false),
