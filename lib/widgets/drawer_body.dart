@@ -321,7 +321,7 @@ class DrawerBodyState extends State<DrawerBody> {
 
   _getUserPicture() async {
     try {
-      if (widget.userInfo.pictureUrl == null) return;
+      if ((widget.userInfo?.pictureUrl) == null) return;
       var response = await http.get(widget.userInfo.pictureUrl);
       if (!response.body.contains('html')) {
         if (mounted) {

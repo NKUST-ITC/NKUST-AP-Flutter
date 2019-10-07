@@ -11,8 +11,8 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
-import 'package:nkust_ap/models/leaves_data.dart';
-import 'package:nkust_ap/models/leaves_submit_data.dart';
+import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -20,14 +20,14 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const HOST = 'nkust.taki.dog';
-const PORT = '443';
-
-const VERSION = 'v3';
-
 class Helper {
+  static const HOST = 'nkust.taki.dog';
+
+  static const VERSION = 'v3';
+
   static Helper _instance;
   static BaseOptions options;
   static Dio dio;
@@ -55,12 +55,14 @@ class Helper {
   }
 
   Helper() {
-    options = new BaseOptions(
-      baseUrl: 'https://$HOST:$PORT/$VERSION',
+    var host = Preferences.getString(Constants.API_HOST, HOST);
+    print(host);
+    options = BaseOptions(
+      baseUrl: 'https://$host/$VERSION',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
-    dio = new Dio(options);
+    dio = Dio(options);
   }
 
   handleDioError(DioError dioError) {
@@ -83,25 +85,6 @@ class Helper {
         throw (dioError);
         break;
     }
-  }
-
-  Future<Null> initByPreference() async {
-    final encrypter =
-        Encrypter(AES(Constants.key, Constants.iv, mode: AESMode.cbc));
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String username = prefs.getString(Constants.PREF_USERNAME) ?? '';
-    String encryptPassword = prefs.getString(Constants.PREF_PASSWORD) ?? '';
-    String password = '';
-    try {
-      password = encrypter.decrypt64(encryptPassword);
-    } catch (e) {
-      password = encryptPassword;
-      await prefs.setString(
-          Constants.PREF_PASSWORD, encrypter.encrypt(encryptPassword).base64);
-      throw e;
-    }
-    dio.options.headers = _createBasicAuth(username, password);
-    return null;
   }
 
   Future<LoginResponse> login(String username, String password) async {
@@ -402,44 +385,44 @@ class Helper {
     }
   }
 
-  Future<LeavesData> getLeaves(String year, String semester) async {
+  Future<LeaveData> getLeaves(String year, String semester) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
-        '/leaves',
+        '/leave/all',
         queryParameters: {
           'year': year,
           'semester': semester,
         },
         cancelToken: cancelToken,
       );
-      return LeavesData.fromJson(response.data);
+      return LeaveData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<LeavesSubmitInfoData> getLeavesSubmitInfo() async {
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.get(
-        '/leaves/submit/info',
+        '/leave/submit/info',
         cancelToken: cancelToken,
       );
-      return LeavesSubmitInfoData.fromJson(response.data);
+      return LeaveSubmitInfoData.fromJson(response.data);
     } on DioError catch (dioError) {
       throw dioError;
     }
   }
 
-  Future<Response> sendLeavesSubmit(LeavesSubmitData data, File image) async {
+  Future<Response> sendLeavesSubmit(LeaveSubmitData data, File image) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
-        '/leaves/submit',
+        '/leave/submit',
         data: {
           'leavesData': data.toJson(),
-          'leavesProof': image == null
+          'proofImage': image == null
               ? null
               : MultipartFile.fromFile(image.path,
                   filename: image.path.split('/').last),

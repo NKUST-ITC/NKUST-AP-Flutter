@@ -4,14 +4,14 @@
 
 import 'dart:convert';
 
-class LeavesSubmitData {
+class LeaveSubmitData {
   List<Day> days;
   String leaveTypeId;
   String teacherId;
   String reasonText;
   String delayReasonText;
 
-  LeavesSubmitData({
+  LeaveSubmitData({
     this.days,
     this.leaveTypeId,
     this.teacherId,
@@ -19,13 +19,13 @@ class LeavesSubmitData {
     this.delayReasonText,
   });
 
-  factory LeavesSubmitData.fromRawJson(String str) =>
-      LeavesSubmitData.fromJson(json.decode(str));
+  factory LeaveSubmitData.fromRawJson(String str) =>
+      LeaveSubmitData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory LeavesSubmitData.fromJson(Map<String, dynamic> json) =>
-      new LeavesSubmitData(
+  factory LeaveSubmitData.fromJson(Map<String, dynamic> json) =>
+      new LeaveSubmitData(
         days: new List<Day>.from(json["days"].map((x) => Day.fromJson(x))),
         leaveTypeId: json["leaveType"],
         teacherId: json["teacherId"],

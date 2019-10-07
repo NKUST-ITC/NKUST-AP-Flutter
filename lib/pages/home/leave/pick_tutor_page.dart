@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:nkust_ap/models/leaves_campus_data.dart';
+import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
@@ -29,7 +35,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   @override
   void initState() {
-    getFileData();
+    getTeacherData();
     super.initState();
   }
 
@@ -162,9 +168,28 @@ class _PickTutorPageState extends State<PickTutorPage> {
     }
   }
 
-  Future<void> getFileData() async {
+  Future<void> getTeacherData() async {
     var start = DateTime.now();
-    String text = await rootBundle.loadString(FileAssets.leavesCampusData);
+    RemoteConfig remoteConfig;
+    String text;
+    if (kIsWeb) {
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      remoteConfig = await RemoteConfig.instance;
+      try {
+        await remoteConfig.fetch(
+          expiration: const Duration(seconds: 10),
+        );
+        await remoteConfig.activateFetched();
+      } on FetchThrottledException catch (exception) {} catch (exception) {}
+    }
+    if (remoteConfig != null) {
+      Preferences.setString(Constants.LEAVE_CAMPUS_DATA,
+          remoteConfig.getString(Constants.LEAVE_CAMPUS_DATA));
+    }
+    text = Preferences.getString(Constants.LEAVE_CAMPUS_DATA, '');
+    if (text == '')
+      text = await rootBundle.loadString(FileAssets.leaveCampusData);
+    print(text);
     setState(() {
       leavesCampusData = LeavesCampusData.fromRawJson(text);
       if (leavesCampusData != null) {

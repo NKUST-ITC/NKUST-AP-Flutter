@@ -60,6 +60,12 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         title: Text(app.rewardAndPenalty),
         backgroundColor: Resource.Colors.blue,
       ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        onPressed: () {
+          key.currentState.pickSemester();
+        },
+      ),
       body: Container(
         child: Flex(
           direction: Axis.vertical,

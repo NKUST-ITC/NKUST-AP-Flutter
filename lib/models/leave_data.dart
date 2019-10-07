@@ -1,22 +1,22 @@
 import 'dart:convert';
 
-class LeavesData {
-  List<Leaves> leaves;
+class LeaveData {
+  List<Leave> leaves;
   List<String> timeCodes;
 
-  LeavesData({
+  LeaveData({
     this.leaves,
     this.timeCodes,
   });
 
-  factory LeavesData.fromRawJson(String str) =>
-      LeavesData.fromJson(json.decode(str));
+  factory LeaveData.fromRawJson(String str) =>
+      LeaveData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory LeavesData.fromJson(Map<String, dynamic> json) => new LeavesData(
+  factory LeaveData.fromJson(Map<String, dynamic> json) => new LeaveData(
         leaves:
-            new List<Leaves>.from(json["data"].map((x) => Leaves.fromJson(x))),
+            new List<Leave>.from(json["data"].map((x) => Leave.fromJson(x))),
         timeCodes: json["timeCodes"] == null
             ? null
             : new List<String>.from(json["timeCodes"].map((x) => x)),
@@ -27,29 +27,29 @@ class LeavesData {
         "timeCodes": new List<dynamic>.from(timeCodes.map((x) => x)),
       };
 
-  static LeavesData sample() {
-    return LeavesData.fromRawJson(
+  static LeaveData sample() {
+    return LeaveData.fromRawJson(
         '{ "leave": [ { "leaveSheetId": "", "date": "107/11/14", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }');
   }
 }
 
-class Leaves {
+class Leave {
   String leaveSheetId;
   String date;
   String instructorsComment;
   List<LeaveSections> leaveSections;
 
-  Leaves(
+  Leave(
       {this.leaveSheetId,
       this.date,
       this.instructorsComment,
       this.leaveSections});
 
-  factory Leaves.fromRawJson(String str) => Leaves.fromJson(json.decode(str));
+  factory Leave.fromRawJson(String str) => Leave.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory Leaves.fromJson(Map<String, dynamic> json) => new Leaves(
+  factory Leave.fromJson(Map<String, dynamic> json) => new Leave(
         leaveSheetId: json["leaveSheetId"],
         date: json["date"],
         instructorsComment: json["instructorsComment"],

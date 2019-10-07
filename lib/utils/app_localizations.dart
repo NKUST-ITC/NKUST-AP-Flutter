@@ -380,27 +380,30 @@ class AppLocalizations {
       'notLoginHint': 'Not Login, please check login status.',
       'addDate': 'Add Date',
       'tutor': 'Tutor',
-      'leavesType': 'Leaves Type',
+      'leaveType': 'Leave Type',
       'reason': 'Reason',
       'delayReason': 'Delay Reason',
       'submit': 'Submit',
-      'leavesSubmitUploadHint':
+      'leaveSubmitUploadHint':
           'Uploading\nPlease waiting for finish before close App',
       'confirm': 'Confirm',
       'teacher': 'Teacher',
       'pickTeacher': 'Pick Teacher',
-      'leavesProof': 'Leaves Proof',
+      'leaveProof': 'Leave Proof',
       'pleasePick': 'Please Pick one',
       'pleasePickDateAndSection': 'Please pick date and section.',
-      'leavesSubmitSuccess': 'Leaves submit successful.',
-      'leavesDelayHint': 'Because over time, need to fill delay reason.',
-      'leavesProofHint': 'Please pick image',
+      'leaveSubmitSuccess': 'Leave submit successful.',
+      'leaveDelayHint': 'Because over time, need to fill delay reason.',
+      'leaveProofHint': 'Please pick image',
       'imageCompressHint': 'Because file big than 4MB, so compress to %.2f MB',
       'imageTooBigHint':
           'Image size is too big, can\'t compress in except. Plese pick another one.',
-      'leavesDateAndSection': 'Date & Section',
+      'leaveDateAndSection': 'Date & Section',
       'none': 'None',
-      'leavesSubmit': 'Leaves Submit',
+      'leaveSubmit': 'Leave Submit',
+      'leaveAppHint': 'Do you want to leave App?',
+      'closeAppTitle': 'Close App',
+      'closeAppHint': 'Do you want to close App?',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -698,25 +701,27 @@ class AppLocalizations {
       'notLoginHint': '尚未登入 請檢查登入狀態',
       'addDate': '新增日期',
       'tutor': '導師',
-      'leavesType': '請假類別',
+      'leaveType': '請假類別',
       'reason': '原因',
       'delayReason': '請假延遲原因',
       'submit': '送出',
-      'leavesSubmitUploadHint': '上傳中\n請等候上傳完畢再關閉App',
+      'leaveSubmitUploadHint': '上傳中\n請等候上傳完畢再關閉App',
       'confirm': '確認',
       'teacher': '老師',
       'pickTeacher': '選擇老師',
-      'leavesProof': '請假證明',
+      'leaveProof': '請假證明',
       'pleasePick': '請選擇',
       'pleasePickDateAndSection': '請選擇日期及節次',
-      'leavesSubmitSuccess': '請假送出成功',
-      'leavesDelayHint': '因為超出請假時間 請填寫延遲原因',
-      'leavesProofHint': '請選擇照片',
+      'leaveSubmitSuccess': '請假送出成功',
+      'leaveDelayHint': '因為超出請假時間 請填寫延遲原因',
+      'leaveProofHint': '請選擇照片',
       'imageCompressHint': '因檔案超出 4MB 自動將其壓縮至 %.2f MB',
       'imageTooBigHint': '圖片大小過大 無法預期壓縮 請重新挑選',
-      'leavesDateAndSection': '日期與節次',
+      'leaveDateAndSection': '日期與節次',
       'none': '無',
-      'leavesSubmit': '假單送出',
+      'leaveSubmit': '假單送出',
+      'closeAppTitle': '關閉App',
+      'closeAppHint': '是否關閉App?',
     },
   };
 
@@ -1246,7 +1251,7 @@ class AppLocalizations {
 
   String get tutor => _vocabularies['tutor'];
 
-  String get leavesType => _vocabularies['leavesType'];
+  String get leaveType => _vocabularies['leaveType'];
 
   String get reason => _vocabularies['reason'];
 
@@ -1254,7 +1259,7 @@ class AppLocalizations {
 
   String get submit => _vocabularies['submit'];
 
-  String get leavesSubmitUploadHint => _vocabularies['leavesSubmitUploadHint'];
+  String get leaveSubmitUploadHint => _vocabularies['leaveSubmitUploadHint'];
 
   String get confirm => _vocabularies['confirm'];
 
@@ -1262,28 +1267,32 @@ class AppLocalizations {
 
   String get pickTeacher => _vocabularies['pickTeacher'];
 
-  String get leavesProof => _vocabularies['leavesProof'];
+  String get leaveProof => _vocabularies['leaveProof'];
 
   String get pleasePick => _vocabularies['pleasePick'];
 
   String get pleasePickDateAndSection =>
       _vocabularies['pleasePickDateAndSection'];
 
-  String get leavesSubmitSuccess => _vocabularies['leavesSubmitSuccess'];
+  String get leaveSubmitSuccess => _vocabularies['leaveSubmitSuccess'];
 
-  String get leavesDelayHint => _vocabularies['leavesDelayHint'];
+  String get leaveDelayHint => _vocabularies['leaveDelayHint'];
 
-  String get leavesProofHint => _vocabularies['leavesProofHint'];
+  String get leaveProofHint => _vocabularies['leaveProofHint'];
 
   String get imageCompressHint => _vocabularies['imageCompressHint'];
 
   String get imageTooBigHint => _vocabularies['imageTooBigHint'];
 
-  String get leavesDateAndSection => _vocabularies['leavesDateAndSection'];
+  String get leaveDateAndSection => _vocabularies['leaveDateAndSection'];
 
   String get none => _vocabularies['none'];
 
-  String get leavesSubmit => _vocabularies['leavesSubmit'];
+  String get leaveSubmit => _vocabularies['leaveSubmit'];
+
+  String get closeAppTitle => _vocabularies['closeAppTitle'];
+
+  String get closeAppHint => _vocabularies['closeAppHint'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

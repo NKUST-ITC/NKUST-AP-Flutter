@@ -4,22 +4,22 @@
 
 import 'dart:convert';
 
-class LeavesSubmitInfoData {
+class LeaveSubmitInfoData {
   Tutor tutor;
   List<Type> type;
   List<String> timeCodes;
 
-  LeavesSubmitInfoData({
+  LeaveSubmitInfoData({
     this.tutor,
     this.type,
     this.timeCodes,
   });
 
-  factory LeavesSubmitInfoData.fromRawJson(String str) => LeavesSubmitInfoData.fromJson(json.decode(str));
+  factory LeaveSubmitInfoData.fromRawJson(String str) => LeaveSubmitInfoData.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
-  factory LeavesSubmitInfoData.fromJson(Map<String, dynamic> json) => LeavesSubmitInfoData(
+  factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) => LeaveSubmitInfoData(
     tutor: json["tutor"] == null ? null : Tutor.fromJson(json["tutor"]),
     type: json["type"] == null ? null : List<Type>.from(json["type"].map((x) => Type.fromJson(x))),
     timeCodes: json["timeCodes"] == null ? null : List<String>.from(json["timeCodes"].map((x) => x)),

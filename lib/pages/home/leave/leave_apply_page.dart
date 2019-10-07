@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
-import 'package:nkust_ap/models/leaves_campus_data.dart';
-import 'package:nkust_ap/models/leaves_submit_data.dart';
-import 'package:nkust_ap/pages/home/leaves/pick_tutor_page.dart';
+import 'package:nkust_ap/models/leave_campus_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
+import 'package:nkust_ap/pages/home/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
@@ -19,7 +19,14 @@ import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  userNotSupport,
+  offline,
+}
 enum Leave { normal, sick, official, funeral, maternity }
 
 class LeaveApplyPage extends StatefulWidget {
@@ -40,13 +47,13 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   var _formKey = GlobalKey<FormState>();
 
-  LeavesSubmitInfoData leavesSubmitInfo;
+  LeaveSubmitInfoData leaveSubmitInfo;
 
   int typeIndex = 0;
 
   LeavesTeacher teacher;
 
-  List<LeavesModel> leavesModels = [];
+  List<LeaveModel> leaveModels = [];
 
   bool isDelay = false;
 
@@ -55,6 +62,24 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   var _delayReason = TextEditingController();
 
   File image;
+
+  String get errorTitle {
+    switch (state) {
+      case _State.loading:
+      case _State.finish:
+        return '';
+      case _State.error:
+      case _State.empty:
+        return app.somethingError;
+      case _State.userNotSupport:
+        return app.userNotSupport;
+        break;
+      case _State.offline:
+        return app.offlineMode;
+        break;
+    }
+    return '';
+  }
 
   @override
   void initState() {
@@ -84,13 +109,15 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         );
       case _State.error:
       case _State.empty:
+      case _State.offline:
+      case _State.userNotSupport:
         return FlatButton(
           onPressed: null,
           child: HintContent(
-            icon: AppIcon.permIdentity,
-            content: state == _State.error
-                ? app.somethingError
-                : app.canNotUseFeature,
+            icon: state == _State.offline
+                ? AppIcon.offlineBolt
+                : AppIcon.permIdentity,
+            content: errorTitle,
           ),
         );
       default:
@@ -102,7 +129,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               SizedBox(height: 8.0),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(app.leavesType),
+                child: Text(app.leaveType),
               ),
               SizedBox(height: 8.0),
               Padding(
@@ -115,7 +142,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     unselectedColor: Resource.Colors.segmentControlUnSelect,
                     groupValue: typeIndex,
                     children: this
-                        .leavesSubmitInfo
+                        .leaveSubmitInfo
                         .type
                         .map((leaveType) {
                           return Padding(
@@ -164,15 +191,15 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           end = picked[1].add(Duration(days: 1));
                       while (dateTime.isBefore(end)) {
                         bool hasRepeat = false;
-                        for (var i = 0; i < leavesModels.length; i++) {
-                          if (leavesModels[i].isSameDay(dateTime))
+                        for (var i = 0; i < leaveModels.length; i++) {
+                          if (leaveModels[i].isSameDay(dateTime))
                             hasRepeat = true;
                         }
                         if (!hasRepeat) {
-                          leavesModels.add(
-                            LeavesModel(
+                          leaveModels.add(
+                            LeaveModel(
                               dateTime,
-                              leavesSubmitInfo.timeCodes.length,
+                              leaveSubmitInfo.timeCodes.length,
                             ),
                           );
                         }
@@ -190,9 +217,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               ),
               SizedBox(height: 16),
               Container(
-                height: leavesModels.length == 0 ? 0 : 280,
+                height: leaveModels.length == 0 ? 0 : 280,
                 child: ListView.builder(
-                  itemCount: leavesModels.length,
+                  itemCount: leaveModels.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (_, index) {
                     return Card(
@@ -210,9 +237,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: <Widget>[
-                                Text('${leavesModels[index].dateTime.year}/'
-                                    '${leavesModels[index].dateTime.month}/'
-                                    '${leavesModels[index].dateTime.day}'),
+                                Text('${leaveModels[index].dateTime.year}/'
+                                    '${leaveModels[index].dateTime.month}/'
+                                    '${leaveModels[index].dateTime.day}'),
                                 IconButton(
                                   padding: EdgeInsets.all(0.0),
                                   icon: Icon(
@@ -222,7 +249,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      leavesModels.removeAt(index);
+                                      leaveModels.removeAt(index);
                                       checkIsDelay();
                                     });
                                   },
@@ -251,16 +278,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                         ),
                                         border: Border.all(
                                             color: Resource.Colors.blueAccent),
-                                        color: leavesModels[index]
+                                        color: leaveModels[index]
                                                 .selected[sectionIndex]
                                             ? Resource.Colors.blueAccent
                                             : null,
                                       ),
                                       alignment: Alignment.center,
                                       child: Text(
-                                        '${leavesSubmitInfo.timeCodes[sectionIndex]}',
+                                        '${leaveSubmitInfo.timeCodes[sectionIndex]}',
                                         style: TextStyle(
-                                          color: leavesModels[index]
+                                          color: leaveModels[index]
                                                   .selected[sectionIndex]
                                               ? Colors.white
                                               : Resource.Colors.blueAccent,
@@ -269,15 +296,15 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        leavesModels[index]
+                                        leaveModels[index]
                                                 .selected[sectionIndex] =
-                                            !leavesModels[index]
+                                            !leaveModels[index]
                                                 .selected[sectionIndex];
                                       });
                                     },
                                   );
                                 },
-                                itemCount: leavesSubmitInfo.timeCodes.length,
+                                itemCount: leaveSubmitInfo.timeCodes.length,
                               ),
                             ),
                           ],
@@ -287,11 +314,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   },
                 ),
               ),
-              SizedBox(height: leavesModels.length == 0 ? 0 : 16.0),
+              SizedBox(height: leaveModels.length == 0 ? 0 : 16.0),
               Divider(color: Resource.Colors.grey, height: 1),
               ListTile(
-                enabled: leavesSubmitInfo.tutor == null,
-                onTap: leavesSubmitInfo.tutor == null
+                enabled: leaveSubmitInfo.tutor == null,
+                onTap: leaveSubmitInfo.tutor == null
                     ? () async {
                         var teacher = await Navigator.of(context).push(
                           CupertinoPageRoute(builder: (BuildContext context) {
@@ -324,9 +351,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   style: TextStyle(fontSize: 20),
                 ),
                 subtitle: Text(
-                  leavesSubmitInfo.tutor == null
+                  leaveSubmitInfo.tutor == null
                       ? (teacher?.name ?? app.pleasePick)
-                      : (leavesSubmitInfo.tutor?.name ?? ''),
+                      : (leaveSubmitInfo.tutor?.name ?? ''),
                   style: TextStyle(fontSize: 20),
                 ),
               ),
@@ -364,11 +391,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   color: Resource.Colors.grey,
                 ),
                 title: Text(
-                  app.leavesProof,
+                  app.leaveProof,
                   style: TextStyle(fontSize: 20),
                 ),
                 subtitle: Text(
-                  image?.path?.split('/')?.last ?? app.leavesProofHint,
+                  image?.path?.split('/')?.last ?? app.leaveProofHint,
                   style: TextStyle(fontSize: 20),
                 ),
               ),
@@ -433,7 +460,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   padding: EdgeInsets.all(14.0),
                   onPressed: () {
                     _leaveSubmit();
-                    FA.logAction('leaves_submit', 'click');
+                    FA.logAction('leave_submit', 'click');
                   },
                   color: Resource.Colors.blueAccent,
                   child: Text(
@@ -453,37 +480,76 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   }
 
   Future _getLeavesInfo() async {
-    var leavesSubmitInfo = await Helper.instance.getLeavesSubmitInfo();
-    if (leavesSubmitInfo != null) {
-      setState(() {
-        this.state = _State.finish;
-        this.leavesSubmitInfo = leavesSubmitInfo;
-      });
-    }
+    Helper.instance.getLeavesSubmitInfo().then((leaveSubmitInfo) {
+      if (leaveSubmitInfo != null) {
+        setState(() {
+          this.state = _State.finish;
+          this.leaveSubmitInfo = leaveSubmitInfo;
+        });
+      }
+    }).catchError((e) {
+      if (e is DioError) {
+        switch (e.type) {
+          case DioErrorType.RESPONSE:
+            if (e.response.statusCode == 401 || e.response.statusCode == 403) {
+              setState(() {
+                state = _State.userNotSupport;
+              });
+            } else {
+              setState(() {
+                state = _State.error;
+              });
+              Utils.handleResponseError(
+                  context, 'getLeaveSubmitInfo', mounted, e);
+            }
+            break;
+          case DioErrorType.DEFAULT:
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.showToast(context, app.busFailInfinity);
+              });
+            }
+            break;
+          case DioErrorType.CANCEL:
+            break;
+          default:
+            if (mounted) {
+              setState(() {
+                state = _State.error;
+                Utils.handleDioError(context, e);
+              });
+            }
+            break;
+        }
+      } else {
+        throw (e);
+      }
+    });
   }
 
   void checkIsDelay() {
     isDelay = false;
-    for (var i = 0; i < leavesModels.length; i++) {
-      if (leavesModels[i].dateTime.isBefore(DateTime.now())) isDelay = true;
+    for (var i = 0; i < leaveModels.length; i++) {
+      if (leaveModels[i].dateTime.isBefore(DateTime.now())) isDelay = true;
     }
     if (isDelay) {
-      Utils.showToast(context, app.leavesDelayHint);
+      Utils.showToast(context, app.leaveDelayHint);
     }
   }
 
   void _leaveSubmit() async {
     List<Day> days = [];
-    leavesModels.forEach((leavesModel) {
+    leaveModels.forEach((leaveModel) {
       bool isNotEmpty = false;
-      String date = '${leavesModel.dateTime.year}/'
-          '${leavesModel.dateTime.month}/'
-          '${leavesModel.dateTime.day}';
+      String date = '${leaveModel.dateTime.year}/'
+          '${leaveModel.dateTime.month}/'
+          '${leaveModel.dateTime.day}';
       List<String> sections = [];
-      for (var i = 0; i < leavesModel.selected.length; i++) {
-        if (leavesModel.selected[i]) {
+      for (var i = 0; i < leaveModel.selected.length; i++) {
+        if (leaveModel.selected[i]) {
           isNotEmpty = true;
-          sections.add(leavesSubmitInfo.timeCodes[i]);
+          sections.add(leaveSubmitInfo.timeCodes[i]);
         }
       }
       if (isNotEmpty) {
@@ -497,30 +563,29 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     });
     if (days.length == 0) {
       Utils.showToast(context, app.pleasePickDateAndSection);
-    } else if (leavesSubmitInfo.tutor == null && teacher == null) {
+    } else if (leaveSubmitInfo.tutor == null && teacher == null) {
       Utils.showToast(context, app.pickTeacher);
     } else if (_formKey.currentState.validate()) {
       //TODO submit summary
       String tutorId, tutorName;
-      if (leavesSubmitInfo.tutor == null) {
+      if (leaveSubmitInfo.tutor == null) {
         tutorId = teacher.id;
         tutorName = teacher.name;
       } else {
-        tutorId = leavesSubmitInfo.tutor.id;
-        tutorName = leavesSubmitInfo.tutor.name;
+        tutorId = leaveSubmitInfo.tutor.id;
+        tutorName = leaveSubmitInfo.tutor.name;
       }
-      LeavesSubmitData data = LeavesSubmitData(
+      var data = LeaveSubmitData(
         days: days,
-        leaveTypeId: leavesSubmitInfo.type[typeIndex].id,
+        leaveTypeId: leaveSubmitInfo.type[typeIndex].id,
         teacherId: tutorId,
         reasonText: _reason.text ?? '',
         delayReasonText: isDelay ? (_delayReason.text ?? '') : '',
       );
-      print(data.toJson());
       showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
-          title: app.leavesSubmit,
+          title: app.leaveSubmit,
           contentWidgetPadding: EdgeInsets.all(0.0),
           contentWidget: SizedBox(
             height: MediaQuery.of(context).size.height *
@@ -543,12 +608,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           fontSize: 16.0),
                       children: [
                         TextSpan(
-                          text: '${app.leavesType}：',
+                          text: '${app.leaveType}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
                             text:
-                                '${leavesSubmitInfo.type[typeIndex].title}\n'),
+                                '${leaveSubmitInfo.type[typeIndex].title}\n'),
                         TextSpan(
                           text: '${app.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -567,14 +632,14 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           TextSpan(text: '${_delayReason.text}\n'),
                         ],
                         TextSpan(
-                          text: '${app.leavesDateAndSection}：\n',
+                          text: '${app.leaveDateAndSection}：\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         for (var day in days)
                           TextSpan(text: '${day.toString()}\n'),
                         TextSpan(
                           text:
-                              '${app.leavesProof}：${(image == null ? app.none : '')}\n',
+                              '${app.leaveProof}：${(image == null ? app.none : '')}\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -605,11 +670,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     }
   }
 
-  void _leaveUpload(LeavesSubmitData data) {
+  void _leaveUpload(LeaveSubmitData data) {
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-        child: ProgressDialog(app.leavesSubmitUploadHint),
+        child: ProgressDialog(app.leaveSubmitUploadHint),
         onWillPop: () async {
           return false;
         },
@@ -622,7 +687,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context: context,
         builder: (BuildContext context) => DefaultDialog(
           title: response.statusCode == 200
-              ? app.leavesSubmitSuccess
+              ? app.leaveSubmitSuccess
               : '${response.statusCode}',
           contentWidget: RichText(
             textAlign: TextAlign.left,
@@ -632,7 +697,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               children: [
                 TextSpan(
                   text: response.statusCode == 200
-                      ? app.leavesSubmitSuccess
+                      ? app.leaveSubmitSuccess
                       : '${response.data}',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
@@ -701,16 +766,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       });
     } else {
       Utils.showToast(context, app.imageTooBigHint);
-      FA.logEvent('leaves_pick_fail');
+      FA.logEvent('leave_pick_fail');
     }
   }
 }
 
-class LeavesModel {
+class LeaveModel {
   DateTime dateTime;
   List<bool> selected = [];
 
-  LeavesModel(this.dateTime, int count) {
+  LeaveModel(this.dateTime, int count) {
     for (var i = 0; i < count; i++) {
       selected.add(false);
     }
