@@ -388,7 +388,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    Icons.insert_drive_file,
+                    AppIcon.insertDriveFile,
                     size: 30,
                     color: Resource.Colors.grey,
                   ),
