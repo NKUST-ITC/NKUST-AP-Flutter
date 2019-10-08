@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:encrypt/encrypt.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -24,10 +22,9 @@ import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Helper {
-  static const HOST = 'nkust-ap-staging.rainvisitor.me';
+  static const HOST = 'nkus-ap-staging.rainvisitor.me';
 
   static const VERSION = 'v3';
 
@@ -59,13 +56,18 @@ class Helper {
 
   Helper() {
     var host = Preferences.getString(Constants.API_HOST, HOST);
-    print(host);
     options = BaseOptions(
       baseUrl: 'https://$host/$VERSION',
       connectTimeout: 10000,
       receiveTimeout: 10000,
     );
     dio = Dio(options);
+  }
+
+  static resetInstance() {
+    _instance = Helper();
+    jsonCodec = JsonCodec();
+    cancelToken = CancelToken();
   }
 
   handleDioError(DioError dioError) {
@@ -147,8 +149,13 @@ class Helper {
       var response = await dio.get("/news/announcements/all");
       if (response.statusCode == 204)
         return AnnouncementsData(data: []);
-      else
-        return AnnouncementsData.fromJson(response.data);
+      else {
+        var announcementsData = AnnouncementsData.fromJson(response.data);
+        announcementsData.data.sort((a, b) {
+          return b.weight.compareTo(a.weight);
+        });
+        return announcementsData;
+      }
     } on DioError catch (dioError) {
       print(dioError);
       throw dioError;
@@ -426,7 +433,8 @@ class Helper {
         file = MultipartFile.fromFileSync(
           image.path,
           filename: image.path.split('/').last,
-          contentType: MediaType('image', Utils.parserImageFileType(image.path.split('.').last)),
+          contentType: MediaType(
+              'image', Utils.parserImageFileType(image.path.split('.').last)),
         );
       }
       print(data.toRawJson());
