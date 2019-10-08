@@ -407,7 +407,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 Divider(color: Resource.Colors.grey, height: 1),
-                SizedBox(height: 24),
+                SizedBox(height: 36),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: TextFormField(
@@ -430,9 +430,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 if (isDelay) ...[
-                  SizedBox(height: 24),
+                  SizedBox(height: 36),
                   Divider(color: Resource.Colors.grey, height: 1),
-                  SizedBox(height: 24),
+                  SizedBox(height: 36),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     child: TextFormField(
@@ -455,7 +455,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     ),
                   ),
                 ],
-                SizedBox(height: 24),
+                SizedBox(height: 36),
                 FractionallySizedBox(
                   widthFactor: 0.8,
                   child: RaisedButton(
@@ -539,7 +539,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   void checkIsDelay() {
     isDelay = false;
     for (var i = 0; i < leaveModels.length; i++) {
-      if (leaveModels[i].dateTime.isBefore(DateTime.now())) isDelay = true;
+      if (leaveModels[i].dateTime.isBefore(
+            DateTime.now().add(
+              Duration(days: 7),
+            ),
+          )) isDelay = true;
     }
     if (isDelay) {
       Utils.showToast(context, app.leaveDelayHint);

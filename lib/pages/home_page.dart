@@ -425,38 +425,51 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => WillPopScope(
-          child: ProgressDialog(app.logining),
-          onWillPop: () async {
-            return false;
-          }),
-      barrierDismissible: false,
-    );
     Helper.instance
         .login(username, password)
         .then((LoginResponse response) async {
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
       ShareDataWidget.of(context).data.loginResponse = response;
       ShareDataWidget.of(context).data.isLogin = true;
+      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
       _getUserInfo();
+      if (state != _State.finish) {
+        _getNewsAll();
+      }
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(app.loginSuccess),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }).catchError((e) {
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
       if (e is DioError) {
+        String text = app.loginFail;
         switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.showToast(context, app.loginFail);
-            Utils.handleResponseError(context, 'login', mounted, e);
+          case DioErrorType.DEFAULT:
+            text = app.noInternet;
             break;
-          case DioErrorType.CANCEL:
+          case DioErrorType.CONNECT_TIMEOUT:
+          case DioErrorType.RECEIVE_TIMEOUT:
+          case DioErrorType.SEND_TIMEOUT:
+            text = app.timeoutMessage;
             break;
           default:
-            Utils.handleDioError(context, e);
             break;
         }
+        _scaffoldKey.currentState.showSnackBar(
+          SnackBar(
+            content: Text(text),
+            duration: Duration(days: 1),
+            action: SnackBarAction(
+              onPressed: _login,
+              label: app.retry,
+              textColor: Resource.Colors.snackBarActionTextColor,
+            ),
+          ),
+        );
+        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+        Utils.showToast(context, app.loadOfflineData);
+        ShareDataWidget.of(context).data.isLogin = true;
       } else {
         throw e;
       }
