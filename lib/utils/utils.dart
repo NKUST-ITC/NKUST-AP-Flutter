@@ -554,4 +554,25 @@ class Utils {
     );
     return result;
   }
+
+  static String parserImageFileType(String last) {
+    if (last.contains('jpg') || last.contains('jpeg'))
+      return 'jpeg';
+    else if (last.contains('png'))
+      return 'png';
+    else if (last.contains('bmp'))
+      return 'bmp';
+    else if (last.contains('gif'))
+      return 'gif';
+    else if (last.contains('ico'))
+      return 'vnd.microsoft.icon';
+    else if (last.contains('svg'))
+      return 'svg+xml';
+    else if (last.contains('tif') || last.contains('tiff'))
+      return 'tiff';
+    else if (last.contains('webp'))
+      return 'webp';
+    else
+      return 'unkwon';
+  }
 }

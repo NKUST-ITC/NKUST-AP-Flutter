@@ -27,6 +27,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    _currentIndex = widget.initIndex;
     controller =
         TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
     super.initState();

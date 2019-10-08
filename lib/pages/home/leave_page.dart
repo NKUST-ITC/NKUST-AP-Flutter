@@ -30,6 +30,7 @@ class LeavePageState extends State<LeavePage>
   @override
   void initState() {
     super.initState();
+    _currentIndex = widget.initIndex;
     controller =
         TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
   }

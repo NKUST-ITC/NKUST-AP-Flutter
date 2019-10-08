@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:encrypt/encrypt.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
@@ -21,10 +23,11 @@ import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:nkust_ap/utils/preferences.dart';
+import 'package:nkust_ap/utils/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Helper {
-  static const HOST = 'nkust.taki.dog';
+  static const HOST = 'nkust-ap-staging.rainvisitor.me';
 
   static const VERSION = 'v3';
 
@@ -418,15 +421,23 @@ class Helper {
   Future<Response> sendLeavesSubmit(LeaveSubmitData data, File image) async {
     if (isExpire()) await login(username, password);
     try {
+      MultipartFile file;
+      if (image != null) {
+        file = MultipartFile.fromFileSync(
+          image.path,
+          filename: image.path.split('/').last,
+          contentType: MediaType('image', Utils.parserImageFileType(image.path.split('.').last)),
+        );
+      }
+      print(data.toRawJson());
       var response = await dio.post(
         '/leave/submit',
-        data: {
-          'leavesData': data.toJson(),
-          'proofImage': image == null
-              ? null
-              : MultipartFile.fromFile(image.path,
-                  filename: image.path.split('/').last),
-        },
+        data: FormData.fromMap(
+          {
+            'leavesData': data.toRawJson(),
+            'proofImage': file,
+          },
+        ),
         cancelToken: cancelToken,
       );
       return response;

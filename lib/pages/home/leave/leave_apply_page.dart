@@ -121,359 +121,367 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           ),
         );
       default:
-        return Form(
-          key: _formKey,
-          child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 24),
-            children: <Widget>[
-              SizedBox(height: 8.0),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(app.leaveType),
-              ),
-              SizedBox(height: 8.0),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: double.infinity),
-                  child: CupertinoSegmentedControl(
-                    selectedColor: Resource.Colors.blueAccent,
-                    borderColor: Resource.Colors.blueAccent,
-                    unselectedColor: Resource.Colors.segmentControlUnSelect,
-                    groupValue: typeIndex,
-                    children: this
-                        .leaveSubmitInfo
-                        .type
-                        .map((leaveType) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: Text(leaveType.title),
-                          );
-                        })
-                        .toList()
-                        .asMap(),
-                    onValueChanged: (index) {
-                      if (mounted) {
-                        setState(() {
-                          print(index);
-                          typeIndex = index;
-                        });
-                      }
-                      FA.logAction('segment', 'click');
-                    },
-                  ),
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              padding: EdgeInsets.symmetric(vertical: 24),
+              children: <Widget>[
+                SizedBox(height: 8.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(app.leaveType),
                 ),
-              ),
-              SizedBox(height: 16),
-              Divider(color: Resource.Colors.grey, height: 1),
-              SizedBox(height: 16),
-              FractionallySizedBox(
-                widthFactor: 0.3,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
+                SizedBox(height: 8.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(minWidth: double.infinity),
+                    child: CupertinoSegmentedControl(
+                      selectedColor: Resource.Colors.blueAccent,
+                      borderColor: Resource.Colors.blueAccent,
+                      unselectedColor: Resource.Colors.segmentControlUnSelect,
+                      groupValue: typeIndex,
+                      children: this
+                          .leaveSubmitInfo
+                          .type
+                          .map((leaveType) {
+                            return Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8.0),
+                              child: Text(leaveType.title),
+                            );
+                          })
+                          .toList()
+                          .asMap(),
+                      onValueChanged: (index) {
+                        if (mounted) {
+                          setState(() {
+                            print(index);
+                            typeIndex = index;
+                          });
+                        }
+                        FA.logAction('segment', 'click');
+                      },
                     ),
                   ),
-                  padding: EdgeInsets.all(4.0),
-                  color: Resource.Colors.blueAccent,
-                  onPressed: () async {
-                    final List<DateTime> picked =
-                        await DateRagePicker.showDatePicker(
-                      context: context,
-                      initialFirstDate: DateTime.now(),
-                      initialLastDate: (DateTime.now()).add(Duration(days: 7)),
-                      firstDate: DateTime(2015),
-                      lastDate: DateTime(2020),
-                    );
-                    if (picked != null && picked.length == 2) {
-                      DateTime dateTime = picked[0],
-                          end = picked[1].add(Duration(days: 1));
-                      while (dateTime.isBefore(end)) {
-                        bool hasRepeat = false;
-                        for (var i = 0; i < leaveModels.length; i++) {
-                          if (leaveModels[i].isSameDay(dateTime))
-                            hasRepeat = true;
+                ),
+                SizedBox(height: 16),
+                Divider(color: Resource.Colors.grey, height: 1),
+                SizedBox(height: 16),
+                FractionallySizedBox(
+                  widthFactor: 0.3,
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(30.0),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(4.0),
+                    color: Resource.Colors.blueAccent,
+                    onPressed: () async {
+                      final List<DateTime> picked =
+                          await DateRagePicker.showDatePicker(
+                        context: context,
+                        initialFirstDate: DateTime.now(),
+                        initialLastDate:
+                            (DateTime.now()).add(Duration(days: 7)),
+                        firstDate: DateTime(2015),
+                        lastDate: DateTime(2020),
+                      );
+                      if (picked != null && picked.length == 2) {
+                        DateTime dateTime = picked[0],
+                            end = picked[1].add(Duration(days: 1));
+                        while (dateTime.isBefore(end)) {
+                          bool hasRepeat = false;
+                          for (var i = 0; i < leaveModels.length; i++) {
+                            if (leaveModels[i].isSameDay(dateTime))
+                              hasRepeat = true;
+                          }
+                          if (!hasRepeat) {
+                            leaveModels.add(
+                              LeaveModel(
+                                dateTime,
+                                leaveSubmitInfo.timeCodes.length,
+                              ),
+                            );
+                          }
+                          dateTime = dateTime.add(Duration(days: 1));
                         }
-                        if (!hasRepeat) {
-                          leaveModels.add(
-                            LeaveModel(
-                              dateTime,
-                              leaveSubmitInfo.timeCodes.length,
-                            ),
-                          );
-                        }
-                        dateTime = dateTime.add(Duration(days: 1));
+                        checkIsDelay();
+                        setState(() {});
                       }
-                      checkIsDelay();
-                      setState(() {});
-                    }
-                  },
-                  child: Text(
-                    app.addDate,
-                    style: TextStyle(color: Colors.white),
+                    },
+                    child: Text(
+                      app.addDate,
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-              Container(
-                height: leaveModels.length == 0 ? 0 : 280,
-                child: ListView.builder(
-                  itemCount: leaveModels.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (_, index) {
-                    return Card(
-                      elevation: 4.0,
-                      margin:
-                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Column(
-                          children: <Widget>[
-                            SizedBox(height: 4.0),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: <Widget>[
-                                Text('${leaveModels[index].dateTime.year}/'
-                                    '${leaveModels[index].dateTime.month}/'
-                                    '${leaveModels[index].dateTime.day}'),
-                                IconButton(
-                                  padding: EdgeInsets.all(0.0),
-                                  icon: Icon(
-                                    AppIcon.cancel,
-                                    size: 20.0,
-                                    color: Resource.Colors.red,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      leaveModels.removeAt(index);
-                                      checkIsDelay();
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                            Container(
-                              height: 200,
-                              width: 200,
-                              child: GridView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 4,
-                                  childAspectRatio: 1.0,
-                                ),
-                                itemBuilder: (context, sectionIndex) {
-                                  return FlatButton(
+                SizedBox(height: 16),
+                Container(
+                  height: leaveModels.length == 0 ? 0 : 280,
+                  child: ListView.builder(
+                    itemCount: leaveModels.length,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (_, index) {
+                      return Card(
+                        elevation: 4.0,
+                        margin: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 8.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(height: 4.0),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  Text('${leaveModels[index].dateTime.year}/'
+                                      '${leaveModels[index].dateTime.month}/'
+                                      '${leaveModels[index].dateTime.day}'),
+                                  IconButton(
                                     padding: EdgeInsets.all(0.0),
-                                    child: Container(
-                                      margin: EdgeInsets.all(4.0),
-                                      padding: EdgeInsets.all(2.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.all(
-                                          Radius.circular(4.0),
-                                        ),
-                                        border: Border.all(
-                                            color: Resource.Colors.blueAccent),
-                                        color: leaveModels[index]
-                                                .selected[sectionIndex]
-                                            ? Resource.Colors.blueAccent
-                                            : null,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        '${leaveSubmitInfo.timeCodes[sectionIndex]}',
-                                        style: TextStyle(
-                                          color: leaveModels[index]
-                                                  .selected[sectionIndex]
-                                              ? Colors.white
-                                              : Resource.Colors.blueAccent,
-                                        ),
-                                      ),
+                                    icon: Icon(
+                                      AppIcon.cancel,
+                                      size: 20.0,
+                                      color: Resource.Colors.red,
                                     ),
                                     onPressed: () {
                                       setState(() {
-                                        leaveModels[index]
-                                                .selected[sectionIndex] =
-                                            !leaveModels[index]
-                                                .selected[sectionIndex];
+                                        leaveModels.removeAt(index);
+                                        checkIsDelay();
                                       });
                                     },
-                                  );
-                                },
-                                itemCount: leaveSubmitInfo.timeCodes.length,
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              Container(
+                                height: 200,
+                                width: 200,
+                                child: GridView.builder(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 4,
+                                    childAspectRatio: 1.0,
+                                  ),
+                                  itemBuilder: (context, sectionIndex) {
+                                    return FlatButton(
+                                      padding: EdgeInsets.all(0.0),
+                                      child: Container(
+                                        margin: EdgeInsets.all(4.0),
+                                        padding: EdgeInsets.all(2.0),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.all(
+                                            Radius.circular(4.0),
+                                          ),
+                                          border: Border.all(
+                                              color:
+                                                  Resource.Colors.blueAccent),
+                                          color: leaveModels[index]
+                                                  .selected[sectionIndex]
+                                              ? Resource.Colors.blueAccent
+                                              : null,
+                                        ),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          '${leaveSubmitInfo.timeCodes[sectionIndex]}',
+                                          style: TextStyle(
+                                            color: leaveModels[index]
+                                                    .selected[sectionIndex]
+                                                ? Colors.white
+                                                : Resource.Colors.blueAccent,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          leaveModels[index]
+                                                  .selected[sectionIndex] =
+                                              !leaveModels[index]
+                                                  .selected[sectionIndex];
+                                        });
+                                      },
+                                    );
+                                  },
+                                  itemCount: leaveSubmitInfo.timeCodes.length,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: leaveModels.length == 0 ? 0 : 16.0),
-              Divider(color: Resource.Colors.grey, height: 1),
-              ListTile(
-                enabled: leaveSubmitInfo.tutor == null,
-                onTap: leaveSubmitInfo.tutor == null
-                    ? () async {
-                        var teacher = await Navigator.of(context).push(
-                          CupertinoPageRoute(builder: (BuildContext context) {
-                            return PickTutorPage();
-                          }),
-                        );
-                        if (teacher != null) {
-                          setState(() {
-                            this.teacher = teacher;
-                          });
-                        }
-                      }
-                    : null,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-                leading: Icon(
-                  AppIcon.person,
-                  size: 30,
-                  color: Resource.Colors.grey,
-                ),
-                trailing: Icon(
-                  AppIcon.keyboardArrowDown,
-                  size: 30,
-                  color: Resource.Colors.grey,
-                ),
-                title: Text(
-                  app.tutor,
-                  style: TextStyle(fontSize: 20),
-                ),
-                subtitle: Text(
-                  leaveSubmitInfo.tutor == null
-                      ? (teacher?.name ?? app.pleasePick)
-                      : (leaveSubmitInfo.tutor?.name ?? ''),
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Divider(color: Resource.Colors.grey, height: 1),
-              ListTile(
-                onTap: () {
-                  ImagePicker.pickImage(source: ImageSource.gallery).then(
-                    (image) async {
-                      if (image != null) {
-                        FA.logLeavesImageSize(image);
-                        if ((image.lengthSync() / 1024 / 1024) >=
-                            Constants.MAX_IMAGE_SIZE) {
-                          resizeImage(image);
-                        } else {
-                          setState(() {
-                            this.image = image;
-                          });
-                        }
-                      }
+                      );
                     },
-                  );
-                },
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-                leading: Icon(
-                  Icons.insert_drive_file,
-                  size: 30,
-                  color: Resource.Colors.grey,
-                ),
-                trailing: Icon(
-                  AppIcon.keyboardArrowDown,
-                  size: 30,
-                  color: Resource.Colors.grey,
-                ),
-                title: Text(
-                  app.leaveProof,
-                  style: TextStyle(fontSize: 20),
-                ),
-                subtitle: Text(
-                  image?.path?.split('/')?.last ?? app.leaveProofHint,
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Divider(color: Resource.Colors.grey, height: 1),
-              SizedBox(height: 24),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  maxLines: 2,
-                  controller: _reason,
-                  validator: (value) {
-                    if (value.isEmpty) {
-                      return app.doNotEmpty;
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    fillColor: Resource.Colors.blueAccent,
-                    labelStyle: TextStyle(
-                      color: Resource.Colors.grey,
-                    ),
-                    labelText: app.reason,
                   ),
                 ),
-              ),
-              if (isDelay) ...[
-                SizedBox(height: 24),
+                SizedBox(height: leaveModels.length == 0 ? 0 : 16.0),
+                Divider(color: Resource.Colors.grey, height: 1),
+                ListTile(
+                  enabled: leaveSubmitInfo.tutor == null,
+                  onTap: leaveSubmitInfo.tutor == null
+                      ? () async {
+                          var teacher = await Navigator.of(context).push(
+                            CupertinoPageRoute(builder: (BuildContext context) {
+                              return PickTutorPage();
+                            }),
+                          );
+                          if (teacher != null) {
+                            setState(() {
+                              this.teacher = teacher;
+                            });
+                          }
+                        }
+                      : null,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
+                  leading: Icon(
+                    AppIcon.person,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  trailing: Icon(
+                    AppIcon.keyboardArrowDown,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  title: Text(
+                    app.tutor,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  subtitle: Text(
+                    leaveSubmitInfo.tutor == null
+                        ? (teacher?.name ?? app.pleasePick)
+                        : (leaveSubmitInfo.tutor?.name ?? ''),
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
+                Divider(color: Resource.Colors.grey, height: 1),
+                ListTile(
+                  onTap: () {
+                    ImagePicker.pickImage(source: ImageSource.gallery).then(
+                      (image) async {
+                        if (image != null) {
+                          FA.logLeavesImageSize(image);
+                          if ((image.lengthSync() / 1024 / 1024) >=
+                              Constants.MAX_IMAGE_SIZE) {
+                            resizeImage(image);
+                          } else {
+                            setState(() {
+                              this.image = image;
+                            });
+                          }
+                        }
+                      },
+                    );
+                  },
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
+                  leading: Icon(
+                    Icons.insert_drive_file,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  trailing: Icon(
+                    AppIcon.keyboardArrowDown,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  title: Text(
+                    app.leaveProof,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  subtitle: Text(
+                    image?.path?.split('/')?.last ?? app.leaveProofHint,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                ),
                 Divider(color: Resource.Colors.grey, height: 1),
                 SizedBox(height: 24),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: TextFormField(
                     maxLines: 2,
+                    controller: _reason,
                     validator: (value) {
-                      if (isDelay && value.isEmpty) {
+                      if (value.isEmpty) {
                         return app.doNotEmpty;
                       }
                       return null;
                     },
-                    controller: _delayReason,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       fillColor: Resource.Colors.blueAccent,
                       labelStyle: TextStyle(
                         color: Resource.Colors.grey,
                       ),
-                      labelText: app.delayReason,
+                      labelText: app.reason,
                     ),
                   ),
                 ),
+                if (isDelay) ...[
+                  SizedBox(height: 24),
+                  Divider(color: Resource.Colors.grey, height: 1),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: TextFormField(
+                      maxLines: 2,
+                      validator: (value) {
+                        if (isDelay && value.isEmpty) {
+                          return app.doNotEmpty;
+                        }
+                        return null;
+                      },
+                      controller: _delayReason,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        fillColor: Resource.Colors.blueAccent,
+                        labelStyle: TextStyle(
+                          color: Resource.Colors.grey,
+                        ),
+                        labelText: app.delayReason,
+                      ),
+                    ),
+                  ),
+                ],
+                SizedBox(height: 24),
+                FractionallySizedBox(
+                  widthFactor: 0.8,
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(30.0),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(14.0),
+                    onPressed: () {
+                      _leaveSubmit();
+                      FA.logAction('leave_submit', 'click');
+                    },
+                    color: Resource.Colors.blueAccent,
+                    child: Text(
+                      app.confirm,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24),
               ],
-              SizedBox(height: 24),
-              FractionallySizedBox(
-                widthFactor: 0.8,
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  padding: EdgeInsets.all(14.0),
-                  onPressed: () {
-                    _leaveSubmit();
-                    FA.logAction('leave_submit', 'click');
-                  },
-                  color: Resource.Colors.blueAccent,
-                  child: Text(
-                    app.confirm,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18.0,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 24),
-            ],
+            ),
           ),
         );
     }
@@ -612,8 +620,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                            text:
-                                '${leaveSubmitInfo.type[typeIndex].title}\n'),
+                            text: '${leaveSubmitInfo.type[typeIndex].title}\n'),
                         TextSpan(
                           text: '${app.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -687,13 +694,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context: context,
         builder: (BuildContext context) => DefaultDialog(
           title: response.statusCode == 200
-              ? app.leaveSubmitSuccess
+              ? app.leaveSubmit
               : '${response.statusCode}',
           contentWidget: RichText(
-            textAlign: TextAlign.left,
+            textAlign: TextAlign.center,
             text: TextSpan(
               style: TextStyle(
-                  color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                color: Resource.Colors.grey,
+                height: 1.3,
+                fontSize: 16.0,
+              ),
               children: [
                 TextSpan(
                   text: response.statusCode == 200
@@ -714,16 +724,23 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            ErrorResponse errorResponse =
-                ErrorResponse.fromJson(e.response.data);
+            String text = app.somethingError;
+            if (e.response.data is Map<String, dynamic>) {
+              ErrorResponse errorResponse =
+                  ErrorResponse.fromJson(e.response.data);
+              text = errorResponse.description;
+            }
             showDialog(
               context: context,
               builder: (BuildContext context) => DefaultDialog(
-                title: app.busReserveFailTitle,
+                title: app.leaveSubmitFail,
                 contentWidget: Text(
-                  errorResponse.description,
+                  text,
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: Resource.Colors.grey,
+                    height: 1.3,
+                    fontSize: 16.0,
+                  ),
                 ),
                 actionText: app.iKnow,
                 actionFunction: () {

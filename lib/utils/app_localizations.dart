@@ -404,6 +404,7 @@ class AppLocalizations {
       'leaveAppHint': 'Do you want to leave App?',
       'closeAppTitle': 'Close App',
       'closeAppHint': 'Do you want to close App?',
+      'leaveSubmitFail': 'Oops Leaves Submit Fail!'
     },
     'zh': {
       'app_name': '高科校務通',
@@ -722,6 +723,7 @@ class AppLocalizations {
       'leaveSubmit': '假單送出',
       'closeAppTitle': '關閉App',
       'closeAppHint': '是否關閉App?',
+      'leaveSubmitFail': 'Oops 請假送出失敗'
     },
   };
 
@@ -1293,6 +1295,8 @@ class AppLocalizations {
   String get closeAppTitle => _vocabularies['closeAppTitle'];
 
   String get closeAppHint => _vocabularies['closeAppHint'];
+
+  get leaveSubmitFail => _vocabularies['leaveSubmitFail'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
