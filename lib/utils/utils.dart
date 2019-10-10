@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image/image.dart' as ImageUtils;
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
@@ -384,7 +385,7 @@ class Utils {
     }
   }
 
-  static checkUpdate(BuildContext context) async {
+  static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
     await Future.delayed(
       Duration(milliseconds: 50),
     );
@@ -413,7 +414,7 @@ class Utils {
       Preferences.setString(
           Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
-    if (!Constants.isInDebugMode) {
+    if (Constants.isInDebugMode) {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       try {
         await remoteConfig.fetch(
@@ -421,8 +422,14 @@ class Utils {
         );
         await remoteConfig.activateFetched();
       } on FetchThrottledException catch (exception) {} catch (exception) {}
-      Preferences.setString(
-          Constants.API_HOST, remoteConfig.getString(Constants.API_HOST));
+      String apiHostLocal =
+          Preferences.getString(Constants.API_HOST, Helper.HOST);
+      String apiHostRemote = remoteConfig.getString(Constants.API_HOST);
+      await Preferences.setString(Constants.API_HOST, apiHostRemote);
+      if (apiHostLocal != apiHostRemote) {
+        Helper.resetInstance();
+        apiHostUpdate();
+      }
       String url = "";
       int versionDiff = 0, newVersion;
       if (Platform.isAndroid) {
@@ -553,5 +560,26 @@ class Utils {
       targetHeight: properties.height,
     );
     return result;
+  }
+
+  static String parserImageFileType(String last) {
+    if (last.contains('jpg') || last.contains('jpeg'))
+      return 'jpeg';
+    else if (last.contains('png'))
+      return 'png';
+    else if (last.contains('bmp'))
+      return 'bmp';
+    else if (last.contains('gif'))
+      return 'gif';
+    else if (last.contains('ico'))
+      return 'vnd.microsoft.icon';
+    else if (last.contains('svg'))
+      return 'svg+xml';
+    else if (last.contains('tif') || last.contains('tiff'))
+      return 'tiff';
+    else if (last.contains('webp'))
+      return 'webp';
+    else
+      return 'unkwon';
   }
 }

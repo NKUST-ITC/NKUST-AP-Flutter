@@ -316,4 +316,14 @@ class AppIcon {
         return OMIcons.folder;
     }
   }
+
+  static IconData get insertDriveFile {
+    switch (AppIcon.code) {
+      case AppIcon.FILLED:
+        return Icons.insert_drive_file;
+      case AppIcon.OUTLINED:
+      default:
+        return OMIcons.insertDriveFile;
+    }
+  }
 }

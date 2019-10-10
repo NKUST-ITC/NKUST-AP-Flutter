@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.2.9+30209
+version: 3.2.10+30210
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
@@ -26,6 +26,7 @@ dependencies:
   firebase_crashlytics: 0.1.0+3
   http: 0.12.0+2
   html: 0.14.0+2
+  http_parser: 3.1.3
   #third party plugin
   dio: 3.0.3
   toast: 0.1.4

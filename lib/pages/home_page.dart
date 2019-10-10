@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
@@ -17,7 +15,6 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
@@ -49,7 +46,12 @@ class HomePageState extends State<HomePage> {
     } else {
       checkLogin();
     }
-    Utils.checkUpdate(context);
+    Utils.checkRemoteConfig(context, () {
+      _getNewsAll();
+      if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
+        _login();
+      }
+    });
     super.initState();
   }
 
@@ -61,7 +63,6 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    if (state != _State.offline) _setupBusNotify(context);
     return WillPopScope(
       child: Scaffold(
         key: _scaffoldKey,
@@ -154,7 +155,7 @@ class HomePageState extends State<HomePage> {
           child: (Platform.isIOS || Platform.isAndroid)
               ? CachedNetworkImage(
                   imageUrl: announcement.imgUrl,
-                  errorWidget: (context, url, error) => Icon(Icons.error),
+                  errorWidget: (context, url, error) => Icon(AppIcon.error),
                 )
               : Image.network(announcement.imgUrl),
         ),
@@ -213,8 +214,11 @@ class HomePageState extends State<HomePage> {
                 itemCount: announcementsResponse.data.length,
                 itemBuilder: (context, int currentIndex) {
                   bool active = (currentIndex == _currentNewsIndex);
-                  return _newsImage(announcementsResponse.data[currentIndex],
-                      orientation, active);
+                  return _newsImage(
+                    announcementsResponse.data[currentIndex],
+                    orientation,
+                    active,
+                  );
                 },
               ),
             ),
@@ -238,8 +242,13 @@ class HomePageState extends State<HomePage> {
         );
       case _State.offline:
         return HintContent(
-          icon: Icons.offline_bolt,
+          icon: AppIcon.offlineBolt,
           content: app.offlineMode,
+        );
+      case _State.error:
+        return HintContent(
+          icon: AppIcon.offlineBolt,
+          content: app.somethingError,
         );
       default:
         return Container();
@@ -249,10 +258,7 @@ class HomePageState extends State<HomePage> {
   void onTabTapped(int index) async {
     switch (index) {
       case 0:
-//        if (bus)
         Utils.pushCupertinoStyle(context, BusPage());
-//        else
-//          Utils.showToast(context, app.canNotUseFeature);
         break;
       case 1:
         Utils.pushCupertinoStyle(context, CoursePage());
@@ -271,30 +277,15 @@ class HomePageState extends State<HomePage> {
     } else
       Helper.instance.getAllAnnouncements().then((announcementsResponse) {
         this.announcementsResponse = announcementsResponse;
-        this.announcementsResponse.data.sort((a, b) {
-          return b.weight.compareTo(a.weight);
-        });
         setState(() {
           state = announcementsResponse.data.length == 0
               ? _State.empty
               : _State.finish;
         });
       }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, 'getAllNews', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              state = _State.error;
-              Utils.handleDioError(context, e);
-              break;
-          }
-        } else {
-          throw e;
-        }
+        setState(() {
+          state = _State.error;
+        });
       });
   }
 
@@ -425,41 +416,54 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => WillPopScope(
-          child: ProgressDialog(app.logining),
-          onWillPop: () async {
-            return false;
-          }),
-      barrierDismissible: false,
-    );
     Helper.instance
         .login(username, password)
         .then((LoginResponse response) async {
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
       ShareDataWidget.of(context).data.loginResponse = response;
       ShareDataWidget.of(context).data.isLogin = true;
+      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
       _getUserInfo();
+      _setupBusNotify(context);
+      if (state != _State.finish) {
+        _getNewsAll();
+      }
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(app.loginSuccess),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }).catchError((e) {
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
+      String text = app.loginFail;
       if (e is DioError) {
         switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.showToast(context, app.loginFail);
-            Utils.handleResponseError(context, 'login', mounted, e);
+          case DioErrorType.DEFAULT:
+            text = app.noInternet;
             break;
-          case DioErrorType.CANCEL:
+          case DioErrorType.CONNECT_TIMEOUT:
+          case DioErrorType.RECEIVE_TIMEOUT:
+          case DioErrorType.SEND_TIMEOUT:
+            text = app.timeoutMessage;
             break;
           default:
-            Utils.handleDioError(context, e);
             break;
         }
-      } else {
-        throw e;
+        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+        Utils.showToast(context, app.loadOfflineData);
+        ShareDataWidget.of(context).data.isLogin = true;
       }
+      _scaffoldKey.currentState.showSnackBar(
+        SnackBar(
+          content: Text(text),
+          duration: Duration(days: 1),
+          action: SnackBarAction(
+            onPressed: _login,
+            label: app.retry,
+            textColor: Resource.Colors.snackBarActionTextColor,
+          ),
+        ),
+      );
+      if (!(e is DioError)) throw e;
     });
   }
 
@@ -469,10 +473,13 @@ class HomePageState extends State<HomePage> {
         builder: (_) => LoginPage(),
       ),
     );
-    print((result));
     checkLogin();
     if (result ?? false) {
       _getUserInfo();
+      _setupBusNotify(context);
+      if (state != _State.finish) {
+        _getNewsAll();
+      }
       setState(() {
         ShareDataWidget.of(context).data.isLogin = true;
       });
@@ -481,20 +488,26 @@ class HomePageState extends State<HomePage> {
 
   void checkLogin() async {
     await Future.delayed(Duration(microseconds: 30));
-    print(ShareDataWidget.of(context).data.isLogin);
     if (ShareDataWidget.of(context).data.isLogin) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     } else {
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(app.notLogin),
-          duration: Duration(days: 1),
-          action: SnackBarAction(
-            onPressed: openLoginPage,
-            label: app.login,
-            textColor: Resource.Colors.snackBarActionTextColor,
-          ),
-        ),
+      _scaffoldKey.currentState
+          .showSnackBar(
+            SnackBar(
+              content: Text(app.notLogin),
+              duration: Duration(days: 1),
+              action: SnackBarAction(
+                onPressed: openLoginPage,
+                label: app.login,
+                textColor: Resource.Colors.snackBarActionTextColor,
+              ),
+            ),
+          )
+          .closed
+          .then(
+        (SnackBarClosedReason reason) {
+          checkLogin();
+        },
       );
     }
   }
