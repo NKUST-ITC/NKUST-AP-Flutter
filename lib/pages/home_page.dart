@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
@@ -152,12 +153,14 @@ class HomePageState extends State<HomePage> {
         },
         child: Hero(
           tag: announcement.hashCode,
-          child: (Platform.isIOS || Platform.isAndroid)
-              ? CachedNetworkImage(
-                  imageUrl: announcement.imgUrl,
-                  errorWidget: (context, url, error) => Icon(AppIcon.error),
-                )
-              : Image.network(announcement.imgUrl),
+          child: kIsWeb
+              ? Image.network(announcement.imgUrl)
+              : (Platform.isIOS || Platform.isAndroid)
+                  ? CachedNetworkImage(
+                      imageUrl: announcement.imgUrl,
+                      errorWidget: (context, url, error) => Icon(AppIcon.error),
+                    )
+                  : Image.network(announcement.imgUrl),
         ),
       ),
     );

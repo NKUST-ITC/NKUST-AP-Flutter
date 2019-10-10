@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
@@ -78,12 +79,14 @@ class NewsContentPageState extends State<NewsContentPage> {
         aspectRatio: orientation == Orientation.portrait ? 4 / 3 : 9 / 16,
         child: Hero(
           tag: widget.news.hashCode,
-          child: (Platform.isIOS || Platform.isAndroid)
-              ? CachedNetworkImage(
-                  imageUrl: widget.news.imgUrl,
-                  errorWidget: (context, url, error) => Icon(Icons.error),
-                )
-              : Image.network(widget.news.imgUrl),
+          child: kIsWeb
+              ? Image.network(widget.news.imgUrl)
+              : (Platform.isIOS || Platform.isAndroid)
+                  ? CachedNetworkImage(
+                      imageUrl: widget.news.imgUrl,
+                      errorWidget: (context, url, error) => Icon(Icons.error),
+                    )
+                  : Image.network(widget.news.imgUrl),
         ),
       ),
       onTap: () {
