@@ -407,6 +407,19 @@ class AppLocalizations {
       'leaveSubmitFail': 'Oops Leaves Submit Fail!',
       'loginSuccess': 'Login Success',
       'retry': 'Retry',
+      'title': 'Title',
+      'description': 'Description',
+      'imageUrl': 'Image Link',
+      'url': 'Link',
+      'expireTime': 'Expire Time',
+      'weight': 'Weight',
+      'newsContentFormat':
+          'Weight：%d\nImage Link：%s\nLink：%s\nExpire Time：%s\nDescription：%s',
+      'deleteNewsTitle': 'Delete News',
+      'deleteNewsContent': 'Sure delete?',
+      'deleteSuccess': 'Delete Success',
+      'updateSuccess': 'Update Success',
+      'formatError': 'Format Error',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -728,6 +741,18 @@ class AppLocalizations {
       'leaveSubmitFail': 'Oops 請假送出失敗',
       'loginSuccess': '登入成功',
       'retry': '重試',
+      'title': '標題',
+      'description': '描述',
+      'imageUrl': '圖片網址',
+      'url': '連結網址',
+      'expireTime': '到期時間',
+      'weight': '權重',
+      'newsContentFormat': '權重：%d\n圖片網址：%s\n連結網址：%s\n到期時間：%s\n描述：%s',
+      'deleteNewsTitle': '刪除最新消息',
+      'deleteNewsContent': '確定要刪除?',
+      'deleteSuccess': '刪除成功',
+      'updateSuccess': '更新成功',
+      'formatError': '格式錯誤',
     },
   };
 
@@ -1305,6 +1330,30 @@ class AppLocalizations {
   String get loginSuccess => _vocabularies['loginSuccess'];
 
   String get retry => _vocabularies['retry'];
+
+  String get title => _vocabularies['title'];
+
+  String get description => _vocabularies['description'];
+
+  String get imageUrl => _vocabularies['imageUrl'];
+
+  String get url => _vocabularies['url'];
+
+  String get expireTime => _vocabularies['expireTime'];
+
+  String get weight => _vocabularies['weight'];
+
+  String get newsContentFormat => _vocabularies['newsContentFormat'];
+
+  String get deleteNewsTitle => _vocabularies['deleteNewsTitle'];
+
+  String get deleteNewsContent => _vocabularies['deleteNewsContent'];
+
+  String get deleteSuccess => _vocabularies['deleteSuccess'];
+
+  String get updateSuccess => _vocabularies['updateSuccess'];
+
+  String get formatError => _vocabularies['formatError'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

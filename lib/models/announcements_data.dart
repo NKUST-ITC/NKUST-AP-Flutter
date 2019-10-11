@@ -38,6 +38,7 @@ class Announcements {
   String url;
   String description;
   String publishedTime;
+  String expireTime;
 
   Announcements({
     this.title,
@@ -49,12 +50,15 @@ class Announcements {
     this.url,
     this.description,
     this.publishedTime,
+    this.expireTime,
   });
 
   factory Announcements.fromRawJson(String str) =>
       Announcements.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
+
+  String toRawUpdateJson() => json.encode(toUpdateJson());
 
   factory Announcements.fromJson(Map<String, dynamic> json) => Announcements(
         title: json["title"],
@@ -66,6 +70,7 @@ class Announcements {
         url: json["url"],
         description: json["description"],
         publishedTime: json["publishedTime"],
+        expireTime: json["expireTime"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -78,5 +83,15 @@ class Announcements {
         "url": url,
         "description": description,
         "publishedTime": publishedTime,
+        "expireTime": expireTime,
+      };
+
+  Map<String, dynamic> toUpdateJson() => {
+        "title": title,
+        "weight": weight,
+        "imgUrl": imgUrl,
+        "url": url,
+        "description": description,
+        "expireTime": expireTime,
       };
 }

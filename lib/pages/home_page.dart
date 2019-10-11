@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -74,7 +75,18 @@ class HomePageState extends State<HomePage> {
             IconButton(
               icon: Icon(AppIcon.info),
               onPressed: _showInformationDialog,
-            )
+            ),
+            if (ShareDataWidget.of(context).data.loginResponse?.isAdmin ??
+                false)
+              IconButton(
+                icon: Icon(Icons.add_to_queue),
+                onPressed: () {
+                  Utils.pushCupertinoStyle(
+                    context,
+                    NewsAdminPage(isAdmin: true),
+                  );
+                },
+              )
           ],
         ),
         drawer: DrawerBody(
