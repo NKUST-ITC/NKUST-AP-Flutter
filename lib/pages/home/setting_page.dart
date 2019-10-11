@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/course_data.dart';
@@ -272,7 +273,8 @@ class SettingPageState extends State<SettingPage> {
 
   _getPreference() async {
     PackageInfo packageInfo;
-    if (Platform.isAndroid || Platform.isIOS)
+    if (kIsWeb) {
+    } else if (Platform.isAndroid || Platform.isIOS)
       packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
