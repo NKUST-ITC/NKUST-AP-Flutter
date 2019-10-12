@@ -113,6 +113,27 @@ class Helper {
     }
   }
 
+  Future<LoginResponse> adminLogin(String username, String password) async {
+    try {
+      var response = await dio.post(
+        '/oauth/admin/token',
+        data: {
+          'username': username,
+          'password': password,
+        },
+      );
+      if (response == null) print('null');
+      var loginResponse = LoginResponse.fromJson(response.data);
+      options.headers = _createBearerTokenAuth(loginResponse.token);
+      expireTime = loginResponse.expireTime;
+      Helper.username = username;
+      Helper.password = password;
+      return loginResponse;
+    } catch (dioError) {
+      throw dioError;
+    }
+  }
+
   Future<Response> deleteToken() async {
     try {
       var response = await dio.delete(
@@ -158,6 +179,42 @@ class Helper {
       }
     } on DioError catch (dioError) {
       print(dioError);
+      throw dioError;
+    }
+  }
+
+  Future<Response> addAnnouncement(Announcements announcements) async {
+    try {
+      var response = await dio.post(
+        "/news/announcements/add",
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<Response> updateAnnouncement(Announcements announcements) async {
+    try {
+      var response = await dio.put(
+        "/news/announcements/update/${announcements.id}",
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioError catch (dioError) {
+      throw dioError;
+    }
+  }
+
+  Future<Response> deleteAnnouncement(Announcements announcements) async {
+    try {
+      var response = await dio.delete(
+        "/news/announcements/remove/${announcements.id}",
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioError catch (dioError) {
       throw dioError;
     }
   }

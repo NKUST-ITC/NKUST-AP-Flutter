@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
+import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
@@ -104,6 +105,7 @@ class MyAppState extends State<MyApp> {
           AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
           OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
           UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+          NewsAdminPage.routerName: (BuildContext context) => NewsAdminPage(),
           CalculateUnitsPage.routerName: (BuildContext context) =>
               CalculateUnitsPage(),
           NewsContentPage.routerName: (BuildContext context) =>
