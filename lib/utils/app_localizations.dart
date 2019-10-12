@@ -420,6 +420,9 @@ class AppLocalizations {
       'deleteSuccess': 'Delete Success',
       'updateSuccess': 'Update Success',
       'formatError': 'Format Error',
+      'newsExpireTimeHint': 'No expiration time, please pick time.',
+      'setNoExpireTime': 'Set No Expiration Time',
+      'noExpiration':'No Expiration',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -753,6 +756,9 @@ class AppLocalizations {
       'deleteSuccess': '刪除成功',
       'updateSuccess': '更新成功',
       'formatError': '格式錯誤',
+      'newsExpireTimeHint': '無到期時間 請選擇時間',
+      'setNoExpireTime': '設定無到期時間',
+      'noExpiration':'無到期時間',
     },
   };
 
@@ -1354,6 +1360,12 @@ class AppLocalizations {
   String get updateSuccess => _vocabularies['updateSuccess'];
 
   String get formatError => _vocabularies['formatError'];
+
+  String get newsExpireTimeHint => _vocabularies['newsExpireTimeHint'];
+
+  String get setNoExpireTime => _vocabularies['setNoExpireTime'];
+
+  String get noExpiration => _vocabularies['noExpiration'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

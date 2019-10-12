@@ -169,7 +169,32 @@ class _NewsEditPageState extends State<NewsEditPage> {
             ),
             SizedBox(height: dividerHeight),
             Container(color: Resource.Colors.grey, height: 1),
-            SizedBox(height: dividerHeight),
+            SizedBox(height: 8.0),
+            FractionallySizedBox(
+              widthFactor: 0.3,
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(30.0),
+                  ),
+                ),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 4.0,
+                ),
+                color: Resource.Colors.blueAccent,
+                onPressed: () async {
+                  setState(() {
+                    expireTime = null;
+                  });
+                },
+                child: Text(
+                  app.setNoExpireTime,
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(height: 8.0),
             ListTile(
               onTap: _pickStartDateTime,
               contentPadding: EdgeInsets.symmetric(
@@ -192,7 +217,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
               ),
               subtitle: Text(
                 expireTime == null
-                    ? app.pleasePick
+                    ? app.newsExpireTimeHint
                     : dateFormat.format(expireTime),
                 style: TextStyle(fontSize: 20),
               ),
@@ -276,17 +301,13 @@ class _NewsEditPageState extends State<NewsEditPage> {
   void _announcementSubmit() async {
     if (_formKey.currentState.validate()) {
       Future<dynamic> instance;
-      print(_title.text);
       announcements.title = _title.text;
       announcements.description = _description.text;
       announcements.imgUrl = _imgUrl.text;
       announcements.url = _url.text;
       announcements.weight = int.parse(_weight.text);
-      print(announcements.title);
-      if (expireTime != null)
-        announcements.expireTime = formatter.format(expireTime);
-      else
-        announcements.expireTime = null;
+      announcements.expireTime =
+          (expireTime == null) ? null : formatter.format(expireTime);
       switch (widget.mode) {
         case Mode.add:
           instance = Helper.instance.addAnnouncement(announcements);

@@ -1,7 +1,7 @@
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
@@ -211,88 +211,135 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          title: Text(
-            item.title,
-            style: TextStyle(fontSize: 18.0),
-          ),
-          trailing: IconButton(
-            icon: Icon(AppIcon.cancel),
-            onPressed: () async {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => YesNoDialog(
-                  title: app.deleteNewsTitle,
-                  contentWidget: Text(
-                    "${app.deleteNewsContent}",
-                    textAlign: TextAlign.center,
-                  ),
-                  leftActionText: app.back,
-                  rightActionText: app.determine,
-                  rightActionFunction: () {
-                    Helper.instance.deleteAnnouncement(item).then((response) {
-                      _scaffoldKey.currentState.showSnackBar(
-                        SnackBar(
-                          content: Text(app.deleteSuccess),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      _getData();
-                    }).catchError((e) {
-                      if (e is DioError) {
-                        switch (e.type) {
-                          case DioErrorType.RESPONSE:
-                            Utils.showToast(context, e.response?.data ?? '');
-                            break;
-                          case DioErrorType.CANCEL:
-                            break;
-                          default:
-                            Utils.handleDioError(context, e);
-                            break;
+      child: InkWell(
+        radius: 12.0,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            title: Text(
+              item.title,
+              style: TextStyle(fontSize: 18.0),
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                AppIcon.cancel,
+                color: Resource.Colors.red,
+              ),
+              onPressed: () async {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => YesNoDialog(
+                    title: app.deleteNewsTitle,
+                    contentWidget: Text(
+                      "${app.deleteNewsContent}",
+                      textAlign: TextAlign.center,
+                    ),
+                    leftActionText: app.back,
+                    rightActionText: app.determine,
+                    rightActionFunction: () {
+                      Helper.instance.deleteAnnouncement(item).then((response) {
+                        _scaffoldKey.currentState.showSnackBar(
+                          SnackBar(
+                            content: Text(app.deleteSuccess),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                        _getData();
+                      }).catchError((e) {
+                        if (e is DioError) {
+                          switch (e.type) {
+                            case DioErrorType.RESPONSE:
+                              Utils.showToast(context, e.response?.data ?? '');
+                              break;
+                            case DioErrorType.CANCEL:
+                              break;
+                            default:
+                              Utils.handleDioError(context, e);
+                              break;
+                          }
+                        } else {
+                          throw e;
                         }
-                      } else {
-                        throw e;
-                      }
-                    });
-                  },
+                      });
+                    },
+                  ),
+                );
+              },
+            ),
+            subtitle: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                  children: [
+                    TextSpan(
+                      text: '${app.weight}：',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: '${item.weight ?? 1}\n'),
+                    TextSpan(
+                      text: '${app.imageUrl}：',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${item.imgUrl}',
+                      style: TextStyle(
+                        color: Resource.Colors.blueAccent,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Utils.launchUrl(item.imgUrl);
+                        },
+                    ),
+                    TextSpan(
+                      text: '\n${app.url}：',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${item.url}',
+                      style: TextStyle(
+                        color: Resource.Colors.blueAccent,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Utils.launchUrl(item.url);
+                        },
+                    ),
+                    TextSpan(
+                      text: '\n${app.expireTime}：',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: '${item.expireTime?? app.noExpiration}\n'),
+                    TextSpan(
+                      text: '${app.description}：',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(text: '${item.description}'),
+                  ],
                 ),
-              );
-            },
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              sprintf(
-                app.newsContentFormat,
-                [
-                  item.weight ?? 1,
-                  item.imgUrl ?? '',
-                  item.url ?? '',
-                  item.expireTime ?? '',
-                  item.description ?? '',
-                ],
               ),
             ),
           ),
-          onTap: () async {
-            var success = await Navigator.push(
-              context,
-              CupertinoPageRoute(
-                builder: (_) => NewsEditPage(
-                  mode: Mode.edit,
-                  announcement: item,
-                ),
-              ),
-            );
-            if (success is bool && success != null) {
-              if (success) {
-                _getData();
-              }
-            }
-          },
         ),
+        onTap: () async {
+          var success = await Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (_) => NewsEditPage(
+                mode: Mode.edit,
+                announcement: item,
+              ),
+            ),
+          );
+          if (success is bool && success != null) {
+            if (success) {
+              _getData();
+            }
+          }
+        },
       ),
     );
   }
