@@ -418,14 +418,14 @@ class OpenSourcePageState extends State<OpenSourcePage> {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
+                  SelectableText(
                     items[index].text,
                     style: TextStyle(fontSize: 18.0),
                   ),
                   SizedBox(
                     height: 4.0,
                   ),
-                  Text.rich(
+                  SelectableText.rich(
                     TextSpan(
                       style: TextStyle(
                           fontSize: 14.0, color: Resource.Colors.grey),

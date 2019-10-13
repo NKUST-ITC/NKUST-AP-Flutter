@@ -108,7 +108,7 @@ class NewsContentPageState extends State<NewsContentPage> {
         tag: Constants.TAG_NEWS_TITLE,
         child: Material(
           color: Colors.transparent,
-          child: Text(
+          child: SelectableText(
             widget.news.title,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -126,7 +126,7 @@ class NewsContentPageState extends State<NewsContentPage> {
       Padding(
         padding: EdgeInsets.symmetric(
             horizontal: orientation == Orientation.portrait ? 16.0 : 0.0),
-        child: Text(
+        child: SelectableText(
           widget.news.description,
           textAlign: TextAlign.center,
           style: TextStyle(
