@@ -214,7 +214,7 @@ class ScorePageState extends State<ScorePage> {
         ),
       ),
       alignment: Alignment.center,
-      child: SelectableText(
+      child: Text(
         text ?? '',
         textAlign: TextAlign.center,
         style: _textBlueStyle,
@@ -235,7 +235,7 @@ class ScorePageState extends State<ScorePage> {
       width: double.maxFinite,
       padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
       alignment: Alignment.center,
-      child: SelectableText(
+      child: Text(
         text ?? '',
         textAlign: TextAlign.center,
         style: isTitle ? _textBlueStyle : _textStyle,
