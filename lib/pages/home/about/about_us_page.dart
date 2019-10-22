@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -30,7 +31,8 @@ class AboutUsPageState extends State<AboutUsPage> {
   }
 
   String get sectionImage {
-    final department = ShareDataWidget.of(context).data.userInfo?.department ?? '';
+    final department =
+        ShareDataWidget.of(context).data.userInfo?.department ?? '';
     Random random = Random();
     bool halfSnapFingerChance = random.nextInt(2000) % 2 == 0;
     if (department.contains('建工') || department.contains('燕巢'))
@@ -133,11 +135,16 @@ class AboutUsPageState extends State<AboutUsPage> {
                           IconButton(
                             icon: Image.asset(ImageAssets.fb),
                             onPressed: () {
-                              if (Platform.isAndroid)
+                              if (kIsWeb)
+                                Utils.launchUrl(
+                                        'https://www.facebook.com/NKUST.ITC/')
+                                    .catchError((onError) => Utils.showToast(
+                                        context, app.platformError));
+                              else if (Platform.isAndroid)
                                 Utils.launchUrl('fb://page/735951703168873')
                                     .catchError((onError) => Utils.launchUrl(
                                         'https://www.facebook.com/NKUST.ITC/'));
-                              if (Platform.isIOS)
+                              else if (Platform.isIOS)
                                 Utils.launchUrl('fb://profile/735951703168873')
                                     .catchError((onError) => Utils.launchUrl(
                                         'https://www.facebook.com/NKUST.ITC/'));
@@ -153,7 +160,11 @@ class AboutUsPageState extends State<AboutUsPage> {
                           IconButton(
                             icon: Image.asset(ImageAssets.github),
                             onPressed: () {
-                              if (Platform.isAndroid)
+                              if (kIsWeb)
+                                Utils.launchUrl('https://github.com/NKUST-ITC')
+                                    .catchError((onError) => Utils.showToast(
+                                        context, app.platformError));
+                              else if (Platform.isAndroid)
                                 Utils.launchUrl(
                                         'github://organization/NKUST-ITC')
                                     .catchError((onError) => Utils.launchUrl(

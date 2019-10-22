@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_analytics_utils.dart';
@@ -407,6 +408,22 @@ class AppLocalizations {
       'leaveSubmitFail': 'Oops Leaves Submit Fail!',
       'loginSuccess': 'Login Success',
       'retry': 'Retry',
+      'title': 'Title',
+      'description': 'Description',
+      'imageUrl': 'Image Link',
+      'url': 'Link',
+      'expireTime': 'Expire Time',
+      'weight': 'Weight',
+      'newsContentFormat':
+          'Weight：%d\nImage Link：%s\nLink：%s\nExpire Time：%s\nDescription：%s',
+      'deleteNewsTitle': 'Delete News',
+      'deleteNewsContent': 'Sure delete?',
+      'deleteSuccess': 'Delete Success',
+      'updateSuccess': 'Update Success',
+      'formatError': 'Format Error',
+      'newsExpireTimeHint': 'No expiration time, please pick time.',
+      'setNoExpireTime': 'Set No Expiration Time',
+      'noExpiration': 'No Expiration',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -728,6 +745,21 @@ class AppLocalizations {
       'leaveSubmitFail': 'Oops 請假送出失敗',
       'loginSuccess': '登入成功',
       'retry': '重試',
+      'title': '標題',
+      'description': '描述',
+      'imageUrl': '圖片網址',
+      'url': '連結網址',
+      'expireTime': '到期時間',
+      'weight': '權重',
+      'newsContentFormat': '權重：%d\n圖片網址：%s\n連結網址：%s\n到期時間：%s\n描述：%s',
+      'deleteNewsTitle': '刪除最新消息',
+      'deleteNewsContent': '確定要刪除?',
+      'deleteSuccess': '刪除成功',
+      'updateSuccess': '更新成功',
+      'formatError': '格式錯誤',
+      'newsExpireTimeHint': '無到期時間 請選擇時間',
+      'setNoExpireTime': '設定無到期時間',
+      'noExpiration': '無到期時間',
     },
   };
 
@@ -1305,6 +1337,36 @@ class AppLocalizations {
   String get loginSuccess => _vocabularies['loginSuccess'];
 
   String get retry => _vocabularies['retry'];
+
+  String get title => _vocabularies['title'];
+
+  String get description => _vocabularies['description'];
+
+  String get imageUrl => _vocabularies['imageUrl'];
+
+  String get url => _vocabularies['url'];
+
+  String get expireTime => _vocabularies['expireTime'];
+
+  String get weight => _vocabularies['weight'];
+
+  String get newsContentFormat => _vocabularies['newsContentFormat'];
+
+  String get deleteNewsTitle => _vocabularies['deleteNewsTitle'];
+
+  String get deleteNewsContent => _vocabularies['deleteNewsContent'];
+
+  String get deleteSuccess => _vocabularies['deleteSuccess'];
+
+  String get updateSuccess => _vocabularies['updateSuccess'];
+
+  String get formatError => _vocabularies['formatError'];
+
+  String get newsExpireTimeHint => _vocabularies['newsExpireTimeHint'];
+
+  String get setNoExpireTime => _vocabularies['setNoExpireTime'];
+
+  String get noExpiration => _vocabularies['noExpiration'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -1316,27 +1378,16 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     print('Load ${locale.languageCode}');
-    if (kIsWeb) {
-      return AppLocalizations(locale);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      SharedPreferences preference = await SharedPreferences.getInstance();
-      String languageCode =
-          preference.getString(Constants.PREF_LANGUAGE_CODE) ??
-              AppLocalizations.SYSTEM;
-      AppLocalizations localizations = AppLocalizations(
-          (languageCode == AppLocalizations.SYSTEM)
-              ? locale
-              : Locale(languageCode));
-      FA.setUserProperty(
-          'language',
-          (languageCode == AppLocalizations.SYSTEM)
-              ? locale.languageCode
-              : languageCode);
-      return localizations;
-    } else {
-      //TODO if other platform can use SharedPreferences, need update.
-      return AppLocalizations(locale);
-    }
+    String languageCode = Preferences.getString(
+        Constants.PREF_LANGUAGE_CODE, AppLocalizations.SYSTEM);
+    FA.setUserProperty(
+        'language',
+        (languageCode == AppLocalizations.SYSTEM)
+            ? locale.languageCode
+            : languageCode);
+    return AppLocalizations((languageCode == AppLocalizations.SYSTEM)
+        ? locale
+        : Locale(languageCode));
   }
 
   @override
