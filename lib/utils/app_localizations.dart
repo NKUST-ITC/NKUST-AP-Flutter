@@ -568,7 +568,7 @@ class AppLocalizations {
       'other_info': '其他資訊',
       'other_settings': '其他設定',
       'head_photo_setting': '顯示大頭貼',
-      'head_photo_setting_sub_title': '測選單是否顯示大頭貼',
+      'head_photo_setting_sub_title': '側選單是否顯示大頭貼',
       'course_notify': '上課提醒',
       'course_notify_sub_title': '上課前十分鐘提醒',
       'course_vibrate': '上課震動',
