@@ -12,7 +12,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 
-
 void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
@@ -22,7 +21,7 @@ void main() async {
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
   if (kIsWeb) {
   } else if (Platform.isIOS || Platform.isAndroid) {
-    Crashlytics.instance.enableInDevMode = true;
+    Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
   } else {
