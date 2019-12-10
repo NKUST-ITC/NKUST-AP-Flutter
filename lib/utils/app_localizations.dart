@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
+import 'package:nkust_ap/utils/preferences.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_analytics_utils.dart';
@@ -422,7 +423,7 @@ class AppLocalizations {
       'formatError': 'Format Error',
       'newsExpireTimeHint': 'No expiration time, please pick time.',
       'setNoExpireTime': 'Set No Expiration Time',
-      'noExpiration':'No Expiration',
+      'noExpiration': 'No Expiration',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -567,7 +568,7 @@ class AppLocalizations {
       'other_info': '其他資訊',
       'other_settings': '其他設定',
       'head_photo_setting': '顯示大頭貼',
-      'head_photo_setting_sub_title': '測選單是否顯示大頭貼',
+      'head_photo_setting_sub_title': '側選單是否顯示大頭貼',
       'course_notify': '上課提醒',
       'course_notify_sub_title': '上課前十分鐘提醒',
       'course_vibrate': '上課震動',
@@ -758,7 +759,7 @@ class AppLocalizations {
       'formatError': '格式錯誤',
       'newsExpireTimeHint': '無到期時間 請選擇時間',
       'setNoExpireTime': '設定無到期時間',
-      'noExpiration':'無到期時間',
+      'noExpiration': '無到期時間',
     },
   };
 
@@ -1377,27 +1378,16 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   @override
   Future<AppLocalizations> load(Locale locale) async {
     print('Load ${locale.languageCode}');
-    if (kIsWeb) {
-      return AppLocalizations(locale);
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      SharedPreferences preference = await SharedPreferences.getInstance();
-      String languageCode =
-          preference.getString(Constants.PREF_LANGUAGE_CODE) ??
-              AppLocalizations.SYSTEM;
-      AppLocalizations localizations = AppLocalizations(
-          (languageCode == AppLocalizations.SYSTEM)
-              ? locale
-              : Locale(languageCode));
-      FA.setUserProperty(
-          'language',
-          (languageCode == AppLocalizations.SYSTEM)
-              ? locale.languageCode
-              : languageCode);
-      return localizations;
-    } else {
-      //TODO if other platform can use SharedPreferences, need update.
-      return AppLocalizations(locale);
-    }
+    String languageCode = Preferences.getString(
+        Constants.PREF_LANGUAGE_CODE, AppLocalizations.SYSTEM);
+    FA.setUserProperty(
+        'language',
+        (languageCode == AppLocalizations.SYSTEM)
+            ? locale.languageCode
+            : languageCode);
+    return AppLocalizations((languageCode == AppLocalizations.SYSTEM)
+        ? locale
+        : Locale(languageCode));
   }
 
   @override
