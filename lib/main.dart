@@ -13,6 +13,7 @@ import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
   AppIcon.code =

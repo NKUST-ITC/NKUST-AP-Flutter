@@ -24,7 +24,7 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 class Helper {
-  static const HOST = 'nkust-ap-staging.rainvisitor.me';
+  static const HOST = 'nkust.v3.taki.dog';
 
   static const VERSION = 'v3';
 

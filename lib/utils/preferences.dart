@@ -18,9 +18,10 @@ class Preferences {
 
   static init() async {
     if (kIsWeb) {
-    } else if (Platform.isIOS || Platform.isAndroid) {
       prefs = await SharedPreferences.getInstance();
+    } else if (Platform.isIOS || Platform.isAndroid) {
       PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      prefs = await SharedPreferences.getInstance();
       var currentVersion =
           Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
       if (currentVersion == '0') return;
@@ -32,7 +33,8 @@ class Preferences {
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {
-    await prefs?.setString(key, encrypter.encrypt(data, iv: Constants.iv).base64);
+    await prefs?.setString(
+        key, encrypter.encrypt(data, iv: Constants.iv).base64);
   }
 
   static String getStringSecurity(String key, String defaultValue) {
