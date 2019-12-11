@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -18,9 +17,8 @@ class Preferences {
 
   static init() async {
     if (kIsWeb) {
-    } else if (Platform.isIOS || Platform.isAndroid) {
+    } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
       prefs = await SharedPreferences.getInstance();
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
       var currentVersion =
           Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
       if (currentVersion == '0') return;

@@ -13,6 +13,7 @@ import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
   AppIcon.code =
@@ -35,13 +36,7 @@ void main() async {
 }
 
 void _setTargetPlatformForDesktop() {
-  TargetPlatform targetPlatform;
-  if (Platform.isMacOS) {
-    targetPlatform = TargetPlatform.iOS;
-  } else if (Platform.isLinux || Platform.isWindows) {
-    targetPlatform = TargetPlatform.android;
-  }
-  if (targetPlatform != null) {
-    debugDefaultTargetPlatformOverride = targetPlatform;
+  if (Platform.isLinux || Platform.isWindows) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   }
 }
