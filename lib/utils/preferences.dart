@@ -16,8 +16,7 @@ class Preferences {
   static SharedPreferences prefs;
 
   static init() async {
-    if (kIsWeb) {
-    } else if (Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
+    if (kIsWeb || Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
       prefs = await SharedPreferences.getInstance();
       var currentVersion =
           Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
