@@ -30,7 +30,8 @@ class Preferences {
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {
-    await prefs?.setString(key, encrypter.encrypt(data, iv: Constants.iv).base64);
+    await prefs?.setString(
+        key, encrypter.encrypt(data, iv: Constants.iv).base64);
   }
 
   static String getStringSecurity(String key, String defaultValue) {

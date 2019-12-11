@@ -61,3 +61,4 @@ flutter:
   assets:
   - assets/images/
   - assets/leave_campus_data.json
+  - assets/schedule_data.json

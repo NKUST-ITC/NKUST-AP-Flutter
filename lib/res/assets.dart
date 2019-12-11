@@ -62,4 +62,5 @@ class FileAssets {
   static const String basePath = 'assets/';
 
   static String leaveCampusData = '$basePath/leave_campus_data.json';
+  static String scheduleData = '$basePath/schedule_data.json';
 }
