@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -96,39 +99,29 @@ class SchedulePageState extends State<SchedulePage>
       } else
         state = _State.finish;
     });
-    final RemoteConfig remoteConfig = await RemoteConfig.instance;
-    try {
-      await remoteConfig.fetch(expiration: const Duration(days: 7));
-      await remoteConfig.activateFetched();
-    } on FetchThrottledException catch (exception) {
-      setState(() {
-        state = _State.error;
-      });
-      return;
-    } catch (exception) {
-      setState(() {
-        state = _State.error;
-      });
-      throw exception;
+    var data = '';
+    if (!kIsWeb) {
+      try {
+        final RemoteConfig remoteConfig = await RemoteConfig.instance;
+        await remoteConfig.fetch(expiration: const Duration(days: 7));
+        await remoteConfig.activateFetched();
+        data = remoteConfig.getString(Constants.SCHEDULE_DATA);
+      } on FetchThrottledException catch (exception) {} catch (exception) {}
     }
-    var data = remoteConfig.getString(Constants.SCHEDULE_DATA);
     if (data == null || data.isEmpty) {
-      setState(() {
-        state = _State.error;
-      });
-    } else {
-      var jsonArray = jsonDecode(data);
-      scheduleDataList = ScheduleData.toList(jsonArray);
-      if (mounted) {
-        setState(() {
-          if (scheduleDataList.length == 0)
-            state = _State.empty;
-          else
-            state = _State.finish;
-        });
-      }
-      CacheUtils.saveScheduleDataList(scheduleDataList);
+      data = await rootBundle.loadString(FileAssets.scheduleData);
     }
+    var jsonArray = jsonDecode(data);
+    scheduleDataList = ScheduleData.toList(jsonArray);
+    if (mounted) {
+      setState(() {
+        if (scheduleDataList.length == 0)
+          state = _State.empty;
+        else
+          state = _State.finish;
+      });
+    }
+    CacheUtils.saveScheduleDataList(scheduleDataList);
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
