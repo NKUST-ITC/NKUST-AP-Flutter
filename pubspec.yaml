@@ -14,16 +14,16 @@ dependencies:
   flutter_cupertino_localizations: 1.0.1
   #official plugin
   shared_preferences: 0.5.6
-  package_info: 0.4.0+6
+  package_info: 0.4.0+13
   url_launcher: 5.4.0
-  share: 0.6.2+3
-  image_picker: 0.6.1+4
+  share: 0.6.3+5
+  image_picker: 0.6.2+3
   path_provider: 1.5.1
-  firebase_core: 0.4.0+9
-  firebase_analytics: 5.0.2
-  firebase_remote_config: 0.2.0+7
-  firebase_messaging: 5.1.6
-  firebase_crashlytics: 0.1.0+3
+  firebase_core: 0.4.3+1
+  firebase_analytics: 5.0.9
+  firebase_remote_config: 0.3.0+1
+  firebase_messaging: 6.0.9
+  firebase_crashlytics: 0.1.2+3
   http: 0.12.0+2
   html: 0.14.0+2
   http_parser: 3.1.3
