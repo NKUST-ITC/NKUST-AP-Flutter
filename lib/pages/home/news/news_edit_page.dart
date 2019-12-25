@@ -7,10 +7,18 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 enum _State { loading, finish, error, empty, offline }
 enum Mode { add, edit }
+
+extension ParseDateTimes on DateTime {
+  String parseToString() {
+    DateFormat formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
+    String text = formatter.format(this.subtract(this.timeZoneOffset));
+    return '${text}Z';
+  }
+}
 
 class NewsEditPage extends StatefulWidget {
   static const String routerName = "/news/edit";
@@ -43,7 +51,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
   var _url = TextEditingController();
   var _weight = TextEditingController();
 
-  var formatter = DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+  var formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
   var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
   DateTime expireTime;
@@ -307,7 +315,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
       announcements.url = _url.text;
       announcements.weight = int.parse(_weight.text);
       announcements.expireTime =
-          (expireTime == null) ? null : formatter.format(expireTime);
+          (expireTime == null) ? null : expireTime.parseToString();
       switch (widget.mode) {
         case Mode.add:
           instance = Helper.instance.addAnnouncement(announcements);

@@ -4,7 +4,7 @@ description: A new Flutter application.
 version: 3.3.0+30300
 
 environment:
-  sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
