@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -25,14 +26,21 @@ void main() async {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
+    runZoned<Future<void>>(() async {
+      runApp(
+        MyApp(
+          themeData: AppTheme.data,
+        ),
+      );
+    }, onError: Crashlytics.instance.recordError);
   } else {
     _setTargetPlatformForDesktop();
+    runApp(
+      MyApp(
+        themeData: AppTheme.data,
+      ),
+    );
   }
-  runApp(
-    MyApp(
-      themeData: AppTheme.data,
-    ),
-  );
 }
 
 void _setTargetPlatformForDesktop() {
