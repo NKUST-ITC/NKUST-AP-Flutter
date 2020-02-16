@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -13,6 +14,7 @@ import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
   AppIcon.code =
@@ -24,24 +26,25 @@ void main() async {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
+    runZoned<Future<void>>(() async {
+      runApp(
+        MyApp(
+          themeData: AppTheme.data,
+        ),
+      );
+    }, onError: Crashlytics.instance.recordError);
   } else {
     _setTargetPlatformForDesktop();
+    runApp(
+      MyApp(
+        themeData: AppTheme.data,
+      ),
+    );
   }
-  runApp(
-    MyApp(
-      themeData: AppTheme.data,
-    ),
-  );
 }
 
 void _setTargetPlatformForDesktop() {
-  TargetPlatform targetPlatform;
-  if (Platform.isMacOS) {
-    targetPlatform = TargetPlatform.iOS;
-  } else if (Platform.isLinux || Platform.isWindows) {
-    targetPlatform = TargetPlatform.android;
-  }
-  if (targetPlatform != null) {
-    debugDefaultTargetPlatformOverride = targetPlatform;
+  if (Platform.isLinux || Platform.isWindows) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   }
 }

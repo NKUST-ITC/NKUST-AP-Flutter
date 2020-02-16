@@ -88,3 +88,5 @@ unlinked_spec.ds
 
 #ignore android key
 android/key\.properties
+
+.flutter-plugins-dependencies

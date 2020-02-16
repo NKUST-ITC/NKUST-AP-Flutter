@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/foundation.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:package_info/package_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preferences {
@@ -17,10 +16,8 @@ class Preferences {
   static SharedPreferences prefs;
 
   static init() async {
-    if (kIsWeb) {
-    } else if (Platform.isIOS || Platform.isAndroid) {
+    if (kIsWeb || Platform.isIOS || Platform.isAndroid || Platform.isMacOS) {
       prefs = await SharedPreferences.getInstance();
-      PackageInfo packageInfo = await PackageInfo.fromPlatform();
       var currentVersion =
           Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
       if (currentVersion == '0') return;
@@ -32,7 +29,8 @@ class Preferences {
   }
 
   static Future<Null> setStringSecurity(String key, String data) async {
-    await prefs?.setString(key, encrypter.encrypt(data, iv: Constants.iv).base64);
+    await prefs?.setString(
+        key, encrypter.encrypt(data, iv: Constants.iv).base64);
   }
 
   static String getStringSecurity(String key, String defaultValue) {
