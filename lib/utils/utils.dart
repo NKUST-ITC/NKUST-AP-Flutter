@@ -58,9 +58,6 @@ class Utils {
     FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
       Utils.showToast(context, app.tokenExpiredContent);
-      if (mounted)
-        Navigator.popUntil(
-            context, ModalRoute.withName(Navigator.defaultRouteName));
     } else {
       Utils.showToast(context, app.somethingError);
     }
