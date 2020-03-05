@@ -68,7 +68,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Release new API version(will clear old preference data).\n2.Add midterm warning page.\n3.Add reward and penalty page.\n4.Impove course page.\n5.Add feature leave apply.\n6.Fix some bug',
+          '1.Fix offline error',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -429,7 +429,7 @@ class AppLocalizations {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
       'update_note_content':
-          '1.全新推出新的API(此更新會清除先前資料)\n2.新增期中預警\n3.新增獎懲紀錄\n4.改善課表顯示\n5.新增請假申請\n6.修正部分錯誤',
+          '1.修復離線登入錯誤',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
