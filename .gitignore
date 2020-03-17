@@ -90,3 +90,5 @@ unlinked_spec.ds
 android/key\.properties
 
 .flutter-plugins-dependencies
+
+lib/generated_plugin_registrant.dart
