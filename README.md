@@ -14,7 +14,7 @@ By Flutter create application.
 
 - [X] Android
 - [X] iOS
-- [ ] Web
+- [X] [Web](https://nkust-ap-flutter.firebaseapp.com)
 - [ ] Windows
 - [ ] MacOS
 - [ ] Linux
