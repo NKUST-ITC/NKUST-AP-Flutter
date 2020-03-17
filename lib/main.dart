@@ -21,8 +21,8 @@ void main() async {
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   AppTheme.code =
       Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
-  if (kIsWeb) {
-  } else if (Platform.isIOS || Platform.isAndroid) {
+  _setTargetPlatformForDesktop();
+  if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
@@ -34,7 +34,6 @@ void main() async {
       );
     }, onError: Crashlytics.instance.recordError);
   } else {
-    _setTargetPlatformForDesktop();
     runApp(
       MyApp(
         themeData: AppTheme.data,
@@ -44,7 +43,7 @@ void main() async {
 }
 
 void _setTargetPlatformForDesktop() {
-  if (Platform.isLinux || Platform.isWindows) {
+  if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   }
 }
