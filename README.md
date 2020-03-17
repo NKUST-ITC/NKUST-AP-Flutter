@@ -26,17 +26,12 @@ By Flutter create application.
  - NKUST API
 ## Step
 1. `Fork` repository to your GitHub account.
-2. Checkout branch to `develop`.
-```console
-$ git checkout develop
-```
-3. Pick a [issue](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues) what you want to solve.
-4. Create a branch for your pick issue.
+2. Pick a [issue](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues) what you want to solve.
+3. Create a branch for your pick issue.
 ```console
 $ git branch feature/issue-short-name
 ```
 For example, if pick issue is [Improve course layout](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/46). Branch name can naming to `feature/improve-course-layout`.
 
-5. Download latest flutter version, and develop feature.
-6. Send a Pull Reqeust from `your branch` to `develop` . ``Very important``
-7. Finally waiting to merged or discuss.
+4. Send a Pull Reqeust from `your branch` to `master` .
+5. Finally waiting to merged or discuss.
