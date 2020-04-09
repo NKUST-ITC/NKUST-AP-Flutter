@@ -189,7 +189,6 @@ class _PickTutorPageState extends State<PickTutorPage> {
     text = Preferences.getString(Constants.LEAVE_CAMPUS_DATA, '');
     if (text == '')
       text = await rootBundle.loadString(FileAssets.leaveCampusData);
-    print(text);
     setState(() {
       leavesCampusData = LeavesCampusData.fromRawJson(text);
       if (leavesCampusData != null) {
@@ -199,7 +198,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
       }
     });
     print(
-        'read json time = ${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}');
+        'read json time = ${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}ms');
   }
 
   void pickItem(_Type type, int currentIndex, List<String> items) {
