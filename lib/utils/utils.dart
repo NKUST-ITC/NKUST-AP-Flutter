@@ -6,8 +6,8 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:image/image.dart' as ImageUtils;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -546,15 +546,13 @@ class Utils {
     return result;
   }
 
-  static Future<File> resizeImageByNative(File source) async {
-    ImageProperties properties =
-        await FlutterNativeImage.getImageProperties(source.path);
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    File result = await FlutterNativeImage.compressImage(
-      '${appDocDir.path}/proof.jpg',
-      quality: 80,
-      targetWidth: properties.width,
-      targetHeight: properties.height,
+  static Future<File> resizeImageByNative(File file) async {
+    Directory appDocDir = await getTemporaryDirectory();
+    String tmpPath = '${appDocDir.path}/proof.jpg';
+    var result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      tmpPath,
+      quality: 70,
     );
     return result;
   }

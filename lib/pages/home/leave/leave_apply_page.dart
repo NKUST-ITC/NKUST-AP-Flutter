@@ -371,6 +371,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       (image) async {
                         if (image != null) {
                           FA.logLeavesImageSize(image);
+                          print(
+                              'resize before: ${(image.lengthSync() / 1024 / 1024)}');
                           if ((image.lengthSync() / 1024 / 1024) >=
                               Constants.MAX_IMAGE_SIZE) {
                             resizeImage(image);
@@ -773,6 +775,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   Future resizeImage(File image) async {
     File result = await Utils.resizeImageByNative(image);
+    print('resize after: ${(result.lengthSync() / 1024 / 1024)}');
     FA.logLeavesImageCompressSize(image, result);
     if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
       Utils.showToast(
