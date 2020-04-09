@@ -68,7 +68,7 @@ class AppLocalizations {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
       'update_note_content':
-          '1.Fix offline error',
+          '1.Fix leave apply compress error and improve UI.',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -429,7 +429,7 @@ class AppLocalizations {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
       'update_note_content':
-          '1.修復離線登入錯誤',
+          '1.修復請假壓縮錯誤與改善介面',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
