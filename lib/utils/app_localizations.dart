@@ -396,7 +396,7 @@ class AppLocalizations {
       'leaveSubmitSuccess': 'Leave submit successful.',
       'leaveDelayHint': 'Because over time, need to fill delay reason.',
       'leaveProofHint': 'Please pick image',
-      'imageCompressHint': 'Because file big than 4MB, so compress to %.2f MB',
+      'imageCompressHint': 'Because file big than %.1fMB, so compress to %.2f MB',
       'imageTooBigHint':
           'Image size is too big, can\'t compress in except. Plese pick another one.',
       'leaveDateAndSection': 'Date & Section',
@@ -735,7 +735,7 @@ class AppLocalizations {
       'leaveSubmitSuccess': '請假送出成功',
       'leaveDelayHint': '因為超出請假時間 請填寫延遲原因',
       'leaveProofHint': '請選擇照片',
-      'imageCompressHint': '因檔案超出 4MB 自動將其壓縮至 %.2f MB',
+      'imageCompressHint': '因檔案超出 %.1fMB 自動將其壓縮至 %.2f MB',
       'imageTooBigHint': '圖片大小過大 無法預期壓縮 請重新挑選',
       'leaveDateAndSection': '日期與節次',
       'none': '無',

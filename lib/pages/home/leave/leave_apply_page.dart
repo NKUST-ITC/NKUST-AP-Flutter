@@ -782,7 +782,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context,
         sprintf(
           app.imageCompressHint,
-          [(result.lengthSync() / 1024 / 1024)],
+          [
+            Constants.MAX_IMAGE_SIZE,
+            (result.lengthSync() / 1024 / 1024),
+          ],
         ),
       );
       setState(() {
