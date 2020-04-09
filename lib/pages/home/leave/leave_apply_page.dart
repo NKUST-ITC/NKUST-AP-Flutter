@@ -13,6 +13,7 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/default_dialog.dart';
+import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:nkust_ap/widgets/progress_dialog.dart';
@@ -130,42 +131,68 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             child: ListView(
               padding: EdgeInsets.symmetric(vertical: 24),
               children: <Widget>[
-                SizedBox(height: 8.0),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(app.leaveType),
-                ),
-                SizedBox(height: 8.0),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: double.infinity),
-                    child: CupertinoSegmentedControl(
-                      selectedColor: Resource.Colors.blueAccent,
-                      borderColor: Resource.Colors.blueAccent,
-                      unselectedColor: Resource.Colors.segmentControlUnSelect,
-                      groupValue: typeIndex,
-                      children: this
-                          .leaveSubmitInfo
-                          .type
-                          .map((leaveType) {
-                            return Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(leaveType.title),
-                            );
-                          })
-                          .toList()
-                          .asMap(),
-                      onValueChanged: (index) {
-                        if (mounted) {
-                          setState(() {
-                            print(index);
-                            typeIndex = index;
-                          });
-                        }
-                        FA.logAction('segment', 'click');
-                      },
-                    ),
+                ListTile(
+                  onTap: () {
+                    showDialog<int>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: Text(app.leaveType),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(8),
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.all(0.0),
+                        content: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            controller: ScrollController(
+                                initialScrollOffset: typeIndex * 40.0),
+                            itemCount: leaveSubmitInfo.type.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return DialogOption(
+                                text: leaveSubmitInfo.type[index].title,
+                                check: typeIndex == index,
+                                onPressed: () {
+                                  setState(() {
+                                    typeIndex = index;
+                                  });
+                                  Navigator.pop(context);
+                                },
+                              );
+                            },
+                            separatorBuilder:
+                                (BuildContext context, int index) {
+                              return Divider(height: 6.0);
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                    FA.logAction('leave_type', 'click');
+                  },
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
+                  leading: Icon(
+                    AppIcon.insertDriveFile,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  trailing: Icon(
+                    AppIcon.keyboardArrowDown,
+                    size: 30,
+                    color: Resource.Colors.grey,
+                  ),
+                  title: Text(
+                    app.leaveType,
+                    style: TextStyle(fontSize: 20),
+                  ),
+                  subtitle: Text(
+                    leaveSubmitInfo.type[typeIndex].title,
+                    style: TextStyle(fontSize: 20),
                   ),
                 ),
                 SizedBox(height: 16),
