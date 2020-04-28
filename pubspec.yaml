@@ -43,6 +43,7 @@ dependencies:
   flutter_autofill: 0.4.1
   image: 2.1.4
   flutter_image_compress: 0.6.5+1
+  barcode_scan: 3.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:barcode_scan/barcode_scan.dart';
+import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,6 +21,8 @@ import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:nkust_ap/widgets/yes_no_dialog.dart';
+import 'package:outline_material_icons/outline_material_icons.dart';
+import 'package:share/share.dart';
 
 enum _State { loading, finish, error, empty, offline }
 
@@ -132,6 +136,31 @@ class HomePageState extends State<HomePage> {
               title: Text(app.score),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            if (ShareDataWidget.of(context).data.isLogin) {
+              var result = await BarcodeScanner.scan(
+                options: ScanOptions(
+                  restrictFormat: [BarcodeFormat.qr],
+                ),
+              );
+              if (result.type == ResultType.Barcode) {
+                //TODO api
+                print(result.rawContent); // The barcode content
+              } else
+                Utils.showToast(context, app.cancel);
+            } else
+              Utils.showToast(context, app.notLogin);
+          },
+          label: Text(
+            app.punch,
+            style: TextStyle(color: Colors.white),
+          ),
+          icon: Icon(
+            OMIcons.camera,
+            color: Colors.white,
+          ),
         ),
       ),
       onWillPop: () async {
