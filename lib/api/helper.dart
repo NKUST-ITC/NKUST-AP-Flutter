@@ -10,6 +10,7 @@ import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -524,6 +525,28 @@ class Helper {
         return LibraryInfoData.fromJson(response.data).data;
     } on DioError catch (dioError) {
       throw dioError;
+    }
+  }
+
+  Future<int> sendQrCode(String data) async {
+    if (isExpire()) await login(username, password);
+    try {
+      var response = await dio.post(
+        '/event',
+        data: FormData.fromMap(
+          {
+            'data': data,
+          },
+        ),
+        cancelToken: cancelToken,
+      );
+      return response.statusCode;
+    } on DioError catch (dioError) {
+      if (dioError.type == DioErrorType.RESPONSE) {
+        ErrorResponse data = ErrorResponse.fromRawJson(dioError.response.data);
+        return data.errorCode;
+      } else
+        throw dioError;
     }
   }
 

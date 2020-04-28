@@ -146,8 +146,35 @@ class HomePageState extends State<HomePage> {
                 ),
               );
               if (result.type == ResultType.Barcode) {
-                //TODO api
-                print(result.rawContent); // The barcode content
+                Helper.instance.sendQrCode(result.rawContent).then((code) {
+                  if (code is int) {
+                    switch (code) {
+                      case 200:
+                        Utils.showToast(context, app.updateSuccess);
+                        break;
+                      case 204:
+                        Utils.showToast(context, app.nonCourseTime);
+                        break;
+                      case 403:
+                        Utils.showToast(context, app.canNotUseFeature);
+                        break;
+                      case 401:
+                        Utils.showToast(context, app.tokenExpiredContent);
+                        break;
+                      default:
+                        Utils.showToast(context, app.somethingError);
+                        break;
+                    }
+                  } else
+                    Utils.showToast(context, app.somethingError);
+                }).catchError((e) {
+                  if (e is DioError) {
+                    Utils.handleDioError(context, e);
+                  } else {
+                    Utils.showToast(context, app.somethingError);
+                    throw e;
+                  }
+                });
               } else
                 Utils.showToast(context, app.cancel);
             } else

@@ -425,6 +425,8 @@ class AppLocalizations {
       'setNoExpireTime': 'Set No Expiration Time',
       'noExpiration': 'No Expiration',
       'punch': 'Punch',
+      'punchSuccess': 'Punch Success',
+      'nonCourseTime': 'Non Course Time',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -761,6 +763,8 @@ class AppLocalizations {
       'setNoExpireTime': '設定無到期時間',
       'noExpiration': '無到期時間',
       'punch': '拍照打卡',
+      'punchSuccess': '打卡成功',
+      'nonCourseTime': '非上課時間',
     },
   };
 
@@ -1370,6 +1374,10 @@ class AppLocalizations {
   String get noExpiration => _vocabularies['noExpiration'];
 
   String get punch => _vocabularies['punch'];
+
+  String get punchSuccess => _vocabularies['punchSuccess'];
+
+  String get nonCourseTime => _vocabularies['nonCourseTime'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
