@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_analytics_utils.dart';
 
@@ -67,7 +65,7 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_title': 'Update Notes',
-      'update_note_content': '1.Fix leave apply compress error and improve UI.',
+      'update_note_content': '1.Add course punch(home page right bottom).',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': 'Share',
       'teacher_confirm_title': 'Are you a teacher?',
@@ -431,7 +429,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_title': '更新日誌',
-      'update_note_content': '1.修復請假壓縮錯誤與改善介面',
+      'update_note_content': '1.加入拍照打卡(首頁右下角)',
       'splash_content': '我們全都包了\n只剩下學校不包我們',
       'share': '分享',
       'teacher_confirm_title': '您是老師嗎？',
