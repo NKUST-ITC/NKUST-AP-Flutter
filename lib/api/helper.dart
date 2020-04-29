@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -11,6 +12,8 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/error_response.dart';
+import 'package:nkust_ap/models/event_callback.dart';
+import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
@@ -529,11 +532,14 @@ class Helper {
     }
   }
 
-  Future<GeneralResponse> sendQrCode(String data) async {
+  Future<EventInfoResponse> getEventInfo({
+    @required String data,
+    @required EventInfoCallback callback,
+  }) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
-        '/event',
+        '/event/info',
         data: FormData.fromMap(
           {
             'data': data,
@@ -541,14 +547,47 @@ class Helper {
         ),
         cancelToken: cancelToken,
       );
-      return GeneralResponse.fromRawJson(response.data);
-    } on DioError catch (dioError) {
-      if (dioError.type == DioErrorType.RESPONSE) {
-        var data = GeneralResponse.fromRawJson(dioError.response.data);
-        return data;
+      if (response.statusCode == 200)
+        return callback.onSuccess(EventInfoResponse.fromRawJson(response.data));
+      else
+        callback.onError(GeneralResponse.fromRawJson(response.data));
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.RESPONSE) {
+        callback.onError(GeneralResponse.fromRawJson(e.response.data));
       } else
-        throw dioError;
+        callback.onFailure(e);
     }
+    return null;
+  }
+
+  Future<EventInfoResponse> sendEvent({
+    @required String data,
+    @required String busId,
+    @required EventSendCallback callback,
+  }) async {
+    if (isExpire()) await login(username, password);
+    try {
+      var response = await dio.post(
+        '/event/info',
+        data: FormData.fromMap(
+          {
+            'data': data,
+            'bus_id': busId,
+          },
+        ),
+        cancelToken: cancelToken,
+      );
+      if (response.statusCode == 200)
+        return callback.onSuccess(EventSendResponse.fromRawJson(response.data));
+      else
+        callback.onError(EventInfoResponse.fromRawJson(response.data));
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.RESPONSE) {
+        callback.onError(EventInfoResponse.fromRawJson(e.response.data));
+      } else
+        callback.onFailure(e);
+    }
+    return null;
   }
 
   @deprecated

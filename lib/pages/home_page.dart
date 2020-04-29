@@ -9,6 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/announcements_data.dart';
+import 'package:nkust_ap/models/event_callback.dart';
+import 'package:nkust_ap/models/event_info_response.dart';
+import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
@@ -17,6 +20,8 @@ import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
+import 'package:nkust_ap/widgets/default_dialog.dart';
+import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -146,31 +151,7 @@ class HomePageState extends State<HomePage> {
                 ),
               );
               if (result.type == ResultType.Barcode) {
-                Helper.instance
-                    .sendQrCode(result.rawContent)
-                    .then((generalResponse) {
-                  switch (generalResponse.code) {
-                    case 200:
-                      Utils.showToast(context, app.updateSuccess);
-                      break;
-                    case 403:
-                      Utils.showToast(context, app.canNotUseFeature);
-                      break;
-                    case 401:
-                      Utils.showToast(context, app.tokenExpiredContent);
-                      break;
-                    default:
-                      Utils.showToast(context, generalResponse.description);
-                      break;
-                  }
-                }).catchError((e) {
-                  if (e is DioError) {
-                    Utils.handleDioError(context, e);
-                  } else {
-                    Utils.showToast(context, app.somethingError);
-                    throw e;
-                  }
-                });
+                _getEventInfo(result.rawContent);
               } else
                 Utils.showToast(context, app.cancel);
             } else
@@ -577,5 +558,162 @@ class HomePageState extends State<HomePage> {
         },
       );
     }
+  }
+
+  _getEventInfo(String data) {
+    Helper.instance.getEventInfo(
+      data: data,
+      callback: EventInfoCallback(
+        onFailure: (DioError e) => Utils.handleDioError(context, e),
+        onError: (GeneralResponse generalResponse) {
+          switch (generalResponse.code) {
+            case 403:
+              Utils.showToast(context, app.canNotUseFeature);
+              break;
+            case 401:
+              Utils.showToast(context, app.tokenExpiredContent);
+              break;
+            default:
+              Utils.showToast(context, generalResponse.description);
+              break;
+          }
+        },
+        onSuccess: (EventInfoResponse eventInfoResponse) =>
+            _showEventInfoDialog(data, eventInfoResponse),
+      ),
+    );
+  }
+
+  _showEventInfoDialog(String data, EventInfoResponse eventInfo) {
+    showDialog(
+      context: context,
+      builder: (_) => EventPickDialog(
+        eventInfo: eventInfo,
+        onSubmit: (index) {
+          _sendEvent(
+            data,
+            eventInfo.data[index].id,
+          );
+        },
+      ),
+    );
+  }
+
+  _sendEvent(String data, String busId) {
+    Helper.instance.sendEvent(
+      data: data,
+      busId: busId,
+      callback: EventSendCallback(
+        onFailure: (DioError e) => Utils.handleDioError(context, e),
+        onError: (EventInfoResponse response) {
+          switch (response.code) {
+            case 403:
+              Utils.showToast(context, app.canNotUseFeature);
+              break;
+            case 401:
+              _showEventInfoDialog(data, response);
+              break;
+            default:
+              Utils.showToast(context, response.description);
+              break;
+          }
+        },
+        onSuccess: (eventSendResponse) {
+          final time = (eventSendResponse.data.start == null)
+              ? ''
+              : '${eventSendResponse.data.start.substring(0, 5)} ';
+          showDialog(
+            context: context,
+            builder: (_) => DefaultDialog(
+              title: app.punchSuccess,
+              contentWidget: Text(
+                '${eventSendResponse.title}\n\n'
+                '$time'
+                '${eventSendResponse.data.name}',
+                style: TextStyle(color: Resource.Colors.greyText),
+              ),
+              actionFunction: () {},
+              actionText: app.ok,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class EventPickDialog extends StatefulWidget {
+  final EventInfoResponse eventInfo;
+  final Function(int index) onSubmit;
+
+  const EventPickDialog({
+    Key key,
+    this.eventInfo,
+    this.onSubmit,
+  }) : super(key: key);
+
+  @override
+  _EventPickDialogState createState() => _EventPickDialogState();
+}
+
+class _EventPickDialogState extends State<EventPickDialog> {
+  int index = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return YesNoDialog(
+      title: widget.eventInfo.title,
+      contentWidgetPadding: EdgeInsets.all(0.0),
+      contentWidget: (widget.eventInfo?.data?.length ?? 0) == 0
+          ? Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(8.0),
+              child: Text(AppLocalizations.of(context).noData),
+            )
+          : Container(
+              width: MediaQuery.of(context).size.width * 0.7,
+              height: MediaQuery.of(context).size.height * 0.3,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 8.0),
+                  Text(
+                    '請選擇欲送出的項目',
+                    style: TextStyle(color: Resource.Colors.greyText),
+                  ),
+                  SizedBox(height: 8.0),
+                  Expanded(
+                    child: ListView.separated(
+                      itemBuilder: (_, i) {
+                        final time = (widget.eventInfo.data[i].start == null)
+                            ? ''
+                            : '${widget.eventInfo.data[i].start.substring(0, 5)} ';
+                        return DialogOption(
+                          check: (i == index),
+                          text: '$time'
+                              '${widget.eventInfo.data[i].name}',
+                          onPressed: () {
+                            setState(() {
+                              index = i;
+                            });
+                          },
+                        );
+                      },
+                      itemCount: widget.eventInfo?.data?.length ?? 0,
+                      separatorBuilder: (BuildContext context, int index) =>
+                          Divider(height: 6.0),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+      leftActionText: AppLocalizations.of(context).cancel,
+      rightActionText: AppLocalizations.of(context).submit,
+      rightActionFunction: () {
+        if ((widget.eventInfo?.data?.length ?? 0) != 0)
+          widget.onSubmit(index);
+        else
+          Utils.showToast(context, '無資料無法送出');
+      },
+    );
   }
 }
