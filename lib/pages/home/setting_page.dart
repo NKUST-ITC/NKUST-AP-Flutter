@@ -36,6 +36,8 @@ class SettingPageState extends State<SettingPage> {
   bool busNotify = false, courseNotify = false, displayPicture = true;
   bool isOffline = false;
 
+  var autoSendEvent = false;
+
   @override
   void initState() {
     FA.setCurrentScreen("SettingPage", "setting_page.dart");
@@ -116,6 +118,19 @@ class SettingPageState extends State<SettingPage> {
                 Preferences.setBool(
                     Constants.PREF_DISPLAY_PICTURE, displayPicture);
                 FA.logAction('head_photo', 'click');
+              },
+            ),
+            _switch(
+              text: '打卡自動送出',
+              subText: '不選擇直接送出目前位置資料',
+              value: autoSendEvent,
+              onChanged: (b) {
+                setState(() {
+                  autoSendEvent = !autoSendEvent;
+                });
+                Preferences.setBool(
+                    Constants.PREF_AUTO_SEND_EVENT, autoSendEvent);
+                FA.logAction('auto_send_event', 'click');
               },
             ),
             _item(
@@ -283,6 +298,7 @@ class SettingPageState extends State<SettingPage> {
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
       busNotify = Preferences.getBool(Constants.PREF_BUS_NOTIFY, false);
+      autoSendEvent = Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
     });
   }
 

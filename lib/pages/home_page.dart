@@ -151,7 +151,10 @@ class HomePageState extends State<HomePage> {
                 ),
               );
               if (result.type == ResultType.Barcode) {
-                _getEventInfo(result.rawContent);
+                if (Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false))
+                  _sendEvent(result.rawContent, null);
+                else
+                  _getEventInfo(result.rawContent);
               } else
                 Utils.showToast(context, app.cancel);
             } else
