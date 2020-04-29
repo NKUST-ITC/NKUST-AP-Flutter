@@ -540,20 +540,19 @@ class Helper {
     try {
       var response = await dio.post(
         '/event/info',
-        data: FormData.fromMap(
-          {
-            'data': data,
-          },
-        ),
+        data: {
+          'data': data,
+        },
         cancelToken: cancelToken,
       );
       if (response.statusCode == 200)
-        return callback.onSuccess(EventInfoResponse.fromRawJson(response.data));
+        return callback.onSuccess(EventInfoResponse.fromJson(response.data));
       else
-        callback.onError(GeneralResponse.fromRawJson(response.data));
+        callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
-        callback.onError(GeneralResponse.fromRawJson(e.response.data));
+        print(e.response);
+        callback.onError(GeneralResponse.fromJson(e.response.data));
       } else
         callback.onFailure(e);
     }
@@ -569,21 +568,19 @@ class Helper {
     try {
       var response = await dio.post(
         '/event/send',
-        data: FormData.fromMap(
-          {
-            'data': data,
-            'bus_id': busId,
-          },
-        ),
+        data: {
+          'data': data,
+          'bus_id': busId,
+        },
         cancelToken: cancelToken,
       );
       if (response.statusCode == 200)
-        return callback.onSuccess(EventSendResponse.fromRawJson(response.data));
+        return callback.onSuccess(EventSendResponse.fromJson(response.data));
       else
-        callback.onError(EventInfoResponse.fromRawJson(response.data));
+        callback.onError(EventInfoResponse.fromJson(response.data));
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
-        callback.onError(EventInfoResponse.fromRawJson(e.response.data));
+        callback.onError(EventInfoResponse.fromJson(e.response.data));
       } else
         callback.onFailure(e);
     }
