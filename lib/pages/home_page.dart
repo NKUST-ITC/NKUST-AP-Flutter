@@ -635,7 +635,9 @@ class HomePageState extends State<HomePage> {
                 '${eventSendResponse.data.name}',
                 style: TextStyle(color: Resource.Colors.greyText),
               ),
-              actionFunction: () {},
+              actionFunction: () {
+                Navigator.of(context).pop();
+              },
               actionText: app.ok,
             ),
           );

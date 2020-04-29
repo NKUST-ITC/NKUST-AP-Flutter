@@ -568,7 +568,7 @@ class Helper {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
-        '/event/info',
+        '/event/send',
         data: FormData.fromMap(
           {
             'data': data,
