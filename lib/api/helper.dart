@@ -11,6 +11,7 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/error_response.dart';
+import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -528,7 +529,7 @@ class Helper {
     }
   }
 
-  Future<int> sendQrCode(String data) async {
+  Future<GeneralResponse> sendQrCode(String data) async {
     if (isExpire()) await login(username, password);
     try {
       var response = await dio.post(
@@ -540,11 +541,11 @@ class Helper {
         ),
         cancelToken: cancelToken,
       );
-      return response.statusCode;
+      return GeneralResponse.fromRawJson(response.data);
     } on DioError catch (dioError) {
       if (dioError.type == DioErrorType.RESPONSE) {
-        ErrorResponse data = ErrorResponse.fromRawJson(dioError.response.data);
-        return data.errorCode;
+        var data = GeneralResponse.fromRawJson(dioError.response.data);
+        return data;
       } else
         throw dioError;
     }

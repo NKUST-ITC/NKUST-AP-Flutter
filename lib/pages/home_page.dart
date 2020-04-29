@@ -146,27 +146,23 @@ class HomePageState extends State<HomePage> {
                 ),
               );
               if (result.type == ResultType.Barcode) {
-                Helper.instance.sendQrCode(result.rawContent).then((code) {
-                  if (code is int) {
-                    switch (code) {
-                      case 200:
-                        Utils.showToast(context, app.updateSuccess);
-                        break;
-                      case 204:
-                        Utils.showToast(context, app.nonCourseTime);
-                        break;
-                      case 403:
-                        Utils.showToast(context, app.canNotUseFeature);
-                        break;
-                      case 401:
-                        Utils.showToast(context, app.tokenExpiredContent);
-                        break;
-                      default:
-                        Utils.showToast(context, app.somethingError);
-                        break;
-                    }
-                  } else
-                    Utils.showToast(context, app.somethingError);
+                Helper.instance
+                    .sendQrCode(result.rawContent)
+                    .then((generalResponse) {
+                  switch (generalResponse.code) {
+                    case 200:
+                      Utils.showToast(context, app.updateSuccess);
+                      break;
+                    case 403:
+                      Utils.showToast(context, app.canNotUseFeature);
+                      break;
+                    case 401:
+                      Utils.showToast(context, app.tokenExpiredContent);
+                      break;
+                    default:
+                      Utils.showToast(context, generalResponse.description);
+                      break;
+                  }
                 }).catchError((e) {
                   if (e is DioError) {
                     Utils.handleDioError(context, e);
