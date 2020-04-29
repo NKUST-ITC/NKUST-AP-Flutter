@@ -11,7 +11,6 @@ import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
-import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/general_response.dart';
