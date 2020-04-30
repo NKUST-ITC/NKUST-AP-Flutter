@@ -41,7 +41,7 @@ dependencies:
   photo_view: 0.5.0
   date_range_picker: 1.0.6
   flutter_autofill: 0.4.1
-  image: 2.1.4
+  image: ^2.1.4
   flutter_image_compress: 0.6.5+1
   barcode_scan: 3.0.0
 
