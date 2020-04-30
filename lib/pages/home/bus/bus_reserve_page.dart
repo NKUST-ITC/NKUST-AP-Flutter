@@ -1,4 +1,5 @@
 import 'package:ap_common/widgets/default_dialog.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
@@ -11,7 +12,6 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State {
   loading,

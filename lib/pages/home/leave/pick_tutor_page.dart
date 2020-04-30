@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,6 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/dialog_option.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 
 enum _State { loading, finish, error, empty }

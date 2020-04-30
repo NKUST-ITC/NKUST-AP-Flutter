@@ -1,10 +1,10 @@
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { ready, loading, finish, error, empty, offline }

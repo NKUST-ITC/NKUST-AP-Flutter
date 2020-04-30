@@ -1,3 +1,4 @@
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
@@ -13,7 +14,6 @@ import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:sprintf/sprintf.dart';
 
 enum _State { notLogin, loading, finish, error, empty, offline }
