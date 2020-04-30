@@ -1,6 +1,11 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:ap_common/models/ap_support_language.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/widgets/option_dialog.dart';
+import 'package:ap_common/widgets/setting_page_widgets.dart';
 import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -30,6 +35,7 @@ class SettingPage extends StatefulWidget {
 class SettingPageState extends State<SettingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  ApLocalizations ap;
   AppLocalizations app;
 
   String appVersion = "1.0.0";
@@ -54,6 +60,21 @@ class SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
+    final languageTextList = [
+      ApLocalizations.of(context).systemLanguage,
+      ApLocalizations.of(context).traditionalChinese,
+      ApLocalizations.of(context).english,
+    ];
+    final themeTextList = [
+      ApLocalizations.of(context).systemTheme,
+      ApLocalizations.of(context).light,
+      ApLocalizations.of(context).dark,
+    ];
+    final code = Preferences.getString(
+        Constants.PREF_LANGUAGE_CODE, ApSupportLanguageConstants.SYSTEM);
+    final languageIndex = ApSupportLanguageExtension.fromCode(code);
+    final themeModeIndex = ApTheme.of(context).themeMode.index;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -211,43 +232,33 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('pick_icon_style', 'click');
               },
             ),
-            _item(
-              text: app.theme,
-              subText: app.themeText,
+            SettingItem(
+              text: ap.theme,
+              subText: themeTextList[themeModeIndex],
               onTap: () {
-                showDialog<int>(
+                showDialog(
                   context: context,
-                  builder: (_) => SimpleDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16),
-                        ),
-                      ),
-                      title: Text(app.theme),
-                      children: [
-                        for (var item in [
-                          Item(app.light, AppTheme.LIGHT),
-                          Item(app.dark, AppTheme.DARK),
-                        ])
-                          DialogOption(
-                              text: item.text,
-                              check: AppTheme.code == item.value,
-                              onPressed: () {
-                                if (AppTheme.code != item.value)
-                                  FA.logAction('change_theme', item.value);
-                                setState(() {
-                                  AppTheme.code = item.value;
-                                  ShareDataWidget.of(context)
-                                      .data
-                                      .setThemeData(AppTheme.data);
-                                });
-                                Preferences.setString(
-                                    Constants.PREF_THEME_CODE, item.value);
-                                Navigator.pop(context);
-                              }),
-                      ]),
-                ).then<void>((int position) {});
-                FA.logAction('pick_theme', 'click');
+                  builder: (_) => SimpleOptionDialog(
+                    title: ap.theme,
+                    items: themeTextList,
+                    index: themeModeIndex,
+                    onSelected: (int index) {
+                      Preferences.getInt(
+                        Constants.PREF_THEME_MODE_INDEX,
+                        index,
+                      );
+                      ShareDataWidget.of(context)
+                          .data
+                          .update(ThemeMode.values[index]);
+                      Preferences.setInt(
+                          Constants.PREF_THEME_MODE_INDEX, index);
+//                      FirebaseAnalyticsUtils.instance.logAction(
+//                        'change_theme',
+//                        ThemeMode.values[index].toString(),
+//                      );
+                    },
+                  ),
+                );
               },
             ),
             Divider(
@@ -298,7 +309,8 @@ class SettingPageState extends State<SettingPage> {
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
       busNotify = Preferences.getBool(Constants.PREF_BUS_NOTIFY, false);
-      autoSendEvent = Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
+      autoSendEvent =
+          Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
     });
   }
 

@@ -1,15 +1,12 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,7 +20,6 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 import 'api/helper.dart';
@@ -48,11 +44,7 @@ class MyAppState extends State<MyApp> {
   Uint8List pictureBytes;
   bool isLogin = false, offlineLogin = false;
 
-  setThemeData(ThemeData themeData) {
-    setState(() {
-      this.themeData = themeData;
-    });
-  }
+  ThemeMode themeMode = ThemeMode.system;
 
   logout() {
     setState(() {
@@ -78,6 +70,9 @@ class MyAppState extends State<MyApp> {
       FA.setUserProperty('icon_style', AppIcon.code);
       Preferences.init();
     }
+    themeMode = ThemeMode
+        .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
+    //TODO old preference migrate
     super.initState();
   }
 
@@ -86,52 +81,59 @@ class MyAppState extends State<MyApp> {
     print(AppLocalizations.languageCode);
     return ShareDataWidget(
       data: this,
-      child: MaterialApp(
-        localeResolutionCallback:
-            (Locale locale, Iterable<Locale> supportedLocales) {
-          return locale;
-        },
-        onGenerateTitle: (context) => AppLocalizations.of(context).appName,
-        debugShowCheckedModeBanner: false,
-        routes: <String, WidgetBuilder>{
-          Navigator.defaultRouteName: (context) => HomePage(),
-          LoginPage.routerName: (BuildContext context) => LoginPage(),
-          HomePage.routerName: (BuildContext context) => HomePage(),
-          CoursePage.routerName: (BuildContext context) => CoursePage(),
-          BusPage.routerName: (BuildContext context) => BusPage(),
-          BusRulePage.routerName: (BuildContext context) => BusRulePage(),
-          ScorePage.routerName: (BuildContext context) => ScorePage(),
-          SchoolInfoPage.routerName: (BuildContext context) => SchoolInfoPage(),
-          SettingPage.routerName: (BuildContext context) => SettingPage(),
-          AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
-          OpenSourcePage.routerName: (BuildContext context) => OpenSourcePage(),
-          UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
-          NewsAdminPage.routerName: (BuildContext context) => NewsAdminPage(),
-          CalculateUnitsPage.routerName: (BuildContext context) =>
-              CalculateUnitsPage(),
-          NewsContentPage.routerName: (BuildContext context) =>
-              NewsContentPage(null),
-          LeavePage.routerName: (BuildContext context) => LeavePage(),
-        },
-        theme: themeData,
-        navigatorObservers: (kIsWeb)
-            ? []
-            : (Platform.isIOS || Platform.isAndroid)
-            ? [
-          FirebaseAnalyticsObserver(analytics: analytics),
-        ]
-            : [],
-        localizationsDelegates: [
-          const AppLocalizationsDelegate(),
+      child: ApTheme(
+        themeMode,
+        child: MaterialApp(
+          localeResolutionCallback:
+              (Locale locale, Iterable<Locale> supportedLocales) {
+            return locale;
+          },
+          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+          debugShowCheckedModeBanner: false,
+          routes: <String, WidgetBuilder>{
+            Navigator.defaultRouteName: (context) => HomePage(),
+            LoginPage.routerName: (BuildContext context) => LoginPage(),
+            HomePage.routerName: (BuildContext context) => HomePage(),
+            CoursePage.routerName: (BuildContext context) => CoursePage(),
+            BusPage.routerName: (BuildContext context) => BusPage(),
+            BusRulePage.routerName: (BuildContext context) => BusRulePage(),
+            ScorePage.routerName: (BuildContext context) => ScorePage(),
+            SchoolInfoPage.routerName: (BuildContext context) =>
+                SchoolInfoPage(),
+            SettingPage.routerName: (BuildContext context) => SettingPage(),
+            AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
+            OpenSourcePage.routerName: (BuildContext context) =>
+                OpenSourcePage(),
+            UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
+            NewsAdminPage.routerName: (BuildContext context) => NewsAdminPage(),
+            CalculateUnitsPage.routerName: (BuildContext context) =>
+                CalculateUnitsPage(),
+            NewsContentPage.routerName: (BuildContext context) =>
+                NewsContentPage(null),
+            LeavePage.routerName: (BuildContext context) => LeavePage(),
+          },
+          theme: ApTheme.light,
+          darkTheme: ApTheme.dark,
+          themeMode: themeMode,
+          navigatorObservers: (kIsWeb)
+              ? []
+              : (Platform.isIOS || Platform.isAndroid)
+                  ? [
+                      FirebaseAnalyticsObserver(analytics: analytics),
+                    ]
+                  : [],
+          localizationsDelegates: [
+            const AppLocalizationsDelegate(),
             const ApLocalizationsDelegate(),
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
-        supportedLocales: [
-          const Locale('en', 'US'), // English
-          const Locale('zh', 'TW'), // Chinese
-        ],
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [
+            const Locale('en', 'US'), // English
+            const Locale('zh', 'TW'), // Chinese
+          ],
+        ),
       ),
     );
   }
@@ -173,6 +175,12 @@ class MyAppState extends State<MyApp> {
       if (Platform.isAndroid)
         firebaseMessaging.subscribeToTopic("Android");
       else if (Platform.isIOS) firebaseMessaging.subscribeToTopic("IOS");
+    });
+  }
+
+  void update(ThemeMode mode) {
+    setState(() {
+      themeMode = mode;
     });
   }
 }
