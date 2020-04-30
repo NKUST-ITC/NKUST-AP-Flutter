@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,7 +21,6 @@ import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/default_dialog.dart';
 import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
