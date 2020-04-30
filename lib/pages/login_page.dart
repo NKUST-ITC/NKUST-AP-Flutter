@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,6 @@ import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class LoginPage extends StatefulWidget {
