@@ -1,3 +1,4 @@
+import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -10,8 +11,6 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-
-import 'dialog_option.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 

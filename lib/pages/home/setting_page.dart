@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/setting_page_widgets.dart';
@@ -21,7 +22,6 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/dialog_option.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
