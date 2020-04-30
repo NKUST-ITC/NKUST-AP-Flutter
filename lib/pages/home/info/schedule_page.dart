@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty }
