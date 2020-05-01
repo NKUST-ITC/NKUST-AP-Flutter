@@ -17,7 +17,6 @@ import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/app_theme.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -28,9 +27,7 @@ import 'api/helper.dart';
 import 'models/login_response.dart';
 
 class MyApp extends StatefulWidget {
-  final ThemeData themeData;
-
-  const MyApp({Key key, @required this.themeData}) : super(key: key);
+  const MyApp({Key key}) : super(key: key);
 
   @override
   MyAppState createState() => MyAppState();
@@ -57,14 +54,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    themeData = widget.themeData;
     if (kIsWeb) {
     } else if (Platform.isAndroid || Platform.isIOS) {
       analytics = FirebaseAnalytics();
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
-      FA.setUserProperty('theme', AppTheme.code);
       FA.setUserProperty('icon_style', AppIcon.code);
       Preferences.init();
     }

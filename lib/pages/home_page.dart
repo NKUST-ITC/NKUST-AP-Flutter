@@ -85,6 +85,16 @@ class HomePageState extends State<HomePage> {
       return ImageAssets.kuasap2;
   }
 
+  String get drawerIcon {
+    switch (ApTheme.of(context).brightness) {
+      case Brightness.light:
+        return ImageAssets.drawerIconLight;
+      case Brightness.dark:
+      default:
+        return ImageAssets.drawerIconDark;
+    }
+  }
+
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
@@ -137,7 +147,7 @@ class HomePageState extends State<HomePage> {
         userInfo: userInfo,
         displayPicture:
             Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true),
-        imageAsset: ImageAssets.drawerIcon,
+        imageAsset: drawerIcon,
         onTapHeader: () {
           if (isLogin) {
             if (userInfo != null && isLogin)

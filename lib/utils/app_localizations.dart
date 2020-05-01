@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/app_theme.dart';
 
 class AppLocalizations {
   AppLocalizations(Locale locale) {
@@ -18,17 +17,6 @@ class AppLocalizations {
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
-  }
-
-  String get themeText {
-    switch (AppTheme.code) {
-      case 'light':
-        return light;
-      case 'dark':
-        return dark;
-      default:
-        return systemLanguage;
-    }
   }
 
   String get iconText {
