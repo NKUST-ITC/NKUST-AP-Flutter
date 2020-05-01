@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/pages/announcement_content_page.dart';
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
@@ -20,7 +21,6 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -314,7 +314,7 @@ class HomePageState extends State<HomePage> {
           action: SnackBarAction(
             onPressed: _login,
             label: app.retry,
-            textColor: Resource.Colors.snackBarActionTextColor,
+            textColor: ApTheme.of(context).snackBarActionTextColor,
           ),
         ),
       );
@@ -354,7 +354,7 @@ class HomePageState extends State<HomePage> {
               action: SnackBarAction(
                 onPressed: openLoginPage,
                 label: app.login,
-                textColor: Resource.Colors.snackBarActionTextColor,
+                textColor: ApTheme.of(context).snackBarActionTextColor,
               ),
             ),
           )
@@ -437,7 +437,7 @@ class HomePageState extends State<HomePage> {
                 '${eventSendResponse.title}\n\n'
                 '$time'
                 '${eventSendResponse.data.name}',
-                style: TextStyle(color: Resource.Colors.greyText),
+                style: TextStyle(color: ApTheme.of(context).greyText),
               ),
               actionFunction: () {
                 Navigator.of(context).pop();
@@ -487,7 +487,7 @@ class _EventPickDialogState extends State<EventPickDialog> {
                   SizedBox(height: 8.0),
                   Text(
                     '請選擇欲送出的項目',
-                    style: TextStyle(color: Resource.Colors.greyText),
+                    style: TextStyle(color: ApTheme.of(context).greyText),
                   ),
                   SizedBox(height: 8.0),
                   Expanded(
