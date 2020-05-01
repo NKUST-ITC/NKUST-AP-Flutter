@@ -1,4 +1,5 @@
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
@@ -53,7 +54,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 color: Colors.white,
               ),
               onPressed: () {
-                Utils.pushCupertinoStyle(context, BusRulePage());
+                ApUtils.pushCupertinoStyle(context, BusRulePage());
               })
         ],
       ),

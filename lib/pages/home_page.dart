@@ -126,7 +126,7 @@ class HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(Icons.add_to_queue),
             onPressed: () {
-              Utils.pushCupertinoStyle(
+              ApUtils.pushCupertinoStyle(
                 context,
                 NewsAdminPage(isAdmin: true),
               );
@@ -141,7 +141,7 @@ class HomePageState extends State<HomePage> {
         onTapHeader: () {
           if (isLogin) {
             if (userInfo != null && isLogin)
-              Utils.pushCupertinoStyle(
+              ApUtils.pushCupertinoStyle(
                 context,
                 UserInfoPage(userInfo: userInfo),
               );
@@ -373,17 +373,20 @@ class HomePageState extends State<HomePage> {
   }
 
   void onTabTapped(int index) async {
-    switch (index) {
-      case 0:
-        Utils.pushCupertinoStyle(context, BusPage());
-        break;
-      case 1:
-        Utils.pushCupertinoStyle(context, CoursePage());
-        break;
-      case 2:
-        Utils.pushCupertinoStyle(context, ScorePage());
-        break;
-    }
+    if (isLogin) {
+      switch (index) {
+        case 0:
+          ApUtils.pushCupertinoStyle(context, BusPage());
+          break;
+        case 1:
+          ApUtils.pushCupertinoStyle(context, CoursePage());
+          break;
+        case 2:
+          ApUtils.pushCupertinoStyle(context, ScorePage());
+          break;
+      }
+    } else
+      Utils.showToast(context, app.notLogin);
   }
 
   _getAnnouncements() async {

@@ -520,23 +520,6 @@ class Utils {
     }
   }
 
-  static Future pushCupertinoStyle(BuildContext context, Widget page) async {
-    if ((page is ScorePage ||
-        page is CoursePage ||
-        page is BusPage ||
-        page is LeavePage ||
-        page is MidtermAlertsPage ||
-        page is RewardAndPenaltyPage ||
-        page is CalculateUnitsPage)) {
-      Utils.showToast(context, AppLocalizations.of(context).notLoginHint);
-    } else
-      Navigator.of(context).push(
-        CupertinoPageRoute(builder: (BuildContext context) {
-          return page;
-        }),
-      );
-  }
-
   static Future<File> resizeImageByDart(File source) async {
     ImageUtils.Image image = ImageUtils.decodeImage(source.readAsBytesSync());
     double sourceSize = source.lengthSync() / 1024 / 1024;
