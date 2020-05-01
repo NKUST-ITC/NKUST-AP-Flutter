@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/date_utils.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
@@ -74,7 +74,7 @@ class _CalendarState extends State<Calendar> {
         onPressed: () => selectDateFromPicker(),
         icon: new Icon(
           AppIcon.calendarToday,
-          color: Resource.Colors.grey,
+          color: ApTheme.of(context).grey,
         ),
       );
     } else {
@@ -86,14 +86,14 @@ class _CalendarState extends State<Calendar> {
         onPressed: isExpanded ? previousMonth : previousWeek,
         icon: new Icon(
           AppIcon.chevronLeft,
-          color: Resource.Colors.grey,
+          color: ApTheme.of(context).grey,
         ),
       );
       rightOuterIcon = new IconButton(
         onPressed: isExpanded ? nextMonth : nextWeek,
         icon: new Icon(
           AppIcon.chevronRight,
-          color: Resource.Colors.grey,
+          color: ApTheme.of(context).grey,
         ),
       );
     } else {
@@ -117,7 +117,7 @@ class _CalendarState extends State<Calendar> {
         leftInnerIcon ?? new Container(),
         new Text(
           displayMonth,
-          style: new TextStyle(fontSize: 20.0, color: Resource.Colors.grey),
+          style: new TextStyle(fontSize: 20.0, color: ApTheme.of(context).grey),
         ),
         rightInnerIcon ?? new Container(),
         rightOuterIcon ?? new Container(),
@@ -203,7 +203,7 @@ class _CalendarState extends State<Calendar> {
           ? new TextStyle(color: Colors.black)
           : new TextStyle(color: Colors.black38);
     } else {
-      dateStyles = new TextStyle(color: Resource.Colors.grey);
+      dateStyles = new TextStyle(color: ApTheme.of(context).grey);
     }
     return dateStyles;
   }

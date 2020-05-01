@@ -1,7 +1,7 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 class BusPage extends StatefulWidget {
@@ -45,7 +45,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     return new Scaffold(
       appBar: AppBar(
         title: Text(app.bus),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
         actions: <Widget>[
           IconButton(
               icon: Icon(
@@ -64,7 +64,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
             icon: Icon(AppIcon.dateRange),

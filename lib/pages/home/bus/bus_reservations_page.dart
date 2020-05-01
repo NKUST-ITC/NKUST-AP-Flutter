@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
@@ -65,7 +66,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           child: isOffline
               ? Text(
                   app.offlineBusReservations,
-                  style: TextStyle(color: Resource.Colors.grey),
+                  style: TextStyle(color: ApTheme.of(context).grey),
                 )
               : null,
         ),
@@ -150,7 +151,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   child: Icon(
                     AppIcon.directionsBus,
                     size: 20.0,
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                   ),
                 ),
                 Expanded(
@@ -176,8 +177,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                       AppIcon.cancel,
                       size: 20.0,
                       color: isOffline
-                          ? Resource.Colors.grey
-                          : Resource.Colors.red,
+                          ? ApTheme.of(context).grey
+                          : ApTheme.of(context).red,
                     ),
                     onPressed: isOffline
                         ? null
@@ -328,7 +329,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveCancelDate}：',
@@ -372,7 +375,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                 ),
                 actionText: app.iKnow,
                 actionFunction: () {

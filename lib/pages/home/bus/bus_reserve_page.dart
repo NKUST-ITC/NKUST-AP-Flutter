@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
@@ -117,9 +118,9 @@ class BusReservePageState extends State<BusReservePage>
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minWidth: double.infinity),
                     child: CupertinoSegmentedControl(
-                      selectedColor: Resource.Colors.blueAccent,
-                      borderColor: Resource.Colors.blueAccent,
-                      unselectedColor: Resource.Colors.segmentControlUnSelect,
+                      selectedColor: ApTheme.of(context).blueAccent,
+                      borderColor: ApTheme.of(context).blueAccent,
+                      unselectedColor: ApTheme.of(context).segmentControlUnSelect,
                       groupValue: selectStartStation,
                       children: {
                         Station.janGong: Container(
@@ -245,7 +246,7 @@ class BusReservePageState extends State<BusReservePage>
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: TextStyle(
-                                color: Resource.Colors.grey,
+                                color: ApTheme.of(context).grey,
                                 height: 1.3,
                                 fontSize: 16.0),
                             children: [
@@ -257,7 +258,7 @@ class BusReservePageState extends State<BusReservePage>
                                 text:
                                     '${busTime.description}${app.busReserveConfirmTitle}\n',
                                 style: TextStyle(
-                                    color: Resource.Colors.grey,
+                                    color: ApTheme.of(context).grey,
                                     height: 1.3,
                                     fontSize: 14.0),
                               ),
@@ -458,7 +459,7 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveDate}：',
@@ -503,7 +504,7 @@ class BusReservePageState extends State<BusReservePage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 ),
                 actionText: app.iKnow,
                 actionFunction: () {
@@ -559,7 +560,7 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveCancelDate}：',
@@ -603,7 +604,7 @@ class BusReservePageState extends State<BusReservePage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 ),
                 actionText: app.iKnow,
                 actionFunction: () {

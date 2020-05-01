@@ -1,5 +1,5 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/date_utils.dart';
 
 class CalendarTile extends StatelessWidget {
@@ -41,14 +41,14 @@ class CalendarTile extends StatelessWidget {
           decoration: isSelected
               ? new BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Resource.Colors.yellow,
+                  color: ApTheme.of(context).yellow,
                 )
               : new BoxDecoration(),
           alignment: Alignment.center,
           child: new Text(
             DateUtils.formatDay(date).toString(),
             style: isSelected
-                ? new TextStyle(color: Resource.Colors.calendarTileSelect)
+                ? new TextStyle(color: ApTheme.of(context).calendarTileSelect)
                 : dateStyles,
             textAlign: TextAlign.center,
           ),
