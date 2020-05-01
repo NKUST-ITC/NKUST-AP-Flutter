@@ -1,8 +1,8 @@
+import 'package:ap_common/models/announcement_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
@@ -24,7 +24,7 @@ class NewsEditPage extends StatefulWidget {
   static const String routerName = "/news/edit";
 
   final Mode mode;
-  final Announcements announcement;
+  final Announcement announcement;
 
   const NewsEditPage({
     Key key,
@@ -43,7 +43,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
 
   _State state = _State.loading;
 
-  Announcements announcements;
+  Announcement announcements;
 
   var _title = TextEditingController();
   var _description = TextEditingController();
@@ -70,7 +70,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
         expireTime = formatter.parse(announcements.expireTime);
       _description.text = announcements.description;
     } else {
-      announcements = Announcements();
+      announcements = Announcement();
     }
     super.initState();
   }

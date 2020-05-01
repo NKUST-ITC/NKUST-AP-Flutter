@@ -1,18 +1,17 @@
 import 'dart:io';
 
+import 'package:ap_common/pages/announcement_content_page.dart';
+import 'package:ap_common/scaffold/home_page_scaffold.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
-import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:barcode_scan/platform_wrapper.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/general_response.dart';
@@ -27,9 +26,6 @@ import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
-import 'package:share/share.dart';
-
-enum _State { loading, finish, error, empty, offline }
 
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
@@ -41,24 +37,25 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-  _State state = _State.loading;
+  var state = HomeState.loading;
+
   AppLocalizations app;
 
-  int _currentNewsIndex = 0;
+  AnnouncementData announcementData;
 
-  AnnouncementsData announcementsResponse;
+  var isLogin = false;
 
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
-    _getNewsAll();
+    _getAnnouncements();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
       _login();
     } else {
       checkLogin();
     }
     Utils.checkRemoteConfig(context, () {
-      _getNewsAll();
+      _getAnnouncements();
       if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
         _login();
       }
@@ -74,236 +71,94 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return WillPopScope(
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text(app.appName),
-          backgroundColor: Resource.Colors.blue,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(AppIcon.info),
-              onPressed: _showInformationDialog,
-            ),
-            if (ShareDataWidget.of(context).data.loginResponse?.isAdmin ??
-                false)
-              IconButton(
-                icon: Icon(Icons.add_to_queue),
-                onPressed: () {
-                  Utils.pushCupertinoStyle(
-                    context,
-                    NewsAdminPage(isAdmin: true),
-                  );
-                },
-              )
-          ],
+    return HomePageScaffold(
+      title: app.appName,
+      key: _scaffoldKey,
+      state: state,
+      announcements: announcementData?.data,
+      isLogin: isLogin,
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(AppIcon.info),
+          onPressed: _showInformationDialog,
         ),
-        drawer: DrawerBody(
-          userInfo: ShareDataWidget.of(context).data.userInfo,
-          onClickLogin: () {
-            openLoginPage();
-          },
-          onClickLogout: () {
-            checkLogin();
-          },
-        ),
-        body: OrientationBuilder(
-          builder: (_, orientation) {
-            return Container(
-              padding: EdgeInsets.symmetric(
-                vertical: orientation == Orientation.portrait ? 32.0 : 4.0,
-              ),
-              alignment: Alignment.center,
-              child: _homebody(orientation),
-            );
-          },
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          elevation: 12.0,
-          fixedColor: Resource.Colors.bottomNavigationSelect,
-          unselectedItemColor: Resource.Colors.bottomNavigationSelect,
-          type: BottomNavigationBarType.fixed,
-          selectedFontSize: 12.0,
-          unselectedFontSize: 12.0,
-          selectedIconTheme: IconThemeData(size: 24.0),
-          onTap: onTabTapped,
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(AppIcon.directionsBus),
-              title: Text(app.bus),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(AppIcon.classIcon),
-              title: Text(app.course),
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(AppIcon.assignment),
-              title: Text(app.score),
-            ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            if (ShareDataWidget.of(context).data.isLogin) {
-              var result = await BarcodeScanner.scan(
-                options: ScanOptions(
-                  restrictFormat: [BarcodeFormat.qr],
-                ),
+        if (ShareDataWidget.of(context).data.loginResponse?.isAdmin ?? false)
+          IconButton(
+            icon: Icon(Icons.add_to_queue),
+            onPressed: () {
+              Utils.pushCupertinoStyle(
+                context,
+                NewsAdminPage(isAdmin: true),
               );
-              if (result.type == ResultType.Barcode) {
-                if (Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false))
-                  _sendEvent(result.rawContent, null);
-                else
-                  _getEventInfo(result.rawContent);
-              } else
-                Utils.showToast(context, app.cancel);
-            } else
-              Utils.showToast(context, app.notLogin);
-          },
-          label: Text(
-            app.punch,
-            style: TextStyle(color: Colors.white),
-          ),
-          icon: Icon(
-            OMIcons.camera,
-            color: Colors.white,
-          ),
-        ),
-      ),
-      onWillPop: () async {
-        if (Platform.isAndroid) {
-          _showLogoutDialog();
-          return false;
-        }
-        return true;
-      },
-    );
-  }
-
-  Widget _newsImage(
-      Announcements announcement, Orientation orientation, bool active) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: 500),
-      curve: Curves.easeOutQuint,
-      margin: EdgeInsets.symmetric(
-          vertical: MediaQuery.of(context).size.height * (active ? 0.05 : 0.15),
-          horizontal: MediaQuery.of(context).size.width * 0.02),
-      child: GestureDetector(
-        onTap: () {
-          Utils.pushCupertinoStyle(
-            context,
-            NewsContentPage(announcement),
-          );
-          String message = announcement.title.length > 12
-              ? announcement.title.substring(0, 12)
-              : announcement.title;
-          FA.logAction('news_image', 'click', message: message);
+            },
+          )
+      ],
+      drawer: DrawerBody(
+        userInfo: ShareDataWidget.of(context).data.userInfo,
+        onClickLogin: () {
+          openLoginPage();
         },
-        child: Hero(
-          tag: announcement.hashCode,
-          child: kIsWeb
-              ? Image.network(announcement.imgUrl)
-              : (Platform.isIOS || Platform.isAndroid)
-                  ? CachedNetworkImage(
-                      imageUrl: announcement.imgUrl,
-                      errorWidget: (context, url, error) => Icon(AppIcon.error),
-                    )
-                  : Image.network(announcement.imgUrl),
+        onClickLogout: () {
+          checkLogin();
+        },
+      ),
+      onImageTapped: (Announcement announcement) {
+        ApUtils.pushCupertinoStyle(
+          context,
+          AnnouncementContentPage(announcement: announcement),
+        );
+        String message = announcement.description.length > 12
+            ? announcement.description
+            : announcement.description.substring(0, 12);
+//        FirebaseAnalyticsUtils.instance.logAction(
+//          'news_image',
+//          'click',
+//          message: message,
+//        );
+      },
+      onTabTapped: onTabTapped,
+      bottomNavigationBarItems: [
+        BottomNavigationBarItem(
+          icon: Icon(AppIcon.directionsBus),
+          title: Text(app.bus),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(AppIcon.classIcon),
+          title: Text(app.course),
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(AppIcon.assignment),
+          title: Text(app.score),
+        ),
+      ],
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          if (ShareDataWidget.of(context).data.isLogin) {
+            var result = await BarcodeScanner.scan(
+              options: ScanOptions(
+                restrictFormat: [BarcodeFormat.qr],
+              ),
+            );
+            if (result.type == ResultType.Barcode) {
+              if (Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false))
+                _sendEvent(result.rawContent, null);
+              else
+                _getEventInfo(result.rawContent);
+            } else
+              Utils.showToast(context, app.cancel);
+          } else
+            Utils.showToast(context, app.notLogin);
+        },
+        label: Text(
+          app.punch,
+          style: TextStyle(color: Colors.white),
+        ),
+        icon: Icon(
+          OMIcons.camera,
+          color: Colors.white,
         ),
       ),
     );
-  }
-
-  Widget _homebody(Orientation orientation) {
-    double viewportFraction = 0.65;
-    if (orientation == Orientation.portrait) {
-      viewportFraction = 0.65;
-    } else if (orientation == Orientation.landscape) {
-      viewportFraction = 0.5;
-    }
-    final PageController pageController =
-        PageController(viewportFraction: viewportFraction);
-    pageController.addListener(() {
-      int next = pageController.page.round();
-      if (_currentNewsIndex != next) {
-        setState(() {
-          _currentNewsIndex = next;
-        });
-      }
-    });
-    switch (state) {
-      case _State.loading:
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      case _State.finish:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Hero(
-              tag: Constants.TAG_NEWS_TITLE,
-              child: Material(
-                color: Colors.transparent,
-                child: Text(
-                  announcementsResponse.data[_currentNewsIndex].title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      color: Resource.Colors.grey,
-                      fontWeight: FontWeight.w500),
-                ),
-              ),
-            ),
-            Hero(
-              tag: Constants.TAG_NEWS_ICON,
-              child: Icon(Icons.arrow_drop_down),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: pageController,
-                itemCount: announcementsResponse.data.length,
-                itemBuilder: (context, int currentIndex) {
-                  bool active = (currentIndex == _currentNewsIndex);
-                  return _newsImage(
-                    announcementsResponse.data[currentIndex],
-                    orientation,
-                    active,
-                  );
-                },
-              ),
-            ),
-            SizedBox(height: orientation == Orientation.portrait ? 16.0 : 4.0),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                style: TextStyle(color: Resource.Colors.grey, fontSize: 24.0),
-                children: [
-                  TextSpan(
-                      text:
-                          '${announcementsResponse.data.length >= 10 && _currentNewsIndex < 9 ? '0' : ''}'
-                          '${_currentNewsIndex + 1}',
-                      style: TextStyle(color: Resource.Colors.red)),
-                  TextSpan(text: ' / ${announcementsResponse.data.length}'),
-                ],
-              ),
-            ),
-            SizedBox(height: orientation == Orientation.portrait ? 24.0 : 0.0),
-          ],
-        );
-      case _State.offline:
-        return HintContent(
-          icon: AppIcon.offlineBolt,
-          content: app.offlineMode,
-        );
-      case _State.error:
-        return HintContent(
-          icon: AppIcon.offlineBolt,
-          content: app.somethingError,
-        );
-      default:
-        return Container();
-    }
   }
 
   void onTabTapped(int index) async {
@@ -320,22 +175,22 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  _getNewsAll() async {
+  _getAnnouncements() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() {
-        state = _State.offline;
+        state = HomeState.offline;
       });
     } else
       Helper.instance.getAllAnnouncements().then((announcementsResponse) {
-        this.announcementsResponse = announcementsResponse;
+        this.announcementData = announcementsResponse;
         setState(() {
           state = announcementsResponse.data.length == 0
-              ? _State.empty
-              : _State.finish;
+              ? HomeState.empty
+              : HomeState.finish;
         });
       }).catchError((e) {
         setState(() {
-          state = _State.error;
+          state = HomeState.error;
         });
       });
   }
@@ -370,7 +225,7 @@ class HomePageState extends State<HomePage> {
       ShareDataWidget.of(context).data.userInfo =
           await CacheUtils.loadUserInfo();
       setState(() {
-        state = _State.offline;
+        state = HomeState.offline;
       });
     } else
       Helper.instance.getUsersInfo().then((userInfo) {
@@ -398,25 +253,6 @@ class HomePageState extends State<HomePage> {
           throw e;
         }
       });
-  }
-
-  void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => YesNoDialog(
-        title: app.closeAppTitle,
-        contentWidget: Text(
-          app.closeAppHint,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Resource.Colors.greyText),
-        ),
-        leftActionText: app.cancel,
-        rightActionText: app.confirm,
-        rightActionFunction: () {
-          SystemNavigator.pop();
-        },
-      ),
-    );
   }
 
   void _showInformationDialog() {
@@ -475,8 +311,8 @@ class HomePageState extends State<HomePage> {
       Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
       _getUserInfo();
       _setupBusNotify(context);
-      if (state != _State.finish) {
-        _getNewsAll();
+      if (state != HomeState.finish) {
+        _getAnnouncements();
       }
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
@@ -528,8 +364,8 @@ class HomePageState extends State<HomePage> {
     if (result ?? false) {
       _getUserInfo();
       _setupBusNotify(context);
-      if (state != _State.finish) {
-        _getNewsAll();
+      if (state != HomeState.finish) {
+        _getAnnouncements();
       }
       setState(() {
         ShareDataWidget.of(context).data.isLogin = true;

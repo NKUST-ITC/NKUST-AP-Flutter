@@ -9,7 +9,6 @@ export 'home/info/notification_page.dart';
 export 'home/info/phone_page.dart';
 export 'home/info/schedule_page.dart';
 export 'home/leave_page.dart';
-export 'home/news_content_page.dart';
 export 'home/study/score_page.dart';
 export 'home/setting_page.dart';
 export 'home/shcool_info_page.dart';

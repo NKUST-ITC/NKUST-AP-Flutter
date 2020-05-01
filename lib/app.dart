@@ -108,8 +108,6 @@ class MyAppState extends State<MyApp> {
             NewsAdminPage.routerName: (BuildContext context) => NewsAdminPage(),
             CalculateUnitsPage.routerName: (BuildContext context) =>
                 CalculateUnitsPage(),
-            NewsContentPage.routerName: (BuildContext context) =>
-                NewsContentPage(null),
             LeavePage.routerName: (BuildContext context) => LeavePage(),
           },
           theme: ApTheme.light,

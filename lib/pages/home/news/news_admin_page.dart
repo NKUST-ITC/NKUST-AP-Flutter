@@ -1,3 +1,4 @@
+import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/home/news/news_edit_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
@@ -38,7 +38,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   _State state = _State.notLogin;
 
-  AnnouncementsData announcementsResponse;
+  AnnouncementData announcementData;
 
   bool isOffline = false;
   FocusNode usernameFocusNode;
@@ -132,9 +132,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
       default:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _item(announcementsResponse.data[index]);
+            return _item(announcementData.data[index]);
           },
-          itemCount: announcementsResponse.data.length,
+          itemCount: announcementData.data.length,
         );
     }
   }
@@ -204,7 +204,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
     );
   }
 
-  Widget _item(Announcements item) {
+  Widget _item(Announcement item) {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
@@ -345,10 +345,10 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
   }
 
   _getData() async {
-    Helper.instance.getAllAnnouncements().then((announcementsResponse) {
-      this.announcementsResponse = announcementsResponse;
+    Helper.instance.getAllAnnouncements().then((announcementsData) {
+      this.announcementData = announcementsData;
       setState(() {
-        state = announcementsResponse.data.length == 0
+        state = announcementsData.data.length == 0
             ? _State.empty
             : _State.finish;
       });
