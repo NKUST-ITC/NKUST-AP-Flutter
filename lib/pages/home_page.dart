@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ap_common/pages/announcement_content_page.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -257,45 +258,12 @@ class HomePageState extends State<HomePage> {
 
   void _showInformationDialog() {
     FA.logAction('news_rule', 'click');
-    showDialog(
+    DialogUtils.showAnnouncementRule(
       context: context,
-      builder: (BuildContext context) => YesNoDialog(
-        title: app.newsRuleTitle,
-        contentWidget: RichText(
-          text: TextSpan(
-              style: TextStyle(color: Resource.Colors.grey, fontSize: 16.0),
-              children: [
-                TextSpan(
-                    text: '${app.newsRuleDescription1}',
-                    style: TextStyle(fontWeight: FontWeight.normal)),
-                TextSpan(
-                    text: '${app.newsRuleDescription2}',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                TextSpan(
-                    text: '${app.newsRuleDescription3}',
-                    style: TextStyle(fontWeight: FontWeight.normal)),
-              ]),
-        ),
-        leftActionText: app.cancel,
-        rightActionText: app.contactFansPage,
-        leftActionFunction: () {},
-        rightActionFunction: () {
-          if (Platform.isAndroid)
-            Utils.launchUrl('fb://messaging/${Constants.FANS_PAGE_ID}')
-                .catchError(
-                    (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
-          else if (Platform.isIOS)
-            Utils.launchUrl(
-                    'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}')
-                .catchError(
-                    (onError) => Utils.launchUrl(Constants.FANS_PAGE_URL));
-          else {
-            Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
-                (onError) => Utils.showToast(context, app.platformError));
-          }
-          FA.logAction('contact_fans_page', 'click');
-        },
-      ),
+      onRightButtonClick: () {
+        ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
+        FA.logAction('contact_fans_page', 'click');
+      },
     );
   }
 
