@@ -1,9 +1,9 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -32,7 +32,7 @@ class ScorePageState extends State<ScorePage> {
   bool isOffline = false;
 
   TextStyle get _textBlueStyle =>
-      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
   TextStyle get _textStyle => TextStyle(fontSize: 15.0);
 
@@ -53,7 +53,7 @@ class ScorePageState extends State<ScorePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.score),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -84,7 +84,7 @@ class ScorePageState extends State<ScorePage> {
             if (isOffline)
               Text(
                 app.offlineScore,
-                style: TextStyle(color: Resource.Colors.grey),
+                style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
               child: RefreshIndicator(
@@ -210,7 +210,7 @@ class ScorePageState extends State<ScorePage> {
         border: Border(
           top: isTop
               ? BorderSide.none
-              : BorderSide(color: Resource.Colors.grey, width: 0.5),
+              : BorderSide(color: ApTheme.of(context).grey, width: 0.5),
         ),
       ),
       alignment: Alignment.center,
