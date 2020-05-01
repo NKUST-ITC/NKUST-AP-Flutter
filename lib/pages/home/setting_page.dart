@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -17,8 +16,6 @@ import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/app_theme.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -79,14 +76,14 @@ class SettingPageState extends State<SettingPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(app.settings),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _title(text: app.notificationItem),
-            _switch(
+            SettingTitle(text: app.notificationItem),
+            SettingSwitch(
               text: app.courseNotify,
               subText: app.courseNotifySubTitle,
               value: courseNotify,
@@ -105,7 +102,7 @@ class SettingPageState extends State<SettingPage> {
                 Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
               },
             ),
-            _switch(
+            SettingSwitch(
               text: app.busNotify,
               subText: app.busNotifySubTitle,
               value: busNotify,
@@ -127,8 +124,8 @@ class SettingPageState extends State<SettingPage> {
               color: Colors.grey,
               height: 0.5,
             ),
-            _title(text: app.otherSettings),
-            _switch(
+            SettingTitle(text: app.otherSettings),
+            SettingSwitch(
               text: app.headPhotoSetting,
               subText: app.headPhotoSettingSubTitle,
               value: displayPicture,
@@ -141,7 +138,7 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('head_photo', 'click');
               },
             ),
-            _switch(
+            SettingSwitch(
               text: '打卡自動送出',
               subText: '不選擇直接送出目前位置資料',
               value: autoSendEvent,
@@ -154,7 +151,7 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('auto_send_event', 'click');
               },
             ),
-            _item(
+            SettingItem(
               text: app.language,
               subText: app.localeText,
               onTap: () {
@@ -196,7 +193,7 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('pick_language', 'click');
               },
             ),
-            _item(
+            SettingItem(
               text: app.iconStyle,
               subText: app.iconText,
               onTap: () {
@@ -265,8 +262,8 @@ class SettingPageState extends State<SettingPage> {
               color: Colors.grey,
               height: 0.5,
             ),
-            _title(text: app.otherInfo),
-            _item(
+            SettingTitle(text: app.otherInfo),
+            SettingItem(
                 text: app.feedback,
                 subText: app.feedbackViaFacebook,
                 onTap: () {
@@ -285,7 +282,7 @@ class SettingPageState extends State<SettingPage> {
                   }
                   FA.logAction('feedback', 'click');
                 }),
-            _item(
+            SettingItem(
                 text: app.appVersion,
                 subText: "v$appVersion",
                 onTap: () {
@@ -313,53 +310,7 @@ class SettingPageState extends State<SettingPage> {
           Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
     });
   }
-
-  Widget _title({@required String text}) => Padding(
-        padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-        child: Text(
-          text,
-          style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
-          textAlign: TextAlign.start,
-        ),
-      );
-
-  Widget _switch({
-    @required String text,
-    @required String subText,
-    @required bool value,
-    @required Function onChanged,
-  }) =>
-      SwitchListTile(
-        title: Text(
-          text,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        subtitle: Text(
-          subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: Resource.Colors.blueAccent,
-      );
-
-  Widget _item({
-    @required String text,
-    @required String subText,
-    @required Function onTap,
-  }) =>
-      ListTile(
-        title: Text(
-          text,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        subtitle: Text(
-          subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
-        ),
-        onTap: onTap,
-      );
-
+  
   void _setupCourseNotify(BuildContext context) async {
     showDialog(
         context: context,
@@ -530,7 +481,7 @@ class SettingPageState extends State<SettingPage> {
                 child: Text(
                   app.ratingDialogTitle,
                   style: TextStyle(
-                      color: Resource.Colors.blueText, fontSize: 20.0),
+                      color: ApTheme.of(context).blueText, fontSize: 20.0),
                 ),
               ),
             ),
@@ -538,7 +489,7 @@ class SettingPageState extends State<SettingPage> {
               textAlign: TextAlign.center,
               text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 18.0),
+                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 18.0),
                   children: [
                     TextSpan(text: app.ratingDialogContent),
                   ]),
@@ -553,7 +504,7 @@ class SettingPageState extends State<SettingPage> {
                   child: Text(
                     app.later,
                     style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                        TextStyle(color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
                 FlatButton(
@@ -563,7 +514,7 @@ class SettingPageState extends State<SettingPage> {
                   child: Text(
                     app.rateNow,
                     style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                        TextStyle(color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
               ],
