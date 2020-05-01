@@ -152,45 +152,42 @@ class SettingPageState extends State<SettingPage> {
               },
             ),
             SettingItem(
-              text: app.language,
-              subText: app.localeText,
+              text: ap.language,
+              subText: languageTextList[languageIndex],
               onTap: () {
-                showDialog<int>(
+                showDialog(
                   context: context,
-                  builder: (BuildContext context) => SimpleDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16),
-                        ),
-                      ),
-                      title: Text(app.choseLanguageTitle),
-                      children: [
-                        for (var item in [
-                          Item(app.systemLanguage, AppLocalizations.SYSTEM),
-                          Item(app.traditionalChinese, AppLocalizations.ZH),
-                          Item(app.english, AppLocalizations.EN),
-                        ])
-                          DialogOption(
-                              text: item.text,
-                              check:
-                                  AppLocalizations.languageCode == item.value,
-                              onPressed: () {
-                                AppLocalizations.locale =
-                                    (item.value == AppLocalizations.SYSTEM)
-                                        ? Localizations.localeOf(context)
-                                        : Locale(item.value);
-                                if (AppLocalizations.languageCode != item.value)
-                                  FA.logAction('change_language', item.value);
-                                setState(() {
-                                  AppLocalizations.languageCode = item.value;
-                                });
-                                Preferences.setString(
-                                    Constants.PREF_LANGUAGE_CODE, item.value);
-                                Navigator.pop(context);
-                              }),
-                      ]),
-                ).then<void>((int position) {});
-                FA.logAction('pick_language', 'click');
+                  builder: (_) => SimpleOptionDialog(
+                    title: ap.language,
+                    items: languageTextList,
+                    index: languageIndex,
+                    onSelected: (int index) async {
+                      Locale locale;
+                      String code = ApSupportLanguage.values[index].code;
+                      switch (index) {
+                        case 0:
+                          locale = Localizations.localeOf(context);
+                          break;
+                        default:
+                          locale = Locale(
+                            code,
+                            code == ApSupportLanguageConstants.ZH ? 'TW' : null,
+                          );
+                          break;
+                      }
+                      Preferences.setString(Constants.PREF_LANGUAGE_CODE, code);
+                      ShareDataWidget.of(context).data.loadLocale(locale);
+//                      FirebaseAnalyticsUtils.instance.logAction(
+//                        'change_language',
+//                        code,
+//                      );
+//                      FirebaseAnalyticsUtils.instance.setUserProperty(
+//                        FirebaseConstants.LANGUAGE,
+//                        AppLocalizations.locale.languageCode,
+//                      );
+                    },
+                  ),
+                );
               },
             ),
             SettingItem(

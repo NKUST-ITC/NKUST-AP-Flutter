@@ -76,7 +76,6 @@ class MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    print(AppLocalizations.languageCode);
     return ShareDataWidget(
       data: this,
       child: ApTheme(
@@ -84,7 +83,17 @@ class MyAppState extends State<MyApp> {
         child: MaterialApp(
           localeResolutionCallback:
               (Locale locale, Iterable<Locale> supportedLocales) {
-            return locale;
+            String languageCode = Preferences.getString(
+              Constants.PREF_LANGUAGE_CODE,
+              ApSupportLanguageConstants.SYSTEM,
+            );
+            if (languageCode == ApSupportLanguageConstants.SYSTEM)
+              return locale;
+            else
+              return Locale(
+                languageCode,
+                languageCode == ApSupportLanguageConstants.ZH ? 'TW' : null,
+              );
           },
           onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
@@ -177,6 +186,13 @@ class MyAppState extends State<MyApp> {
   void update(ThemeMode mode) {
     setState(() {
       themeMode = mode;
+    });
+  }
+
+  void loadLocale(Locale locale) {
+    setState(() {
+      AppLocalizationsDelegate().load(locale);
+      ApLocalizationsDelegate().load(locale);
     });
   }
 }

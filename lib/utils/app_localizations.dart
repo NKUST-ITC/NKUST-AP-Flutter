@@ -2,18 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/app_theme.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-
-import 'firebase_analytics_utils.dart';
 
 class AppLocalizations {
-  static const SYSTEM = 'system';
-  static const ZH = 'zh';
-  static const EN = 'en';
-
   AppLocalizations(Locale locale) {
     init(locale);
   }
@@ -23,21 +15,9 @@ class AppLocalizations {
   }
 
   static Locale locale;
-  static String languageCode = AppLocalizations.SYSTEM;
 
   static AppLocalizations of(BuildContext context) {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
-  }
-
-  String get localeText {
-    switch (languageCode) {
-      case 'zh':
-        return traditionalChinese;
-      case 'en':
-        return english;
-      default:
-        return systemLanguage;
-    }
   }
 
   String get themeText {
@@ -1386,17 +1366,7 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
 
   @override
   Future<AppLocalizations> load(Locale locale) async {
-    print('Load ${locale.languageCode}');
-    String languageCode = Preferences.getString(
-        Constants.PREF_LANGUAGE_CODE, AppLocalizations.SYSTEM);
-    FA.setUserProperty(
-        'language',
-        (languageCode == AppLocalizations.SYSTEM)
-            ? locale.languageCode
-            : languageCode);
-    return AppLocalizations((languageCode == AppLocalizations.SYSTEM)
-        ? locale
-        : Locale(languageCode));
+    return AppLocalizations(locale);
   }
 
   @override
