@@ -7,6 +7,7 @@ import 'package:ap_common/pages/open_source_page.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
@@ -45,7 +46,8 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<HomePageScaffoldState> _homeKey =
+      GlobalKey<HomePageScaffoldState>();
 
   var state = HomeState.loading;
 
@@ -123,7 +125,7 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     return HomePageScaffold(
       title: app.appName,
-      key: _scaffoldKey,
+      key: _homeKey,
       state: state,
       announcements: announcements,
       isLogin: isLogin,
@@ -529,12 +531,7 @@ class HomePageState extends State<HomePage> {
       if (state != HomeState.finish) {
         _getAnnouncements();
       }
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(app.loginSuccess),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      _homeKey.currentState.showBasicHint(text: app.loginSuccess);
     }).catchError((e) {
       String text = app.loginFail;
       if (e is DioError) {
@@ -554,16 +551,10 @@ class HomePageState extends State<HomePage> {
         Utils.showToast(context, app.loadOfflineData);
         isLogin = true;
       }
-      _scaffoldKey.currentState.showSnackBar(
-        SnackBar(
-          content: Text(text),
-          duration: Duration(days: 1),
-          action: SnackBarAction(
-            onPressed: _login,
-            label: app.retry,
-            textColor: ApTheme.of(context).snackBarActionTextColor,
-          ),
-        ),
+      _homeKey.currentState.showSnackBar(
+        text: text,
+        actionText: app.retry,
+        onSnackBarTapped: _login,
       );
       if (!(e is DioError)) throw e;
     });
@@ -591,19 +582,13 @@ class HomePageState extends State<HomePage> {
   void checkLogin() async {
     await Future.delayed(Duration(microseconds: 30));
     if (isLogin) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
+      _homeKey.currentState.hideSnackBar();
     } else {
-      _scaffoldKey.currentState
+      _homeKey.currentState
           .showSnackBar(
-            SnackBar(
-              content: Text(app.notLogin),
-              duration: Duration(days: 1),
-              action: SnackBarAction(
-                onPressed: openLoginPage,
-                label: app.login,
-                textColor: ApTheme.of(context).snackBarActionTextColor,
-              ),
-            ),
+            text: ApLocalizations.of(context).notLogin,
+            actionText: ApLocalizations.of(context).login,
+            onSnackBarTapped: openLoginPage,
           )
           .closed
           .then(
