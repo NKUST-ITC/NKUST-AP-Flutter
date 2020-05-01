@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
@@ -16,6 +17,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
   await Preferences.init();
+  _preferenceMigrate();
   AppIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
   _setTargetPlatformForDesktop();
@@ -32,6 +34,26 @@ void main() async {
     runApp(
       MyApp(),
     );
+  }
+}
+
+void _preferenceMigrate() async {
+  String themeCode = Preferences.getString(Constants.PREF_THEME_CODE, null);
+  if (themeCode != null) {
+    int index;
+    switch (themeCode) {
+      case ApTheme.DARK:
+        index = 2;
+        break;
+      case ApTheme.LIGHT:
+        index = 1;
+        break;
+      default:
+        index = 0;
+        break;
+    }
+    await Preferences.setInt(Constants.PREF_THEME_MODE_INDEX, index);
+    Preferences.setString(Constants.PREF_THEME_CODE, null);
   }
 }
 

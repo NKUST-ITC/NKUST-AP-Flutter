@@ -65,7 +65,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
-    //TODO old preference migrate
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
