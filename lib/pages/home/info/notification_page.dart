@@ -1,9 +1,9 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 
@@ -36,7 +36,7 @@ class NotificationPageState extends State<NotificationPage>
       );
 
   TextStyle get _textGreyStyle => TextStyle(
-        color: Resource.Colors.grey,
+        color: ApTheme.of(context).grey,
         fontSize: 14.0,
       );
 

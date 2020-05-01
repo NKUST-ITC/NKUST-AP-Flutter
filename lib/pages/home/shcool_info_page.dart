@@ -1,6 +1,6 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
@@ -43,7 +43,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(app.schoolInfo),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
         children: _children,
@@ -58,7 +58,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             controller.animateTo(_currentIndex);
           });
         },
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
             icon: Icon(AppIcon.fiberNew),

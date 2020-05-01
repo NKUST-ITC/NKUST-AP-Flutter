@@ -1,8 +1,8 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error }
@@ -31,13 +31,13 @@ class PhonePageState extends State<PhonePage>
       );
 
   TextStyle get _textBlueStyle => TextStyle(
-        color: Resource.Colors.blueText,
+        color: ApTheme.of(context).blueText,
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
       );
 
   TextStyle get _textGreyStyle => TextStyle(
-        color: Resource.Colors.grey,
+        color: ApTheme.of(context).grey,
         fontSize: 14.0,
       );
 

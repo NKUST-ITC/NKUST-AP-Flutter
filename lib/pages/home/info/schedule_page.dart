@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -39,7 +39,7 @@ class SchedulePageState extends State<SchedulePage>
   int page = 1;
 
   TextStyle get _textBlueStyle => TextStyle(
-        color: Resource.Colors.blueText,
+        color: ApTheme.of(context).blueText,
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
       );
@@ -139,7 +139,7 @@ class SchedulePageState extends State<SchedulePage>
         ),
       );
       events.add(Divider(
-        color: Resource.Colors.grey,
+        color: ApTheme.of(context).grey,
       ));
     }
     return [
@@ -174,7 +174,7 @@ class SchedulePageState extends State<SchedulePage>
                       textAlign: TextAlign.center,
                       text: TextSpan(
                           style: TextStyle(
-                              color: Resource.Colors.grey,
+                              color: ApTheme.of(context).grey,
                               height: 1.3,
                               fontSize: 16.0),
                           children: [
