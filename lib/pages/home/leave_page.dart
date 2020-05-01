@@ -1,8 +1,8 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leave/leave_record_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 class LeavePage extends StatefulWidget {
@@ -47,7 +47,7 @@ class LeavePageState extends State<LeavePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(app.leave),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
           children: widget._children,
@@ -56,7 +56,7 @@ class LeavePageState extends State<LeavePage>
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
             icon: Icon(AppIcon.edit),

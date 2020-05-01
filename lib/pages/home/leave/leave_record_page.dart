@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -43,7 +43,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   bool isOffline = false;
 
   TextStyle get _textBlueStyle =>
-      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
   TextStyle get _textStyle => TextStyle(fontSize: 15.0);
 
@@ -93,7 +93,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             if (isOffline)
               Text(
                 app.offlineLeaveData,
-                style: TextStyle(color: Resource.Colors.grey),
+                style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
               child: RefreshIndicator(
@@ -242,7 +242,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                   contentWidget: RichText(
                     text: TextSpan(
                         style: TextStyle(
-                            color: Resource.Colors.grey,
+                            color: ApTheme.of(context).grey,
                             height: 1.3,
                             fontSize: 16.0),
                         children: [

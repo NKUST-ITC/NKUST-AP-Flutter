@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -15,7 +16,6 @@ import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/pages/home/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:sprintf/sprintf.dart';
@@ -179,12 +179,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   leading: Icon(
                     AppIcon.insertDriveFile,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
                     AppIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
                     app.leaveType,
@@ -196,7 +196,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 SizedBox(height: 16),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 SizedBox(height: 16),
                 FractionallySizedBox(
                   widthFactor: 0.3,
@@ -207,7 +207,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       ),
                     ),
                     padding: EdgeInsets.all(4.0),
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                     onPressed: () async {
                       final List<DateTime> picked =
                           await DateRagePicker.showDatePicker(
@@ -278,7 +278,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                     icon: Icon(
                                       AppIcon.cancel,
                                       size: 20.0,
-                                      color: Resource.Colors.red,
+                                      color: ApTheme.of(context).red,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -311,10 +311,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                           ),
                                           border: Border.all(
                                               color:
-                                                  Resource.Colors.blueAccent),
+                                                  ApTheme.of(context).blueAccent),
                                           color: leaveModels[index]
                                                   .selected[sectionIndex]
-                                              ? Resource.Colors.blueAccent
+                                              ? ApTheme.of(context).blueAccent
                                               : null,
                                         ),
                                         alignment: Alignment.center,
@@ -324,7 +324,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                             color: leaveModels[index]
                                                     .selected[sectionIndex]
                                                 ? Colors.white
-                                                : Resource.Colors.blueAccent,
+                                                : ApTheme.of(context).blueAccent,
                                           ),
                                         ),
                                       ),
@@ -349,7 +349,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 SizedBox(height: leaveModels.length == 0 ? 0 : 16.0),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
                   enabled: leaveSubmitInfo.tutor == null,
                   onTap: leaveSubmitInfo.tutor == null
@@ -373,12 +373,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   leading: Icon(
                     AppIcon.person,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
                     AppIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
                     app.tutor,
@@ -391,7 +391,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
                   onTap: () {
                     ImagePicker.pickImage(source: ImageSource.gallery).then(
@@ -419,12 +419,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   leading: Icon(
                     AppIcon.insertDriveFile,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
                     AppIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
                     app.leaveProof,
@@ -435,7 +435,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 SizedBox(height: 36),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -450,9 +450,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      fillColor: Resource.Colors.blueAccent,
+                      fillColor: ApTheme.of(context).blueAccent,
                       labelStyle: TextStyle(
-                        color: Resource.Colors.grey,
+                        color: ApTheme.of(context).grey,
                       ),
                       labelText: app.reason,
                     ),
@@ -460,7 +460,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 ),
                 if (isDelay) ...[
                   SizedBox(height: 36),
-                  Divider(color: Resource.Colors.grey, height: 1),
+                  Divider(color: ApTheme.of(context).grey, height: 1),
                   SizedBox(height: 36),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
@@ -475,9 +475,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       controller: _delayReason,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        fillColor: Resource.Colors.blueAccent,
+                        fillColor: ApTheme.of(context).blueAccent,
                         labelStyle: TextStyle(
-                          color: Resource.Colors.grey,
+                          color: ApTheme.of(context).grey,
                         ),
                         labelText: app.delayReason,
                       ),
@@ -498,7 +498,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       _leaveSubmit();
                       FA.logAction('leave_submit', 'click');
                     },
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                     child: Text(
                       app.confirm,
                       style: TextStyle(
@@ -644,7 +644,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     textAlign: TextAlign.left,
                     text: TextSpan(
                       style: TextStyle(
-                          color: Resource.Colors.grey,
+                          color: ApTheme.of(context).grey,
                           height: 1.5,
                           fontSize: 16.0),
                       children: [
@@ -733,7 +733,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             textAlign: TextAlign.center,
             text: TextSpan(
               style: TextStyle(
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
                 height: 1.3,
                 fontSize: 16.0,
               ),
@@ -770,7 +770,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 contentWidget: Text(
                   text,
                   style: TextStyle(
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                     height: 1.3,
                     fontSize: 16.0,
                   ),
