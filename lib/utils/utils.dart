@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:app_review/app_review.dart';
@@ -22,7 +23,6 @@ import 'package:nkust_ap/pages/home/study/course_page.dart';
 import 'package:nkust_ap/pages/home/study/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/home/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/home/study/score_page.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -301,7 +301,9 @@ class Utils {
             textAlign: TextAlign.center,
             text: TextSpan(
                 style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0),
                 children: [
                   TextSpan(text: app.ratingDialogContent),
                 ]),
@@ -336,7 +338,8 @@ class Utils {
                 alignment: Alignment.center,
                 child: Text(
                   app.ratingDialogTitle,
-                  style: TextStyle(color: Resource.Colors.blue, fontSize: 20.0),
+                  style: TextStyle(
+                      color: ApTheme.of(context).blue, fontSize: 20.0),
                 ),
               ),
             ),
@@ -344,7 +347,9 @@ class Utils {
               textAlign: TextAlign.center,
               text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 18.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 18.0),
                   children: [
                     TextSpan(text: app.ratingDialogContent),
                   ]),
@@ -358,8 +363,8 @@ class Utils {
                   },
                   child: Text(
                     app.later,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                    style: TextStyle(
+                        color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
                 FlatButton(
@@ -368,8 +373,8 @@ class Utils {
                   },
                   child: Text(
                     app.rateNow,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                    style: TextStyle(
+                        color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
               ],
@@ -401,7 +406,7 @@ class Utils {
             "v${packageInfo.version}\n"
             "${app.updateNoteContent}",
             textAlign: TextAlign.center,
-            style: TextStyle(color: Resource.Colors.grey),
+            style: TextStyle(color: ApTheme.of(context).grey),
           ),
           actionText: app.iKnow,
           actionFunction: () =>
@@ -462,7 +467,9 @@ class Utils {
               textAlign: TextAlign.center,
               text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                   children: [
                     TextSpan(
                       text: '${app.updateContent}\n'
@@ -491,7 +498,7 @@ class Utils {
                   textAlign: TextAlign.center,
                   text: TextSpan(
                       style: TextStyle(
-                          color: Resource.Colors.grey,
+                          color: ApTheme.of(context).grey,
                           height: 1.3,
                           fontSize: 16.0),
                       children: [
@@ -515,12 +522,12 @@ class Utils {
 
   static Future pushCupertinoStyle(BuildContext context, Widget page) async {
     if ((page is ScorePage ||
-            page is CoursePage ||
-            page is BusPage ||
-            page is LeavePage ||
-            page is MidtermAlertsPage ||
-            page is RewardAndPenaltyPage ||
-            page is CalculateUnitsPage)) {
+        page is CoursePage ||
+        page is BusPage ||
+        page is LeavePage ||
+        page is MidtermAlertsPage ||
+        page is RewardAndPenaltyPage ||
+        page is CalculateUnitsPage)) {
       Utils.showToast(context, AppLocalizations.of(context).notLoginHint);
     } else
       Navigator.of(context).push(
