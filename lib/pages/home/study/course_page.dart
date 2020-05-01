@@ -1,10 +1,10 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
@@ -56,7 +56,7 @@ class CoursePageState extends State<CoursePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.course),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Builder(
         builder: (builderContext) {
@@ -84,12 +84,12 @@ class CoursePageState extends State<CoursePage> {
               if (isOffline)
                 Text(
                   app.offlineCourse,
-                  style: TextStyle(color: Resource.Colors.grey),
+                  style: TextStyle(color: ApTheme.of(context).grey),
                 ),
               if (_contentStyle == _ContentStyle.table)
                 Text(
                   app.courseClickHint,
-                  style: TextStyle(color: Resource.Colors.grey),
+                  style: TextStyle(color: ApTheme.of(context).grey),
                 ),
               SizedBox(height: 4.0),
               Expanded(
@@ -120,8 +120,8 @@ class CoursePageState extends State<CoursePage> {
             IconButton(
               iconSize: _contentStyle == _ContentStyle.table ? 24 : 20,
               color: _contentStyle == _ContentStyle.table
-                  ? Resource.Colors.yellow
-                  : Resource.Colors.grey,
+                  ? ApTheme.of(context).yellow
+                  : ApTheme.of(context).grey,
               icon: Icon(Icons.grid_on),
               onPressed: () {
                 setState(() {
@@ -132,8 +132,8 @@ class CoursePageState extends State<CoursePage> {
             IconButton(
               iconSize: _contentStyle == _ContentStyle.card ? 24 : 20,
               color: _contentStyle == _ContentStyle.card
-                  ? Resource.Colors.yellow
-                  : Resource.Colors.grey,
+                  ? ApTheme.of(context).yellow
+                  : ApTheme.of(context).grey,
               icon: Icon(Icons.format_list_bulleted),
               onPressed: () {
                 setState(() {
@@ -203,7 +203,7 @@ class CoursePageState extends State<CoursePage> {
                           child: SelectableText.rich(
                             TextSpan(
                               style: TextStyle(
-                                color: Resource.Colors.grey,
+                                color: ApTheme.of(context).grey,
                                 fontSize: 16.0,
                               ),
                               children: [
@@ -241,7 +241,7 @@ class CoursePageState extends State<CoursePage> {
                               Text(
                                 '${course.required}',
                                 style: TextStyle(
-                                  color: Resource.Colors.blueAccent,
+                                  color: ApTheme.of(context).blueAccent,
                                   fontSize: 18.0,
                                 ),
                                 textAlign: TextAlign.center,
@@ -250,7 +250,7 @@ class CoursePageState extends State<CoursePage> {
                               SelectableText.rich(
                                 TextSpan(
                                   style: TextStyle(
-                                    color: Resource.Colors.grey,
+                                    color: ApTheme.of(context).grey,
                                     fontSize: 16.0,
                                   ),
                                   children: [
@@ -265,7 +265,7 @@ class CoursePageState extends State<CoursePage> {
                               SelectableText.rich(
                                 TextSpan(
                                   style: TextStyle(
-                                    color: Resource.Colors.grey,
+                                    color: ApTheme.of(context).grey,
                                     fontSize: 16.0,
                                   ),
                                   children: [
@@ -376,7 +376,7 @@ class CoursePageState extends State<CoursePage> {
       alignment: Alignment.center,
       child: Text(
         text ?? '',
-        style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
+        style: TextStyle(color: ApTheme.of(context).blueText, fontSize: 14.0),
       ),
     );
   }
@@ -394,7 +394,7 @@ class CoursePageState extends State<CoursePage> {
             contentWidget: RichText(
               text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                   children: [
                     TextSpan(
                         text: '${app.courseDialogName}：',
