@@ -18,7 +18,7 @@ dependencies:
   #official plugin
   shared_preferences: 0.5.6
   package_info: 0.4.0+13
-  url_launcher: 5.4.1
+  url_launcher: 5.4.5
   share: 0.6.3+5
   image_picker: 0.6.2+3
   path_provider: 1.5.1
