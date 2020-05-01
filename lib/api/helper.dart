@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/models/user_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';

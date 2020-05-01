@@ -1,16 +1,21 @@
-import 'dart:io';
+import 'dart:math';
 
+import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
+import 'package:ap_common/pages/about_us_page.dart';
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
+import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:dio/dio.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -21,12 +26,15 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
+import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
+
+import 'home/study/midterm_alerts_page.dart';
+import 'home/study/reward_and_penalty_page.dart';
 
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
@@ -45,6 +53,36 @@ class HomePageState extends State<HomePage> {
   List<Announcement> announcements;
 
   var isLogin = false;
+  bool displayPicture = true;
+  bool isStudyExpanded = false;
+  bool isBusExpanded = false;
+  bool isLeaveExpanded = false;
+
+  UserInfo userInfo;
+
+  TextStyle get _defaultStyle => TextStyle(
+        color: ApTheme.of(context).grey,
+        fontSize: 16.0,
+      );
+
+  String get sectionImage {
+    final department = userInfo?.department ?? '';
+    bool halfSnapFingerChance = Random().nextInt(2000) % 2 == 0;
+    if (department.contains('建工') || department.contains('燕巢'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionJiangong
+          : ImageAssets.sectionYanchao;
+    else if (department.contains('第一'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionFirst1
+          : ImageAssets.sectionFirst2;
+    else if (department.contains('旗津') || department.contains('楠梓'))
+      return halfSnapFingerChance
+          ? ImageAssets.sectionQijin
+          : ImageAssets.sectionNanzi;
+    else
+      return ImageAssets.kuasap2;
+  }
 
   @override
   void initState() {
@@ -94,14 +132,185 @@ class HomePageState extends State<HomePage> {
             },
           )
       ],
-      drawer: DrawerBody(
-        userInfo: ShareDataWidget.of(context).data.userInfo,
-        onClickLogin: () {
-          openLoginPage();
+      drawer: ApDrawer(
+        userInfo: userInfo,
+        displayPicture:
+            Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true),
+        imageAsset: ImageAssets.drawerIcon,
+        onTapHeader: () {
+          if (isLogin) {
+            if (userInfo != null && isLogin)
+              Utils.pushCupertinoStyle(
+                context,
+                UserInfoPage(userInfo: userInfo),
+              );
+          } else {
+            Navigator.of(context).pop();
+            openLoginPage();
+          }
         },
-        onClickLogout: () {
-          checkLogin();
-        },
+        widgets: <Widget>[
+          ExpansionTile(
+            initiallyExpanded: isStudyExpanded,
+            onExpansionChanged: (bool) {
+              setState(() {
+                isStudyExpanded = bool;
+              });
+            },
+            leading: Icon(
+              AppIcon.school,
+              color: isStudyExpanded
+                  ? ApTheme.of(context).blueAccent
+                  : ApTheme.of(context).grey,
+            ),
+            title: Text(app.courseInfo, style: _defaultStyle),
+            children: <Widget>[
+              DrawerSubItem(
+                icon: AppIcon.classIcon,
+                title: app.course,
+                page: CoursePage(),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.assignment,
+                title: app.score,
+                page: ScorePage(),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.apps,
+                title: app.calculateUnits,
+                page: CalculateUnitsPage(),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.warning,
+                title: app.midtermAlerts,
+                page: MidtermAlertsPage(),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.folder,
+                title: app.rewardAndPenalty,
+                page: RewardAndPenaltyPage(),
+              ),
+            ],
+          ),
+          ExpansionTile(
+            initiallyExpanded: isLeaveExpanded,
+            onExpansionChanged: (bool) {
+              setState(() {
+                isLeaveExpanded = bool;
+              });
+            },
+            leading: Icon(
+              AppIcon.calendarToday,
+              color: isLeaveExpanded
+                  ? ApTheme.of(context).blueAccent
+                  : ApTheme.of(context).grey,
+            ),
+            title: Text(app.leave, style: _defaultStyle),
+            children: <Widget>[
+              DrawerSubItem(
+                icon: AppIcon.edit,
+                title: app.leaveApply,
+                page: LeavePage(initIndex: 0),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.assignment,
+                title: app.leaveRecords,
+                page: LeavePage(initIndex: 1),
+              ),
+            ],
+          ),
+          ExpansionTile(
+            initiallyExpanded: isBusExpanded,
+            onExpansionChanged: (bool) {
+              setState(() {
+                isBusExpanded = bool;
+              });
+            },
+            leading: Icon(
+              AppIcon.directionsBus,
+              color: isBusExpanded
+                  ? ApTheme.of(context).blueAccent
+                  : ApTheme.of(context).grey,
+            ),
+            title: Text(app.bus, style: _defaultStyle),
+            children: <Widget>[
+              DrawerSubItem(
+                icon: AppIcon.dateRange,
+                title: app.busReserve,
+                page: BusPage(initIndex: 0),
+              ),
+              DrawerSubItem(
+                icon: AppIcon.assignment,
+                title: app.busReservations,
+                page: BusPage(initIndex: 1),
+              ),
+            ],
+          ),
+          DrawerItem(
+            icon: AppIcon.info,
+            title: app.schoolInfo,
+            page: SchoolInfoPage(),
+          ),
+          DrawerItem(
+            icon: AppIcon.face,
+            title: app.about,
+            page: AboutUsPage(
+              assetImage: sectionImage,
+              githubName: 'NKUST-ITC',
+              email: 'abc873693@gmail.com',
+              appLicense: app.aboutOpenSourceContent,
+              fbFanPageId: '735951703168873',
+              fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
+              githubUrl: 'https://github.com/NKUST-ITC',
+//              logEvent: (name, value) =>
+//                  FirebaseAnalyticsUtils.instance.logAction(name, value),
+//              setCurrentScreen: () => FirebaseAnalyticsUtils.instance
+//                  .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(ApIcon.codeIcon),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (_) => OpenSourcePage(
+//                          setCurrentScreen: () =>
+//                              FirebaseAnalyticsUtils.instance.setCurrentScreen(
+//                                  "OpenSourcePage", "open_source_page.dart"),
+                            ),
+                      ),
+                    );
+//                    FirebaseAnalyticsUtils.instance
+//                        .logAction('open_source', 'click');
+                  },
+                )
+              ],
+            ),
+          ),
+          DrawerItem(
+            icon: AppIcon.settings,
+            title: app.settings,
+            page: SettingPage(),
+          ),
+          if (isLogin)
+            ListTile(
+              leading: Icon(
+                AppIcon.powerSettingsNew,
+                color: ApTheme.of(context).grey,
+              ),
+              onTap: () async {
+                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                ShareDataWidget.of(context).data.logout();
+                isLogin = false;
+                userInfo = null;
+                Navigator.of(context).pop();
+                checkLogin();
+              },
+              title: Text(app.logout, style: _defaultStyle),
+            ),
+        ],
+//        onClickLogout: () {
+//          checkLogin();
+//        },
       ),
       onImageTapped: (Announcement announcement) {
         ApUtils.pushCupertinoStyle(
@@ -134,7 +343,7 @@ class HomePageState extends State<HomePage> {
       ],
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          if (ShareDataWidget.of(context).data.isLogin) {
+          if (isLogin) {
             var result = await BarcodeScanner.scan(
               options: ScanOptions(
                 restrictFormat: [BarcodeFormat.qr],
@@ -223,8 +432,7 @@ class HomePageState extends State<HomePage> {
 
   _getUserInfo() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      ShareDataWidget.of(context).data.userInfo =
-          await CacheUtils.loadUserInfo();
+      userInfo = await CacheUtils.loadUserInfo();
       setState(() {
         state = HomeState.offline;
       });
@@ -232,14 +440,15 @@ class HomePageState extends State<HomePage> {
       Helper.instance.getUsersInfo().then((userInfo) {
         if (this.mounted) {
           setState(() {
-            ShareDataWidget.of(context).data.userInfo = userInfo;
+            this.userInfo = userInfo;
           });
           FA.setUserProperty('department', userInfo.department);
           FA.setUserProperty('student_id', userInfo.id);
           FA.setUserId(userInfo.id);
           FA.logUserInfo(userInfo.department);
-          ShareDataWidget.of(context).data.userInfo = userInfo;
           CacheUtils.saveUserInfo(userInfo);
+          if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
+            _getUserPicture();
         }
       }).catchError((e) {
         if (e is DioError) {
@@ -254,6 +463,30 @@ class HomePageState extends State<HomePage> {
           throw e;
         }
       });
+  }
+
+  _getUserPicture() async {
+    try {
+      if ((userInfo?.pictureUrl) == null) return;
+      var response = await http.get(userInfo.pictureUrl);
+      if (!response.body.contains('html')) {
+        if (mounted) {
+          setState(() {
+            userInfo.pictureBytes = response.bodyBytes;
+          });
+        }
+        CacheUtils.savePictureData(response.bodyBytes);
+      } else {
+        var bytes = await CacheUtils.loadPictureData();
+        if (mounted) {
+          setState(() {
+            userInfo.pictureBytes = bytes;
+          });
+        }
+      }
+    } catch (e) {
+      throw e;
+    }
   }
 
   void _showInformationDialog() {
@@ -275,7 +508,7 @@ class HomePageState extends State<HomePage> {
         .login(username, password)
         .then((LoginResponse response) async {
       ShareDataWidget.of(context).data.loginResponse = response;
-      ShareDataWidget.of(context).data.isLogin = true;
+      isLogin = true;
       Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
       _getUserInfo();
       _setupBusNotify(context);
@@ -305,7 +538,7 @@ class HomePageState extends State<HomePage> {
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
         Utils.showToast(context, app.loadOfflineData);
-        ShareDataWidget.of(context).data.isLogin = true;
+        isLogin = true;
       }
       _scaffoldKey.currentState.showSnackBar(
         SnackBar(
@@ -336,14 +569,14 @@ class HomePageState extends State<HomePage> {
         _getAnnouncements();
       }
       setState(() {
-        ShareDataWidget.of(context).data.isLogin = true;
+        isLogin = true;
       });
     }
   }
 
   void checkLogin() async {
     await Future.delayed(Duration(microseconds: 30));
-    if (ShareDataWidget.of(context).data.isLogin) {
+    if (isLogin) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
     } else {
       _scaffoldKey.currentState

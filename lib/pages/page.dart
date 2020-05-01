@@ -1,4 +1,3 @@
-export 'home/about/about_us_page.dart';
 export 'home/about/open_source_page.dart';
 export 'home/bus/bus_reservations_page.dart';
 export 'home/bus/bus_reserve_page.dart';

@@ -1,12 +1,11 @@
+import 'package:ap_common/models/user_info.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:nkust_ap/models/user_info.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/drawer_body.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 enum _Status { loading, finish, error, empty }

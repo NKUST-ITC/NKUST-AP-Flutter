@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -24,7 +25,6 @@ import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 import 'api/helper.dart';
 import 'models/login_response.dart';
-import 'models/user_info.dart';
 
 class MyApp extends StatefulWidget {
   final ThemeData themeData;
@@ -39,18 +39,15 @@ class MyAppState extends State<MyApp> {
   FirebaseAnalytics analytics;
   FirebaseMessaging firebaseMessaging;
   ThemeData themeData;
-  UserInfo userInfo;
   LoginResponse loginResponse;
   Uint8List pictureBytes;
-  bool isLogin = false, offlineLogin = false;
+  bool offlineLogin = false;
 
   ThemeMode themeMode = ThemeMode.system;
 
   logout() {
     setState(() {
-      this.isLogin = false;
       this.offlineLogin = false;
-      this.userInfo = null;
       this.loginResponse = null;
       this.pictureBytes = null;
       Helper.clearSetting();

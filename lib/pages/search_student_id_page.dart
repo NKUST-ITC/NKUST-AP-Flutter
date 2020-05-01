@@ -1,6 +1,6 @@
+import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/user_info.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';

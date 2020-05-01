@@ -520,8 +520,7 @@ class Utils {
             page is LeavePage ||
             page is MidtermAlertsPage ||
             page is RewardAndPenaltyPage ||
-            page is CalculateUnitsPage) &&
-        !ShareDataWidget.of(context).data.isLogin) {
+            page is CalculateUnitsPage)) {
       Utils.showToast(context, AppLocalizations.of(context).notLoginHint);
     } else
       Navigator.of(context).push(
