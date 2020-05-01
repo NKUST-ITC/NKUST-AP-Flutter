@@ -1,4 +1,5 @@
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -11,10 +12,8 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/home/news/news_edit_page.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State { notLogin, loading, finish, error, empty, offline }
 
@@ -46,7 +45,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   TextStyle get _editTextStyle => TextStyle(
         fontSize: 18.0,
-        decorationColor: Resource.Colors.blueAccent,
+        decorationColor: ApTheme.of(context).blueAccent,
       );
 
   @override
@@ -74,7 +73,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(app.news),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: state == _State.notLogin
           ? null
@@ -195,7 +194,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
               color: Colors.white,
               child: Text(
                 app.login,
-                style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                style:
+                    TextStyle(color: ApTheme.of(context).blue, fontSize: 18.0),
               ),
             ),
           ),
@@ -223,7 +223,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             trailing: IconButton(
               icon: Icon(
                 AppIcon.cancel,
-                color: Resource.Colors.red,
+                color: ApTheme.of(context).red,
               ),
               onPressed: () async {
                 showDialog(
@@ -271,7 +271,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                   children: [
                     TextSpan(
                       text: '${app.weight}：',
@@ -285,7 +287,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                     TextSpan(
                       text: '${item.imgUrl}',
                       style: TextStyle(
-                        color: Resource.Colors.blueAccent,
+                        color: ApTheme.of(context).blueAccent,
                         decoration: TextDecoration.underline,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -300,7 +302,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                     TextSpan(
                       text: '${item.url}',
                       style: TextStyle(
-                        color: Resource.Colors.blueAccent,
+                        color: ApTheme.of(context).blueAccent,
                         decoration: TextDecoration.underline,
                       ),
                       recognizer: TapGestureRecognizer()
@@ -312,7 +314,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                       text: '\n${app.expireTime}：',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: '${item.expireTime?? app.noExpiration}\n'),
+                    TextSpan(text: '${item.expireTime ?? app.noExpiration}\n'),
                     TextSpan(
                       text: '${app.description}：',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -348,9 +350,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
     Helper.instance.getAllAnnouncements().then((announcementsData) {
       this.announcementData = announcementsData;
       setState(() {
-        state = announcementsData.data.length == 0
-            ? _State.empty
-            : _State.finish;
+        state =
+            announcementsData.data.length == 0 ? _State.empty : _State.finish;
       });
     }).catchError((e) {
       setState(() {

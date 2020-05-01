@@ -1,10 +1,10 @@
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -86,7 +86,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.news),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Form(
         key: _formKey,
@@ -105,9 +105,9 @@ class _NewsEditPageState extends State<NewsEditPage> {
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                fillColor: Resource.Colors.blueAccent,
+                fillColor: ApTheme.of(context).blueAccent,
                 labelStyle: TextStyle(
-                  color: Resource.Colors.grey,
+                  color: ApTheme.of(context).grey,
                 ),
                 labelText: app.title,
               ),
@@ -131,9 +131,9 @@ class _NewsEditPageState extends State<NewsEditPage> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                fillColor: Resource.Colors.blueAccent,
+                fillColor: ApTheme.of(context).blueAccent,
                 labelStyle: TextStyle(
-                  color: Resource.Colors.grey,
+                  color: ApTheme.of(context).grey,
                 ),
                 labelText: app.weight,
               ),
@@ -151,9 +151,9 @@ class _NewsEditPageState extends State<NewsEditPage> {
               keyboardType: TextInputType.url,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                fillColor: Resource.Colors.blueAccent,
+                fillColor: ApTheme.of(context).blueAccent,
                 labelStyle: TextStyle(
-                  color: Resource.Colors.grey,
+                  color: ApTheme.of(context).grey,
                 ),
                 labelText: app.imageUrl,
               ),
@@ -168,15 +168,15 @@ class _NewsEditPageState extends State<NewsEditPage> {
               keyboardType: TextInputType.url,
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                fillColor: Resource.Colors.blueAccent,
+                fillColor: ApTheme.of(context).blueAccent,
                 labelStyle: TextStyle(
-                  color: Resource.Colors.grey,
+                  color: ApTheme.of(context).grey,
                 ),
                 labelText: app.url,
               ),
             ),
             SizedBox(height: dividerHeight),
-            Container(color: Resource.Colors.grey, height: 1),
+            Container(color: ApTheme.of(context).grey, height: 1),
             SizedBox(height: 8.0),
             FractionallySizedBox(
               widthFactor: 0.3,
@@ -190,7 +190,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
                   horizontal: 8.0,
                   vertical: 4.0,
                 ),
-                color: Resource.Colors.blueAccent,
+                color: ApTheme.of(context).blueAccent,
                 onPressed: () async {
                   setState(() {
                     expireTime = null;
@@ -212,12 +212,12 @@ class _NewsEditPageState extends State<NewsEditPage> {
               leading: Icon(
                 AppIcon.accessTime,
                 size: 30,
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
               ),
               trailing: Icon(
                 AppIcon.keyboardArrowDown,
                 size: 30,
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
               ),
               title: Text(
                 app.expireTime,
@@ -230,7 +230,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
                 style: TextStyle(fontSize: 20),
               ),
             ),
-            Container(color: Resource.Colors.grey, height: 1),
+            Container(color: ApTheme.of(context).grey, height: 1),
             SizedBox(height: dividerHeight),
             TextFormField(
               maxLines: 2,
@@ -243,9 +243,9 @@ class _NewsEditPageState extends State<NewsEditPage> {
               },
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
-                fillColor: Resource.Colors.blueAccent,
+                fillColor: ApTheme.of(context).blueAccent,
                 labelStyle: TextStyle(
-                  color: Resource.Colors.grey,
+                  color: ApTheme.of(context).grey,
                 ),
                 labelText: app.description,
               ),
@@ -263,7 +263,7 @@ class _NewsEditPageState extends State<NewsEditPage> {
                 onPressed: () {
                   _announcementSubmit();
                 },
-                color: Resource.Colors.blueAccent,
+                color: ApTheme.of(context).blueAccent,
                 child: Text(
                   widget.mode == Mode.add ? app.submit : app.update,
                   style: TextStyle(
