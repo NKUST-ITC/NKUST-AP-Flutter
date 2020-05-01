@@ -1,9 +1,9 @@
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -54,7 +54,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+    return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }
 
   _textStyle() {
@@ -115,7 +115,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       appBar: new AppBar(
         // Title
         title: new Text(app.calculateUnits),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Container(
         child: Flex(
@@ -129,7 +129,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               child: Text(
                 app.calculateUnitsContent,
                 style:
-                    TextStyle(color: Resource.Colors.blueText, fontSize: 16.0),
+                    TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0),
               ),
             ),
             Expanded(
