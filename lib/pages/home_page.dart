@@ -41,7 +41,7 @@ class HomePageState extends State<HomePage> {
 
   AppLocalizations app;
 
-  AnnouncementData announcementData;
+  List<Announcement> announcements;
 
   var isLogin = false;
 
@@ -75,7 +75,7 @@ class HomePageState extends State<HomePage> {
       title: app.appName,
       key: _scaffoldKey,
       state: state,
-      announcements: announcementData?.data,
+      announcements: announcements,
       isLogin: isLogin,
       actions: <Widget>[
         IconButton(
@@ -182,9 +182,9 @@ class HomePageState extends State<HomePage> {
       });
     } else
       Helper.instance.getAllAnnouncements().then((announcementsResponse) {
-        this.announcementData = announcementsResponse;
+        announcements = announcementsResponse.data;
         setState(() {
-          state = announcementsResponse.data.length == 0
+          state = (announcements.length == null || announcements.length == 0)
               ? HomeState.empty
               : HomeState.finish;
         });
