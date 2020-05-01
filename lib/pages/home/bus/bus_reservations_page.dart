@@ -135,9 +135,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _textStyle(BusReservation busReservation) => new TextStyle(
-      color: busReservation.getColorState(),
+      color: busReservation.getColorState(context),
       fontSize: 18.0,
-      decorationColor: Colors.grey);
+      decorationColor: ApTheme.of(context).greyText);
 
   _busReservationWidget(BusReservation busReservation) => Column(
         children: <Widget>[
@@ -211,7 +211,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           Container(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Divider(
-              color: Colors.grey,
+              color: ApTheme.of(context).grey,
               indent: 4.0,
             ),
           )

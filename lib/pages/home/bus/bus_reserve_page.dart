@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
@@ -103,7 +102,7 @@ class BusReservePageState extends State<BusReservePage>
                         ),
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Divider(color: Colors.grey),
+                          child: Divider(color: ApTheme.of(context).grey),
                         ),
                       ],
                     ),
@@ -155,9 +154,9 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   _textStyle(BusTime busTime) => TextStyle(
-      color: busTime.getColorState(),
+      color: busTime.getColorState(context),
       fontSize: 18.0,
-      decorationColor: Colors.grey);
+      decorationColor: ApTheme.of(context).greyText);
 
   String get errorText {
     switch (state) {
@@ -311,7 +310,7 @@ class BusReservePageState extends State<BusReservePage>
                   child: Icon(
                     AppIcon.directionsBus,
                     size: 20.0,
-                    color: busTime.getColorState(),
+                    color: busTime.getColorState(context),
                   ),
                 ),
                 Expanded(
@@ -343,7 +342,7 @@ class BusReservePageState extends State<BusReservePage>
                   child: Icon(
                     AppIcon.accessTime,
                     size: 20.0,
-                    color: busTime.getColorState(),
+                    color: busTime.getColorState(context),
                   ),
                 ),
                 Expanded(
@@ -359,7 +358,7 @@ class BusReservePageState extends State<BusReservePage>
           ),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(color: Colors.grey, height: 0.0),
+            child: Divider(color: ApTheme.of(context).grey, height: 0.0),
           )
         ],
       );
