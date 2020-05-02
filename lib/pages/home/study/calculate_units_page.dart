@@ -1,6 +1,7 @@
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class CalculateUnitsPage extends StatefulWidget {
 
 class CalculateUnitsPageState extends State<CalculateUnitsPage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.ready;
 
@@ -64,8 +65,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   _scoreTitle() => TableRow(
         children: <Widget>[
-          _scoreTextBorder(app.generalEductionCourse, true),
-          _scoreTextBorder(app.finalScore, true),
+          _scoreTextBorder(ap.generalEductionCourse, true),
+          _scoreTextBorder(ap.finalScore, true),
         ],
       );
 
@@ -110,12 +111,12 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(app.calculateUnits),
+        title: new Text(ap.calculateUnits),
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: Container(
@@ -128,17 +129,18 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             Expanded(
               flex: 1,
               child: Text(
-                app.calculateUnitsContent,
-                style:
-                    TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0),
+                ap.calculateUnitsContent,
+                style: TextStyle(
+                    color: ApTheme.of(context).blueText, fontSize: 16.0),
               ),
             ),
             Expanded(
               flex: 19,
               child: RefreshIndicator(
-                onRefresh: () {
+                onRefresh: () async {
                   FA.logAction('refresh', 'swipe');
                   _calculate();
+                  return null;
                 },
                 child: _body(),
               ),
@@ -158,7 +160,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               children: <Widget>[
                 CircularProgressIndicator(),
                 SizedBox(height: 16.0),
-                Text(app.calculating, style: _textBlueStyle())
+                Text(ap.calculating, style: _textBlueStyle())
               ],
             ),
             alignment: Alignment.center);
@@ -168,7 +170,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           onPressed: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
+            content: state == _State.error ? ap.clickToRetry : ap.scoreEmpty,
           ),
         );
       case _State.ready:
@@ -176,13 +178,13 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           onPressed: _calculate,
           child: HintContent(
             icon: ApIcon.apps,
-            content: app.beginCalculate,
+            content: ap.beginCalculate,
           ),
         );
       case _State.offline:
         return HintContent(
           icon: ApIcon.offlineBolt,
-          content: app.offlineMode,
+          content: ap.offlineMode,
         );
       default:
         return SingleChildScrollView(
@@ -226,11 +228,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${app.requiredUnits}：$requiredUnitsTotal", true),
+                          "${ap.requiredUnits}：$requiredUnitsTotal", true),
                       _textBorder(
-                          "${app.electiveUnits}：$electiveUnitsTotal", false),
-                      _textBorder("${app.otherUnits}：$otherUnitsTotal", false),
-                      _textBorder("${app.unitsTotal}：$unitsTotal", false),
+                          "${ap.electiveUnits}：$electiveUnitsTotal", false),
+                      _textBorder("${ap.otherUnits}：$otherUnitsTotal", false),
+                      _textBorder("${ap.unitsTotal}：$unitsTotal", false),
                     ],
                   ),
                 ),
