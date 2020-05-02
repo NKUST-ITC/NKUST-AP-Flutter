@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
@@ -26,7 +27,7 @@ class RewardAndPenaltyPage extends StatefulWidget {
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations app;
 
   _State state = _State.loading;
 
@@ -55,7 +56,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(app.rewardAndPenalty),
