@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -27,7 +28,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -61,7 +62,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -92,7 +93,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             ),
             if (isOffline)
               Text(
-                app.offlineLeaveData,
+                ap.offlineLeaveData,
                 style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
@@ -133,13 +134,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.leaveEmpty,
+            content: state == _State.error ? ap.clickToRetry : ap.leaveEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
           icon: ApIcon.classIcon,
-          content: app.noOfflineData,
+          content: ap.noOfflineData,
         );
       default:
         hasNight = _checkHasNight();
@@ -152,7 +153,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 if (hasNight && orientation == Orientation.portrait)
-                  Text(app.leaveNight),
+                  Text(ap.leaveNight),
                 SizedBox(height: 16.0),
                 Container(
                   decoration: BoxDecoration(
@@ -200,7 +201,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   TableRow _leaveTitle(List<String> timeCodes) {
     List<Widget> widgets = [];
-    widgets.add(_textBorder(app.date, true));
+    widgets.add(_textBorder(ap.date, true));
     for (var timeCode in timeCodes) {
       if (hasNight) {
         if (orientation == Orientation.landscape)
@@ -235,8 +236,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               showDialog(
                 context: context,
                 builder: (BuildContext context) => DefaultDialog(
-                  title: app.leaveContent,
-                  actionText: app.iKnow,
+                  title: ap.leaveContent,
+                  actionText: ap.iKnow,
                   actionFunction: () =>
                       Navigator.of(context, rootNavigator: true).pop('dialog'),
                   contentWidget: RichText(
@@ -247,11 +248,11 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                             fontSize: 16.0),
                         children: [
                           TextSpan(
-                              text: '${app.leaveSheetId}：',
+                              text: '${ap.leaveSheetId}：',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           TextSpan(text: '${leave.leaveSheetId}\n'),
                           TextSpan(
-                              text: '${app.instructorsComment}：'
+                              text: '${ap.instructorsComment}：'
                                   '${leave.instructorsComment.length < 8 ? '' : '\n'}',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           TextSpan(

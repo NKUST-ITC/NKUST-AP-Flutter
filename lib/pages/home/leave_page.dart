@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leave/leave_record_page.dart';
@@ -21,7 +22,7 @@ class LeavePage extends StatefulWidget {
 
 class LeavePageState extends State<LeavePage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   TabController controller;
 
@@ -43,10 +44,10 @@ class LeavePageState extends State<LeavePage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.leave),
+        title: Text(ap.leave),
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
@@ -60,11 +61,11 @@ class LeavePageState extends State<LeavePage>
         items: [
           BottomNavigationBarItem(
             icon: Icon(ApIcon.edit),
-            title: Text(app.leaveApply),
+            title: Text(ap.leaveApply),
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.assignment),
-            title: Text(app.leaveRecords),
+            title: Text(ap.leaveRecords),
           ),
         ],
       ),

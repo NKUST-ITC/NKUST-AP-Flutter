@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -42,7 +43,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -71,12 +72,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         return '';
       case _State.error:
       case _State.empty:
-        return app.somethingError;
+        return ap.somethingError;
       case _State.userNotSupport:
-        return app.userNotSupport;
+        return ap.userNotSupport;
         break;
       case _State.offline:
-        return app.offlineMode;
+        return ap.offlineMode;
         break;
     }
     return '';
@@ -97,7 +98,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -136,7 +137,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     showDialog<int>(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
-                        title: Text(app.leaveType),
+                        title: Text(ap.leaveType),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(8),
@@ -187,7 +188,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.leaveType,
+                    ap.leaveType,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
@@ -242,7 +243,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       }
                     },
                     child: Text(
-                      app.addDate,
+                      ap.addDate,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -310,8 +311,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                             Radius.circular(4.0),
                                           ),
                                           border: Border.all(
-                                              color:
-                                                  ApTheme.of(context).blueAccent),
+                                              color: ApTheme.of(context)
+                                                  .blueAccent),
                                           color: leaveModels[index]
                                                   .selected[sectionIndex]
                                               ? ApTheme.of(context).blueAccent
@@ -324,7 +325,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                             color: leaveModels[index]
                                                     .selected[sectionIndex]
                                                 ? Colors.white
-                                                : ApTheme.of(context).blueAccent,
+                                                : ApTheme.of(context)
+                                                    .blueAccent,
                                           ),
                                         ),
                                       ),
@@ -381,12 +383,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.tutor,
+                    ap.tutor,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
                     leaveSubmitInfo.tutor == null
-                        ? (teacher?.name ?? app.pleasePick)
+                        ? (teacher?.name ?? ap.pleasePick)
                         : (leaveSubmitInfo.tutor?.name ?? ''),
                     style: TextStyle(fontSize: 20),
                   ),
@@ -427,11 +429,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.leaveProof,
+                    ap.leaveProof,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    image?.path?.split('/')?.last ?? app.leaveProofHint,
+                    image?.path?.split('/')?.last ?? ap.leaveProofHint,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -444,7 +446,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     controller: _reason,
                     validator: (value) {
                       if (value.isEmpty) {
-                        return app.doNotEmpty;
+                        return ap.doNotEmpty;
                       }
                       return null;
                     },
@@ -454,7 +456,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       labelStyle: TextStyle(
                         color: ApTheme.of(context).grey,
                       ),
-                      labelText: app.reason,
+                      labelText: ap.reason,
                     ),
                   ),
                 ),
@@ -468,7 +470,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       maxLines: 2,
                       validator: (value) {
                         if (isDelay && value.isEmpty) {
-                          return app.doNotEmpty;
+                          return ap.doNotEmpty;
                         }
                         return null;
                       },
@@ -479,7 +481,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                         labelStyle: TextStyle(
                           color: ApTheme.of(context).grey,
                         ),
-                        labelText: app.delayReason,
+                        labelText: ap.delayReason,
                       ),
                     ),
                   ),
@@ -500,7 +502,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     },
                     color: ApTheme.of(context).blueAccent,
                     child: Text(
-                      app.confirm,
+                      ap.confirm,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
@@ -544,7 +546,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(context, app.busFailInfinity);
+                Utils.showToast(context, ap.busFailInfinity);
               });
             }
             break;
@@ -575,7 +577,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           )) isDelay = true;
     }
     if (isDelay) {
-      Utils.showToast(context, app.leaveDelayHint);
+      Utils.showToast(context, ap.leaveDelayHint);
     }
   }
 
@@ -603,9 +605,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       }
     });
     if (days.length == 0) {
-      Utils.showToast(context, app.pleasePickDateAndSection);
+      Utils.showToast(context, ap.pleasePickDateAndSection);
     } else if (leaveSubmitInfo.tutor == null && teacher == null) {
-      Utils.showToast(context, app.pickTeacher);
+      Utils.showToast(context, ap.pickTeacher);
     } else if (_formKey.currentState.validate()) {
       //TODO submit summary
       String tutorId, tutorName;
@@ -626,7 +628,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
-          title: app.leaveSubmit,
+          title: ap.leaveSubmit,
           contentWidgetPadding: EdgeInsets.all(0.0),
           contentWidget: SizedBox(
             height: MediaQuery.of(context).size.height *
@@ -649,37 +651,37 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           fontSize: 16.0),
                       children: [
                         TextSpan(
-                          text: '${app.leaveType}：',
+                          text: '${ap.leaveType}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
                             text: '${leaveSubmitInfo.type[typeIndex].title}\n'),
                         TextSpan(
-                          text: '${app.tutor}：',
+                          text: '${ap.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(text: '$tutorName\n'),
                         TextSpan(
-                          text: '${app.reason}：\n',
+                          text: '${ap.reason}：\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(text: '${_reason.text}'),
                         if (isDelay) ...[
                           TextSpan(
-                            text: '${app.delayReason}：\n',
+                            text: '${ap.delayReason}：\n',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           TextSpan(text: '${_delayReason.text}\n'),
                         ],
                         TextSpan(
-                          text: '${app.leaveDateAndSection}：\n',
+                          text: '${ap.leaveDateAndSection}：\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         for (var day in days)
                           TextSpan(text: '${day.toString()}\n'),
                         TextSpan(
                           text:
-                              '${app.leaveProof}：${(image == null ? app.none : '')}\n',
+                              '${ap.leaveProof}：${(image == null ? ap.none : '')}\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -698,8 +700,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               ],
             ),
           ),
-          leftActionText: app.cancel,
-          rightActionText: app.submit,
+          leftActionText: ap.cancel,
+          rightActionText: ap.submit,
           leftActionFunction: null,
           rightActionFunction: () {
             _leaveUpload(data);
@@ -714,7 +716,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-        child: ProgressDialog(app.leaveSubmitUploadHint),
+        child: ProgressDialog(ap.leaveSubmitUploadHint),
         onWillPop: () async {
           return false;
         },
@@ -727,7 +729,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context: context,
         builder: (BuildContext context) => DefaultDialog(
           title: response.statusCode == 200
-              ? app.leaveSubmit
+              ? ap.leaveSubmit
               : '${response.statusCode}',
           contentWidget: RichText(
             textAlign: TextAlign.center,
@@ -740,14 +742,14 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               children: [
                 TextSpan(
                   text: response.statusCode == 200
-                      ? app.leaveSubmitSuccess
+                      ? ap.leaveSubmitSuccess
                       : '${response.data}',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () =>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
@@ -757,7 +759,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            String text = app.somethingError;
+            String text = ap.somethingError;
             if (e.response.data is Map<String, dynamic>) {
               ErrorResponse errorResponse =
                   ErrorResponse.fromJson(e.response.data);
@@ -766,7 +768,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             showDialog(
               context: context,
               builder: (BuildContext context) => DefaultDialog(
-                title: app.leaveSubmitFail,
+                title: ap.leaveSubmitFail,
                 contentWidget: Text(
                   text,
                   style: TextStyle(
@@ -775,7 +777,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     fontSize: 16.0,
                   ),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop();
                 },
@@ -786,7 +788,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             setState(() {
               state = _State.error;
             });
-            Utils.showToast(context, app.somethingError);
+            Utils.showToast(context, ap.somethingError);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -808,7 +810,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       Utils.showToast(
         context,
         sprintf(
-          app.imageCompressHint,
+          ap.imageCompressHint,
           [
             Constants.MAX_IMAGE_SIZE,
             (result.lengthSync() / 1024 / 1024),
@@ -819,7 +821,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         this.image = result;
       });
     } else {
-      Utils.showToast(context, app.imageTooBigHint);
+      Utils.showToast(context, ap.imageTooBigHint);
       FA.logEvent('leave_pick_fail');
     }
   }
