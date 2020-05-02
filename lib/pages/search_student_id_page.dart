@@ -1,6 +1,7 @@
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -19,6 +20,7 @@ class SearchStudentIdPage extends StatefulWidget {
 
 class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   AppLocalizations app;
+  ApLocalizations ap;
 
   final _id = TextEditingController();
   final idFocusNode = FocusNode();
@@ -35,6 +37,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
@@ -47,14 +50,14 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             idFocusNode.unfocus();
             _search();
           },
-          labelText: app.id,
+          labelText: ap.id,
         ),
         SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextCheckBox(
-              text: app.autoFill,
+              text: ap.autoFill,
               onChanged: _onAutoFillChanged,
               value: isAutoFill,
             ),
@@ -62,7 +65,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ),
         SizedBox(height: 8.0),
         ApButton(
-          text: app.search,
+          text: ap.search,
           onPressed: () {
             FA.logAction('search_username', 'click');
             _search();
@@ -80,7 +83,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   _search() async {
     if (_id.text.isEmpty) {
-      Utils.showToast(context, app.doNotEmpty);
+      Utils.showToast(context, ap.doNotEmpty);
     } else {
       UserInfo result = await NKUSTHelper.instance.getUsername(_id.text);
       if (result != null && isAutoFill) {
@@ -89,8 +92,8 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         showDialog(
           context: context,
           builder: (BuildContext context) => DefaultDialog(
-            title: app.searchResult,
-            actionText: app.iKnow,
+            title: ap.searchResult,
+            actionText: ap.iKnow,
             actionFunction: () =>
                 Navigator.of(context, rootNavigator: true).pop('dialog'),
             contentWidget: RichText(
@@ -103,7 +106,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
                 children: [
                   TextSpan(
                     text: result == null
-                        ? app.searchStudentIdError
+                        ? ap.searchStudentIdError
                         : sprintf(
                             app.searchStudentIdFormat,
                             [
