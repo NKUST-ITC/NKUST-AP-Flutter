@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -18,7 +19,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     SchedulePage()
   ];
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   TabController controller;
 
@@ -39,10 +40,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.schoolInfo),
+        title: Text(ap.schoolInfo),
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
@@ -62,15 +63,15 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         items: [
           BottomNavigationBarItem(
             icon: Icon(ApIcon.fiberNew),
-            title: Text(app.notifications),
+            title: Text(ap.notifications),
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.phone),
-            title: Text(app.phones),
+            title: Text(ap.phones),
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.dateRange),
-            title: Text(app.events),
+            title: Text(ap.events),
           ),
         ],
       ),
