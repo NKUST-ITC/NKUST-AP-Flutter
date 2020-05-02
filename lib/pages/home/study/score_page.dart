@@ -1,5 +1,6 @@
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/scaffold/score_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class ScorePage extends StatefulWidget {
 class ScorePageState extends State<ScorePage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   ScoreState state = ScoreState.loading;
 
@@ -41,11 +42,11 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return ScoreScaffold(
       state: state,
       scoreData: scoreData,
-      customHint: isOffline ? app.offlineScore : '',
+      customHint: isOffline ? ap.offlineScore : '',
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
@@ -68,10 +69,10 @@ class ScorePageState extends State<ScorePage> {
         key.currentState.pickSemester();
       },
       details: [
-        '${app.conductScore}：${scoreData?.detail?.conduct}',
-        '${app.average}：${scoreData?.detail?.average}',
-        '${app.rank}：${scoreData?.detail?.classRank}',
-        '${app.percentage}：${scoreData?.detail?.classPercentage}',
+        '${ap.conductScore}：${scoreData?.detail?.conduct}',
+        '${ap.average}：${scoreData?.detail?.average}',
+        '${ap.rank}：${scoreData?.detail?.classRank}',
+        '${ap.percentage}：${scoreData?.detail?.classPercentage}',
       ],
     );
   }
