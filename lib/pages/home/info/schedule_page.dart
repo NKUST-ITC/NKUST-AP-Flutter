@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -30,7 +31,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   List<ScheduleData> scheduleDataList = [];
 
@@ -63,7 +64,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -78,7 +79,7 @@ class SchedulePageState extends State<SchedulePage>
           onPressed: _getSchedules,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.busEmpty,
+            content: state == _State.error ? ap.clickToRetry : ap.busEmpty,
           ),
         );
       default:
@@ -169,7 +170,7 @@ class SchedulePageState extends State<SchedulePage>
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
-                    title: app.events,
+                    title: ap.events,
                     contentWidget: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
@@ -179,13 +180,13 @@ class SchedulePageState extends State<SchedulePage>
                               fontSize: 16.0),
                           children: [
                             TextSpan(
-                              text: sprintf(app.addCalendarContent,
+                              text: sprintf(ap.addCalendarContent,
                                   [schedule.events[index]]),
                             ),
                           ]),
                     ),
-                    leftActionText: app.cancel,
-                    rightActionText: app.determine,
+                    leftActionText: ap.cancel,
+                    rightActionText: ap.determine,
                     leftActionFunction: null,
                     rightActionFunction: () {
                       if (schedule.events != null || schedule.events.length > 0)
@@ -244,11 +245,11 @@ class SchedulePageState extends State<SchedulePage>
     try {
       if (Platform.isIOS || Platform.isAndroid) {
         Add2Calendar.addEvent2Cal(event);
-        if (Platform.isIOS) Utils.showToast(context, app.addSuccess);
+        if (Platform.isIOS) Utils.showToast(context, ap.addSuccess);
       } else
-        Utils.showToast(context, app.calendarAppNotFound);
+        Utils.showToast(context, ap.calendarAppNotFound);
     } catch (e) {
-      Utils.showToast(context, app.calendarAppNotFound);
+      Utils.showToast(context, ap.calendarAppNotFound);
       throw e;
     }
   }
