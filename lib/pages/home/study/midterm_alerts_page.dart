@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
@@ -26,7 +27,7 @@ class MidtermAlertsPage extends StatefulWidget {
 class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -55,10 +56,10 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.midtermAlerts),
+        title: Text(ap.midtermAlerts),
         backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
@@ -85,7 +86,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
                 }),
             if (isOffline)
               Text(
-                app.offlineScore,
+                ap.offlineScore,
                 style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
@@ -121,15 +122,14 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content: state == _State.error
-                ? app.clickToRetry
-                : app.midtermAlertsEmpty,
+            content:
+                state == _State.error ? ap.clickToRetry : ap.midtermAlertsEmpty,
           ),
         );
       case _State.offline:
         return HintContent(
           icon: ApIcon.classIcon,
-          content: app.noOfflineData,
+          content: ap.noOfflineData,
         );
       default:
         return ListView.builder(
@@ -159,7 +159,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               sprintf(
-                app.midtermAlertsContent,
+                ap.midtermAlertsContent,
                 [
                   item.reason ?? '',
                   item.remark ?? '',
