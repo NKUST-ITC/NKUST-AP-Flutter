@@ -1,4 +1,5 @@
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
@@ -11,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/home/news/news_edit_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
@@ -119,13 +119,13 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             _getData();
           },
           child: HintContent(
-            icon: AppIcon.classIcon,
+            icon: ApIcon.classIcon,
             content: app.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.classIcon,
+          icon: ApIcon.classIcon,
           content: app.noOfflineData,
         );
       default:
@@ -222,7 +222,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             ),
             trailing: IconButton(
               icon: Icon(
-                AppIcon.cancel,
+                ApIcon.cancel,
                 color: ApTheme.of(context).red,
               ),
               onPressed: () async {

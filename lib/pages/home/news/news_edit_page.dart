@@ -1,10 +1,10 @@
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -210,12 +210,12 @@ class _NewsEditPageState extends State<NewsEditPage> {
                 vertical: 8,
               ),
               leading: Icon(
-                AppIcon.accessTime,
+                ApIcon.accessTime,
                 size: 30,
                 color: ApTheme.of(context).grey,
               ),
               trailing: Icon(
-                AppIcon.keyboardArrowDown,
+                ApIcon.keyboardArrowDown,
                 size: 30,
                 color: ApTheme.of(context).grey,
               ),

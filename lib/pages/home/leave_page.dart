@@ -1,8 +1,8 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leave/leave_record_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class LeavePage extends StatefulWidget {
@@ -59,11 +59,11 @@ class LeavePageState extends State<LeavePage>
         fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.edit),
+            icon: Icon(ApIcon.edit),
             title: Text(app.leaveApply),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.assignment),
+            icon: Icon(ApIcon.assignment),
             title: Text(app.leaveRecords),
           ),
         ],

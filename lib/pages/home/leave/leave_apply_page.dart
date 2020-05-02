@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
@@ -15,7 +16,6 @@ import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/pages/home/leave/pick_tutor_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:sprintf/sprintf.dart';
@@ -116,8 +116,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           onPressed: null,
           child: HintContent(
             icon: state == _State.offline
-                ? AppIcon.offlineBolt
-                : AppIcon.permIdentity,
+                ? ApIcon.offlineBolt
+                : ApIcon.permIdentity,
             content: errorTitle,
           ),
         );
@@ -177,12 +177,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.insertDriveFile,
+                    ApIcon.insertDriveFile,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),
@@ -276,7 +276,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                   IconButton(
                                     padding: EdgeInsets.all(0.0),
                                     icon: Icon(
-                                      AppIcon.cancel,
+                                      ApIcon.cancel,
                                       size: 20.0,
                                       color: ApTheme.of(context).red,
                                     ),
@@ -371,12 +371,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.person,
+                    ApIcon.person,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),
@@ -417,12 +417,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.insertDriveFile,
+                    ApIcon.insertDriveFile,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
                     color: ApTheme.of(context).grey,
                   ),

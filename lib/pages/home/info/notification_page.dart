@@ -1,10 +1,10 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, loadingMore, error, empty, offline }
@@ -131,14 +131,14 @@ class NotificationPageState extends State<NotificationPage>
             FA.logAction('rerty', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
+            icon: ApIcon.assignment,
             content:
                 state == _State.error ? app.clickToRetry : app.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.offlineBolt,
+          icon: ApIcon.offlineBolt,
           content: app.offlineMode,
         );
       default:

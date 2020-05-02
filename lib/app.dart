@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/open_source_page.dart';
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -17,7 +18,6 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
 import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
@@ -60,7 +60,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       firebaseMessaging = FirebaseMessaging();
       _initFCM();
       FA.analytics = analytics;
-      FA.setUserProperty('icon_style', AppIcon.code);
+      FA.setUserProperty('icon_style', ApIcon.code);
     }
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];

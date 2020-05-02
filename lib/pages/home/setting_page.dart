@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -16,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -205,17 +205,17 @@ class SettingPageState extends State<SettingPage> {
                       title: Text(app.iconStyle),
                       children: [
                         for (var item in [
-                          Item(app.outlined, AppIcon.OUTLINED),
-                          Item(app.filled, AppIcon.FILLED),
+                          Item(app.outlined, ApIcon.OUTLINED),
+                          Item(app.filled, ApIcon.FILLED),
                         ])
                           DialogOption(
                               text: item.text,
-                              check: AppIcon.code == item.value,
+                              check: ApIcon.code == item.value,
                               onPressed: () {
-                                if (AppIcon.code != item.value)
+                                if (ApIcon.code != item.value)
                                   FA.logAction('change_icon_style', item.value);
                                 setState(() {
-                                  AppIcon.code = item.value;
+                                  ApIcon.code = item.value;
                                 });
                                 Preferences.setString(
                                     Constants.PREF_ICON_STYLE_CODE, item.value);

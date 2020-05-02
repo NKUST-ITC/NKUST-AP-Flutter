@@ -1,6 +1,6 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
@@ -61,15 +61,15 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.fiberNew),
+            icon: Icon(ApIcon.fiberNew),
             title: Text(app.notifications),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.phone),
+            icon: Icon(ApIcon.phone),
             title: Text(app.phones),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.dateRange),
+            icon: Icon(ApIcon.dateRange),
             title: Text(app.events),
           ),
         ],

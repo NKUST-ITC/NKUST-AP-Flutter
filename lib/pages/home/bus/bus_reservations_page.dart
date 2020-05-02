@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -8,7 +9,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -107,13 +107,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
+            icon: ApIcon.assignment,
             content: errorText,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: AppIcon.assignment,
+          icon: ApIcon.assignment,
           content: app.noOfflineData,
         );
       default:
@@ -148,7 +148,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 1,
                   child: Icon(
-                    AppIcon.directionsBus,
+                    ApIcon.directionsBus,
                     size: 20.0,
                     color: ApTheme.of(context).blueAccent,
                   ),
@@ -173,7 +173,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   flex: 2,
                   child: IconButton(
                     icon: Icon(
-                      AppIcon.cancel,
+                      ApIcon.cancel,
                       size: 20.0,
                       color: isOffline
                           ? ApTheme.of(context).grey

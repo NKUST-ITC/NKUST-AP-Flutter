@@ -1,8 +1,8 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error }
@@ -68,7 +68,7 @@ class PhonePageState extends State<PhonePage>
         );
       case _State.error:
         return HintContent(
-          icon: AppIcon.assignment,
+          icon: ApIcon.assignment,
           content: app.clickToRetry,
         );
       default:

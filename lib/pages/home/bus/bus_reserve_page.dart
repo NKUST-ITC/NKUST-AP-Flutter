@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 
@@ -188,13 +188,13 @@ class BusReservePageState extends State<BusReservePage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
+            icon: ApIcon.assignment,
             content: errorText,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.offlineBolt,
+          icon: ApIcon.offlineBolt,
           content: app.offlineMode,
         );
       default:
@@ -308,7 +308,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 1,
                   child: Icon(
-                    AppIcon.directionsBus,
+                    ApIcon.directionsBus,
                     size: 20.0,
                     color: busTime.getColorState(context),
                   ),
@@ -340,7 +340,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 2,
                   child: Icon(
-                    AppIcon.accessTime,
+                    ApIcon.accessTime,
                     size: 20.0,
                     color: busTime.getColorState(context),
                   ),

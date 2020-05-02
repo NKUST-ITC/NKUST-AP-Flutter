@@ -28,7 +28,6 @@ import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -131,7 +130,7 @@ class HomePageState extends State<HomePage> {
       isLogin: isLogin,
       actions: <Widget>[
         IconButton(
-          icon: Icon(AppIcon.info),
+          icon: Icon(ApIcon.info),
           onPressed: _showInformationDialog,
         ),
         if (ShareDataWidget.of(context).data.loginResponse?.isAdmin ?? false)
@@ -171,7 +170,7 @@ class HomePageState extends State<HomePage> {
               });
             },
             leading: Icon(
-              AppIcon.school,
+              ApIcon.school,
               color: isStudyExpanded
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
@@ -179,27 +178,27 @@ class HomePageState extends State<HomePage> {
             title: Text(app.courseInfo, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
-                icon: AppIcon.classIcon,
+                icon: ApIcon.classIcon,
                 title: app.course,
                 page: CoursePage(),
               ),
               DrawerSubItem(
-                icon: AppIcon.assignment,
+                icon: ApIcon.assignment,
                 title: app.score,
                 page: ScorePage(),
               ),
               DrawerSubItem(
-                icon: AppIcon.apps,
+                icon: ApIcon.apps,
                 title: app.calculateUnits,
                 page: CalculateUnitsPage(),
               ),
               DrawerSubItem(
-                icon: AppIcon.warning,
+                icon: ApIcon.warning,
                 title: app.midtermAlerts,
                 page: MidtermAlertsPage(),
               ),
               DrawerSubItem(
-                icon: AppIcon.folder,
+                icon: ApIcon.folder,
                 title: app.rewardAndPenalty,
                 page: RewardAndPenaltyPage(),
               ),
@@ -213,7 +212,7 @@ class HomePageState extends State<HomePage> {
               });
             },
             leading: Icon(
-              AppIcon.calendarToday,
+              ApIcon.calendarToday,
               color: isLeaveExpanded
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
@@ -221,12 +220,12 @@ class HomePageState extends State<HomePage> {
             title: Text(app.leave, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
-                icon: AppIcon.edit,
+                icon: ApIcon.edit,
                 title: app.leaveApply,
                 page: LeavePage(initIndex: 0),
               ),
               DrawerSubItem(
-                icon: AppIcon.assignment,
+                icon: ApIcon.assignment,
                 title: app.leaveRecords,
                 page: LeavePage(initIndex: 1),
               ),
@@ -240,7 +239,7 @@ class HomePageState extends State<HomePage> {
               });
             },
             leading: Icon(
-              AppIcon.directionsBus,
+              ApIcon.directionsBus,
               color: isBusExpanded
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
@@ -248,24 +247,24 @@ class HomePageState extends State<HomePage> {
             title: Text(app.bus, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
-                icon: AppIcon.dateRange,
+                icon: ApIcon.dateRange,
                 title: app.busReserve,
                 page: BusPage(initIndex: 0),
               ),
               DrawerSubItem(
-                icon: AppIcon.assignment,
+                icon: ApIcon.assignment,
                 title: app.busReservations,
                 page: BusPage(initIndex: 1),
               ),
             ],
           ),
           DrawerItem(
-            icon: AppIcon.info,
+            icon: ApIcon.info,
             title: app.schoolInfo,
             page: SchoolInfoPage(),
           ),
           DrawerItem(
-            icon: AppIcon.face,
+            icon: ApIcon.face,
             title: app.about,
             page: AboutUsPage(
               assetImage: sectionImage,
@@ -300,14 +299,14 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           DrawerItem(
-            icon: AppIcon.settings,
+            icon: ApIcon.settings,
             title: app.settings,
             page: SettingPage(),
           ),
           if (isLogin)
             ListTile(
               leading: Icon(
-                AppIcon.powerSettingsNew,
+                ApIcon.powerSettingsNew,
                 color: ApTheme.of(context).grey,
               ),
               onTap: () async {
@@ -342,15 +341,15 @@ class HomePageState extends State<HomePage> {
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
-          icon: Icon(AppIcon.directionsBus),
+          icon: Icon(ApIcon.directionsBus),
           title: Text(app.bus),
         ),
         BottomNavigationBarItem(
-          icon: Icon(AppIcon.classIcon),
+          icon: Icon(ApIcon.classIcon),
           title: Text(app.course),
         ),
         BottomNavigationBarItem(
-          icon: Icon(AppIcon.assignment),
+          icon: Icon(ApIcon.assignment),
           title: Text(app.score),
         ),
       ],

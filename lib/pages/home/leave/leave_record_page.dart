@@ -1,3 +1,4 @@
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -6,7 +7,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -132,13 +132,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
+            icon: ApIcon.assignment,
             content: state == _State.error ? app.clickToRetry : app.leaveEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: AppIcon.classIcon,
+          icon: ApIcon.classIcon,
           content: app.noOfflineData,
         );
       default:

@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 
 class AppLocalizations {
   AppLocalizations(Locale locale) {
@@ -20,10 +20,10 @@ class AppLocalizations {
   }
 
   String get iconText {
-    switch (AppIcon.code) {
-      case AppIcon.FILLED:
+    switch (ApIcon.code) {
+      case ApIcon.FILLED:
         return filled;
-      case AppIcon.OUTLINED:
+      case ApIcon.OUTLINED:
       default:
         return outlined;
     }
