@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
@@ -23,7 +24,7 @@ class NotificationPageState extends State<NotificationPage>
 
   _State state = _State.loading;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   ScrollController controller;
   List<Notifications> notificationList = [];
@@ -113,7 +114,7 @@ class NotificationPageState extends State<NotificationPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -133,13 +134,13 @@ class NotificationPageState extends State<NotificationPage>
           child: HintContent(
             icon: ApIcon.assignment,
             content:
-                state == _State.error ? app.clickToRetry : app.clickToRetry,
+                state == _State.error ? ap.clickToRetry : ap.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
           icon: ApIcon.offlineBolt,
-          content: app.offlineMode,
+          content: ap.offlineMode,
         );
       default:
         return RefreshIndicator(
