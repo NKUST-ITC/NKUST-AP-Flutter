@@ -51,6 +51,7 @@ class HomePageState extends State<HomePage> {
   var state = HomeState.loading;
 
   AppLocalizations app;
+  ApLocalizations ap;
 
   List<Announcement> announcements;
 
@@ -122,6 +123,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return HomePageScaffold(
       title: app.appName,
       key: _homeKey,
@@ -175,31 +177,31 @@ class HomePageState extends State<HomePage> {
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
             ),
-            title: Text(app.courseInfo, style: _defaultStyle),
+            title: Text(ap.courseInfo, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
                 icon: ApIcon.classIcon,
-                title: app.course,
+                title: ap.course,
                 page: CoursePage(),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
-                title: app.score,
+                title: ap.score,
                 page: ScorePage(),
               ),
               DrawerSubItem(
                 icon: ApIcon.apps,
-                title: app.calculateUnits,
+                title: ap.calculateUnits,
                 page: CalculateUnitsPage(),
               ),
               DrawerSubItem(
                 icon: ApIcon.warning,
-                title: app.midtermAlerts,
+                title: ap.midtermAlerts,
                 page: MidtermAlertsPage(),
               ),
               DrawerSubItem(
                 icon: ApIcon.folder,
-                title: app.rewardAndPenalty,
+                title: ap.rewardAndPenalty,
                 page: RewardAndPenaltyPage(),
               ),
             ],
@@ -217,16 +219,16 @@ class HomePageState extends State<HomePage> {
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
             ),
-            title: Text(app.leave, style: _defaultStyle),
+            title: Text(ap.leave, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
                 icon: ApIcon.edit,
-                title: app.leaveApply,
+                title: ap.leaveApply,
                 page: LeavePage(initIndex: 0),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
-                title: app.leaveRecords,
+                title: ap.leaveRecords,
                 page: LeavePage(initIndex: 1),
               ),
             ],
@@ -244,33 +246,33 @@ class HomePageState extends State<HomePage> {
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
             ),
-            title: Text(app.bus, style: _defaultStyle),
+            title: Text(ap.bus, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
                 icon: ApIcon.dateRange,
-                title: app.busReserve,
+                title: ap.busReserve,
                 page: BusPage(initIndex: 0),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
-                title: app.busReservations,
+                title: ap.busReservations,
                 page: BusPage(initIndex: 1),
               ),
             ],
           ),
           DrawerItem(
             icon: ApIcon.info,
-            title: app.schoolInfo,
+            title: ap.schoolInfo,
             page: SchoolInfoPage(),
           ),
           DrawerItem(
             icon: ApIcon.face,
-            title: app.about,
+            title: ap.about,
             page: AboutUsPage(
               assetImage: sectionImage,
               githubName: 'NKUST-ITC',
               email: 'abc873693@gmail.com',
-              appLicense: app.aboutOpenSourceContent,
+              appLicense: ap.aboutOpenSourceContent,
               fbFanPageId: '735951703168873',
               fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
               githubUrl: 'https://github.com/NKUST-ITC',
@@ -300,7 +302,7 @@ class HomePageState extends State<HomePage> {
           ),
           DrawerItem(
             icon: ApIcon.settings,
-            title: app.settings,
+            title: ap.settings,
             page: SettingPage(),
           ),
           if (isLogin)
@@ -317,7 +319,7 @@ class HomePageState extends State<HomePage> {
                 Navigator.of(context).pop();
                 checkLogin();
               },
-              title: Text(app.logout, style: _defaultStyle),
+              title: Text(ap.logout, style: _defaultStyle),
             ),
         ],
 //        onClickLogout: () {
@@ -342,15 +344,15 @@ class HomePageState extends State<HomePage> {
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
           icon: Icon(ApIcon.directionsBus),
-          title: Text(app.bus),
+          title: Text(ap.bus),
         ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.classIcon),
-          title: Text(app.course),
+          title: Text(ap.course),
         ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.assignment),
-          title: Text(app.score),
+          title: Text(ap.score),
         ),
       ],
       floatingActionButton: FloatingActionButton.extended(
@@ -367,9 +369,9 @@ class HomePageState extends State<HomePage> {
               else
                 _getEventInfo(result.rawContent);
             } else
-              Utils.showToast(context, app.cancel);
+              Utils.showToast(context, ap.cancel);
           } else
-            Utils.showToast(context, app.notLogin);
+            Utils.showToast(context, ap.notLogin);
         },
         label: Text(
           app.punch,
@@ -397,7 +399,7 @@ class HomePageState extends State<HomePage> {
           break;
       }
     } else
-      Utils.showToast(context, app.notLogin);
+      Utils.showToast(context, ap.notLogin);
   }
 
   _getAnnouncements() async {
@@ -530,29 +532,29 @@ class HomePageState extends State<HomePage> {
       if (state != HomeState.finish) {
         _getAnnouncements();
       }
-      _homeKey.currentState.showBasicHint(text: app.loginSuccess);
+      _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
     }).catchError((e) {
-      String text = app.loginFail;
+      String text = ap.loginFail;
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.DEFAULT:
-            text = app.noInternet;
+            text = ap.noInternet;
             break;
           case DioErrorType.CONNECT_TIMEOUT:
           case DioErrorType.RECEIVE_TIMEOUT:
           case DioErrorType.SEND_TIMEOUT:
-            text = app.timeoutMessage;
+            text = ap.timeoutMessage;
             break;
           default:
             break;
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(context, app.loadOfflineData);
+        Utils.showToast(context, ap.loadOfflineData);
         isLogin = true;
       }
       _homeKey.currentState.showSnackBar(
         text: text,
-        actionText: app.retry,
+        actionText: ap.retry,
         onSnackBarTapped: _login,
       );
       if (!(e is DioError)) throw e;
@@ -606,10 +608,10 @@ class HomePageState extends State<HomePage> {
         onError: (GeneralResponse generalResponse) {
           switch (generalResponse.code) {
             case 403:
-              Utils.showToast(context, app.canNotUseFeature);
+              Utils.showToast(context, ap.canNotUseFeature);
               break;
             case 401:
-              Utils.showToast(context, app.tokenExpiredContent);
+              Utils.showToast(context, ap.tokenExpiredContent);
               break;
             default:
               Utils.showToast(context, generalResponse.description);
@@ -646,7 +648,7 @@ class HomePageState extends State<HomePage> {
         onError: (EventInfoResponse response) {
           switch (response.code) {
             case 403:
-              Utils.showToast(context, app.canNotUseFeature);
+              Utils.showToast(context, ap.canNotUseFeature);
               break;
             case 401:
               _showEventInfoDialog(data, response);
@@ -673,7 +675,7 @@ class HomePageState extends State<HomePage> {
               actionFunction: () {
                 Navigator.of(context).pop();
               },
-              actionText: app.ok,
+              actionText: ap.ok,
             ),
           );
         },
