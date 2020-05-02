@@ -1,3 +1,4 @@
+import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
