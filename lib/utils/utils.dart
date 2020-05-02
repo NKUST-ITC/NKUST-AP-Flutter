@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -16,7 +17,6 @@ import 'package:image/image.dart' as ImageUtils;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/pages/home/bus_page.dart';
 import 'package:nkust_ap/pages/home/leave_page.dart';
 import 'package:nkust_ap/pages/home/study/calculate_units_page.dart';

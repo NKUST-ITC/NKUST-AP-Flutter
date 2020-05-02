@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
@@ -277,8 +278,22 @@ class Helper {
       );
       if (response.statusCode == 204)
         return null;
-      else
-        return CourseData.fromJson(response.data);
+      else {
+        var courseData = CourseData.fromJson(response.data);
+        for (var i = 0; i < courseData.courses.length; i++) {
+          final courseDetail = courseData.courses[i];
+          for (var weekIndex = 0;
+              weekIndex < courseData.courseTables.weeks.length;
+              weekIndex++) {
+            for (var course in courseData.courseTables.weeks[weekIndex]) {
+              if (course.title == courseDetail.title) {
+                course.detailIndex = i;
+              }
+            }
+          }
+        }
+        return courseData;
+      }
     } on DioError catch (dioError) {
       throw dioError;
     }

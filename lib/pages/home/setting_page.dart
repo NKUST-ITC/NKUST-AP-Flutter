@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/models/ap_support_language.dart';
+import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -13,7 +14,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/res/app_icon.dart';
