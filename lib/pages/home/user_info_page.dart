@@ -10,12 +10,10 @@ class UserInfoPage extends StatefulWidget {
   const UserInfoPage({Key key, this.userInfo}) : super(key: key);
 
   @override
-  UserInfoPageState createState() => new UserInfoPageState();
+  UserInfoPageState createState() => UserInfoPageState();
 }
 
 class UserInfoPageState extends State<UserInfoPage> {
-  AppLocalizations app;
-
   @override
   void initState() {
     FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
@@ -24,10 +22,13 @@ class UserInfoPageState extends State<UserInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return UserInfoScaffold(
       userInfo: widget.userInfo,
       actions: <Widget>[],
+      onRefresh: () async {
+        //TODO on refresh data
+        return null;
+      },
     );
   }
 }
