@@ -710,7 +710,7 @@ class _EventPickDialogState extends State<EventPickDialog> {
           ? Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(8.0),
-              child: Text(AppLocalizations.of(context).noData),
+              child: Text(ApLocalizations.of(context).noData),
             )
           : Container(
               width: MediaQuery.of(context).size.width * 0.7,
@@ -748,8 +748,8 @@ class _EventPickDialogState extends State<EventPickDialog> {
                 ],
               ),
             ),
-      leftActionText: AppLocalizations.of(context).cancel,
-      rightActionText: AppLocalizations.of(context).submit,
+      leftActionText: ApLocalizations.of(context).cancel,
+      rightActionText: ApLocalizations.of(context).submit,
       rightActionFunction: () {
         if ((widget.eventInfo?.data?.length ?? 0) != 0)
           widget.onSubmit(index);

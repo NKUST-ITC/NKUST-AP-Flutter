@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -39,12 +41,12 @@ class Utils {
   static void handleDioError(BuildContext context, DioError dioError) {
     switch (dioError.type) {
       case DioErrorType.DEFAULT:
-        showToast(context, AppLocalizations.of(context).noInternet);
+        showToast(context, ApLocalizations.of(context).noInternet);
         break;
       case DioErrorType.CONNECT_TIMEOUT:
       case DioErrorType.RECEIVE_TIMEOUT:
       case DioErrorType.SEND_TIMEOUT:
-        showToast(context, AppLocalizations.of(context).timeoutMessage);
+        showToast(context, ApLocalizations.of(context).timeoutMessage);
         break;
       case DioErrorType.RESPONSE:
       case DioErrorType.CANCEL:
@@ -57,9 +59,9 @@ class Utils {
     var app = AppLocalizations.of(context);
     FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
-      Utils.showToast(context, app.tokenExpiredContent);
+      Utils.showToast(context, ApLocalizations.of(context).tokenExpiredContent);
     } else {
-      Utils.showToast(context, app.somethingError);
+      Utils.showToast(context, ApLocalizations.of(context).somethingError);
     }
   }
 
@@ -70,15 +72,6 @@ class Utils {
       duration: Toast.LENGTH_LONG,
       gravity: Toast.BOTTOM,
     );
-  }
-
-  static String getPlatformUpdateContent(BuildContext context) {
-    if (Platform.isAndroid)
-      return AppLocalizations.of(context).updateAndroidContent;
-    else if (Platform.isIOS)
-      return AppLocalizations.of(context).updateIOSContent;
-    else
-      return AppLocalizations.of(context).updateContent;
   }
 
   static void showSnackBarBar(
@@ -291,7 +284,7 @@ class Utils {
     await Future.delayed(Duration(seconds: 1));
     var date = DateTime.now();
     if (date.millisecondsSinceEpoch % 5 != 0) return;
-    AppLocalizations app = AppLocalizations.of(context);
+    final app = ApLocalizations.of(context);
     if (Platform.isAndroid || Platform.isIOS) {
       showDialog(
         context: context,
@@ -325,7 +318,7 @@ class Utils {
 
   static void showAppReviewSheet(BuildContext context) async {
     // await Future.delayed(Duration(seconds: 1));
-    AppLocalizations app = AppLocalizations.of(context);
+    final app = ApLocalizations.of(context);
     if (Platform.isAndroid || Platform.isIOS) {
       showModalBottomSheet(
         context: context,
@@ -398,20 +391,9 @@ class Utils {
     var currentVersion =
         Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
     if (currentVersion != packageInfo.buildNumber) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: app.updateNoteTitle,
-          contentWidget: Text(
-            "v${packageInfo.version}\n"
-            "${app.updateNoteContent}",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: ApTheme.of(context).grey),
-          ),
-          actionText: app.iKnow,
-          actionFunction: () =>
-              Navigator.of(context, rootNavigator: true).pop('dialog'),
-        ),
+      DialogUtils.showUpdateContent(
+        context,
+        AppLocalizations.of(context).updateNoteContent,
       );
       Preferences.setString(
           Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
@@ -458,65 +440,14 @@ class Utils {
               remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
           break;
       }
-      if (versionDiff < 5 && versionDiff > 0) {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => YesNoDialog(
-            title: app.updateTitle,
-            contentWidget: RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: TextStyle(
-                      color: ApTheme.of(context).grey,
-                      height: 1.3,
-                      fontSize: 16.0),
-                  children: [
-                    TextSpan(
-                      text: '${app.updateContent}\n'
-                          '${versionContent.replaceAll('\\n', '\n')}',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ]),
-            ),
-            leftActionText: app.skip,
-            rightActionText: app.update,
-            leftActionFunction: null,
-            rightActionFunction: () {
-              Utils.launchUrl(url);
-            },
-          ),
-        );
-      } else if (versionDiff >= 5) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) => WillPopScope(
-            child: DefaultDialog(
-                title: app.updateTitle,
-                actionText: app.update,
-                contentWidget: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                      style: TextStyle(
-                          color: ApTheme.of(context).grey,
-                          height: 1.3,
-                          fontSize: 16.0),
-                      children: [
-                        TextSpan(
-                            text: '${app.updateContent}\n'
-                                '${versionContent.replaceAll('\\n', '\n')}',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
-                      ]),
-                ),
-                actionFunction: () {
-                  Utils.launchUrl(url);
-                }),
-            onWillPop: () async {
-              return false;
-            },
-          ),
-        );
-      }
+      DialogUtils.showNewVersionContent(
+        context: context,
+        newVersionCode: newVersion,
+        appName: app.appName,
+        iOSAppId: '1439751462',
+        defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+        newVersionContent: versionContent,
+      );
     }
   }
 

@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -37,6 +38,7 @@ class BusReservePageState extends State<BusReservePage>
   bool get wantKeepAlive => true;
 
   AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.finish;
 
@@ -63,6 +65,7 @@ class BusReservePageState extends State<BusReservePage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       body: OrientationBuilder(
         builder: (_, orientation) {
@@ -97,7 +100,7 @@ class BusReservePageState extends State<BusReservePage>
                             initialCalendarDateOverride: dateTime,
                             dayChildAspectRatio:
                                 orientation == Orientation.portrait ? 1.5 : 3,
-                            weekdays: app.weekdays,
+                            weekdays: ap.weekdays,
                           ),
                         ),
                         Container(
@@ -161,13 +164,13 @@ class BusReservePageState extends State<BusReservePage>
   String get errorText {
     switch (state) {
       case _State.error:
-        return app.clickToRetry;
+        return ap.clickToRetry;
       case _State.empty:
         return app.busEmpty;
       case _State.campusNotSupport:
-        return app.campusNotSupport;
+        return ap.campusNotSupport;
       case _State.userNotSupport:
-        return app.userNotSupport;
+        return ap.userNotSupport;
       default:
         return '';
     }
@@ -195,7 +198,7 @@ class BusReservePageState extends State<BusReservePage>
       case _State.offline:
         return HintContent(
           icon: ApIcon.offlineBolt,
-          content: app.offlineMode,
+          content: ap.offlineMode,
         );
       default:
         return RefreshIndicator(
@@ -270,7 +273,7 @@ class BusReservePageState extends State<BusReservePage>
                             ],
                           ),
                         ),
-                        leftActionText: app.cancel,
+                        leftActionText: ap.cancel,
                         rightActionText: app.reserve,
                         leftActionFunction: null,
                         rightActionFunction: () {
@@ -291,8 +294,8 @@ class BusReservePageState extends State<BusReservePage>
                               "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
                               textAlign: TextAlign.center,
                             ),
-                            leftActionText: app.back,
-                            rightActionText: app.determine,
+                            leftActionText: ap.back,
+                            rightActionText: ap.determine,
                             rightActionFunction: () {
                               cancelBusReservation(busTime);
                               FA.logAction('cancel_bus', 'click');
@@ -324,7 +327,7 @@ class BusReservePageState extends State<BusReservePage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    "${busTime.reserveCount} ${app.people}",
+                    "${busTime.reserveCount} ${ap.people}",
                     textAlign: TextAlign.center,
                     style: _textStyle(busTime),
                   ),
@@ -483,7 +486,7 @@ class BusReservePageState extends State<BusReservePage>
                   ),
                 ]),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () {
             Navigator.of(context, rootNavigator: true).pop();
           },
@@ -505,7 +508,7 @@ class BusReservePageState extends State<BusReservePage>
                   style: TextStyle(
                       color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop('dialog');
                 },
@@ -584,7 +587,7 @@ class BusReservePageState extends State<BusReservePage>
                   ),
                 ]),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () =>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
@@ -605,7 +608,7 @@ class BusReservePageState extends State<BusReservePage>
                   style: TextStyle(
                       color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop('dialog');
                 },

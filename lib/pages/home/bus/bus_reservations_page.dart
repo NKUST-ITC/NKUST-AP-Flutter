@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -39,6 +40,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   DateTime dateTime = DateTime.now();
 
   AppLocalizations app;
+  ApLocalizations ap;
 
   bool isOffline = false;
 
@@ -58,6 +60,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Column(
       children: <Widget>[
         Container(
@@ -79,13 +82,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
   String get errorText {
     switch (state) {
       case _State.error:
-        return app.clickToRetry;
+        return ap.clickToRetry;
       case _State.empty:
         return app.busReservationEmpty;
       case _State.campusNotSupport:
-        return app.campusNotSupport;
+        return ap.campusNotSupport;
       case _State.userNotSupport:
-        return app.userNotSupport;
+        return ap.userNotSupport;
       default:
         return '';
     }
@@ -114,7 +117,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.offlineEmpty:
         return HintContent(
           icon: ApIcon.assignment,
-          content: app.noOfflineData,
+          content: ap.noOfflineData,
         );
       default:
         return RefreshIndicator(
@@ -192,8 +195,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                   "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
                                   textAlign: TextAlign.center,
                                 ),
-                                leftActionText: app.back,
-                                rightActionText: app.determine,
+                                leftActionText: ap.back,
+                                rightActionText: ap.determine,
                                 rightActionFunction: () {
                                   cancelBusReservation(busReservation);
                                   FA.logAction('cancel_bus', 'click');
@@ -355,7 +358,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   ),
                 ]),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () =>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
@@ -378,7 +381,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                       height: 1.3,
                       fontSize: 16.0),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop('dialog');
                 },
