@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
@@ -22,7 +23,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   final _username = TextEditingController();
   final _password = TextEditingController();
@@ -47,7 +48,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
@@ -58,7 +59,7 @@ class LoginPageState extends State<LoginPage> {
           textInputAction: TextInputAction.next,
           focusNode: usernameFocusNode,
           nextFocusNode: passwordFocusNode,
-          labelText: app.username,
+          labelText: ap.username,
         ),
         ApTextField(
           obscureText: true,
@@ -69,19 +70,19 @@ class LoginPageState extends State<LoginPage> {
             passwordFocusNode.unfocus();
             _login();
           },
-          labelText: app.password,
+          labelText: ap.password,
         ),
         SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             TextCheckBox(
-              text: app.autoLogin,
+              text: ap.autoLogin,
               value: isAutoLogin,
               onChanged: _onAutoLoginChanged,
             ),
             TextCheckBox(
-              text: app.remember,
+              text: ap.remember,
               value: isRememberPassword,
               onChanged: _onRememberPasswordChanged,
             ),
@@ -89,18 +90,18 @@ class LoginPageState extends State<LoginPage> {
         ),
         SizedBox(height: 8.0),
         ApButton(
-          text: app.login,
+          text: ap.login,
           onPressed: () {
             FA.logAction('login', 'click');
             _login();
           },
         ),
         ApFlatButton(
-          text: app.offlineLogin,
+          text: ap.offlineLogin,
           onPressed: _offlineLogin,
         ),
         ApFlatButton(
-          text: app.searchUsername,
+          text: ap.searchUsername,
           onPressed: () async {
             var username = await Navigator.push(
               context,
@@ -112,7 +113,7 @@ class LoginPageState extends State<LoginPage> {
               setState(() {
                 _username.text = username;
               });
-              Utils.showToast(context, app.firstLoginHint);
+              Utils.showToast(context, ap.firstLoginHint);
             }
           },
         )
@@ -156,12 +157,12 @@ class LoginPageState extends State<LoginPage> {
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(context, app.doNotEmpty);
+      Utils.showToast(context, ap.doNotEmpty);
     } else {
       showDialog(
         context: context,
         builder: (BuildContext context) => WillPopScope(
-            child: ProgressDialog(app.logining),
+            child: ProgressDialog(ap.logining),
             onWillPop: () async {
               return false;
             }),
@@ -188,7 +189,7 @@ class LoginPageState extends State<LoginPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(context, app.loginFail);
+              Utils.showToast(context, ap.loginFail);
               Utils.handleResponseError(context, 'login', mounted, e);
               _offlineLogin();
               break;
@@ -210,13 +211,13 @@ class LoginPageState extends State<LoginPage> {
     String password =
         Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     if (username.isEmpty || password.isEmpty) {
-      Utils.showToast(context, app.noOfflineLoginData);
+      Utils.showToast(context, ap.noOfflineLoginData);
     } else {
       if (username != _username.text || password != _password.text)
-        Utils.showToast(context, app.offlineLoginPasswordError);
+        Utils.showToast(context, ap.offlineLoginPasswordError);
       else {
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(context, app.loadOfflineData);
+        Utils.showToast(context, ap.loadOfflineData);
         Navigator.of(context).pop(true);
       }
     }
