@@ -1,4 +1,5 @@
 import 'package:ap_common/scaffold/course_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +18,7 @@ class CoursePage extends StatefulWidget {
 class CoursePageState extends State<CoursePage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   CourseState state = CourseState.loading;
 
@@ -40,11 +41,11 @@ class CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return CourseScaffold(
       state: state,
       courseData: courseData,
-      customHint: isOffline ? app.offlineCourse : '',
+      customHint: isOffline ? ap.offlineCourse : '',
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
