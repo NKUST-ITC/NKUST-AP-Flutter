@@ -1,6 +1,7 @@
 import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
@@ -39,7 +40,7 @@ class NewsEditPage extends StatefulWidget {
 class _NewsEditPageState extends State<NewsEditPage> {
   final _formKey = GlobalKey<FormState>();
 
-  AppLocalizations app;
+  ApLocalizations app;
 
   _State state = _State.loading;
 
@@ -82,10 +83,10 @@ class _NewsEditPageState extends State<NewsEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.news),
+        title: Text(app.announcements),
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: Form(

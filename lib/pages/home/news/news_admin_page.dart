@@ -1,6 +1,7 @@
 import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -33,7 +34,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  AppLocalizations app;
+  ApLocalizations app;
 
   _State state = _State.notLogin;
 
@@ -68,11 +69,11 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = ApLocalizations.of(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(app.news),
+        title: Text(app.announcements),
         backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: state == _State.notLogin
