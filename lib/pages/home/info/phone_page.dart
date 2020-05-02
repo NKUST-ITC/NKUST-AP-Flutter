@@ -1,5 +1,6 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -21,7 +22,7 @@ class PhonePageState extends State<PhonePage>
 
   _State state = _State.loading;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   List<PhoneModel> phoneModelList = [];
 
@@ -56,7 +57,7 @@ class PhonePageState extends State<PhonePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -69,7 +70,7 @@ class PhonePageState extends State<PhonePage>
       case _State.error:
         return HintContent(
           icon: ApIcon.assignment,
-          content: app.clickToRetry,
+          content: ap.clickToRetry,
         );
       default:
         return ListView.builder(
