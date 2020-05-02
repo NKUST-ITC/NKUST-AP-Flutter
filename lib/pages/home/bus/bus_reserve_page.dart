@@ -1,4 +1,5 @@
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
@@ -10,7 +11,6 @@ import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 
 enum _State {

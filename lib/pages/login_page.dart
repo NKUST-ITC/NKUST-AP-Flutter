@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +12,6 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class LoginPage extends StatefulWidget {

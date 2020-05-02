@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:app_review/app_review.dart';
@@ -25,7 +26,6 @@ import 'package:nkust_ap/pages/home/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/home/study/score_page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
