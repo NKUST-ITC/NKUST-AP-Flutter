@@ -13,13 +13,10 @@ dependencies:
     sdk: flutter
   flutter_cupertino_localizations: 1.0.1
 
-  ap_common: 0.2.0
+  ap_common:
+    path: ../ap_common
 
   #official plugin
-  shared_preferences: 0.5.6
-  package_info: 0.4.0+13
-  url_launcher: 5.4.5
-  share: 0.6.3+5
   image_picker: 0.6.2+3
   path_provider: 1.5.1
   firebase_core: 0.4.3+3
