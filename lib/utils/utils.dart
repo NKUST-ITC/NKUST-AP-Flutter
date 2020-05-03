@@ -100,6 +100,7 @@ class Utils {
         id: Constants.NOTIFICATION_FCM_ID,
         androidChannelId: '${Constants.NOTIFICATION_FCM_ID}',
         androidChannelDescription: '系統通知',
+        androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
         title: '系統通知',
         content: payload,
       );
@@ -118,6 +119,7 @@ class Utils {
           id: Constants.NOTIFICATION_BUS_ID,
           androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
           androidChannelDescription: app.busNotify,
+          androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
           dateTime: i.getDateTime(),
           title: app.busNotify,
           content: sprintf(
@@ -133,7 +135,7 @@ class Utils {
   }
 
   static Future<void> cancelBusNotify() async {
-    var flutterLocalNotificationsPlugin = initFlutterLocalNotificationsPlugin();
+    var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancel(Constants.NOTIFICATION_BUS_ID);
   }
 
@@ -164,6 +166,7 @@ class Utils {
             id: Constants.NOTIFICATION_COURSE_ID,
             androidChannelId: '${Constants.NOTIFICATION_COURSE_ID}',
             androidChannelDescription: app.courseNotify,
+            androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
             day: NotificationUtils.getDay(i),
             time: NotificationUtils.parseTime(course.date.startTime,
                 beforeMinutes: 10),
@@ -178,23 +181,9 @@ class Utils {
   }
 
   static Future<void> cancelCourseNotify() async {
-    var flutterLocalNotificationsPlugin = initFlutterLocalNotificationsPlugin();
+    var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin
         .cancel(Constants.NOTIFICATION_COURSE_ID);
-  }
-
-  static FlutterLocalNotificationsPlugin initFlutterLocalNotificationsPlugin() {
-    var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    var initializationSettings = InitializationSettings(
-      AndroidInitializationSettings(
-          Constants.ANDROID_DEFAULT_NOTIFICATION_NAME),
-      IOSInitializationSettings(
-        onDidReceiveLocalNotification: (id, title, body, payload) {},
-      ),
-    );
-    flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (text) {});
-    return flutterLocalNotificationsPlugin;
   }
 
   static void showAppReviewDialog(BuildContext context) async {
