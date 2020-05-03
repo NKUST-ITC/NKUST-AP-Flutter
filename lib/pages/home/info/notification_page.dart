@@ -1,6 +1,7 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
@@ -58,14 +59,14 @@ class NotificationPageState extends State<NotificationPage>
   Widget _notificationItem(Notifications notification) {
     return GestureDetector(
       onLongPress: () {
-        Utils.shareTo("${notification.info.title}\n${notification.link}");
+        ApUtils.shareTo("${notification.info.title}\n${notification.link}");
         FA.logAction('share', 'long_click',
             message: '${notification.info.title}');
       },
       child: FlatButton(
         padding: EdgeInsets.all(0.0),
         onPressed: () {
-          Utils.launchUrl(notification.link);
+          ApUtils.launchUrl(notification.link);
           FA.logAction('notification_link"', 'click',
               message: '${notification.info.title}');
         },
@@ -133,8 +134,7 @@ class NotificationPageState extends State<NotificationPage>
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content:
-                state == _State.error ? ap.clickToRetry : ap.clickToRetry,
+            content: state == _State.error ? ap.clickToRetry : ap.clickToRetry,
           ),
         );
       case _State.offline:

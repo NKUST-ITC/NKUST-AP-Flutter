@@ -251,7 +251,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                         if (e is DioError) {
                           switch (e.type) {
                             case DioErrorType.RESPONSE:
-                              ApUtils.showToast(context, e.response?.data ?? '');
+                              ApUtils.showToast(
+                                  context, e.response?.data ?? '');
                               break;
                             case DioErrorType.CANCEL:
                               break;
@@ -294,7 +295,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Utils.launchUrl(item.imgUrl);
+                          ApUtils.launchUrl(item.imgUrl);
                         },
                     ),
                     TextSpan(
@@ -309,7 +310,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Utils.launchUrl(item.url);
+                          ApUtils.launchUrl(item.url);
                         },
                     ),
                     TextSpan(

@@ -86,34 +86,6 @@ class Utils {
     );
   }
 
-  static Future<void> launchUrl(var url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  static callPhone(String url) async {
-    url = url.replaceAll('#', ',');
-    url = url.replaceAll('(', '');
-    url = url.replaceAll(')', '');
-    url = url.replaceAll('-', '');
-    url = url.replaceAll(' ', '');
-    url = "tel:$url";
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
-  static void shareTo(String content) async {
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    Share.share("$content\n\n"
-        "Send from ${packageInfo.appName} ${Platform.operatingSystem}");
-  }
-
   static void clearSetting() async {
     var prefs = await SharedPreferences.getInstance();
     prefs.setBool(Constants.PREF_AUTO_LOGIN, false);

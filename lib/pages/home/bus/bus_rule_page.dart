@@ -1,4 +1,5 @@
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -60,7 +61,7 @@ class BusRulePageState extends State<BusRulePage> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap =
-                          () => Utils.launchUrl('http://bus.kuas.edu.tw/')),
+                          () => ApUtils.launchUrl('http://bus.kuas.edu.tw/')),
                 TextSpan(
                   text: " 校車預約系統預約校車\n" +
                       "• 可預約14天以內的校車班次\n" +
@@ -102,7 +103,8 @@ class BusRulePageState extends State<BusRulePage> {
                 TextSpan(
                   text: '• 未攜帶證件者請排後補區\n',
                   style: TextStyle(
-                      color: ApTheme.of(context).red, fontWeight: FontWeight.bold),
+                      color: ApTheme.of(context).red,
+                      fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text:

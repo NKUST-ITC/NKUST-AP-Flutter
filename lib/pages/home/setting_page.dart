@@ -263,19 +263,7 @@ class SettingPageState extends State<SettingPage> {
                 text: ap.feedback,
                 subText: ap.feedbackViaFacebook,
                 onTap: () {
-                  if (Platform.isAndroid)
-                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_ANDROID)
-                        .catchError((onError) =>
-                            Utils.launchUrl(Constants.FANS_PAGE_URL));
-                  else if (Platform.isIOS)
-                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_IOS)
-                        .catchError((onError) =>
-                            Utils.launchUrl(Constants.FANS_PAGE_URL));
-                  else {
-                    Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
-                        (onError) =>
-                            ApUtils.showToast(context, ap.platformError));
-                  }
+                  ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
                   FA.logAction('feedback', 'click');
                 }),
             SettingItem(

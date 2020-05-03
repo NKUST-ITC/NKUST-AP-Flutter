@@ -1,6 +1,7 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -126,7 +127,7 @@ class PhonePageState extends State<PhonePage>
       onPressed: () {
         FA.logAction('call_phone', 'click');
         try {
-          Utils.callPhone(phone.number);
+          ApUtils.callPhone(phone.number);
           FA.logAction('call_phone', 'status', message: 'succes');
         } catch (e) {
           FA.logAction('call_phone', 'status', message: 'error');
