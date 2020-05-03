@@ -35,10 +35,20 @@ class LoginPageState extends State<LoginPage> {
   var isRememberPassword = true;
   var isAutoLogin = false;
 
+  int gravity = Toast.BOTTOM;
+
   @override
   void initState() {
     FA.setCurrentScreen("LoginPage", "login_page.dart");
     _getPreference();
+    KeyboardVisibilityNotification().addNewListener(
+      onShow: () {
+        gravity = Toast.TOP;
+      },
+      onHide: () {
+        gravity = Toast.BOTTOM;
+      },
+    );
     super.initState();
   }
 
@@ -158,7 +168,7 @@ class LoginPageState extends State<LoginPage> {
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      ApUtils.showToast(context, ap.doNotEmpty);
+      ApUtils.showToast(context, ap.doNotEmpty, gravity: gravity);
     } else {
       showDialog(
         context: context,
@@ -190,13 +200,14 @@ class LoginPageState extends State<LoginPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              ApUtils.showToast(context, ap.loginFail);
+              ApUtils.showToast(context, ap.loginFail, gravity: gravity);
               Utils.handleResponseError(context, 'login', mounted, e);
               _offlineLogin();
               break;
             case DioErrorType.CANCEL:
               break;
             default:
+              //TODO improve hint
               Utils.handleDioError(context, e);
               break;
           }
