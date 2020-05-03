@@ -7,12 +7,10 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/cupertino.dart' show CupertinoPageRoute;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
@@ -21,23 +19,12 @@ import 'package:image/image.dart' as ImageUtils;
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/pages/home/bus_page.dart';
-import 'package:nkust_ap/pages/home/leave_page.dart';
-import 'package:nkust_ap/pages/home/study/calculate_units_page.dart';
-import 'package:nkust_ap/pages/home/study/course_page.dart';
-import 'package:nkust_ap/pages/home/study/midterm_alerts_page.dart';
-import 'package:nkust_ap/pages/home/study/reward_and_penalty_page.dart';
-import 'package:nkust_ap/pages/home/study/score_page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:toast/toast.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class Utils {
   static void handleDioError(BuildContext context, DioError dioError) {
@@ -58,7 +45,6 @@ class Utils {
 
   static void handleResponseError(
       BuildContext context, String type, bool mounted, DioError e) {
-    var app = AppLocalizations.of(context);
     FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
       ApUtils.showToast(
@@ -320,20 +306,14 @@ class Utils {
         Helper.resetInstance();
         apiHostUpdate();
       }
-      String url = "";
-      int versionDiff = 0, newVersion;
+      int newVersion;
       if (Platform.isAndroid) {
-        url = "market://details?id=${packageInfo.packageName}";
         newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
       } else if (Platform.isIOS) {
-        url =
-            "itms-apps://itunes.apple.com/tw/app/apple-store/id1439751462?mt=8";
         newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
       } else {
-        url = "https://www.facebook.com/NKUST.ITC/";
         newVersion = remoteConfig.getInt(Constants.APP_VERSION);
       }
-      versionDiff = newVersion - int.parse(packageInfo.buildNumber);
       String versionContent =
           "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
       switch (AppLocalizations.locale.languageCode) {

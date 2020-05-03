@@ -108,7 +108,7 @@ class SchedulePageState extends State<SchedulePage>
         await remoteConfig.fetch(expiration: const Duration(days: 7));
         await remoteConfig.activateFetched();
         data = remoteConfig.getString(Constants.SCHEDULE_DATA);
-      } on FetchThrottledException catch (exception) {} catch (exception) {}
+      } on FetchThrottledException catch (_) {} catch (exception) {}
     }
     if (data == null || data.isEmpty) {
       data = await rootBundle.loadString(FileAssets.scheduleData);

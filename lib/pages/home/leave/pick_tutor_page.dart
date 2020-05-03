@@ -180,7 +180,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
           expiration: const Duration(seconds: 10),
         );
         await remoteConfig.activateFetched();
-      } on FetchThrottledException catch (exception) {} catch (exception) {}
+      } on FetchThrottledException catch (_) {} catch (exception) {}
     }
     if (remoteConfig != null) {
       Preferences.setString(Constants.LEAVE_CAMPUS_DATA,

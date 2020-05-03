@@ -465,13 +465,4 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       }
     });
   }
-
-  SimpleDialogOption _dialogItem(int index, String text) {
-    return SimpleDialogOption(
-      child: Text(text),
-      onPressed: () {
-        Navigator.pop(context, index);
-      },
-    );
-  }
 }

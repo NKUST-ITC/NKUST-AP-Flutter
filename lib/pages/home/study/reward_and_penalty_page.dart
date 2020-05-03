@@ -9,7 +9,6 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';

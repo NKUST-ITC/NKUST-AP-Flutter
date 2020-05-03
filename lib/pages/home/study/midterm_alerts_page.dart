@@ -37,11 +37,6 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   bool isOffline = false;
 
-  TextStyle get _textBlueStyle =>
-      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
-
-  TextStyle get _textStyle => TextStyle(fontSize: 15.0);
-
   @override
   void initState() {
     //TODO FA

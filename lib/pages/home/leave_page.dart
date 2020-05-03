@@ -4,7 +4,6 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leave/leave_record_page.dart';
-import 'package:nkust_ap/utils/global.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = "/leave";
