@@ -5,6 +5,7 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
+import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -95,33 +96,13 @@ class Utils {
       String title, String body, String payload) async {
     //limit Android and iOS system
     if (Platform.isAndroid || Platform.isIOS) {
-//      var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-//      var initializationSettings = InitializationSettings(
-//        AndroidInitializationSettings(
-//            Constants.ANDROID_DEFAULT_NOTIFICATION_NAME),
-//        IOSInitializationSettings(
-//          onDidReceiveLocalNotification: (id, title, body, payload) {},
-//        ),
-//      );
-//      flutterLocalNotificationsPlugin.initialize(initializationSettings,
-//          onSelectNotification: (text) {});
-//      var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
-//          Constants.NOTIFICATION_FCM_ID.toString(), '系統通知', '系統通知',
-//          largeIconBitmapSource: BitmapSource.Drawable,
-//          importance: Importance.Default,
-//          largeIcon: '@drawable/ic_launcher',
-//          style: AndroidNotificationStyle.BigText,
-//          enableVibration: false);
-//      var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
-//      var platformChannelSpecifics = new NotificationDetails(
-//          androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-//      await flutterLocalNotificationsPlugin.show(
-//        Constants.NOTIFICATION_FCM_ID,
-//        title,
-//        payload,
-//        platformChannelSpecifics,
-//        payload: payload,
-//      );
+      await NotificationUtils.show(
+        id: Constants.NOTIFICATION_FCM_ID,
+        androidChannelId: '${Constants.NOTIFICATION_FCM_ID}',
+        androidChannelDescription: '系統通知',
+        title: '系統通知',
+        content: payload,
+      );
     } else {
       //TODO implement other platform system local notification
     }
@@ -132,33 +113,20 @@ class Utils {
     var app = AppLocalizations.of(context);
     //limit Android and iOS system
     if (Platform.isAndroid || Platform.isIOS) {
-//      var flutterLocalNotificationsPlugin =
-//          initFlutterLocalNotificationsPlugin();
-//      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-//          Constants.NOTIFICATION_BUS_ID.toString(),
-//          app.busNotify,
-//          app.busNotify,
-//          largeIconBitmapSource: BitmapSource.Drawable,
-//          importance: Importance.High,
-//          largeIcon: '@drawable/ic_launcher',
-//          style: AndroidNotificationStyle.BigText,
-//          enableVibration: false);
-//      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-//      var platformChannelSpecifics = NotificationDetails(
-//          androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-//      await flutterLocalNotificationsPlugin
-//          .cancel(Constants.NOTIFICATION_BUS_ID);
-//      for (BusReservation i in busReservations) {
-//        await flutterLocalNotificationsPlugin.schedule(
-//          Constants.NOTIFICATION_BUS_ID,
-//          app.busNotify,
-//          sprintf(app.busNotifyContent, [i.getStart(app), i.getEnd(app)]),
-//          i.getDateTime().add(Duration(minutes: -30)),
-//          platformChannelSpecifics,
-//          payload:
-//              sprintf(app.busNotifyContent, [i.getStart(app), i.getEnd(app)]),
-//        );
-//      }
+      for (BusReservation i in busReservations) {
+        await NotificationUtils.schedule(
+          id: Constants.NOTIFICATION_BUS_ID,
+          androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
+          androidChannelDescription: app.busNotify,
+          dateTime: i.getDateTime(),
+          title: app.busNotify,
+          content: sprintf(
+            app.busNotifyContent,
+            [i.getStart(app), i.getEnd(app)],
+          ),
+          beforeMinutes: 30,
+        );
+      }
     } else {
       //TODO implement other platform system local notification
     }
@@ -171,55 +139,39 @@ class Utils {
 
   static Future<void> setCourseNotify(
       BuildContext context, CourseTables courseTables) async {
-    var app = AppLocalizations.of(context);
+    var app = ApLocalizations.of(context);
     //limit Android and iOS system
     if (Platform.isAndroid || Platform.isIOS) {
-//      var flutterLocalNotificationsPlugin =
-//          initFlutterLocalNotificationsPlugin();
-//      var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-//          Constants.NOTIFICATION_COURSE_ID.toString(),
-//          app.courseNotify,
-//          app.courseNotify,
-//          largeIconBitmapSource: BitmapSource.Drawable,
-//          importance: Importance.High,
-//          largeIcon: '@drawable/ic_launcher',
-//          style: AndroidNotificationStyle.BigText,
-//          enableVibration: false);
-//      var iOSPlatformChannelSpecifics = IOSNotificationDetails();
-//      var platformChannelSpecifics = NotificationDetails(
-//          androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-//      await flutterLocalNotificationsPlugin
-//          .cancel(Constants.NOTIFICATION_COURSE_ID);
-//      for (int i = 0; i < Day.values.length; i++) {
-//        List<Course> course =
-//            courseTables.getCourseListByDayObject(Day.values[i]);
-//        List<String> keyList = [];
-//        List<Course> saveCourseList = [];
-//        if (course == null) continue;
-//        for (int j = 0; j < course.length; j++) {
-//          if (!keyList.contains(course[j].title)) {
-//            keyList.add(course[j].title);
-//            saveCourseList.add(course[j]);
-//          }
-//        }
-//        saveCourseList.forEach((Course course) async {
-//          String content = sprintf(app.courseNotifyContent, [
-//            course.title,
-//            course.location.room.isEmpty
-//                ? app.courseNotifyUnknown
-//                : course.location.room
-//          ]);
-//          await flutterLocalNotificationsPlugin.showWeeklyAtDayAndTime(
-//            Constants.NOTIFICATION_BUS_ID,
-//            app.courseNotify,
-//            content,
-//            Day.values[i],
-//            course.getCourseNotifyTimeObject(),
-//            platformChannelSpecifics,
-//            payload: content,
-//          );
-//        });
-//      }
+      for (int i = 0; i < courseTables.weeks.length; i++) {
+        List<Course> course = courseTables.weeks[i];
+        List<String> keyList = [];
+        List<Course> saveCourseList = [];
+        if (course == null) continue;
+        for (int j = 0; j < course.length; j++) {
+          if (!keyList.contains(course[j].title)) {
+            keyList.add(course[j].title);
+            saveCourseList.add(course[j]);
+          }
+        }
+        saveCourseList.forEach((Course course) async {
+          String content = sprintf(app.courseNotifyContent, [
+            course.title,
+            course.location.room.isEmpty
+                ? app.courseNotifyUnknown
+                : course.location.room
+          ]);
+          await NotificationUtils.scheduleWeeklyNotify(
+            id: Constants.NOTIFICATION_COURSE_ID,
+            androidChannelId: '${Constants.NOTIFICATION_COURSE_ID}',
+            androidChannelDescription: app.courseNotify,
+            day: NotificationUtils.getDay(i),
+            time: NotificationUtils.parseTime(course.date.startTime,
+                beforeMinutes: 10),
+            title: app.courseNotify,
+            content: content,
+          );
+        });
+      }
     } else {
       //TODO implement other platform system local notification
     }
