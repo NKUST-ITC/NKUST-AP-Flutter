@@ -2,13 +2,13 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/nkust_helper.dart';
-import 'package:nkust_ap/utils/utils.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
@@ -83,7 +83,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   _search() async {
     if (_id.text.isEmpty) {
-      Utils.showToast(context, ap.doNotEmpty);
+      ApUtils.showToast(context, ap.doNotEmpty);
     } else {
       UserInfo result = await NKUSTHelper.instance.getUsername(_id.text);
       if (result != null && isAutoFill) {

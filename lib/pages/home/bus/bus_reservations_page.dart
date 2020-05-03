@@ -1,6 +1,7 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -277,7 +278,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             if (e.message.contains("HttpException")) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(context, app.busFailInfinity);
+                ApUtils.showToast(context, app.busFailInfinity);
               });
             }
             break;
@@ -395,7 +396,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(context, app.busFailInfinity);
+              ApUtils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

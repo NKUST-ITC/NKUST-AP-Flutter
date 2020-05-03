@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
@@ -41,12 +42,12 @@ class Utils {
   static void handleDioError(BuildContext context, DioError dioError) {
     switch (dioError.type) {
       case DioErrorType.DEFAULT:
-        showToast(context, ApLocalizations.of(context).noInternet);
+        ApUtils.showToast(context, ApLocalizations.of(context).noInternet);
         break;
       case DioErrorType.CONNECT_TIMEOUT:
       case DioErrorType.RECEIVE_TIMEOUT:
       case DioErrorType.SEND_TIMEOUT:
-        showToast(context, ApLocalizations.of(context).timeoutMessage);
+        ApUtils.showToast(context, ApLocalizations.of(context).timeoutMessage);
         break;
       case DioErrorType.RESPONSE:
       case DioErrorType.CANCEL:
@@ -59,19 +60,11 @@ class Utils {
     var app = AppLocalizations.of(context);
     FA.logApiEvent(type, e.response.statusCode, message: e.message);
     if (e.response.statusCode == 401) {
-      Utils.showToast(context, ApLocalizations.of(context).tokenExpiredContent);
+      ApUtils.showToast(
+          context, ApLocalizations.of(context).tokenExpiredContent);
     } else {
-      Utils.showToast(context, ApLocalizations.of(context).somethingError);
+      ApUtils.showToast(context, ApLocalizations.of(context).somethingError);
     }
-  }
-
-  static void showToast(BuildContext context, String message) {
-    Toast.show(
-      message,
-      context,
-      duration: Toast.LENGTH_LONG,
-      gravity: Toast.BOTTOM,
-    );
   }
 
   static void showSnackBarBar(

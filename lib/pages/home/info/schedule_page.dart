@@ -5,6 +5,7 @@ import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -245,11 +246,11 @@ class SchedulePageState extends State<SchedulePage>
     try {
       if (Platform.isIOS || Platform.isAndroid) {
         Add2Calendar.addEvent2Cal(event);
-        if (Platform.isIOS) Utils.showToast(context, ap.addSuccess);
+        if (Platform.isIOS) ApUtils.showToast(context, ap.addSuccess);
       } else
-        Utils.showToast(context, ap.calendarAppNotFound);
+        ApUtils.showToast(context, ap.calendarAppNotFound);
     } catch (e) {
-      Utils.showToast(context, ap.calendarAppNotFound);
+      ApUtils.showToast(context, ap.calendarAppNotFound);
       throw e;
     }
   }

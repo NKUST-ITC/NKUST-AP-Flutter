@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -546,7 +547,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(context, ap.busFailInfinity);
+                ApUtils.showToast(context, ap.busFailInfinity);
               });
             }
             break;
@@ -577,7 +578,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           )) isDelay = true;
     }
     if (isDelay) {
-      Utils.showToast(context, ap.leaveDelayHint);
+      ApUtils.showToast(context, ap.leaveDelayHint);
     }
   }
 
@@ -605,9 +606,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       }
     });
     if (days.length == 0) {
-      Utils.showToast(context, ap.pleasePickDateAndSection);
+      ApUtils.showToast(context, ap.pleasePickDateAndSection);
     } else if (leaveSubmitInfo.tutor == null && teacher == null) {
-      Utils.showToast(context, ap.pickTeacher);
+      ApUtils.showToast(context, ap.pickTeacher);
     } else if (_formKey.currentState.validate()) {
       //TODO submit summary
       String tutorId, tutorName;
@@ -705,7 +706,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           leftActionFunction: null,
           rightActionFunction: () {
             _leaveUpload(data);
-            Utils.showToast(context, '上傳中，測試功能');
+            ApUtils.showToast(context, '上傳中，測試功能');
           },
         ),
       );
@@ -788,7 +789,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             setState(() {
               state = _State.error;
             });
-            Utils.showToast(context, ap.somethingError);
+            ApUtils.showToast(context, ap.somethingError);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -807,7 +808,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     print('resize after: ${(result.lengthSync() / 1024 / 1024)}');
     FA.logLeavesImageCompressSize(image, result);
     if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
-      Utils.showToast(
+      ApUtils.showToast(
         context,
         sprintf(
           ap.imageCompressHint,
@@ -821,7 +822,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         this.image = result;
       });
     } else {
-      Utils.showToast(context, ap.imageTooBigHint);
+      ApUtils.showToast(context, ap.imageTooBigHint);
       FA.logEvent('leave_pick_fail');
     }
   }

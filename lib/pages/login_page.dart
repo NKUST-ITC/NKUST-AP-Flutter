@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
@@ -113,7 +114,7 @@ class LoginPageState extends State<LoginPage> {
               setState(() {
                 _username.text = username;
               });
-              Utils.showToast(context, ap.firstLoginHint);
+              ApUtils.showToast(context, ap.firstLoginHint);
             }
           },
         )
@@ -157,7 +158,7 @@ class LoginPageState extends State<LoginPage> {
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(context, ap.doNotEmpty);
+      ApUtils.showToast(context, ap.doNotEmpty);
     } else {
       showDialog(
         context: context,
@@ -189,7 +190,7 @@ class LoginPageState extends State<LoginPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(context, ap.loginFail);
+              ApUtils.showToast(context, ap.loginFail);
               Utils.handleResponseError(context, 'login', mounted, e);
               _offlineLogin();
               break;
@@ -211,13 +212,13 @@ class LoginPageState extends State<LoginPage> {
     String password =
         Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     if (username.isEmpty || password.isEmpty) {
-      Utils.showToast(context, ap.noOfflineLoginData);
+      ApUtils.showToast(context, ap.noOfflineLoginData);
     } else {
       if (username != _username.text || password != _password.text)
-        Utils.showToast(context, ap.offlineLoginPasswordError);
+        ApUtils.showToast(context, ap.offlineLoginPasswordError);
       else {
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(context, ap.loadOfflineData);
+        ApUtils.showToast(context, ap.loadOfflineData);
         Navigator.of(context).pop(true);
       }
     }

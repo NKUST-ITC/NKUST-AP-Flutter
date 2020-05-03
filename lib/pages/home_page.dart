@@ -369,9 +369,9 @@ class HomePageState extends State<HomePage> {
               else
                 _getEventInfo(result.rawContent);
             } else
-              Utils.showToast(context, ap.cancel);
+              ApUtils.showToast(context, ap.cancel);
           } else
-            Utils.showToast(context, ap.notLogin);
+            ApUtils.showToast(context, ap.notLogin);
         },
         label: Text(
           app.punch,
@@ -399,7 +399,7 @@ class HomePageState extends State<HomePage> {
           break;
       }
     } else
-      Utils.showToast(context, ap.notLogin);
+      ApUtils.showToast(context, ap.notLogin);
   }
 
   _getAnnouncements() async {
@@ -549,7 +549,7 @@ class HomePageState extends State<HomePage> {
             break;
         }
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(context, ap.loadOfflineData);
+        ApUtils.showToast(context, ap.loadOfflineData);
         isLogin = true;
       }
       _homeKey.currentState.showSnackBar(
@@ -608,13 +608,13 @@ class HomePageState extends State<HomePage> {
         onError: (GeneralResponse generalResponse) {
           switch (generalResponse.code) {
             case 403:
-              Utils.showToast(context, ap.canNotUseFeature);
+              ApUtils.showToast(context, ap.canNotUseFeature);
               break;
             case 401:
-              Utils.showToast(context, ap.tokenExpiredContent);
+              ApUtils.showToast(context, ap.tokenExpiredContent);
               break;
             default:
-              Utils.showToast(context, generalResponse.description);
+              ApUtils.showToast(context, generalResponse.description);
               break;
           }
         },
@@ -648,13 +648,13 @@ class HomePageState extends State<HomePage> {
         onError: (EventInfoResponse response) {
           switch (response.code) {
             case 403:
-              Utils.showToast(context, ap.canNotUseFeature);
+              ApUtils.showToast(context, ap.canNotUseFeature);
               break;
             case 401:
               _showEventInfoDialog(data, response);
               break;
             default:
-              Utils.showToast(context, response.description);
+              ApUtils.showToast(context, response.description);
               break;
           }
         },
@@ -754,7 +754,7 @@ class _EventPickDialogState extends State<EventPickDialog> {
         if ((widget.eventInfo?.data?.length ?? 0) != 0)
           widget.onSubmit(index);
         else
-          Utils.showToast(context, '無資料無法送出');
+          ApUtils.showToast(context, '無資料無法送出');
       },
     );
   }

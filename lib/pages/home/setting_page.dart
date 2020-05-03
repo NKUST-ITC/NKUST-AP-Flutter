@@ -5,6 +5,7 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
@@ -273,7 +274,7 @@ class SettingPageState extends State<SettingPage> {
                   else {
                     Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
                         (onError) =>
-                            Utils.showToast(context, ap.platformError));
+                            ApUtils.showToast(context, ap.platformError));
                   }
                   FA.logAction('feedback', 'click');
                 }),
@@ -324,14 +325,14 @@ class SettingPageState extends State<SettingPage> {
             courseNotify = false;
             Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
-          Utils.showToast(context, ap.noOfflineData);
+          ApUtils.showToast(context, ap.noOfflineData);
         }
       } else {
         setState(() {
           courseNotify = false;
           Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
-        Utils.showToast(context, ap.noOfflineData);
+        ApUtils.showToast(context, ap.noOfflineData);
       }
       return;
     }
@@ -388,13 +389,13 @@ class SettingPageState extends State<SettingPage> {
   _setCourseData(CourseData courseData) async {
     try {
       if (courseData == null) {
-        Utils.showToast(context, ap.courseNotifyEmpty);
+        ApUtils.showToast(context, ap.courseNotifyEmpty);
       } else {
         await Utils.setCourseNotify(context, courseData.courseTables);
-        Utils.showToast(context, ap.courseNotifyHint);
+        ApUtils.showToast(context, ap.courseNotifyHint);
       }
     } on Exception catch (e) {
-      Utils.showToast(context, ap.courseNotifyError);
+      ApUtils.showToast(context, ap.courseNotifyError);
       setState(() {
         courseNotify = false;
         Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
@@ -417,10 +418,10 @@ class SettingPageState extends State<SettingPage> {
         setState(() {
           busNotify = false;
         });
-        Utils.showToast(context, ap.noOfflineData);
+        ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        Utils.showToast(context, ap.busNotifyHint);
+        ApUtils.showToast(context, ap.busNotifyHint);
       }
       return;
     }
@@ -432,7 +433,7 @@ class SettingPageState extends State<SettingPage> {
       if (response != null) {
         await Utils.setBusNotify(context, response.reservations);
       }
-      Utils.showToast(context, ap.busNotifyHint);
+      ApUtils.showToast(context, ap.busNotifyHint);
     }).catchError((e) {
       setState(() {
         busNotify = false;
@@ -448,7 +449,7 @@ class SettingPageState extends State<SettingPage> {
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
-              Utils.showToast(context, ap.busFailInfinity);
+              ApUtils.showToast(context, ap.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

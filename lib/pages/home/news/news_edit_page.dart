@@ -2,12 +2,12 @@ import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 enum _State { loading, finish, error, empty, offline }
@@ -327,9 +327,9 @@ class _NewsEditPageState extends State<NewsEditPage> {
       }
       instance.then((response) {
         Navigator.of(context).pop(true);
-        Utils.showToast(context, app.addSuccess);
+        ApUtils.showToast(context, app.addSuccess);
       }).catchError((e) {
-        Utils.showToast(context, app.somethingError);
+        ApUtils.showToast(context, app.somethingError);
       });
     }
   }

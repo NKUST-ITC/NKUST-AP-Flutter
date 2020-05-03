@@ -2,6 +2,7 @@ import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
@@ -250,7 +251,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                         if (e is DioError) {
                           switch (e.type) {
                             case DioErrorType.RESPONSE:
-                              Utils.showToast(context, e.response?.data ?? '');
+                              ApUtils.showToast(context, e.response?.data ?? '');
                               break;
                             case DioErrorType.CANCEL:
                               break;
@@ -363,7 +364,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   void _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(context, app.doNotEmpty);
+      ApUtils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
         context: context,
@@ -378,7 +379,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
           .adminLogin(_username.text, _password.text)
           .then((LoginResponse response) async {
         Navigator.of(context, rootNavigator: true).pop();
-        Utils.showToast(context, app.loginSuccess);
+        ApUtils.showToast(context, app.loginSuccess);
         setState(() {
           state = _State.loading;
           _getData();
@@ -388,7 +389,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(context, app.loginFail);
+              ApUtils.showToast(context, app.loginFail);
               break;
             case DioErrorType.CANCEL:
               break;

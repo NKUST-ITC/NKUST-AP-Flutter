@@ -1,6 +1,7 @@
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -417,7 +418,7 @@ class BusReservePageState extends State<BusReservePage>
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(context, app.busFailInfinity);
+                  ApUtils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -522,7 +523,7 @@ class BusReservePageState extends State<BusReservePage>
               if (mounted) {
                 setState(() {
                   state = _State.error;
-                  Utils.showToast(context, app.busFailInfinity);
+                  ApUtils.showToast(context, app.busFailInfinity);
                 });
               }
             }
@@ -622,7 +623,7 @@ class BusReservePageState extends State<BusReservePage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(context, app.busFailInfinity);
+              ApUtils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:
