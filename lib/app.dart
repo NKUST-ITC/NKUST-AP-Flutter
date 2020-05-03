@@ -115,7 +115,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
             SchoolInfoPage.routerName: (BuildContext context) =>
                 SchoolInfoPage(),
             SettingPage.routerName: (BuildContext context) => SettingPage(),
-            AboutUsPage.routerName: (BuildContext context) => AboutUsPage(),
+            AboutUsPage.routerName: (BuildContext context) =>
+                HomePageState.aboutPage(context),
             OpenSourcePage.routerName: (BuildContext context) =>
                 OpenSourcePage(),
             UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),

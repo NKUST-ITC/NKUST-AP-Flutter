@@ -97,6 +97,40 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  static aboutPage(BuildContext context, {String assetImage}) {
+    return AboutUsPage(
+      assetImage: assetImage ?? ImageAssets.kuasap2,
+      githubName: 'NKUST-ITC',
+      email: 'abc873693@gmail.com',
+      appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
+      fbFanPageId: '735951703168873',
+      fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
+      githubUrl: 'https://github.com/NKUST-ITC',
+//              logEvent: (name, value) =>
+//                  FirebaseAnalyticsUtils.instance.logAction(name, value),
+//              setCurrentScreen: () => FirebaseAnalyticsUtils.instance
+//                  .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(ApIcon.codeIcon),
+          onPressed: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (_) => OpenSourcePage(
+//                          setCurrentScreen: () =>
+//                              FirebaseAnalyticsUtils.instance.setCurrentScreen(
+//                                  "OpenSourcePage", "open_source_page.dart"),
+                    ),
+              ),
+            );
+//                    FirebaseAnalyticsUtils.instance
+//                        .logAction('open_source', 'click');
+          },
+        )
+      ],
+    );
+  }
+
   @override
   void initState() {
     FA.setCurrentScreen("HomePage", "home_page.dart");
@@ -268,37 +302,7 @@ class HomePageState extends State<HomePage> {
           DrawerItem(
             icon: ApIcon.face,
             title: ap.about,
-            page: AboutUsPage(
-              assetImage: sectionImage,
-              githubName: 'NKUST-ITC',
-              email: 'abc873693@gmail.com',
-              appLicense: ap.aboutOpenSourceContent,
-              fbFanPageId: '735951703168873',
-              fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
-              githubUrl: 'https://github.com/NKUST-ITC',
-//              logEvent: (name, value) =>
-//                  FirebaseAnalyticsUtils.instance.logAction(name, value),
-//              setCurrentScreen: () => FirebaseAnalyticsUtils.instance
-//                  .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
-              actions: <Widget>[
-                IconButton(
-                  icon: Icon(ApIcon.codeIcon),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (_) => OpenSourcePage(
-//                          setCurrentScreen: () =>
-//                              FirebaseAnalyticsUtils.instance.setCurrentScreen(
-//                                  "OpenSourcePage", "open_source_page.dart"),
-                            ),
-                      ),
-                    );
-//                    FirebaseAnalyticsUtils.instance
-//                        .logAction('open_source', 'click');
-                  },
-                )
-              ],
-            ),
+            page: aboutPage(context, assetImage: sectionImage),
           ),
           DrawerItem(
             icon: ApIcon.settings,
