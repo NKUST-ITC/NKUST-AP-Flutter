@@ -1,5 +1,3 @@
-import 'app_theme.dart';
-
 class ImageAssets {
   static const String basePath = 'assets/images';
 
@@ -26,36 +24,6 @@ class ImageAssets {
   static String sectionFirst2 = '$basePath/section_first2.webp';
   static String sectionNanzi = '$basePath/section_nanzi.webp';
   static String sectionQijin = '$basePath/section_qijin.webp';
-
-  static String get dashLine {
-    switch (AppTheme.code) {
-      case AppTheme.DARK:
-        return dashLineDarkTheme;
-      case AppTheme.LIGHT:
-      default:
-        return dashLineLight;
-    }
-  }
-
-  static String get drawerIcon {
-    switch (AppTheme.code) {
-      case AppTheme.DARK:
-        return drawerIconDark;
-      case AppTheme.LIGHT:
-      default:
-        return drawerIconLight;
-    }
-  }
-
-  static String get drawerBackground {
-    switch (AppTheme.code) {
-      case AppTheme.DARK:
-        return drawerBackgroundDarkTheme;
-      case AppTheme.LIGHT:
-      default:
-        return drawerBackgroundLight;
-    }
-  }
 }
 
 class FileAssets {

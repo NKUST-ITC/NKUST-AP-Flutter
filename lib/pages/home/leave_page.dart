@@ -1,9 +1,9 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/home/leave/leave_record_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/utils/global.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = "/leave";
@@ -21,7 +21,7 @@ class LeavePage extends StatefulWidget {
 
 class LeavePageState extends State<LeavePage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   TabController controller;
 
@@ -43,11 +43,11 @@ class LeavePageState extends State<LeavePage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.leave),
-        backgroundColor: Resource.Colors.blue,
+        title: Text(ap.leave),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
           children: widget._children,
@@ -56,15 +56,15 @@ class LeavePageState extends State<LeavePage>
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.edit),
-            title: Text(app.leaveApply),
+            icon: Icon(ApIcon.edit),
+            title: Text(ap.leaveApply),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.assignment),
-            title: Text(app.leaveRecords),
+            icon: Icon(ApIcon.assignment),
+            title: Text(ap.leaveRecords),
           ),
         ],
       ),

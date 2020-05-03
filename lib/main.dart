@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
@@ -9,18 +12,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/app_theme.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
-  await Preferences.init();
-  AppIcon.code =
-      Preferences.getString(Constants.PREF_ICON_STYLE_CODE, AppIcon.OUTLINED);
-  AppTheme.code =
-      Preferences.getString(Constants.PREF_THEME_CODE, AppTheme.LIGHT);
+  await Preferences.init(key: Constants.key, iv: Constants.iv);
+  _preferenceMigrate();
+  ApIcon.code =
+      Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   _setTargetPlatformForDesktop();
   if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
@@ -28,17 +27,33 @@ void main() async {
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
     runZoned<Future<void>>(() async {
       runApp(
-        MyApp(
-          themeData: AppTheme.data,
-        ),
+        MyApp(),
       );
     }, onError: Crashlytics.instance.recordError);
   } else {
     runApp(
-      MyApp(
-        themeData: AppTheme.data,
-      ),
+      MyApp(),
     );
+  }
+}
+
+void _preferenceMigrate() async {
+  String themeCode = Preferences.getString(Constants.PREF_THEME_CODE, null);
+  if (themeCode != null) {
+    int index;
+    switch (themeCode) {
+      case ApTheme.DARK:
+        index = 2;
+        break;
+      case ApTheme.LIGHT:
+        index = 1;
+        break;
+      default:
+        index = 0;
+        break;
+    }
+    await Preferences.setInt(Constants.PREF_THEME_MODE_INDEX, index);
+    Preferences.setString(Constants.PREF_THEME_CODE, null);
   }
 }
 

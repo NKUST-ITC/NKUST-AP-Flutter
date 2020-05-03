@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
@@ -24,7 +28,6 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 class Helper {
@@ -169,13 +172,13 @@ class Helper {
     }
   }
 
-  Future<AnnouncementsData> getAllAnnouncements() async {
+  Future<AnnouncementData> getAllAnnouncements() async {
     try {
       var response = await dio.get("/news/announcements/all");
       if (response.statusCode == 204)
-        return AnnouncementsData(data: []);
+        return AnnouncementData(data: []);
       else {
-        var announcementsData = AnnouncementsData.fromJson(response.data);
+        var announcementsData = AnnouncementData.fromJson(response.data);
         announcementsData.data.sort((a, b) {
           return b.weight.compareTo(a.weight);
         });
@@ -187,7 +190,7 @@ class Helper {
     }
   }
 
-  Future<Response> addAnnouncement(Announcements announcements) async {
+  Future<Response> addAnnouncement(Announcement announcements) async {
     try {
       var response = await dio.post(
         "/news/announcements/add",
@@ -199,7 +202,7 @@ class Helper {
     }
   }
 
-  Future<Response> updateAnnouncement(Announcements announcements) async {
+  Future<Response> updateAnnouncement(Announcement announcements) async {
     try {
       var response = await dio.put(
         "/news/announcements/update/${announcements.id}",
@@ -211,7 +214,7 @@ class Helper {
     }
   }
 
-  Future<Response> deleteAnnouncement(Announcements announcements) async {
+  Future<Response> deleteAnnouncement(Announcement announcements) async {
     try {
       var response = await dio.delete(
         "/news/announcements/remove/${announcements.id}",
@@ -276,8 +279,22 @@ class Helper {
       );
       if (response.statusCode == 204)
         return null;
-      else
-        return CourseData.fromJson(response.data);
+      else {
+        var courseData = CourseData.fromJson(response.data);
+        for (var i = 0; i < courseData.courses.length; i++) {
+          final courseDetail = courseData.courses[i];
+          for (var weekIndex = 0;
+              weekIndex < courseData.courseTables.weeks.length;
+              weekIndex++) {
+            for (var course in courseData.courseTables.weeks[weekIndex]) {
+              if (course.title == courseDetail.title) {
+                course.detailIndex = i;
+              }
+            }
+          }
+        }
+        return courseData;
+      }
     } on DioError catch (dioError) {
       throw dioError;
     }
@@ -608,4 +625,15 @@ class Helper {
     username = null;
     password = null;
   }
+}
+
+extension NewsExtension on Announcement {
+  Map<String, dynamic> toUpdateJson() => {
+        "title": title,
+        "weight": weight,
+        "imgUrl": imgUrl,
+        "url": url,
+        "description": description,
+        "expireTime": expireTime,
+      };
 }

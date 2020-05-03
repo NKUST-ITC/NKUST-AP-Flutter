@@ -1,20 +1,20 @@
+import 'package:ap_common/models/announcement_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/widgets/progress_dialog.dart';
+import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/models/announcements_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/home/news/news_edit_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/yes_no_dialog.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State { notLogin, loading, finish, error, empty, offline }
 
@@ -34,11 +34,11 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
   final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  AppLocalizations app;
+  ApLocalizations app;
 
   _State state = _State.notLogin;
 
-  AnnouncementsData announcementsResponse;
+  AnnouncementData announcementData;
 
   bool isOffline = false;
   FocusNode usernameFocusNode;
@@ -46,7 +46,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   TextStyle get _editTextStyle => TextStyle(
         fontSize: 18.0,
-        decorationColor: Resource.Colors.blueAccent,
+        decorationColor: ApTheme.of(context).blueAccent,
       );
 
   @override
@@ -69,12 +69,12 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = ApLocalizations.of(context);
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(app.news),
-        backgroundColor: Resource.Colors.blue,
+        title: Text(app.announcements),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: state == _State.notLogin
           ? null
@@ -120,21 +120,21 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             _getData();
           },
           child: HintContent(
-            icon: AppIcon.classIcon,
+            icon: ApIcon.classIcon,
             content: app.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.classIcon,
+          icon: ApIcon.classIcon,
           content: app.noOfflineData,
         );
       default:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _item(announcementsResponse.data[index]);
+            return _item(announcementData.data[index]);
           },
-          itemCount: announcementsResponse.data.length,
+          itemCount: announcementData.data.length,
         );
     }
   }
@@ -195,7 +195,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
               color: Colors.white,
               child: Text(
                 app.login,
-                style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
+                style:
+                    TextStyle(color: ApTheme.of(context).blue, fontSize: 18.0),
               ),
             ),
           ),
@@ -204,7 +205,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
     );
   }
 
-  Widget _item(Announcements item) {
+  Widget _item(Announcement item) {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
@@ -222,8 +223,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             ),
             trailing: IconButton(
               icon: Icon(
-                AppIcon.cancel,
-                color: Resource.Colors.red,
+                ApIcon.cancel,
+                color: ApTheme.of(context).red,
               ),
               onPressed: () async {
                 showDialog(
@@ -249,7 +250,8 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                         if (e is DioError) {
                           switch (e.type) {
                             case DioErrorType.RESPONSE:
-                              Utils.showToast(context, e.response?.data ?? '');
+                              ApUtils.showToast(
+                                  context, e.response?.data ?? '');
                               break;
                             case DioErrorType.CANCEL:
                               break;
@@ -271,7 +273,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                   children: [
                     TextSpan(
                       text: '${app.weight}：',
@@ -285,12 +289,12 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                     TextSpan(
                       text: '${item.imgUrl}',
                       style: TextStyle(
-                        color: Resource.Colors.blueAccent,
+                        color: ApTheme.of(context).blueAccent,
                         decoration: TextDecoration.underline,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Utils.launchUrl(item.imgUrl);
+                          ApUtils.launchUrl(item.imgUrl);
                         },
                     ),
                     TextSpan(
@@ -300,19 +304,19 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                     TextSpan(
                       text: '${item.url}',
                       style: TextStyle(
-                        color: Resource.Colors.blueAccent,
+                        color: ApTheme.of(context).blueAccent,
                         decoration: TextDecoration.underline,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Utils.launchUrl(item.url);
+                          ApUtils.launchUrl(item.url);
                         },
                     ),
                     TextSpan(
                       text: '\n${app.expireTime}：',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: '${item.expireTime?? app.noExpiration}\n'),
+                    TextSpan(text: '${item.expireTime ?? app.noExpiration}\n'),
                     TextSpan(
                       text: '${app.description}：',
                       style: TextStyle(fontWeight: FontWeight.bold),
@@ -345,12 +349,11 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
   }
 
   _getData() async {
-    Helper.instance.getAllAnnouncements().then((announcementsResponse) {
-      this.announcementsResponse = announcementsResponse;
+    Helper.instance.getAllAnnouncements().then((announcementsData) {
+      this.announcementData = announcementsData;
       setState(() {
-        state = announcementsResponse.data.length == 0
-            ? _State.empty
-            : _State.finish;
+        state =
+            announcementsData.data.length == 0 ? _State.empty : _State.finish;
       });
     }).catchError((e) {
       setState(() {
@@ -361,7 +364,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   void _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(context, app.doNotEmpty);
+      ApUtils.showToast(context, app.doNotEmpty);
     } else {
       showDialog(
         context: context,
@@ -376,7 +379,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
           .adminLogin(_username.text, _password.text)
           .then((LoginResponse response) async {
         Navigator.of(context, rootNavigator: true).pop();
-        Utils.showToast(context, app.loginSuccess);
+        ApUtils.showToast(context, app.loginSuccess);
         setState(() {
           state = _State.loading;
           _getData();
@@ -386,7 +389,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(context, app.loginFail);
+              ApUtils.showToast(context, app.loginFail);
               break;
             case DioErrorType.CANCEL:
               break;

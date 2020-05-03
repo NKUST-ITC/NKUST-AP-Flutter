@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusReservationsData {
@@ -81,8 +81,8 @@ class BusReservation {
     return list;
   }
 
-  Color getColorState() {
-    return Resource.Colors.grey;
+  Color getColorState(BuildContext context) {
+    return ApTheme.of(context).grey;
   }
 
   String getDate() {

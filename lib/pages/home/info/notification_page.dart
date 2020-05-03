@@ -1,11 +1,13 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, loadingMore, error, empty, offline }
 
@@ -23,7 +25,7 @@ class NotificationPageState extends State<NotificationPage>
 
   _State state = _State.loading;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   ScrollController controller;
   List<Notifications> notificationList = [];
@@ -36,7 +38,7 @@ class NotificationPageState extends State<NotificationPage>
       );
 
   TextStyle get _textGreyStyle => TextStyle(
-        color: Resource.Colors.grey,
+        color: ApTheme.of(context).grey,
         fontSize: 14.0,
       );
 
@@ -57,14 +59,14 @@ class NotificationPageState extends State<NotificationPage>
   Widget _notificationItem(Notifications notification) {
     return GestureDetector(
       onLongPress: () {
-        Utils.shareTo("${notification.info.title}\n${notification.link}");
+        ApUtils.shareTo("${notification.info.title}\n${notification.link}");
         FA.logAction('share', 'long_click',
             message: '${notification.info.title}');
       },
       child: FlatButton(
         padding: EdgeInsets.all(0.0),
         onPressed: () {
-          Utils.launchUrl(notification.link);
+          ApUtils.launchUrl(notification.link);
           FA.logAction('notification_link"', 'click',
               message: '${notification.info.title}');
         },
@@ -113,7 +115,7 @@ class NotificationPageState extends State<NotificationPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -131,15 +133,14 @@ class NotificationPageState extends State<NotificationPage>
             FA.logAction('rerty', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
-            content:
-                state == _State.error ? app.clickToRetry : app.clickToRetry,
+            icon: ApIcon.assignment,
+            content: state == _State.error ? ap.clickToRetry : ap.clickToRetry,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.offlineBolt,
-          content: app.offlineMode,
+          icon: ApIcon.offlineBolt,
+          content: ap.offlineMode,
         );
       default:
         return RefreshIndicator(

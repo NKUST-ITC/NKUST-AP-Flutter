@@ -1,9 +1,9 @@
 import 'dart:convert';
 
+import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusData {
@@ -137,10 +137,10 @@ class BusTime {
     return dateFormat.format(endEnrollDateTime.add(Duration(hours: 8)));
   }
 
-  Color getColorState() {
+  Color getColorState(BuildContext context) {
     return isReserve
-        ? Resource.Colors.blueAccent
-        : canReserve() ? Resource.Colors.grey : Resource.Colors.disabled;
+        ? ApTheme.of(context).blueAccent
+        : canReserve() ? ApTheme.of(context).grey : ApTheme.of(context).disabled;
   }
 
   String getReserveState(AppLocalizations local) {

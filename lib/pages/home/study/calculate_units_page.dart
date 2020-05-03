@@ -1,10 +1,12 @@
+import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State { ready, loading, finish, error, empty, offline }
@@ -18,7 +20,7 @@ class CalculateUnitsPage extends StatefulWidget {
 
 class CalculateUnitsPageState extends State<CalculateUnitsPage>
     with SingleTickerProviderStateMixin {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.ready;
 
@@ -54,7 +56,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _textBlueStyle() {
-    return TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+    return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }
 
   _textStyle() {
@@ -63,8 +65,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   _scoreTitle() => TableRow(
         children: <Widget>[
-          _scoreTextBorder(app.generalEductionCourse, true),
-          _scoreTextBorder(app.finalScore, true),
+          _scoreTextBorder(ap.generalEductionCourse, true),
+          _scoreTextBorder(ap.finalScore, true),
         ],
       );
 
@@ -109,13 +111,13 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return new Scaffold(
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(app.calculateUnits),
-        backgroundColor: Resource.Colors.blue,
+        title: new Text(ap.calculateUnits),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Container(
         child: Flex(
@@ -127,17 +129,18 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             Expanded(
               flex: 1,
               child: Text(
-                app.calculateUnitsContent,
-                style:
-                    TextStyle(color: Resource.Colors.blueText, fontSize: 16.0),
+                ap.calculateUnitsContent,
+                style: TextStyle(
+                    color: ApTheme.of(context).blueText, fontSize: 16.0),
               ),
             ),
             Expanded(
               flex: 19,
               child: RefreshIndicator(
-                onRefresh: () {
+                onRefresh: () async {
                   FA.logAction('refresh', 'swipe');
                   _calculate();
+                  return null;
                 },
                 child: _body(),
               ),
@@ -157,7 +160,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               children: <Widget>[
                 CircularProgressIndicator(),
                 SizedBox(height: 16.0),
-                Text(app.calculating, style: _textBlueStyle())
+                Text(ap.calculating, style: _textBlueStyle())
               ],
             ),
             alignment: Alignment.center);
@@ -166,22 +169,22 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         return FlatButton(
           onPressed: _calculate,
           child: HintContent(
-            icon: AppIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.scoreEmpty,
+            icon: ApIcon.assignment,
+            content: state == _State.error ? ap.clickToRetry : ap.scoreEmpty,
           ),
         );
       case _State.ready:
         return FlatButton(
           onPressed: _calculate,
           child: HintContent(
-            icon: AppIcon.apps,
-            content: app.beginCalculate,
+            icon: ApIcon.apps,
+            content: ap.beginCalculate,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.offlineBolt,
-          content: app.offlineMode,
+          icon: ApIcon.offlineBolt,
+          content: ap.offlineMode,
         );
       default:
         return SingleChildScrollView(
@@ -225,11 +228,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${app.requiredUnits}：$requiredUnitsTotal", true),
+                          "${ap.requiredUnits}：$requiredUnitsTotal", true),
                       _textBorder(
-                          "${app.electiveUnits}：$electiveUnitsTotal", false),
-                      _textBorder("${app.otherUnits}：$otherUnitsTotal", false),
-                      _textBorder("${app.unitsTotal}：$unitsTotal", false),
+                          "${ap.electiveUnits}：$electiveUnitsTotal", false),
+                      _textBorder("${ap.otherUnits}：$otherUnitsTotal", false),
+                      _textBorder("${ap.unitsTotal}：$unitsTotal", false),
                     ],
                   ),
                 ),
@@ -461,14 +464,5 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         });
       }
     });
-  }
-
-  SimpleDialogOption _dialogItem(int index, String text) {
-    return SimpleDialogOption(
-      child: Text(text),
-      onPressed: () {
-        Navigator.pop(context, index);
-      },
-    );
   }
 }

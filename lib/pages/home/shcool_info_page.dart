@@ -1,6 +1,7 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
@@ -18,7 +19,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     SchedulePage()
   ];
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   TabController controller;
 
@@ -39,11 +40,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.schoolInfo),
-        backgroundColor: Resource.Colors.blue,
+        title: Text(ap.schoolInfo),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
         children: _children,
@@ -58,19 +59,19 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             controller.animateTo(_currentIndex);
           });
         },
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.fiberNew),
-            title: Text(app.notifications),
+            icon: Icon(ApIcon.fiberNew),
+            title: Text(ap.notifications),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.phone),
-            title: Text(app.phones),
+            icon: Icon(ApIcon.phone),
+            title: Text(ap.phones),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.dateRange),
-            title: Text(app.events),
+            icon: Icon(ApIcon.dateRange),
+            title: Text(ap.events),
           ),
         ],
       ),

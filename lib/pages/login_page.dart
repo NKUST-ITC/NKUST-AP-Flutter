@@ -1,5 +1,10 @@
 import 'dart:io';
 
+import 'package:ap_common/scaffold/login_scaffold.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -8,11 +13,7 @@ import 'package:flutter_autofill/flutter_autofill.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/res/colors.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/drawer_body.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -23,28 +24,31 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  AppLocalizations app;
+  ApLocalizations ap;
 
-  final TextEditingController _username = TextEditingController();
-  final TextEditingController _password = TextEditingController();
+  final _username = TextEditingController();
+  final _password = TextEditingController();
+
+  final usernameFocusNode = FocusNode();
+  final passwordFocusNode = FocusNode();
+
   var isRememberPassword = true;
   var isAutoLogin = false;
 
-  FocusNode usernameFocusNode;
-  FocusNode passwordFocusNode;
-
-  TextStyle get _editTextStyle => TextStyle(
-        color: Colors.white,
-        fontSize: 18.0,
-        decorationColor: Colors.white,
-      );
+  int gravity = Toast.BOTTOM;
 
   @override
   void initState() {
     FA.setCurrentScreen("LoginPage", "login_page.dart");
-    usernameFocusNode = FocusNode();
-    passwordFocusNode = FocusNode();
     _getPreference();
+    KeyboardVisibilityNotification().addNewListener(
+      onShow: () {
+        gravity = Toast.TOP;
+      },
+      onHide: () {
+        gravity = Toast.BOTTOM;
+      },
+    );
     super.initState();
   }
 
@@ -55,205 +59,60 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
-    return OrientationBuilder(
-      builder: (_, orientation) {
-        return Scaffold(
-          resizeToAvoidBottomPadding: orientation == Orientation.portrait,
-          backgroundColor: Resource.Colors.blue,
-          body: Center(
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: orientation == Orientation.portrait
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: _renderContent(orientation),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: _renderContent(orientation),
-                    ),
+    ap = ApLocalizations.of(context);
+    return LoginScaffold(
+      logoMode: LogoMode.image,
+      logoSource: ImageAssets.K,
+      forms: <Widget>[
+        ApTextField(
+          controller: _username,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          focusNode: usernameFocusNode,
+          nextFocusNode: passwordFocusNode,
+          labelText: ap.username,
+        ),
+        ApTextField(
+          obscureText: true,
+          textInputAction: TextInputAction.send,
+          controller: _password,
+          focusNode: passwordFocusNode,
+          onSubmitted: (text) {
+            passwordFocusNode.unfocus();
+            _login();
+          },
+          labelText: ap.password,
+        ),
+        SizedBox(height: 8.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            TextCheckBox(
+              text: ap.autoLogin,
+              value: isAutoLogin,
+              onChanged: _onAutoLoginChanged,
             ),
-          ),
-        );
-      },
-    );
-  }
-
-  _renderContent(Orientation orientation) {
-    List<Widget> section = orientation == Orientation.portrait
-        ? <Widget>[
-            Center(
-              child: Image.asset(
-                ImageAssets.K,
-                width: 120.0,
-                height: 120.0,
-              ),
+            TextCheckBox(
+              text: ap.remember,
+              value: isRememberPassword,
+              onChanged: _onRememberPasswordChanged,
             ),
-            SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
-          ]
-        : <Widget>[
-            Expanded(
-              child: Image.asset(
-                ImageAssets.K,
-                width: 120.0,
-                height: 120.0,
-              ),
-            ),
-            SizedBox(height: orientation == Orientation.portrait ? 30.0 : 0.0),
-          ];
-    Widget usernameTextField = TextField(
-      maxLines: 1,
-      controller: _username,
-      textInputAction: TextInputAction.next,
-      focusNode: usernameFocusNode,
-      onSubmitted: (text) {
-        usernameFocusNode.unfocus();
-        FocusScope.of(context).requestFocus(passwordFocusNode);
-      },
-      decoration: InputDecoration(
-        labelText: app.username,
-      ),
-      style: _editTextStyle,
-    );
-    Widget passwordTextField = TextField(
-      obscureText: true,
-      maxLines: 1,
-      textInputAction: TextInputAction.send,
-      controller: _password,
-      focusNode: passwordFocusNode,
-      onSubmitted: (text) {
-        passwordFocusNode.unfocus();
-        _login();
-      },
-      decoration: InputDecoration(
-        labelText: app.password,
-      ),
-      style: _editTextStyle,
-    );
-    List<Widget> sectionInput = <Widget>[
-      (Platform.isAndroid)
-          ? Autofill(
-              onAutofilled: (val) {
-                // set value in controller & cursor position after auto-filled value
-                _username.value = TextEditingValue(
-                  text: val,
-                  selection: TextSelection.fromPosition(
-                    TextPosition(offset: val.length),
-                  ),
-                );
-              },
-              autofillHints: [FlutterAutofill.AUTOFILL_HINT_USERNAME],
-              autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-              textController: _username,
-              child: usernameTextField,
-            )
-          : usernameTextField,
-      (Platform.isAndroid)
-          ? Autofill(
-              onAutofilled: (val) {
-                // set value in controller & cursor position after auto-filled value
-                _password.value = TextEditingValue(
-                    text: val,
-                    selection: TextSelection.fromPosition(
-                        TextPosition(offset: val.length)));
-              },
-              autofillHints: [FlutterAutofill.AUTOFILL_HINT_PASSWORD],
-              autofillType: FlutterAutofill.AUTOFILL_TYPE_TEXT,
-              textController: _password,
-              child: passwordTextField,
-            )
-          : passwordTextField,
-      SizedBox(height: 8.0),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          GestureDetector(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Theme(
-                  data: ThemeData(
-                    unselectedWidgetColor: Colors.white,
-                  ),
-                  child: Checkbox(
-                    activeColor: Colors.white,
-                    checkColor: Resource.Colors.blue,
-                    value: isAutoLogin,
-                    onChanged: _onAutoLoginChanged,
-                  ),
-                ),
-                Text(
-                  app.autoLogin,
-                  style: TextStyle(color: Colors.white),
-                )
-              ],
-            ),
-            onTap: () => _onAutoLoginChanged(!isAutoLogin),
-          ),
-          GestureDetector(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Theme(
-                  data: ThemeData(
-                    unselectedWidgetColor: Colors.white,
-                  ),
-                  child: Checkbox(
-                    activeColor: Colors.white,
-                    checkColor: Resource.Colors.blue,
-                    value: isRememberPassword,
-                    onChanged: _onRememberPasswordChanged,
-                  ),
-                ),
-                Text(
-                  app.remember,
-                  style: TextStyle(color: Colors.white),
-                )
-              ],
-            ),
-            onTap: () => _onRememberPasswordChanged(!isRememberPassword),
-          ),
-        ],
-      ),
-      SizedBox(height: 8.0),
-      Container(
-        width: double.infinity,
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(30.0),
-            ),
-          ),
-          padding: EdgeInsets.all(14.0),
+          ],
+        ),
+        SizedBox(height: 8.0),
+        ApButton(
+          text: ap.login,
           onPressed: () {
             FA.logAction('login', 'click');
             _login();
           },
-          color: Colors.white,
-          child: Text(
-            app.login,
-            style: TextStyle(color: Resource.Colors.blue, fontSize: 18.0),
-          ),
         ),
-      ),
-      Center(
-        child: FlatButton(
-          padding: EdgeInsets.all(0.0),
-          onPressed: () {
-            _offlineLogin();
-          },
-          child: Text(
-            app.offlineLogin,
-            style: TextStyle(color: Colors.white, fontSize: 16.0),
-          ),
+        ApFlatButton(
+          text: ap.offlineLogin,
+          onPressed: _offlineLogin,
         ),
-      ),
-      Center(
-        child: FlatButton(
-          padding: EdgeInsets.all(0.0),
+        ApFlatButton(
+          text: ap.searchUsername,
           onPressed: () async {
             var username = await Navigator.push(
               context,
@@ -265,29 +124,12 @@ class LoginPageState extends State<LoginPage> {
               setState(() {
                 _username.text = username;
               });
-              Utils.showToast(context, app.firstLoginHint);
+              ApUtils.showToast(context, ap.firstLoginHint);
             }
           },
-          child: Text(
-            app.searchUsername,
-            style: TextStyle(color: Colors.white, fontSize: 16.0),
-          ),
-        ),
-      ),
-    ];
-    if (orientation == Orientation.portrait) {
-      section.addAll(sectionInput);
-    } else {
-      section.add(
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: sectionInput,
-          ),
-        ),
-      );
-    }
-    return section;
+        )
+      ],
+    );
   }
 
   _onRememberPasswordChanged(bool value) async {
@@ -326,12 +168,12 @@ class LoginPageState extends State<LoginPage> {
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      Utils.showToast(context, app.doNotEmpty);
+      ApUtils.showToast(context, ap.doNotEmpty, gravity: gravity);
     } else {
       showDialog(
         context: context,
         builder: (BuildContext context) => WillPopScope(
-            child: ProgressDialog(app.logining),
+            child: ProgressDialog(ap.logining),
             onWillPop: () async {
               return false;
             }),
@@ -358,13 +200,14 @@ class LoginPageState extends State<LoginPage> {
         if (e is DioError) {
           switch (e.type) {
             case DioErrorType.RESPONSE:
-              Utils.showToast(context, app.loginFail);
+              ApUtils.showToast(context, ap.loginFail, gravity: gravity);
               Utils.handleResponseError(context, 'login', mounted, e);
               _offlineLogin();
               break;
             case DioErrorType.CANCEL:
               break;
             default:
+              //TODO improve hint
               Utils.handleDioError(context, e);
               break;
           }
@@ -380,13 +223,13 @@ class LoginPageState extends State<LoginPage> {
     String password =
         Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     if (username.isEmpty || password.isEmpty) {
-      Utils.showToast(context, app.noOfflineLoginData);
+      ApUtils.showToast(context, ap.noOfflineLoginData);
     } else {
       if (username != _username.text || password != _password.text)
-        Utils.showToast(context, app.offlineLoginPasswordError);
+        ApUtils.showToast(context, ap.offlineLoginPasswordError);
       else {
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        Utils.showToast(context, app.loadOfflineData);
+        ApUtils.showToast(context, ap.loadOfflineData);
         Navigator.of(context).pop(true);
       }
     }

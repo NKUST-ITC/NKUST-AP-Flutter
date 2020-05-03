@@ -1,5 +1,14 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/widgets/default_dialog.dart';
+import 'package:ap_common/widgets/dialog_option.dart';
+import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/widgets/progress_dialog.dart';
+import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,15 +18,8 @@ import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/pages/home/leave/pick_tutor_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/default_dialog.dart';
-import 'package:nkust_ap/widgets/dialog_option.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
-import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 import 'package:sprintf/sprintf.dart';
 
 enum _State {
@@ -42,7 +44,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -71,12 +73,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         return '';
       case _State.error:
       case _State.empty:
-        return app.somethingError;
+        return ap.somethingError;
       case _State.userNotSupport:
-        return app.userNotSupport;
+        return ap.userNotSupport;
         break;
       case _State.offline:
-        return app.offlineMode;
+        return ap.offlineMode;
         break;
     }
     return '';
@@ -97,7 +99,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -116,8 +118,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           onPressed: null,
           child: HintContent(
             icon: state == _State.offline
-                ? AppIcon.offlineBolt
-                : AppIcon.permIdentity,
+                ? ApIcon.offlineBolt
+                : ApIcon.permIdentity,
             content: errorTitle,
           ),
         );
@@ -136,7 +138,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     showDialog<int>(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
-                        title: Text(app.leaveType),
+                        title: Text(ap.leaveType),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(8),
@@ -177,17 +179,17 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.insertDriveFile,
+                    ApIcon.insertDriveFile,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.leaveType,
+                    ap.leaveType,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
@@ -196,7 +198,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 SizedBox(height: 16),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 SizedBox(height: 16),
                 FractionallySizedBox(
                   widthFactor: 0.3,
@@ -207,7 +209,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       ),
                     ),
                     padding: EdgeInsets.all(4.0),
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                     onPressed: () async {
                       final List<DateTime> picked =
                           await DateRagePicker.showDatePicker(
@@ -242,7 +244,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       }
                     },
                     child: Text(
-                      app.addDate,
+                      ap.addDate,
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
@@ -276,9 +278,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                   IconButton(
                                     padding: EdgeInsets.all(0.0),
                                     icon: Icon(
-                                      AppIcon.cancel,
+                                      ApIcon.cancel,
                                       size: 20.0,
-                                      color: Resource.Colors.red,
+                                      color: ApTheme.of(context).red,
                                     ),
                                     onPressed: () {
                                       setState(() {
@@ -310,11 +312,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                             Radius.circular(4.0),
                                           ),
                                           border: Border.all(
-                                              color:
-                                                  Resource.Colors.blueAccent),
+                                              color: ApTheme.of(context)
+                                                  .blueAccent),
                                           color: leaveModels[index]
                                                   .selected[sectionIndex]
-                                              ? Resource.Colors.blueAccent
+                                              ? ApTheme.of(context).blueAccent
                                               : null,
                                         ),
                                         alignment: Alignment.center,
@@ -324,7 +326,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                             color: leaveModels[index]
                                                     .selected[sectionIndex]
                                                 ? Colors.white
-                                                : Resource.Colors.blueAccent,
+                                                : ApTheme.of(context)
+                                                    .blueAccent,
                                           ),
                                         ),
                                       ),
@@ -349,7 +352,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   ),
                 ),
                 SizedBox(height: leaveModels.length == 0 ? 0 : 16.0),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
                   enabled: leaveSubmitInfo.tutor == null,
                   onTap: leaveSubmitInfo.tutor == null
@@ -371,27 +374,27 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.person,
+                    ApIcon.person,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.tutor,
+                    ap.tutor,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
                     leaveSubmitInfo.tutor == null
-                        ? (teacher?.name ?? app.pleasePick)
+                        ? (teacher?.name ?? ap.pleasePick)
                         : (leaveSubmitInfo.tutor?.name ?? ''),
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
                   onTap: () {
                     ImagePicker.pickImage(source: ImageSource.gallery).then(
@@ -417,25 +420,25 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     vertical: 8,
                   ),
                   leading: Icon(
-                    AppIcon.insertDriveFile,
+                    ApIcon.insertDriveFile,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   trailing: Icon(
-                    AppIcon.keyboardArrowDown,
+                    ApIcon.keyboardArrowDown,
                     size: 30,
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                   ),
                   title: Text(
-                    app.leaveProof,
+                    ap.leaveProof,
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    image?.path?.split('/')?.last ?? app.leaveProofHint,
+                    image?.path?.split('/')?.last ?? ap.leaveProofHint,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
-                Divider(color: Resource.Colors.grey, height: 1),
+                Divider(color: ApTheme.of(context).grey, height: 1),
                 SizedBox(height: 36),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
@@ -444,23 +447,23 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     controller: _reason,
                     validator: (value) {
                       if (value.isEmpty) {
-                        return app.doNotEmpty;
+                        return ap.doNotEmpty;
                       }
                       return null;
                     },
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
-                      fillColor: Resource.Colors.blueAccent,
+                      fillColor: ApTheme.of(context).blueAccent,
                       labelStyle: TextStyle(
-                        color: Resource.Colors.grey,
+                        color: ApTheme.of(context).grey,
                       ),
-                      labelText: app.reason,
+                      labelText: ap.reason,
                     ),
                   ),
                 ),
                 if (isDelay) ...[
                   SizedBox(height: 36),
-                  Divider(color: Resource.Colors.grey, height: 1),
+                  Divider(color: ApTheme.of(context).grey, height: 1),
                   SizedBox(height: 36),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
@@ -468,18 +471,18 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       maxLines: 2,
                       validator: (value) {
                         if (isDelay && value.isEmpty) {
-                          return app.doNotEmpty;
+                          return ap.doNotEmpty;
                         }
                         return null;
                       },
                       controller: _delayReason,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        fillColor: Resource.Colors.blueAccent,
+                        fillColor: ApTheme.of(context).blueAccent,
                         labelStyle: TextStyle(
-                          color: Resource.Colors.grey,
+                          color: ApTheme.of(context).grey,
                         ),
-                        labelText: app.delayReason,
+                        labelText: ap.delayReason,
                       ),
                     ),
                   ),
@@ -498,9 +501,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       _leaveSubmit();
                       FA.logAction('leave_submit', 'click');
                     },
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                     child: Text(
-                      app.confirm,
+                      ap.confirm,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
@@ -544,7 +547,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             if (mounted) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(context, app.busFailInfinity);
+                ApUtils.showToast(context, ap.busFailInfinity);
               });
             }
             break;
@@ -575,7 +578,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           )) isDelay = true;
     }
     if (isDelay) {
-      Utils.showToast(context, app.leaveDelayHint);
+      ApUtils.showToast(context, ap.leaveDelayHint);
     }
   }
 
@@ -603,9 +606,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       }
     });
     if (days.length == 0) {
-      Utils.showToast(context, app.pleasePickDateAndSection);
+      ApUtils.showToast(context, ap.pleasePickDateAndSection);
     } else if (leaveSubmitInfo.tutor == null && teacher == null) {
-      Utils.showToast(context, app.pickTeacher);
+      ApUtils.showToast(context, ap.pickTeacher);
     } else if (_formKey.currentState.validate()) {
       //TODO submit summary
       String tutorId, tutorName;
@@ -626,7 +629,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       showDialog(
         context: context,
         builder: (BuildContext context) => YesNoDialog(
-          title: app.leaveSubmit,
+          title: ap.leaveSubmit,
           contentWidgetPadding: EdgeInsets.all(0.0),
           contentWidget: SizedBox(
             height: MediaQuery.of(context).size.height *
@@ -644,42 +647,42 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     textAlign: TextAlign.left,
                     text: TextSpan(
                       style: TextStyle(
-                          color: Resource.Colors.grey,
+                          color: ApTheme.of(context).grey,
                           height: 1.5,
                           fontSize: 16.0),
                       children: [
                         TextSpan(
-                          text: '${app.leaveType}：',
+                          text: '${ap.leaveType}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
                             text: '${leaveSubmitInfo.type[typeIndex].title}\n'),
                         TextSpan(
-                          text: '${app.tutor}：',
+                          text: '${ap.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(text: '$tutorName\n'),
                         TextSpan(
-                          text: '${app.reason}：\n',
+                          text: '${ap.reason}：\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(text: '${_reason.text}'),
                         if (isDelay) ...[
                           TextSpan(
-                            text: '${app.delayReason}：\n',
+                            text: '${ap.delayReason}：\n',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           TextSpan(text: '${_delayReason.text}\n'),
                         ],
                         TextSpan(
-                          text: '${app.leaveDateAndSection}：\n',
+                          text: '${ap.leaveDateAndSection}：\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         for (var day in days)
                           TextSpan(text: '${day.toString()}\n'),
                         TextSpan(
                           text:
-                              '${app.leaveProof}：${(image == null ? app.none : '')}\n',
+                              '${ap.leaveProof}：${(image == null ? ap.none : '')}\n',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -698,12 +701,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               ],
             ),
           ),
-          leftActionText: app.cancel,
-          rightActionText: app.submit,
+          leftActionText: ap.cancel,
+          rightActionText: ap.submit,
           leftActionFunction: null,
           rightActionFunction: () {
             _leaveUpload(data);
-            Utils.showToast(context, '上傳中，測試功能');
+            ApUtils.showToast(context, '上傳中，測試功能');
           },
         ),
       );
@@ -714,7 +717,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-        child: ProgressDialog(app.leaveSubmitUploadHint),
+        child: ProgressDialog(ap.leaveSubmitUploadHint),
         onWillPop: () async {
           return false;
         },
@@ -727,27 +730,27 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         context: context,
         builder: (BuildContext context) => DefaultDialog(
           title: response.statusCode == 200
-              ? app.leaveSubmit
+              ? ap.leaveSubmit
               : '${response.statusCode}',
           contentWidget: RichText(
             textAlign: TextAlign.center,
             text: TextSpan(
               style: TextStyle(
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
                 height: 1.3,
                 fontSize: 16.0,
               ),
               children: [
                 TextSpan(
                   text: response.statusCode == 200
-                      ? app.leaveSubmitSuccess
+                      ? ap.leaveSubmitSuccess
                       : '${response.data}',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ],
             ),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () =>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
@@ -757,7 +760,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (e is DioError) {
         switch (e.type) {
           case DioErrorType.RESPONSE:
-            String text = app.somethingError;
+            String text = ap.somethingError;
             if (e.response.data is Map<String, dynamic>) {
               ErrorResponse errorResponse =
                   ErrorResponse.fromJson(e.response.data);
@@ -766,16 +769,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             showDialog(
               context: context,
               builder: (BuildContext context) => DefaultDialog(
-                title: app.leaveSubmitFail,
+                title: ap.leaveSubmitFail,
                 contentWidget: Text(
                   text,
                   style: TextStyle(
-                    color: Resource.Colors.grey,
+                    color: ApTheme.of(context).grey,
                     height: 1.3,
                     fontSize: 16.0,
                   ),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop();
                 },
@@ -786,7 +789,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             setState(() {
               state = _State.error;
             });
-            Utils.showToast(context, app.somethingError);
+            ApUtils.showToast(context, ap.somethingError);
             break;
           case DioErrorType.CANCEL:
             break;
@@ -805,10 +808,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     print('resize after: ${(result.lengthSync() / 1024 / 1024)}');
     FA.logLeavesImageCompressSize(image, result);
     if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
-      Utils.showToast(
+      ApUtils.showToast(
         context,
         sprintf(
-          app.imageCompressHint,
+          ap.imageCompressHint,
           [
             Constants.MAX_IMAGE_SIZE,
             (result.lengthSync() / 1024 / 1024),
@@ -819,7 +822,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         this.image = result;
       });
     } else {
-      Utils.showToast(context, app.imageTooBigHint);
+      ApUtils.showToast(context, ap.imageTooBigHint);
       FA.logEvent('leave_pick_fail');
     }
   }

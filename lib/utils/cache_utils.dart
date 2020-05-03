@@ -2,15 +2,15 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
-import 'package:nkust_ap/models/score_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/models/user_info.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 
 class CacheUtils {
   static void saveSemesterData(SemesterData semesterData) async {

@@ -38,6 +38,7 @@ class Constants {
   static const PREF_LANGUAGE_CODE = 'pref_language_code';
   static const PREF_THEME_CODE = 'pref_theme_code';
   static const PREF_ICON_STYLE_CODE = 'pref_icon_style_code';
+  static const PREF_THEME_MODE_INDEX = 'pref_theme_mode_index';
 
   static const PREF_AP_ENABLE = "pref_ap_enable";
   static const PREF_BUS_ENABLE = "pref_bus_enable";
@@ -61,7 +62,7 @@ class Constants {
   static const TAG_NEWS_ICON = "tag_news_icon";
   static const TAG_NEWS_TITLE = "tag_news_title";
 
-  static const ANDROID_DEFAULT_NOTIFICATION_NAME = 'ic_stat_kuas_ap';
+  static const ANDROID_DEFAULT_NOTIFICATION_NAME = '@drawable/ic_stat_kuas_ap';
 
   // Notification ID
   static const int NOTIFICATION_BUS_ID = 100;
@@ -69,11 +70,6 @@ class Constants {
   static const int NOTIFICATION_FCM_ID = 200;
 
   static const FANS_PAGE_ID = '954175941266264';
-  static const FANS_PAGE_URL_SCHEME_ANDROID =
-      'fb://messaging/${Constants.FANS_PAGE_ID}';
-  static const FANS_PAGE_URL_SCHEME_IOS =
-      'fb-messenger://user-thread/${Constants.FANS_PAGE_ID}';
-  static const FANS_PAGE_URL = 'https://www.facebook.com/$FANS_PAGE_ID/';
 
   static const DONATE_URL =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';

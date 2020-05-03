@@ -1,22 +1,25 @@
 import 'dart:io';
-import 'dart:math';
 
+import 'package:ap_common/models/ap_support_language.dart';
+import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/dialog_option.dart';
+import 'package:ap_common/widgets/option_dialog.dart';
+import 'package:ap_common/widgets/progress_dialog.dart';
+import 'package:ap_common/widgets/setting_page_widgets.dart';
 import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/course_data.dart';
 import 'package:nkust_ap/models/item.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/app_theme.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/dialog_option.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
 
@@ -30,7 +33,7 @@ class SettingPage extends StatefulWidget {
 class SettingPageState extends State<SettingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   String appVersion = "1.0.0";
   bool busNotify = false, courseNotify = false, displayPicture = true;
@@ -53,21 +56,35 @@ class SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
+    final languageTextList = [
+      ApLocalizations.of(context).systemLanguage,
+      ApLocalizations.of(context).traditionalChinese,
+      ApLocalizations.of(context).english,
+    ];
+    final themeTextList = [
+      ApLocalizations.of(context).systemTheme,
+      ApLocalizations.of(context).light,
+      ApLocalizations.of(context).dark,
+    ];
+    final code = Preferences.getString(
+        Constants.PREF_LANGUAGE_CODE, ApSupportLanguageConstants.SYSTEM);
+    final languageIndex = ApSupportLanguageExtension.fromCode(code);
+    final themeModeIndex = ApTheme.of(context).themeMode.index;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(app.settings),
-        backgroundColor: Resource.Colors.blue,
+        title: Text(ap.settings),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            _title(text: app.notificationItem),
-            _switch(
-              text: app.courseNotify,
-              subText: app.courseNotifySubTitle,
+            SettingTitle(text: ap.notificationItem),
+            SettingSwitch(
+              text: ap.courseNotify,
+              subText: ap.courseNotifySubTitle,
               value: courseNotify,
               onChanged: (b) async {
                 FA.logAction('notify_course', 'create');
@@ -84,9 +101,9 @@ class SettingPageState extends State<SettingPage> {
                 Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
               },
             ),
-            _switch(
-              text: app.busNotify,
-              subText: app.busNotifySubTitle,
+            SettingSwitch(
+              text: ap.busNotify,
+              subText: ap.busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
                 FA.logAction('notify_bus', 'create');
@@ -106,10 +123,10 @@ class SettingPageState extends State<SettingPage> {
               color: Colors.grey,
               height: 0.5,
             ),
-            _title(text: app.otherSettings),
-            _switch(
-              text: app.headPhotoSetting,
-              subText: app.headPhotoSettingSubTitle,
+            SettingTitle(text: ap.otherSettings),
+            SettingSwitch(
+              text: ap.headPhotoSetting,
+              subText: ap.headPhotoSettingSubTitle,
               value: displayPicture,
               onChanged: (b) {
                 setState(() {
@@ -120,7 +137,7 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('head_photo', 'click');
               },
             ),
-            _switch(
+            SettingSwitch(
               text: '打卡自動送出',
               subText: '不選擇直接送出目前位置資料',
               value: autoSendEvent,
@@ -133,51 +150,48 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('auto_send_event', 'click');
               },
             ),
-            _item(
-              text: app.language,
-              subText: app.localeText,
+            SettingItem(
+              text: ap.language,
+              subText: languageTextList[languageIndex],
               onTap: () {
-                showDialog<int>(
+                showDialog(
                   context: context,
-                  builder: (BuildContext context) => SimpleDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16),
-                        ),
-                      ),
-                      title: Text(app.choseLanguageTitle),
-                      children: [
-                        for (var item in [
-                          Item(app.systemLanguage, AppLocalizations.SYSTEM),
-                          Item(app.traditionalChinese, AppLocalizations.ZH),
-                          Item(app.english, AppLocalizations.EN),
-                        ])
-                          DialogOption(
-                              text: item.text,
-                              check:
-                                  AppLocalizations.languageCode == item.value,
-                              onPressed: () {
-                                AppLocalizations.locale =
-                                    (item.value == AppLocalizations.SYSTEM)
-                                        ? Localizations.localeOf(context)
-                                        : Locale(item.value);
-                                if (AppLocalizations.languageCode != item.value)
-                                  FA.logAction('change_language', item.value);
-                                setState(() {
-                                  AppLocalizations.languageCode = item.value;
-                                });
-                                Preferences.setString(
-                                    Constants.PREF_LANGUAGE_CODE, item.value);
-                                Navigator.pop(context);
-                              }),
-                      ]),
-                ).then<void>((int position) {});
-                FA.logAction('pick_language', 'click');
+                  builder: (_) => SimpleOptionDialog(
+                    title: ap.language,
+                    items: languageTextList,
+                    index: languageIndex,
+                    onSelected: (int index) async {
+                      Locale locale;
+                      String code = ApSupportLanguage.values[index].code;
+                      switch (index) {
+                        case 0:
+                          locale = Localizations.localeOf(context);
+                          break;
+                        default:
+                          locale = Locale(
+                            code,
+                            code == ApSupportLanguageConstants.ZH ? 'TW' : null,
+                          );
+                          break;
+                      }
+                      Preferences.setString(Constants.PREF_LANGUAGE_CODE, code);
+                      ShareDataWidget.of(context).data.loadLocale(locale);
+//                      FirebaseAnalyticsUtils.instance.logAction(
+//                        'change_language',
+//                        code,
+//                      );
+//                      FirebaseAnalyticsUtils.instance.setUserProperty(
+//                        FirebaseConstants.LANGUAGE,
+//                        AppLocalizations.locale.languageCode,
+//                      );
+                    },
+                  ),
+                );
               },
             ),
-            _item(
-              text: app.iconStyle,
-              subText: app.iconText,
+            SettingItem(
+              text: ap.iconStyle,
+              subText: ap.iconText,
               onTap: () {
                 showDialog<int>(
                   context: context,
@@ -187,20 +201,20 @@ class SettingPageState extends State<SettingPage> {
                           Radius.circular(16),
                         ),
                       ),
-                      title: Text(app.iconStyle),
+                      title: Text(ap.iconStyle),
                       children: [
                         for (var item in [
-                          Item(app.outlined, AppIcon.OUTLINED),
-                          Item(app.filled, AppIcon.FILLED),
+                          Item(ap.outlined, ApIcon.OUTLINED),
+                          Item(ap.filled, ApIcon.FILLED),
                         ])
                           DialogOption(
                               text: item.text,
-                              check: AppIcon.code == item.value,
+                              check: ApIcon.code == item.value,
                               onPressed: () {
-                                if (AppIcon.code != item.value)
+                                if (ApIcon.code != item.value)
                                   FA.logAction('change_icon_style', item.value);
                                 setState(() {
-                                  AppIcon.code = item.value;
+                                  ApIcon.code = item.value;
                                 });
                                 Preferences.setString(
                                     Constants.PREF_ICON_STYLE_CODE, item.value);
@@ -211,71 +225,49 @@ class SettingPageState extends State<SettingPage> {
                 FA.logAction('pick_icon_style', 'click');
               },
             ),
-            _item(
-              text: app.theme,
-              subText: app.themeText,
+            SettingItem(
+              text: ap.theme,
+              subText: themeTextList[themeModeIndex],
               onTap: () {
-                showDialog<int>(
+                showDialog(
                   context: context,
-                  builder: (_) => SimpleDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(16),
-                        ),
-                      ),
-                      title: Text(app.theme),
-                      children: [
-                        for (var item in [
-                          Item(app.light, AppTheme.LIGHT),
-                          Item(app.dark, AppTheme.DARK),
-                        ])
-                          DialogOption(
-                              text: item.text,
-                              check: AppTheme.code == item.value,
-                              onPressed: () {
-                                if (AppTheme.code != item.value)
-                                  FA.logAction('change_theme', item.value);
-                                setState(() {
-                                  AppTheme.code = item.value;
-                                  ShareDataWidget.of(context)
-                                      .data
-                                      .setThemeData(AppTheme.data);
-                                });
-                                Preferences.setString(
-                                    Constants.PREF_THEME_CODE, item.value);
-                                Navigator.pop(context);
-                              }),
-                      ]),
-                ).then<void>((int position) {});
-                FA.logAction('pick_theme', 'click');
+                  builder: (_) => SimpleOptionDialog(
+                    title: ap.theme,
+                    items: themeTextList,
+                    index: themeModeIndex,
+                    onSelected: (int index) {
+                      Preferences.getInt(
+                        Constants.PREF_THEME_MODE_INDEX,
+                        index,
+                      );
+                      ShareDataWidget.of(context)
+                          .data
+                          .update(ThemeMode.values[index]);
+                      Preferences.setInt(
+                          Constants.PREF_THEME_MODE_INDEX, index);
+//                      FirebaseAnalyticsUtils.instance.logAction(
+//                        'change_theme',
+//                        ThemeMode.values[index].toString(),
+//                      );
+                    },
+                  ),
+                );
               },
             ),
             Divider(
               color: Colors.grey,
               height: 0.5,
             ),
-            _title(text: app.otherInfo),
-            _item(
-                text: app.feedback,
-                subText: app.feedbackViaFacebook,
+            SettingTitle(text: ap.otherInfo),
+            SettingItem(
+                text: ap.feedback,
+                subText: ap.feedbackViaFacebook,
                 onTap: () {
-                  if (Platform.isAndroid)
-                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_ANDROID)
-                        .catchError((onError) =>
-                            Utils.launchUrl(Constants.FANS_PAGE_URL));
-                  else if (Platform.isIOS)
-                    Utils.launchUrl(Constants.FANS_PAGE_URL_SCHEME_IOS)
-                        .catchError((onError) =>
-                            Utils.launchUrl(Constants.FANS_PAGE_URL));
-                  else {
-                    Utils.launchUrl(Constants.FANS_PAGE_URL).catchError(
-                        (onError) =>
-                            Utils.showToast(context, app.platformError));
-                  }
+                  ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
                   FA.logAction('feedback', 'click');
                 }),
-            _item(
-                text: app.appVersion,
+            SettingItem(
+                text: ap.appVersion,
                 subText: "v$appVersion",
                 onTap: () {
                   FA.logAction('app_version', 'click');
@@ -298,60 +290,15 @@ class SettingPageState extends State<SettingPage> {
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
       busNotify = Preferences.getBool(Constants.PREF_BUS_NOTIFY, false);
-      autoSendEvent = Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
+      autoSendEvent =
+          Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
     });
   }
-
-  Widget _title({@required String text}) => Padding(
-        padding: EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 8.0),
-        child: Text(
-          text,
-          style: TextStyle(color: Resource.Colors.blueText, fontSize: 14.0),
-          textAlign: TextAlign.start,
-        ),
-      );
-
-  Widget _switch({
-    @required String text,
-    @required String subText,
-    @required bool value,
-    @required Function onChanged,
-  }) =>
-      SwitchListTile(
-        title: Text(
-          text,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        subtitle: Text(
-          subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
-        ),
-        value: value,
-        onChanged: onChanged,
-        activeColor: Resource.Colors.blueAccent,
-      );
-
-  Widget _item({
-    @required String text,
-    @required String subText,
-    @required Function onTap,
-  }) =>
-      ListTile(
-        title: Text(
-          text,
-          style: TextStyle(fontSize: 16.0),
-        ),
-        subtitle: Text(
-          subText,
-          style: TextStyle(fontSize: 14.0, color: Resource.Colors.greyText),
-        ),
-        onTap: onTap,
-      );
 
   void _setupCourseNotify(BuildContext context) async {
     showDialog(
         context: context,
-        builder: (BuildContext context) => ProgressDialog(app.loading),
+        builder: (BuildContext context) => ProgressDialog(ap.loading),
         barrierDismissible: false);
     if (isOffline) {
       if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
@@ -366,14 +313,14 @@ class SettingPageState extends State<SettingPage> {
             courseNotify = false;
             Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
           });
-          Utils.showToast(context, app.noOfflineData);
+          ApUtils.showToast(context, ap.noOfflineData);
         }
       } else {
         setState(() {
           courseNotify = false;
           Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         });
-        Utils.showToast(context, app.noOfflineData);
+        ApUtils.showToast(context, ap.noOfflineData);
       }
       return;
     }
@@ -430,13 +377,13 @@ class SettingPageState extends State<SettingPage> {
   _setCourseData(CourseData courseData) async {
     try {
       if (courseData == null) {
-        Utils.showToast(context, app.courseNotifyEmpty);
+        ApUtils.showToast(context, ap.courseNotifyEmpty);
       } else {
         await Utils.setCourseNotify(context, courseData.courseTables);
-        Utils.showToast(context, app.courseNotifyHint);
+        ApUtils.showToast(context, ap.courseNotifyHint);
       }
     } on Exception catch (e) {
-      Utils.showToast(context, app.courseNotifyError);
+      ApUtils.showToast(context, ap.courseNotifyError);
       setState(() {
         courseNotify = false;
         Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
@@ -448,7 +395,7 @@ class SettingPageState extends State<SettingPage> {
   _setupBusNotify(BuildContext context) async {
     showDialog(
       context: context,
-      builder: (BuildContext context) => ProgressDialog(app.loading),
+      builder: (BuildContext context) => ProgressDialog(ap.loading),
       barrierDismissible: false,
     );
     if (isOffline) {
@@ -459,10 +406,10 @@ class SettingPageState extends State<SettingPage> {
         setState(() {
           busNotify = false;
         });
-        Utils.showToast(context, app.noOfflineData);
+        ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        Utils.showToast(context, app.busNotifyHint);
+        ApUtils.showToast(context, ap.busNotifyHint);
       }
       return;
     }
@@ -474,7 +421,7 @@ class SettingPageState extends State<SettingPage> {
       if (response != null) {
         await Utils.setBusNotify(context, response.reservations);
       }
-      Utils.showToast(context, app.busNotifyHint);
+      ApUtils.showToast(context, ap.busNotifyHint);
     }).catchError((e) {
       setState(() {
         busNotify = false;
@@ -490,7 +437,7 @@ class SettingPageState extends State<SettingPage> {
             break;
           case DioErrorType.DEFAULT:
             if (e.message.contains("HttpException")) {
-              Utils.showToast(context, app.busFailInfinity);
+              ApUtils.showToast(context, ap.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:
@@ -516,9 +463,9 @@ class SettingPageState extends State<SettingPage> {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  app.ratingDialogTitle,
+                  ap.ratingDialogTitle,
                   style: TextStyle(
-                      color: Resource.Colors.blueText, fontSize: 20.0),
+                      color: ApTheme.of(context).blueText, fontSize: 20.0),
                 ),
               ),
             ),
@@ -526,9 +473,11 @@ class SettingPageState extends State<SettingPage> {
               textAlign: TextAlign.center,
               text: TextSpan(
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 18.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 18.0),
                   children: [
-                    TextSpan(text: app.ratingDialogContent),
+                    TextSpan(text: ap.ratingDialogContent),
                   ]),
             ),
             Row(
@@ -539,9 +488,9 @@ class SettingPageState extends State<SettingPage> {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    app.later,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                    ap.later,
+                    style: TextStyle(
+                        color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
                 FlatButton(
@@ -549,9 +498,9 @@ class SettingPageState extends State<SettingPage> {
                     AppReview.requestReview;
                   },
                   child: Text(
-                    app.rateNow,
-                    style:
-                        TextStyle(color: Resource.Colors.blue, fontSize: 16.0),
+                    ap.rateNow,
+                    style: TextStyle(
+                        color: ApTheme.of(context).blue, fontSize: 16.0),
                   ),
                 ),
               ],

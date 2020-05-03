@@ -1,16 +1,16 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -26,7 +26,7 @@ class RewardAndPenaltyPage extends StatefulWidget {
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations app;
 
   _State state = _State.loading;
 
@@ -37,12 +37,13 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   bool isOffline = false;
 
   TextStyle get _textBlueStyle =>
-      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
   TextStyle get _textStyle => TextStyle(fontSize: 15.0);
 
   @override
   void initState() {
+    //TODO FA
     //FA.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
@@ -54,11 +55,11 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(app.rewardAndPenalty),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -85,7 +86,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             if (isOffline)
               Text(
                 app.offlineScore,
-                style: TextStyle(color: Resource.Colors.grey),
+                style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
               child: RefreshIndicator(
@@ -119,7 +120,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.classIcon,
+            icon: ApIcon.classIcon,
             content: state == _State.error
                 ? app.clickToRetry
                 : app.rewardAndPenaltyEmpty,
@@ -127,7 +128,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.classIcon,
+          icon: ApIcon.classIcon,
           content: app.noOfflineData,
         );
       default:

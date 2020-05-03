@@ -1,16 +1,17 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -26,7 +27,7 @@ class MidtermAlertsPage extends StatefulWidget {
 class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -36,13 +37,9 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   bool isOffline = false;
 
-  TextStyle get _textBlueStyle =>
-      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
-
-  TextStyle get _textStyle => TextStyle(fontSize: 15.0);
-
   @override
   void initState() {
+    //TODO FA
     //FA.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
@@ -54,11 +51,11 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.midtermAlerts),
-        backgroundColor: Resource.Colors.blue,
+        title: Text(ap.midtermAlerts),
+        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -84,8 +81,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
                 }),
             if (isOffline)
               Text(
-                app.offlineScore,
-                style: TextStyle(color: Resource.Colors.grey),
+                ap.offlineScore,
+                style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
               child: RefreshIndicator(
@@ -119,16 +116,15 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.classIcon,
-            content: state == _State.error
-                ? app.clickToRetry
-                : app.midtermAlertsEmpty,
+            icon: ApIcon.classIcon,
+            content:
+                state == _State.error ? ap.clickToRetry : ap.midtermAlertsEmpty,
           ),
         );
       case _State.offline:
         return HintContent(
-          icon: AppIcon.classIcon,
-          content: app.noOfflineData,
+          icon: ApIcon.classIcon,
+          content: ap.noOfflineData,
         );
       default:
         return ListView.builder(
@@ -158,7 +154,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               sprintf(
-                app.midtermAlertsContent,
+                ap.midtermAlertsContent,
                 [
                   item.reason ?? '',
                   item.remark ?? '',

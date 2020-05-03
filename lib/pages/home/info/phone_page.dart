@@ -1,9 +1,11 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 
 enum _State { loading, finish, error }
 
@@ -21,7 +23,7 @@ class PhonePageState extends State<PhonePage>
 
   _State state = _State.loading;
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   List<PhoneModel> phoneModelList = [];
 
@@ -31,13 +33,13 @@ class PhonePageState extends State<PhonePage>
       );
 
   TextStyle get _textBlueStyle => TextStyle(
-        color: Resource.Colors.blueText,
+        color: ApTheme.of(context).blueText,
         fontSize: 18.0,
         fontWeight: FontWeight.bold,
       );
 
   TextStyle get _textGreyStyle => TextStyle(
-        color: Resource.Colors.grey,
+        color: ApTheme.of(context).grey,
         fontSize: 14.0,
       );
 
@@ -56,7 +58,7 @@ class PhonePageState extends State<PhonePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return _body();
   }
 
@@ -68,8 +70,8 @@ class PhonePageState extends State<PhonePage>
         );
       case _State.error:
         return HintContent(
-          icon: AppIcon.assignment,
-          content: app.clickToRetry,
+          icon: ApIcon.assignment,
+          content: ap.clickToRetry,
         );
       default:
         return ListView.builder(
@@ -125,7 +127,7 @@ class PhonePageState extends State<PhonePage>
       onPressed: () {
         FA.logAction('call_phone', 'click');
         try {
-          Utils.callPhone(phone.number);
+          ApUtils.callPhone(phone.number);
           FA.logAction('call_phone', 'status', message: 'succes');
         } catch (e) {
           FA.logAction('call_phone', 'status', message: 'error');

@@ -1,16 +1,18 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/default_dialog.dart';
+import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/widgets/progress_dialog.dart';
+import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/default_dialog.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:nkust_ap/widgets/progress_dialog.dart';
-import 'package:nkust_ap/widgets/yes_no_dialog.dart';
 
 enum _State {
   loading,
@@ -39,6 +41,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   DateTime dateTime = DateTime.now();
 
   AppLocalizations app;
+  ApLocalizations ap;
 
   bool isOffline = false;
 
@@ -58,6 +61,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Column(
       children: <Widget>[
         Container(
@@ -65,7 +69,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           child: isOffline
               ? Text(
                   app.offlineBusReservations,
-                  style: TextStyle(color: Resource.Colors.grey),
+                  style: TextStyle(color: ApTheme.of(context).grey),
                 )
               : null,
         ),
@@ -79,13 +83,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
   String get errorText {
     switch (state) {
       case _State.error:
-        return app.clickToRetry;
+        return ap.clickToRetry;
       case _State.empty:
         return app.busReservationEmpty;
       case _State.campusNotSupport:
-        return app.campusNotSupport;
+        return ap.campusNotSupport;
       case _State.userNotSupport:
-        return app.userNotSupport;
+        return ap.userNotSupport;
       default:
         return '';
     }
@@ -107,14 +111,14 @@ class BusReservationsPageState extends State<BusReservationsPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
+            icon: ApIcon.assignment,
             content: errorText,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: AppIcon.assignment,
-          content: app.noOfflineData,
+          icon: ApIcon.assignment,
+          content: ap.noOfflineData,
         );
       default:
         return RefreshIndicator(
@@ -134,9 +138,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _textStyle(BusReservation busReservation) => new TextStyle(
-      color: busReservation.getColorState(),
+      color: busReservation.getColorState(context),
       fontSize: 18.0,
-      decorationColor: Colors.grey);
+      decorationColor: ApTheme.of(context).greyText);
 
   _busReservationWidget(BusReservation busReservation) => Column(
         children: <Widget>[
@@ -148,9 +152,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 1,
                   child: Icon(
-                    AppIcon.directionsBus,
+                    ApIcon.directionsBus,
                     size: 20.0,
-                    color: Resource.Colors.blueAccent,
+                    color: ApTheme.of(context).blueAccent,
                   ),
                 ),
                 Expanded(
@@ -173,11 +177,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   flex: 2,
                   child: IconButton(
                     icon: Icon(
-                      AppIcon.cancel,
+                      ApIcon.cancel,
                       size: 20.0,
                       color: isOffline
-                          ? Resource.Colors.grey
-                          : Resource.Colors.red,
+                          ? ApTheme.of(context).grey
+                          : ApTheme.of(context).red,
                     ),
                     onPressed: isOffline
                         ? null
@@ -192,8 +196,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                   "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
                                   textAlign: TextAlign.center,
                                 ),
-                                leftActionText: app.back,
-                                rightActionText: app.determine,
+                                leftActionText: ap.back,
+                                rightActionText: ap.determine,
                                 rightActionFunction: () {
                                   cancelBusReservation(busReservation);
                                   FA.logAction('cancel_bus', 'click');
@@ -210,7 +214,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           Container(
             padding: EdgeInsets.symmetric(horizontal: 24.0),
             child: Divider(
-              color: Colors.grey,
+              color: ApTheme.of(context).grey,
               indent: 4.0,
             ),
           )
@@ -274,7 +278,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             if (e.message.contains("HttpException")) {
               setState(() {
                 state = _State.error;
-                Utils.showToast(context, app.busFailInfinity);
+                ApUtils.showToast(context, app.busFailInfinity);
               });
             }
             break;
@@ -328,7 +332,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveCancelDate}：',
@@ -353,7 +359,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   ),
                 ]),
           ),
-          actionText: app.iKnow,
+          actionText: ap.iKnow,
           actionFunction: () =>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
@@ -372,9 +378,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: Resource.Colors.grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                 ),
-                actionText: app.iKnow,
+                actionText: ap.iKnow,
                 actionFunction: () {
                   Navigator.of(context, rootNavigator: true).pop('dialog');
                 },
@@ -388,7 +396,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               setState(() {
                 state = _State.error;
               });
-              Utils.showToast(context, app.busFailInfinity);
+              ApUtils.showToast(context, app.busFailInfinity);
             }
             break;
           case DioErrorType.CANCEL:

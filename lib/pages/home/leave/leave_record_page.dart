@@ -1,14 +1,15 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/default_dialog.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/default_dialog.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State { loading, finish, error, empty, offlineEmpty }
@@ -27,7 +28,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   final key = GlobalKey<SemesterPickerState>();
 
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -43,7 +44,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   bool isOffline = false;
 
   TextStyle get _textBlueStyle =>
-      TextStyle(color: Resource.Colors.blueText, fontSize: 16.0);
+      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
   TextStyle get _textStyle => TextStyle(fontSize: 15.0);
 
@@ -61,7 +62,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -92,8 +93,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             ),
             if (isOffline)
               Text(
-                app.offlineLeaveData,
-                style: TextStyle(color: Resource.Colors.grey),
+                ap.offlineLeaveData,
+                style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
               child: RefreshIndicator(
@@ -132,14 +133,14 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: AppIcon.assignment,
-            content: state == _State.error ? app.clickToRetry : app.leaveEmpty,
+            icon: ApIcon.assignment,
+            content: state == _State.error ? ap.clickToRetry : ap.leaveEmpty,
           ),
         );
       case _State.offlineEmpty:
         return HintContent(
-          icon: AppIcon.classIcon,
-          content: app.noOfflineData,
+          icon: ApIcon.classIcon,
+          content: ap.noOfflineData,
         );
       default:
         hasNight = _checkHasNight();
@@ -152,7 +153,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 if (hasNight && orientation == Orientation.portrait)
-                  Text(app.leaveNight),
+                  Text(ap.leaveNight),
                 SizedBox(height: 16.0),
                 Container(
                   decoration: BoxDecoration(
@@ -200,7 +201,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   TableRow _leaveTitle(List<String> timeCodes) {
     List<Widget> widgets = [];
-    widgets.add(_textBorder(app.date, true));
+    widgets.add(_textBorder(ap.date, true));
     for (var timeCode in timeCodes) {
       if (hasNight) {
         if (orientation == Orientation.landscape)
@@ -235,23 +236,23 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               showDialog(
                 context: context,
                 builder: (BuildContext context) => DefaultDialog(
-                  title: app.leaveContent,
-                  actionText: app.iKnow,
+                  title: ap.leaveContent,
+                  actionText: ap.iKnow,
                   actionFunction: () =>
                       Navigator.of(context, rootNavigator: true).pop('dialog'),
                   contentWidget: RichText(
                     text: TextSpan(
                         style: TextStyle(
-                            color: Resource.Colors.grey,
+                            color: ApTheme.of(context).grey,
                             height: 1.3,
                             fontSize: 16.0),
                         children: [
                           TextSpan(
-                              text: '${app.leaveSheetId}：',
+                              text: '${ap.leaveSheetId}：',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           TextSpan(text: '${leave.leaveSheetId}\n'),
                           TextSpan(
-                              text: '${app.instructorsComment}：'
+                              text: '${ap.instructorsComment}：'
                                   '${leave.instructorsComment.length < 8 ? '' : '\n'}',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                           TextSpan(

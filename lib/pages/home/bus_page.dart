@@ -1,7 +1,8 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 import 'package:nkust_ap/utils/global.dart';
 
 class BusPage extends StatefulWidget {
@@ -45,15 +46,15 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     return new Scaffold(
       appBar: AppBar(
         title: Text(app.bus),
-        backgroundColor: Resource.Colors.blue,
+        backgroundColor: ApTheme.of(context).blue,
         actions: <Widget>[
           IconButton(
               icon: Icon(
-                AppIcon.info,
+                ApIcon.info,
                 color: Colors.white,
               ),
               onPressed: () {
-                Utils.pushCupertinoStyle(context, BusRulePage());
+                ApUtils.pushCupertinoStyle(context, BusRulePage());
               })
         ],
       ),
@@ -64,14 +65,14 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        fixedColor: Resource.Colors.yellow,
+        fixedColor: ApTheme.of(context).yellow,
         items: [
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.dateRange),
+            icon: Icon(ApIcon.dateRange),
             title: Text(app.busReserve),
           ),
           BottomNavigationBarItem(
-            icon: Icon(AppIcon.assignment),
+            icon: Icon(ApIcon.assignment),
             title: Text(app.busReservations),
           ),
         ],

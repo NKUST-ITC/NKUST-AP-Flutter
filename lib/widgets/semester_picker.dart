@@ -1,17 +1,16 @@
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/preferences.dart';
 import 'package:nkust_ap/utils/utils.dart';
-
-import 'dialog_option.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 
@@ -47,14 +46,14 @@ class SemesterPickerState extends State<SemesterPicker> {
           Text(
             selectSemester?.text ?? '',
             style: TextStyle(
-              color: Resource.Colors.semesterText,
+              color: ApTheme.of(context).semesterText,
               fontSize: 18.0,
             ),
           ),
           SizedBox(width: 8.0),
           Icon(
-            AppIcon.keyboardArrowDown,
-            color: Resource.Colors.semesterText,
+            ApIcon.keyboardArrowDown,
+            color: ApTheme.of(context).semesterText,
           )
         ],
       ),
@@ -115,7 +114,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     showDialog<int>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).picksSemester),
+        title: Text(ApLocalizations.of(context).picksSemester),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(8),

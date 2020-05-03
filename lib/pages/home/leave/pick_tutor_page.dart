@@ -1,18 +1,19 @@
 import 'dart:io';
 
+import 'package:ap_common/resources/ap_icon.dart';
+import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/widgets/dialog_option.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
-import 'package:nkust_ap/res/app_icon.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/preferences.dart';
-import 'package:nkust_ap/widgets/dialog_option.dart';
-import 'package:nkust_ap/widgets/hint_content.dart';
-import 'package:nkust_ap/res/resource.dart' as Resource;
 
 enum _State { loading, finish, error, empty }
 enum _Type { campus, department, teacher }
@@ -23,7 +24,7 @@ class PickTutorPage extends StatefulWidget {
 }
 
 class _PickTutorPageState extends State<PickTutorPage> {
-  AppLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
 
@@ -41,10 +42,10 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.pickTeacher),
+        title: Text(ap.pickTeacher),
       ),
       body: _body(),
     );
@@ -62,10 +63,9 @@ class _PickTutorPageState extends State<PickTutorPage> {
         return FlatButton(
           onPressed: null,
           child: HintContent(
-            icon: AppIcon.permIdentity,
-            content: state == _State.error
-                ? app.functionNotOpen
-                : app.functionNotOpen,
+            icon: ApIcon.permIdentity,
+            content:
+                state == _State.error ? ap.functionNotOpen : ap.functionNotOpen,
           ),
         );
       default:
@@ -77,7 +77,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
             SizedBox(height: 16.0),
             ListTile(
               leading: Icon(Icons.account_balance),
-              title: Text(app.campus),
+              title: Text(ap.campus),
               subtitle: Text('${campus.campusName}'),
               onTap: () {
                 pickItem(
@@ -91,15 +91,15 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 );
               },
               trailing: Icon(
-                AppIcon.keyboardArrowDown,
+                ApIcon.keyboardArrowDown,
                 size: 30,
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
               ),
             ),
-            Divider(color: Resource.Colors.grey, height: 1),
+            Divider(color: ApTheme.of(context).grey, height: 1),
             ListTile(
               leading: Icon(Icons.flag),
-              title: Text(app.department),
+              title: Text(ap.department),
               subtitle: Text('${department.departmentName}'),
               onTap: () {
                 pickItem(
@@ -113,15 +113,15 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 );
               },
               trailing: Icon(
-                AppIcon.keyboardArrowDown,
+                ApIcon.keyboardArrowDown,
                 size: 30,
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
               ),
             ),
-            Divider(color: Resource.Colors.grey, height: 1),
+            Divider(color: ApTheme.of(context).grey, height: 1),
             ListTile(
               leading: Icon(Icons.person),
-              title: Text(app.teacher),
+              title: Text(ap.teacher),
               subtitle: Text('${teacher.name}'),
               onTap: () {
                 pickItem(
@@ -135,9 +135,9 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 );
               },
               trailing: Icon(
-                AppIcon.keyboardArrowDown,
+                ApIcon.keyboardArrowDown,
                 size: 30,
-                color: Resource.Colors.grey,
+                color: ApTheme.of(context).grey,
               ),
             ),
             SizedBox(height: 16.0),
@@ -153,9 +153,9 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 onPressed: () {
                   Navigator.pop(context, teacher);
                 },
-                color: Resource.Colors.blueAccent,
+                color: ApTheme.of(context).blueAccent,
                 child: Text(
-                  app.confirm,
+                  ap.confirm,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18.0,
@@ -180,7 +180,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
           expiration: const Duration(seconds: 10),
         );
         await remoteConfig.activateFetched();
-      } on FetchThrottledException catch (exception) {} catch (exception) {}
+      } on FetchThrottledException catch (_) {} catch (exception) {}
     }
     if (remoteConfig != null) {
       Preferences.setString(Constants.LEAVE_CAMPUS_DATA,
