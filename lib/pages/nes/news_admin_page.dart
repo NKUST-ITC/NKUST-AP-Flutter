@@ -13,7 +13,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/pages/home/news/news_edit_page.dart';
+import 'package:nkust_ap/pages/nes/news_edit_page.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 enum _State { notLogin, loading, finish, error, empty, offline }

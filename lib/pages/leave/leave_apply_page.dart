@@ -17,7 +17,7 @@ import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
-import 'package:nkust_ap/pages/home/leave/pick_tutor_page.dart';
+import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:sprintf/sprintf.dart';

@@ -2,7 +2,7 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/pages/home/bus/bus_rule_page.dart';
+import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class BusPage extends StatefulWidget {

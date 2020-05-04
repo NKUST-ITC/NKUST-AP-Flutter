@@ -27,15 +27,15 @@ import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/pages/home/news/news_admin_page.dart';
+import 'package:nkust_ap/pages/nes/news_admin_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:outline_material_icons/outline_material_icons.dart';
 
-import 'home/study/midterm_alerts_page.dart';
-import 'home/study/reward_and_penalty_page.dart';
+import 'study/midterm_alerts_page.dart';
+import 'study/reward_and_penalty_page.dart';
 
 class HomePage extends StatefulWidget {
   static const String routerName = "/home";
