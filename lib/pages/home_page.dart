@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ap_common/models/user_info.dart';
@@ -359,33 +360,36 @@ class HomePageState extends State<HomePage> {
           title: Text(ap.score),
         ),
       ],
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          if (isLogin) {
-            var result = await BarcodeScanner.scan(
-              options: ScanOptions(
-                restrictFormat: [BarcodeFormat.qr],
+      floatingActionButton: (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                if (isLogin) {
+                  var result = await BarcodeScanner.scan(
+                    options: ScanOptions(
+                      restrictFormat: [BarcodeFormat.qr],
+                    ),
+                  );
+                  if (result.type == ResultType.Barcode) {
+                    if (Preferences.getBool(
+                        Constants.PREF_AUTO_SEND_EVENT, false))
+                      _sendEvent(result.rawContent, null);
+                    else
+                      _getEventInfo(result.rawContent);
+                  } else
+                    ApUtils.showToast(context, ap.cancel);
+                } else
+                  ApUtils.showToast(context, ap.notLogin);
+              },
+              label: Text(
+                app.punch,
+                style: TextStyle(color: Colors.white),
               ),
-            );
-            if (result.type == ResultType.Barcode) {
-              if (Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false))
-                _sendEvent(result.rawContent, null);
-              else
-                _getEventInfo(result.rawContent);
-            } else
-              ApUtils.showToast(context, ap.cancel);
-          } else
-            ApUtils.showToast(context, ap.notLogin);
-        },
-        label: Text(
-          app.punch,
-          style: TextStyle(color: Colors.white),
-        ),
-        icon: Icon(
-          OMIcons.camera,
-          color: Colors.white,
-        ),
-      ),
+              icon: Icon(
+                OMIcons.camera,
+                color: Colors.white,
+              ),
+            )
+          : null,
     );
   }
 
