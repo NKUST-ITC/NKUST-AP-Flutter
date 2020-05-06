@@ -289,14 +289,34 @@ class Helper {
     }
   }
 
-  Future<SemesterData> getSemester() async {
+  Future<SemesterData> getSemester({
+    GeneralCallback<SemesterData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get("/user/semesters");
-      return SemesterData.fromJson(response.data);
+      var data = SemesterData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getSemester(callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<ScoreData> getScores(String year, String semester) async {
@@ -319,7 +339,8 @@ class Helper {
     }
   }
 
-  Future<CourseData> getCourseTables(String year, String semester) async {
+  Future<CourseData> getCourseTables(String year, String semester,
+      {GeneralCallback callback}) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
@@ -330,27 +351,43 @@ class Helper {
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else {
-        var courseData = CourseData.fromJson(response.data);
-        for (var i = 0; i < courseData.courses.length; i++) {
-          final courseDetail = courseData.courses[i];
+      reLoginCount = 0;
+      CourseData data;
+      if (response.statusCode != 204) {
+        data = CourseData.fromJson(response.data);
+        for (var i = 0; i < data.courses.length; i++) {
+          final courseDetail = data.courses[i];
           for (var weekIndex = 0;
-              weekIndex < courseData.courseTables.weeks.length;
+              weekIndex < data.courseTables.weeks.length;
               weekIndex++) {
-            for (var course in courseData.courseTables.weeks[weekIndex]) {
+            for (var course in data.courseTables.weeks[weekIndex]) {
               if (course.title == courseDetail.title) {
                 course.detailIndex = i;
               }
             }
           }
         }
-        return courseData;
+        return (callback == null) ? data : callback.onSuccess(data);
       }
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getCourseTables(year, semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<RewardAndPenaltyData> getRewardAndPenalty(
