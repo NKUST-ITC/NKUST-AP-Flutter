@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
@@ -17,7 +18,7 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
-import 'package:nkust_ap/models/general_response.dart';
+import 'package:nkust_ap/models/general_response.dart' as event;
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -99,7 +100,15 @@ class Helper {
     }
   }
 
-  Future<LoginResponse> login(String username, String password) async {
+  Future<bool> reLogin(GeneralCallback callback) async {
+
+  static const USER_DATA_ERROR = 1401;
+
+  Future<LoginResponse> login({
+    @required String username,
+    @required String password,
+    GeneralCallback<LoginResponse> callback,
+  }) async {
     try {
       var response = await dio.post(
         '/oauth/token',
@@ -108,16 +117,32 @@ class Helper {
           'password': password,
         },
       );
-      if (response == null) print('null');
       var loginResponse = LoginResponse.fromJson(response.data);
       options.headers = _createBearerTokenAuth(loginResponse.token);
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;
-      return loginResponse;
-    } on DioError catch (dioError) {
-      throw dioError;
+      if (callback != null)
+        return callback.onSuccess(loginResponse);
+      else
+        return loginResponse;
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
+        callback?.onError(
+          GeneralResponse(
+            statusCode: USER_DATA_ERROR,
+            message: 'username or password error',
+          ),
+        );
+      } else
+        callback?.onFailure(e);
+    } catch (e) {
+      callback?.onError(
+        GeneralResponse.unknownError(),
+      );
+      throw e;
     }
+    return null;
   }
 
   Future<LoginResponse> adminLogin(String username, String password) async {
@@ -227,7 +252,7 @@ class Helper {
   }
 
   Future<UserInfo> getUsersInfo() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get('/user/info');
       return UserInfo.fromJson(response.data);
@@ -237,7 +262,7 @@ class Helper {
   }
 
   Future<SemesterData> getSemester() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get("/user/semesters");
       return SemesterData.fromJson(response.data);
@@ -247,7 +272,7 @@ class Helper {
   }
 
   Future<ScoreData> getScores(String year, String semester) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/scores",
@@ -267,7 +292,7 @@ class Helper {
   }
 
   Future<CourseData> getCourseTables(String year, String semester) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/user/coursetable',
@@ -302,7 +327,7 @@ class Helper {
 
   Future<RewardAndPenaltyData> getRewardAndPenalty(
       String year, String semester) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/reward-and-penalty",
@@ -323,7 +348,7 @@ class Helper {
 
   Future<MidtermAlertsData> getMidtermAlerts(
       String year, String semester) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/midterm-alerts",
@@ -383,7 +408,7 @@ class Helper {
   }
 
   Future<BusData> getBusTimeTables(DateTime dateTime) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     var formatter = DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
     try {
@@ -404,7 +429,7 @@ class Helper {
   }
 
   Future<BusReservationsData> getBusReservations() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get("/bus/reservations");
       if (response.statusCode == 204)
@@ -417,7 +442,7 @@ class Helper {
   }
 
   Future<BookingBusData> bookingBusReservation(String busId) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.put(
         "/bus/reservations",
@@ -432,7 +457,7 @@ class Helper {
   }
 
   Future<CancelBusData> cancelBusReservation(String cancelKey) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.delete(
         "/bus/reservations",
@@ -447,7 +472,7 @@ class Helper {
   }
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get('/bus/violation-records');
       print(response.statusCode);
@@ -474,7 +499,7 @@ class Helper {
   }
 
   Future<LeaveData> getLeaves(String year, String semester) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leave/all',
@@ -491,7 +516,7 @@ class Helper {
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leave/submit/info',
@@ -504,7 +529,7 @@ class Helper {
   }
 
   Future<Response> sendLeavesSubmit(LeaveSubmitData data, File image) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       MultipartFile file;
       if (image != null) {
@@ -533,7 +558,7 @@ class Helper {
   }
 
   Future<LibraryInfo> getLibraryInfo() async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leaves/submit/info',
@@ -552,7 +577,7 @@ class Helper {
     @required String data,
     @required EventInfoCallback callback,
   }) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.post(
         '/event/info',
@@ -564,11 +589,11 @@ class Helper {
       if (response.statusCode == 200)
         return callback.onSuccess(EventInfoResponse.fromJson(response.data));
       else
-        callback.onError(GeneralResponse.fromJson(response.data));
+        callback.onError(event.GeneralResponse.fromJson(response.data));
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE) {
         print(e.response);
-        callback.onError(GeneralResponse.fromJson(e.response.data));
+        callback.onError(event.GeneralResponse.fromJson(e.response.data));
       } else
         callback.onFailure(e);
     }
@@ -580,7 +605,7 @@ class Helper {
     @required String busId,
     @required EventSendCallback callback,
   }) async {
-    if (isExpire()) await login(username, password);
+    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.post(
         '/event/send',

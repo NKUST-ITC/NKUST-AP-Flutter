@@ -1,17 +1,13 @@
-// To parse this JSON data, do
-//
-//     final loginResponse = loginResponseFromJson(jsonString);
-
 import 'dart:convert';
 
 class LoginResponse {
-  String token;
   DateTime expireTime;
+  String token;
   bool isAdmin;
 
   LoginResponse({
-    this.token,
     this.expireTime,
+    this.token,
     this.isAdmin,
   });
 
@@ -21,16 +17,16 @@ class LoginResponse {
   String toRawJson() => json.encode(toJson());
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-        token: json["token"] == null ? null : json["token"],
         expireTime: json["expireTime"] == null
             ? null
             : DateTime.parse(json["expireTime"]),
+        token: json["token"] == null ? null : json["token"],
         isAdmin: json["isAdmin"] == null ? null : json["isAdmin"],
       );
 
   Map<String, dynamic> toJson() => {
-        "token": token == null ? null : token,
         "expireTime": expireTime == null ? null : expireTime.toIso8601String(),
+        "token": token == null ? null : token,
         "isAdmin": isAdmin == null ? null : isAdmin,
       };
 }

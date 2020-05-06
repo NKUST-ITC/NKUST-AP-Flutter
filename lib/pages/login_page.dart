@@ -181,7 +181,10 @@ class LoginPageState extends State<LoginPage> {
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance
-          .login(_username.text, _password.text)
+          .login(
+        username: _username.text,
+        password: _password.text,
+      )
           .then((LoginResponse response) async {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();

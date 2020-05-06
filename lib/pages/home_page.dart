@@ -530,7 +530,7 @@ class HomePageState extends State<HomePage> {
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
     Helper.instance
-        .login(username, password)
+        .login(username: username, password: password)
         .then((LoginResponse response) async {
       ShareDataWidget.of(context).data.loginResponse = response;
       isLogin = true;
