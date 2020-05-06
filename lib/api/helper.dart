@@ -46,6 +46,18 @@ class Helper {
   static String password;
   static DateTime expireTime;
 
+  //LOGIN API
+  static const USER_DATA_ERROR = 1401;
+
+  //Common
+  static const API_EXPIRE = 401;
+  static const API_SERVER_ERROR = 500;
+  static const SCHOOL_SERVER_ERROR = 503;
+
+  int reLoginCount = 0;
+
+  bool get canReLogin => reLoginCount == 0;
+
   bool isExpire() {
     if (expireTime == null)
       return false;
@@ -101,8 +113,17 @@ class Helper {
   }
 
   Future<bool> reLogin(GeneralCallback callback) async {
-
-  static const USER_DATA_ERROR = 1401;
+    var loginResponse = await login(
+      username: username,
+      password: password,
+      callback: GeneralCallback<LoginResponse>(
+        onSuccess: (loginResponse) => loginResponse,
+        onFailure: callback?.onFailure,
+        onError: callback?.onError,
+      ),
+    );
+    return loginResponse != null;
+  }
 
   Future<LoginResponse> login({
     @required String username,
@@ -668,4 +689,30 @@ extension NewsExtension on Announcement {
         "description": description,
         "expireTime": expireTime,
       };
+}
+
+extension DioErrorExtension on DioError {
+  bool get hasResponse => type == DioErrorType.RESPONSE;
+
+  bool get isExpire => response.statusCode == Helper.API_EXPIRE;
+
+  bool get isServerError =>
+      response.statusCode == Helper.SCHOOL_SERVER_ERROR ||
+      response.statusCode == Helper.API_SERVER_ERROR;
+
+  GeneralResponse get serverErrorResponse {
+    switch (response.statusCode) {
+      case Helper.API_SERVER_ERROR:
+        return GeneralResponse(
+          statusCode: Helper.API_SERVER_ERROR,
+          message: 'api server error',
+        );
+      case Helper.SCHOOL_SERVER_ERROR:
+      default:
+        return GeneralResponse(
+          statusCode: Helper.SCHOOL_SERVER_ERROR,
+          message: 'shool server error',
+        );
+    }
+  }
 }
