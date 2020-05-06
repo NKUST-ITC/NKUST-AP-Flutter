@@ -279,14 +279,34 @@ class Helper {
     }
   }
 
-  Future<UserInfo> getUsersInfo() async {
+  Future<UserInfo> getUsersInfo({
+    GeneralCallback<UserInfo> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get('/user/info');
-      return UserInfo.fromJson(response.data);
+      reLoginCount = 0;
+      var data = UserInfo.fromJson(response.data);
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getUsersInfo(callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<SemesterData> getSemester({
