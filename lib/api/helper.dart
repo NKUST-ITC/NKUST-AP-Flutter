@@ -197,22 +197,29 @@ class Helper {
     }
   }
 
-  Future<AnnouncementData> getAllAnnouncements() async {
+  Future<AnnouncementData> getAllAnnouncements({
+    GeneralCallback<List<Announcement>> callback,
+  }) async {
     try {
       var response = await dio.get("/news/announcements/all");
-      if (response.statusCode == 204)
-        return AnnouncementData(data: []);
-      else {
-        var announcementsData = AnnouncementData.fromJson(response.data);
-        announcementsData.data.sort((a, b) {
+      var data = AnnouncementData(data: []);
+      if (response.statusCode != 204) {
+        data = AnnouncementData.fromJson(response.data);
+        data.data.sort((a, b) {
           return b.weight.compareTo(a.weight);
         });
-        return announcementsData;
       }
+      return (callback == null) ? data : callback.onSuccess(data.data);
     } on DioError catch (dioError) {
-      print(dioError);
-      throw dioError;
+      if (callback == null)
+        throw dioError;
+      else
+        callback.onFailure(dioError);
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<Response> addAnnouncement(Announcement announcements) async {
