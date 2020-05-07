@@ -724,7 +724,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.sendLeavesSubmit(data, image).then((Response response) {
+    Helper.instance
+        .sendLeavesSubmit(data: data, image: image)
+        .then((Response response) {
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
         context: context,

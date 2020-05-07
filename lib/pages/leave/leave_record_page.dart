@@ -279,9 +279,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   _getSemesterLeaveRecord() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance
-        .getLeaves(selectSemester.year, selectSemester.value)
-        .then((response) {
+    Helper.instance.getLeaves(semester: selectSemester).then((response) {
       if (mounted)
         setState(() {
           leaveData = response;

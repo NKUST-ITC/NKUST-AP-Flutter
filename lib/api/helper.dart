@@ -756,37 +756,85 @@ class Helper {
     return null;
   }
 
-  Future<LeaveData> getLeaves(String year, String semester) async {
+  Future<LeaveData> getLeaves({
+    @required Semester semester,
+    GeneralCallback<LeaveData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leave/all',
         queryParameters: {
-          'year': year,
-          'semester': semester,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
-      return LeaveData.fromJson(response.data);
+      LeaveData data;
+      if (response.statusCode == 200) data = LeaveData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getLeaves(semester: semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo({
+    GeneralCallback<LeaveSubmitInfoData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leave/submit/info',
         cancelToken: cancelToken,
       );
-      return LeaveSubmitInfoData.fromJson(response.data);
+      LeaveSubmitInfoData data;
+      if (response.statusCode == 200)
+        data = LeaveSubmitInfoData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getLeavesSubmitInfo(callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<Response> sendLeavesSubmit(LeaveSubmitData data, File image) async {
+  Future<Response> sendLeavesSubmit({
+    @required LeaveSubmitData data,
+    @required File image,
+    GeneralCallback<Response> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       MultipartFile file;
@@ -809,10 +857,27 @@ class Helper {
         ),
         cancelToken: cancelToken,
       );
-      return response;
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(response);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return sendLeavesSubmit(data: data, image: image, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<LibraryInfo> getLibraryInfo() async {
