@@ -7,6 +7,8 @@ import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
@@ -87,6 +89,29 @@ class Helper {
     _instance = Helper();
     jsonCodec = JsonCodec();
     cancelToken = CancelToken();
+  }
+
+  static void handleGeneralError(
+    BuildContext context,
+    GeneralResponse generalResponse,
+  ) {
+    final ap = ApLocalizations.of(context);
+    String message = '';
+    switch (generalResponse.statusCode) {
+      case SCHOOL_SERVER_ERROR:
+        message = ap.schoolSeverError;
+        break;
+      case API_SERVER_ERROR:
+        message = ap.apiSeverError;
+        break;
+      case API_EXPIRE:
+        message = ap.tokenExpiredContent;
+        break;
+      default:
+        message = ap.somethingError;
+        break;
+    }
+    ApUtils.showToast(context, message);
   }
 
   handleDioError(DioError dioError) {
