@@ -87,9 +87,7 @@ class CoursePageState extends State<CoursePage> {
   _getCourseTables() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance
-        .getCourseTables(selectSemester.year, selectSemester.value)
-        .then((response) {
+    Helper.instance.getCourseTables(semester: selectSemester).then((response) {
       if (mounted)
         setState(() {
           if (response == null) {

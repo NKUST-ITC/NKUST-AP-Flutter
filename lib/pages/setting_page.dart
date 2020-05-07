@@ -326,8 +326,7 @@ class SettingPageState extends State<SettingPage> {
     }
     Helper.instance.getSemester().then((SemesterData semesterData) {
       Helper.instance
-          .getCourseTables(semesterData.defaultSemester.year,
-              semesterData.defaultSemester.value)
+          .getCourseTables(semester:semesterData.defaultSemester)
           .then((CourseData courseData) {
         if (Navigator.canPop(context))
           Navigator.of(context, rootNavigator: true).pop();

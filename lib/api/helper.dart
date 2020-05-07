@@ -379,15 +379,17 @@ class Helper {
     return null;
   }
 
-  Future<CourseData> getCourseTables(String year, String semester,
-      {GeneralCallback callback}) async {
+  Future<CourseData> getCourseTables({
+    @required Semester semester,
+    GeneralCallback callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/user/coursetable',
         queryParameters: {
-          'year': year,
-          'semester': semester,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
@@ -413,7 +415,7 @@ class Helper {
       if (dioError.hasResponse) {
         if (dioError.isExpire && canReLogin && await reLogin(callback)) {
           reLoginCount++;
-          return getCourseTables(year, semester, callback: callback);
+          return getCourseTables(semester: semester, callback: callback);
         } else {
           if (dioError.isServerError)
             callback?.onError(dioError.serverErrorResponse);
