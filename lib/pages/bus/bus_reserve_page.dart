@@ -123,7 +123,8 @@ class BusReservePageState extends State<BusReservePage>
                     child: CupertinoSegmentedControl(
                       selectedColor: ApTheme.of(context).blueAccent,
                       borderColor: ApTheme.of(context).blueAccent,
-                      unselectedColor: ApTheme.of(context).segmentControlUnSelect,
+                      unselectedColor:
+                          ApTheme.of(context).segmentControlUnSelect,
                       groupValue: selectStartStation,
                       children: {
                         Station.janGong: Container(
@@ -381,7 +382,7 @@ class BusReservePageState extends State<BusReservePage>
         state = _State.loading;
       });
     }
-    Helper.instance.getBusTimeTables(dateTime).then((response) {
+    Helper.instance.getBusTimeTables(dateTime: dateTime).then((response) {
       busData = response;
       if (mounted) {
         setState(() {
@@ -450,7 +451,9 @@ class BusReservePageState extends State<BusReservePage>
           }),
       barrierDismissible: false,
     );
-    Helper.instance.bookingBusReservation(busTime.busId).then((response) {
+    Helper.instance
+        .bookingBusReservation(busId: busTime.busId)
+        .then((response) {
       _getBusTimeTables();
       FA.logAction('book_bus', 'status', message: 'success');
       Navigator.of(context, rootNavigator: true).pop();
@@ -462,7 +465,9 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveDate}：',
@@ -507,7 +512,9 @@ class BusReservePageState extends State<BusReservePage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                 ),
                 actionText: ap.iKnow,
                 actionFunction: () {
@@ -551,7 +558,9 @@ class BusReservePageState extends State<BusReservePage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
+    Helper.instance
+        .cancelBusReservation(cancelKey: busTime.cancelKey)
+        .then((response) {
       _getBusTimeTables();
       FA.logAction('cancel_bus', 'status', message: 'success');
       Navigator.of(context, rootNavigator: true).pop();
@@ -563,7 +572,9 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
                 style: TextStyle(
-                    color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0),
                 children: [
                   TextSpan(
                     text: '${app.busReserveCancelDate}：',
@@ -607,7 +618,9 @@ class BusReservePageState extends State<BusReservePage>
                 contentWidget: Text(
                   errorResponse.description,
                   style: TextStyle(
-                      color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
+                      color: ApTheme.of(context).grey,
+                      height: 1.3,
+                      fontSize: 16.0),
                 ),
                 actionText: ap.iKnow,
                 actionFunction: () {

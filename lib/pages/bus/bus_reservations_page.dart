@@ -320,7 +320,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(busTime.cancelKey).then((response) {
+    Helper.instance
+        .cancelBusReservation(cancelKey: busTime.cancelKey)
+        .then((response) {
       _getBusReservations();
       FA.logAction('cancel_bus', 'status', message: 'success');
       Navigator.of(context, rootNavigator: true).pop();

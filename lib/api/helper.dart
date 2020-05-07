@@ -552,7 +552,10 @@ class Helper {
     }
   }
 
-  Future<BusData> getBusTimeTables(DateTime dateTime) async {
+  Future<BusData> getBusTimeTables({
+    @required DateTime dateTime,
+    GeneralCallback<BusData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     var formatter = DateFormat('yyyy-MM-dd');
     var date = formatter.format(dateTime);
@@ -564,29 +567,67 @@ class Helper {
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return BusData.fromJson(response.data);
+      BusData data;
+      if (response.statusCode == 200) data = BusData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getBusTimeTables(dateTime: dateTime, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<BusReservationsData> getBusReservations() async {
+  Future<BusReservationsData> getBusReservations({
+    GeneralCallback<BusReservationsData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get("/bus/reservations");
-      if (response.statusCode == 204)
-        return null;
-      else
-        return BusReservationsData.fromJson(response.data);
+      BusReservationsData data;
+      if (response.statusCode == 200)
+        data = BusReservationsData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getBusReservations(callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<BookingBusData> bookingBusReservation(String busId) async {
+  Future<BookingBusData> bookingBusReservation({
+    String busId,
+    GeneralCallback<BookingBusData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.put(
@@ -595,13 +636,34 @@ class Helper {
           'busId': busId,
         },
       );
-      return BookingBusData.fromJson(response.data);
+      var data = BookingBusData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return bookingBusReservation(busId: busId, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<CancelBusData> cancelBusReservation(String cancelKey) async {
+  Future<CancelBusData> cancelBusReservation({
+    String cancelKey,
+    GeneralCallback<CancelBusData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.delete(
@@ -610,25 +672,62 @@ class Helper {
           'cancelKey': cancelKey,
         },
       );
-      return CancelBusData.fromJson(response.data);
+      var data = CancelBusData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return cancelBusReservation(cancelKey: cancelKey, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<BusViolationRecordsData> getBusViolationRecords() async {
+  Future<BusViolationRecordsData> getBusViolationRecords({
+    GeneralCallback<BusViolationRecordsData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get('/bus/violation-records');
       print(response.statusCode);
       print(response.data);
-      if (response.statusCode == 204)
-        return null;
-      else
-        return BusViolationRecordsData.fromJson(response.data);
+      BusViolationRecordsData data;
+      if (response.statusCode == 200)
+        data = BusViolationRecordsData.fromJson(response.data);
+      reLoginCount = 0;
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getBusViolationRecords(callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<NotificationsData> getNotifications(int page) async {
