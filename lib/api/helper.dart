@@ -944,9 +944,12 @@ class Helper {
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 200)
+      if (response.statusCode == 200) {
+        var generalResponse = GeneralResponse.fromJson(response.data);
+        if (generalResponse.statusCode == 401)
+          callback?.onNeedPick(EventInfoResponse.fromJson(response.data));
         return callback.onSuccess(EventSendResponse.fromJson(response.data));
-      else
+      } else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -959,11 +962,7 @@ class Helper {
           else {
             var generalResponse =
                 GeneralResponse.fromJson(dioError.response.data);
-            if (generalResponse.statusCode == 401)
-              callback?.onNeedPick(
-                  EventInfoResponse.fromJson(dioError.response.data));
-            else
-              callback.onError(generalResponse);
+            callback.onError(generalResponse);
           }
         }
       } else
