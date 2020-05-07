@@ -339,24 +339,44 @@ class Helper {
     return null;
   }
 
-  Future<ScoreData> getScores(String year, String semester) async {
+  Future<ScoreData> getScores({
+    @required Semester semester,
+    GeneralCallback<ScoreData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/scores",
         queryParameters: {
-          'year': year,
-          'semester': semester,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return ScoreData.fromJson(response.data);
+      ScoreData data;
+      if (response.statusCode != 204) {
+        data = ScoreData.fromJson(response.data);
+      }
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getScores(semester: semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<CourseData> getCourseTables(String year, String semester,

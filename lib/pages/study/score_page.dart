@@ -83,9 +83,7 @@ class ScorePageState extends State<ScorePage> {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
       _loadOfflineScoreData();
     else
-      Helper.instance
-          .getScores(selectSemester.year, selectSemester.value)
-          .then((response) {
+      Helper.instance.getScores(semester: selectSemester).then((response) {
         if (mounted)
           setState(() {
             if (response == null) {

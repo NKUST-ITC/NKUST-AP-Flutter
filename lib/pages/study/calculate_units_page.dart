@@ -316,8 +316,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       return;
     }
     Helper.instance
-        .getScores(semesterData.data[currentSemesterIndex].year,
-            semesterData.data[currentSemesterIndex].value)
+        .getScores(semester: semesterData.data[currentSemesterIndex])
         .then((response) {
       if (startYear == -1)
         startYear = int.parse(semesterData.data[currentSemesterIndex].year);
@@ -398,7 +397,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     semesterData.data.forEach((s) {
       var textList = s.value.split(",");
       if (textList.length == 2) {
-        Helper.instance.getScores(textList[0], textList[1]).then((response) {
+        Helper.instance.getScores(semester: s).then((response) {
           if (startYear == -1) startYear = int.parse(textList[0]);
           //scoreWeightList.add(_scoreTitle());
           semesterList.add(s);
