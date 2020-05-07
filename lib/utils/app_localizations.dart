@@ -91,6 +91,9 @@ class AppLocalizations {
       'punch': 'Punch',
       'punchSuccess': 'Punch Success',
       'nonCourseTime': 'Non Course Time',
+      'offline_score': 'Offline Score',
+      'offline_bus_reservations': 'Offline Bus Reservations',
+      'offline_leave_data': 'Offline absent Report',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -160,6 +163,9 @@ class AppLocalizations {
       'punch': '拍照打卡',
       'punchSuccess': '打卡成功',
       'nonCourseTime': '非上課時間',
+      'offline_score': '離線成績',
+      'offline_bus_reservations': '離線校車紀錄',
+      'offline_leave_data': '離線缺曠資料',
     },
   };
 
