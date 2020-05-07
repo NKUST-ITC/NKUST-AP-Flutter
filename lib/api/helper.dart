@@ -432,46 +432,82 @@ class Helper {
     return null;
   }
 
-  Future<RewardAndPenaltyData> getRewardAndPenalty(
-      String year, String semester) async {
+  Future<RewardAndPenaltyData> getRewardAndPenalty({
+    @required Semester semester,
+    GeneralCallback<RewardAndPenaltyData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/reward-and-penalty",
         queryParameters: {
-          'year': year,
-          'semester': semester,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return RewardAndPenaltyData.fromJson(response.data);
+      RewardAndPenaltyData data;
+      if (response.statusCode == 200)
+        data = RewardAndPenaltyData.fromJson(response.data);
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getRewardAndPenalty(semester: semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<MidtermAlertsData> getMidtermAlerts(
-      String year, String semester) async {
+  Future<MidtermAlertsData> getMidtermAlerts({
+    @required Semester semester,
+    GeneralCallback<MidtermAlertsData> callback,
+  }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         "/user/midterm-alerts",
         queryParameters: {
-          'year': year,
-          'semester': semester,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return MidtermAlertsData.fromJson(response.data);
+      MidtermAlertsData data;
+      if (response.statusCode == 200)
+        data = MidtermAlertsData.fromJson(response.data);
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getMidtermAlerts(semester: semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津

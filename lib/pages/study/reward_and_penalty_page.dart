@@ -189,7 +189,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
     Helper.instance
-        .getRewardAndPenalty(selectSemester.year, selectSemester.value)
+        .getRewardAndPenalty(semester:selectSemester)
         .then((response) {
       if (mounted)
         setState(() {

@@ -176,9 +176,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     }
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance
-        .getMidtermAlerts(selectSemester.year, selectSemester.value)
-        .then((response) {
+    Helper.instance.getMidtermAlerts(semester: selectSemester).then((response) {
       if (mounted)
         setState(() {
           if (response == null) {
