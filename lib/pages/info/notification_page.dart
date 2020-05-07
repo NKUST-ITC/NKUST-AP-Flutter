@@ -183,7 +183,7 @@ class NotificationPageState extends State<NotificationPage>
       });
       return;
     }
-    Helper.instance.getNotifications(page).then((response) {
+    Helper.instance.getNotifications(page: page).then((response) {
       for (var notification in response.data.notifications) {
         notificationList.add(notification);
       }

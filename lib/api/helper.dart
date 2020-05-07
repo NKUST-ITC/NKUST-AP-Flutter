@@ -730,7 +730,10 @@ class Helper {
     return null;
   }
 
-  Future<NotificationsData> getNotifications(int page) async {
+  Future<NotificationsData> getNotifications({
+    @required int page,
+    GeneralCallback<NotificationsData> callback,
+  }) async {
     try {
       var response = await dio.get(
         "/news/school",
@@ -738,8 +741,19 @@ class Helper {
       );
       return NotificationsData.fromJson(response.data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<LeaveData> getLeaves(String year, String semester) async {
