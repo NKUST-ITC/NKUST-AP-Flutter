@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
@@ -180,44 +181,48 @@ class LoginPageState extends State<LoginPage> {
         barrierDismissible: false,
       );
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      Helper.instance
-          .login(
+      Helper.instance.login(
         username: _username.text,
         password: _password.text,
-      )
-          .then((LoginResponse response) async {
-        if (Navigator.canPop(context))
-          Navigator.of(context, rootNavigator: true).pop();
-        ShareDataWidget.of(context).data.loginResponse = response;
-        Preferences.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword) {
-          Preferences.setStringSecurity(
-              Constants.PREF_PASSWORD, _password.text);
-        }
-        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-        Navigator.of(context).pop(true);
-        if (!kIsWeb && Platform.isAndroid) await FlutterAutofill.commit();
-      }).catchError((e) {
-        if (Navigator.canPop(context))
-          Navigator.of(context, rootNavigator: true).pop();
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              ApUtils.showToast(context, ap.loginFail, gravity: gravity);
-              Utils.handleResponseError(context, 'login', mounted, e);
-              _offlineLogin();
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              //TODO improve hint
-              Utils.handleDioError(context, e);
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
+        callback: GeneralCallback<LoginResponse>(
+          onSuccess: (LoginResponse response) async {
+            Navigator.of(context, rootNavigator: true).pop();
+            ShareDataWidget.of(context).data.loginResponse = response;
+            Preferences.setString(Constants.PREF_USERNAME, _username.text);
+            if (isRememberPassword) {
+              Preferences.setStringSecurity(
+                  Constants.PREF_PASSWORD, _password.text);
+            }
+            Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+            Navigator.of(context).pop(true);
+            if (!kIsWeb && Platform.isAndroid) await FlutterAutofill.commit();
+          },
+          onFailure: (DioError e) {
+            Navigator.of(context, rootNavigator: true).pop();
+            ApUtils.handleDioError(context, e, gravity: gravity);
+            if (e.type != DioErrorType.CANCEL) _offlineLogin();
+          },
+          onError: (GeneralResponse response) {
+            Navigator.of(context, rootNavigator: true).pop();
+            String message = '';
+            switch (response.statusCode) {
+              case Helper.SCHOOL_SERVER_ERROR:
+                message = ap.schoolSeverError;
+                break;
+              case Helper.API_SERVER_ERROR:
+                message = ap.apiSeverError;
+                break;
+              case Helper.USER_DATA_ERROR:
+                message = ap.loginFail;
+                break;
+              default:
+                message = ap.somethingError;
+                break;
+            }
+            ApUtils.showToast(context, message);
+          },
+        ),
+      );
     }
   }
 
