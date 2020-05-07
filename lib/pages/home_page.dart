@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
 import 'package:ap_common/pages/about_us_page.dart';
@@ -25,7 +26,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
-import 'package:nkust_ap/models/general_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/nes/news_admin_page.dart';
@@ -611,10 +611,10 @@ class HomePageState extends State<HomePage> {
   _getEventInfo(String data) {
     Helper.instance.getEventInfo(
       data: data,
-      callback: EventInfoCallback(
+      callback: GeneralCallback<EventInfoResponse>(
         onFailure: (DioError e) => Utils.handleDioError(context, e),
         onError: (GeneralResponse generalResponse) {
-          switch (generalResponse.code) {
+          switch (generalResponse.statusCode) {
             case 403:
               ApUtils.showToast(context, ap.canNotUseFeature);
               break;
@@ -622,7 +622,7 @@ class HomePageState extends State<HomePage> {
               ApUtils.showToast(context, ap.tokenExpiredContent);
               break;
             default:
-              ApUtils.showToast(context, generalResponse.description);
+              ApUtils.showToast(context, generalResponse.message);
               break;
           }
         },
@@ -651,22 +651,22 @@ class HomePageState extends State<HomePage> {
     Helper.instance.sendEvent(
       data: data,
       busId: busId,
-      callback: EventSendCallback(
+      callback: EventSendCallback<EventSendResponse>(
         onFailure: (DioError e) => Utils.handleDioError(context, e),
-        onError: (EventInfoResponse response) {
-          switch (response.code) {
+        onError: (GeneralResponse response) {
+          switch (response.statusCode) {
             case 403:
               ApUtils.showToast(context, ap.canNotUseFeature);
               break;
-            case 401:
-              _showEventInfoDialog(data, response);
-              break;
             default:
-              ApUtils.showToast(context, response.description);
+              ApUtils.showToast(context, response.message);
               break;
           }
         },
-        onSuccess: (eventSendResponse) {
+        onNeedPick: (EventInfoResponse eventInfoResponse) {
+          _showEventInfoDialog(data, eventInfoResponse);
+        },
+        onSuccess: (EventSendResponse eventSendResponse) {
           final time = (eventSendResponse.data.start == null)
               ? ''
               : '${eventSendResponse.data.start.substring(0, 5)} ';

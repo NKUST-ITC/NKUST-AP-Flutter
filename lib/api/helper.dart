@@ -18,7 +18,6 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
-import 'package:nkust_ap/models/general_response.dart' as event;
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -898,7 +897,7 @@ class Helper {
 
   Future<EventInfoResponse> getEventInfo({
     @required String data,
-    @required EventInfoCallback callback,
+    @required GeneralCallback<EventInfoResponse> callback,
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
@@ -912,21 +911,28 @@ class Helper {
       if (response.statusCode == 200)
         return callback.onSuccess(EventInfoResponse.fromJson(response.data));
       else
-        callback.onError(event.GeneralResponse.fromJson(response.data));
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE) {
-        print(e.response);
-        callback.onError(event.GeneralResponse.fromJson(e.response.data));
+        callback.onError(GeneralResponse.fromJson(response.data));
+    } on DioError catch (dioError) {
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getEventInfo(data: data, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback.onError(GeneralResponse.fromJson(dioError.response.data));
+        }
       } else
-        callback.onFailure(e);
+        callback?.onFailure(dioError);
     }
     return null;
   }
 
-  Future<EventInfoResponse> sendEvent({
+  Future<EventSendResponse> sendEvent({
     @required String data,
     @required String busId,
-    @required EventSendCallback callback,
+    @required EventSendCallback<EventSendResponse> callback,
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
@@ -941,12 +947,27 @@ class Helper {
       if (response.statusCode == 200)
         return callback.onSuccess(EventSendResponse.fromJson(response.data));
       else
-        callback.onError(EventInfoResponse.fromJson(response.data));
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE) {
-        callback.onError(EventInfoResponse.fromJson(e.response.data));
+        callback.onError(GeneralResponse.fromJson(response.data));
+    } on DioError catch (dioError) {
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return sendEvent(data: data, busId: busId, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else {
+            var generalResponse =
+                GeneralResponse.fromJson(dioError.response.data);
+            if (generalResponse.statusCode == 401)
+              callback?.onNeedPick(
+                  EventInfoResponse.fromJson(dioError.response.data));
+            else
+              callback.onError(generalResponse);
+          }
+        }
       } else
-        callback.onFailure(e);
+        callback?.onFailure(dioError);
     }
     return null;
   }

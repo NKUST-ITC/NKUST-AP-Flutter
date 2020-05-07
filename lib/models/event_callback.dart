@@ -1,28 +1,16 @@
+import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/general_response.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
-import 'package:nkust_ap/models/general_response.dart';
 
-class EventInfoCallback {
-  final Function(DioError e) onFailure;
-  final Function(GeneralResponse e) onError;
-  final Function(EventInfoResponse data) onSuccess;
-
-  EventInfoCallback({
-    @required this.onFailure,
-    @required this.onError,
-    @required this.onSuccess,
-  });
-}
-
-class EventSendCallback {
-  final Function(DioError e) onFailure;
-  final Function(EventInfoResponse e) onError;
-  final Function(EventSendResponse data) onSuccess;
+class EventSendCallback<T> extends GeneralCallback<T> {
+  final Function(EventInfoResponse e) onNeedPick;
 
   EventSendCallback({
-    @required this.onFailure,
-    @required this.onError,
-    @required this.onSuccess,
-  });
+    @required Function(DioError e) onFailure,
+    @required Function(GeneralResponse generalResponse) onError,
+    @required Function(T data) onSuccess,
+    @required this.onNeedPick,
+  }) : super(onFailure: onFailure, onError: onError, onSuccess: onSuccess);
 }
