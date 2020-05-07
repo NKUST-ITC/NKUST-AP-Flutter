@@ -393,7 +393,6 @@ class Helper {
         },
         cancelToken: cancelToken,
       );
-      reLoginCount = 0;
       CourseData data;
       if (response.statusCode != 204) {
         data = CourseData.fromJson(response.data);
@@ -409,6 +408,7 @@ class Helper {
             }
           }
         }
+        reLoginCount = 0;
         return (callback == null) ? data : callback.onSuccess(data);
       }
     } on DioError catch (dioError) {
@@ -449,6 +449,7 @@ class Helper {
       RewardAndPenaltyData data;
       if (response.statusCode == 200)
         data = RewardAndPenaltyData.fromJson(response.data);
+      reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -488,6 +489,7 @@ class Helper {
       MidtermAlertsData data;
       if (response.statusCode == 200)
         data = MidtermAlertsData.fromJson(response.data);
+      reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
