@@ -217,7 +217,7 @@ class Helper {
     }
   }
 
-  Future<AnnouncementData> getAllAnnouncements({
+  Future<List<Announcement>> getAllAnnouncements({
     GeneralCallback<List<Announcement>> callback,
   }) async {
     try {

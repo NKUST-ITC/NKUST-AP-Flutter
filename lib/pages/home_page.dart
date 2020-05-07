@@ -416,43 +416,39 @@ class HomePageState extends State<HomePage> {
         state = HomeState.offline;
       });
     } else
-      Helper.instance.getAllAnnouncements().then((announcementsResponse) {
-        announcements = announcementsResponse.data;
-        setState(() {
-          state = (announcements.length == null || announcements.length == 0)
-              ? HomeState.empty
-              : HomeState.finish;
-        });
-      }).catchError((e) {
-        setState(() {
-          state = HomeState.error;
-        });
-      });
+      Helper.instance.getAllAnnouncements(
+        callback: GeneralCallback(
+          onSuccess: (List<Announcement> data) {
+            announcements = data;
+            setState(() {
+              if (announcements.length == null || announcements.length == 0)
+                state = HomeState.empty;
+              else
+                state = HomeState.finish;
+            });
+          },
+          onFailure: (_) => setState(() => state = HomeState.error),
+          onError: (_) => setState(() => state = HomeState.error),
+        ),
+      );
   }
 
   _setupBusNotify(BuildContext context) async {
     if (Preferences.getBool(Constants.PREF_BUS_NOTIFY, false))
-      Helper.instance
-          .getBusReservations()
-          .then((BusReservationsData response) async {
-        if (response != null)
-          await Utils.setBusNotify(context, response.reservations);
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              break;
-            case DioErrorType.DEFAULT:
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
+      Helper.instance.getBusReservations(
+        callback: GeneralCallback(
+          onSuccess: (BusReservationsData response) async {
+            if (response != null)
+              await Utils.setBusNotify(context, response.reservations);
+          },
+          onFailure: (DioError e) {
+            if (e.hasResponse)
+              Utils.handleResponseError(
+                  context, 'getBusReservations', mounted, e);
+          },
+          onError: (GeneralResponse e) => null,
+        ),
+      );
   }
 
   _getUserInfo() async {
@@ -462,32 +458,29 @@ class HomePageState extends State<HomePage> {
         state = HomeState.offline;
       });
     } else
-      Helper.instance.getUsersInfo().then((userInfo) {
-        if (this.mounted) {
-          setState(() {
-            this.userInfo = userInfo;
-          });
-          FA.setUserProperty('department', userInfo.department);
-          FA.setUserProperty('student_id', userInfo.id);
-          FA.setUserId(userInfo.id);
-          FA.logUserInfo(userInfo.department);
-          CacheUtils.saveUserInfo(userInfo);
-          if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
-            _getUserPicture();
-        }
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
+      Helper.instance.getUsersInfo(
+        callback: GeneralCallback(
+          onSuccess: (UserInfo data) {
+            if (mounted) {
+              setState(() {
+                this.userInfo = data;
+              });
+              FA.setUserProperty('department', userInfo.department);
+              FA.setUserProperty('student_id', userInfo.id);
+              FA.setUserId(userInfo.id);
+              FA.logUserInfo(userInfo.department);
+              CacheUtils.saveUserInfo(userInfo);
+              if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
+                _getUserPicture();
+            }
+          },
+          onFailure: (DioError e) {
+            if (e.hasResponse)
               Utils.handleResponseError(context, 'getUserInfo', mounted, e);
-              break;
-            default:
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
+          },
+          onError: (GeneralResponse e) => null,
+        ),
+      );
   }
 
   _getUserPicture() async {
@@ -529,44 +522,60 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    Helper.instance
-        .login(username: username, password: password)
-        .then((LoginResponse response) async {
-      ShareDataWidget.of(context).data.loginResponse = response;
-      isLogin = true;
-      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      _getUserInfo();
-      _setupBusNotify(context);
-      if (state != HomeState.finish) {
-        _getAnnouncements();
-      }
-      _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
-    }).catchError((e) {
-      String text = ap.loginFail;
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.DEFAULT:
-            text = ap.noInternet;
-            break;
-          case DioErrorType.CONNECT_TIMEOUT:
-          case DioErrorType.RECEIVE_TIMEOUT:
-          case DioErrorType.SEND_TIMEOUT:
-            text = ap.timeoutMessage;
-            break;
-          default:
-            break;
-        }
-        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
-        ApUtils.showToast(context, ap.loadOfflineData);
-        isLogin = true;
-      }
-      _homeKey.currentState.showSnackBar(
-        text: text,
-        actionText: ap.retry,
-        onSnackBarTapped: _login,
-      );
-      if (!(e is DioError)) throw e;
-    });
+    Helper.instance.login(
+      username: username,
+      password: password,
+      callback: GeneralCallback(
+        onSuccess: (LoginResponse response) {
+          ShareDataWidget.of(context).data.loginResponse = response;
+          isLogin = true;
+          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+          _getUserInfo();
+          _setupBusNotify(context);
+          if (state != HomeState.finish) {
+            _getAnnouncements();
+          }
+          _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+        },
+        onFailure: (DioError e) {
+          final text = ApLocalizations.dioError(context, e);
+          _homeKey.currentState.showSnackBar(
+            text: text,
+            actionText: ap.retry,
+            onSnackBarTapped: _login,
+          );
+          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+          ApUtils.showToast(context, ap.loadOfflineData);
+          isLogin = true;
+        },
+        onError: (GeneralResponse response) {
+          Navigator.of(context, rootNavigator: true).pop();
+          String message = '';
+          switch (response.statusCode) {
+            case Helper.SCHOOL_SERVER_ERROR:
+              message = ap.schoolSeverError;
+              break;
+            case Helper.API_SERVER_ERROR:
+              message = ap.apiSeverError;
+              break;
+            case Helper.USER_DATA_ERROR:
+              message = ap.loginFail;
+              break;
+            default:
+              message = ap.somethingError;
+              break;
+          }
+          _homeKey.currentState.showSnackBar(
+            text: message,
+            actionText: ap.retry,
+            onSnackBarTapped: _login,
+          );
+          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+          ApUtils.showToast(context, ap.loadOfflineData);
+          isLogin = true;
+        },
+      ),
+    );
   }
 
   Future openLoginPage() async {

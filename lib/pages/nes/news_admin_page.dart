@@ -38,7 +38,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   _State state = _State.notLogin;
 
-  AnnouncementData announcementData;
+  List<Announcement> announcements;
 
   bool isOffline = false;
   FocusNode usernameFocusNode;
@@ -132,9 +132,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
       default:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _item(announcementData.data[index]);
+            return _item(announcements[index]);
           },
-          itemCount: announcementData.data.length,
+          itemCount: announcements.length,
         );
     }
   }
@@ -350,10 +350,9 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
 
   _getData() async {
     Helper.instance.getAllAnnouncements().then((announcementsData) {
-      this.announcementData = announcementsData;
+      this.announcements = announcementsData;
       setState(() {
-        state =
-            announcementsData.data.length == 0 ? _State.empty : _State.finish;
+        state = announcementsData.length == 0 ? _State.empty : _State.finish;
       });
     }).catchError((e) {
       setState(() {
