@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -14,7 +15,14 @@ import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty, offline }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
 
 class RewardAndPenaltyPage extends StatefulWidget {
   static const String routerName = "/user/reward-and-penalty";
@@ -26,20 +34,16 @@ class RewardAndPenaltyPage extends StatefulWidget {
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  ApLocalizations app;
+  ApLocalizations ap;
 
   _State state = _State.loading;
+  String customStateHint;
 
   Semester selectSemester;
   SemesterData semesterData;
   RewardAndPenaltyData rewardAndPenaltyData;
 
   bool isOffline = false;
-
-  TextStyle get _textBlueStyle =>
-      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
-
-  TextStyle get _textStyle => TextStyle(fontSize: 15.0);
 
   @override
   void initState() {
@@ -55,10 +59,10 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = ApLocalizations.of(context);
+    ap = ApLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.rewardAndPenalty),
+        title: Text(ap.rewardAndPenalty),
         backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
@@ -85,7 +89,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
                 }),
             if (isOffline)
               Text(
-                app.offlineScore,
+                ap.offlineScore,
                 style: TextStyle(color: ApTheme.of(context).grey),
               ),
             Expanded(
@@ -104,6 +108,23 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     );
   }
 
+  String get errorTitle {
+    switch (state) {
+      case _State.loading:
+      case _State.finish:
+        return '';
+      case _State.error:
+        return ap.somethingError;
+      case _State.empty:
+        return ap.rewardAndPenaltyEmpty;
+      case _State.offline:
+        return ap.noOfflineData;
+      case _State.custom:
+        return customStateHint;
+    }
+    return '';
+  }
+
   _body() {
     switch (state) {
       case _State.loading:
@@ -111,25 +132,20 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.empty:
       case _State.error:
+      case _State.offline:
+      case _State.custom:
         return FlatButton(
           onPressed: () {
-            if (state == _State.error)
-              _getMidtermAlertsData();
-            else
+            if (state == _State.empty)
               key.currentState.pickSemester();
+            else
+              _getMidtermAlertsData();
             FA.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content: state == _State.error
-                ? app.clickToRetry
-                : app.rewardAndPenaltyEmpty,
+            content: errorTitle,
           ),
-        );
-      case _State.offline:
-        return HintContent(
-          icon: ApIcon.classIcon,
-          content: app.noOfflineData,
         );
       default:
         return ListView.builder(
@@ -166,7 +182,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               sprintf(
-                app.rewardAndPenaltyContent,
+                ap.rewardAndPenaltyContent,
                 [
                   item.counts ?? '',
                   item.date ?? '',
@@ -188,41 +204,35 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance
-        .getRewardAndPenalty(semester:selectSemester)
-        .then((response) {
-      if (mounted)
-        setState(() {
-          if (response == null) {
-            state = _State.empty;
-          } else {
-            if (response.data.length == 0) {
-              state = _State.empty;
-            } else {
-              rewardAndPenaltyData = response;
-              state = _State.finish;
-            }
-          }
-        });
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getCourseTables', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted)
-              setState(() {
-                state = _State.error;
-              });
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.getRewardAndPenalty(
+      semester: selectSemester,
+      callback: GeneralCallback(
+        onSuccess: (RewardAndPenaltyData data) {
+          if (mounted)
+            setState(() {
+              rewardAndPenaltyData = data;
+              if (data == null || data.data.length == 0)
+                state = _State.empty;
+              else
+                state = _State.finish;
+            });
+        },
+        onFailure: (DioError e) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = ApLocalizations.dioError(context, e);
+          });
+          if (e.hasResponse)
+            Utils.handleResponseError(
+                context, 'getRewardAndPenalty', mounted, e);
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+        },
+      ),
+    );
   }
 }
