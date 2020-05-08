@@ -176,11 +176,12 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             alignment: Alignment.center);
       case _State.error:
       case _State.empty:
+      case _State.custom:
         return FlatButton(
           onPressed: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? ap.clickToRetry : ap.scoreEmpty,
+            content: state == _State.error ? ap.clickToRetry : customStateHint,
           ),
         );
       case _State.ready:

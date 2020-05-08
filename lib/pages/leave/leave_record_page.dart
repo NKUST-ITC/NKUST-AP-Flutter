@@ -125,6 +125,22 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     );
   }
 
+  String get errorTitle {
+    switch (state) {
+      case _State.loading:
+      case _State.finish:
+        return '';
+      case _State.error:
+      case _State.empty:
+        return ap.somethingError;
+      case _State.offlineEmpty:
+        return ap.noOfflineData;
+      case _State.custom:
+        return customStateHint;
+    }
+    return '';
+  }
+
   Widget _body(Orientation orientation) {
     this.orientation = orientation;
     switch (state) {
@@ -133,23 +149,20 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
+      case _State.offlineEmpty:
+      case _State.custom:
         return FlatButton(
           onPressed: () {
-            if (state == _State.error)
-              _getSemesterLeaveRecord();
-            else
+            if (state == _State.empty || state == _State.offlineEmpty)
               key.currentState.pickSemester();
+            else
+              _getSemesterLeaveRecord();
             FA.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? ap.clickToRetry : ap.leaveEmpty,
+            content: errorTitle,
           ),
-        );
-      case _State.offlineEmpty:
-        return HintContent(
-          icon: ApIcon.classIcon,
-          content: ap.noOfflineData,
         );
       default:
         hasNight = _checkHasNight();
