@@ -25,11 +25,11 @@ void main() async {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
-    runZoned<Future<void>>(() async {
+    runZonedGuarded(() async {
       runApp(
         MyApp(),
       );
-    }, onError: Crashlytics.instance.recordError);
+    }, Crashlytics.instance.recordError);
   } else {
     runApp(
       MyApp(),
