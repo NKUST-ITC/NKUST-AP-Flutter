@@ -405,7 +405,7 @@ class Helper {
 
   Future<CourseData> getCourseTables({
     @required Semester semester,
-    GeneralCallback callback,
+    GeneralCallback<CourseData> callback,
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
@@ -433,8 +433,8 @@ class Helper {
           }
         }
         reLoginCount = 0;
-        return (callback == null) ? data : callback.onSuccess(data);
       }
+      return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isExpire && canReLogin && await reLogin(callback)) {
