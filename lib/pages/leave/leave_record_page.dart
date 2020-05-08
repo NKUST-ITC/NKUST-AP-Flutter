@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -12,7 +13,14 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
-enum _State { loading, finish, error, empty, offlineEmpty }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offlineEmpty,
+  custom,
+}
 
 class LeaveRecordPage extends StatefulWidget {
   static const String routerName = '/leave/record';
@@ -31,6 +39,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   ApLocalizations ap;
 
   _State state = _State.loading;
+  String customStateHint = '';
 
   Orientation orientation;
 
@@ -279,40 +288,40 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   _getSemesterLeaveRecord() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getLeaves(semester: selectSemester).then((response) {
-      if (mounted)
-        setState(() {
-          leaveData = response;
-          if (leaveData == null || leaveData.leaves.length == 0)
-            state = _State.empty;
-          else {
-            state = _State.finish;
-          }
-        });
-      CacheUtils.saveLeaveData(selectSemester.code, leaveData);
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
+    Helper.instance.getLeaves(
+      semester: selectSemester,
+      callback: GeneralCallback(
+        onSuccess: (LeaveData data) {
+          if (mounted)
+            setState(() {
+              leaveData = data;
+              if (leaveData == null || leaveData.leaves.length == 0)
+                state = _State.empty;
+              else {
+                state = _State.finish;
+              }
+            });
+          CacheUtils.saveLeaveData(selectSemester.code, leaveData);
+        },
+        onFailure: (DioError e) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = ApLocalizations.dioError(context, e);
+          });
+          if (e.hasResponse)
             Utils.handleResponseError(
                 context, 'getSemesterLeaveRecord', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted) {
-              setState(() {
-                state = _State.error;
-                Utils.handleDioError(context, e);
-              });
-            }
-            break;
-        }
-        _loadOfflineLeaveData();
-      } else {
-        throw e;
-      }
-    });
+          _loadOfflineLeaveData();
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+          _loadOfflineLeaveData();
+        },
+      ),
+    );
   }
 
   void _loadOfflineLeaveData() async {

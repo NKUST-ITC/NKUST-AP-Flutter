@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -29,6 +31,7 @@ enum _State {
   empty,
   userNotSupport,
   offline,
+  custom,
 }
 enum Leave { normal, sick, official, funeral, maternity }
 
@@ -47,6 +50,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   ApLocalizations ap;
 
   _State state = _State.loading;
+  String customStateHint;
 
   var _formKey = GlobalKey<FormState>();
 
@@ -76,10 +80,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         return ap.somethingError;
       case _State.userNotSupport:
         return ap.userNotSupport;
-        break;
       case _State.offline:
         return ap.offlineMode;
-        break;
+      case _State.custom:
+        return customStateHint;
     }
     return '';
   }
@@ -520,52 +524,51 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   }
 
   Future _getLeavesInfo() async {
-    Helper.instance.getLeavesSubmitInfo().then((leaveSubmitInfo) {
-      if (leaveSubmitInfo != null) {
-        setState(() {
-          this.state = _State.finish;
-          this.leaveSubmitInfo = leaveSubmitInfo;
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            if (e.response.statusCode == 401 || e.response.statusCode == 403) {
-              setState(() {
-                state = _State.userNotSupport;
-              });
-            } else {
-              setState(() {
-                state = _State.error;
-              });
-              Utils.handleResponseError(
-                  context, 'getLeaveSubmitInfo', mounted, e);
+    Helper.instance.getLeavesSubmitInfo(
+      callback: GeneralCallback(
+        onSuccess: (LeaveSubmitInfoData data) {
+          if (leaveSubmitInfo != null) {
+            setState(() {
+              state = _State.finish;
+              leaveSubmitInfo = data;
+            });
+          }
+        },
+        onFailure: (DioError e) {
+          if (mounted)
+            switch (e.type) {
+              case DioErrorType.RESPONSE:
+                setState(() {
+                  if (e.response.statusCode == 403)
+                    state = _State.userNotSupport;
+                  else {
+                    state = _State.error;
+                    Utils.handleResponseError(
+                        context, 'getLeaveSubmitInfo', mounted, e);
+                  }
+                });
+                break;
+              case DioErrorType.DEFAULT:
+                setState(() => state = _State.error);
+                break;
+              case DioErrorType.CANCEL:
+                break;
+              default:
+                setState(() {
+                  state = _State.custom;
+                  customStateHint = ApLocalizations.dioError(context, e);
+                });
+                break;
             }
-            break;
-          case DioErrorType.DEFAULT:
-            if (mounted) {
-              setState(() {
-                state = _State.error;
-                ApUtils.showToast(context, ap.busFailInfinity);
-              });
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted) {
-              setState(() {
-                state = _State.error;
-                Utils.handleDioError(context, e);
-              });
-            }
-            break;
-        }
-      } else {
-        throw (e);
-      }
-    });
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+        },
+      ),
+    );
   }
 
   void checkIsDelay() {
@@ -706,7 +709,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           leftActionFunction: null,
           rightActionFunction: () {
             _leaveUpload(data);
-            ApUtils.showToast(context, '上傳中，測試功能');
           },
         ),
       );
@@ -724,85 +726,56 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance
-        .sendLeavesSubmit(data: data, image: image)
-        .then((Response response) {
-      Navigator.of(context, rootNavigator: true).pop();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: response.statusCode == 200
-              ? ap.leaveSubmit
-              : '${response.statusCode}',
-          contentWidget: RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: TextStyle(
-                color: ApTheme.of(context).grey,
-                height: 1.3,
-                fontSize: 16.0,
-              ),
-              children: [
-                TextSpan(
-                  text: response.statusCode == 200
-                      ? ap.leaveSubmitSuccess
-                      : '${response.data}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          actionText: ap.iKnow,
-          actionFunction: () =>
-              Navigator.of(context, rootNavigator: true).pop(),
-        ),
-      );
-    }).catchError((e) {
-      Navigator.of(context, rootNavigator: true).pop();
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            String text = ap.somethingError;
-            if (e.response.data is Map<String, dynamic>) {
-              ErrorResponse errorResponse =
-                  ErrorResponse.fromJson(e.response.data);
-              text = errorResponse.description;
-            }
-            showDialog(
+    Helper.instance.sendLeavesSubmit(
+      data: data,
+      image: image,
+      callback: GeneralCallback(
+        onSuccess: (Response<dynamic> data) {
+          Navigator.of(context, rootNavigator: true).pop();
+          DialogUtils.showDefault(
+            context: context,
+            title:
+                data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
+            content:
+                data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
+          );
+        },
+        onFailure: (DioError e) {
+          Navigator.of(context, rootNavigator: true).pop();
+          String text;
+          switch (e.type) {
+            case DioErrorType.RESPONSE:
+              if (e.response.data is Map<String, dynamic>)
+                text = ErrorResponse.fromJson(e.response.data).description;
+              else
+                text = ap.somethingError;
+              break;
+            case DioErrorType.DEFAULT:
+              text = ap.somethingError;
+              break;
+            case DioErrorType.CANCEL:
+              break;
+            default:
+              text = ApLocalizations.dioError(context, e);
+              break;
+          }
+          if (text != null)
+            DialogUtils.showDefault(
               context: context,
-              builder: (BuildContext context) => DefaultDialog(
-                title: ap.leaveSubmitFail,
-                contentWidget: Text(
-                  text,
-                  style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                ),
-                actionText: ap.iKnow,
-                actionFunction: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-              ),
+              title: ap.leaveSubmitFail,
+              content: text,
             );
-            break;
-          case DioErrorType.DEFAULT:
-            setState(() {
-              state = _State.error;
-            });
-            ApUtils.showToast(context, ap.somethingError);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+        },
+        onError: (GeneralResponse response) {
+          Navigator.of(context, rootNavigator: true).pop();
+          DialogUtils.showDefault(
+            context: context,
+            title: ap.leaveSubmitFail,
+            content: response.getGeneralMessage(context),
+          );
+        },
+      ),
+    );
   }
 
   Future resizeImage(File image) async {
