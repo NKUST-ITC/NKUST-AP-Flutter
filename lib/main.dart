@@ -16,6 +16,7 @@ import 'package:nkust_ap/config/constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
+  HttpClient.enableTimelineLogging = isInDebugMode;
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   _preferenceMigrate();
   ApIcon.code =
