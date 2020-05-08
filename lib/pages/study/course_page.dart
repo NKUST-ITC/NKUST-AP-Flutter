@@ -1,5 +1,7 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +30,8 @@ class CoursePageState extends State<CoursePage> {
 
   bool isOffline = false;
 
+  String customStateHint = '';
+
   @override
   void initState() {
     FA.setCurrentScreen('CoursePage', 'course_page.dart');
@@ -46,6 +50,7 @@ class CoursePageState extends State<CoursePage> {
       state: state,
       courseData: courseData,
       customHint: isOffline ? ap.offlineCourse : '',
+      customStateHint: customStateHint,
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
@@ -70,7 +75,7 @@ class CoursePageState extends State<CoursePage> {
     );
   }
 
-  void _loadCourseData(String value) async {
+  Future<bool> _loadCourseData(String value) async {
     courseData = await CacheUtils.loadCourseData(value);
     if (mounted) {
       setState(() {
@@ -82,43 +87,46 @@ class CoursePageState extends State<CoursePage> {
         }
       });
     }
+    return this.courseData == null;
   }
 
   _getCourseTables() async {
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getCourseTables(semester: selectSemester).then((response) {
-      if (mounted)
-        setState(() {
-          if (response == null) {
-            state = CourseState.empty;
-          } else {
-            courseData = response;
-            isOffline = false;
-            CacheUtils.saveCourseData(selectSemester.code, courseData);
-            state = CourseState.finish;
-          }
-        });
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
+    Helper.instance.getCourseTables(
+      semester: selectSemester,
+      callback: GeneralCallback(
+        onSuccess: (CourseData data) {
+          if (mounted)
+            setState(() {
+              if (data == null) {
+                state = CourseState.empty;
+              } else {
+                courseData = data;
+                isOffline = false;
+                CacheUtils.saveCourseData(selectSemester.code, courseData);
+                state = CourseState.finish;
+              }
+            });
+        },
+        onFailure: (DioError e) async {
+          if (await _loadCourseData(selectSemester.code) &&
+              e.type != DioErrorType.CANCEL)
+            setState(() {
+              state = CourseState.custom;
+              customStateHint = ApLocalizations.dioError(context, e);
+            });
+          if (e.hasResponse)
             Utils.handleResponseError(context, 'getCourseTables', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted)
-              setState(() {
-                state = CourseState.error;
-              });
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-      _loadCourseData(selectSemester.code);
-    });
+        },
+        onError: (GeneralResponse generalResponse) async {
+          if (await _loadCourseData(selectSemester.code))
+            setState(() {
+              state = CourseState.custom;
+              customStateHint = generalResponse.getGeneralMessage(context);
+            });
+        },
+      ),
+    );
   }
 }
