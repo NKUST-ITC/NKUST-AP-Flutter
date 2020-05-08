@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/scaffold/score_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -29,6 +30,8 @@ class ScorePageState extends State<ScorePage> {
 
   bool isOffline = false;
 
+  String customStateHint = '';
+
   @override
   void initState() {
     FA.setCurrentScreen('ScorePage', 'score_page.dart');
@@ -47,6 +50,7 @@ class ScorePageState extends State<ScorePage> {
       state: state,
       scoreData: scoreData,
       customHint: isOffline ? ap.offlineScore : '',
+      customStateHint: customStateHint,
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
@@ -83,44 +87,38 @@ class ScorePageState extends State<ScorePage> {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
       _loadOfflineScoreData();
     else
-      Helper.instance.getScores(semester: selectSemester).then((response) {
-        if (mounted)
-          setState(() {
-            if (response == null) {
-              state = ScoreState.empty;
-            } else {
-              scoreData = response;
-              state = ScoreState.finish;
-              CacheUtils.saveScoreData(selectSemester.code, scoreData);
-            }
-          });
-      }).catchError((e) {
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(
-                  context, 'getSemesterScore', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              if (mounted) {
-                setState(() {
-                  state = ScoreState.error;
-                  Utils.handleDioError(context, e);
-                });
+      Helper.instance.getScores(
+        semester: selectSemester,
+        callback: GeneralCallback(onSuccess: (ScoreData data) {
+          if (mounted)
+            setState(() {
+              if (data == null) {
+                state = ScoreState.empty;
+              } else {
+                scoreData = data;
+                state = ScoreState.finish;
+                CacheUtils.saveScoreData(selectSemester.code, scoreData);
               }
-              throw e;
-              break;
-          }
-        } else {
-          throw e;
-        }
-        _loadOfflineScoreData();
-      });
+            });
+        }, onFailure: (DioError e) async {
+          if (await _loadOfflineScoreData() && e.type != DioErrorType.CANCEL)
+            setState(() {
+              state = ScoreState.custom;
+              customStateHint = ApLocalizations.dioError(context, e);
+            });
+          if (e.hasResponse)
+            Utils.handleResponseError(context, 'getSemesterScore', mounted, e);
+        }, onError: (GeneralResponse generalResponse) async {
+          if (await _loadOfflineScoreData())
+            setState(() {
+              state = ScoreState.custom;
+              customStateHint = generalResponse.getGeneralMessage(context);
+            });
+        }),
+      );
   }
 
-  _loadOfflineScoreData() async {
+  Future<bool> _loadOfflineScoreData() async {
     scoreData = await CacheUtils.loadScoreData(selectSemester.code);
     if (mounted) {
       setState(() {
@@ -132,5 +130,6 @@ class ScorePageState extends State<ScorePage> {
         }
       });
     }
+    return scoreData == null;
   }
 }

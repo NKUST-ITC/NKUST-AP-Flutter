@@ -355,7 +355,7 @@ class Helper {
         cancelToken: cancelToken,
       );
       ScoreData data;
-      if (response.statusCode != 204) {
+      if (response.statusCode == 200) {
         data = ScoreData.fromJson(response.data);
       }
       return (callback == null) ? data : callback.onSuccess(data);
