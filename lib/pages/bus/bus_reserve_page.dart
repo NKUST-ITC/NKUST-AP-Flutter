@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -11,6 +12,8 @@ import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -23,7 +26,8 @@ enum _State {
   empty,
   campusNotSupport,
   userNotSupport,
-  offline
+  offline,
+  custom
 }
 enum Station { janGong, yanchao }
 
@@ -43,6 +47,8 @@ class BusReservePageState extends State<BusReservePage>
   ApLocalizations ap;
 
   _State state = _State.finish;
+
+  String customStateHint = '';
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
@@ -174,8 +180,10 @@ class BusReservePageState extends State<BusReservePage>
         return ap.campusNotSupport;
       case _State.userNotSupport:
         return ap.userNotSupport;
+      case _State.custom:
+        return customStateHint;
       default:
-        return '';
+        return ap.somethingError;
     }
   }
 
@@ -378,68 +386,63 @@ class BusReservePageState extends State<BusReservePage>
     }
     Helper.cancelToken.cancel("");
     Helper.cancelToken = CancelToken();
-    if (mounted) {
-      setState(() {
-        state = _State.loading;
-      });
-    }
-    Helper.instance.getBusTimeTables(dateTime: dateTime).then((response) {
-      busData = response;
-      if (mounted) {
-        setState(() {
-          if (busData == null || busData.timetable.length == 0)
-            state = _State.empty;
-          else
-            state = _State.finish;
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        //if bus can't connection:
-        // dioError.message = HttpException: Connection closed before full header was received
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            if (e.response.statusCode == 401) {
-              setState(() {
-                state = _State.userNotSupport;
-              });
-            } else if (e.response.statusCode == 403) {
-              setState(() {
-                state = _State.campusNotSupport;
-              });
-            } else {
-              setState(() {
-                state = _State.error;
-              });
-              Utils.handleResponseError(
-                  context, 'getBusTimeTables', mounted, e);
-            }
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              if (mounted) {
+    if (mounted) setState(() => state = _State.loading);
+    Helper.instance.getBusTimeTables(
+      dateTime: dateTime,
+      callback: GeneralCallback(
+        onSuccess: (BusData data) {
+          busData = data;
+          if (mounted)
+            setState(() {
+              if (busData == null || busData.timetable.length == 0)
+                state = _State.empty;
+              else
+                state = _State.finish;
+            });
+        },
+        onFailure: (DioError e) {
+          if (mounted)
+            switch (e.type) {
+              case DioErrorType.RESPONSE:
                 setState(() {
-                  state = _State.error;
-                  ApUtils.showToast(context, app.busFailInfinity);
+                  if (e.response.statusCode == 401)
+                    state = _State.userNotSupport;
+                  else if (e.response.statusCode == 403)
+                    state = _State.campusNotSupport;
+                  else {
+                    state = _State.error;
+                    Utils.handleResponseError(
+                        context, 'getBusTimeTables', mounted, e);
+                  }
                 });
-              }
+                break;
+              case DioErrorType.DEFAULT:
+                setState(() {
+                  if (e.message.contains("HttpException")) {
+                    state = _State.custom;
+                    customStateHint = app.busFailInfinity;
+                  } else
+                    state = _State.error;
+                });
+                break;
+              case DioErrorType.CANCEL:
+                break;
+              default:
+                setState(() {
+                  state = _State.custom;
+                  customStateHint = ApLocalizations.dioError(context, e);
+                });
+                break;
             }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted) {
-              setState(() {
-                state = _State.error;
-                Utils.handleDioError(context, e);
-              });
-            }
-            break;
-        }
-      } else {
-        throw (e);
-      }
-    });
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+        },
+      ),
+    );
   }
 
   _bookingBus(BusTime busTime) {
@@ -452,88 +455,61 @@ class BusReservePageState extends State<BusReservePage>
           }),
       barrierDismissible: false,
     );
-    Helper.instance
-        .bookingBusReservation(busId: busTime.busId)
-        .then((response) {
-      _getBusTimeTables();
-      FA.logAction('book_bus', 'status', message: 'success');
-      Navigator.of(context, rootNavigator: true).pop();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: app.busReserveSuccess,
-          contentWidget: RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-                style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0),
-                children: [
-                  TextSpan(
-                    text: '${app.busReserveDate}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getDate()}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveLocation}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getStart(app)}${app.campus}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveTime}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getTime()}',
-                  ),
-                ]),
-          ),
-          actionText: ap.iKnow,
-          actionFunction: () {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-        ),
-      );
-    }).catchError((e) {
-      Navigator.of(context, rootNavigator: true).pop();
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            ErrorResponse errorResponse =
-                ErrorResponse.fromJson(e.response.data);
-            DialogUtils.showDefault(
-              context: context,
-              title: app.busReserveFailTitle,
-              content: errorResponse.description,
-            );
-            FA.logAction('book_bus', 'status',
-                message: 'fail_${errorResponse.description}');
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              if (mounted) {
-                setState(() {
-                  state = _State.error;
-                  ApUtils.showToast(context, app.busFailInfinity);
-                });
-              }
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.bookingBusReservation(
+      busId: busTime.busId,
+      callback: GeneralCallback(
+        onSuccess: (BookingBusData data) {
+          _getBusTimeTables();
+          FA.logAction('book_bus', 'status', message: 'success');
+          Navigator.of(context, rootNavigator: true).pop();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => DefaultDialog(
+              title: app.busReserveSuccess,
+              contentWidget: RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                    style: TextStyle(
+                        color: ApTheme.of(context).grey,
+                        height: 1.3,
+                        fontSize: 16.0),
+                    children: [
+                      TextSpan(
+                        text: '${app.busReserveDate}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getDate()}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveLocation}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getStart(app)}${app.campus}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveTime}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getTime()}',
+                      ),
+                    ]),
+              ),
+              actionText: ap.iKnow,
+              actionFunction: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+            ),
+          );
+        },
+        onFailure: (DioError e) =>
+            handleDioError(context, e, app.busReserveFailTitle, 'book_bus'),
+        onError: (GeneralResponse response) =>
+            handleGeneralError(context, response, app.busReserveFailTitle),
+      ),
+    );
   }
 
   cancelBusReservation(BusTime busTime) {
@@ -547,84 +523,107 @@ class BusReservePageState extends State<BusReservePage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance
-        .cancelBusReservation(cancelKey: busTime.cancelKey)
-        .then((response) {
-      _getBusTimeTables();
-      FA.logAction('cancel_bus', 'status', message: 'success');
-      Navigator.of(context, rootNavigator: true).pop();
-      showDialog(
+    Helper.instance.cancelBusReservation(
+      cancelKey: busTime.cancelKey,
+      callback: GeneralCallback(
+        onSuccess: (CancelBusData data) {
+          _getBusTimeTables();
+          FA.logAction('cancel_bus', 'status', message: 'success');
+          Navigator.of(context, rootNavigator: true).pop();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => DefaultDialog(
+              title: app.busCancelReserveSuccess,
+              contentWidget: RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                    style: TextStyle(
+                        color: ApTheme.of(context).grey,
+                        height: 1.3,
+                        fontSize: 16.0),
+                    children: [
+                      TextSpan(
+                        text: '${app.busReserveCancelDate}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getDate()}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveCancelLocation}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getStart(app)}${app.campus}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveCancelTime}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getTime()}',
+                      ),
+                    ]),
+              ),
+              actionText: ap.iKnow,
+              actionFunction: () =>
+                  Navigator.of(context, rootNavigator: true).pop(),
+            ),
+          );
+        },
+        onFailure: (DioError e) =>
+            handleDioError(context, e, app.busCancelReserveFail, 'cancel_bus'),
+        onError: (GeneralResponse response) =>
+            handleGeneralError(context, response, app.busCancelReserveFail),
+      ),
+    );
+  }
+
+  static handleGeneralError(
+    BuildContext context,
+    GeneralResponse response,
+    String title,
+  ) {
+    Navigator.of(context, rootNavigator: true).pop();
+    DialogUtils.showDefault(
+      context: context,
+      title: title,
+      content: response.getGeneralMessage(context),
+    );
+  }
+
+  static handleDioError(
+    BuildContext context,
+    DioError e,
+    String title,
+    String tag,
+  ) {
+    Navigator.of(context, rootNavigator: true).pop();
+    String message;
+    switch (e.type) {
+      case DioErrorType.RESPONSE:
+        final errorResponse = ErrorResponse.fromJson(e.response.data);
+        message = errorResponse.description;
+        FA.logAction(tag, 'status',
+            message: 'fail_${errorResponse.description}');
+        break;
+      case DioErrorType.DEFAULT:
+        if (e.message.contains("HttpException"))
+          message = AppLocalizations.of(context).busFailInfinity;
+        else
+          message = ApLocalizations.of(context).somethingError;
+        break;
+      case DioErrorType.CANCEL:
+        break;
+      default:
+        message = ApLocalizations.dioError(context, e);
+        break;
+    }
+    if (message != null)
+      DialogUtils.showDefault(
         context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: app.busCancelReserveSuccess,
-          contentWidget: RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-                style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0),
-                children: [
-                  TextSpan(
-                    text: '${app.busReserveCancelDate}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getDate()}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveCancelLocation}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getStart(app)}${app.campus}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveCancelTime}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getTime()}',
-                  ),
-                ]),
-          ),
-          actionText: ap.iKnow,
-          actionFunction: () =>
-              Navigator.of(context, rootNavigator: true).pop(),
-        ),
+        title: title,
+        content: message,
       );
-    }).catchError((e) {
-      Navigator.of(context, rootNavigator: false).pop();
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            ErrorResponse errorResponse =
-                ErrorResponse.fromJson(e.response.data);
-            DialogUtils.showDefault(
-              context: context,
-              title: app.busReserveFailTitle,
-              content: errorResponse.description,
-            );
-            FA.logAction('book_bus', 'status',
-                message: 'fail_${errorResponse.description}');
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              setState(() {
-                state = _State.error;
-              });
-              ApUtils.showToast(context, app.busFailInfinity);
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
   }
 }

@@ -1,8 +1,8 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -10,7 +10,6 @@ import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -23,6 +22,7 @@ enum _State {
   campusNotSupport,
   userNotSupport,
   offlineEmpty,
+  custom
 }
 
 class BusReservationsPage extends StatefulWidget {
@@ -38,6 +38,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
   bool get wantKeepAlive => true;
 
   _State state = _State.finish;
+  String customStateHint;
+
   BusReservationsData busReservationsData;
   DateTime dateTime = DateTime.now();
 
@@ -91,8 +93,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return ap.campusNotSupport;
       case _State.userNotSupport:
         return ap.userNotSupport;
+      case _State.custom:
+        return customStateHint;
       default:
-        return '';
+        return ap.somethingError;
     }
   }
 
@@ -243,71 +247,66 @@ class BusReservationsPageState extends State<BusReservationsPage>
         state = _State.loading;
       });
     }
-    Helper.instance.getBusReservations().then((response) {
-      busReservationsData = response;
-      if (mounted) {
-        setState(() {
-          if (busReservationsData == null ||
-              busReservationsData.reservations.length == 0)
-            state = _State.empty;
-          else
-            state = _State.finish;
-        });
-      }
-      CacheUtils.saveBusReservationsData(busReservationsData);
-    }).catchError((e) async {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            if (e.response.statusCode == 401) {
-              setState(() {
-                state = _State.userNotSupport;
-              });
-            } else if (e.response.statusCode == 403) {
-              setState(() {
-                state = _State.campusNotSupport;
-              });
-            } else {
-              setState(() {
-                state = _State.error;
-              });
-              Utils.handleResponseError(
-                  context, 'getBusReservations', mounted, e);
-            }
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              setState(() {
-                state = _State.error;
-                ApUtils.showToast(context, app.busFailInfinity);
-              });
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
+    Helper.instance.getBusReservations(
+      callback: GeneralCallback(
+        onSuccess: (BusReservationsData data) {
+          busReservationsData = data;
+          if (mounted) {
             setState(() {
-              state = _State.error;
-              Utils.handleDioError(context, e);
+              if (busReservationsData == null ||
+                  busReservationsData.reservations.length == 0)
+                state = _State.empty;
+              else
+                state = _State.finish;
             });
-            break;
-        }
-        busReservationsData = await CacheUtils.loadBusReservationsData();
-        if (mounted) {
+          }
+          CacheUtils.saveBusReservationsData(busReservationsData);
+        },
+        onFailure: (DioError e) {
+          if (mounted)
+            switch (e.type) {
+              case DioErrorType.RESPONSE:
+                setState(() {
+                  if (e.response.statusCode == 401)
+                    state = _State.userNotSupport;
+                  else if (e.response.statusCode == 403)
+                    state = _State.campusNotSupport;
+                  else {
+                    state = _State.error;
+                    Utils.handleResponseError(
+                        context, 'getBusReservations', mounted, e);
+                  }
+                });
+                break;
+              case DioErrorType.DEFAULT:
+                setState(() {
+                  if (e.message.contains("HttpException")) {
+                    state = _State.custom;
+                    customStateHint = app.busFailInfinity;
+                  } else
+                    state = _State.error;
+                });
+                break;
+              case DioErrorType.CANCEL:
+                break;
+              default:
+                setState(() {
+                  state = _State.custom;
+                  customStateHint = ApLocalizations.dioError(context, e);
+                });
+                break;
+            }
+          _loadCache();
+        },
+        onError: (GeneralResponse response) {
           setState(() {
-            isOffline = true;
-            if (busReservationsData == null)
-              state = _State.offlineEmpty;
-            else if (busReservationsData.reservations.length != 0)
-              state = _State.finish;
-            else
-              state = _State.empty;
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
           });
-        }
-      } else {
-        throw e;
-      }
-    });
+          _loadCache();
+        },
+      ),
+    );
   }
 
   cancelBusReservation(BusReservation busTime) {
@@ -321,84 +320,75 @@ class BusReservationsPageState extends State<BusReservationsPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance
-        .cancelBusReservation(cancelKey: busTime.cancelKey)
-        .then((response) {
-      _getBusReservations();
-      FA.logAction('cancel_bus', 'status', message: 'success');
-      Navigator.of(context, rootNavigator: true).pop();
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => DefaultDialog(
-          title: app.busCancelReserveSuccess,
-          contentWidget: RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-                style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0),
-                children: [
-                  TextSpan(
-                    text: '${app.busReserveCancelDate}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getDate()}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveCancelLocation}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getStart(app)}${app.campus}\n',
-                  ),
-                  TextSpan(
-                    text: '${app.busReserveCancelTime}：',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextSpan(
-                    text: '${busTime.getTime()}',
-                  ),
-                ]),
-          ),
-          actionText: ap.iKnow,
-          actionFunction: () =>
-              Navigator.of(context, rootNavigator: true).pop(),
-        ),
-      );
-    }).catchError((e) {
-      Navigator.of(context, rootNavigator: false).pop();
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            ErrorResponse errorResponse =
-                ErrorResponse.fromJson(e.response.data);
-            DialogUtils.showDefault(
-              context: context,
-              title: app.busReserveFailTitle,
-              content: errorResponse.description,
-            );
-            FA.logAction('book_bus', 'status',
-                message: 'fail_${errorResponse.description}');
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              setState(() {
-                state = _State.error;
-              });
-              ApUtils.showToast(context, app.busFailInfinity);
-            }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.cancelBusReservation(
+      cancelKey: busTime.cancelKey,
+      callback: GeneralCallback(
+        onSuccess: (data) {
+          _getBusReservations();
+          FA.logAction('cancel_bus', 'status', message: 'success');
+          Navigator.of(context, rootNavigator: true).pop();
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => DefaultDialog(
+              title: app.busCancelReserveSuccess,
+              contentWidget: RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                    style: TextStyle(
+                        color: ApTheme.of(context).grey,
+                        height: 1.3,
+                        fontSize: 16.0),
+                    children: [
+                      TextSpan(
+                        text: '${app.busReserveCancelDate}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getDate()}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveCancelLocation}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getStart(app)}${app.campus}\n',
+                      ),
+                      TextSpan(
+                        text: '${app.busReserveCancelTime}：',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextSpan(
+                        text: '${busTime.getTime()}',
+                      ),
+                    ]),
+              ),
+              actionText: ap.iKnow,
+              actionFunction: () =>
+                  Navigator.of(context, rootNavigator: true).pop(),
+            ),
+          );
+        },
+        onFailure: (DioError e) => BusReservePageState.handleDioError(
+            context, e, app.busCancelReserveFail, 'cancel_bus'),
+        onError: (GeneralResponse response) =>
+            BusReservePageState.handleGeneralError(
+                context, response, app.busCancelReserveFail),
+      ),
+    );
+  }
+
+  _loadCache() async {
+    busReservationsData = await CacheUtils.loadBusReservationsData();
+    if (mounted) {
+      setState(() {
+        isOffline = true;
+        if (busReservationsData == null)
+          state = _State.offlineEmpty;
+        else if (busReservationsData.reservations.length != 0)
+          state = _State.finish;
+        else
+          state = _State.empty;
+      });
+    }
   }
 }
