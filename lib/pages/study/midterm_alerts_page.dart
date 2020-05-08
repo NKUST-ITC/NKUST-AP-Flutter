@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -9,13 +10,19 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty, offline }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
 
 class MidtermAlertsPage extends StatefulWidget {
   static const String routerName = "/user/midtermAlerts";
@@ -30,6 +37,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   ApLocalizations ap;
 
   _State state = _State.loading;
+  String customStateHint;
 
   Semester selectSemester;
   SemesterData semesterData;
@@ -100,6 +108,23 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     );
   }
 
+  String get errorTitle {
+    switch (state) {
+      case _State.loading:
+      case _State.finish:
+        return '';
+      case _State.error:
+        return ap.somethingError;
+      case _State.empty:
+        return ap.midtermAlertsEmpty;
+      case _State.offline:
+        return ap.noOfflineData;
+      case _State.custom:
+        return customStateHint;
+    }
+    return '';
+  }
+
   _body() {
     switch (state) {
       case _State.loading:
@@ -107,24 +132,20 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.empty:
       case _State.error:
+      case _State.empty:
+      case _State.offline:
         return FlatButton(
           onPressed: () {
-            if (state == _State.error)
-              _getMidtermAlertsData();
-            else
+            if (state == _State.empty)
               key.currentState.pickSemester();
+            else
+              _getMidtermAlertsData();
             FA.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content:
-                state == _State.error ? ap.clickToRetry : ap.midtermAlertsEmpty,
+            content: errorTitle,
           ),
-        );
-      case _State.offline:
-        return HintContent(
-          icon: ApIcon.classIcon,
-          content: ap.noOfflineData,
         );
       default:
         return ListView.builder(
@@ -176,39 +197,34 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     }
     Helper.cancelToken.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getMidtermAlerts(semester: selectSemester).then((response) {
-      if (mounted)
-        setState(() {
-          if (response == null) {
-            state = _State.empty;
-          } else {
-            if (response.courses.length == 0) {
-              state = _State.empty;
-            } else {
-              midtermAlertData = response;
-              state = _State.finish;
-            }
-          }
-        });
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getCourseTables', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted)
-              setState(() {
-                state = _State.error;
-              });
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.getMidtermAlerts(
+      semester: selectSemester,
+      callback: GeneralCallback(
+        onSuccess: (MidtermAlertsData data) {
+          if (mounted)
+            setState(() {
+              midtermAlertData = data;
+              if (data == null || data.courses.length == 0)
+                state = _State.empty;
+              else
+                state = _State.finish;
+            });
+        },
+        onFailure: (DioError e) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = ApLocalizations.dioError(context, e);
+          });
+          if (e.hasResponse)
+            Utils.handleResponseError(context, 'getMidtermAlert', mounted, e);
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+        },
+      ),
+    );
   }
 }
