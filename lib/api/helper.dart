@@ -91,29 +91,6 @@ class Helper {
     cancelToken = CancelToken();
   }
 
-  static void handleGeneralError(
-    BuildContext context,
-    GeneralResponse generalResponse,
-  ) {
-    final ap = ApLocalizations.of(context);
-    String message = '';
-    switch (generalResponse.statusCode) {
-      case SCHOOL_SERVER_ERROR:
-        message = ap.schoolSeverError;
-        break;
-      case API_SERVER_ERROR:
-        message = ap.apiSeverError;
-        break;
-      case API_EXPIRE:
-        message = ap.tokenExpiredContent;
-        break;
-      default:
-        message = ap.somethingError;
-        break;
-    }
-    ApUtils.showToast(context, message);
-  }
-
   handleDioError(DioError dioError) {
     switch (dioError.type) {
       case DioErrorType.DEFAULT:
@@ -1054,5 +1031,29 @@ extension DioErrorExtension on DioError {
           message: 'shool server error',
         );
     }
+  }
+}
+
+extension GeneralResponseExtension on GeneralResponse {
+  String getGeneralMessage(
+    BuildContext context,
+  ) {
+    final ap = ApLocalizations.of(context);
+    String message = '';
+    switch (statusCode) {
+      case Helper.SCHOOL_SERVER_ERROR:
+        message = ap.schoolSeverError;
+        break;
+      case Helper.API_SERVER_ERROR:
+        message = ap.apiSeverError;
+        break;
+      case Helper.API_EXPIRE:
+        message = ap.tokenExpiredContent;
+        break;
+      default:
+        message = ap.somethingError;
+        break;
+    }
+    return message;
   }
 }
