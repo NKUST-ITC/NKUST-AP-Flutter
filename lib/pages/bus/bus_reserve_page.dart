@@ -2,6 +2,7 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -505,22 +506,10 @@ class BusReservePageState extends State<BusReservePage>
           case DioErrorType.RESPONSE:
             ErrorResponse errorResponse =
                 ErrorResponse.fromJson(e.response.data);
-            showDialog(
+            DialogUtils.showDefault(
               context: context,
-              builder: (BuildContext context) => DefaultDialog(
-                title: app.busReserveFailTitle,
-                contentWidget: Text(
-                  errorResponse.description,
-                  style: TextStyle(
-                      color: ApTheme.of(context).grey,
-                      height: 1.3,
-                      fontSize: 16.0),
-                ),
-                actionText: ap.iKnow,
-                actionFunction: () {
-                  Navigator.of(context, rootNavigator: true).pop('dialog');
-                },
-              ),
+              title: app.busReserveFailTitle,
+              content: errorResponse.description,
             );
             FA.logAction('book_bus', 'status',
                 message: 'fail_${errorResponse.description}');
@@ -611,22 +600,10 @@ class BusReservePageState extends State<BusReservePage>
           case DioErrorType.RESPONSE:
             ErrorResponse errorResponse =
                 ErrorResponse.fromJson(e.response.data);
-            showDialog(
+            DialogUtils.showDefault(
               context: context,
-              builder: (BuildContext context) => DefaultDialog(
-                title: app.busReserveFailTitle,
-                contentWidget: Text(
-                  errorResponse.description,
-                  style: TextStyle(
-                      color: ApTheme.of(context).grey,
-                      height: 1.3,
-                      fontSize: 16.0),
-                ),
-                actionText: ap.iKnow,
-                actionFunction: () {
-                  Navigator.of(context, rootNavigator: true).pop('dialog');
-                },
-              ),
+              title: app.busReserveFailTitle,
+              content: errorResponse.description,
             );
             FA.logAction('book_bus', 'status',
                 message: 'fail_${errorResponse.description}');
