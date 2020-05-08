@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -9,7 +10,15 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum _State { ready, loading, finish, error, empty, offline }
+enum _State {
+  ready,
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
 
 class CalculateUnitsPage extends StatefulWidget {
   static const String routerName = "/calculateUnits";
@@ -23,6 +32,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   ApLocalizations ap;
 
   _State state = _State.ready;
+  String customStateHint = '';
 
   int currentSemesterIndex;
 
@@ -315,70 +325,68 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
-    Helper.instance
-        .getScores(semester: semesterData.data[currentSemesterIndex])
-        .then((response) {
-      if (startYear == -1)
-        startYear = int.parse(semesterData.data[currentSemesterIndex].year);
-      //scoreWeightList.add(_scoreTitle());
-      semesterList.add(semesterData.data[currentSemesterIndex]);
-
-      if (response?.scores != null) {
-        for (var score in response.scores) {
-          var finalScore = double.tryParse(score.finalScore);
-          if (finalScore != null) {
-            if (finalScore >= 60.0) {
-              if (score.required == "【必修】") {
-                requiredUnitsTotal += double.parse(score.units);
-              } else if (score.required == "【選修】") {
-                electiveUnitsTotal += double.parse(score.units);
-              } else {
-                otherUnitsTotal += double.parse(score.units);
-              }
-              if (score.title.contains("延伸通識")) {
-                extendGeneralEducations.add(score);
-              } else if (score.title.contains("核心通識")) {
-                coreGeneralEducations.add(score);
+    Helper.instance.getScores(
+      semester: semesterData.data[currentSemesterIndex],
+      callback: GeneralCallback(
+        onSuccess: (ScoreData data) {
+          if (startYear == -1)
+            startYear = int.parse(semesterData.data[currentSemesterIndex].year);
+          semesterList.add(semesterData.data[currentSemesterIndex]);
+          if (data?.scores != null) {
+            for (var score in data.scores) {
+              var finalScore = double.tryParse(score.finalScore);
+              if (finalScore != null) {
+                if (finalScore >= 60.0) {
+                  if (score.required == "【必修】") {
+                    requiredUnitsTotal += double.parse(score.units);
+                  } else if (score.required == "【選修】") {
+                    electiveUnitsTotal += double.parse(score.units);
+                  } else {
+                    otherUnitsTotal += double.parse(score.units);
+                  }
+                  if (score.title.contains("延伸通識")) {
+                    extendGeneralEducations.add(score);
+                  } else if (score.title.contains("核心通識")) {
+                    coreGeneralEducations.add(score);
+                  }
+                }
               }
             }
           }
-        }
-      }
-      var currentYear = int.parse(semesterData.data[currentSemesterIndex].year);
-      if (currentSemesterIndex < semesterData.data.length - 1 &&
-          ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
-        currentSemesterIndex++;
-        if (mounted) _getSemesterScore();
-      } else {
-        DateTime end = DateTime.now();
-        var second =
-            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) / 1000;
-        FA.logCalculateUnits(second);
-        unitsTotal = requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
-        if (mounted) {
+          var currentYear =
+              int.parse(semesterData.data[currentSemesterIndex].year);
+          if (currentSemesterIndex < semesterData.data.length - 1 &&
+              ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
+            currentSemesterIndex++;
+            if (mounted) _getSemesterScore();
+          } else {
+            DateTime end = DateTime.now();
+            var second =
+                (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
+                    1000;
+            FA.logCalculateUnits(second);
+            unitsTotal =
+                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+            if (mounted) {
+              setState(() {
+                state = _State.finish;
+              });
+            }
+          }
+        },
+        onFailure: (DioError e) {
           setState(() {
-            state = _State.finish;
+            state = _State.custom;
+            customStateHint = ApLocalizations.dioError(context, e);
           });
-        }
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getSemesterScore', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            setState(() {
-              state = _State.error;
-            });
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+        },
+        onError: (GeneralResponse response) {
+          setState(() {
+            state = _State.custom;
+            customStateHint = response.getGeneralMessage(context);
+          });
+        },
+      ),
+    );
   }
 }
