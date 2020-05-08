@@ -1,3 +1,4 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -178,35 +179,20 @@ class NotificationPageState extends State<NotificationPage>
 
   _getNotifications() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      setState(() {
-        state = _State.offline;
-      });
-      return;
-    }
-    Helper.instance.getNotifications(page: page).then((response) {
-      for (var notification in response.data.notifications) {
-        notificationList.add(notification);
-      }
-      if (mounted) {
-        setState(() {
-          state = _State.finish;
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getNotifications', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+      setState(() => state = _State.offline);
+    } else
+      Helper.instance.getNotifications(
+        page: page,
+        callback: GeneralCallback(
+          onSuccess: (NotificationsData data) {
+            for (var notification in data.data.notifications)
+              notificationList.add(notification);
+            if (mounted) setState(() => state = _State.finish);
+          },
+          onFailure: (DioError e) => ApUtils.handleDioError(context, e),
+          onError: (GeneralResponse response) =>
+              ApUtils.showToast(context, ap.somethingError),
+        ),
+      );
   }
 }
