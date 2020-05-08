@@ -189,9 +189,16 @@ class NotificationPageState extends State<NotificationPage>
               notificationList.add(notification);
             if (mounted) setState(() => state = _State.finish);
           },
-          onFailure: (DioError e) => ApUtils.handleDioError(context, e),
-          onError: (GeneralResponse response) =>
-              ApUtils.showToast(context, ap.somethingError),
+          onFailure: (DioError e) {
+            ApUtils.handleDioError(context, e);
+            if (mounted && notificationList.length == 0)
+              setState(() => state = _State.error);
+          },
+          onError: (GeneralResponse response) {
+            ApUtils.showToast(context, ap.somethingError);
+            if (mounted && notificationList.length == 0)
+              setState(() => state = _State.error);
+          },
         ),
       );
   }
