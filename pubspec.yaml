@@ -35,12 +35,11 @@ dependencies:
   dio: 3.0.9
   tuple: 1.0.2
   sprintf: 4.0.2
-  app_review: 1.1.0+1
   date_range_picker: 1.0.6
   flutter_autofill: 0.4.1
   image: ^2.1.4
   flutter_image_compress: 0.6.7
-  barcode_scan: 3.0.0
+  barcode_scan: 3.0.1
 #  image_picker_web: 1.0.8
 
 
