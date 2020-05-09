@@ -21,12 +21,6 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
-
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
@@ -52,14 +46,11 @@ android {
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
     signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
+        release
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -98,3 +89,20 @@ dependencies {
 }
 
 apply plugin: 'com.google.gms.google-services'
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.canRead()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+    if (keystoreProperties != null) {
+        android.signingConfigs.release.storeFile file(keystoreProperties['storeFile'])
+        android.signingConfigs.release.storePassword keystoreProperties['storePassword']
+        android.signingConfigs.release.keyAlias keystoreProperties['keyAlias']
+        android.signingConfigs.release.keyPassword keystoreProperties['keyPassword']
+    } else {
+        println 'some entries in \'release keystore.properties\' not found!'
+    }
+} else {
+    println '\'release keystore.properties\' not found!'
+}
