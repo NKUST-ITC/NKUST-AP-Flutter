@@ -76,7 +76,7 @@ class CoursePageState extends State<CoursePage> {
   }
 
   Future<bool> _loadCourseData(String value) async {
-    courseData = await CacheUtils.loadCourseData(value);
+    courseData = CourseData.load(selectSemester.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
@@ -104,7 +104,7 @@ class CoursePageState extends State<CoursePage> {
               } else {
                 courseData = data;
                 isOffline = false;
-                CacheUtils.saveCourseData(selectSemester.code, courseData);
+                courseData.save(selectSemester.cacheSaveTag);
                 state = CourseState.finish;
               }
             });

@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:nkust_ap/api/helper.dart';
+
 class SemesterData {
   List<Semester> data;
   Semester defaultSemester;
@@ -45,6 +47,8 @@ class Semester {
   String text;
 
   String get code => '$year$value';
+
+  String get cacheSaveTag => '${Helper.username}_$code';
 
   Semester({
     this.year,

@@ -324,7 +324,7 @@ class SettingPageState extends State<SettingPage> {
       SemesterData semesterData = await CacheUtils.loadSemesterData();
       if (semesterData != null) {
         CourseData courseData =
-            await CacheUtils.loadCourseData(semesterData.defaultSemester.value);
+            CourseData.load(semesterData.defaultSemester.cacheSaveTag);
         if (courseData != null)
           _setCourseData(courseData);
         else {

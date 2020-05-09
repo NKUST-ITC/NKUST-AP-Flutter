@@ -1,4 +1,5 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -12,7 +13,6 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 
@@ -83,6 +83,10 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           this.semesterData = data;
           CacheUtils.saveSemesterData(semesterData);
+          Preferences.setString(
+            ApConstants.CURRENT_SEMESTER_CODE,
+            '${Helper.username}_${semesterData.defaultSemester.code}',
+          );
           if (mounted) {
             widget.onSelect(
                 semesterData.defaultSemester, semesterData.defaultIndex);
