@@ -46,8 +46,10 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   void initState() {
-    //TODO FirebaseAnalyticsUtils.instance
-    //FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      "RewardAndPenaltyPage",
+      "reward_and_penalty_page.dart",
+    );
     super.initState();
   }
 
@@ -232,7 +234,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getRewardAndPenalty', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getRewardAndPenalty', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {

@@ -107,10 +107,10 @@ class HomePageState extends State<HomePage> {
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
-//              logEvent: (name, value) =>
-//                  FirebaseAnalyticsUtils.instance.logAction(name, value),
-//              setCurrentScreen: () => FirebaseAnalyticsUtils.instance
-//                  .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
+      logEvent: (name, value) =>
+          FirebaseAnalyticsUtils.instance.logAction(name, value),
+      setCurrentScreen: () => FirebaseAnalyticsUtils.instance
+          .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
       actions: <Widget>[
         IconButton(
           icon: Icon(ApIcon.codeIcon),
@@ -118,14 +118,13 @@ class HomePageState extends State<HomePage> {
             Navigator.of(context).push(
               CupertinoPageRoute(
                 builder: (_) => OpenSourcePage(
-//                          setCurrentScreen: () =>
-//                              FirebaseAnalyticsUtils.instance.setCurrentScreen(
-//                                  "OpenSourcePage", "open_source_page.dart"),
-                    ),
+                  setCurrentScreen: () => FirebaseAnalyticsUtils.instance
+                      .setCurrentScreen(
+                          "OpenSourcePage", "open_source_page.dart"),
+                ),
               ),
             );
-//                    FirebaseAnalyticsUtils.instance
-//                        .logAction('open_source', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('open_source', 'click');
           },
         )
       ],
@@ -134,7 +133,8 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen("HomePage", "home_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("HomePage", "home_page.dart");
     _getAnnouncements();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
       _login();
@@ -327,9 +327,6 @@ class HomePageState extends State<HomePage> {
               title: Text(ap.logout, style: _defaultStyle),
             ),
         ],
-//        onClickLogout: () {
-//          checkLogin();
-//        },
       ),
       onImageTapped: (Announcement announcement) {
         ApUtils.pushCupertinoStyle(
@@ -339,11 +336,11 @@ class HomePageState extends State<HomePage> {
         String message = announcement.description.length > 12
             ? announcement.description
             : announcement.description.substring(0, 12);
-//        FirebaseAnalyticsUtils.instance.logAction(
-//          'news_image',
-//          'click',
-//          message: message,
-//        );
+        FirebaseAnalyticsUtils.instance.logAction(
+          'news_image',
+          'click',
+          message: message,
+        );
       },
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
@@ -443,7 +440,8 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              FirebaseAnalyticsUtils.instance.logApiEvent('getBusReservations', e.response.statusCode,
+              FirebaseAnalyticsUtils.instance.logApiEvent(
+                  'getBusReservations', e.response.statusCode,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -465,8 +463,10 @@ class HomePageState extends State<HomePage> {
               setState(() {
                 this.userInfo = data;
               });
-              FirebaseAnalyticsUtils.instance.setUserProperty('department', userInfo.department);
-              FirebaseAnalyticsUtils.instance.setUserProperty('student_id', userInfo.id);
+              FirebaseAnalyticsUtils.instance
+                  .setUserProperty('department', userInfo.department);
+              FirebaseAnalyticsUtils.instance
+                  .setUserProperty('student_id', userInfo.id);
               FirebaseAnalyticsUtils.instance.setUserId(userInfo.id);
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo.department);
               CacheUtils.saveUserInfo(userInfo);
@@ -476,7 +476,8 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              FirebaseAnalyticsUtils.instance.logApiEvent('getUserInfo', e.response.statusCode,
+              FirebaseAnalyticsUtils.instance.logApiEvent(
+                  'getUserInfo', e.response.statusCode,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -672,6 +673,7 @@ class HomePageState extends State<HomePage> {
               ApUtils.showToast(context, response.message);
               break;
           }
+          FirebaseAnalyticsUtils.instance.logEvent('event_send_error');
         },
         onNeedPick: (EventInfoResponse eventInfoResponse) {
           _showEventInfoDialog(data, eventInfoResponse);
@@ -696,6 +698,7 @@ class HomePageState extends State<HomePage> {
               actionText: ap.ok,
             ),
           );
+          FirebaseAnalyticsUtils.instance.logEvent('event_send_success');
         },
       ),
     );

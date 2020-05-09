@@ -14,6 +14,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error, empty }
 enum _Type { campus, department, teacher }
@@ -37,6 +38,10 @@ class _PickTutorPageState extends State<PickTutorPage> {
   @override
   void initState() {
     getTeacherData();
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      "PickTutorPage",
+      "pick_tutor_page.dart",
+    );
     super.initState();
   }
 

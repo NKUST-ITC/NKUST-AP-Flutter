@@ -55,7 +55,10 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   @override
   void initState() {
     super.initState();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen("CalculateUnitsPage", "calculate_units_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      "CalculateUnitsPage",
+      "calculate_units_page.dart",
+    );
     _getSemester();
   }
 

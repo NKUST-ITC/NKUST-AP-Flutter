@@ -46,8 +46,10 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   void initState() {
-    //TODO FirebaseAnalyticsUtils.instance
-    //FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      "MidtermAlertsPage",
+      "midterm_alerts_page.dart",
+    );
     super.initState();
   }
 
@@ -226,7 +228,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getMidtermAlert', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getMidtermAlert', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {
