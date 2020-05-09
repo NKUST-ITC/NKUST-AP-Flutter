@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
-import 'package:nkust_ap/pages/nes/news_admin_page.dart';
+import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/firebase_analytics_utils.dart';

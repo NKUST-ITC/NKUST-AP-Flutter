@@ -28,7 +28,7 @@ import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/pages/nes/news_admin_page.dart';
+import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
