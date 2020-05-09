@@ -16,7 +16,7 @@ class UserInfoPage extends StatefulWidget {
 class UserInfoPageState extends State<UserInfoPage> {
   @override
   void initState() {
-    FA.setCurrentScreen("UserInfoPage", "user_info_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("UserInfoPage", "user_info_page.dart");
     super.initState();
   }
 

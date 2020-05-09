@@ -59,7 +59,8 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
     _getBusTimeTables();
     super.initState();
   }
@@ -103,7 +104,8 @@ class BusReservePageState extends State<BusReservePage>
                             onDateSelected: (DateTime datetime) {
                               dateTime = datetime;
                               _getBusTimeTables();
-                              FA.logAction('date_select', 'click');
+                              FirebaseAnalyticsUtils.instance
+                                  .logAction('date_select', 'click');
                             },
                             initialCalendarDateOverride: dateTime,
                             dayChildAspectRatio:
@@ -149,7 +151,8 @@ class BusReservePageState extends State<BusReservePage>
                             selectStartStation = text;
                           });
                         }
-                        FA.logAction('segment', 'click');
+                        FirebaseAnalyticsUtils.instance
+                            .logAction('segment', 'click');
                       },
                     ),
                   ),
@@ -200,7 +203,7 @@ class BusReservePageState extends State<BusReservePage>
         return FlatButton(
           onPressed: () {
             _getBusTimeTables();
-            FA.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -216,7 +219,7 @@ class BusReservePageState extends State<BusReservePage>
         return RefreshIndicator(
           onRefresh: () async {
             await _getBusTimeTables();
-            FA.logAction('refresh', 'swipe');
+            FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
             return null;
           },
           child: ListView(
@@ -310,11 +313,13 @@ class BusReservePageState extends State<BusReservePage>
                             rightActionText: ap.determine,
                             rightActionFunction: () {
                               cancelBusReservation(busTime);
-                              FA.logAction('cancel_bus', 'click');
+                              FirebaseAnalyticsUtils.instance
+                                  .logAction('cancel_bus', 'click');
                             },
                           ),
                         );
-                        FA.logAction('cancel_bus', 'create');
+                        FirebaseAnalyticsUtils.instance
+                            .logAction('cancel_bus', 'create');
                       }
                     : null,
             child: Row(
@@ -413,7 +418,8 @@ class BusReservePageState extends State<BusReservePage>
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FA.logApiEvent('getBusTimeTables', e.response.statusCode,
+                    FirebaseAnalyticsUtils.instance.logApiEvent(
+                        'getBusTimeTables', e.response.statusCode,
                         message: e.message);
                   }
                 });
@@ -462,7 +468,8 @@ class BusReservePageState extends State<BusReservePage>
       callback: GeneralCallback(
         onSuccess: (BookingBusData data) {
           _getBusTimeTables();
-          FA.logAction('book_bus', 'status', message: 'success');
+          FirebaseAnalyticsUtils.instance
+              .logAction('book_bus', 'status', message: 'success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,
@@ -530,7 +537,8 @@ class BusReservePageState extends State<BusReservePage>
       callback: GeneralCallback(
         onSuccess: (CancelBusData data) {
           _getBusTimeTables();
-          FA.logAction('cancel_bus', 'status', message: 'success');
+          FirebaseAnalyticsUtils.instance
+              .logAction('cancel_bus', 'status', message: 'success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,
@@ -606,7 +614,7 @@ class BusReservePageState extends State<BusReservePage>
       case DioErrorType.RESPONSE:
         final errorResponse = ErrorResponse.fromJson(e.response.data);
         message = errorResponse.description;
-        FA.logAction(tag, 'status',
+        FirebaseAnalyticsUtils.instance.logAction(tag, 'status',
             message: 'fail_${errorResponse.description}');
         break;
       case DioErrorType.DEFAULT:

@@ -34,7 +34,7 @@ class CoursePageState extends State<CoursePage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen('CoursePage', 'course_page.dart');
+    FirebaseAnalyticsUtils.instance.setCurrentScreen('CoursePage', 'course_page.dart');
     super.initState();
   }
 
@@ -66,7 +66,7 @@ class CoursePageState extends State<CoursePage> {
       ),
       onRefresh: () async {
         await _getCourseTables();
-        FA.logAction('refresh', 'swipe');
+        FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
         return null;
       },
       onSearchButtonClick: () {
@@ -117,7 +117,7 @@ class CoursePageState extends State<CoursePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            FA.logApiEvent('getCourseTables', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getCourseTables', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {

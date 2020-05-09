@@ -45,7 +45,7 @@ class PhonePageState extends State<PhonePage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("PhonePage", "phone_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("PhonePage", "phone_page.dart");
     _getPhones();
     super.initState();
   }
@@ -125,12 +125,12 @@ class PhonePageState extends State<PhonePage>
         ),
       ),
       onPressed: () {
-        FA.logAction('call_phone', 'click');
+        FirebaseAnalyticsUtils.instance.logAction('call_phone', 'click');
         try {
           ApUtils.callPhone(phone.number);
-          FA.logAction('call_phone', 'status', message: 'succes');
+          FirebaseAnalyticsUtils.instance.logAction('call_phone', 'status', message: 'succes');
         } catch (e) {
-          FA.logAction('call_phone', 'status', message: 'error');
+          FirebaseAnalyticsUtils.instance.logAction('call_phone', 'status', message: 'error');
         }
       },
     );

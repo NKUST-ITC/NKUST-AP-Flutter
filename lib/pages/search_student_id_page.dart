@@ -7,7 +7,7 @@ import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/utils/nkust_helper.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -30,7 +30,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   @override
   void initState() {
     super.initState();
-    FA.setCurrentScreen(
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
         "SearchUsernamePagePage", "search_student_id_page.dart");
   }
 
@@ -67,7 +67,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ApButton(
           text: ap.search,
           onPressed: () {
-            FA.logAction('search_username', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('search_username', 'click');
             _search();
           },
         )

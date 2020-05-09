@@ -90,7 +90,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("LeaveApplyPage", "leave_apply_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("LeaveApplyPage", "leave_apply_page.dart");
     _getLeavesInfo();
     super.initState();
   }
@@ -176,7 +177,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                         ),
                       ),
                     );
-                    FA.logAction('leave_type', 'click');
+                    FirebaseAnalyticsUtils.instance
+                        .logAction('leave_type', 'click');
                   },
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 24,
@@ -404,7 +406,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     ImagePicker.pickImage(source: ImageSource.gallery).then(
                       (image) async {
                         if (image != null) {
-                          FA.logLeavesImageSize(image);
+                          FirebaseAnalyticsUtils.instance
+                              .logLeavesImageSize(image);
                           print(
                               'resize before: ${(image.lengthSync() / 1024 / 1024)}');
                           if ((image.lengthSync() / 1024 / 1024) >=
@@ -503,7 +506,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     padding: EdgeInsets.all(14.0),
                     onPressed: () {
                       _leaveSubmit();
-                      FA.logAction('leave_submit', 'click');
+                      FirebaseAnalyticsUtils.instance
+                          .logAction('leave_submit', 'click');
                     },
                     color: ApTheme.of(context).blueAccent,
                     child: Text(
@@ -544,7 +548,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FA.logApiEvent('getLeaveSubmitInfo', e.response.statusCode,
+                    FirebaseAnalyticsUtils.instance.logApiEvent(
+                        'getLeaveSubmitInfo', e.response.statusCode,
                         message: e.message);
                   }
                 });
@@ -782,7 +787,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   Future resizeImage(File image) async {
     File result = await Utils.resizeImageByNative(image);
     print('resize after: ${(result.lengthSync() / 1024 / 1024)}');
-    FA.logLeavesImageCompressSize(image, result);
+    FirebaseAnalyticsUtils.instance.logLeavesImageCompressSize(image, result);
     if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
       ApUtils.showToast(
         context,
@@ -799,7 +804,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       });
     } else {
       ApUtils.showToast(context, ap.imageTooBigHint);
-      FA.logEvent('leave_pick_fail');
+      FirebaseAnalyticsUtils.instance.logEvent('leave_pick_fail');
     }
   }
 }

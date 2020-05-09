@@ -50,7 +50,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("BusReservationsPage", "bus_reservations_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("BusReservationsPage", "bus_reservations_page.dart");
     _getBusReservations();
     super.initState();
   }
@@ -114,7 +114,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return FlatButton(
           onPressed: () {
             _getBusReservations();
-            FA.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -130,7 +130,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return RefreshIndicator(
           onRefresh: () async {
             _getBusReservations();
-            FA.logAction('refresh', 'swipe');
+            FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
             return null;
           },
           child: ListView.builder(
@@ -206,11 +206,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                 rightActionText: ap.determine,
                                 rightActionFunction: () {
                                   cancelBusReservation(busReservation);
-                                  FA.logAction('cancel_bus', 'click');
+                                  FirebaseAnalyticsUtils.instance.logAction('cancel_bus', 'click');
                                 },
                               ),
                             );
-                            FA.logAction('cancel_bus', 'create');
+                            FirebaseAnalyticsUtils.instance.logAction('cancel_bus', 'create');
                           },
                   ),
                 )
@@ -275,7 +275,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FA.logApiEvent('getBusReservations', e.response.statusCode,
+                    FirebaseAnalyticsUtils.instance.logApiEvent('getBusReservations', e.response.statusCode,
                         message: e.message);
                   }
                 });
@@ -327,7 +327,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       callback: GeneralCallback(
         onSuccess: (data) {
           _getBusReservations();
-          FA.logAction('cancel_bus', 'status', message: 'success');
+          FirebaseAnalyticsUtils.instance.logAction('cancel_bus', 'status', message: 'success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,

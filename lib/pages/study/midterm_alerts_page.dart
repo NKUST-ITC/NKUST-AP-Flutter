@@ -10,8 +10,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -47,8 +46,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   void initState() {
-    //TODO FA
-    //FA.setCurrentScreen('ScorePage', 'score_page.dart');
+    //TODO FirebaseAnalyticsUtils.instance
+    //FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
 
@@ -96,7 +95,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getMidtermAlertsData();
-                  FA.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
                   return null;
                 },
                 child: _body(),
@@ -151,7 +150,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
               key.currentState.pickSemester();
             else
               _getMidtermAlertsData();
-            FA.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
           child: HintContent(
             icon: stateIcon,
@@ -227,7 +226,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FA.logApiEvent('getMidtermAlert', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getMidtermAlert', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {

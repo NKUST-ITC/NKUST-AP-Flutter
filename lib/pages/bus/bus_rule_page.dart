@@ -18,7 +18,8 @@ class BusRulePageState extends State<BusRulePage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("BusRulePage", "bus_rule_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("BusRulePage", "bus_rule_page.dart");
     super.initState();
   }
 

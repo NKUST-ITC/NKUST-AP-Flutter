@@ -44,7 +44,8 @@ class SettingPageState extends State<SettingPage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("SettingPage", "setting_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("SettingPage", "setting_page.dart");
     _getPreference();
     Utils.showAppReviewDialog(context);
     super.initState();
@@ -88,7 +89,8 @@ class SettingPageState extends State<SettingPage> {
               subText: ap.courseNotifySubTitle,
               value: courseNotify,
               onChanged: (b) async {
-                FA.logAction('notify_course', 'create');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('notify_course', 'create');
                 setState(() {
                   courseNotify = !courseNotify;
                 });
@@ -97,7 +99,8 @@ class SettingPageState extends State<SettingPage> {
                 else {
                   await Utils.cancelCourseNotify();
                 }
-                FA.logAction('notify_course', 'create',
+                FirebaseAnalyticsUtils.instance.logAction(
+                    'notify_course', 'create',
                     message: '$courseNotify');
                 Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
               },
@@ -107,7 +110,8 @@ class SettingPageState extends State<SettingPage> {
               subText: ap.busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
-                FA.logAction('notify_bus', 'create');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('notify_bus', 'create');
                 setState(() {
                   busNotify = !busNotify;
                 });
@@ -117,7 +121,8 @@ class SettingPageState extends State<SettingPage> {
                   await Utils.cancelBusNotify();
                 }
                 Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-                FA.logAction('notify_bus', 'click', message: '$busNotify');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('notify_bus', 'click', message: '$busNotify');
               },
             ),
             Divider(
@@ -135,7 +140,8 @@ class SettingPageState extends State<SettingPage> {
                 });
                 Preferences.setBool(
                     Constants.PREF_DISPLAY_PICTURE, displayPicture);
-                FA.logAction('head_photo', 'click');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('head_photo', 'click');
               },
             ),
             SettingSwitch(
@@ -148,7 +154,8 @@ class SettingPageState extends State<SettingPage> {
                 });
                 Preferences.setBool(
                     Constants.PREF_AUTO_SEND_EVENT, autoSendEvent);
-                FA.logAction('auto_send_event', 'click');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('auto_send_event', 'click');
               },
             ),
             SettingItem(
@@ -213,7 +220,8 @@ class SettingPageState extends State<SettingPage> {
                               check: ApIcon.code == item.value,
                               onPressed: () {
                                 if (ApIcon.code != item.value)
-                                  FA.logAction('change_icon_style', item.value);
+                                  FirebaseAnalyticsUtils.instance.logAction(
+                                      'change_icon_style', item.value);
                                 setState(() {
                                   ApIcon.code = item.value;
                                 });
@@ -223,7 +231,8 @@ class SettingPageState extends State<SettingPage> {
                               }),
                       ]),
                 ).then<void>((int position) {});
-                FA.logAction('pick_icon_style', 'click');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('pick_icon_style', 'click');
               },
             ),
             SettingItem(
@@ -265,13 +274,15 @@ class SettingPageState extends State<SettingPage> {
                 subText: ap.feedbackViaFacebook,
                 onTap: () {
                   ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
-                  FA.logAction('feedback', 'click');
+                  FirebaseAnalyticsUtils.instance
+                      .logAction('feedback', 'click');
                 }),
             SettingItem(
                 text: ap.appVersion,
                 subText: "v$appVersion",
                 onTap: () {
-                  FA.logAction('app_version', 'click');
+                  FirebaseAnalyticsUtils.instance
+                      .logAction('app_version', 'click');
                 }),
           ],
         ),
@@ -302,7 +313,8 @@ class SettingPageState extends State<SettingPage> {
         Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
         ApUtils.handleDioError(context, e);
         if (e.hasResponse)
-          FA.logApiEvent('getCourseTables', e.response.statusCode,
+          FirebaseAnalyticsUtils.instance.logApiEvent(
+              'getCourseTables', e.response.statusCode,
               message: e.message);
       };
 
@@ -421,7 +433,8 @@ class SettingPageState extends State<SettingPage> {
               ApUtils.showToast(context, ap.campusNotSupport);
             else {
               ApUtils.showToast(context, e.message);
-              FA.logApiEvent('getBusReservations', e.response.statusCode,
+              FirebaseAnalyticsUtils.instance.logApiEvent(
+                  'getBusReservations', e.response.statusCode,
                   message: e.message);
             }
           } else if (e.type == DioErrorType.DEFAULT) {

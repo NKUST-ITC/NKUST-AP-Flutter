@@ -40,7 +40,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("LoginPage", "login_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("LoginPage", "login_page.dart");
     _getPreference();
     KeyboardVisibilityNotification().addNewListener(
       onShow: () {
@@ -104,7 +104,7 @@ class LoginPageState extends State<LoginPage> {
         ApButton(
           text: ap.login,
           onPressed: () {
-            FA.logAction('login', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('login', 'click');
             _login();
           },
         ),

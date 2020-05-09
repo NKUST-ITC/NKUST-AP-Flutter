@@ -34,7 +34,7 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen('ScorePage', 'score_page.dart');
+    FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
 
@@ -66,7 +66,7 @@ class ScorePageState extends State<ScorePage> {
       ),
       onRefresh: () async {
         await _getSemesterScore();
-        FA.logAction('refresh', 'swipe');
+        FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
         return null;
       },
       onSearchButtonClick: () {
@@ -107,7 +107,7 @@ class ScorePageState extends State<ScorePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            FA.logApiEvent('getSemesterScore', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getSemesterScore', e.response.statusCode,
                 message: e.message);
         }, onError: (GeneralResponse generalResponse) async {
           if (await _loadOfflineScoreData())

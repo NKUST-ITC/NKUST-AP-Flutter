@@ -59,7 +59,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   @override
   void initState() {
-    FA.setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
+    FirebaseAnalyticsUtils.instance.setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
     super.initState();
   }
 
@@ -109,7 +109,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getSemesterLeaveRecord();
-                  FA.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
                   return null;
                 },
                 child: OrientationBuilder(
@@ -157,7 +157,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               key.currentState.pickSemester();
             else
               _getSemesterLeaveRecord();
-            FA.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -322,7 +322,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FA.logApiEvent('getSemesterLeaveRecord', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getSemesterLeaveRecord', e.response.statusCode,
                 message: e.message);
           _loadOfflineLeaveData();
         },

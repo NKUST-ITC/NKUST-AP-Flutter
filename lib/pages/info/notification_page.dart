@@ -5,6 +5,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -45,7 +46,8 @@ class NotificationPageState extends State<NotificationPage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("NotificationPage", "notification_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("NotificationPage", "notification_page.dart");
     controller = ScrollController()..addListener(_scrollListener);
     _getNotifications();
     super.initState();
@@ -61,14 +63,15 @@ class NotificationPageState extends State<NotificationPage>
     return GestureDetector(
       onLongPress: () {
         ApUtils.shareTo("${notification.info.title}\n${notification.link}");
-        FA.logAction('share', 'long_click',
+        FirebaseAnalyticsUtils.instance.logAction('share', 'long_click',
             message: '${notification.info.title}');
       },
       child: FlatButton(
         padding: EdgeInsets.all(0.0),
         onPressed: () {
           ApUtils.launchUrl(notification.link);
-          FA.logAction('notification_link"', 'click',
+          FirebaseAnalyticsUtils.instance.logAction(
+              'notification_link"', 'click',
               message: '${notification.info.title}');
         },
         child: Container(
@@ -131,7 +134,7 @@ class NotificationPageState extends State<NotificationPage>
         return FlatButton(
           onPressed: () {
             _getNotifications();
-            FA.logAction('rerty', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('rerty', 'click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -151,7 +154,7 @@ class NotificationPageState extends State<NotificationPage>
             });
             notificationList.clear();
             await _getNotifications();
-            FA.logAction('refresh', 'swipe');
+            FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
             return null;
           },
           child: ListView.builder(

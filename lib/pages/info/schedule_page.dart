@@ -52,7 +52,7 @@ class SchedulePageState extends State<SchedulePage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("SchedulePage", "schedule_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("SchedulePage", "schedule_page.dart");
     _getSchedules();
     super.initState();
   }
@@ -167,7 +167,7 @@ class SchedulePageState extends State<SchedulePage>
             return FlatButton(
               padding: EdgeInsets.all(0.0),
               onPressed: () {
-                FA.logAction('add_schedule', 'create');
+                FirebaseAnalyticsUtils.instance.logAction('add_schedule', 'create');
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
@@ -192,7 +192,7 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionFunction: () {
                       if (schedule.events != null || schedule.events.length > 0)
                         _addToCalendar(schedule.events[index]);
-                      FA.logAction('add_schedule', 'click');
+                      FirebaseAnalyticsUtils.instance.logAction('add_schedule', 'click');
                     },
                   ),
                 );

@@ -134,7 +134,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FA.setCurrentScreen("HomePage", "home_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("HomePage", "home_page.dart");
     _getAnnouncements();
     if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
       _login();
@@ -443,7 +443,7 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              FA.logApiEvent('getBusReservations', e.response.statusCode,
+              FirebaseAnalyticsUtils.instance.logApiEvent('getBusReservations', e.response.statusCode,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -465,10 +465,10 @@ class HomePageState extends State<HomePage> {
               setState(() {
                 this.userInfo = data;
               });
-              FA.setUserProperty('department', userInfo.department);
-              FA.setUserProperty('student_id', userInfo.id);
-              FA.setUserId(userInfo.id);
-              FA.logUserInfo(userInfo.department);
+              FirebaseAnalyticsUtils.instance.setUserProperty('department', userInfo.department);
+              FirebaseAnalyticsUtils.instance.setUserProperty('student_id', userInfo.id);
+              FirebaseAnalyticsUtils.instance.setUserId(userInfo.id);
+              FirebaseAnalyticsUtils.instance.logUserInfo(userInfo.department);
               CacheUtils.saveUserInfo(userInfo);
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
@@ -476,7 +476,7 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              FA.logApiEvent('getUserInfo', e.response.statusCode,
+              FirebaseAnalyticsUtils.instance.logApiEvent('getUserInfo', e.response.statusCode,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -509,12 +509,12 @@ class HomePageState extends State<HomePage> {
   }
 
   void _showInformationDialog() {
-    FA.logAction('news_rule', 'click');
+    FirebaseAnalyticsUtils.instance.logAction('news_rule', 'click');
     DialogUtils.showAnnouncementRule(
       context: context,
       onRightButtonClick: () {
         ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
-        FA.logAction('contact_fans_page', 'click');
+        FirebaseAnalyticsUtils.instance.logAction('contact_fans_page', 'click');
       },
     );
   }

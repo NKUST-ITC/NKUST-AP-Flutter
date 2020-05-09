@@ -6,13 +6,13 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 
@@ -40,7 +40,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     return FlatButton(
       onPressed: () {
         if (semesterData != null) pickSemester();
-        FA.logAction('pick_yms', 'click');
+        FirebaseAnalyticsUtils.instance.logAction('pick_yms', 'click');
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -98,7 +98,7 @@ class SemesterPickerState extends State<SemesterPicker> {
         onFailure: (DioError e) {
           ApUtils.handleDioError(context, e);
           if (e.hasResponse)
-            FA.logApiEvent('getSemester', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getSemester', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {

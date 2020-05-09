@@ -55,7 +55,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   @override
   void initState() {
     super.initState();
-    FA.setCurrentScreen("CalculateUnitsPage", "calculate_units_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("CalculateUnitsPage", "calculate_units_page.dart");
     _getSemester();
   }
 
@@ -147,7 +147,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               flex: 19,
               child: RefreshIndicator(
                 onRefresh: () async {
-                  FA.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
                   _calculate();
                   return null;
                 },
@@ -365,7 +365,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             var second =
                 (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
                     1000;
-            FA.logCalculateUnits(second);
+            FirebaseAnalyticsUtils.instance.logCalculateUnits(second);
             unitsTotal =
                 requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
             if (mounted) {

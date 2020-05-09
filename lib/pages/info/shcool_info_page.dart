@@ -27,7 +27,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   void initState() {
-    FA.setCurrentScreen("SchoolInfoPage", "school_info_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen("SchoolInfoPage", "school_info_page.dart");
     controller = TabController(length: 3, vsync: this);
     super.initState();
   }

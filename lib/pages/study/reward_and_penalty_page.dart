@@ -10,8 +10,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/utils.dart';
+import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -47,8 +46,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   void initState() {
-    //TODO FA
-    //FA.setCurrentScreen('ScorePage', 'score_page.dart');
+    //TODO FirebaseAnalyticsUtils.instance
+    //FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
 
@@ -96,7 +95,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getMidtermAlertsData();
-                  FA.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
                   return null;
                 },
                 child: _body(),
@@ -150,7 +149,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
               key.currentState.pickSemester();
             else
               _getMidtermAlertsData();
-            FA.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,
@@ -233,7 +232,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FA.logApiEvent('getRewardAndPenalty', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent('getRewardAndPenalty', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {
