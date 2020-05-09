@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
@@ -295,13 +296,31 @@ class SettingPageState extends State<SettingPage> {
     });
   }
 
+  get _onFailure => (DioError e) {
+        Navigator.of(context, rootNavigator: true).pop();
+        setState(() => courseNotify = false);
+        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+        ApUtils.handleDioError(context, e);
+        if (e.hasResponse)
+          FA.logApiEvent('getCourseTables', e.response.statusCode,
+              message: e.message);
+      };
+
+  get _onError => (GeneralResponse response) {
+        Navigator.of(context, rootNavigator: true).pop();
+        setState(() => courseNotify = false);
+        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
+        ApUtils.showToast(context, response.getGeneralMessage(context));
+      };
+
   void _setupCourseNotify(BuildContext context) async {
     showDialog(
-        context: context,
-        builder: (BuildContext context) => ProgressDialog(ap.loading),
-        barrierDismissible: false);
+      context: context,
+      builder: (BuildContext context) => ProgressDialog(ap.loading),
+      barrierDismissible: false,
+    );
     if (isOffline) {
-      if (Navigator.canPop(context)) Navigator.pop(context, 'dialog');
+      Navigator.of(context, rootNavigator: true).pop();
       SemesterData semesterData = await CacheUtils.loadSemesterData();
       if (semesterData != null) {
         CourseData courseData =
@@ -324,69 +343,39 @@ class SettingPageState extends State<SettingPage> {
       }
       return;
     }
-    Helper.instance.getSemester().then((SemesterData semesterData) {
-      Helper.instance
-          .getCourseTables(semester:semesterData.defaultSemester)
-          .then((CourseData courseData) {
-        if (Navigator.canPop(context))
-          Navigator.of(context, rootNavigator: true).pop();
-        _setCourseData(courseData);
-      }).catchError((e) {
-        setState(() {
-          courseNotify = false;
-          Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-        });
-        if (e is DioError) {
-          switch (e.type) {
-            case DioErrorType.RESPONSE:
-              Utils.handleResponseError(context, 'getCourseTables', mounted, e);
-              break;
-            case DioErrorType.CANCEL:
-              break;
-            default:
-              Utils.handleDioError(context, e);
-              break;
-          }
-        } else {
-          throw e;
-        }
-      });
-    }).catchError((e) {
-      setState(() {
-        courseNotify = false;
-      });
-      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getSemester', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.getSemester(
+      callback: GeneralCallback(
+        onSuccess: (SemesterData data) {
+          Helper.instance.getCourseTables(
+            semester: data.defaultSemester,
+            callback: GeneralCallback(
+              onSuccess: (CourseData data) {
+                Navigator.of(context, rootNavigator: true).pop();
+                _setCourseData(data);
+              },
+              onFailure: _onFailure,
+              onError: _onError,
+            ),
+          );
+        },
+        onFailure: _onFailure,
+        onError: _onError,
+      ),
+    );
   }
 
   _setCourseData(CourseData courseData) async {
     try {
-      if (courseData == null) {
-        ApUtils.showToast(context, ap.courseNotifyEmpty);
-      } else {
+      if (courseData != null) {
         await Utils.setCourseNotify(context, courseData.courseTables);
         ApUtils.showToast(context, ap.courseNotifyHint);
-      }
+      } else
+        ApUtils.showToast(context, ap.courseNotifyEmpty);
+      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
     } on Exception catch (e) {
       ApUtils.showToast(context, ap.courseNotifyError);
-      setState(() {
-        courseNotify = false;
-        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-      });
+      setState(() => courseNotify = false);
+      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
       throw e;
     }
   }
@@ -399,55 +388,55 @@ class SettingPageState extends State<SettingPage> {
     );
     if (isOffline) {
       BusReservationsData response = await CacheUtils.loadBusReservationsData();
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
+      Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
-        setState(() {
-          busNotify = false;
-        });
+        setState(() => busNotify = false);
         ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
         ApUtils.showToast(context, ap.busNotifyHint);
       }
+      Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       return;
     }
-    Helper.instance
-        .getBusReservations()
-        .then((BusReservationsData response) async {
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
-      if (response != null) {
-        await Utils.setBusNotify(context, response.reservations);
-      }
-      ApUtils.showToast(context, ap.busNotifyHint);
-    }).catchError((e) {
-      setState(() {
-        busNotify = false;
-      });
-      Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-      if (Navigator.canPop(context))
-        Navigator.of(context, rootNavigator: true).pop();
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(
-                context, 'getBusReservations', mounted, e);
-            break;
-          case DioErrorType.DEFAULT:
-            if (e.message.contains("HttpException")) {
-              ApUtils.showToast(context, ap.busFailInfinity);
+    Helper.instance.getBusReservations(
+      callback: GeneralCallback(
+        onSuccess: (BusReservationsData data) async {
+          Navigator.of(context, rootNavigator: true).pop();
+          if (data != null) {
+            await Utils.setBusNotify(context, data.reservations);
+            ApUtils.showToast(context, ap.busNotifyHint);
+          } else
+            ApUtils.showToast(context, ap.busReservationEmpty);
+          Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+        },
+        onFailure: (DioError e) {
+          Navigator.of(context, rootNavigator: true).pop();
+          setState(() => busNotify = false);
+          Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+          if (e.hasResponse) {
+            if (e.response.statusCode == 401)
+              ApUtils.showToast(context, ap.userNotSupport);
+            else if (e.response.statusCode == 403)
+              ApUtils.showToast(context, ap.campusNotSupport);
+            else {
+              ApUtils.showToast(context, e.message);
+              FA.logApiEvent('getBusReservations', e.response.statusCode,
+                  message: e.message);
             }
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+          } else if (e.type == DioErrorType.DEFAULT) {
+            ApUtils.showToast(context, ap.busFailInfinity);
+          } else
+            ApUtils.handleDioError(context, e);
+        },
+        onError: (GeneralResponse response) {
+          Navigator.of(context, rootNavigator: true).pop();
+          setState(() => busNotify = false);
+          Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
+          ApUtils.showToast(context, response.getGeneralMessage(context));
+        },
+      ),
+    );
   }
 
   _showBottomSheet(BuildContext context) async {
