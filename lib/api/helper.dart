@@ -91,28 +91,6 @@ class Helper {
     cancelToken = CancelToken();
   }
 
-  handleDioError(DioError dioError) {
-    switch (dioError.type) {
-      case DioErrorType.DEFAULT:
-        return LoginResponse.fromJson(dioError.response.data);
-        break;
-      case DioErrorType.CANCEL:
-        throw (dioError);
-        break;
-      case DioErrorType.CONNECT_TIMEOUT:
-        throw (dioError);
-      case DioErrorType.SEND_TIMEOUT:
-        throw (dioError);
-        break;
-      case DioErrorType.RESPONSE:
-        throw (dioError);
-        break;
-      case DioErrorType.RECEIVE_TIMEOUT:
-        throw (dioError);
-        break;
-    }
-  }
-
   Future<bool> reLogin(GeneralCallback callback) async {
     var loginResponse = await login(
       username: username,
@@ -971,16 +949,6 @@ class Helper {
         callback?.onFailure(dioError);
     }
     return null;
-  }
-
-  @deprecated
-  _createBasicAuth(String username, String password) {
-    var text = username + ":" + password;
-    var encoded = utf8.encode(text);
-    return {
-      "Connection": "Keep-Alive",
-      "Authorization": "Basic " + base64.encode(encoded.toList(growable: false))
-    };
   }
 
   // v3 api Authorization
