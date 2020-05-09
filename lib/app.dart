@@ -7,6 +7,9 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -19,8 +22,6 @@ import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
-import 'package:nkust_ap/utils/utils.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 import 'api/helper.dart';
@@ -54,16 +55,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    if (kIsWeb) {
-    } else if (Platform.isAndroid || Platform.isIOS) {
-      analytics = FirebaseAnalytics();
-      firebaseMessaging = FirebaseMessaging();
-      _initFCM();
-      FA.analytics = analytics;
-      FA.setUserProperty('icon_style', ApIcon.code);
-    }
+    analytics = FirebaseUtils.init();
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
+    FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
+    FirebaseAnalyticsUtils.instance
+        .setUserProperty(FirebaseConstants.ICON_STYLE, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
@@ -77,7 +74,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     setState(() {});
-//    logThemeEvent();
+    FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
     super.didChangePlatformBrightness();
   }
 
@@ -128,13 +125,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,
           themeMode: themeMode,
-          navigatorObservers: (kIsWeb)
-              ? []
-              : (Platform.isIOS || Platform.isAndroid)
-                  ? [
-                      FirebaseAnalyticsObserver(analytics: analytics),
-                    ]
-                  : [],
+          navigatorObservers: !kIsWeb && (Platform.isAndroid || Platform.isIOS)
+              ? [
+                  FirebaseAnalyticsObserver(analytics: analytics),
+                ]
+              : [],
           localizationsDelegates: [
             const AppLocalizationsDelegate(),
             const ApLocalizationsDelegate(),
@@ -151,50 +146,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 
-  void _initFCM() {
-    firebaseMessaging.requestNotificationPermissions();
-    firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        if (Constants.isInDebugMode) print("onMessage: $message");
-        Utils.showFCMNotification(
-            message['notification']['title'] ?? '',
-            message['notification']['title'] ?? '',
-            message['notification']['body'] ?? '');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        if (Constants.isInDebugMode) print("onLaunch: $message");
-        //_navigateToItemDetail(message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        if (Constants.isInDebugMode) print("onResume: $message");
-      },
-    );
-    firebaseMessaging.requestNotificationPermissions(
-      const IosNotificationSettings(
-        sound: true,
-        badge: true,
-        alert: true,
-      ),
-    );
-    firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings) {
-      print("Settings registered: $settings");
-    });
-    firebaseMessaging.getToken().then((String token) {
-      if (token == null) return;
-      if (Constants.isInDebugMode) {
-        print("Push Messaging token: $token");
-      }
-      if (Platform.isAndroid)
-        firebaseMessaging.subscribeToTopic("Android");
-      else if (Platform.isIOS) firebaseMessaging.subscribeToTopic("IOS");
-    });
-  }
-
   void update(ThemeMode mode) {
     setState(() {
       themeMode = mode;
     });
+    FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
   }
 
   void loadLocale(Locale locale) {

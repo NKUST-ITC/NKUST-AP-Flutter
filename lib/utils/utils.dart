@@ -3,13 +3,11 @@ import 'dart:io';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:app_review/app_review.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +18,6 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:nkust_ap/utils/firebase_analytics_utils.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,23 +27,6 @@ class Utils {
   static void clearSetting() async {
     var prefs = await SharedPreferences.getInstance();
     prefs.setBool(Constants.PREF_AUTO_LOGIN, false);
-  }
-
-  static void showFCMNotification(
-      String title, String body, String payload) async {
-    //limit Android and iOS system
-    if (Platform.isAndroid || Platform.isIOS) {
-      await NotificationUtils.show(
-        id: Constants.NOTIFICATION_FCM_ID,
-        androidChannelId: '${Constants.NOTIFICATION_FCM_ID}',
-        androidChannelDescription: '系統通知',
-        androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
-        title: '系統通知',
-        content: payload,
-      );
-    } else {
-      //TODO implement other platform system local notification
-    }
   }
 
   static Future<void> setBusNotify(
