@@ -108,11 +108,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     );
   }
 
-  String get errorTitle {
+  String get stateHint {
     switch (state) {
-      case _State.loading:
-      case _State.finish:
-        return '';
       case _State.error:
         return ap.somethingError;
       case _State.empty:
@@ -121,8 +118,21 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         return ap.noOfflineData;
       case _State.custom:
         return customStateHint;
+      default:
+        return '';
     }
-    return '';
+  }
+
+  IconData get stateIcon {
+    switch (state) {
+      case _State.offline:
+        return ApIcon.offlineBolt;
+      case _State.error:
+      case _State.empty:
+      case _State.custom:
+      default:
+        return ApIcon.classIcon;
+    }
   }
 
   _body() {
@@ -134,6 +144,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       case _State.error:
       case _State.empty:
       case _State.offline:
+      case _State.custom:
         return FlatButton(
           onPressed: () {
             if (state == _State.empty)
@@ -143,11 +154,11 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             FA.logAction('retry', 'click');
           },
           child: HintContent(
-            icon: ApIcon.classIcon,
-            content: errorTitle,
+            icon: stateIcon,
+            content: stateHint,
           ),
         );
-      default:
+      case _State.finish:
         return ListView.builder(
           itemBuilder: (_, index) {
             return _midtermAlertsItem(midtermAlertData.courses[index]);

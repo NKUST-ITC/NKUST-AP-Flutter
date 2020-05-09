@@ -108,11 +108,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     );
   }
 
-  String get errorTitle {
+  String get stateHint {
     switch (state) {
-      case _State.loading:
-      case _State.finish:
-        return '';
       case _State.error:
         return ap.somethingError;
       case _State.empty:
@@ -121,8 +118,21 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         return ap.noOfflineData;
       case _State.custom:
         return customStateHint;
+      default:
+        return '';
     }
-    return '';
+  }
+
+  IconData get stateIcon {
+    switch (state) {
+      case _State.offline:
+        return ApIcon.offlineBolt;
+      case _State.error:
+      case _State.empty:
+      case _State.custom:
+      default:
+        return ApIcon.classIcon;
+    }
   }
 
   _body() {
@@ -144,10 +154,10 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content: errorTitle,
+            content: stateHint,
           ),
         );
-      default:
+      case _State.finish:
         return ListView.builder(
           itemBuilder: (_, index) {
             return _midtermAlertsItem(rewardAndPenaltyData.data[index]);
