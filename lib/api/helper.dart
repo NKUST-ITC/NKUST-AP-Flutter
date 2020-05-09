@@ -718,7 +718,8 @@ class Helper {
         "/news/school",
         queryParameters: {'page': page},
       );
-      return NotificationsData.fromJson(response.data);
+      var data = NotificationsData.fromJson(response.data);
+      return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError)
