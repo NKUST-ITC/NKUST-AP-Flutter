@@ -4,14 +4,6 @@ class ImageAssets {
   static const String kuasap1 = '$basePath/kuasap.webp';
   static const String kuasap2 = '$basePath/kuasap2.webp';
   static const String kuasap3 = '$basePath/kuasap3.webp';
-  static const String kuasITC = '$basePath/kuas_itc.webp';
-  static const String fb = '$basePath/ic_fb.webp';
-  static const String github = '$basePath/ic_github.webp';
-  static const String email = '$basePath/ic_email.webp';
-  static const String drawerBackgroundLight =
-      '$basePath/drawer-background.webp';
-  static const String drawerBackgroundDarkTheme =
-      '$basePath/drawer-background-dark-theme.webp';
   static const String drawerIconLight = '$basePath/drawer-icon.webp';
   static const String drawerIconDark = '$basePath/drawer-icon.webp';
   static const String K = '$basePath/K.webp';
