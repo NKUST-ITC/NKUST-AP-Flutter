@@ -1,6 +1,8 @@
+import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:dio/dio.dart';
@@ -76,34 +78,30 @@ class SemesterPickerState extends State<SemesterPicker> {
       _loadSemesterData();
       return;
     }
-    Helper.instance.getSemester().then((semesterData) {
-      this.semesterData = semesterData;
-      CacheUtils.saveSemesterData(semesterData);
-      if (mounted) {
-        widget.onSelect(
-            semesterData.defaultSemester, semesterData.defaultIndex);
-        setState(() {
-          selectSemester = semesterData.defaultSemester;
-        });
-      }
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getSemester', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            if (mounted) Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-      _loadSemesterData();
-      //widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
-    });
+    Helper.instance.getSemester(
+      callback: GeneralCallback(
+        onSuccess: (SemesterData data) {
+          this.semesterData = data;
+          CacheUtils.saveSemesterData(semesterData);
+          if (mounted) {
+            widget.onSelect(
+                semesterData.defaultSemester, semesterData.defaultIndex);
+            setState(() {
+              selectSemester = semesterData.defaultSemester;
+            });
+          }
+        },
+        onFailure: (DioError e) {
+          ApUtils.handleDioError(context, e);
+          if (e.hasResponse)
+            FA.logApiEvent('getSemester', e.response.statusCode,
+                message: e.message);
+        },
+        onError: (GeneralResponse response) {
+          ApUtils.showToast(context, response.getGeneralMessage(context));
+        },
+      ),
+    );
   }
 
   void pickSemester() {

@@ -36,7 +36,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   int currentSemesterIndex;
 
-  Semester selectSemester;
   SemesterData semesterData;
   List<Semester> semesterList;
 
@@ -284,6 +283,20 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
+  get _onFailure => (DioError e) {
+        setState(() {
+          state = _State.custom;
+          customStateHint = ApLocalizations.dioError(context, e);
+        });
+      };
+
+  get _onError => (GeneralResponse response) {
+        setState(() {
+          state = _State.custom;
+          customStateHint = response.getGeneralMessage(context);
+        });
+      };
+
   _getSemester() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
@@ -292,28 +305,15 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       });
       return;
     }
-    Helper.instance.getSemester().then((semesterData) {
-      this.semesterData = semesterData;
-      setState(() {
-        selectSemester = semesterData.defaultSemester;
-      });
-    }).catchError((e) {
-      if (e is DioError) {
-        switch (e.type) {
-          case DioErrorType.RESPONSE:
-            Utils.handleResponseError(context, 'getSemester', mounted, e);
-            break;
-          case DioErrorType.CANCEL:
-            break;
-          default:
-            state = _State.error;
-            Utils.handleDioError(context, e);
-            break;
-        }
-      } else {
-        throw e;
-      }
-    });
+    Helper.instance.getSemester(
+      callback: GeneralCallback(
+        onSuccess: (SemesterData data) {
+          this.semesterData = semesterData;
+        },
+        onFailure: _onFailure,
+        onError: _onError,
+      ),
+    );
   }
 
   _getSemesterScore() {
@@ -375,18 +375,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             }
           }
         },
-        onFailure: (DioError e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = ApLocalizations.dioError(context, e);
-          });
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
+        onFailure: _onFailure,
+        onError: _onError,
       ),
     );
   }
