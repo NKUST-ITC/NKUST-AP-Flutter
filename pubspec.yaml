@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.3.9+30309
+version: 3.3.10+30310
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -42,6 +42,8 @@ dependencies:
   image: ^2.1.4
   flutter_image_compress: 0.6.7
   barcode_scan: 3.0.0
+#  image_picker_web: 1.0.8
+
 
 dev_dependencies:
   flutter_test:
