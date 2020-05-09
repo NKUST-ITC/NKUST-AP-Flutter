@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/version_info.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
@@ -207,11 +209,8 @@ class Utils {
   }
 
   static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
-    await Future.delayed(
-      Duration(milliseconds: 50),
-    );
-    if (kIsWeb) return;
-    if (!(Platform.isAndroid || Platform.isIOS)) return;
+    await Future.delayed(Duration(milliseconds: 50));
+    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     var currentVersion =
@@ -225,49 +224,31 @@ class Utils {
           Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
     if (!Constants.isInDebugMode) {
-      final RemoteConfig remoteConfig = await RemoteConfig.instance;
       try {
-        await remoteConfig.fetch(
-          expiration: const Duration(seconds: 10),
-        );
+        final RemoteConfig remoteConfig = await RemoteConfig.instance;
+        await remoteConfig.fetch(expiration: const Duration(seconds: 10));
         await remoteConfig.activateFetched();
+        String apiHostLocal =
+            Preferences.getString(Constants.API_HOST, Helper.HOST);
+        String apiHostRemote = remoteConfig.getString(Constants.API_HOST);
+        await Preferences.setString(Constants.API_HOST, apiHostRemote);
+        if (apiHostLocal != apiHostRemote) {
+          Helper.resetInstance();
+          apiHostUpdate();
+        }
+        print(remoteConfig.getInt(ApConstants.APP_VERSION));
+        DialogUtils.showNewVersionContent(
+          context: context,
+          appName: app.appName,
+          iOSAppId: '1439751462',
+          defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+          versionInfo: VersionInfo(
+            code: remoteConfig.getInt(ApConstants.APP_VERSION),
+            isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
+            content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
+          ),
+        );
       } on FetchThrottledException catch (exception) {} catch (exception) {}
-      String apiHostLocal =
-          Preferences.getString(Constants.API_HOST, Helper.HOST);
-      String apiHostRemote = remoteConfig.getString(Constants.API_HOST);
-      await Preferences.setString(Constants.API_HOST, apiHostRemote);
-      if (apiHostLocal != apiHostRemote) {
-        Helper.resetInstance();
-        apiHostUpdate();
-      }
-      int newVersion;
-      if (Platform.isAndroid) {
-        newVersion = remoteConfig.getInt(Constants.ANDROID_APP_VERSION);
-      } else if (Platform.isIOS) {
-        newVersion = remoteConfig.getInt(Constants.IOS_APP_VERSION);
-      } else {
-        newVersion = remoteConfig.getInt(Constants.APP_VERSION);
-      }
-      String versionContent =
-          "\nv${newVersion ~/ 10000}.${newVersion % 1000 ~/ 100}.${newVersion % 100}\n";
-      switch (AppLocalizations.locale.languageCode) {
-        case 'zh':
-          versionContent +=
-              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_ZH);
-          break;
-        default:
-          versionContent +=
-              remoteConfig.getString(Constants.NEW_VERSION_CONTENT_EN);
-          break;
-      }
-      DialogUtils.showNewVersionContent(
-        context: context,
-        newVersionCode: newVersion,
-        appName: app.appName,
-        iOSAppId: '1439751462',
-        defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-        newVersionContent: versionContent,
-      );
     }
   }
 

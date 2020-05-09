@@ -141,12 +141,10 @@ class HomePageState extends State<HomePage> {
     } else {
       checkLogin();
     }
-    Utils.checkRemoteConfig(context, () {
-      _getAnnouncements();
-      if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
-        _login();
-      }
-    });
+    Utils.checkRemoteConfig(
+      context,
+      () => initState(),
+    );
     super.initState();
   }
 
