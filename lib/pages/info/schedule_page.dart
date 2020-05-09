@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/scaffold/pdf_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/hint_content.dart';
@@ -18,7 +20,7 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty }
+enum _State { loading, finish, error, empty, pdf }
 
 class SchedulePage extends StatefulWidget {
   static const String routerName = "/info/schedule";
@@ -50,9 +52,12 @@ class SchedulePageState extends State<SchedulePage>
         fontSize: 16.0,
       );
 
+  Uint8List byteList;
+
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen("SchedulePage", "schedule_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("SchedulePage", "schedule_page.dart");
     _getSchedules();
     super.initState();
   }
@@ -83,6 +88,9 @@ class SchedulePageState extends State<SchedulePage>
             content: state == _State.error ? ap.clickToRetry : ap.busEmpty,
           ),
         );
+      case _State.pdf:
+        return PdfScaffold(byteList: byteList);
+      case _State.finish:
       default:
         return CustomScrollView(
           slivers: [
@@ -94,20 +102,17 @@ class SchedulePageState extends State<SchedulePage>
 
   _getSchedules() async {
     scheduleDataList = await CacheUtils.loadScheduleDataList();
-    setState(() {
-      if (scheduleDataList == null) {
-        scheduleDataList = [];
-        state = _State.loading;
-      } else
-        state = _State.finish;
-    });
     var data = '';
-    if (!kIsWeb) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
         final RemoteConfig remoteConfig = await RemoteConfig.instance;
-        await remoteConfig.fetch(expiration: const Duration(days: 7));
+        await remoteConfig.fetch(expiration: const Duration(hours: 1));
         await remoteConfig.activateFetched();
-        data = remoteConfig.getString(Constants.SCHEDULE_DATA);
+        final pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
+        if (pdfUrl != null && pdfUrl.isNotEmpty) {
+          downloadFdf(pdfUrl);
+        } else
+          data = remoteConfig.getString(Constants.SCHEDULE_DATA);
       } on FetchThrottledException catch (_) {} catch (exception) {}
     }
     if (data == null || data.isEmpty) {
@@ -115,15 +120,6 @@ class SchedulePageState extends State<SchedulePage>
     }
     var jsonArray = jsonDecode(data);
     scheduleDataList = ScheduleData.toList(jsonArray);
-    if (mounted) {
-      setState(() {
-        if (scheduleDataList.length == 0)
-          state = _State.empty;
-        else
-          state = _State.finish;
-      });
-    }
-    CacheUtils.saveScheduleDataList(scheduleDataList);
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
@@ -167,7 +163,8 @@ class SchedulePageState extends State<SchedulePage>
             return FlatButton(
               padding: EdgeInsets.all(0.0),
               onPressed: () {
-                FirebaseAnalyticsUtils.instance.logAction('add_schedule', 'create');
+                FirebaseAnalyticsUtils.instance
+                    .logAction('add_schedule', 'create');
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
@@ -192,7 +189,8 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionFunction: () {
                       if (schedule.events != null || schedule.events.length > 0)
                         _addToCalendar(schedule.events[index]);
-                      FirebaseAnalyticsUtils.instance.logAction('add_schedule', 'click');
+                      FirebaseAnalyticsUtils.instance
+                          .logAction('add_schedule', 'click');
                     },
                   ),
                 );
@@ -252,6 +250,23 @@ class SchedulePageState extends State<SchedulePage>
     } catch (e) {
       ApUtils.showToast(context, ap.calendarAppNotFound);
       throw e;
+    }
+  }
+
+  void downloadFdf(String url) async {
+    try {
+      var response = await Dio().get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      setState(() {
+        state = _State.pdf;
+        byteList = response.data;
+      });
+    } catch (e) {
+      setState(() {
+        state = _State.finish;
+      });
     }
   }
 }

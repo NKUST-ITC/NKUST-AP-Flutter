@@ -49,6 +49,7 @@ class Constants {
   static const PREF_AUTO_SEND_EVENT = "pref_auto_send_event";
 
   static const SCHEDULE_DATA = "schedule_data";
+  static const SCHEDULE_PDF_URL = 'schedule_pdf_url';
   static const ANDROID_APP_VERSION = "android_app_version";
   static const IOS_APP_VERSION = "ios_app_version";
   static const APP_VERSION = "app_version";
@@ -70,7 +71,8 @@ class Constants {
   static const int NOTIFICATION_FCM_ID = 200;
 
   static const FANS_PAGE_ID = '954175941266264';
-  static const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
+  static const PLAY_STORE_URL =
+      'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
 
   static const DONATE_URL =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';
