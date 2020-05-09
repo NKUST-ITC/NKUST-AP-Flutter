@@ -47,7 +47,8 @@ class SettingPageState extends State<SettingPage> {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("SettingPage", "setting_page.dart");
     _getPreference();
-    Utils.showAppReviewDialog(context);
+    if (DateTime.now().millisecondsSinceEpoch % 10 == 0)
+      ApUtils.showAppReviewDialog(context, Constants.PLAY_STORE_URL);
     super.initState();
   }
 

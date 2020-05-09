@@ -108,42 +108,6 @@ class Utils {
         .cancel(Constants.NOTIFICATION_COURSE_ID);
   }
 
-  static void showAppReviewDialog(BuildContext context) async {
-    await Future.delayed(Duration(seconds: 1));
-    var date = DateTime.now();
-    if (date.millisecondsSinceEpoch % 5 != 0) return;
-    final app = ApLocalizations.of(context);
-    if (Platform.isAndroid || Platform.isIOS) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) => YesNoDialog(
-          title: app.ratingDialogTitle,
-          contentWidget: RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-                style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0),
-                children: [
-                  TextSpan(text: app.ratingDialogContent),
-                ]),
-          ),
-          leftActionText: app.later,
-          rightActionText: app.rateNow,
-          leftActionFunction: null,
-          rightActionFunction: () {
-            AppReview.requestReview.then((onValue) {
-              print(onValue);
-            });
-          },
-        ),
-      );
-    } else {
-      //TODO implement other platform system local notification
-    }
-  }
-
   static void showAppReviewSheet(BuildContext context) async {
     // await Future.delayed(Duration(seconds: 1));
     final app = ApLocalizations.of(context);

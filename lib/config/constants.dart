@@ -70,6 +70,7 @@ class Constants {
   static const int NOTIFICATION_FCM_ID = 200;
 
   static const FANS_PAGE_ID = '954175941266264';
+  static const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
 
   static const DONATE_URL =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';
