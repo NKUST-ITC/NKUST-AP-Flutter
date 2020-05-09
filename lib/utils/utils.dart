@@ -27,52 +27,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Utils {
-  static void handleDioError(BuildContext context, DioError dioError) {
-    switch (dioError.type) {
-      case DioErrorType.DEFAULT:
-        ApUtils.showToast(context, ApLocalizations.of(context).noInternet);
-        break;
-      case DioErrorType.CONNECT_TIMEOUT:
-      case DioErrorType.RECEIVE_TIMEOUT:
-      case DioErrorType.SEND_TIMEOUT:
-        ApUtils.showToast(context, ApLocalizations.of(context).timeoutMessage);
-        break;
-      case DioErrorType.RESPONSE:
-      case DioErrorType.CANCEL:
-        break;
-    }
-  }
-
-  static void handleResponseError(
-      BuildContext context, String type, bool mounted, DioError e) {
-    FA.logApiEvent(type, e.response.statusCode, message: e.message);
-    if (e.response.statusCode == 401) {
-      ApUtils.showToast(
-          context, ApLocalizations.of(context).tokenExpiredContent);
-    } else {
-      ApUtils.showToast(context, ApLocalizations.of(context).somethingError);
-    }
-  }
-
-  static void showSnackBarBar(
-    ScaffoldState scaffold,
-    String contentText,
-    String actionText,
-    Color actionTextColor,
-  ) {
-    scaffold.showSnackBar(
-      SnackBar(
-        content: Text(contentText),
-        duration: Duration(days: 1),
-        action: SnackBarAction(
-          label: actionText,
-          onPressed: () {},
-          textColor: actionTextColor,
-        ),
-      ),
-    );
-  }
-
   static void clearSetting() async {
     var prefs = await SharedPreferences.getInstance();
     prefs.setBool(Constants.PREF_AUTO_LOGIN, false);

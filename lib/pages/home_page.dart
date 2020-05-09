@@ -622,7 +622,7 @@ class HomePageState extends State<HomePage> {
     Helper.instance.getEventInfo(
       data: data,
       callback: GeneralCallback<EventInfoResponse>(
-        onFailure: (DioError e) => Utils.handleDioError(context, e),
+        onFailure: (DioError e) => ApUtils.handleDioError(context, e),
         onError: (GeneralResponse generalResponse) {
           switch (generalResponse.statusCode) {
             case 403:
@@ -662,7 +662,7 @@ class HomePageState extends State<HomePage> {
       data: data,
       busId: busId,
       callback: EventSendCallback<EventSendResponse>(
-        onFailure: (DioError e) => Utils.handleDioError(context, e),
+        onFailure: (DioError e) => ApUtils.handleDioError(context, e),
         onError: (GeneralResponse response) {
           switch (response.statusCode) {
             case 403:

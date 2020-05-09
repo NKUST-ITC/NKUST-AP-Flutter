@@ -256,7 +256,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
                             case DioErrorType.CANCEL:
                               break;
                             default:
-                              Utils.handleDioError(context, e);
+                              ApUtils.handleDioError(context, e);
                               break;
                           }
                         } else {
@@ -393,7 +393,7 @@ class _NewsAdminPageState extends State<NewsAdminPage> {
             case DioErrorType.CANCEL:
               break;
             default:
-              Utils.handleDioError(context, e);
+              ApUtils.handleDioError(context, e);
               break;
           }
         } else {
