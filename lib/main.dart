@@ -22,19 +22,15 @@ void main() async {
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   _setTargetPlatformForDesktop();
-  if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
+  if (isInDebugMode || kIsWeb || !(Platform.isIOS || Platform.isAndroid)) {
+    runApp(MyApp());
+  } else if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
     Crashlytics.instance.enableInDevMode = isInDebugMode;
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
     runZonedGuarded(() async {
-      runApp(
-        MyApp(),
-      );
+      runApp(MyApp());
     }, Crashlytics.instance.recordError);
-  } else {
-    runApp(
-      MyApp(),
-    );
   }
 }
 
