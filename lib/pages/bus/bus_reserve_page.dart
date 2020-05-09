@@ -196,6 +196,7 @@ class BusReservePageState extends State<BusReservePage>
       case _State.empty:
       case _State.campusNotSupport:
       case _State.userNotSupport:
+      case _State.custom:
         return FlatButton(
           onPressed: () {
             _getBusTimeTables();

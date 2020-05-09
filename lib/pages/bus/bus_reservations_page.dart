@@ -110,6 +110,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.empty:
       case _State.campusNotSupport:
       case _State.userNotSupport:
+      case _State.custom:
         return FlatButton(
           onPressed: () {
             _getBusReservations();
