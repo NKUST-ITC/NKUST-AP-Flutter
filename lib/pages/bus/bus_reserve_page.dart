@@ -411,9 +411,10 @@ class BusReservePageState extends State<BusReservePage>
                   else if (e.response.statusCode == 403)
                     state = _State.campusNotSupport;
                   else {
-                    state = _State.error;
-                    Utils.handleResponseError(
-                        context, 'getBusTimeTables', mounted, e);
+                    state = _State.custom;
+                    customStateHint = e.message;
+                    FA.logApiEvent('getBusTimeTables', e.response.statusCode,
+                        message: e.message);
                   }
                 });
                 break;

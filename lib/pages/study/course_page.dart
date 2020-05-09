@@ -117,7 +117,8 @@ class CoursePageState extends State<CoursePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            Utils.handleResponseError(context, 'getCourseTables', mounted, e);
+            FA.logApiEvent('getCourseTables', e.response.statusCode,
+                message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {
           if (await _loadCourseData(selectSemester.code))

@@ -227,7 +227,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            Utils.handleResponseError(context, 'getMidtermAlert', mounted, e);
+            FA.logApiEvent('getMidtermAlert', e.response.statusCode,
+                message: e.message);
         },
         onError: (GeneralResponse response) {
           setState(() {

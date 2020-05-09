@@ -542,9 +542,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   if (e.response.statusCode == 403)
                     state = _State.userNotSupport;
                   else {
-                    state = _State.error;
-                    Utils.handleResponseError(
-                        context, 'getLeaveSubmitInfo', mounted, e);
+                    state = _State.custom;
+                    customStateHint = e.message;
+                    FA.logApiEvent('getLeaveSubmitInfo', e.response.statusCode,
+                        message: e.message);
                   }
                 });
                 break;

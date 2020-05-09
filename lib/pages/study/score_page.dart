@@ -107,7 +107,8 @@ class ScorePageState extends State<ScorePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            Utils.handleResponseError(context, 'getSemesterScore', mounted, e);
+            FA.logApiEvent('getSemesterScore', e.response.statusCode,
+                message: e.message);
         }, onError: (GeneralResponse generalResponse) async {
           if (await _loadOfflineScoreData())
             setState(() {

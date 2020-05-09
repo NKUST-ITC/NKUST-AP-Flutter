@@ -233,8 +233,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            Utils.handleResponseError(
-                context, 'getRewardAndPenalty', mounted, e);
+            FA.logApiEvent('getRewardAndPenalty', e.response.statusCode,
+                message: e.message);
         },
         onError: (GeneralResponse response) {
           setState(() {

@@ -322,8 +322,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            Utils.handleResponseError(
-                context, 'getSemesterLeaveRecord', mounted, e);
+            FA.logApiEvent('getSemesterLeaveRecord', e.response.statusCode,
+                message: e.message);
           _loadOfflineLeaveData();
         },
         onError: (GeneralResponse response) {

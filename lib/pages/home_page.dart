@@ -443,8 +443,8 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              Utils.handleResponseError(
-                  context, 'getBusReservations', mounted, e);
+              FA.logApiEvent('getBusReservations', e.response.statusCode,
+                  message: e.message);
           },
           onError: (GeneralResponse e) => null,
         ),
@@ -476,7 +476,8 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioError e) {
             if (e.hasResponse)
-              Utils.handleResponseError(context, 'getUserInfo', mounted, e);
+              FA.logApiEvent('getUserInfo', e.response.statusCode,
+                  message: e.message);
           },
           onError: (GeneralResponse e) => null,
         ),

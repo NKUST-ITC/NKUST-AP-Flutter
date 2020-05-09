@@ -273,9 +273,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   else if (e.response.statusCode == 403)
                     state = _State.campusNotSupport;
                   else {
-                    state = _State.error;
-                    Utils.handleResponseError(
-                        context, 'getBusReservations', mounted, e);
+                    state = _State.custom;
+                    customStateHint = e.message;
+                    FA.logApiEvent('getBusReservations', e.response.statusCode,
+                        message: e.message);
                   }
                 });
                 break;
