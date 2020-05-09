@@ -1,13 +1,18 @@
+import 'dart:io';
+
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
+import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -83,10 +88,27 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           this.semesterData = data;
           CacheUtils.saveSemesterData(semesterData);
+          var oldSemester = Preferences.getString(
+            ApConstants.CURRENT_SEMESTER_CODE,
+            ApConstants.SEMESTER_LATEST,
+          );
+          final newSemester =
+              '${Helper.username}_${semesterData.defaultSemester.code}';
           Preferences.setString(
             ApConstants.CURRENT_SEMESTER_CODE,
-            '${Helper.username}_${semesterData.defaultSemester.code}',
+            newSemester,
           );
+          //TODO clear old course notify, but may be improve
+          if (!oldSemester.contains(semesterData.defaultSemester.code)) {
+            CourseNotifyData notifyData = CourseNotifyData.load(oldSemester);
+            if (notifyData != null && NotificationUtils.isSupport) {
+              notifyData?.data?.forEach((notify) {
+                NotificationUtils.cancelCourseNotify(id: notify.id);
+              });
+              notifyData?.data?.clear();
+              notifyData?.save(oldSemester);
+            }
+          }
           if (mounted) {
             widget.onSelect(
                 semesterData.defaultSemester, semesterData.defaultIndex);
@@ -98,7 +120,8 @@ class SemesterPickerState extends State<SemesterPicker> {
         onFailure: (DioError e) {
           ApUtils.handleDioError(context, e);
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getSemester', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getSemester', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse response) {

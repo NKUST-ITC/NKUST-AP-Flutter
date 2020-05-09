@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/ap_support_language.dart';
-import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -18,7 +17,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/item.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -85,27 +83,7 @@ class SettingPageState extends State<SettingPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SettingTitle(text: ap.notificationItem),
-            SettingSwitch(
-              text: ap.courseNotify,
-              subText: ap.courseNotifySubTitle,
-              value: courseNotify,
-              onChanged: (b) async {
-                FirebaseAnalyticsUtils.instance
-                    .logAction('notify_course', 'create');
-                setState(() {
-                  courseNotify = !courseNotify;
-                });
-                if (courseNotify)
-                  _setupCourseNotify(context);
-                else {
-                  await Utils.cancelCourseNotify();
-                }
-                FirebaseAnalyticsUtils.instance.logAction(
-                    'notify_course', 'create',
-                    message: '$courseNotify');
-                Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-              },
-            ),
+            CheckCourseNotifyItem(),
             SettingSwitch(
               text: ap.busNotify,
               subText: ap.busNotifySubTitle,
@@ -306,91 +284,6 @@ class SettingPageState extends State<SettingPage> {
       autoSendEvent =
           Preferences.getBool(Constants.PREF_AUTO_SEND_EVENT, false);
     });
-  }
-
-  get _onFailure => (DioError e) {
-        Navigator.of(context, rootNavigator: true).pop();
-        setState(() => courseNotify = false);
-        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-        ApUtils.handleDioError(context, e);
-        if (e.hasResponse)
-          FirebaseAnalyticsUtils.instance.logApiEvent(
-              'getCourseTables', e.response.statusCode,
-              message: e.message);
-      };
-
-  get _onError => (GeneralResponse response) {
-        Navigator.of(context, rootNavigator: true).pop();
-        setState(() => courseNotify = false);
-        Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-        ApUtils.showToast(context, response.getGeneralMessage(context));
-      };
-
-  void _setupCourseNotify(BuildContext context) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => ProgressDialog(ap.loading),
-      barrierDismissible: false,
-    );
-    if (isOffline) {
-      Navigator.of(context, rootNavigator: true).pop();
-      SemesterData semesterData = await CacheUtils.loadSemesterData();
-      if (semesterData != null) {
-        CourseData courseData =
-            CourseData.load(semesterData.defaultSemester.cacheSaveTag);
-        if (courseData != null)
-          _setCourseData(courseData);
-        else {
-          setState(() {
-            courseNotify = false;
-            Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-          });
-          ApUtils.showToast(context, ap.noOfflineData);
-        }
-      } else {
-        setState(() {
-          courseNotify = false;
-          Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-        });
-        ApUtils.showToast(context, ap.noOfflineData);
-      }
-      return;
-    }
-    Helper.instance.getSemester(
-      callback: GeneralCallback(
-        onSuccess: (SemesterData data) {
-          Helper.instance.getCourseTables(
-            semester: data.defaultSemester,
-            callback: GeneralCallback(
-              onSuccess: (CourseData data) {
-                Navigator.of(context, rootNavigator: true).pop();
-                _setCourseData(data);
-              },
-              onFailure: _onFailure,
-              onError: _onError,
-            ),
-          );
-        },
-        onFailure: _onFailure,
-        onError: _onError,
-      ),
-    );
-  }
-
-  _setCourseData(CourseData courseData) async {
-    try {
-      if (courseData != null) {
-        await Utils.setCourseNotify(context, courseData.courseTables);
-        ApUtils.showToast(context, ap.courseNotifyHint);
-      } else
-        ApUtils.showToast(context, ap.courseNotifyEmpty);
-      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-    } on Exception catch (e) {
-      ApUtils.showToast(context, ap.courseNotifyError);
-      setState(() => courseNotify = false);
-      Preferences.setBool(Constants.PREF_COURSE_NOTIFY, courseNotify);
-      throw e;
-    }
   }
 
   _setupBusNotify(BuildContext context) async {

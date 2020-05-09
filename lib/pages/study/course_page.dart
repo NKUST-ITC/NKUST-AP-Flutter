@@ -1,4 +1,6 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/config/ap_constants.dart';
+import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
@@ -6,7 +8,6 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
@@ -28,13 +29,21 @@ class CoursePageState extends State<CoursePage> {
   SemesterData semesterData;
   CourseData courseData;
 
+  CourseNotifyData notifyData;
+
   bool isOffline = false;
 
   String customStateHint = '';
 
+  String get courseNotifyCacheKey => Preferences.getString(
+        ApConstants.CURRENT_SEMESTER_CODE,
+        ApConstants.SEMESTER_LATEST,
+      );
+
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen('CoursePage', 'course_page.dart');
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen('CoursePage', 'course_page.dart');
     super.initState();
   }
 
@@ -49,8 +58,13 @@ class CoursePageState extends State<CoursePage> {
     return CourseScaffold(
       state: state,
       courseData: courseData,
+      notifyData: notifyData,
       customHint: isOffline ? ap.offlineCourse : '',
       customStateHint: customStateHint,
+      enableNotifyControl: semesterData != null &&
+          selectSemester.code == semesterData.defaultSemester.code,
+      courseNotifySaveKey: courseNotifyCacheKey,
+      androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
@@ -58,6 +72,7 @@ class CoursePageState extends State<CoursePage> {
             selectSemester = semester;
             state = CourseState.loading;
           });
+          semesterData = key.currentState.semesterData;
           if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
             _loadCourseData(semester.code);
           else
@@ -106,6 +121,7 @@ class CoursePageState extends State<CoursePage> {
                 isOffline = false;
                 courseData.save(selectSemester.cacheSaveTag);
                 state = CourseState.finish;
+                notifyData = CourseNotifyData.load(courseNotifyCacheKey);
               }
             });
         },
@@ -117,7 +133,8 @@ class CoursePageState extends State<CoursePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getCourseTables', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getCourseTables', e.response.statusCode,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {
