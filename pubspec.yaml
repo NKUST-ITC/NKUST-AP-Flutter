@@ -31,6 +31,10 @@ dependencies:
   http: ^0.12.1
   html: 0.14.0+3
   http_parser: 3.1.4
+  file_chooser:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/file_chooser/
   #third party plugin
   dio: 3.0.9
   tuple: 1.0.2

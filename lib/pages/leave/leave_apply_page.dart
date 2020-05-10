@@ -13,6 +13,7 @@ import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/models/error_response.dart';
@@ -23,6 +24,7 @@ import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:sprintf/sprintf.dart';
+import 'package:file_chooser/file_chooser.dart';
 
 enum _State {
   loading,
@@ -402,25 +404,45 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 ),
                 Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
-                  onTap: () {
-                    ImagePicker.pickImage(source: ImageSource.gallery).then(
-                      (image) async {
-                        if (image != null) {
-                          FirebaseAnalyticsUtils.instance
-                              .logLeavesImageSize(image);
-                          print(
-                              'resize before: ${(image.lengthSync() / 1024 / 1024)}');
-                          if ((image.lengthSync() / 1024 / 1024) >=
-                              Constants.MAX_IMAGE_SIZE) {
-                            resizeImage(image);
-                          } else {
-                            setState(() {
-                              this.image = image;
-                            });
+                  onTap: () async {
+                    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+                      ImagePicker.pickImage(source: ImageSource.gallery).then(
+                        (image) async {
+                          if (image != null) {
+                            FirebaseAnalyticsUtils.instance
+                                .logLeavesImageSize(image);
+                            print(
+                                'resize before: ${(image.lengthSync() / 1024 / 1024)}');
+                            if ((image.lengthSync() / 1024 / 1024) >=
+                                Constants.MAX_IMAGE_SIZE) {
+                              resizeImage(image);
+                            } else {
+                              setState(() {
+                                this.image = image;
+                              });
+                            }
                           }
-                        }
-                      },
-                    );
+                        },
+                      );
+                    else if (!kIsWeb) {
+                      var result = await showOpenPanel(allowedFileTypes: [
+                        FileTypeFilterGroup(
+                            fileExtensions: ['jpg', 'jpeg', 'png', 'gif'])
+                      ]);
+                      if (result.paths.length > 0) {
+                        var image = File(result.paths.first);
+                        if ((image.lengthSync() / 1024 / 1024) >=
+                            Constants.MAX_IMAGE_SIZE) {
+                          ApUtils.showToast(context, ap.imageTooBigHint);
+                          //TODO file too big hint
+                        } else
+                          setState(() {
+                            this.image = image;
+                          });
+                      }
+                    } else {
+                      ApUtils.showToast(context, ap.platformError);
+                    }
                   },
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 24,
