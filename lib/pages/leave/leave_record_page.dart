@@ -131,8 +131,9 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       case _State.finish:
         return '';
       case _State.error:
-      case _State.empty:
         return ap.somethingError;
+      case _State.empty:
+        return ap.leaveEmpty;
       case _State.offlineEmpty:
         return ap.noOfflineData;
       case _State.custom:
@@ -314,6 +315,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                 state = _State.finish;
               }
             });
+          print(state);
           CacheUtils.saveLeaveData(selectSemester.code, leaveData);
         },
         onFailure: (DioError e) {
