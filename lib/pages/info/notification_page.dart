@@ -63,16 +63,21 @@ class NotificationPageState extends State<NotificationPage>
     return GestureDetector(
       onLongPress: () {
         ApUtils.shareTo("${notification.info.title}\n${notification.link}");
-        FirebaseAnalyticsUtils.instance.logAction('share', 'long_click',
-            message: '${notification.info.title}');
+        FirebaseAnalyticsUtils.instance.logAction(
+          'share',
+          'long_click',
+          message: '${notification.info.title}',
+        );
       },
       child: FlatButton(
         padding: EdgeInsets.all(0.0),
         onPressed: () {
           ApUtils.launchUrl(notification.link);
           FirebaseAnalyticsUtils.instance.logAction(
-              'notification_link"', 'click',
-              message: '${notification.info.title}');
+            'notification_link',
+            'click',
+            message: '${notification.info.title}',
+          );
         },
         child: Container(
           width: double.infinity,
@@ -130,7 +135,6 @@ class NotificationPageState extends State<NotificationPage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
-        //TODO improve
         return FlatButton(
           onPressed: () {
             _getNotifications();

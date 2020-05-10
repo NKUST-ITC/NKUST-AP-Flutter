@@ -566,12 +566,14 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 });
                 break;
             }
+          FirebaseAnalyticsUtils.instance.logEvent('get_submit_submit_fail');
         },
         onError: (GeneralResponse response) {
           setState(() {
             state = _State.custom;
             customStateHint = response.getGeneralMessage(context);
           });
+          FirebaseAnalyticsUtils.instance.logEvent('get_submit_submit_fail');
         },
       ),
     );
@@ -745,6 +747,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             content:
                 data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
           );
+          FirebaseAnalyticsUtils.instance.logEvent('leave_submit_success');
         },
         onFailure: (DioError e) {
           Navigator.of(context, rootNavigator: true).pop();
@@ -771,6 +774,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               title: ap.leaveSubmitFail,
               content: text,
             );
+          FirebaseAnalyticsUtils.instance.logEvent('leave_submit_fail');
         },
         onError: (GeneralResponse response) {
           Navigator.of(context, rootNavigator: true).pop();
@@ -779,6 +783,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             title: ap.leaveSubmitFail,
             content: response.getGeneralMessage(context),
           );
+          FirebaseAnalyticsUtils.instance.logEvent('leave_submit_fail');
         },
       ),
     );

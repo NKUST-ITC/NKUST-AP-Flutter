@@ -35,6 +35,10 @@ class _RoomListPageState extends State<RoomListPage> {
   @override
   void initState() {
     _getRoomList();
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      "RoomListPage",
+      "room_list_page.dart",
+    );
     super.initState();
   }
 
