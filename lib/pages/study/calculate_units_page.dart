@@ -311,7 +311,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     Helper.instance.getSemester(
       callback: GeneralCallback(
         onSuccess: (SemesterData data) {
-          this.semesterData = semesterData;
+          this.semesterData = data;
         },
         onFailure: _onFailure,
         onError: _onError,
