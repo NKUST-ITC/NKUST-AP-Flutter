@@ -34,7 +34,7 @@ class SettingPageState extends State<SettingPage> {
 
   ApLocalizations ap;
 
-  String appVersion = "1.0.0";
+  String appVersion;
   bool busNotify = false, courseNotify = false, displayPicture = true;
   bool isOffline = false;
 
@@ -276,7 +276,7 @@ class SettingPageState extends State<SettingPage> {
       packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      appVersion = packageInfo?.version ?? '1.0.0';
+      appVersion = packageInfo?.version ?? '3.3.12';
       courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
