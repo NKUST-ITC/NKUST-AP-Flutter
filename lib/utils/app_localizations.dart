@@ -55,6 +55,9 @@ class AppLocalizations {
       'bus_reserve_time': 'Time',
       'jiangong': 'JianGong',
       'yanchao': 'YanChao',
+      'first': 'first',
+      'nanzi': 'Nanzi',
+      'qijin': 'Qijin',
       'reserve': 'Reserve',
       'reserved': 'Reserved',
       'can_not_reserve': 'Can\'t reserve',
@@ -129,6 +132,9 @@ class AppLocalizations {
       'bus_reserve_time': '預約班次',
       'jiangong': '建工',
       'yanchao': '燕巢',
+      'first': '第一',
+      'nanzi': '楠梓',
+      'qijin': '旗津',
       'unknown': '未知',
       'campus': '校區',
       'reserved': '已預約',
@@ -180,6 +186,14 @@ class AppLocalizations {
         fromYanchao,
       ];
 
+  List<String> get campuses => [
+        jiangong,
+        yanchao,
+        first,
+        nanzi,
+        qijin,
+      ];
+
   String get appName => _vocabularies['app_name'];
 
   String get updateNoteContent => _vocabularies['update_note_content'];
@@ -193,6 +207,12 @@ class AppLocalizations {
   String get jiangong => _vocabularies['jiangong'];
 
   String get yanchao => _vocabularies['yanchao'];
+
+  String get first => _vocabularies['first'];
+
+  String get nanzi => _vocabularies['nanzi'];
+
+  String get qijin => _vocabularies['qijin'];
 
   String get unknown => _vocabularies['unknown'];
 

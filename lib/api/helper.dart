@@ -375,18 +375,7 @@ class Helper {
       CourseData data;
       if (response.statusCode != 204) {
         data = CourseData.fromJson(response.data);
-        for (var i = 0; i < data.courses.length; i++) {
-          final courseDetail = data.courses[i];
-          for (var weekIndex = 0;
-              weekIndex < data.courseTables.weeks.length;
-              weekIndex++) {
-            for (var course in data.courseTables.weeks[weekIndex]) {
-              if (course.title == courseDetail.title) {
-                course.detailIndex = i;
-              }
-            }
-          }
-        }
+        data.updateIndex();
         reLoginCount = 0;
       }
       return (callback == null) ? data : callback.onSuccess(data);
@@ -492,43 +481,83 @@ class Helper {
   }
 
   //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
-  Future<RoomData> getRoomList(int campus) async {
+  Future<RoomData> getRoomList({
+    @required int campusCode,
+    GeneralCallback<RoomData> callback,
+  }) async {
     try {
       var response = await dio.get(
         '/user/room/list',
         queryParameters: {
-          'campus': campus,
+          'campus': campusCode,
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return RoomData.fromJson(response.data);
+      RoomData data;
+      if (response.statusCode == 200) data = RoomData.fromJson(response.data);
+      return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getRoomList(campusCode: campusCode);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
-  Future<CourseData> getRoomCourseTables(
-      String roomId, String year, String semester) async {
+  Future<CourseData> getRoomCourseTables({
+    @required String roomId,
+    @required Semester semester,
+    GeneralCallback<CourseData> callback,
+  }) async {
     try {
       var response = await dio.get(
         '/user/empty-room/info',
         queryParameters: {
-          'roomId': roomId,
-          'year': year,
-          'semester': semester,
+          'roomid': roomId,
+          'year': semester.year,
+          'semester': semester.value,
         },
         cancelToken: cancelToken,
       );
-      if (response.statusCode == 204)
-        return null;
-      else
-        return CourseData.fromJson(response.data);
+      CourseData data;
+      if (response.statusCode == 200) {
+        data = CourseData.fromJson(response.data);
+        data.updateIndex();
+      }
+      return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      throw dioError;
+      if (dioError.hasResponse) {
+        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
+          reLoginCount++;
+          return getRoomCourseTables(
+              roomId: roomId, semester: semester, callback: callback);
+        } else {
+          if (dioError.isServerError)
+            callback?.onError(dioError.serverErrorResponse);
+          else
+            callback?.onFailure(dioError);
+        }
+      } else
+        callback?.onFailure(dioError);
+      if (callback == null) throw dioError;
+    } catch (e) {
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
     }
+    return null;
   }
 
   Future<BusData> getBusTimeTables({

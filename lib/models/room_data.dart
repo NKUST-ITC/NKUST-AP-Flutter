@@ -26,12 +26,12 @@ class RoomData {
 }
 
 class Room {
-  String roomName;
-  String roomId;
+  String name;
+  String id;
 
   Room({
-    this.roomName,
-    this.roomId,
+    this.name,
+    this.id,
   });
 
   factory Room.fromRawJson(String str) => Room.fromJson(json.decode(str));
@@ -39,12 +39,12 @@ class Room {
   String toRawJson() => json.encode(toJson());
 
   factory Room.fromJson(Map<String, dynamic> json) => new Room(
-        roomName: json["roomName"],
-        roomId: json["roomId"],
+        name: json["roomName"],
+        id: json["roomId"],
       );
 
   Map<String, dynamic> toJson() => {
-        "roomName": roomName,
-        "roomId": roomId,
+        "roomName": name,
+        "roomId": id,
       };
 }
