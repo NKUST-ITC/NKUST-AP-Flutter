@@ -38,8 +38,8 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   void initState() {
     _getRoomCourseTable();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "EmptyRoomPage",
-      "empty_room_page.dart",
+      "RoomCoursePage",
+      "room_course_page.dart",
     );
     super.initState();
   }
@@ -48,7 +48,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
     return CourseScaffold(
-      title: '${ap.emptyClassroomSearch} - ${widget.room.name}',
+      title: '${ap.classroomCourseTableSearch} - ${widget.room.name}',
       state: state,
       courseData: courseData,
       customStateHint: customStateHint,

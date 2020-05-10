@@ -240,7 +240,7 @@ class HomePageState extends State<HomePage> {
               ),
               DrawerSubItem(
                 icon: ApIcon.room,
-                title: ap.emptyClassroomSearch,
+                title: ap.classroomCourseTableSearch,
                 page: RoomListPage(),
               ),
             ],

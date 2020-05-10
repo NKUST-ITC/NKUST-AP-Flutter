@@ -9,7 +9,7 @@ import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:nkust_ap/pages/study/empty_room_page.dart';
+import 'package:nkust_ap/pages/study/room_course_page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 enum _State { loading, finish, custom }

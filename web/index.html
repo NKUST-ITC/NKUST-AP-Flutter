@@ -3,6 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <title>NKUST AP</title>
+  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
+    <script>
+    // Your web app's Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyBpHUWczANDziA-Gzxoh_ybGnEZq9JmKL4",
+      authDomain: "nkust-ap-flutter.firebaseapp.com",
+      databaseURL: "https://nkust-ap-flutter.firebaseio.com",
+      projectId: "nkust-ap-flutter",
+      storageBucket: "nkust-ap-flutter.appspot.com",
+      messagingSenderId: "141403473068",
+      appId: "1:141403473068:web:2804dce650446efef34b09",
+      measurementId: "G-TSD51EKRLX"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+  </script>
   <script defer src="main.dart.js" type="application/javascript"></script>
 </head>
 <body>
