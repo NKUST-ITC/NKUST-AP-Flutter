@@ -10,6 +10,7 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
@@ -1052,6 +1053,11 @@ extension GeneralResponseExtension on GeneralResponse {
         message = ap.somethingError;
         break;
     }
+    FirebaseAnalyticsUtils.instance.logApiEvent(
+      'GeneralResponse',
+      statusCode,
+      message: message,
+    );
     return message;
   }
 }
