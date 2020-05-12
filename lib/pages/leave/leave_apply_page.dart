@@ -434,7 +434,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                         if ((image.lengthSync() / 1024 / 1024) >=
                             Constants.MAX_IMAGE_SIZE) {
                           ApUtils.showToast(context, ap.imageTooBigHint);
-                          //TODO file too big hint
+                            sprintf(
+                              ap.imageTooBigHint,
+                              [Constants.MAX_IMAGE_SIZE],
+                            ),
+                          );
                         } else
                           setState(() {
                             this.image = image;
