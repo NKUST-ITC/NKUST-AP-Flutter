@@ -35,6 +35,10 @@ dependencies:
     git:
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/file_chooser/
+  url_launcher_fde:
+    git:
+      url: https://github.com/google/flutter-desktop-embedding
+      path: plugins/flutter_plugins/url_launcher_fde/
   #third party plugin
   dio: 3.0.9
   tuple: 1.0.2
