@@ -16,7 +16,8 @@ class UserInfoPage extends StatefulWidget {
 class UserInfoPageState extends State<UserInfoPage> {
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen("UserInfoPage", "user_info_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("UserInfoPage", "user_info_page.dart");
     super.initState();
   }
 
@@ -26,7 +27,18 @@ class UserInfoPageState extends State<UserInfoPage> {
       userInfo: widget.userInfo,
       actions: <Widget>[],
       onRefresh: () async {
-        //TODO on refresh data
+        var userInfo = await Helper.instance.getUsersInfo();
+        if (userInfo != null)
+          setState(
+            () => widget.userInfo
+              ..name = userInfo.name
+              ..department = userInfo.department
+              ..className = userInfo.className
+              ..pictureUrl = userInfo.pictureUrl
+              ..educationSystem = userInfo.educationSystem
+              ..email = userInfo.email
+              ..id = userInfo.id,
+          );
         return null;
       },
     );
