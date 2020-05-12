@@ -61,53 +61,6 @@ class Utils {
     await flutterLocalNotificationsPlugin.cancel(Constants.NOTIFICATION_BUS_ID);
   }
 
-  static Future<void> setCourseNotify(
-      BuildContext context, CourseTables courseTables) async {
-    var app = ApLocalizations.of(context);
-    //limit Android and iOS system
-    if (Platform.isAndroid || Platform.isIOS) {
-      for (int i = 0; i < courseTables.weeks.length; i++) {
-        List<Course> course = courseTables.weeks[i];
-        List<String> keyList = [];
-        List<Course> saveCourseList = [];
-        if (course == null) continue;
-        for (int j = 0; j < course.length; j++) {
-          if (!keyList.contains(course[j].title)) {
-            keyList.add(course[j].title);
-            saveCourseList.add(course[j]);
-          }
-        }
-        saveCourseList.forEach((Course course) async {
-          String content = sprintf(app.courseNotifyContent, [
-            course.title,
-            course.location.room.isEmpty
-                ? app.courseNotifyUnknown
-                : course.location.room
-          ]);
-          await NotificationUtils.scheduleWeeklyNotify(
-            id: Constants.NOTIFICATION_COURSE_ID,
-            androidChannelId: '${Constants.NOTIFICATION_COURSE_ID}',
-            androidChannelDescription: app.courseNotify,
-            androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
-            day: NotificationUtils.getDay(i),
-            time: NotificationUtils.parseTime(course.date.startTime,
-                beforeMinutes: 10),
-            title: app.courseNotify,
-            content: content,
-          );
-        });
-      }
-    } else {
-      //TODO implement other platform system local notification
-    }
-  }
-
-  static Future<void> cancelCourseNotify() async {
-    var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-    await flutterLocalNotificationsPlugin
-        .cancel(Constants.NOTIFICATION_COURSE_ID);
-  }
-
   static void showAppReviewSheet(BuildContext context) async {
     // await Future.delayed(Duration(seconds: 1));
     final app = ApLocalizations.of(context);

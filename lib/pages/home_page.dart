@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
 import 'package:ap_common/pages/about_us_page.dart';
@@ -17,6 +18,7 @@ import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
+import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:dio/dio.dart';
@@ -467,10 +469,14 @@ class HomePageState extends State<HomePage> {
               setState(() {
                 this.userInfo = data;
               });
-              FirebaseAnalyticsUtils.instance
-                  .setUserProperty('department', userInfo.department);
-              FirebaseAnalyticsUtils.instance
-                  .setUserProperty('student_id', userInfo.id);
+              FirebaseAnalyticsUtils.instance.setUserProperty(
+                FirebaseConstants.DEPARTMENT,
+                userInfo.department,
+              );
+              FirebaseAnalyticsUtils.instance.setUserProperty(
+                FirebaseConstants.STUDENT_ID,
+                userInfo.id,
+              );
               FirebaseAnalyticsUtils.instance.setUserId(userInfo.id);
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo.department);
               CacheUtils.saveUserInfo(userInfo);
