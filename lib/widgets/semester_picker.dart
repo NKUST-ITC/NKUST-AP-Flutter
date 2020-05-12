@@ -10,6 +10,7 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
+import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -33,6 +34,8 @@ class SemesterPicker extends StatefulWidget {
 class SemesterPickerState extends State<SemesterPicker> {
   SemesterData semesterData;
   Semester selectSemester;
+
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -110,6 +113,7 @@ class SemesterPickerState extends State<SemesterPicker> {
             }
           }
           if (mounted) {
+            currentIndex = semesterData.defaultIndex;
             widget.onSelect(
                 semesterData.defaultSemester, semesterData.defaultIndex);
             setState(() {
@@ -132,48 +136,20 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void pickSemester() {
-    int index = 0;
-    for (var i = 0; i < semesterData.data.length; i++) {
-      if (semesterData.data[i].text == selectSemester.text) index = i;
-    }
     showDialog<int>(
       context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: Text(ApLocalizations.of(context).picksSemester),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(8),
-          ),
-        ),
-        contentPadding: EdgeInsets.all(0.0),
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.7,
-          height: MediaQuery.of(context).size.height * 0.8,
-          child: ListView.separated(
-            controller: ScrollController(initialScrollOffset: index * 48.0),
-            itemCount: semesterData.data.length,
-            separatorBuilder: (BuildContext context, int index) {
-              return Divider(height: 6.0);
-            },
-            itemBuilder: (BuildContext context, int index) {
-              return DialogOption(
-                text: semesterData.data[index].text,
-                check: semesterData.data[index].text == selectSemester.text,
-                onPressed: () {
-                  Navigator.pop(context, index);
-                },
-              );
-            },
-          ),
-        ),
+      builder: (BuildContext context) => SimpleOptionDialog(
+        title: ApLocalizations.of(context).picksSemester,
+        items: [for (var item in semesterData.data) item.text],
+        index: currentIndex,
+        onSelected: (index) {
+          currentIndex = index;
+          widget.onSelect(semesterData.data[currentIndex], currentIndex);
+          setState(() {
+            selectSemester = semesterData.data[currentIndex];
+          });
+        },
       ),
-    ).then<void>((int position) async {
-      if (position != null) {
-        widget.onSelect(semesterData.data[position], position);
-        setState(() {
-          selectSemester = semesterData.data[position];
-        });
-      }
-    });
+    );
   }
 }
