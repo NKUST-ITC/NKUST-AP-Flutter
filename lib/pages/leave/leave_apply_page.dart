@@ -411,10 +411,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           if (image != null) {
                             FirebaseAnalyticsUtils.instance
                                 .logLeavesImageSize(image);
-                            print(
-                                'resize before: ${(image.lengthSync() / 1024 / 1024)}');
-                            if ((image.lengthSync() / 1024 / 1024) >=
-                                Constants.MAX_IMAGE_SIZE) {
+                            print('resize before: ${(image.mb)}');
+                            if ((image.mb) >= Constants.MAX_IMAGE_SIZE) {
                               resizeImage(image);
                             } else {
                               setState(() {
@@ -431,9 +429,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       ]);
                       if (result.paths.length > 0) {
                         var image = File(result.paths.first);
-                        if ((image.lengthSync() / 1024 / 1024) >=
-                            Constants.MAX_IMAGE_SIZE) {
-                          ApUtils.showToast(context, ap.imageTooBigHint);
+                        if ((image.mb) >= Constants.MAX_IMAGE_SIZE) {
+                          ApUtils.showToast(
+                            context,
                             sprintf(
                               ap.imageTooBigHint,
                               [Constants.MAX_IMAGE_SIZE],
@@ -817,16 +815,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   Future resizeImage(File image) async {
     File result = await Utils.resizeImageByNative(image);
-    print('resize after: ${(result.lengthSync() / 1024 / 1024)}');
+    print('resize after: ${(result.mb)}');
     FirebaseAnalyticsUtils.instance.logLeavesImageCompressSize(image, result);
-    if ((result.lengthSync() / 1024 / 1024) <= Constants.MAX_IMAGE_SIZE) {
+    if ((result.mb) <= Constants.MAX_IMAGE_SIZE) {
       ApUtils.showToast(
         context,
         sprintf(
           ap.imageCompressHint,
           [
             Constants.MAX_IMAGE_SIZE,
-            (result.lengthSync() / 1024 / 1024),
+            (result.mb),
           ],
         ),
       );
@@ -855,4 +853,8 @@ class LeaveModel {
         dateTime.month == this.dateTime.month &&
         dateTime.day == this.dateTime.day);
   }
+}
+
+extension FileExtension on File {
+  double get mb => lengthSync() / 1024 / 1024;
 }
