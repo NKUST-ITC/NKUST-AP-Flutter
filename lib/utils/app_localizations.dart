@@ -98,6 +98,30 @@ class AppLocalizations {
       'offline_score': 'Offline Score',
       'offline_bus_reservations': 'Offline Bus Reservations',
       'offline_leave_data': 'Offline absent Report',
+      'bus_title' : 'Bus Reservation\n',
+      'please'  : '• Go to ',
+      'busRule1' : " Bus Reservation System can reserve bus in 14 days\n" + "in need to follow office of general affairs's time requirement\n",
+      'busRule2' : '■ The classes before 9 A.M.：Please do resevation in 15 hours ago.\n' '■ The classes after 9 A.M.：Please do resevation in 5 hours ago\n',
+      'busRule3' : '• Cancelation Time\n',
+      'busRule4' : '■ The classes before 9 A.M.：Please do calcelation in 15 hours ago.\n' '■ The classes after 9 A.M.：Please do calcelation in 5 hours ago\n',
+      'busRule5' : 'Take Bus\n',
+      'busRule6' : '• Every time take bus need pay 20 NTD',
+      'busRule7' : '（Use coin when you don\'t got Student ID，Please prepare 20 dollars coin first.）\n',
+      'busRule8' : "• Please take your student or staff ID(Before you get student or staff ID, Please use your ID) take bus\n",
+      'busRule9' : '• If you don\'t take any ID, please line up standby zone\n',
+      'busRule10' : 'Please follow the bus schedule (ex. 8:20 and 9:30 is different class), People can\'t take bus and get violation point who don\t follow rule.\n',
+      'busRule11' : "• Late or don't reserved passenger, please line up standby zone waiting.\n" +
+          "Standby\n" +
+          "• If you can't pass verification(ex. Don't reserved)，Please change to standby zone waiting.\n" +
+          "• Standby passenger can get on the bus in order after waiting all reserved passangers got on the bus.\n" ,
+      'busRule12' : "Standby\n",
+      'busRule13' : "• If you don't take the bus but you reserved already，It's a violation，and you get a violation point(ex. 8:20 and 9:30 is different class\n" +
+          "• If your class teacher take temporary leave、transfer cause you need take the bus early or lately，you need apply to class department then，deparment bus system administator will logout violation.\n",
+      'busRule14' : "Fine\n",
+      'busRule15' : "• Fine Calculation，violation times below 3 times don't get point, From 4th violation begin recording point，every point should be pay off fine equal to bus fare.\n" +
+          "• Violation point recording until the end of the semester(1st Semester ended at 1/31，2nd Semester ended at 8/31)，violation point will restart recording. When you not paid off fine，next semester will stop your reservation right until you pay off fine.\n" +
+          "• Go to the auto payment machine or Office of General Affairs cashier pay off fine after you print violation statement by yourself, After paid off, go to Office of General Affairs General Affairs Division write off payment by receipt(Write off payment need receipt on the day.)，After write off and the next day 4A.M. will be reserve class after 9.A.M..\n" +
+          "• If you have any suspicion about violation point，please go to Office of General Affairs General Affairs Division check violation directly in 10 days(included holidays).\n",
     },
     'zh': {
       'app_name': '高科校務通',
@@ -174,6 +198,30 @@ class AppLocalizations {
       'offline_score': '離線成績',
       'offline_bus_reservations': '離線校車紀錄',
       'offline_leave_data': '離線缺曠資料',
+      'bus_title' : '預約校車\n',
+      'please'  : '• 請上 ',
+      'busRule1' : " 校車預約系統預約校車\n" + "• 可預約14天以內的校車班次\n" + "• 為配合總務處派車需求預約時間\n",
+      'busRule2' : '■ 9點以前的班次：請於發車前15個小時預約\n' '■ 9點以後的班次：請於發車前5個小時預約\n',
+      'busRule3' : '• 取消預約時間\n',
+      'busRule4': '■ 9點以前的班次：請於發車前15個小時預約\n' '■ 9點以後的班次：請於發車前5個小時預約\n',
+      'busRule5' : '上車\n',
+      'busRule6' :  "• 每次上車繳款20元",
+      'busRule7' : '（未發卡前先以投幣繳費，請自備20元銅板投幣）\n',
+      'busRule8' : "• 請持學生證或教職員證(未發卡前先採用身分證識別)上車\n",
+      'busRule9' : '• 未攜帶證件者請排後補區\n',
+      'busRule10' : '• 請依預約的班次時間搭乘(例如：8:20與9:30視為不同班次），未依規定者不得上車，並計違規點數一點\n',
+      'busRule11' :"• 逾時或未預約搭乘者請至候補車道排隊候補上車。\n" +
+                   "候補上車\n" +
+                   "• 在正常車道上車時未通過驗證者(ex.未預約該班次)，請改至候補車道排隊候補上車。\n" +
+                   "• 候補者需等待預約該班次的人全部上車之後才依序遞補上車\n" ,
+      'busRule12' : "候補上車\n",
+      'busRule13' : "• 未依預約的班次搭乘者，視為違規，計違規點數一次(例如：8:20與9:30視為不同班次）\n" +
+                    "• 因教師臨時請假、臨時調課致使需提前或延後搭車，得向開課系所提出申請，並由系所之交通車系統管理者註銷違規紀錄。\n",
+      'busRule14' : "罰款\n",
+      'busRule15' : "• 違規罰款金額計算，違規前三次不計點，從第四次開始違規記點，每點應繳納等同車資之罰款\n" +
+          "• 違規點數統計至學期末為止(上學期學期末1/31，下學期8/31)，新學期違規點數重新計算。當學期罰款未繳清者，次學期停止預約權限至罰款繳清為止\n" +
+          "• 罰款請自行列印違規明細後至自動繳費機或總務處出納組繳費，繳費後憑收據至總務處事務組銷帳(當天開列之收據須於當天銷帳)，銷帳完後隔天凌晨4點後才可預約當天9點後的校車。\n" +
+          "• 罰款點數如有疑義，請於違規發生日起10日內(含星期例假日)逕向總務處事務組確認。\n",
     },
   };
 
@@ -319,6 +367,40 @@ class AppLocalizations {
   String get punchSuccess => _vocabularies['punchSuccess'];
 
   String get nonCourseTime => _vocabularies['nonCourseTime'];
+
+  String get busTitle => _vocabularies['bus_title'];
+
+  String get please => _vocabularies['please'];
+
+  String get busRule1 => _vocabularies['busRule1'];
+
+  String get busRule2 => _vocabularies['busRule2'];
+
+  String get busRule3 => _vocabularies['busRule3'];
+
+  String get busRule4 => _vocabularies['busRule4'];
+
+  String get busRule5 => _vocabularies['busRule5'];
+
+  String get busRule6 => _vocabularies['busRule6'];
+
+  String get busRule7 => _vocabularies['busRule7'];
+
+  String get busRule8 => _vocabularies['busRule8'];
+
+  String get busRule9 => _vocabularies['busRule9'];
+
+  String get busRule10 => _vocabularies['busRule10'];
+
+  String get busRule11 => _vocabularies['busRule11'];
+
+  String get busRule12 => _vocabularies['busRule12'];
+
+  String get busRule13 => _vocabularies['busRule13'];
+
+  String get busRule14 => _vocabularies['busRule14'];
+
+  String get busRule15 => _vocabularies['busRule15'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
