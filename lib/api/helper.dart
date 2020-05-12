@@ -210,7 +210,7 @@ class Helper {
           return b.weight.compareTo(a.weight);
         });
       }
-      return (callback == null) ? data : callback.onSuccess(data.data);
+      return (callback == null) ? data.data : callback.onSuccess(data.data);
     } on DioError catch (dioError) {
       if (callback == null)
         throw dioError;
