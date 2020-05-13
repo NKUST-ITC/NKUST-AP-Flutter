@@ -34,7 +34,8 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen('ScorePage', 'score_page.dart');
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
 
@@ -73,10 +74,11 @@ class ScorePageState extends State<ScorePage> {
         key.currentState.pickSemester();
       },
       details: [
-        '${ap.conductScore}：${scoreData?.detail?.conduct}',
-        '${ap.average}：${scoreData?.detail?.average}',
-        '${ap.rank}：${scoreData?.detail?.classRank}',
-        '${ap.percentage}：${scoreData?.detail?.classPercentage}',
+        '${ap.conductScore}：${scoreData?.detail?.conduct ?? ''}',
+        '${ap.average}：${scoreData?.detail?.average ?? ''}',
+        '${ap.classRank}：${scoreData?.detail?.classRank ?? ''}',
+        '${ap.departmentRank}：${scoreData?.detail?.departmentRank ?? ''}',
+        '${ap.percentage}：${scoreData?.detail?.classPercentage ?? ''}',
       ],
     );
   }
@@ -107,7 +109,8 @@ class ScorePageState extends State<ScorePage> {
               customStateHint = ApLocalizations.dioError(context, e);
             });
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getSemesterScore', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getSemesterScore', e.response.statusCode,
                 message: e.message);
         }, onError: (GeneralResponse generalResponse) async {
           if (await _loadOfflineScoreData())
