@@ -468,16 +468,7 @@ class HomePageState extends State<HomePage> {
               setState(() {
                 this.userInfo = data;
               });
-              FirebaseAnalyticsUtils.instance.setUserProperty(
-                FirebaseConstants.DEPARTMENT,
-                userInfo.department,
-              );
-              FirebaseAnalyticsUtils.instance.setUserProperty(
-                FirebaseConstants.STUDENT_ID,
-                userInfo.id,
-              );
-              FirebaseAnalyticsUtils.instance.setUserId(userInfo.id);
-              FirebaseAnalyticsUtils.instance.logUserInfo(userInfo.department);
+              FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
               CacheUtils.saveUserInfo(userInfo);
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();

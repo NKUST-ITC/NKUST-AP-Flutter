@@ -40,6 +40,7 @@ class UserInfoPageState extends State<UserInfoPage> {
               ..email = userInfo.email
               ..id = userInfo.id,
           );
+        FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
         return null;
       },
     );
