@@ -3,20 +3,17 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
+import 'package:nkust_ap/pages/bus/bus_violation_records_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class BusPage extends StatefulWidget {
   static const String routerName = "/bus";
-  final List<Widget> _children = [
-    new BusReservePage(),
-    new BusReservationsPage()
-  ];
   final int initIndex;
 
   BusPage({this.initIndex = 0});
 
   @override
-  BusPageState createState() => new BusPageState();
+  BusPageState createState() => BusPageState();
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
@@ -25,6 +22,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   TabController controller;
 
   int _currentIndex = 0;
+
+  final List<Widget> _children = [
+    BusReservePage(),
+    BusReservationsPage(),
+  ];
 
   @override
   void initState() {
@@ -43,10 +45,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    return new Scaffold(
+    return Scaffold(
       appBar: AppBar(
         title: Text(app.bus),
-        backgroundColor: ApTheme.of(context).blue,
         actions: <Widget>[
           IconButton(
               icon: Icon(
@@ -54,14 +55,18 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 color: Colors.white,
               ),
               onPressed: () {
-                ApUtils.pushCupertinoStyle(context, BusRulePage());
+                ApUtils.pushCupertinoStyle(
+                  context,
+                  BusRulePage(),
+                );
               })
         ],
       ),
       body: TabBarView(
-          children: widget._children,
-          controller: controller,
-          physics: NeverScrollableScrollPhysics()),
+        children: _children,
+        controller: controller,
+        physics: NeverScrollableScrollPhysics(),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
