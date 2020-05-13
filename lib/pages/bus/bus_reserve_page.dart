@@ -263,28 +263,41 @@ class BusReservePageState extends State<BusReservePage>
                           textAlign: TextAlign.center,
                           text: TextSpan(
                             style: TextStyle(
-                                color: ApTheme.of(context).grey,
-                                height: 1.3,
-                                fontSize: 16.0),
+                              color: ApTheme.of(context).grey,
+                              height: 1.3,
+                              fontSize: 16.0,
+                            ),
                             children: [
                               TextSpan(
-                                text: '${busTime.getTime()} $start\n',
+                                text: '${busTime.getTime()} $start\n\n',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              if (busTime.description != null &&
+                                  busTime.description.isNotEmpty)
+                                TextSpan(
+                                  text:
+                                      '${busTime.description.replaceAll('<br />', '\n')}\n\n',
+                                  style: TextStyle(
+                                    color: ApTheme.of(context).grey,
+                                    height: 1.3,
+                                    fontSize: 14.0,
+                                  ),
+                                ),
+                              TextSpan(
+                                text: '${app.reserveDeadline}\n',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               TextSpan(
-                                text:
-                                    '${busTime.description}${app.busReserveConfirmTitle}\n',
-                                style: TextStyle(
-                                    color: ApTheme.of(context).grey,
-                                    height: 1.3,
-                                    fontSize: 14.0),
+                                text: '${busTime.getEndEnrollDateTime()}\n\n',
                               ),
                               TextSpan(
-                                  text: '${app.reserveDeadline}：\n',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              TextSpan(
-                                  text: '${busTime.getEndEnrollDateTime()}'),
+                                text: '${app.busReserveConfirmTitle}',
+                                style: TextStyle(
+                                  color: ApTheme.of(context).grey,
+                                ),
+                              ),
                             ],
                           ),
                         ),

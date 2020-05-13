@@ -88,6 +88,9 @@ class AppLocalizations {
       'from_yanchao': 'From YanChao',
       'reserving': 'Reserving...',
       'canceling': 'Canceling...',
+      'bus_fail_infinity': 'Bus system perhaps broken!!!',
+      'reserve_deadline': 'Reserve Deadline',
+      'bus_rule': 'Bus Rule',
       'firstLoginHint':
           'For first-time login, please fill in the last four number of your ID as your password',
       'searchStudentIdFormat': 'Name：%s\nStudent ID：%s\n',
