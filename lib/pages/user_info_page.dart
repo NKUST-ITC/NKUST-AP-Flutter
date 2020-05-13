@@ -26,6 +26,7 @@ class UserInfoPageState extends State<UserInfoPage> {
     return UserInfoScaffold(
       userInfo: widget.userInfo,
       actions: <Widget>[],
+      enableBarCode: true,
       onRefresh: () async {
         var userInfo = await Helper.instance.getUsersInfo();
         if (userInfo != null)
