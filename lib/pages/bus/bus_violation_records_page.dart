@@ -110,6 +110,12 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
               (BuildContext context, int index) {
                 bool isLeft = (index % 2 != 0);
                 final reservations = violationData.reservations;
+                final isShowYear = (index == 0) ||
+                    (index == reservations.length - 1) ||
+                    (reservations[index].time.year !=
+                        reservations[index + 1].time.year) ||
+                    (reservations[index].time.year !=
+                        reservations[index - 1].time.year);
                 return Row(
                   children: <Widget>[
                     Expanded(
@@ -118,7 +124,19 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                               reservation: reservations[index],
                               isLeft: true,
                             )
-                          : Container(),
+                          : Center(
+                              child: isShowYear
+                                  ? Text(
+                                      '${reservations[index].time.year}',
+                                      style: TextStyle(
+                                        fontSize: 28.0,
+                                        color: ApTheme.of(context).greyText,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                    )
+                                  : null,
+                            ),
                     ),
                     Column(
                       children: <Widget>[
@@ -170,7 +188,19 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                               reservation: reservations[index],
                               isLeft: false,
                             )
-                          : Container(),
+                          : Center(
+                              child: isShowYear
+                                  ? Text(
+                                      '${reservations[index].time.year}',
+                                      style: TextStyle(
+                                        fontSize: 28.0,
+                                        color: ApTheme.of(context).greyText,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                    )
+                                  : null,
+                            ),
                     ),
                   ],
                 );
@@ -298,16 +328,19 @@ class ReservationItem extends StatelessWidget {
                   context,
                   reservation.startStationText(context),
                 ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: Text(
-                  '${reservation.time.month}/${reservation.time.day}',
-                  style: TextStyle(
-                    fontSize: 24.0,
-                    color: ApTheme.of(context).greyText,
-                    fontWeight: FontWeight.bold,
+              Tooltip(
+                message: '${reservation.time.year}',
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                  child: Text(
+                    '${reservation.time.month}/${reservation.time.day}',
+                    style: TextStyle(
+                      fontSize: 24.0,
+                      color: ApTheme.of(context).greyText,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1,
                   ),
-                  maxLines: 1,
                 ),
               ),
               if (!isLeft)
