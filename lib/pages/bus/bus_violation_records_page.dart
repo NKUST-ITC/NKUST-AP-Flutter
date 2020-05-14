@@ -2,6 +2,7 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -200,6 +201,16 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             ShareDataWidget.of(context).data.hasBusViolationRecords =
                 (data?.hasBusViolationRecords ?? false);
           });
+          FirebaseAnalyticsUtils.instance.setUserProperty(
+            FirebaseConstants.CAN_USE_BUS,
+            FirebaseConstants.YES,
+          );
+          FirebaseAnalyticsUtils.instance.setUserProperty(
+            FirebaseConstants.HAS_BUS_VIOLATION,
+            (data?.hasBusViolationRecords ?? false)
+                ? FirebaseConstants.YES
+                : FirebaseConstants.NO,
+          );
           return violationData;
         },
         onFailure: (DioError e) {
@@ -219,6 +230,12 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                         message: e.message);
                   }
                 });
+                if (e.response.statusCode == 401 ||
+                    e.response.statusCode == 403)
+                  FirebaseAnalyticsUtils.instance.setUserProperty(
+                    FirebaseConstants.CAN_USE_BUS,
+                    FirebaseConstants.NO,
+                  );
                 break;
               case DioErrorType.DEFAULT:
                 setState(() {

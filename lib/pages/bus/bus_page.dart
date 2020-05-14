@@ -2,6 +2,7 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
@@ -129,9 +130,27 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             ShareDataWidget.of(context).data.hasBusViolationRecords =
                 data.hasBusViolationRecords;
           });
+          FirebaseAnalyticsUtils.instance.setUserProperty(
+            FirebaseConstants.CAN_USE_BUS,
+            FirebaseConstants.YES,
+          );
+          FirebaseAnalyticsUtils.instance.setUserProperty(
+            FirebaseConstants.HAS_BUS_VIOLATION,
+            (data?.hasBusViolationRecords ?? false)
+                ? FirebaseConstants.YES
+                : FirebaseConstants.NO,
+          );
         },
         onError: (GeneralResponse response) {},
-        onFailure: (DioError e) {},
+        onFailure: (DioError e) {
+          if (e.hasResponse &&
+              (e.response.statusCode == 401 || e.response.statusCode == 403)) {
+            FirebaseAnalyticsUtils.instance.setUserProperty(
+              FirebaseConstants.CAN_USE_BUS,
+              FirebaseConstants.NO,
+            );
+          }
+        },
       ),
     );
   }
