@@ -298,6 +298,11 @@ class HomePageState extends State<HomePage> {
                 title: ap.busReservations,
                 page: BusPage(initIndex: 1),
               ),
+              DrawerSubItem(
+                icon: ApIcon.monetizationOn,
+                title: app.busViolationRecords,
+                page: BusPage(initIndex: 2),
+              ),
             ],
           ),
           DrawerItem(

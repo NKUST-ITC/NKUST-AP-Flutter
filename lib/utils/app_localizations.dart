@@ -37,6 +37,9 @@ class AppLocalizations {
       'bus_yanchao_reserved': '√ To JianGong, Departure time：',
       'bus_reserve': 'Bus Reservation',
       'bus_reservations': 'Bus Record',
+      'bus_violation_records': 'Bus Penalty',
+      'unpaid': 'Unpaid',
+      'paid': 'Paid',
       'bus_cancel_reserve': 'Cancel Bus Reservation',
       'bus_reserve_confirm_title': 'Reserve this bus?',
       'bus_reserve_confirm_content" formatted="false':
@@ -119,6 +122,9 @@ class AppLocalizations {
       'bus_yanchao_reserved': '√ 到建工，發車：',
       'bus_reserve': '預定校車',
       'bus_reservations': '校車紀錄',
+      'bus_violation_records': '校車罰緩',
+      'unpaid': '未繳款',
+      'paid': '已繳款',
       'bus_cancel_reserve': '取消預定校車',
       'bus_reserve_confirm_title': '確定要預定本次校車？',
       'bus_reserve_confirm_content': '要預定從%s\n%s 的校車嗎？',
@@ -206,6 +212,12 @@ class AppLocalizations {
   String get busReserve => _vocabularies['bus_reserve'];
 
   String get busReservations => _vocabularies['bus_reservations'];
+
+  String get busViolationRecords => _vocabularies['bus_violation_records'];
+
+  String get unpaid => _vocabularies['unpaid'];
+
+  String get paid => _vocabularies['paid'];
 
   String get jiangong => _vocabularies['jiangong'];
 

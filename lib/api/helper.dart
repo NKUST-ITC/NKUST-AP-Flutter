@@ -33,6 +33,8 @@ import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+export 'package:ap_common/callback/general_callback.dart';
+
 class Helper {
   static const HOST = 'nkust.v3.backup.taki.dog';
 
@@ -711,8 +713,6 @@ class Helper {
     if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get('/bus/violation-records');
-      print(response.statusCode);
-      print(response.data);
       BusViolationRecordsData data;
       if (response.statusCode == 200)
         data = BusViolationRecordsData.fromJson(response.data);

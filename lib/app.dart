@@ -41,6 +41,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   LoginResponse loginResponse;
   Uint8List pictureBytes;
   bool offlineLogin = false;
+  bool hasBusViolationRecords = false;
 
   ThemeMode themeMode = ThemeMode.system;
 
