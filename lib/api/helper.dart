@@ -504,7 +504,7 @@ class Helper {
       if (dioError.hasResponse) {
         if (dioError.isExpire && canReLogin && await reLogin(callback)) {
           reLoginCount++;
-          return getRoomList(campusCode: campusCode);
+          return getRoomList(campusCode: campusCode, callback: callback);
         } else {
           if (dioError.isServerError)
             callback?.onError(dioError.serverErrorResponse);
