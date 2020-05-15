@@ -78,7 +78,6 @@ class ScorePageState extends State<ScorePage> {
         '${ap.average}：${scoreData?.detail?.average ?? ''}',
         '${ap.classRank}：${scoreData?.detail?.classRank ?? ''}',
         '${ap.departmentRank}：${scoreData?.detail?.departmentRank ?? ''}',
-        '${ap.percentage}：${scoreData?.detail?.classPercentage ?? ''}',
       ],
     );
   }
