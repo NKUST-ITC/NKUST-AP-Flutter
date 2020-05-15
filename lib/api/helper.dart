@@ -498,6 +498,7 @@ class Helper {
       );
       RoomData data;
       if (response.statusCode == 200) data = RoomData.fromJson(response.data);
+      reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -540,6 +541,7 @@ class Helper {
         data = CourseData.fromJson(response.data);
         data.updateIndex();
       }
+      reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {

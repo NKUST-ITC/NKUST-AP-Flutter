@@ -36,7 +36,6 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
 
   @override
   void initState() {
-    _getRoomCourseTable();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
       "RoomCoursePage",
       "room_course_page.dart",
