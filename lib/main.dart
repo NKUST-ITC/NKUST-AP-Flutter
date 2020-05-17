@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -60,7 +61,7 @@ void _preference340Migrate() async {
   }
   Preferences.prefs.getKeys()?.forEach((key) {
     if (key.contains(Constants.PREF_COURSE_DATA)) {
-      print(key);
+      debugPrint(key);
       var data = Preferences.getString(key, null);
       var courseData = CourseData.fromRawJson(data);
       courseData.save(
@@ -78,7 +79,7 @@ void _preference340Migrate() async {
     } else if (key.contains(Constants.PREF_USER_INFO)) {
       print(key);
       var data = Preferences.getString(key, null);
-      var courseData = ScoreData.fromRawJson(data);
+      var courseData = UserInfo.fromRawJson(data);
       courseData.save(
         key.replaceAll('${Constants.PREF_USER_INFO}_', ''),
       );
