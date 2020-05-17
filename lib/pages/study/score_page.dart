@@ -98,7 +98,7 @@ class ScorePageState extends State<ScorePage> {
               } else {
                 scoreData = data;
                 state = ScoreState.finish;
-                CacheUtils.saveScoreData(selectSemester.code, scoreData);
+                scoreData.save(selectSemester.cacheSaveTag);
               }
             });
         }, onFailure: (DioError e) async {
@@ -122,7 +122,7 @@ class ScorePageState extends State<ScorePage> {
   }
 
   Future<bool> _loadOfflineScoreData() async {
-    scoreData = await CacheUtils.loadScoreData(selectSemester.code);
+    scoreData = ScoreData.load(selectSemester.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;

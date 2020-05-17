@@ -25,23 +25,7 @@ class CacheUtils {
     SemesterData semesterData = SemesterData.fromJson(jsonDecode(json));
     return semesterData;
   }
-
-  static void saveScoreData(String value, ScoreData scoreData) async {
-    if (scoreData == null) return;
-    String username = Preferences.getString(Constants.PREF_USERNAME, '');
-    await Preferences.setString(
-        '${Constants.PREF_SCORE_DATA}_${username}_$value',
-        jsonEncode(scoreData));
-  }
-
-  static Future<ScoreData> loadScoreData(String value) async {
-    String username = Preferences.getString(Constants.PREF_USERNAME, '');
-    String json = Preferences.getString(
-        '${Constants.PREF_SCORE_DATA}_${username}_$value', '');
-    if (json == '') return null;
-    return ScoreData.fromJson(jsonDecode(json));
-  }
-
+  
   static void saveScheduleDataList(List<ScheduleData> scheduleDataList) async {
     if (scheduleDataList == null) return;
     await Preferences.setString(
