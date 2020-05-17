@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -18,7 +21,9 @@ void main() async {
   bool isInDebugMode = Constants.isInDebugMode;
   HttpClient.enableTimelineLogging = isInDebugMode;
   await Preferences.init(key: Constants.key, iv: Constants.iv);
-  _preferenceMigrate();
+  var currentVersion =
+      Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
+  if (int.parse(currentVersion) < 30400) _preference340Migrate();
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   _setTargetPlatformForDesktop();
@@ -34,7 +39,8 @@ void main() async {
   }
 }
 
-void _preferenceMigrate() async {
+//v3.4.0 preference migrate
+void _preference340Migrate() async {
   String themeCode = Preferences.getString(Constants.PREF_THEME_CODE, null);
   if (themeCode != null) {
     int index;
@@ -52,6 +58,33 @@ void _preferenceMigrate() async {
     await Preferences.setInt(Constants.PREF_THEME_MODE_INDEX, index);
     Preferences.setString(Constants.PREF_THEME_CODE, null);
   }
+  Preferences.prefs.getKeys()?.forEach((key) {
+    if (key.contains(Constants.PREF_COURSE_DATA)) {
+      print(key);
+      var data = Preferences.getString(key, null);
+      var courseData = CourseData.fromRawJson(data);
+      courseData.save(
+        key.replaceAll('${Constants.PREF_COURSE_DATA}_', ''),
+      );
+      Preferences.setString(key, null);
+    } else if (key.contains(Constants.PREF_SCORE_DATA)) {
+      print(key);
+      var data = Preferences.getString(key, null);
+      var courseData = ScoreData.fromRawJson(data);
+      courseData.save(
+        key.replaceAll('${Constants.PREF_SCORE_DATA}_', ''),
+      );
+      Preferences.setString(key, null);
+    } else if (key.contains(Constants.PREF_USER_INFO)) {
+      print(key);
+      var data = Preferences.getString(key, null);
+      var courseData = ScoreData.fromRawJson(data);
+      courseData.save(
+        key.replaceAll('${Constants.PREF_USER_INFO}_', ''),
+      );
+      Preferences.setString(key, null);
+    }
+  });
 }
 
 void _setTargetPlatformForDesktop() {
