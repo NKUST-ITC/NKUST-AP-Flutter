@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
 
@@ -101,7 +100,6 @@ class SchedulePageState extends State<SchedulePage>
   }
 
   _getSchedules() async {
-    scheduleDataList = await CacheUtils.loadScheduleDataList();
     var data = '';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {

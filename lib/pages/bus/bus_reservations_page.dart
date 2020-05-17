@@ -12,7 +12,6 @@ import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State {
@@ -233,7 +232,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   _getBusReservations() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      busReservationsData = await CacheUtils.loadBusReservationsData();
+      busReservationsData = BusReservationsData.load(Helper.username);
       if (mounted) {
         setState(() {
           isOffline = true;
@@ -269,7 +268,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             FirebaseConstants.CAN_USE_BUS,
             FirebaseConstants.YES,
           );
-          CacheUtils.saveBusReservationsData(busReservationsData);
+          busReservationsData.save(Helper.username);
         },
         onFailure: (DioError e) {
           if (mounted)
@@ -396,7 +395,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   }
 
   _loadCache() async {
-    busReservationsData = await CacheUtils.loadBusReservationsData();
+    busReservationsData = BusReservationsData.load(Helper.username);
     if (mounted) {
       setState(() {
         isOffline = true;

@@ -9,7 +9,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
@@ -59,7 +58,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
     super.initState();
   }
 
@@ -316,7 +316,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               }
             });
           print(state);
-          CacheUtils.saveLeaveData(selectSemester.code, leaveData);
+          leaveData.save(selectSemester.cacheSaveTag);
         },
         onFailure: (DioError e) {
           setState(() {
@@ -324,7 +324,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             customStateHint = ApLocalizations.dioError(context, e);
           });
           if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent('getSemesterLeaveRecord', e.response.statusCode,
+            FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getSemesterLeaveRecord', e.response.statusCode,
                 message: e.message);
           _loadOfflineLeaveData();
         },
@@ -340,7 +341,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   void _loadOfflineLeaveData() async {
-    leaveData = await CacheUtils.loadLeaveData(selectSemester.code);
+    leaveData = LeaveData.load(selectSemester.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;

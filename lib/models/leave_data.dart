@@ -1,5 +1,8 @@
 import 'dart:convert';
 
+import 'package:ap_common/utils/preferences.dart';
+import 'package:nkust_ap/config/constants.dart';
+
 class LeaveData {
   List<Leave> leaves;
   List<String> timeCodes;
@@ -30,6 +33,24 @@ class LeaveData {
   static LeaveData sample() {
     return LeaveData.fromRawJson(
         '{ "leave": [ { "leaveSheetId": "", "date": "107/11/14", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }');
+  }
+
+  void save(String tag) {
+    Preferences.setString(
+      '${Constants.PREF_LEAVE_DATA}_$tag',
+      this.toRawJson(),
+    );
+  }
+
+  factory LeaveData.load(String tag) {
+    String rawString = Preferences.getString(
+      '${Constants.PREF_LEAVE_DATA}_$tag',
+      '',
+    );
+    if (rawString == '')
+      return null;
+    else
+      return LeaveData.fromRawJson(rawString);
   }
 }
 

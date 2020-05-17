@@ -4,7 +4,9 @@
 
 import 'dart:convert';
 
+import 'package:ap_common/utils/preferences.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/config/constants.dart';
 
 class SemesterData {
   List<Semester> data;
@@ -39,6 +41,24 @@ class SemesterData {
         "data": new List<dynamic>.from(data.map((x) => x.toJson())),
         "default": defaultSemester.toJson(),
       };
+
+  void save() {
+    Preferences.setString(
+      Constants.PREF_SEMESTER_DATA,
+      this.toRawJson(),
+    );
+  }
+
+  factory SemesterData.load() {
+    String rawString = Preferences.getString(
+      Constants.PREF_SEMESTER_DATA,
+      '',
+    );
+    if (rawString == '')
+      return null;
+    else
+      return SemesterData.fromRawJson(rawString);
+  }
 }
 
 class Semester {

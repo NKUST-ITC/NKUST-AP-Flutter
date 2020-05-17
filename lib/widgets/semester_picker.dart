@@ -71,7 +71,7 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void _loadSemesterData() async {
-    this.semesterData = await CacheUtils.loadSemesterData();
+    this.semesterData = SemesterData.load();
     if (this.semesterData == null) return;
     widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
     if (mounted) {
@@ -90,7 +90,7 @@ class SemesterPickerState extends State<SemesterPicker> {
       callback: GeneralCallback(
         onSuccess: (SemesterData data) {
           this.semesterData = data;
-          CacheUtils.saveSemesterData(semesterData);
+          semesterData.save();
           var oldSemester = Preferences.getString(
             ApConstants.CURRENT_SEMESTER_CODE,
             ApConstants.SEMESTER_LATEST,

@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusReservationsData {
@@ -31,6 +33,24 @@ class BusReservationsData {
   static BusReservationsData sample() {
     return BusReservationsData.fromRawJson(
         '{ "data": [ { "dateTime": "2019-03-17T16:51:57Z", "endTime": "2019-03-14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T00:20:00Z", "endTime": "2019-03-17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T08:40:00Z", "endTime": "2019-03-18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }');
+  }
+
+  void save(String tag) {
+    Preferences.setString(
+      '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
+      this.toRawJson(),
+    );
+  }
+
+  factory BusReservationsData.load(String tag) {
+    String rawString = Preferences.getString(
+      '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
+      '',
+    );
+    if (rawString == '')
+      return null;
+    else
+      return BusReservationsData.fromRawJson(rawString);
   }
 }
 

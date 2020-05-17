@@ -17,7 +17,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/item.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info/package_info.dart';
@@ -293,7 +292,7 @@ class SettingPageState extends State<SettingPage> {
       barrierDismissible: false,
     );
     if (isOffline) {
-      BusReservationsData response = await CacheUtils.loadBusReservationsData();
+      BusReservationsData response = BusReservationsData.load(Helper.username);
       Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() => busNotify = false);
