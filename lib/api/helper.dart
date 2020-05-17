@@ -36,7 +36,7 @@ import 'package:nkust_ap/utils/utils.dart';
 export 'package:ap_common/callback/general_callback.dart';
 
 class Helper {
-  static const HOST = 'nkust.v3.backup.taki.dog';
+  static const HOST = 'nkust.taki.dog';
 
   static const VERSION = 'v3';
 
