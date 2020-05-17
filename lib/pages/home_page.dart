@@ -461,7 +461,7 @@ class HomePageState extends State<HomePage> {
 
   _getUserInfo() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      userInfo = await CacheUtils.loadUserInfo();
+      userInfo = UserInfo.load(Helper.username);
       setState(() {
         state = HomeState.offline;
       });
@@ -474,7 +474,7 @@ class HomePageState extends State<HomePage> {
                 this.userInfo = data;
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
-              CacheUtils.saveUserInfo(userInfo);
+              userInfo.save(Helper.username);
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
             }

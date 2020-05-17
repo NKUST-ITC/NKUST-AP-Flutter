@@ -2,9 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -25,7 +22,7 @@ class CacheUtils {
     SemesterData semesterData = SemesterData.fromJson(jsonDecode(json));
     return semesterData;
   }
-  
+
   static void saveScheduleDataList(List<ScheduleData> scheduleDataList) async {
     if (scheduleDataList == null) return;
     await Preferences.setString(
@@ -36,22 +33,6 @@ class CacheUtils {
     String json = Preferences.getString(Constants.PREF_SCHEDULE_DATA, '');
     if (json == '') return null;
     return ScheduleData.toList(jsonDecode(json));
-  }
-
-  static void saveUserInfo(UserInfo userInfo) async {
-    if (userInfo == null) return;
-
-    String username = Preferences.getString(Constants.PREF_USERNAME, '');
-    await Preferences.setString(
-        '${Constants.PREF_USER_INFO}_$username', jsonEncode(userInfo));
-  }
-
-  static Future<UserInfo> loadUserInfo() async {
-    String username = Preferences.getString(Constants.PREF_USERNAME, '');
-    String json =
-        Preferences.getString('${Constants.PREF_USER_INFO}_$username', '');
-    if (json == '') return null;
-    return UserInfo.fromJson(jsonDecode(json));
   }
 
   static void saveLeaveData(String value, LeaveData leaveData) async {
