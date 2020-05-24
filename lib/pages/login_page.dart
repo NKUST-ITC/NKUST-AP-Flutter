@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
@@ -8,9 +7,7 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_autofill/flutter_autofill.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -195,7 +192,6 @@ class LoginPageState extends State<LoginPage> {
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
             Navigator.of(context).pop(true);
-            if (!kIsWeb && Platform.isAndroid) await FlutterAutofill.commit();
           },
           onFailure: (DioError e) {
             Navigator.of(context, rootNavigator: true).pop();
