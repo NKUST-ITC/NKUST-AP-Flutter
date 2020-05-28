@@ -112,6 +112,9 @@ class SchedulePageState extends State<SchedulePage>
         } else
           data = remoteConfig.getString(Constants.SCHEDULE_DATA);
       } on FetchThrottledException catch (_) {} catch (exception) {}
+    } else {
+      downloadFdf(
+          'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/039ac35f41173f6c2eacfd9cc73052a257e8d68a/cal108-2.pdf');
     }
     if (data == null || data.isEmpty) {
       data = await rootBundle.loadString(FileAssets.scheduleData);
