@@ -23,7 +23,7 @@ class AppLocalizations {
     'en': {
       'app_name': 'NKUST AP',
       'update_note_content':
-          'Beta Testing\n* New course table UI.\n* Course add to calendar app.\n* Dynamic change theme align system.\n* Fix token expire problem.\n*Course notify can pick particular section.\n*Update school schedule.\n*Classroom coursetalbe Search.\n*Bus Violation Records.',
+          '* New course table UI.\n* Course add to calendar app.\n* Dynamic change theme align system.\n* Fix token expire problem.\n*Course notify can pick particular section.\n*Update school schedule.\n*Classroom coursetalbe Search.\n*Bus Violation Records.',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright © 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': 'Chosen Date: %s',
@@ -108,7 +108,7 @@ class AppLocalizations {
     'zh': {
       'app_name': '高科校務通',
       'update_note_content':
-          'Beta 測試中\n* 全新課表介面\n* 課表可加入行事曆App\n* 可隨著系統調整主題\n* 修正憑證過期問題.\n* 上課通知可單選特定課程\n* 更新學校行事曆\n* 教室課表查詢\n* 校車罰緩',
+          '* 全新課表介面\n* 課表可加入行事曆App\n* 可隨著系統調整主題\n* 修正憑證過期問題.\n* 上課通知可單選特定課程\n* 更新學校行事曆\n* 教室課表查詢\n* 校車罰緩',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\n本專案採MIT 開放原始碼授權：\nThe MIT License (MIT)\n\nCopyright © 2020 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': '選擇乘車時間：%s',
