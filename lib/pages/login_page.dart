@@ -1,4 +1,3 @@
-
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -69,6 +68,7 @@ class LoginPageState extends State<LoginPage> {
           focusNode: usernameFocusNode,
           nextFocusNode: passwordFocusNode,
           labelText: ap.username,
+          autofillHints: [AutofillHints.username],
         ),
         ApTextField(
           obscureText: true,
@@ -80,6 +80,7 @@ class LoginPageState extends State<LoginPage> {
             _login();
           },
           labelText: ap.password,
+          autofillHints: [AutofillHints.password],
         ),
         SizedBox(height: 8.0),
         Row(
