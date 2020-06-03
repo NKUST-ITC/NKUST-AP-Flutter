@@ -554,12 +554,13 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     Helper.instance.getLeavesSubmitInfo(
       callback: GeneralCallback(
         onSuccess: (LeaveSubmitInfoData data) {
-          if (data != null) {
-            setState(() {
+          setState(() {
+            if (data != null) {
               leaveSubmitInfo = data;
               state = _State.finish;
-            });
-          }
+            } else
+              state = _State.error;
+          });
         },
         onFailure: (DioError e) {
           if (mounted)
