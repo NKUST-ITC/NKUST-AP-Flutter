@@ -45,14 +45,14 @@ class BusRulePageState extends State<BusRulePage> {
                   color: ApTheme.of(context).grey, height: 1.3, fontSize: 16.0),
               children: [
                 TextSpan(
-                  text: app.busTitle,
+                  text: app.reservationRuleTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24.0,
                   ),
                 ),
                 TextSpan(
-                  text: app.please,
+                  text: app.travelBy,
                 ),
                 TextSpan(
                     text: "http://bus.kuas.edu.tw/",
@@ -64,71 +64,71 @@ class BusRulePageState extends State<BusRulePage> {
                       ..onTap =
                           () => ApUtils.launchUrl('http://bus.kuas.edu.tw/')),
                 TextSpan(
-                  text: app.fourteen_day
+                  text: app.fourteenDay
                 ),
                 TextSpan(
-                  text: app.reservation_time,
+                  text: app.reservationTime,
                   style: TextStyle(color: ApTheme.of(context).red),
                 ),
                 TextSpan(
-                  text: app.cancelling_title,
+                  text: app.cancellingTitle,
                 ),
                 TextSpan(
-                  text: app.canceling_time,
+                  text: app.cancelingTime,
                   style: TextStyle(color: ApTheme.of(context).red),
                 ),
                 TextSpan(
                   text: app.busRuleFollow,
                 ),
                 TextSpan(
-                  text: app.take_on,
+                  text: app.takeOn,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24.0,
                   ),
                 ),
                 TextSpan(
-                  text: app.twenty_dollars,
+                  text: app.twentyDollars,
                 ),
                 TextSpan(
-                  text: app.prepare_coins,
+                  text: app.prepareCoins,
                   style: TextStyle(color: ApTheme.of(context).blueText),
                 ),
                 TextSpan(
-                  text: app.id_card,
+                  text: app.idCard,
                 ),
                 TextSpan(
-                  text: app.no_id_card,
+                  text: app.noIdCard,
                   style: TextStyle(
                       color: ApTheme.of(context).red,
                       fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
-                  text: app.following_time,
+                  text: app.followingTime,
                   style: TextStyle(color: ApTheme.of(context).red),
                 ),
                 TextSpan(
-                  text: app.late_and_no_reservation,
+                  text: app.lateAndNoReservation,
                 ),
                 TextSpan(
-                  text: app.standby_title,
+                  text: app.standbyTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24.0,
                   ),
                 ),
                 TextSpan(
-                  text: app.standby_rule,
+                  text: app.standbyRule,
                 ),
                 TextSpan(
-                  text: app.fine_title,
+                  text: app.fineTitle,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24.0,
                   ),
                 ),
                 TextSpan(
-                  text: app.fine_rule,
+                  text: app.fineRule,
                   style: TextStyle(color: ApTheme.of(context).red),
                 ),
               ]),

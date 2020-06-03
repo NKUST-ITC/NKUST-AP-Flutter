@@ -104,8 +104,8 @@ class AppLocalizations {
       'offline_score': 'Offline Score',
       'offline_bus_reservations': 'Offline Bus Reservations',
       'offline_leave_data': 'Offline absent Report',
-      'bus_title' : 'Bus Reservation\n',
-      'please'  : '• Go to ',
+      'resevation_rule_title' : 'Bus Reservation\n',
+      'travelby'  : '• Go to ',
       'fourteen_day' : " Bus Reservation System can reserve bus in 14 days\n" + "in need to follow office of general affairs's time requirement\n",
       'reservation_time' : '■ The classes before 9 A.M.：Please do resevation in 15 hours ago.\n' '■ The classes after 9 A.M.：Please do resevation in 5 hours ago\n',
       'cancelling_title' : '• Cancelation Time\n',
@@ -209,8 +209,8 @@ class AppLocalizations {
       'offline_score': '離線成績',
       'offline_bus_reservations': '離線校車紀錄',
       'offline_leave_data': '離線缺曠資料',
-      'bus_title' : '預約校車\n',
-      'please'  : '• 請上 ',
+      'resevation_rule_title' : '預約校車\n',
+      'travel_by'  : '• 請上 ',
       'fourteen_day' : " 校車預約系統預約校車\n" + "• 可預約14天以內的校車班次\n" + "• 為配合總務處派車需求預約時間\n",
       'reservation_time' : '■ 9點以前的班次：請於發車前15個小時預約\n' '■ 9點以後的班次：請於發車前5個小時預約\n',
       'cancelling_title' : '• 取消預約時間\n',
@@ -389,41 +389,41 @@ class AppLocalizations {
 
   String get nonCourseTime => _vocabularies['nonCourseTime'];
 
-  String get busTitle => _vocabularies['bus_title'];
+  String get reservationRuleTitle => _vocabularies['resevation_rule_title'];
 
-  String get please => _vocabularies['please'];
+  String get travelBy => _vocabularies['travel_by'];
 
-  String get fourteen_day => _vocabularies['fourteen_day'];
+  String get fourteenDay => _vocabularies['fourteen_day'];
 
-  String get reservation_time => _vocabularies['reservation_time'];
+  String get reservationTime => _vocabularies['reservation_time'];
 
-  String get cancelling_title => _vocabularies['cancelling_title'];
+  String get cancellingTitle => _vocabularies['cancelling_title'];
 
-  String get canceling_time => _vocabularies['canceling_time'];
+  String get cancelingTime => _vocabularies['canceling_time'];
 
   String get busRuleFollow => _vocabularies['bus_rule_follow'];
 
-  String get take_on => _vocabularies['take_on'];
+  String get takeOn => _vocabularies['take_on'];
 
-  String get twenty_dollars => _vocabularies['twenty_dollars'];
+  String get twentyDollars => _vocabularies['twenty_dollars'];
 
-  String get prepare_coins => _vocabularies['prepare_coins'];
+  String get prepareCoins => _vocabularies['prepare_coins'];
 
-  String get id_card => _vocabularies['id_card'];
+  String get idCard => _vocabularies['id_card'];
 
-  String get no_id_card => _vocabularies['no_id_card'];
+  String get noIdCard => _vocabularies['no_id_card'];
 
-  String get following_time => _vocabularies['following_time'];
+  String get followingTime => _vocabularies['following_time'];
 
-  String get late_and_no_reservation => _vocabularies['late_and_no_reservation'];
+  String get lateAndNoReservation => _vocabularies['late_and_no_reservation'];
 
-  String get standby_title => _vocabularies['standby_title'];
+  String get standbyTitle => _vocabularies['standby_title'];
 
-  String get standby_rule => _vocabularies['standby_rule'];
+  String get standbyRule => _vocabularies['standby_rule'];
 
-  String get fine_title => _vocabularies['fine_title'];
+  String get fineTitle => _vocabularies['fine_title'];
 
-  String get fine_rule => _vocabularies['fine_rule'];
+  String get fineRule => _vocabularies['fine_rule'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
