@@ -1,6 +1,6 @@
 #include "window_configuration.h"
 
-const wchar_t* kFlutterWindowTitle = L"nkust_ap";
+const wchar_t* kFlutterWindowTitle = L"NKUST AP";
 const unsigned int kFlutterWindowOriginX = 10;
 const unsigned int kFlutterWindowOriginY = 10;
 const unsigned int kFlutterWindowWidth = 1280;
