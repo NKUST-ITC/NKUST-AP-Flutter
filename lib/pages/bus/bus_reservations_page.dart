@@ -268,7 +268,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             FirebaseConstants.CAN_USE_BUS,
             FirebaseConstants.YES,
           );
-          busReservationsData.save(Helper.username);
+          busReservationsData?.save(Helper.username);
         },
         onFailure: (DioError e) {
           if (mounted)
