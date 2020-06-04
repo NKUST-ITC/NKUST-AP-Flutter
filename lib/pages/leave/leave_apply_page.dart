@@ -50,6 +50,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   ApLocalizations ap;
 
+  ImagePicker imagePicker = ImagePicker();
+
   _State state = _State.loading;
   String customStateHint;
 
@@ -69,7 +71,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   var _delayReason = TextEditingController();
 
-  File image;
+  PickedFile image;
 
   String get errorTitle {
     switch (state) {
@@ -404,19 +406,41 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 Divider(color: ApTheme.of(context).grey, height: 1),
                 ListTile(
                   onTap: () async {
-                    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
-                      ImagePicker.pickImage(source: ImageSource.gallery).then(
+                    if (kIsWeb || Platform.isAndroid || Platform.isIOS)
+                      imagePicker.getImage(source: ImageSource.gallery).then(
                         (image) async {
                           if (image != null) {
-                            FirebaseAnalyticsUtils.instance
-                                .logLeavesImageSize(image);
-                            print('resize before: ${(image.mb)}');
-                            if ((image.mb) >= Constants.MAX_IMAGE_SIZE) {
-                              resizeImage(image);
+//                            FirebaseAnalyticsUtils.instance
+//                                .logLeavesImageSize(image);
+                            if (kIsWeb) {
+                              double size = (await image.readAsBytes())
+                                      .length
+                                      .toDouble() /
+                                  1024.0 /
+                                  1024.0;
+                              if (size >= Constants.MAX_IMAGE_SIZE) {
+                                ApUtils.showToast(
+                                  context,
+                                  sprintf(
+                                    ap.imageTooBigHint,
+                                    [Constants.MAX_IMAGE_SIZE],
+                                  ),
+                                );
+                              } else {
+                                setState(() {
+                                  this.image = image;
+                                });
+                              }
                             } else {
-                              setState(() {
-                                this.image = image;
-                              });
+                              File file = File(image.path);
+                              print('resize before: ${(file.mb)}');
+                              if ((file.mb) >= Constants.MAX_IMAGE_SIZE) {
+                                resizeImage(file);
+                              } else {
+                                setState(() {
+                                  this.image = image;
+                                });
+                              }
                             }
                           }
                         },
@@ -438,11 +462,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           );
                         } else
                           setState(() {
-                            this.image = image;
+                            this.image = PickedFile(image.path);
                           });
                       }
-                    } else {
-                      ApUtils.showToast(context, ap.platformError);
                     }
                   },
                   contentPadding: EdgeInsets.symmetric(
@@ -731,7 +753,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       left: 30.0,
                       right: 30.0,
                     ),
-                    child: Image.file(image),
+                    child: kIsWeb
+                        ? Image.network(image.path)
+                        : Image.file(File(image.path)),
                   ),
               ],
             ),
@@ -829,7 +853,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         ),
       );
       setState(() {
-        this.image = result;
+        this.image = PickedFile(result.path);
       });
     } else {
       ApUtils.showToast(context, ap.imageTooBigHint);

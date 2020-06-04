@@ -26,7 +26,8 @@ dependencies:
       ref: v0.0.4
 #    path: ../../GitHub/ap_common_plugin
   #official plugin
-  image_picker: 0.6.6+1
+  image_picker: ^0.6.7
+  image_picker_for_web: ^0.1.0
   path_provider: 1.6.7
   http: ^0.12.1
   html: 0.14.0+3
