@@ -15,7 +15,7 @@
 - [ ] Linux
 
 # 如何貢獻?
- 如果你想為專案付出一份心力，你需要知道:
+如果你想為專案付出一份心力，你需要知道:
  - [Flutter](https://flutter.dev/) : 
    專案所使用的基本框架
  - [Git](https://git-scm.com/) : 
