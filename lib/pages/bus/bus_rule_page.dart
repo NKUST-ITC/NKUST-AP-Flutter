@@ -63,9 +63,7 @@ class BusRulePageState extends State<BusRulePage> {
                     recognizer: TapGestureRecognizer()
                       ..onTap =
                           () => ApUtils.launchUrl('http://bus.kuas.edu.tw/')),
-                TextSpan(
-                  text: app.busRuleFourteenDay
-                ),
+                TextSpan(text: app.busRuleFourteenDay),
                 TextSpan(
                   text: app.busRuleReservationTime,
                   style: TextStyle(color: ApTheme.of(context).red),
