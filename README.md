@@ -12,7 +12,7 @@
 - [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
 - [X] [Windows(Alpha)](https://drive.google.com/file/d/1ibOtCTATHM3tDDk9DKhF2iYel29dj320/view?usp=sharing)
 - [X] [MacOS(Beta)](https://drive.google.com/open?id=1ag3fsRN6pQv47T01Aa0EqTY2has83xPV)
-- [ ] Linux
+- [X] [Linux(Alpha)](https://drive.google.com/file/d/1JGuuWjjBYjzofB24GrgNjpJ1EYA3GcBd/view?usp=sharing)
 
 # 如何貢獻?
 如果你想為專案付出一份心力，你需要知道:
