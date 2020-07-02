@@ -200,7 +200,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    leaveSubmitInfo.type[typeIndex].title,
+                    leaveSubmitInfo?.type[typeIndex]?.title ?? '',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -555,7 +555,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       callback: GeneralCallback(
         onSuccess: (LeaveSubmitInfoData data) {
           setState(() {
-            if (data != null) {
+            if (data != null && data.type != null) {
               leaveSubmitInfo = data;
               state = _State.finish;
             } else
