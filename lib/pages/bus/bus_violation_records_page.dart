@@ -214,7 +214,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Future<void> getBusViolationRecords() async {
-    await Helper.instance.getBusViolationRecords(
+    Helper.instance.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
@@ -225,12 +225,10 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 state = _State.empty;
               else
                 state = _State.finish;
+              ShareDataWidget.of(context).data.hasBusViolationRecords =
+                  (data?.hasBusViolationRecords ?? false);
             });
           }
-          setState(() {
-            ShareDataWidget.of(context).data.hasBusViolationRecords =
-                (data?.hasBusViolationRecords ?? false);
-          });
           FirebaseAnalyticsUtils.instance.setUserProperty(
             FirebaseConstants.CAN_USE_BUS,
             FirebaseConstants.YES,
@@ -241,7 +239,6 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 ? FirebaseConstants.YES
                 : FirebaseConstants.NO,
           );
-          return violationData;
         },
         onFailure: (DioError e) {
           if (mounted)
