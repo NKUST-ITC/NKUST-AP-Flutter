@@ -46,7 +46,6 @@ dependencies:
   date_range_picker: 1.0.6
   image: ^2.1.4
   flutter_image_compress: 0.6.7
-  barcode_scan: 3.0.1
 #  image_picker_web: 1.0.8
 
 
