@@ -126,7 +126,7 @@ class Utils {
   }
 
   static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
-    await Future.delayed(Duration(milliseconds: 50));
+    await Future.delayed(Duration(milliseconds: 100));
     if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
