@@ -908,6 +908,7 @@ class Helper {
     }
   }
 
+  @deprecated
   Future<EventInfoResponse> getEventInfo({
     @required String data,
     @required GeneralCallback<EventInfoResponse> callback,
@@ -942,6 +943,7 @@ class Helper {
     return null;
   }
 
+  @deprecated
   Future<EventSendResponse> sendEvent({
     @required String data,
     @required String busId,

@@ -45,9 +45,7 @@ class Constants {
   static const PREF_LEAVE_ENABLE = "pref_leave_enable";
 
   static const PREF_IS_OFFLINE_LOGIN = "pref_is_offline_login";
-
-  static const PREF_AUTO_SEND_EVENT = "pref_auto_send_event";
-
+  
   static const SCHEDULE_DATA = "schedule_data";
   static const SCHEDULE_PDF_URL = 'schedule_pdf_url';
   static const ANDROID_APP_VERSION = "android_app_version";
