@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:ap_common/callback/general_callback.dart';
@@ -14,19 +13,10 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
-import 'package:ap_common/widgets/dialog_option.dart';
-import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
-import 'package:barcode_scan/barcode_scan.dart';
-import 'package:barcode_scan/platform_wrapper.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/event_callback.dart';
-import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
@@ -35,7 +25,6 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
-import 'package:outline_material_icons/outline_material_icons.dart';
 
 import 'study/midterm_alerts_page.dart';
 import 'study/reward_and_penalty_page.dart';
