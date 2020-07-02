@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.4.1+30401
+version: 3.4.2+30402
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
