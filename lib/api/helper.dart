@@ -15,6 +15,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -844,7 +845,7 @@ class Helper {
 
   Future<Response> sendLeavesSubmit({
     @required LeaveSubmitData data,
-    @required File image,
+    @required PickedFile image,
     GeneralCallback<Response> callback,
   }) async {
     if (isExpire()) await login(username: username, password: password);
