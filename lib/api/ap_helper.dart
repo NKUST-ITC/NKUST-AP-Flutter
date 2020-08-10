@@ -2,6 +2,7 @@
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/cupertino.dart';
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
 //parser
@@ -16,6 +17,8 @@ import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
+// callback
+import 'package:ap_common/callback/general_callback.dart';
 
 class WebApHelper {
   static Dio dio;
@@ -27,6 +30,9 @@ class WebApHelper {
   int reLoginReTryCounts = 3;
   int timeoutMs = 5000;
   bool isLogin;
+
+  //LOGIN API
+  static const USER_DATA_ERROR = 1401;
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -58,7 +64,11 @@ class WebApHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
-  Future<int> apLogin(String username, String password) async {
+  Future<int> apLogin({
+    @required String username,
+    @required String password,
+    GeneralCallback<int> callback,
+  }) async {
     //
     /*
     Retrun type Int
@@ -68,11 +78,38 @@ class WebApHelper {
     3 : Not found login message
     */
 
-    Response res = await dio.post("https://webap.nkust.edu.tw/nkust/perchk.jsp",
-        data: {"uid": username, "pwd": password},
-        options: Options(contentType: Headers.formUrlEncodedContentType));
+    try {
+      Response res = await dio.post(
+          "https://webap.nkust.edu.tw/nkust/perchk.jsp",
+          data: {"uid": username, "pwd": password},
+          options: Options(contentType: Headers.formUrlEncodedContentType));
 
-    return apLoginParser(res.data);
+      WebApHelper.username = username;
+      WebApHelper.password = password;
+      switch (apLoginParser(res.data)) {
+        case 0:
+          callback.onSuccess(0);
+          break;
+        case 1:
+          callback?.onError(
+            GeneralResponse(
+              statusCode: USER_DATA_ERROR,
+              message: 'username or password error',
+            ),
+          );
+          break;
+      }
+    } on DioError catch (e) {
+      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
+      } else
+        callback?.onFailure(e);
+    } catch (e) {
+      callback?.onError(
+        GeneralResponse.unknownError(),
+      );
+      throw e;
+    }
+    return null;
   }
 
   Future<Response> apQuery(
