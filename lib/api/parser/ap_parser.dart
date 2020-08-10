@@ -2,12 +2,24 @@ import 'dart:io';
 import 'package:html/parser.dart' show parse;
 
 int apLoginParser(String html) {
-  //100 login success
-  //101 login fail
-  if (html.indexOf(">alert(") < 0) {
-    return 100;
+  /*
+    Retrun type Int
+    0 : Login Success
+    1 : Password error or not found user
+    2 : Relogin
+    3 : Not found login message
+    */
+  if (html.indexOf("top.location.href='f_index.html'") > -1) {
+    return 0;
   }
-  return 101;
+  if (html.indexOf(";top.location.href='index.html'") > -1) {
+    return 1;
+  }
+  if (html.indexOf("location.href='relogin.jsp'") > -1 ||
+      html.indexOf("top.location.href='../index.html';") > -1) {
+    return 2;
+  }
+  return 3;
 }
 
 Map<String, dynamic> apUserInfoParser(String html) {
