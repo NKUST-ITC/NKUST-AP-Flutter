@@ -26,7 +26,7 @@ import 'package:nkust_ap/models/room_data.dart';
 // callback
 import 'package:ap_common/callback/general_callback.dart';
 //Ap helper errorCode
-import 'package:nkust_ap/api/ap_error_code.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 
 class WebApHelper {
   static Dio dio;
@@ -39,9 +39,6 @@ class WebApHelper {
   static int reLoginReTryCounts = 0;
   int timeoutMs = 5000;
   bool isLogin;
-
-  //LOGIN API
-  static const USER_DATA_ERROR = 1401;
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -105,7 +102,7 @@ class WebApHelper {
       case 1:
       default:
         throw GeneralResponse(
-          statusCode: USER_DATA_ERROR,
+          statusCode: ApStatusCode.USER_DATA_ERROR,
           message: 'username or password error',
         );
         break;
@@ -121,7 +118,7 @@ class WebApHelper {
     */
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
-          statusCode: ApErrorCode.NETWORK_CONNECT_FAIL,
+          statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
           message: "Login exceeded retry limit");
     }
     String url =

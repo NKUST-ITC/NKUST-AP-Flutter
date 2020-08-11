@@ -15,6 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -53,11 +54,6 @@ class Helper {
 
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
-
-  //Common
-  static const API_EXPIRE = 401;
-  static const API_SERVER_ERROR = 500;
-  static const SCHOOL_SERVER_ERROR = 503;
 
   int reLoginCount = 0;
 
@@ -961,23 +957,23 @@ extension NewsExtension on Announcement {
 extension DioErrorExtension on DioError {
   bool get hasResponse => type == DioErrorType.RESPONSE;
 
-  bool get isExpire => response.statusCode == Helper.API_EXPIRE;
+  bool get isExpire => response.statusCode == ApStatusCode.API_EXPIRE;
 
   bool get isServerError =>
-      response.statusCode == Helper.SCHOOL_SERVER_ERROR ||
-      response.statusCode == Helper.API_SERVER_ERROR;
+      response.statusCode == ApStatusCode.SCHOOL_SERVER_ERROR ||
+      response.statusCode == ApStatusCode.API_SERVER_ERROR;
 
   GeneralResponse get serverErrorResponse {
     switch (response.statusCode) {
-      case Helper.API_SERVER_ERROR:
+      case ApStatusCode.API_SERVER_ERROR:
         return GeneralResponse(
-          statusCode: Helper.API_SERVER_ERROR,
+          statusCode: ApStatusCode.API_SERVER_ERROR,
           message: 'api server error',
         );
-      case Helper.SCHOOL_SERVER_ERROR:
+      case ApStatusCode.SCHOOL_SERVER_ERROR:
       default:
         return GeneralResponse(
-          statusCode: Helper.SCHOOL_SERVER_ERROR,
+          statusCode: ApStatusCode.SCHOOL_SERVER_ERROR,
           message: 'shool server error',
         );
     }
@@ -991,13 +987,13 @@ extension GeneralResponseExtension on GeneralResponse {
     final ap = ApLocalizations.of(context);
     String message = '';
     switch (statusCode) {
-      case Helper.SCHOOL_SERVER_ERROR:
+      case ApStatusCode.SCHOOL_SERVER_ERROR:
         message = ap.schoolSeverError;
         break;
-      case Helper.API_SERVER_ERROR:
+      case ApStatusCode.API_SERVER_ERROR:
         message = ap.apiSeverError;
         break;
-      case Helper.API_EXPIRE:
+      case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
         break;
       default:
