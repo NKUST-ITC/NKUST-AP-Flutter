@@ -107,7 +107,7 @@ Map<String, dynamic> scoresParser(String html) {
           ? double.parse(matches.elementAt(1).group(1))
           : 0.0
     };
-  } on Exception catch (e) {}
+  } catch (e) {}
   //scores part
 
   try {
@@ -126,7 +126,7 @@ Map<String, dynamic> scoresParser(String html) {
         'remark': td[8].text,
       });
     }
-  } on Exception catch (e) {}
+  } catch (e) {}
 
   return data;
 }
