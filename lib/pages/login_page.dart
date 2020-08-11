@@ -7,6 +7,7 @@ import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -203,13 +204,13 @@ class LoginPageState extends State<LoginPage> {
             Navigator.of(context, rootNavigator: true).pop();
             String message = '';
             switch (response.statusCode) {
-              case Helper.SCHOOL_SERVER_ERROR:
+              case ApStatusCode.SCHOOL_SERVER_ERROR:
                 message = ap.schoolSeverError;
                 break;
-              case Helper.API_SERVER_ERROR:
+              case ApStatusCode.API_SERVER_ERROR:
                 message = ap.apiSeverError;
                 break;
-              case Helper.USER_DATA_ERROR:
+              case ApStatusCode.USER_DATA_ERROR:
                 message = ap.loginFail;
                 break;
               default:

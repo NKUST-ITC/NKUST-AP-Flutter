@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ap_common/api/github_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
@@ -17,6 +18,7 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
@@ -45,7 +47,10 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   ApLocalizations ap;
 
-  List<Announcement> announcements;
+  Map<String, List<Announcement>> newsMap;
+
+  List<Announcement> get announcements =>
+      (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
 
   var isLogin = false;
   bool displayPicture = true;
@@ -382,19 +387,28 @@ class HomePageState extends State<HomePage> {
         state = HomeState.offline;
       });
     } else
-      Helper.instance.getAllAnnouncements(
+      GitHubHelper.instance.getAnnouncement(
+        gitHubUsername: 'abc873693',
+        hashCode: 'a8e048d24f892ce95a633aa5966c030a',
+        tag: 'nkust',
         callback: GeneralCallback(
-          onSuccess: (List<Announcement> data) {
-            announcements = data;
-            setState(() {
-              if (announcements.length == null || announcements.length == 0)
-                state = HomeState.empty;
-              else
-                state = HomeState.finish;
-            });
-          },
           onFailure: (_) => setState(() => state = HomeState.error),
           onError: (_) => setState(() => state = HomeState.error),
+          onSuccess: (Map<String, List<Announcement>> data) {
+            newsMap = data;
+            setState(() {
+              if (announcements == null || announcements.length == 0)
+                state = HomeState.empty;
+              else {
+                newsMap.forEach((_, data) {
+                  data.sort((a, b) {
+                    return b.weight.compareTo(a.weight);
+                  });
+                });
+                state = HomeState.finish;
+              }
+            });
+          },
         ),
       );
   }
@@ -518,13 +532,13 @@ class HomePageState extends State<HomePage> {
           Navigator.of(context, rootNavigator: true).pop();
           String message = '';
           switch (response.statusCode) {
-            case Helper.SCHOOL_SERVER_ERROR:
+            case ApStatusCode.SCHOOL_SERVER_ERROR:
               message = ap.schoolSeverError;
               break;
-            case Helper.API_SERVER_ERROR:
+            case ApStatusCode.API_SERVER_ERROR:
               message = ap.apiSeverError;
               break;
-            case Helper.USER_DATA_ERROR:
+            case ApStatusCode.USER_DATA_ERROR:
               message = ap.loginFail;
               break;
             default:
