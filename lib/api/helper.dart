@@ -17,6 +17,7 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -117,6 +118,9 @@ class Helper {
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;
+      // Share data with BusHelper
+      BusHelper.username = username;
+      BusHelper.password = password;
       if (callback != null)
         return callback.onSuccess(loginResponse);
       else
@@ -512,19 +516,10 @@ class Helper {
     @required DateTime dateTime,
     GeneralCallback<BusData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
-    var formatter = DateFormat('yyyy-MM-dd');
-    var date = formatter.format(dateTime);
     try {
-      var response = await dio.get(
-        '/bus/timetables',
-        queryParameters: {
-          'date': date,
-        },
-        cancelToken: cancelToken,
+      BusData data = await BusHelper.instance.timeTableQuery(
+        fromDateTime: dateTime,
       );
-      BusData data;
-      if (response.statusCode == 200) data = BusData.fromJson(response.data);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -551,12 +546,8 @@ class Helper {
   Future<BusReservationsData> getBusReservations({
     GeneralCallback<BusReservationsData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get("/bus/reservations");
-      BusReservationsData data;
-      if (response.statusCode == 200)
-        data = BusReservationsData.fromJson(response.data);
+      BusReservationsData data = await BusHelper.instance.busReservations();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -586,13 +577,7 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.put(
-        "/bus/reservations",
-        queryParameters: {
-          'busId': busId,
-        },
-      );
-      var data = BookingBusData.fromJson(response.data);
+      BookingBusData data = await BusHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -620,15 +605,8 @@ class Helper {
     String cancelKey,
     GeneralCallback<CancelBusData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.delete(
-        "/bus/reservations",
-        queryParameters: {
-          'cancelKey': cancelKey,
-        },
-      );
-      var data = CancelBusData.fromJson(response.data);
+      CancelBusData data = await BusHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -657,10 +635,9 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get('/bus/violation-records');
-      BusViolationRecordsData data;
-      if (response.statusCode == 200)
-        data = BusViolationRecordsData.fromJson(response.data);
+      BusViolationRecordsData data =
+          await BusHelper.instance.busViolationRecords();
+
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
