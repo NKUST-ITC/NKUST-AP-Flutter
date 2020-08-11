@@ -451,15 +451,7 @@ class Helper {
     GeneralCallback<RoomData> callback,
   }) async {
     try {
-      var response = await dio.get(
-        '/user/room/list',
-        queryParameters: {
-          'campus': campusCode,
-        },
-        cancelToken: cancelToken,
-      );
-      RoomData data;
-      if (response.statusCode == 200) data = RoomData.fromJson(response.data);
+      var data = await WebApHelper.instance.roomList('$campusCode');
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -489,18 +481,12 @@ class Helper {
     GeneralCallback<CourseData> callback,
   }) async {
     try {
-      var response = await dio.get(
-        '/user/empty-room/info',
-        queryParameters: {
-          'roomid': roomId,
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.roomCourseTableQuery(
+        roomId,
+        semester.year,
+        semester.value,
       );
-      CourseData data;
-      if (response.statusCode == 200) {
-        data = CourseData.fromJson(response.data);
+      if (data != null) {
         data.updateIndex();
       }
       reLoginCount = 0;
