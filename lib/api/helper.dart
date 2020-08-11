@@ -316,18 +316,11 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        "/user/scores",
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.scores(
+        semester.year,
+        semester.value,
       );
-      ScoreData data;
-      if (response.statusCode == 200) {
-        data = ScoreData.fromJson(response.data);
-      }
+      if (data != null && data.scores.length == 0) data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
