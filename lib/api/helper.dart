@@ -419,18 +419,10 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        "/user/midterm-alerts",
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.midtermAlerts(
+        semester.year,
+        semester.value,
       );
-      MidtermAlertsData data;
-      if (response.statusCode == 200)
-        data = MidtermAlertsData.fromJson(response.data);
-      reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
