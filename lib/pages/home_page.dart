@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ap_common/api/github_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
@@ -45,7 +46,10 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   ApLocalizations ap;
 
-  List<Announcement> announcements;
+  Map<String, List<Announcement>> newsMap;
+
+  List<Announcement> get announcements =>
+      (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
 
   var isLogin = false;
   bool displayPicture = true;
@@ -382,19 +386,28 @@ class HomePageState extends State<HomePage> {
         state = HomeState.offline;
       });
     } else
-      Helper.instance.getAllAnnouncements(
+      GitHubHelper.instance.getAnnouncement(
+        gitHubUsername: 'abc873693',
+        hashCode: 'a8e048d24f892ce95a633aa5966c030a',
+        tag: 'nkust',
         callback: GeneralCallback(
-          onSuccess: (List<Announcement> data) {
-            announcements = data;
-            setState(() {
-              if (announcements.length == null || announcements.length == 0)
-                state = HomeState.empty;
-              else
-                state = HomeState.finish;
-            });
-          },
           onFailure: (_) => setState(() => state = HomeState.error),
           onError: (_) => setState(() => state = HomeState.error),
+          onSuccess: (Map<String, List<Announcement>> data) {
+            newsMap = data;
+            setState(() {
+              if (announcements == null || announcements.length == 0)
+                state = HomeState.empty;
+              else {
+                newsMap.forEach((_, data) {
+                  data.sort((a, b) {
+                    return b.weight.compareTo(a.weight);
+                  });
+                });
+                state = HomeState.finish;
+              }
+            });
+          },
         ),
       );
   }
