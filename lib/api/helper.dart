@@ -256,9 +256,8 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get('/user/info');
+      var data = await WebApHelper.instance.userInfoCrawler();
       reLoginCount = 0;
-      var data = UserInfo.fromJson(response.data);
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
