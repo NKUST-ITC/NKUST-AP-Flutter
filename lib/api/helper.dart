@@ -16,6 +16,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -114,15 +115,10 @@ class Helper {
     GeneralCallback<LoginResponse> callback,
   }) async {
     try {
-      var response = await dio.post(
-        '/oauth/token',
-        data: {
-          'username': username,
-          'password': password,
-        },
+      var loginResponse = await WebApHelper.instance.apLogin(
+        username: username,
+        password: password,
       );
-      var loginResponse = LoginResponse.fromJson(response.data);
-      options.headers = _createBearerTokenAuth(loginResponse.token);
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;
@@ -130,16 +126,10 @@ class Helper {
         return callback.onSuccess(loginResponse);
       else
         return loginResponse;
+    } on GeneralResponse catch (response) {
+      callback?.onError(response);
     } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
-        callback?.onError(
-          GeneralResponse(
-            statusCode: USER_DATA_ERROR,
-            message: 'username or password error',
-          ),
-        );
-      } else
-        callback?.onFailure(e);
+      callback?.onFailure(e);
     } catch (e) {
       callback?.onError(
         GeneralResponse.unknownError(),

@@ -17,6 +17,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
@@ -71,10 +72,9 @@ class WebApHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
-  Future<int> apLogin({
+  Future<LoginResponse> apLogin({
     @required String username,
     @required String password,
-    GeneralCallback<int> callback,
   }) async {
     //
     /*
@@ -85,39 +85,28 @@ class WebApHelper {
     3 : Not found login message
     */
 
-    try {
-      Response res = await dio.post(
-        "https://webap.nkust.edu.tw/nkust/perchk.jsp",
-        data: {"uid": username, "pwd": password},
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      );
-
-      WebApHelper.username = username;
-      WebApHelper.password = password;
-      switch (apLoginParser(res.data)) {
-        case 0:
-          callback.onSuccess(0);
-          break;
-        case 1:
-          callback?.onError(
-            GeneralResponse(
-              statusCode: USER_DATA_ERROR,
-              message: 'username or password error',
-            ),
-          );
-          break;
-      }
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
-      } else
-        callback?.onFailure(e);
-    } catch (e) {
-      callback?.onError(
-        GeneralResponse.unknownError(),
-      );
-      throw e;
+    Response res = await dio.post(
+      "https://webap.nkust.edu.tw/nkust/perchk.jsp",
+      data: {"uid": username, "pwd": password},
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    WebApHelper.username = username;
+    WebApHelper.password = password;
+    switch (apLoginParser(res.data)) {
+      case 0:
+        return LoginResponse(
+          expireTime: DateTime.now().add(Duration(hours: 6)),
+          isAdmin: false,
+        );
+        break;
+      case 1:
+      default:
+        throw GeneralResponse(
+          statusCode: USER_DATA_ERROR,
+          message: 'username or password error',
+        );
+        break;
     }
-    return null;
   }
 
   Future<Response> apQuery(
