@@ -76,6 +76,6 @@ Map<String, dynamic> busViolationRecordsParser(Map<String, dynamic> data) {
     temp.add(_temp);
   }
 
-  Map<String, dynamic> returnData = {"data": temp};
+  Map<String, dynamic> returnData = {"reservation": temp};
   return returnData;
 }
