@@ -382,35 +382,30 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAnnouncements() async {
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      setState(() {
-        state = HomeState.offline;
-      });
-    } else
-      GitHubHelper.instance.getAnnouncement(
-        gitHubUsername: 'abc873693',
-        hashCode: 'a8e048d24f892ce95a633aa5966c030a',
-        tag: 'nkust',
-        callback: GeneralCallback(
-          onFailure: (_) => setState(() => state = HomeState.error),
-          onError: (_) => setState(() => state = HomeState.error),
-          onSuccess: (Map<String, List<Announcement>> data) {
-            newsMap = data;
-            setState(() {
-              if (announcements == null || announcements.length == 0)
-                state = HomeState.empty;
-              else {
-                newsMap.forEach((_, data) {
-                  data.sort((a, b) {
-                    return b.weight.compareTo(a.weight);
-                  });
+    GitHubHelper.instance.getAnnouncement(
+      gitHubUsername: 'abc873693',
+      hashCode: 'a8e048d24f892ce95a633aa5966c030a',
+      tag: 'nkust',
+      callback: GeneralCallback(
+        onFailure: (_) => setState(() => state = HomeState.error),
+        onError: (_) => setState(() => state = HomeState.error),
+        onSuccess: (Map<String, List<Announcement>> data) {
+          newsMap = data;
+          setState(() {
+            if (announcements == null || announcements.length == 0)
+              state = HomeState.empty;
+            else {
+              newsMap.forEach((_, data) {
+                data.sort((a, b) {
+                  return b.weight.compareTo(a.weight);
                 });
-                state = HomeState.finish;
-              }
-            });
-          },
-        ),
-      );
+              });
+              state = HomeState.finish;
+            }
+          });
+        },
+      ),
+    );
   }
 
   _setupBusNotify(BuildContext context) async {
@@ -435,9 +430,6 @@ class HomePageState extends State<HomePage> {
   _getUserInfo() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       userInfo = UserInfo.load(Helper.username);
-      setState(() {
-        state = HomeState.offline;
-      });
     } else
       Helper.instance.getUsersInfo(
         callback: GeneralCallback(
