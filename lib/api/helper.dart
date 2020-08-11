@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
@@ -287,8 +286,7 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get("/user/semesters");
-      var data = SemesterData.fromJson(response.data);
+      var data = await WebApHelper.instance.semesters();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -358,20 +356,15 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        '/user/coursetable',
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.coursetable(
+        semester.year,
+        semester.value,
       );
-      CourseData data;
-      if (response.statusCode != 204) {
-        data = CourseData.fromJson(response.data);
+      if (data.courses != null && data.courses.length != 0) {
         data.updateIndex();
         reLoginCount = 0;
-      }
+      } else
+        data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
