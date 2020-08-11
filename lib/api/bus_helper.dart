@@ -314,7 +314,7 @@ class BusHelper {
     );
   }
 
-  Future<Map<String, dynamic>> busViolationRecords() async {
+  Future<BusViolationRecordsData> busViolationRecords() async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -336,15 +336,8 @@ class BusHelper {
       return busViolationRecords();
     }
     reLoginReTryCounts = 0;
-    return busViolationRecordsParser(res.data);
+    return BusViolationRecordsData.fromJson(
+      busViolationRecordsParser(res.data),
+    );
   }
-}
-
-void main() async {
-  BusHelper.instance.setProxy("127.0.0.1:8888");
-  BusHelper.username = "";
-  BusHelper.password = "";
-  var res = await BusHelper.instance.busLogin();
-
-  res = await BusHelper.instance.busViolationRecords();
 }
