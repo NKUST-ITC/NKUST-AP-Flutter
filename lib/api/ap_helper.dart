@@ -3,12 +3,16 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
+
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
+
 //parser
 import 'package:nkust_ap/api/parser/ap_parser.dart';
+
 //Config
 import 'package:nkust_ap/config/constants.dart';
+
 //Model
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/models/score_data.dart';
@@ -17,6 +21,7 @@ import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
+
 // callback
 import 'package:ap_common/callback/general_callback.dart';
 
@@ -56,7 +61,9 @@ class WebApHelper {
   static dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
-    dio.interceptors.add(PrivateCookieManager(cookieJar));
+    dio.interceptors.add(
+      PrivateCookieManager(cookieJar),
+    );
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';
@@ -80,9 +87,10 @@ class WebApHelper {
 
     try {
       Response res = await dio.post(
-          "https://webap.nkust.edu.tw/nkust/perchk.jsp",
-          data: {"uid": username, "pwd": password},
-          options: Options(contentType: Headers.formUrlEncodedContentType));
+        "https://webap.nkust.edu.tw/nkust/perchk.jsp",
+        data: {"uid": username, "pwd": password},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
 
       WebApHelper.username = username;
       WebApHelper.password = password;
@@ -120,9 +128,11 @@ class WebApHelper {
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
 
-    Response request = await dio.post(url,
-        data: queryData,
-        options: Options(contentType: Headers.formUrlEncodedContentType));
+    Response request = await dio.post(
+      url,
+      data: queryData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
     return request;
   }
 
@@ -140,12 +150,14 @@ class WebApHelper {
     */
     var query = await apQuery("ag003", null);
 
-    return UserInfo.fromJson(apUserInfoParser(query.data));
+    return UserInfo.fromJson(
+      apUserInfoParser(query.data),
+    );
   }
 
   Future<SemesterData> semesters() async {
     /*
-    Retrun type ResponseData
+    Return type ResponseData
     errorCode:
     2000   succss.
 
@@ -158,7 +170,9 @@ class WebApHelper {
 
     var query = await apQuery("ag304_01", null);
 
-    return SemesterData.fromJson(semestersParser(query.data));
+    return SemesterData.fromJson(
+      semestersParser(query.data),
+    );
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
@@ -173,8 +187,10 @@ class WebApHelper {
     5400   Something error.
 
     */
-    var query =
-        await apQuery("ag008", {"arg01": years, "arg02": semesterValue});
+    var query = await apQuery(
+      "ag008",
+      {"arg01": years, "arg02": semesterValue},
+    );
 
     return ScoreData.fromJson(query.data);
   }
@@ -191,10 +207,14 @@ class WebApHelper {
     5400   Something error.
 
     */
-    var query =
-        await apQuery("ag222", {"arg01": years, "arg02": semesterValue});
+    var query = await apQuery(
+      "ag222",
+      {"arg01": years, "arg02": semesterValue},
+    );
 
-    return CourseData.fromJson(coursetableParser(query.data));
+    return CourseData.fromJson(
+      coursetableParser(query.data),
+    );
   }
 
   Future<MidtermAlertsData> midtermAlerts(
@@ -211,10 +231,14 @@ class WebApHelper {
 
     */
 
-    var query =
-        await apQuery("ag009", {"arg01": years, "arg02": semesterValue});
+    var query = await apQuery(
+      "ag009",
+      {"arg01": years, "arg02": semesterValue},
+    );
 
-    return MidtermAlertsData.fromJson(midtermAlertsParser(query.data));
+    return MidtermAlertsData.fromJson(
+      midtermAlertsParser(query.data),
+    );
   }
 
   Future<RewardAndPenaltyData> rewardAndPenalty(
@@ -230,10 +254,14 @@ class WebApHelper {
     5400   Something error.
 
     */
-    var query =
-        await apQuery("ak010", {"arg01": years, "arg02": semesterValue});
+    var query = await apQuery(
+      "ak010",
+      {"arg01": years, "arg02": semesterValue},
+    );
 
-    return RewardAndPenaltyData.fromJson(rewardAndPenaltyParser(query.data));
+    return RewardAndPenaltyData.fromJson(
+      rewardAndPenaltyParser(query.data),
+    );
   }
 
   Future<RoomData> roomList(String cmpAreaId) async {
@@ -250,9 +278,14 @@ class WebApHelper {
     cmpAreaId
     1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
     */
-    var query = await apQuery("ag302_01", {"cmp_area_id": cmpAreaId});
+    var query = await apQuery(
+      "ag302_01",
+      {"cmp_area_id": cmpAreaId},
+    );
 
-    return RoomData.fromJson(roomListParser(query.data));
+    return RoomData.fromJson(
+      roomListParser(query.data),
+    );
   }
 
   Future<CourseData> roomCourseTableQuery(
@@ -267,9 +300,13 @@ class WebApHelper {
     5040   Timeout.
     5400   Something error.
     */
-    var query = await apQuery("ag302_02",
-        {"room_id": roomId, "yms_yms": "${years}#${semesterValue}"});
+    var query = await apQuery(
+      "ag302_02",
+      {"room_id": roomId, "yms_yms": "${years}#${semesterValue}"},
+    );
 
-    return CourseData.fromJson(roomCourseTableQueryParser(query.data));
+    return CourseData.fromJson(
+      roomCourseTableQueryParser(query.data),
+    );
   }
 }
