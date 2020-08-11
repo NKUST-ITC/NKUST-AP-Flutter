@@ -143,17 +143,6 @@ class WebApHelper {
   }
 
   Future<UserInfo> userInfoCrawler() async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
     var query = await apQuery("ag003", null);
 
     return UserInfo.fromJson(
@@ -162,18 +151,6 @@ class WebApHelper {
   }
 
   Future<SemesterData> semesters() async {
-    /*
-    Return type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
-
     var query = await apQuery("ag304_01", null);
 
     return SemesterData.fromJson(
@@ -182,17 +159,6 @@ class WebApHelper {
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
     var query = await apQuery(
       "ag008",
       {"arg01": years, "arg02": semesterValue},
@@ -204,17 +170,6 @@ class WebApHelper {
   }
 
   Future<CourseData> coursetable(String years, String semesterValue) async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
     var query = await apQuery(
       "ag222",
       {"arg01": years, "arg02": semesterValue},
@@ -227,18 +182,6 @@ class WebApHelper {
 
   Future<MidtermAlertsData> midtermAlerts(
       String years, String semesterValue) async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
-
     var query = await apQuery(
       "ag009",
       {"arg01": years, "arg02": semesterValue},
@@ -251,17 +194,6 @@ class WebApHelper {
 
   Future<RewardAndPenaltyData> rewardAndPenalty(
       String years, String semesterValue) async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
-    */
     var query = await apQuery(
       "ak010",
       {"arg01": years, "arg02": semesterValue},
@@ -274,15 +206,6 @@ class WebApHelper {
 
   Future<RoomData> roomList(String cmpAreaId) async {
     /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-
     cmpAreaId
     1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
     */
@@ -298,16 +221,6 @@ class WebApHelper {
 
   Future<CourseData> roomCourseTableQuery(
       String roomId, String years, String semesterValue) async {
-    /*
-    Retrun type ResponseData
-    errorCode:
-    2000   succss.
-
-    5000   NKUST server error.
-    5002   Dio error, maybe NKUST server error.
-    5040   Timeout.
-    5400   Something error.
-    */
     var query = await apQuery(
       "ag302_02",
       {"room_id": roomId, "yms_yms": "${years}#${semesterValue}"},
