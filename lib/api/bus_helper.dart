@@ -12,6 +12,7 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
@@ -286,7 +287,7 @@ class BusHelper {
     return res.data["success"];
   }
 
-  Future<Map<String, dynamic>> busReservations() async {
+  Future<BusReservationsData> busReservations() async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -308,7 +309,9 @@ class BusHelper {
       return busReservations();
     }
     reLoginReTryCounts = 0;
-    return busReservationsParser(res.data);
+    return BusReservationsData.fromJson(
+      busReservationsParser(res.data),
+    );
   }
 
   Future<Map<String, dynamic>> busViolationRecords() async {
