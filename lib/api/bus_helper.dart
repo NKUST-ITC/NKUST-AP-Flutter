@@ -239,7 +239,7 @@ class BusHelper {
     );
   }
 
-  Future<bool> busBook({String busId}) async {
+  Future<BookingBusData> busBook({String busId}) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -250,7 +250,7 @@ class BusHelper {
     Response res = await dio.post(
       "${busHost}API/Reserves/add",
       data: {
-        "busId": busId,
+        "busId": int.parse(busId),
       },
     );
 
@@ -260,10 +260,10 @@ class BusHelper {
       await busLogin();
       return busBook(busId: busId);
     }
-    return res.data["success"];
+    return BookingBusData.fromJson(res.data);
   }
 
-  Future<bool> busUnBook({String busId}) async {
+  Future<CancelBusData> busUnBook({String busId}) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -274,7 +274,7 @@ class BusHelper {
     Response res = await dio.post(
       "${busHost}API/Reserves/remove",
       data: {
-        "reserveId": busId,
+        "reserveId": int.parse(busId),
       },
     );
 
@@ -284,7 +284,7 @@ class BusHelper {
       await busLogin();
       return busUnBook(busId: busId);
     }
-    return res.data["success"];
+    return CancelBusData.fromJson(res.data);
   }
 
   Future<BusReservationsData> busReservations() async {
