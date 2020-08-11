@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
@@ -16,6 +15,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -53,11 +54,6 @@ class Helper {
 
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
-
-  //Common
-  static const API_EXPIRE = 401;
-  static const API_SERVER_ERROR = 500;
-  static const SCHOOL_SERVER_ERROR = 503;
 
   int reLoginCount = 0;
 
@@ -114,15 +110,10 @@ class Helper {
     GeneralCallback<LoginResponse> callback,
   }) async {
     try {
-      var response = await dio.post(
-        '/oauth/token',
-        data: {
-          'username': username,
-          'password': password,
-        },
+      var loginResponse = await WebApHelper.instance.apLogin(
+        username: username,
+        password: password,
       );
-      var loginResponse = LoginResponse.fromJson(response.data);
-      options.headers = _createBearerTokenAuth(loginResponse.token);
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;
@@ -130,16 +121,10 @@ class Helper {
         return callback.onSuccess(loginResponse);
       else
         return loginResponse;
+    } on GeneralResponse catch (response) {
+      callback?.onError(response);
     } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 401) {
-        callback?.onError(
-          GeneralResponse(
-            statusCode: USER_DATA_ERROR,
-            message: 'username or password error',
-          ),
-        );
-      } else
-        callback?.onFailure(e);
+      callback?.onFailure(e);
     } catch (e) {
       callback?.onError(
         GeneralResponse.unknownError(),
@@ -267,9 +252,8 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get('/user/info');
+      var data = await WebApHelper.instance.userInfoCrawler();
       reLoginCount = 0;
-      var data = UserInfo.fromJson(response.data);
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -297,8 +281,7 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get("/user/semesters");
-      var data = SemesterData.fromJson(response.data);
+      var data = await WebApHelper.instance.semesters();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -328,18 +311,11 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        "/user/scores",
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.scores(
+        semester.year,
+        semester.value,
       );
-      ScoreData data;
-      if (response.statusCode == 200) {
-        data = ScoreData.fromJson(response.data);
-      }
+      if (data != null && data.scores.length == 0) data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -368,20 +344,15 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        '/user/coursetable',
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.coursetable(
+        semester.year,
+        semester.value,
       );
-      CourseData data;
-      if (response.statusCode != 204) {
-        data = CourseData.fromJson(response.data);
+      if (data.courses != null && data.courses.length != 0) {
         data.updateIndex();
         reLoginCount = 0;
-      }
+      } else
+        data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -410,17 +381,10 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        "/user/reward-and-penalty",
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.rewardAndPenalty(
+        semester.year,
+        semester.value,
       );
-      RewardAndPenaltyData data;
-      if (response.statusCode == 200)
-        data = RewardAndPenaltyData.fromJson(response.data);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -450,18 +414,10 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        "/user/midterm-alerts",
-        queryParameters: {
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.midtermAlerts(
+        semester.year,
+        semester.value,
       );
-      MidtermAlertsData data;
-      if (response.statusCode == 200)
-        data = MidtermAlertsData.fromJson(response.data);
-      reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -490,15 +446,7 @@ class Helper {
     GeneralCallback<RoomData> callback,
   }) async {
     try {
-      var response = await dio.get(
-        '/user/room/list',
-        queryParameters: {
-          'campus': campusCode,
-        },
-        cancelToken: cancelToken,
-      );
-      RoomData data;
-      if (response.statusCode == 200) data = RoomData.fromJson(response.data);
+      var data = await WebApHelper.instance.roomList('$campusCode');
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -528,18 +476,12 @@ class Helper {
     GeneralCallback<CourseData> callback,
   }) async {
     try {
-      var response = await dio.get(
-        '/user/empty-room/info',
-        queryParameters: {
-          'roomid': roomId,
-          'year': semester.year,
-          'semester': semester.value,
-        },
-        cancelToken: cancelToken,
+      var data = await WebApHelper.instance.roomCourseTableQuery(
+        roomId,
+        semester.year,
+        semester.value,
       );
-      CourseData data;
-      if (response.statusCode == 200) {
-        data = CourseData.fromJson(response.data);
+      if (data != null) {
         data.updateIndex();
       }
       reLoginCount = 0;
@@ -1015,23 +957,23 @@ extension NewsExtension on Announcement {
 extension DioErrorExtension on DioError {
   bool get hasResponse => type == DioErrorType.RESPONSE;
 
-  bool get isExpire => response.statusCode == Helper.API_EXPIRE;
+  bool get isExpire => response.statusCode == ApStatusCode.API_EXPIRE;
 
   bool get isServerError =>
-      response.statusCode == Helper.SCHOOL_SERVER_ERROR ||
-      response.statusCode == Helper.API_SERVER_ERROR;
+      response.statusCode == ApStatusCode.SCHOOL_SERVER_ERROR ||
+      response.statusCode == ApStatusCode.API_SERVER_ERROR;
 
   GeneralResponse get serverErrorResponse {
     switch (response.statusCode) {
-      case Helper.API_SERVER_ERROR:
+      case ApStatusCode.API_SERVER_ERROR:
         return GeneralResponse(
-          statusCode: Helper.API_SERVER_ERROR,
+          statusCode: ApStatusCode.API_SERVER_ERROR,
           message: 'api server error',
         );
-      case Helper.SCHOOL_SERVER_ERROR:
+      case ApStatusCode.SCHOOL_SERVER_ERROR:
       default:
         return GeneralResponse(
-          statusCode: Helper.SCHOOL_SERVER_ERROR,
+          statusCode: ApStatusCode.SCHOOL_SERVER_ERROR,
           message: 'shool server error',
         );
     }
@@ -1045,13 +987,13 @@ extension GeneralResponseExtension on GeneralResponse {
     final ap = ApLocalizations.of(context);
     String message = '';
     switch (statusCode) {
-      case Helper.SCHOOL_SERVER_ERROR:
+      case ApStatusCode.SCHOOL_SERVER_ERROR:
         message = ap.schoolSeverError;
         break;
-      case Helper.API_SERVER_ERROR:
+      case ApStatusCode.API_SERVER_ERROR:
         message = ap.apiSeverError;
         break;
-      case Helper.API_EXPIRE:
+      case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
         break;
       default:

@@ -45,7 +45,7 @@ class Constants {
   static const PREF_LEAVE_ENABLE = "pref_leave_enable";
 
   static const PREF_IS_OFFLINE_LOGIN = "pref_is_offline_login";
-  
+
   static const SCHEDULE_DATA = "schedule_data";
   static const SCHEDULE_PDF_URL = 'schedule_pdf_url';
   static const ANDROID_APP_VERSION = "android_app_version";
@@ -77,4 +77,7 @@ class Constants {
 
   static const MAX_IMAGE_SIZE = 1.0;
   static const IMAGE_RESIZE_RATE = 2.5;
+
+  // Crawler config
+  static const TIMEOUT_MS = 5000;
 }
