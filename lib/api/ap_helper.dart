@@ -198,7 +198,9 @@ class WebApHelper {
       {"arg01": years, "arg02": semesterValue},
     );
 
-    return ScoreData.fromJson(query.data);
+    return ScoreData.fromJson(
+      scoresParser(query.data),
+    );
   }
 
   Future<CourseData> coursetable(String years, String semesterValue) async {
