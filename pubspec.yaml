@@ -41,7 +41,7 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/flutter_plugins/url_launcher_fde/
   #third party plugin
-  dio: 3.0.9
+  dio: 3.0.10
   tuple: 1.0.2
   sprintf: 4.1.0
   date_range_picker: 1.0.6
