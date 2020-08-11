@@ -7,6 +7,12 @@ import 'package:nkust_ap/api/private_cookie_manager.dart';
 //parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';
 
+//model
+import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
+
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
@@ -189,7 +195,8 @@ class BusHelper {
     return res.data;
   }
 
-  Future<Map<String, dynamic>> timeTableQuery({
+  Future<BusData> timeTableQuery({
+    DateTime fromDateTime,
     String year,
     String month,
     String day,
@@ -200,6 +207,11 @@ class BusHelper {
 
     if (isLogin == false) {
       await busLogin();
+    }
+    if (fromDateTime != null) {
+      year = fromDateTime.year.toString();
+      month = fromDateTime.month.toString();
+      day = fromDateTime.day.toString();
     }
 
     Response res = await dio.post("${busHost}API/Frequencys/getAll",
@@ -221,7 +233,9 @@ class BusHelper {
       return timeTableQuery(year: year, month: month, day: day);
     }
     reLoginReTryCounts = 0;
-    return busTimeTableParser(res.data);
+    return BusData.fromJson(
+      busTimeTableParser(res.data),
+    );
   }
 
   Future<bool> busBook({String busId}) async {
