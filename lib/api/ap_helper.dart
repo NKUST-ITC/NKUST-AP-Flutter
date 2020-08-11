@@ -25,6 +25,8 @@ import 'package:nkust_ap/models/room_data.dart';
 
 // callback
 import 'package:ap_common/callback/general_callback.dart';
+//Ap helper errorCode
+import 'package:nkust_ap/api/ap_error_code.dart';
 
 class WebApHelper {
   static Dio dio;
@@ -33,7 +35,8 @@ class WebApHelper {
   static String username;
   static String password;
 
-  int reLoginReTryCounts = 3;
+  static int reLoginReTryCountsLimit = 3;
+  static int reLoginReTryCounts = 0;
   int timeoutMs = 5000;
   bool isLogin;
 
@@ -110,10 +113,17 @@ class WebApHelper {
   }
 
   Future<Response> apQuery(
-      String queryQid, Map<String, String> queryData) async {
+    String queryQid,
+    Map<String, String> queryData,
+  ) async {
     /*
     Retrun type Response <Dio>
     */
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+          statusCode: ApErrorCode.NETWORK_CONNECT_FAIL,
+          message: "Login exceeded retry limit");
+    }
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
 
@@ -122,6 +132,13 @@ class WebApHelper {
       data: queryData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
+    if (apLoginParser(request.data) == 2) {
+      reLoginReTryCounts += 1;
+      await apLogin(
+          username: WebApHelper.username, password: WebApHelper.password);
+      return apQuery(queryQid, queryData);
+    }
+    reLoginReTryCounts = 0;
     return request;
   }
 
