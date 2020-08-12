@@ -118,9 +118,6 @@ class Helper {
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;
-      // Share data with BusHelper
-      BusHelper.username = username;
-      BusHelper.password = password;
       if (callback != null)
         return callback.onSuccess(loginResponse);
       else

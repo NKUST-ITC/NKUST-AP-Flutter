@@ -29,12 +29,12 @@ import 'package:ap_common/callback/general_callback.dart';
 //Ap helper errorCode
 import 'package:nkust_ap/api/ap_status_code.dart';
 
+import 'helper.dart';
+
 class WebApHelper {
   static Dio dio;
   static WebApHelper _instance;
   static CookieJar cookieJar;
-  static String username;
-  static String password;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
@@ -90,8 +90,8 @@ class WebApHelper {
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
     print(res.data);
-    WebApHelper.username = username;
-    WebApHelper.password = password;
+    Helper.username = username;
+    Helper.password = password;
     switch (apLoginParser(res.data)) {
       case 0:
         return LoginResponse(
@@ -132,7 +132,7 @@ class WebApHelper {
     if (apLoginParser(request.data) == 2) {
       reLoginReTryCounts += 1;
       await apLogin(
-          username: WebApHelper.username, password: WebApHelper.password);
+          username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData);
     }
     reLoginReTryCounts = 0;

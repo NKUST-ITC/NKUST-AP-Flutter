@@ -17,6 +17,8 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+import 'helper.dart';
+
 String generateMd5(String input) {
   return md5.convert(utf8.encode(input)).toString();
 }
@@ -115,8 +117,6 @@ class BusHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin;
-  static String username;
-  static String password;
 
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
@@ -175,7 +175,7 @@ class BusHelper {
     400: Wrong campus or not found user.
     302: Wrong password.
     */
-    if (username == null || password == null) {
+    if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
 
@@ -183,9 +183,9 @@ class BusHelper {
 
     Response res = await dio.post("${busHost}API/Users/login",
         data: {
-          "account": username,
-          "password": password,
-          "n": busEncryptObject.loginEncrypt(username, password)
+          "account": Helper.username,
+          "password": Helper.password,
+          "n": busEncryptObject.loginEncrypt(Helper.username, Helper.password)
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
 
