@@ -1,6 +1,7 @@
 //dio
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
@@ -14,6 +15,7 @@ import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 
+import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
@@ -110,6 +112,7 @@ class BusEncrypt {
 
 class BusHelper {
   static Dio dio;
+  static DioCacheManager _manager;
   static BusHelper _instance;
   static CookieJar cookieJar;
 
@@ -118,6 +121,7 @@ class BusHelper {
 
   bool isLogin;
 
+  static String userTimeTableSelectCacheKey;
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
 
@@ -142,10 +146,16 @@ class BusHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
+    _manager = DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
     cookieJar = CookieJar();
+    // dio.interceptors.add(
+    //     DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"))
+    //         .interceptor);
+
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
+    dio.interceptors.add(_manager.interceptor);
     dio.options.headers['Connection'] = 'close';
     dio.options.connectTimeout = 5000;
     dio.options.receiveTimeout = 5000;
@@ -205,7 +215,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
     if (fromDateTime != null) {
@@ -214,20 +224,28 @@ class BusHelper {
       day = fromDateTime.day.toString();
     }
 
-    Response res = await dio.post("${busHost}API/Frequencys/getAll",
-        data: {
-          "data": json.encode({"y": year, "m": month, "d": day}),
-          'operation': "全部",
-          'page': 1,
-          'start': 0,
-          'limit': 90
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ));
+    userTimeTableSelectCacheKey = "busCacheTimTable${year}${month}${day}";
+
+    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+    Response res = await dio.post(
+      "${busHost}API/Frequencys/getAll",
+      data: formUrlEncoded({
+        "data": json.encode({"y": year, "m": month, "d": day}),
+        'operation': "全部",
+        'page': 1,
+        'start': 0,
+        'limit': 90
+      }),
+      options: buildCacheOptions(
+        Duration(seconds: 60),
+        primaryKey: userTimeTableSelectCacheKey,
+      ),
+    );
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
+      // Remove fail cache.
+      _manager.delete(userTimeTableSelectCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -243,9 +261,12 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
+    // bookAction = true;
+    _manager.delete(userTimeTableSelectCacheKey);
+
     Response res = await dio.post(
       "${busHost}API/Reserves/add",
       data: {
@@ -267,7 +288,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -283,6 +304,10 @@ class BusHelper {
       await busLogin();
       return busUnBook(busId: busId);
     }
+    // Clear all cookie, because we can't sure user on which page.
+    // two page can cencel bus.
+    _manager.clearAll();
+
     return CancelBusData.fromJson(res.data);
   }
 
