@@ -18,7 +18,7 @@ class BusReservationsData {
   factory BusReservationsData.fromRawJson(String str) =>
       BusReservationsData.fromJson(json.decode(str));
 
-  // String toRawJson() => json.encode(toJson());
+  String toRawJson() => json.encode(toJson());
 
   factory BusReservationsData.fromJson(Map<String, dynamic> json) =>
       new BusReservationsData(
@@ -37,15 +37,13 @@ class BusReservationsData {
 
   // Waiting setString support Map.
   void save(String tag) {
-    return;
-    // Preferences.setString(
-    //   '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
-    //   this.toRawJson(),
-    // );
+    Preferences.setString(
+      '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
+      this.toRawJson(),
+    );
   }
 
   factory BusReservationsData.load(String tag) {
-    return null;
     String rawString = Preferences.getString(
       '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
       '',
@@ -90,8 +88,8 @@ class BusReservation {
       );
 
   Map<String, dynamic> toJson() => {
-        "dateTime": dateTime,
-        "endTime": endTime,
+        "dateTime": dateTime.toIso8601String(),
+        "endTime": endTime.toIso8601String(),
         "cancelKey": cancelKey,
         "start": start,
         "state": state,
