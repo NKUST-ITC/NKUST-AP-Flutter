@@ -38,8 +38,8 @@ class WebApHelper {
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
-  int timeoutMs = 5000;
-  bool isLogin;
+
+  bool isLogin = false;
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -125,6 +125,9 @@ class WebApHelper {
       throw GeneralResponse(
           statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
           message: "Login exceeded retry limit");
+    }
+    if (isLogin != true) {
+      await apLogin(username: Helper.username, password: Helper.password);
     }
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
