@@ -1,3 +1,5 @@
+import 'package:nkust_ap/models/bus_reservations_data.dart';
+
 DateTime busRealTime(dynamic timestamp) {
   int time;
   if (timestamp is String) {
@@ -16,7 +18,8 @@ DateTime busRealTime(dynamic timestamp) {
 
 bool intToBool(int a) => a == 0 ? false : true;
 
-Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data) {
+Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
+    {BusReservationsData busReservations}) {
   List<Map<String, dynamic>> temp = [];
   for (int i = 0; i < data["data"].length; i++) {
     Map<String, dynamic> _temp = {
@@ -31,10 +34,20 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data) {
       "specialTrain": data["data"][i]["SpecialTrain"],
       "description": data["data"][i]["SpecialTrainRemark"],
       "homeCharteredBus": false,
+      "cancelKey": ""
     };
     if (_temp['SpecialTrain'] == "1") {
       _temp['homeCharteredBus'] = true;
     }
+    if (busReservations != null) {
+      busReservations.reservations.forEach((element) {
+        if (element.dateTime == busRealTime(data["data"][i]["runDateTime"]) &&
+            element.start == data["data"][i]["startStation"]) {
+          _temp["cancelKey"] = element.cancelKey;
+        }
+      });
+    }
+
     temp.add(_temp);
   }
 
