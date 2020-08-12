@@ -36,6 +36,7 @@ class BusTime {
   DateTime endEnrollDateTime;
   DateTime departureTime;
   String startStation;
+  String endStation;
   String busId;
   int reserveCount;
   int limitCount;
@@ -49,6 +50,7 @@ class BusTime {
     this.endEnrollDateTime,
     this.departureTime,
     this.startStation,
+    this.endStation,
     this.busId,
     this.reserveCount,
     this.limitCount,
@@ -92,6 +94,7 @@ class BusTime {
         endEnrollDateTime: json["endEnrollDateTime"],
         departureTime: json["departureTime"],
         startStation: json["startStation"],
+        endStation: json["endStation"],
         busId: json["busId"],
         reserveCount: json["reserveCount"],
         limitCount: json["limitCount"],
@@ -106,6 +109,7 @@ class BusTime {
         "endEnrollDateTime": endEnrollDateTime,
         "departureTime": departureTime,
         "startStation": startStation,
+        "endStation": endStation,
         "busId": busId,
         "reserveCount": reserveCount,
         "limitCount": limitCount,
@@ -157,24 +161,19 @@ class BusTime {
   }
 
   String getStart(AppLocalizations local) {
-    switch (startStation) {
-      case "建工":
-        return local.jiangong;
-      case "燕巢":
-        return local.yanchao;
-      case "第一":
-        return local.first;
-      default:
-        return local.unknown;
-    }
+    return parserCampus(local, startStation);
   }
 
   String getEnd(AppLocalizations local) {
-    switch (startStation) {
+    return parserCampus(local, endStation);
+  }
+
+  String parserCampus(AppLocalizations local, String campus) {
+    switch (campus) {
       case "建工":
-        return local.yanchao;
-      case "燕巢":
         return local.jiangong;
+      case "燕巢":
+        return local.yanchao;
       case "第一":
         return local.first;
       default:

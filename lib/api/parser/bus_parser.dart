@@ -23,6 +23,7 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data) {
       "endEnrollDateTime": busRealTime(data["data"][i]["EndEnrollDateTime"]),
       "departureTime": busRealTime(data["data"][i]["runDateTime"]),
       "startStation": data["data"][i]["startStation"],
+      "endStation": data["data"][i]["endStation"],
       "busId": data["data"][i]["busId"],
       "reserveCount": int.parse(data["data"][i]["reserveCount"]),
       "limitCount": int.parse(data["data"][i]["limitCount"]),
