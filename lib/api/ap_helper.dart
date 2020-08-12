@@ -25,6 +25,7 @@ import 'package:nkust_ap/models/room_data.dart';
 
 // callback
 import 'package:ap_common/callback/general_callback.dart';
+
 //Ap helper errorCode
 import 'package:nkust_ap/api/ap_status_code.dart';
 
@@ -43,8 +44,6 @@ class WebApHelper {
   static WebApHelper get instance {
     if (_instance == null) {
       _instance = WebApHelper();
-      dio = Dio();
-      cookieJar = CookieJar();
       dioInit();
     }
     return _instance;
@@ -62,9 +61,9 @@ class WebApHelper {
   static dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
-    dio.interceptors.add(
-      PrivateCookieManager(cookieJar),
-    );
+    dio = Dio();
+    cookieJar = CookieJar();
+    dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';
@@ -90,6 +89,7 @@ class WebApHelper {
       data: {"uid": username, "pwd": password},
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
+    print(res.data);
     WebApHelper.username = username;
     WebApHelper.password = password;
     switch (apLoginParser(res.data)) {

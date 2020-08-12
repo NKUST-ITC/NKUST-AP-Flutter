@@ -918,6 +918,8 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
+    WebApHelper.dioInit();
+    BusHelper.dioInit();
   }
 }
 

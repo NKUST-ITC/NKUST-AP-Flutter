@@ -124,9 +124,6 @@ class BusHelper {
   static BusHelper get instance {
     if (_instance == null) {
       _instance = BusHelper();
-      dio = Dio();
-      cookieJar = CookieJar();
-
       dioInit();
     }
     return _instance;
@@ -144,6 +141,8 @@ class BusHelper {
   static dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
+    dio = Dio();
+    cookieJar = CookieJar();
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
