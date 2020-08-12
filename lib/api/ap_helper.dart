@@ -89,7 +89,6 @@ class WebApHelper {
       data: {"uid": username, "pwd": password},
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-    print(res.data);
     Helper.username = username;
     Helper.password = password;
     switch (apLoginParser(res.data)) {
