@@ -8,6 +8,8 @@ import 'package:nkust_ap/api/private_cookie_manager.dart';
 import 'package:nkust_ap/config/constants.dart';
 //parser
 import 'package:nkust_ap/api/parser/leave_parser.dart';
+//model
+import 'package:nkust_ap/models/leave_data.dart';
 
 import 'helper.dart';
 
@@ -95,5 +97,35 @@ class LeaveHelper {
       }
     }
     return false;
+  }
+
+  Future<LeaveData> getLeaves({String year, String semester}) async {
+    if (Helper.username == null || Helper.password == null) {
+      throw NullThrownError;
+    }
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw NullThrownError;
+    }
+    if (isLogin == false || isLogin == null) {
+      await leaveLogin();
+      reLoginReTryCounts++;
+    }
+    Response res = await dio.get(
+      "http://leave.nkust.edu.tw/AK002MainM.aspx",
+    );
+    var requestData = allInputValueParser(res.data);
+    requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] =
+        "${year}-${semester}";
+    requestData[r"ctl00$ContentPlaceHolder1$Button1	"] = "確定送出";
+    requestData.remove(r"ctl00$ButtonLogOut");
+    Response queryRequest = await dio.post(
+      "http://leave.nkust.edu.tw/AK002MainM.aspx",
+      data: requestData,
+      options: Options(
+          followRedirects: false,
+          contentType: Headers.formUrlEncodedContentType),
+    );
+
+    return LeaveData.fromJson(leaveQueryParser(queryRequest.data));
   }
 }
