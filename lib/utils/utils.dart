@@ -35,7 +35,7 @@ class Utils {
       BuildContext context, List<BusReservation> busReservations) async {
     var app = AppLocalizations.of(context);
     //limit Android and iOS system
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
       for (BusReservation i in busReservations) {
         await NotificationUtils.schedule(
           id: Constants.NOTIFICATION_BUS_ID,
@@ -64,7 +64,7 @@ class Utils {
   static void showAppReviewSheet(BuildContext context) async {
     // await Future.delayed(Duration(seconds: 1));
     final app = ApLocalizations.of(context);
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
       showModalBottomSheet(
         context: context,
         builder: (BuildContext context) => Column(
