@@ -21,7 +21,6 @@ import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
 import 'package:sprintf/sprintf.dart';
 import 'package:file_chooser/file_chooser.dart';
 
@@ -220,18 +219,18 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     padding: EdgeInsets.all(4.0),
                     color: ApTheme.of(context).blueAccent,
                     onPressed: () async {
-                      final List<DateTime> picked =
-                          await DateRagePicker.showDatePicker(
+                      final picked = await showDateRangePicker(
                         context: context,
-                        initialFirstDate: DateTime.now(),
-                        initialLastDate:
-                            (DateTime.now()).add(Duration(days: 7)),
+                        initialDateRange: DateTimeRange(
+                          start: DateTime.now(),
+                          end: DateTime.now().add(Duration(days: 7)),
+                        ),
                         firstDate: DateTime(2015),
                         lastDate: DateTime(2030),
                       );
-                      if (picked != null && picked.length == 2) {
-                        DateTime dateTime = picked[0],
-                            end = picked[1].add(Duration(days: 1));
+                      if (picked != null) {
+                        DateTime dateTime = picked.start,
+                            end = picked.end.add(Duration(days: 1));
                         while (dateTime.isBefore(end)) {
                           bool hasRepeat = false;
                           for (var i = 0; i < leaveModels.length; i++) {

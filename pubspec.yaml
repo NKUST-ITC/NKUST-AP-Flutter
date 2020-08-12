@@ -44,7 +44,6 @@ dependencies:
   dio: 3.0.10
   tuple: 1.0.2
   sprintf: 4.1.0
-  date_range_picker: 1.0.6
   image: ^2.1.4
   flutter_image_compress: 0.7.0
 #  image_picker_web: 1.0.8
