@@ -18,6 +18,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
+import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -667,11 +668,8 @@ class Helper {
     GeneralCallback<NotificationsData> callback,
   }) async {
     try {
-      var response = await dio.get(
-        "/news/school",
-        queryParameters: {'page': page},
-      );
-      var data = NotificationsData.fromJson(response.data);
+      NotificationsData data =
+          await NKUSTHelper.instance.getNotifications(page);
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
