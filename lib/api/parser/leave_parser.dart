@@ -33,7 +33,9 @@ Map<String, dynamic> leaveQueryParser(String html) {
   List<Map<String, dynamic>> dataList = [];
   List<String> timeCodeList = [];
   var tableDom = document.getElementsByClassName("mGridDetail");
-  if (tableDom.length < 1) {}
+  if (tableDom.length < 1) {
+    return {"data": [], "timeCodes": []};
+  }
   var trDom = tableDom[0].getElementsByTagName("tr");
 
   //make timeCode list
