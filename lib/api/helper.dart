@@ -523,15 +523,11 @@ class Helper {
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getBusTimeTables(dateTime: dateTime, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        BusHelper.reLoginReTryCounts = 0;
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -551,15 +547,12 @@ class Helper {
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getBusReservations(callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        BusHelper.reLoginReTryCounts = 0;
+
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -574,22 +567,18 @@ class Helper {
     String busId,
     GeneralCallback<BookingBusData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       BookingBusData data = await BusHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return bookingBusReservation(busId: busId, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        BusHelper.reLoginReTryCounts = 0;
+
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -604,21 +593,19 @@ class Helper {
     String cancelKey,
     GeneralCallback<CancelBusData> callback,
   }) async {
+    print(cancelKey);
     try {
       CancelBusData data = await BusHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return cancelBusReservation(cancelKey: cancelKey, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        BusHelper.reLoginReTryCounts = 0;
+
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -632,7 +619,6 @@ class Helper {
   Future<BusViolationRecordsData> getBusViolationRecords({
     GeneralCallback<BusViolationRecordsData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       BusViolationRecordsData data =
           await BusHelper.instance.busViolationRecords();
@@ -641,15 +627,12 @@ class Helper {
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getBusViolationRecords(callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        BusHelper.reLoginReTryCounts = 0;
+
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
