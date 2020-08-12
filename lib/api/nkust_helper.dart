@@ -5,13 +5,16 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:nkust_ap/models/notification_data.dart';
+import 'package:dio/dio.dart';
 
 class NKUSTHelper {
   static NKUSTHelper _instance;
+  static Dio dio;
 
   static NKUSTHelper get instance {
     if (_instance == null) {
       _instance = NKUSTHelper();
+      dio = Dio();
     }
     return _instance;
   }
