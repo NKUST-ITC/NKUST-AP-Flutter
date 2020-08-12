@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -6,6 +8,7 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -37,16 +40,14 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen("LoginPage", "login_page.dart");
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen("LoginPage", "login_page.dart");
     _getPreference();
-    KeyboardVisibilityNotification().addNewListener(
-      onShow: () {
-        gravity = Toast.TOP;
-      },
-      onHide: () {
-        gravity = Toast.BOTTOM;
-      },
-    );
+    if ((!kIsWeb && (Platform.isAndroid || Platform.isIOS))) {
+      KeyboardVisibility.onChange.listen(
+        (bool visible) => gravity = visible ? Toast.TOP : Toast.BOTTOM,
+      );
+    }
     super.initState();
   }
 
