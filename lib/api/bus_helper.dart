@@ -113,10 +113,10 @@ class BusHelper {
   static BusHelper _instance;
   static CookieJar cookieJar;
 
-  static int reLoginReTryCountsLimit = 3;
+  static int reLoginReTryCountsLimit = 5;
   static int reLoginReTryCounts = 0;
 
-  bool isLogin;
+  bool isLogin = false;
 
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
@@ -205,7 +205,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
     if (fromDateTime != null) {
@@ -243,7 +243,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -267,7 +267,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -291,7 +291,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
 
@@ -318,7 +318,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (isLogin != true) {
       await busLogin();
     }
 
