@@ -58,6 +58,12 @@ class WebApHelper {
     };
   }
 
+  Future<void> logout() async {
+    try {
+      await dio.post("https://webap.nkust.edu.tw/nkust/reclear.jsp");
+    } catch (e) {}
+  }
+
   static dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
