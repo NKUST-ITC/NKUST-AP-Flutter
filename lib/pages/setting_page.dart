@@ -256,8 +256,7 @@ class SettingPageState extends State<SettingPage> {
 
   _getPreference() async {
     PackageInfo packageInfo;
-    if (kIsWeb) {
-    } else if (Platform.isAndroid || Platform.isIOS)
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS))
       packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
