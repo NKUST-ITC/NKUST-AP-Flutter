@@ -35,6 +35,7 @@ class BusReservationsData {
         '{ "data": [ { "dateTime": "2019-03-17T16:51:57Z", "endTime": "2019-03-14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T00:20:00Z", "endTime": "2019-03-17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T08:40:00Z", "endTime": "2019-03-18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }');
   }
 
+  // Waiting setString support Map.
   void save(String tag) {
     Preferences.setString(
       '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
@@ -55,8 +56,8 @@ class BusReservationsData {
 }
 
 class BusReservation {
-  String dateTime;
-  String endTime;
+  DateTime dateTime;
+  DateTime endTime;
   String cancelKey;
   String start;
   String state;
@@ -87,8 +88,8 @@ class BusReservation {
       );
 
   Map<String, dynamic> toJson() => {
-        "dateTime": dateTime,
-        "endTime": endTime,
+        "dateTime": dateTime.toIso8601String(),
+        "endTime": endTime.toIso8601String(),
         "cancelKey": cancelKey,
         "start": start,
         "state": state,
@@ -107,32 +108,25 @@ class BusReservation {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.dateTime);
-    return formatterTime.format(time.add(Duration(hours: 8)));
+    return formatterTime.format(this.dateTime);
   }
 
   String getTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm');
-    var time = formatter.parse(this.dateTime);
-    return formatterTime.format(time.add(Duration(hours: 8)));
+    return formatterTime.format(this.dateTime);
   }
 
   DateTime getDateTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
-    return formatter.parse(this.dateTime).add(Duration(hours: 8));
+    return this.dateTime;
   }
 
   String getDateTimeStr() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd HH:mm');
-    return formatterTime
-        .format(formatter.parse(this.dateTime).add(Duration(hours: 8)));
+    return formatterTime.format(this.dateTime);
   }
 
   String getStart(AppLocalizations local) {

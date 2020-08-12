@@ -93,7 +93,7 @@ class Reservation {
   String toRawJson() => json.encode(toJson());
 
   factory Reservation.fromJson(Map<String, dynamic> json) => new Reservation(
-        time: DateTime.parse(json["time"]),
+        time: json["time"],
         startStation: json["startStation"],
         homeCharteredBus: json["homeCharteredBus"],
         amountend: json["amountend"],

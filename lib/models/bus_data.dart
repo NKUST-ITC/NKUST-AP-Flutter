@@ -7,11 +7,9 @@ import 'package:intl/intl.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class BusData {
-  String date;
   List<BusTime> timetable;
 
   BusData({
-    this.date,
     this.timetable,
   });
 
@@ -20,13 +18,11 @@ class BusData {
   String toRawJson() => json.encode(toJson());
 
   factory BusData.fromJson(Map<String, dynamic> json) => BusData(
-        date: json["date"],
         timetable:
             List<BusTime>.from(json["data"].map((x) => BusTime.fromJson(x))),
       );
 
   Map<String, dynamic> toJson() => {
-        "date": date,
         "data": List<dynamic>.from(timetable.map((x) => x.toJson())),
       };
 
@@ -37,8 +33,8 @@ class BusData {
 }
 
 class BusTime {
-  String endEnrollDateTime;
-  String departureTime;
+  DateTime endEnrollDateTime;
+  DateTime departureTime;
   String startStation;
   String busId;
   int reserveCount;
@@ -123,24 +119,22 @@ class BusTime {
   bool canReserve() {
     var now = DateTime.now();
     initializeDateFormatting();
-    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ss');
-    var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
     return now.millisecondsSinceEpoch <=
         endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
   }
 
   String getEndEnrollDateTime() {
     initializeDateFormatting();
-    var formatter = DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
-    var endEnrollDateTime = formatter.parse(this.endEnrollDateTime);
-    return dateFormat.format(endEnrollDateTime.add(Duration(hours: 8)));
+    return dateFormat.format(this.endEnrollDateTime);
   }
 
   Color getColorState(BuildContext context) {
     return isReserve
         ? ApTheme.of(context).blueAccent
-        : canReserve() ? ApTheme.of(context).grey : ApTheme.of(context).disabled;
+        : canReserve()
+            ? ApTheme.of(context).grey
+            : ApTheme.of(context).disabled;
   }
 
   String getReserveState(AppLocalizations local) {
@@ -151,18 +145,15 @@ class BusTime {
 
   String getDate() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    var time = formatter.parse(this.departureTime);
-    return formatterTime.format(time.add(Duration(hours: 8)));
+    return formatterTime.format(this.departureTime);
   }
 
   String getTime() {
     initializeDateFormatting();
     var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm', 'zh');
-    var time = formatter.parse(this.departureTime);
-    return formatterTime.format(time.add(Duration(hours: 8)));
+    return formatterTime.format(this.departureTime);
   }
 
   String getStart(AppLocalizations local) {
