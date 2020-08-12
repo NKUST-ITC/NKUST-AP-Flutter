@@ -22,8 +22,7 @@ class AppLocalizations {
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
-      'update_note_content':
-          '* Fix a part of school affairs system feature.',
+      'update_note_content': '* Fix a part of school affairs system feature.',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright © 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': 'Chosen Date: %s',
@@ -89,6 +88,8 @@ class AppLocalizations {
       'bus': 'Bus Reservation',
       'from_jiangong': 'From JianGong',
       'from_yanchao': 'From YanChao',
+      'from_first': 'From First',
+      'destination': 'Destination',
       'reserving': 'Reserving...',
       'canceling': 'Canceling...',
       'bus_fail_infinity': 'Bus system perhaps broken!!!',
@@ -146,8 +147,7 @@ class AppLocalizations {
     },
     'zh': {
       'app_name': '高科校務通',
-      'update_note_content':
-          '* 修復部分校務通功能.',
+      'update_note_content': '* 修復部分校務通功能.',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\n本專案採MIT 開放原始碼授權：\nThe MIT License (MIT)\n\nCopyright © 2020 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': '選擇乘車時間：%s',
@@ -209,6 +209,8 @@ class AppLocalizations {
       'bus': '校車系統(建工/燕巢)',
       'from_jiangong': '建工上車',
       'from_yanchao': '燕巢上車',
+      'from_first': '第一上車',
+      'destination': '目的地',
       'reserving': '預約中...',
       'canceling': '取消中...',
       'bus_fail_infinity': '學校校車系統或許壞掉惹～',
@@ -362,6 +364,10 @@ class AppLocalizations {
   String get fromJiangong => _vocabularies['from_jiangong'];
 
   String get fromYanchao => _vocabularies['from_yanchao'];
+
+  String get fromFirst => _vocabularies['from_first'];
+
+  String get destination => _vocabularies['destination'];
 
   String get busNotify => _vocabularies['bus_notify'];
 

@@ -30,7 +30,7 @@ enum _State {
   offline,
   custom
 }
-enum Station { janGong, yanchao }
+enum Station { janGong, yanchao, first }
 
 class BusReservePage extends StatefulWidget {
   static const String routerName = "/bus/reserve";
@@ -144,7 +144,11 @@ class BusReservePageState extends State<BusReservePage>
                         Station.yanchao: Container(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(app.fromYanchao),
-                        )
+                        ),
+                        Station.first: Container(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(app.fromFirst),
+                        ),
                       },
                       onValueChanged: (Station text) {
                         if (mounted) {
@@ -238,7 +242,10 @@ class BusReservePageState extends State<BusReservePage>
         if (selectStartStation == Station.janGong && i.startStation == "建工")
           list.add(_busTimeWidget(i));
         else if (selectStartStation == Station.yanchao &&
-            i.startStation == "燕巢") list.add(_busTimeWidget(i));
+            i.startStation == "燕巢")
+          list.add(_busTimeWidget(i));
+        else if (selectStartStation == Station.first && i.startStation == "第一")
+          list.add(_busTimeWidget(i));
       }
     }
     return list;
@@ -250,11 +257,13 @@ class BusReservePageState extends State<BusReservePage>
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             onPressed: busTime.canReserve() && !busTime.isReserve
                 ? () {
-                    String start = "";
+                    String start = "", end = "";
                     if (selectStartStation == Station.janGong)
                       start = app.fromJiangong;
                     else if (selectStartStation == Station.yanchao)
                       start = app.fromYanchao;
+                    else if (selectStartStation == Station.first)
+                      start = app.fromFirst;
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => YesNoDialog(
@@ -270,7 +279,13 @@ class BusReservePageState extends State<BusReservePage>
                             ),
                             children: [
                               TextSpan(
-                                text: '${busTime.getTime()} $start\n\n',
+                                text: '${busTime.getTime()} $start\n',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '${app.destination}：${busTime.getEnd(app)}\n\n',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),

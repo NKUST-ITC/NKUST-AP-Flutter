@@ -162,6 +162,8 @@ class BusTime {
         return local.jiangong;
       case "燕巢":
         return local.yanchao;
+      case "第一":
+        return local.first;
       default:
         return local.unknown;
     }
@@ -173,6 +175,8 @@ class BusTime {
         return local.yanchao;
       case "燕巢":
         return local.jiangong;
+      case "第一":
+        return local.first;
       default:
         return local.unknown;
     }
