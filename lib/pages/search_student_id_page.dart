@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/utils/nkust_helper.dart';
+import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
