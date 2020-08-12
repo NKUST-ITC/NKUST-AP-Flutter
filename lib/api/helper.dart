@@ -915,8 +915,10 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
+    WebApHelper.instance.logout();
     WebApHelper.dioInit();
-    BusHelper.dioInit();
+    WebApHelper.instance.isLogin = false;
+    BusHelper.instance.isLogin = false;
   }
 }
 
