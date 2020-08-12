@@ -520,6 +520,7 @@ class Helper {
       BusData data = await BusHelper.instance.timeTableQuery(
         fromDateTime: dateTime,
       );
+      debugPrint(data.toJson().toString());
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {

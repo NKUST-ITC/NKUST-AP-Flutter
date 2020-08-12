@@ -50,6 +50,7 @@ Map<String, dynamic> busReservationsParser(Map<String, dynamic> data) {
       "endTime": busRealTime(data["data"][i]["endTime"]),
       "cancelKey": data["data"][i]["key"],
       "start": data["data"][i]["start"],
+      "end": data["data"][i]["end"],
       "state": data["data"][i]["state"],
       "travelState": data["data"][i]["SpecialTrain"],
     };
@@ -67,6 +68,7 @@ Map<String, dynamic> busViolationRecordsParser(Map<String, dynamic> data) {
     Map<String, dynamic> _temp = {
       "time": busRealTime(data["data"][i]["runBus"]),
       "startStation": data["data"][i]["start"],
+      "endStation": data["data"][i]["end"],
       "amountend": data["data"][i]["costMoney"],
       "isPayment": data["data"][i]["receipt"],
       "homeCharteredBus": false,

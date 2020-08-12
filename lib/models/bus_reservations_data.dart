@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 class BusReservationsData {
   List<BusReservation> reservations;
@@ -60,6 +61,7 @@ class BusReservation {
   DateTime endTime;
   String cancelKey;
   String start;
+  String end;
   String state;
   String travelState;
 
@@ -68,6 +70,7 @@ class BusReservation {
     this.endTime,
     this.cancelKey,
     this.start,
+    this.end,
     this.state,
     this.travelState,
   });
@@ -83,6 +86,7 @@ class BusReservation {
         endTime: json["endTime"],
         cancelKey: json["cancelKey"],
         start: json["start"],
+        end: json["end"],
         state: json["state"],
         travelState: json["travelState"],
       );
@@ -92,6 +96,7 @@ class BusReservation {
         "endTime": endTime.toIso8601String(),
         "cancelKey": cancelKey,
         "start": start,
+        "end": end,
         "state": state,
         "travelState": travelState,
       };
@@ -130,25 +135,11 @@ class BusReservation {
   }
 
   String getStart(AppLocalizations local) {
-    switch (start) {
-      case "燕巢":
-        return local.yanchao;
-      case "建工":
-        return local.jiangong;
-      default:
-        return local.unknown;
-    }
+    return Utils.parserCampus(local, start);
   }
 
   String getEnd(AppLocalizations local) {
-    switch (start) {
-      case "燕巢":
-        return local.jiangong;
-      case "建工":
-        return local.yanchao;
-      default:
-        return local.unknown;
-    }
+    return Utils.parserCampus(local, end);
   }
 
 //  bool canCancel() {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 class BusViolationRecordsData {
   List<Reservation> reservations;
@@ -55,6 +56,7 @@ class BusViolationRecordsData {
 class Reservation {
   DateTime time;
   String startStation;
+  String endStation;
   bool homeCharteredBus;
   int amountend;
   bool isPayment;
@@ -62,6 +64,7 @@ class Reservation {
   Reservation({
     this.time,
     this.startStation,
+    this.endStation,
     this.homeCharteredBus,
     this.amountend,
     this.isPayment,
@@ -74,20 +77,11 @@ class Reservation {
       (amountend == null || amountend == 0) ? '' : '\$$amountend';
 
   String startStationText(BuildContext context) {
-    switch (startStation) {
-      case '建工':
-        return AppLocalizations.of(context).jiangong;
-      case '燕巢':
-        return AppLocalizations.of(context).jiangong;
-      case '第一':
-        return AppLocalizations.of(context).first;
-      case '楠梓':
-        return AppLocalizations.of(context).nanzi;
-      case '旗津':
-        return AppLocalizations.of(context).qijin;
-      default:
-        return startStation;
-    }
+    return Utils.parserCampus(AppLocalizations.of(context), startStation);
+  }
+
+  String endStationText(AppLocalizations local) {
+    return Utils.parserCampus(local, endStation);
   }
 
   String toRawJson() => json.encode(toJson());
@@ -95,6 +89,7 @@ class Reservation {
   factory Reservation.fromJson(Map<String, dynamic> json) => new Reservation(
         time: json["time"],
         startStation: json["startStation"],
+        endStation: json["endStation"],
         homeCharteredBus: json["homeCharteredBus"],
         amountend: json["amountend"],
         isPayment: json["isPayment"],
@@ -103,6 +98,7 @@ class Reservation {
   Map<String, dynamic> toJson() => {
         "time": time.toIso8601String(),
         "startStation": startStation,
+        "endStation": endStation,
         "homeCharteredBus": homeCharteredBus,
         "amountend": amountend,
         "isPayment": isPayment,

@@ -215,4 +215,21 @@ class Utils {
     else
       return 'unkwon';
   }
+
+  static String parserCampus(AppLocalizations local, String campus) {
+    switch (campus) {
+      case "建工":
+        return local.jiangong;
+      case "燕巢":
+        return local.yanchao;
+      case "第一":
+        return local.first;
+      case '楠梓':
+        return local.nanzi;
+      case '旗津':
+        return local.qijin;
+      default:
+        return campus;
+    }
+  }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/utils/utils.dart';
 
 class BusData {
   List<BusTime> timetable;
@@ -161,23 +162,10 @@ class BusTime {
   }
 
   String getStart(AppLocalizations local) {
-    return parserCampus(local, startStation);
+    return Utils.parserCampus(local, startStation);
   }
 
   String getEnd(AppLocalizations local) {
-    return parserCampus(local, endStation);
-  }
-
-  String parserCampus(AppLocalizations local, String campus) {
-    switch (campus) {
-      case "建工":
-        return local.jiangong;
-      case "燕巢":
-        return local.yanchao;
-      case "第一":
-        return local.first;
-      default:
-        return local.unknown;
-    }
+    return Utils.parserCampus(local, endStation);
   }
 }
