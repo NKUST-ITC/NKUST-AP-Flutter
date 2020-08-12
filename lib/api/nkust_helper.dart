@@ -5,13 +5,17 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:nkust_ap/models/notification_data.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_ap/api/parser/nkust_parser.dart';
 
 class NKUSTHelper {
   static NKUSTHelper _instance;
+  static Dio dio;
 
   static NKUSTHelper get instance {
     if (_instance == null) {
       _instance = NKUSTHelper();
+      dio = Dio();
     }
     return _instance;
   }
@@ -42,29 +46,31 @@ class NKUSTHelper {
       return null;
   }
 
-  //experiment for flutter web
   Future<NotificationsData> getNotifications(int page) async {
-    try {
-      var response = await http.get(
-        Uri.encodeFull("https://nkust.taki.dog/news/school?page=$page"),
-        headers: {
-          'User-Agent':
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36',
-          'Cache-Control': 'no-cache',
-          'Accept':
-              'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3',
-          'Connection': 'keep-alive',
-          'Host': 'nkust.taki.dog',
-          'Accept-Encoding': 'gzip, deflate',
-          'Access-Control-Allow-Origin': '*',
-          'Referer': '',
+    page -= 1;
+    int baseIndex = page * 15;
+    Response res = await dio.post(
+        "https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist",
+        data: {
+          'Rcg': 232,
+          'Op': 'getpartlist',
+          'Page': page,
         },
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+        ));
+    if (res.statusCode == 200) {
+      var acadData = acadParser(
+        html: json.decode(res.data)["content"],
+        baseIndex: baseIndex,
       );
-      var text = utf8.decode(response.bodyBytes);
-      var map = jsonDecode(text);
-      return NotificationsData.fromJson(map);
-    } catch (e) {
-      throw e;
+
+      return NotificationsData.fromJson({
+        "data": {
+          "page": page + 1,
+          "notification": acadData,
+        }
+      });
     }
   }
 }
