@@ -1,6 +1,8 @@
 //dio
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -33,6 +35,7 @@ import 'helper.dart';
 
 class WebApHelper {
   static Dio dio;
+  static DioCacheManager _manager;
   static WebApHelper _instance;
   static CookieJar cookieJar;
 
@@ -69,6 +72,9 @@ class WebApHelper {
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
     cookieJar = CookieJar();
+    _manager =
+        DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
+    dio.interceptors.add(_manager.interceptor);
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
@@ -116,8 +122,10 @@ class WebApHelper {
 
   Future<Response> apQuery(
     String queryQid,
-    Map<String, String> queryData,
-  ) async {
+    Map<String, String> queryData, {
+    String cacheKey,
+    Duration cacheExpiredTime,
+  }) async {
     /*
     Retrun type Response <Dio>
     */
@@ -131,16 +139,28 @@ class WebApHelper {
     }
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
-
+    Options _options;
+    dynamic requestData;
+    if (cacheKey == null) {
+      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      requestData = queryData;
+    } else {
+      print("have cache");
+      _options = buildCacheOptions(
+        cacheExpiredTime ?? Duration(seconds: 60),
+        primaryKey: cacheKey,
+      );
+      requestData = formUrlEncoded(queryData);
+    }
     Response request = await dio.post(
       url,
-      data: queryData,
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: requestData,
+      options: _options,
     );
     if (apLoginParser(request.data) == 2) {
+      _manager.delete(cacheKey);
       reLoginReTryCounts += 1;
-      await apLogin(
-          username: Helper.username, password: Helper.password);
+      await apLogin(username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData);
     }
     reLoginReTryCounts = 0;
