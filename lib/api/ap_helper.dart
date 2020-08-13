@@ -44,6 +44,9 @@ class WebApHelper {
 
   bool isLogin = false;
 
+  //cache key name
+  static String semesterCacheKey = "semesterCacheKey";
+
   static WebApHelper get instance {
     if (_instance == null) {
       _instance = WebApHelper();
@@ -176,11 +179,19 @@ class WebApHelper {
   }
 
   Future<SemesterData> semesters() async {
-    var query = await apQuery("ag304_01", null);
-
-    return SemesterData.fromJson(
-      semestersParser(query.data),
+    var query = await apQuery(
+      "ag304_01",
+      null,
+      cacheKey: semesterCacheKey,
+      cacheExpiredTime: Duration(hours: 3),
     );
+    var parsedData = semestersParser(query.data);
+    if (parsedData["data"].length < 1) {
+      //data error delete cache
+      _manager.delete(semesterCacheKey);
+    }
+
+    return SemesterData.fromJson(parsedData);
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
