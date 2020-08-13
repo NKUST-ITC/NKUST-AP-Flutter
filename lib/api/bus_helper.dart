@@ -2,8 +2,10 @@
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
+
 //parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';
 
@@ -77,10 +79,10 @@ class BusEncrypt {
     var j = "1088434686";
     var k = "260123741";
 
-    g = generateMd5("J${g}");
-    i = generateMd5("E${i}");
-    j = generateMd5("R${j}");
-    k = generateMd5("Y${k}");
+    g = generateMd5("J$g");
+    i = generateMd5("E$i");
+    j = generateMd5("R$j");
+    k = generateMd5("Y$k");
     username = generateMd5(username + encA1(g));
     password = generateMd5(username + password + "JERRY" + encA1(i));
 
@@ -113,10 +115,10 @@ class BusHelper {
   static BusHelper _instance;
   static CookieJar cookieJar;
 
-  static int reLoginReTryCountsLimit = 3;
+  static int reLoginReTryCountsLimit = 5;
   static int reLoginReTryCounts = 0;
 
-  bool isLogin;
+  bool isLogin = false;
 
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
@@ -151,7 +153,7 @@ class BusHelper {
     dio.options.receiveTimeout = 5000;
   }
 
-  void loginPrepare() async {
+  Future<void> loginPrepare() async {
     // Get global cookie. Only cookies get from the root directory can be used.
     await dio.head(busHost);
     // This function will download encrypt js bus login required.
@@ -205,7 +207,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (!isLogin) {
       await busLogin();
     }
     if (fromDateTime != null) {
@@ -244,7 +246,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (!isLogin) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -268,7 +270,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (!isLogin) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -292,7 +294,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (!isLogin) {
       await busLogin();
     }
 
@@ -319,7 +321,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin == false) {
+    if (!isLogin) {
       await busLogin();
     }
 
