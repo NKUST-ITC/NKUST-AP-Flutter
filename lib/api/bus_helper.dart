@@ -213,6 +213,7 @@ class BusHelper {
       month = fromDateTime.month.toString();
       day = fromDateTime.day.toString();
     }
+    Future<BusReservationsData> userRecord = busReservations();
 
     Response res = await dio.post("${busHost}API/Frequencys/getAll",
         data: {
@@ -234,7 +235,7 @@ class BusHelper {
     }
     reLoginReTryCounts = 0;
     return BusData.fromJson(
-      busTimeTableParser(res.data),
+      busTimeTableParser(res.data, busReservations: await userRecord),
     );
   }
 
