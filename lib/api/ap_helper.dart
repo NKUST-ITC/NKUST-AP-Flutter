@@ -48,6 +48,7 @@ class WebApHelper {
   static String semesterCacheKey = "${Helper.username}_semesterCacheKey";
   static String coursetableCacheKey = "${Helper.username}_coursetableCacheKey";
   static String scoresCacheKey = "${Helper.username}_scoresCacheKey";
+  static String userInfoCacheKey = "${Helper.username}_userInfoCacheKey";
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -173,7 +174,17 @@ class WebApHelper {
   }
 
   Future<UserInfo> userInfoCrawler() async {
-    var query = await apQuery("ag003", null);
+    var query = await apQuery(
+      "ag003",
+      null,
+      cacheKey: userInfoCacheKey,
+      cacheExpiredTime: Duration(hours: 6),
+    );
+
+    var parsedData = apUserInfoParser(query.data);
+    if (parsedData["id"] == null) {
+      _manager.delete(userInfoCacheKey);
+    }
 
     return UserInfo.fromJson(
       apUserInfoParser(query.data),
