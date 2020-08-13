@@ -47,6 +47,7 @@ class WebApHelper {
   //cache key name
   static String semesterCacheKey = "${Helper.username}_semesterCacheKey";
   static String coursetableCacheKey = "${Helper.username}_coursetableCacheKey";
+  static String scoresCacheKey = "${Helper.username}_scoresCacheKey";
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -199,10 +200,17 @@ class WebApHelper {
     var query = await apQuery(
       "ag008",
       {"arg01": years, "arg02": semesterValue},
+      cacheKey: "${scoresCacheKey}_${years}_${semesterValue}",
+      cacheExpiredTime: Duration(hours: 6),
     );
 
+    var parsedData = scoresParser(query.data);
+    if (parsedData["scores"].length == 0) {
+      _manager.delete("${scoresCacheKey}_${years}_${semesterValue}");
+    }
+
     return ScoreData.fromJson(
-      scoresParser(query.data),
+      parsedData,
     );
   }
 
