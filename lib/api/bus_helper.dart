@@ -124,8 +124,9 @@ class BusHelper {
   bool isLogin = false;
 
   static String userTimeTableSelectCacheKey;
-  static String userRecordsCacheKey = "busUserRecords";
-  static String userViolationRecordsCacheKey = "busViolationRecords";
+  static String userRecordsCacheKey = "${Helper.username}_busUserRecords";
+  static String userViolationRecordsCacheKey =
+      "${Helper.username}_busViolationRecords";
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
 
@@ -226,7 +227,8 @@ class BusHelper {
     }
     Future<BusReservationsData> userRecord = busReservations();
 
-    userTimeTableSelectCacheKey = "busCacheTimTable${year}${month}${day}";
+    userTimeTableSelectCacheKey =
+        "${Helper.username}_busCacheTimTable${year}${month}${day}";
 
     dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
     Response res = await dio.post(

@@ -45,7 +45,7 @@ class WebApHelper {
   bool isLogin = false;
 
   //cache key name
-  static String semesterCacheKey = "semesterCacheKey";
+  static String semesterCacheKey = "${Helper.username}_semesterCacheKey";
 
   static WebApHelper get instance {
     if (_instance == null) {
