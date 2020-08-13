@@ -207,7 +207,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin != true) {
+    if (!isLogin) {
       await busLogin();
     }
     if (fromDateTime != null) {
@@ -245,7 +245,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin != true) {
+    if (!isLogin) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -269,7 +269,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin != true) {
+    if (!isLogin) {
       await busLogin();
     }
     Response res = await dio.post(
@@ -293,7 +293,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin != true) {
+    if (!isLogin) {
       await busLogin();
     }
 
@@ -320,7 +320,7 @@ class BusHelper {
       throw NullThrownError;
     }
 
-    if (isLogin != true) {
+    if (!isLogin) {
       await busLogin();
     }
 
