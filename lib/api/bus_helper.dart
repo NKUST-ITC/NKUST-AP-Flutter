@@ -124,6 +124,8 @@ class BusHelper {
   bool isLogin = false;
 
   static String userTimeTableSelectCacheKey;
+  static String userRecordsCacheKey = "busUserRecords";
+  static String userViolationRecordsCacheKey = "busViolationRecords";
   static BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
 
@@ -150,10 +152,7 @@ class BusHelper {
     dio = Dio();
     _manager = DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
     cookieJar = CookieJar();
-    // dio.interceptors.add(
-    //     DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"))
-    //         .interceptor);
-
+    _manager.clearAll();
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
@@ -267,7 +266,7 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    // bookAction = true;
+    _manager.delete(userRecordsCacheKey);
     _manager.delete(userTimeTableSelectCacheKey);
 
     Response res = await dio.post(
@@ -323,14 +322,19 @@ class BusHelper {
       await busLogin();
     }
 
-    Response res = await dio.post("${busHost}API/Reserves/getOwn",
-        data: {'page': 1, 'start': 0, 'limit': 90},
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ));
+    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+    Response res = await dio.post(
+      "${busHost}API/Reserves/getOwn",
+      data: formUrlEncoded({'page': 1, 'start': 0, 'limit': 90}),
+      options: buildCacheOptions(
+        Duration(seconds: 60),
+        primaryKey: userRecordsCacheKey,
+      ),
+    );
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
+      _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busReservations();
@@ -350,14 +354,17 @@ class BusHelper {
       await busLogin();
     }
 
+    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
     Response res = await dio.post("${busHost}API/Illegals/getOwn",
-        data: {'page': 1, 'start': 0, 'limit': 200},
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
+        data: formUrlEncoded({'page': 1, 'start': 0, 'limit': 200}),
+        options: buildCacheOptions(
+          Duration(seconds: 60),
+          primaryKey: userViolationRecordsCacheKey,
         ));
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
+      _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();
