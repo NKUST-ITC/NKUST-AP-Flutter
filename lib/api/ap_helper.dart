@@ -148,7 +148,7 @@ class WebApHelper {
       _options = Options(contentType: Headers.formUrlEncodedContentType);
       requestData = queryData;
     } else {
-      print("have cache");
+      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
       _options = buildCacheOptions(
         cacheExpiredTime ?? Duration(seconds: 60),
         primaryKey: cacheKey,
