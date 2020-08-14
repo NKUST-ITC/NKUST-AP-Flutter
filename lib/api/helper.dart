@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
@@ -55,6 +56,7 @@ class Helper {
   static String password;
   static DateTime expireTime;
 
+  static bool useCacheData = false;
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
 
@@ -79,6 +81,10 @@ class Helper {
   }
 
   Helper() {
+    const bool kIsWeb = identical(0, 0.0);
+    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
+      Helper.useCacheData = true;
+    }
     var host = Preferences.getString(Constants.API_HOST, HOST);
     options = BaseOptions(
       baseUrl: 'https://$host/$VERSION',
