@@ -151,13 +151,17 @@ class BusHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    _manager = DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
+    if (Helper.useCacheData) {
+      _manager =
+          DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
+      dio.interceptors.add(_manager.interceptor);
+      _manager.clearAll();
+    }
+
     cookieJar = CookieJar();
-    _manager.clearAll();
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
-    dio.interceptors.add(_manager.interceptor);
     dio.options.headers['Connection'] = 'close';
     dio.options.connectTimeout = 5000;
     dio.options.receiveTimeout = 5000;
@@ -229,27 +233,41 @@ class BusHelper {
 
     userTimeTableSelectCacheKey =
         "${Helper.username}_busCacheTimTable${year}${month}${day}";
-
-    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-    Response res = await dio.post(
-      "${busHost}API/Frequencys/getAll",
-      data: formUrlEncoded({
+    Options _options;
+    dynamic _requestData;
+    if (!Helper.useCacheData) {
+      _requestData = {
         "data": json.encode({"y": year, "m": month, "d": day}),
         'operation': "全部",
         'page': 1,
         'start': 0,
         'limit': 90
-      }),
-      options: buildCacheOptions(
+      };
+      _options = Options(contentType: Headers.formUrlEncodedContentType);
+    } else {
+      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      _requestData = formUrlEncoded({
+        "data": json.encode({"y": year, "m": month, "d": day}),
+        'operation': "全部",
+        'page': 1,
+        'start': 0,
+        'limit': 90
+      });
+      _options = buildCacheOptions(
         Duration(seconds: 60),
         primaryKey: userTimeTableSelectCacheKey,
-      ),
+      );
+    }
+    Response res = await dio.post(
+      "${busHost}API/Frequencys/getAll",
+      data: _requestData,
+      options: _options,
     );
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
       // Remove fail cache.
-      _manager.delete(userTimeTableSelectCacheKey);
+      if (Helper.useCacheData) _manager.delete(userTimeTableSelectCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -268,8 +286,10 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    _manager.delete(userRecordsCacheKey);
-    _manager.delete(userTimeTableSelectCacheKey);
+    if (Helper.useCacheData) {
+      _manager.delete(userRecordsCacheKey);
+      _manager.delete(userTimeTableSelectCacheKey);
+    }
 
     Response res = await dio.post(
       "${busHost}API/Reserves/add",
@@ -310,7 +330,7 @@ class BusHelper {
     }
     // Clear all cookie, because we can't sure user on which page.
     // two page can cencel bus.
-    _manager.clearAll();
+    if (Helper.useCacheData) _manager.clearAll();
 
     return CancelBusData.fromJson(res.data);
   }
@@ -323,20 +343,29 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-
-    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-    Response res = await dio.post(
-      "${busHost}API/Reserves/getOwn",
-      data: formUrlEncoded({'page': 1, 'start': 0, 'limit': 90}),
-      options: buildCacheOptions(
+    Options _options;
+    dynamic _requestData;
+    if (!Helper.useCacheData) {
+      _requestData = {'page': 1, 'start': 0, 'limit': 90};
+      _options = Options(contentType: Headers.formUrlEncodedContentType);
+    } else {
+      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      _requestData = formUrlEncoded({'page': 1, 'start': 0, 'limit': 90});
+      _options = buildCacheOptions(
         Duration(seconds: 60),
         primaryKey: userRecordsCacheKey,
-      ),
+      );
+    }
+
+    Response res = await dio.post(
+      "${busHost}API/Reserves/getOwn",
+      data: _requestData,
+      options: _options,
     );
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      _manager.delete(userRecordsCacheKey);
+      if (Helper.useCacheData) _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busReservations();
@@ -355,18 +384,26 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
+    Options _options;
+    dynamic _requestData;
+    if (!Helper.useCacheData) {
+      _requestData = {'page': 1, 'start': 0, 'limit': 200};
+      _options = Options(contentType: Headers.formUrlEncodedContentType);
+    } else {
+      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      _requestData = formUrlEncoded({'page': 1, 'start': 0, 'limit': 200});
+      _options = buildCacheOptions(
+        Duration(seconds: 60),
+        primaryKey: userViolationRecordsCacheKey,
+      );
+    }
 
-    dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
     Response res = await dio.post("${busHost}API/Illegals/getOwn",
-        data: formUrlEncoded({'page': 1, 'start': 0, 'limit': 200}),
-        options: buildCacheOptions(
-          Duration(seconds: 60),
-          primaryKey: userViolationRecordsCacheKey,
-        ));
+        data: _requestData, options: _options);
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      _manager.delete(userViolationRecordsCacheKey);
+      if (Helper.useCacheData) _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();
