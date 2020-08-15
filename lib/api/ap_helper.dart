@@ -45,10 +45,14 @@ class WebApHelper {
   bool isLogin = false;
 
   //cache key name
-  static String semesterCacheKey = "${Helper.username}_semesterCacheKey";
-  static String coursetableCacheKey = "${Helper.username}_coursetableCacheKey";
-  static String scoresCacheKey = "${Helper.username}_scoresCacheKey";
-  static String userInfoCacheKey = "${Helper.username}_userInfoCacheKey";
+  static String get semesterCacheKey => "semesterCacheKey";
+
+  static String get coursetableCacheKey =>
+      "${Helper.username}_coursetableCacheKey";
+
+  static String get scoresCacheKey => "${Helper.username}_scoresCacheKey";
+
+  static String get userInfoCacheKey => "${Helper.username}_userInfoCacheKey";
 
   static WebApHelper get instance {
     if (_instance == null) {
