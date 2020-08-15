@@ -151,7 +151,7 @@ class BusHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    if (Helper.useCacheData) {
+    if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
       dio.interceptors.add(_manager.interceptor);
@@ -235,7 +235,7 @@ class BusHelper {
         "${Helper.username}_busCacheTimTable${year}${month}${day}";
     Options _options;
     dynamic _requestData;
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       _requestData = {
         "data": json.encode({"y": year, "m": month, "d": day}),
         'operation': "全部",
@@ -267,7 +267,7 @@ class BusHelper {
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
       // Remove fail cache.
-      if (Helper.useCacheData) _manager.delete(userTimeTableSelectCacheKey);
+      if (Helper.isSupportCacheData) _manager.delete(userTimeTableSelectCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -286,7 +286,7 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    if (Helper.useCacheData) {
+    if (Helper.isSupportCacheData) {
       _manager.delete(userRecordsCacheKey);
       _manager.delete(userTimeTableSelectCacheKey);
     }
@@ -330,7 +330,7 @@ class BusHelper {
     }
     // Clear all cookie, because we can't sure user on which page.
     // two page can cencel bus.
-    if (Helper.useCacheData) _manager.clearAll();
+    if (Helper.isSupportCacheData) _manager.clearAll();
 
     return CancelBusData.fromJson(res.data);
   }
@@ -345,7 +345,7 @@ class BusHelper {
     }
     Options _options;
     dynamic _requestData;
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       _requestData = {'page': 1, 'start': 0, 'limit': 90};
       _options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
@@ -365,7 +365,7 @@ class BusHelper {
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      if (Helper.useCacheData) _manager.delete(userRecordsCacheKey);
+      if (Helper.isSupportCacheData) _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busReservations();
@@ -386,7 +386,7 @@ class BusHelper {
     }
     Options _options;
     dynamic _requestData;
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       _requestData = {'page': 1, 'start': 0, 'limit': 200};
       _options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
@@ -403,7 +403,7 @@ class BusHelper {
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      if (Helper.useCacheData) _manager.delete(userViolationRecordsCacheKey);
+      if (Helper.isSupportCacheData) _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();

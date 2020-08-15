@@ -13,6 +13,7 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -56,7 +57,10 @@ class Helper {
   static String password;
   static DateTime expireTime;
 
-  static bool useCacheData = false;
+  /// From sqflite plugin setting
+  static const bool isSupportCacheData =
+      (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
+
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
 
@@ -81,10 +85,6 @@ class Helper {
   }
 
   Helper() {
-    const bool kIsWeb = identical(0, 0.0);
-    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
-      Helper.useCacheData = true;
-    }
     var host = Preferences.getString(Constants.API_HOST, HOST);
     options = BaseOptions(
       baseUrl: 'https://$host/$VERSION',

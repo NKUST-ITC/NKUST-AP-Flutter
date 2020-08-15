@@ -82,7 +82,7 @@ class WebApHelper {
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
     cookieJar = CookieJar();
-    if (Helper.useCacheData) {
+    if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
       dio.interceptors.add(_manager.interceptor);
@@ -170,7 +170,7 @@ class WebApHelper {
       options: _options,
     );
     if (apLoginParser(request.data) == 2) {
-      if (Helper.useCacheData) _manager.delete(cacheKey);
+      if (Helper.isSupportCacheData) _manager.delete(cacheKey);
       reLoginReTryCounts += 1;
       await apLogin(username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData);
@@ -180,7 +180,7 @@ class WebApHelper {
   }
 
   Future<UserInfo> userInfoCrawler() async {
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag003", null);
       return UserInfo.fromJson(
         apUserInfoParser(query.data),
@@ -204,7 +204,7 @@ class WebApHelper {
   }
 
   Future<SemesterData> semesters() async {
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag304_01", null);
       return SemesterData.fromJson(semestersParser(query.data));
     }
@@ -224,7 +224,7 @@ class WebApHelper {
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       var query = await apQuery(
         "ag008",
         {"arg01": years, "arg02": semesterValue},
@@ -249,7 +249,7 @@ class WebApHelper {
   }
 
   Future<CourseData> coursetable(String years, String semesterValue) async {
-    if (!Helper.useCacheData) {
+    if (!Helper.isSupportCacheData) {
       var query = await apQuery(
         "ag222",
         {"arg01": years, "arg02": semesterValue},
