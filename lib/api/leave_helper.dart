@@ -10,6 +10,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
 //model
 import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
 import 'helper.dart';
 
@@ -127,5 +128,46 @@ class LeaveHelper {
     );
 
     return LeaveData.fromJson(leaveQueryParser(queryRequest.data));
+  }
+
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
+    if (Helper.username == null || Helper.password == null) {
+      throw NullThrownError;
+    }
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw NullThrownError;
+    }
+    if (isLogin == false || isLogin == null) {
+      await leaveLogin();
+      reLoginReTryCounts++;
+    }
+    Response res = await dio.get(
+      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+    );
+    var requestData = hiddenInputGet(res.data);
+    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonEnter"] = "進入請假作業";
+
+    res = await dio.post(
+      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      data: requestData,
+      options: Options(
+          followRedirects: false,
+          contentType: Headers.formUrlEncodedContentType),
+    );
+    String fakeDate =
+        "${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}";
+    requestData = hiddenInputGet(res.data);
+    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
+        fakeDate;
+    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] = fakeDate;
+    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
+    res = await dio.post(
+      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      data: requestData,
+      options: Options(
+          followRedirects: false,
+          contentType: Headers.formUrlEncodedContentType),
+    );
+    return LeaveSubmitInfoData.fromJson(leaveSubmitInfoParser(res.data));
   }
 }
