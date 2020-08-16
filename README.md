@@ -10,7 +10,7 @@
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
 - [X] [iOS](https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8)
 - [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
-- [X] [Windows(Alpha)](https://drive.google.com/file/d/1ibOtCTATHM3tDDk9DKhF2iYel29dj320/view?usp=sharing)
+- [X] [Windows(Alpha)](https://drive.google.com/file/d/1_AFAHsVRSflODA6KIykzIMtj_itQDEqS/view?usp=sharing)
 - [X] [MacOS(Beta)](https://drive.google.com/open?id=1ag3fsRN6pQv47T01Aa0EqTY2has83xPV)
 - [X] [Linux(Alpha)](https://drive.google.com/file/d/1JGuuWjjBYjzofB24GrgNjpJ1EYA3GcBd/view?usp=sharing)
 
