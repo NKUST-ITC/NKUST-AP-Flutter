@@ -58,7 +58,7 @@ class Helper {
   static DateTime expireTime;
 
   /// From sqflite plugin setting
-  static const bool isSupportCacheData =
+  static bool isSupportCacheData =
       (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
 
   //LOGIN API
