@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show Platform;
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
@@ -12,6 +13,7 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
@@ -54,6 +56,10 @@ class Helper {
   static String username;
   static String password;
   static DateTime expireTime;
+
+  /// From sqflite plugin setting
+  static bool isSupportCacheData =
+      (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
 
   //LOGIN API
   static const USER_DATA_ERROR = 1401;

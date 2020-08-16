@@ -1,6 +1,8 @@
 //dio
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -33,6 +35,7 @@ import 'helper.dart';
 
 class WebApHelper {
   static Dio dio;
+  static DioCacheManager _manager;
   static WebApHelper _instance;
   static CookieJar cookieJar;
 
@@ -40,6 +43,16 @@ class WebApHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
+
+  //cache key name
+  static String get semesterCacheKey => "semesterCacheKey";
+
+  static String get coursetableCacheKey =>
+      "${Helper.username}_coursetableCacheKey";
+
+  static String get scoresCacheKey => "${Helper.username}_scoresCacheKey";
+
+  static String get userInfoCacheKey => "${Helper.username}_userInfoCacheKey";
 
   static WebApHelper get instance {
     if (_instance == null) {
@@ -69,6 +82,11 @@ class WebApHelper {
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
     cookieJar = CookieJar();
+    if (Helper.isSupportCacheData) {
+      _manager =
+          DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
+      dio.interceptors.add(_manager.interceptor);
+    }
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
@@ -116,8 +134,10 @@ class WebApHelper {
 
   Future<Response> apQuery(
     String queryQid,
-    Map<String, String> queryData,
-  ) async {
+    Map<String, String> queryData, {
+    String cacheKey,
+    Duration cacheExpiredTime,
+  }) async {
     /*
     Retrun type Response <Dio>
     */
@@ -131,16 +151,28 @@ class WebApHelper {
     }
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
-
+    Options _options;
+    dynamic requestData;
+    if (cacheKey == null) {
+      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      requestData = queryData;
+    } else {
+      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+      _options = buildCacheOptions(
+        cacheExpiredTime ?? Duration(seconds: 60),
+        primaryKey: cacheKey,
+      );
+      requestData = formUrlEncoded(queryData);
+    }
     Response request = await dio.post(
       url,
-      data: queryData,
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: requestData,
+      options: _options,
     );
     if (apLoginParser(request.data) == 2) {
+      if (Helper.isSupportCacheData) _manager.delete(cacheKey);
       reLoginReTryCounts += 1;
-      await apLogin(
-          username: Helper.username, password: Helper.password);
+      await apLogin(username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData);
     }
     reLoginReTryCounts = 0;
@@ -148,7 +180,23 @@ class WebApHelper {
   }
 
   Future<UserInfo> userInfoCrawler() async {
-    var query = await apQuery("ag003", null);
+    if (!Helper.isSupportCacheData) {
+      var query = await apQuery("ag003", null);
+      return UserInfo.fromJson(
+        apUserInfoParser(query.data),
+      );
+    }
+    var query = await apQuery(
+      "ag003",
+      null,
+      cacheKey: userInfoCacheKey,
+      cacheExpiredTime: Duration(hours: 6),
+    );
+
+    var parsedData = apUserInfoParser(query.data);
+    if (parsedData["id"] == null) {
+      _manager.delete(userInfoCacheKey);
+    }
 
     return UserInfo.fromJson(
       apUserInfoParser(query.data),
@@ -156,32 +204,70 @@ class WebApHelper {
   }
 
   Future<SemesterData> semesters() async {
-    var query = await apQuery("ag304_01", null);
-
-    return SemesterData.fromJson(
-      semestersParser(query.data),
+    if (!Helper.isSupportCacheData) {
+      var query = await apQuery("ag304_01", null);
+      return SemesterData.fromJson(semestersParser(query.data));
+    }
+    var query = await apQuery(
+      "ag304_01",
+      null,
+      cacheKey: semesterCacheKey,
+      cacheExpiredTime: Duration(hours: 3),
     );
+    var parsedData = semestersParser(query.data);
+    if (parsedData["data"].length < 1) {
+      //data error delete cache
+      _manager.delete(semesterCacheKey);
+    }
+
+    return SemesterData.fromJson(parsedData);
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
+    if (!Helper.isSupportCacheData) {
+      var query = await apQuery(
+        "ag008",
+        {"arg01": years, "arg02": semesterValue},
+      );
+      return ScoreData.fromJson(semestersParser(query.data));
+    }
     var query = await apQuery(
       "ag008",
       {"arg01": years, "arg02": semesterValue},
+      cacheKey: "${scoresCacheKey}_${years}_${semesterValue}",
+      cacheExpiredTime: Duration(hours: 6),
     );
 
+    var parsedData = scoresParser(query.data);
+    if (parsedData["scores"].length == 0) {
+      _manager.delete("${scoresCacheKey}_${years}_${semesterValue}");
+    }
+
     return ScoreData.fromJson(
-      scoresParser(query.data),
+      parsedData,
     );
   }
 
   Future<CourseData> coursetable(String years, String semesterValue) async {
+    if (!Helper.isSupportCacheData) {
+      var query = await apQuery(
+        "ag222",
+        {"arg01": years, "arg02": semesterValue},
+      );
+      return CourseData.fromJson(coursetableParser(query.data));
+    }
     var query = await apQuery(
       "ag222",
       {"arg01": years, "arg02": semesterValue},
+      cacheKey: "${coursetableCacheKey}_${years}_${semesterValue}",
+      cacheExpiredTime: Duration(hours: 6),
     );
-
+    var parsedData = coursetableParser(query.data);
+    if (parsedData["courses"].length == 0) {
+      _manager.delete("${coursetableCacheKey}_${years}_${semesterValue}");
+    }
     return CourseData.fromJson(
-      coursetableParser(query.data),
+      parsedData,
     );
   }
 
