@@ -67,3 +67,56 @@ Map<String, dynamic> leaveQueryParser(String html) {
   }
   return {"data": dataList, "timeCodes": timeCodeList};
 }
+
+Map<String, dynamic> leaveSubmitInfoParser(String html) {
+  // Leave parser haven't any check, check is unnecessary on this system.
+  var document = parse(html);
+
+  //TimeCode generate part.
+  List<String> timeCodeList = [];
+  var _timeCode = document
+      .getElementsByClassName("mGrid")[0]
+      .getElementsByTagName("tr")[0]
+      .getElementsByTagName("th");
+  if (_timeCode.length > 5) {
+    for (int i = 3; i < _timeCode.length; i++) {
+      timeCodeList.add(_timeCode[i].text);
+    }
+  }
+
+  //LeaveType generate part.
+  List<Map<String, String>> leaveType = [];
+
+  var _leaveType = document.getElementsByClassName("aspNetDisabled");
+  if (_leaveType.length > 1) {
+    for (int i = 1; i < _leaveType.length; i++) {
+      leaveType.add({
+        "title": _leaveType[i].getElementsByTagName("label")[0].text,
+        "id": _leaveType[i]
+            .getElementsByTagName("input")[0]
+            .attributes["value"]
+            .toString(),
+      });
+    }
+
+    Map<String, dynamic> tutorData;
+    //Get default tutor
+    var _toturSelect = document
+        .getElementById("ContentPlaceHolder1_CK001_ddlTeach")
+        .getElementsByTagName("option");
+    for (int i = 1; i < _toturSelect.length; i++) {
+      if (_toturSelect[i].attributes["selected"] != null) {
+        tutorData = {
+          "name": _toturSelect[i].text,
+          "id": _toturSelect[i].attributes["value"],
+        };
+      }
+    }
+
+    return {
+      "tutor": tutorData,
+      "type": leaveType,
+      "timeCodes": timeCodeList,
+    };
+  }
+}

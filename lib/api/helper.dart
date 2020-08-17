@@ -702,28 +702,16 @@ class Helper {
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo({
     GeneralCallback<LeaveSubmitInfoData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
-      var response = await dio.get(
-        '/leave/submit/info',
-        cancelToken: cancelToken,
-      );
-      LeaveSubmitInfoData data;
-      if (response.statusCode == 200)
-        data = LeaveSubmitInfoData.fromJson(response.data);
-      reLoginCount = 0;
+      LeaveSubmitInfoData data =
+          await LeaveHelper.instance.getLeavesSubmitInfo();
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getLeavesSubmitInfo(callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -739,41 +727,16 @@ class Helper {
     @required PickedFile image,
     GeneralCallback<Response> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
-      MultipartFile file;
-      if (image != null) {
-        file = MultipartFile.fromFileSync(
-          image.path,
-          filename: image.path.split('/').last,
-          contentType: MediaType(
-              'image', Utils.parserImageFileType(image.path.split('.').last)),
-        );
-      }
-      print(data.toRawJson());
-      var response = await dio.post(
-        '/leave/submit',
-        data: FormData.fromMap(
-          {
-            'leavesData': data.toRawJson(),
-            'proofImage': file,
-          },
-        ),
-        cancelToken: cancelToken,
-      );
-      reLoginCount = 0;
-      return (callback == null) ? data : callback.onSuccess(response);
+      Response res =
+          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
+      return (callback == null) ? data : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return sendLeavesSubmit(data: data, image: image, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
+        if (dioError.isServerError)
+          callback?.onError(dioError.serverErrorResponse);
+        else
+          callback?.onFailure(dioError);
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;

@@ -207,10 +207,23 @@ class _PickTutorPageState extends State<PickTutorPage> {
   }
 
   void pickItem(_Type type, int currentIndex, List<String> items) {
+    //TODO text fix
+    String title = '';
+    switch(type){
+      case _Type.campus:
+        title = ApLocalizations.of(context).pickTeacher;
+        break;
+      case _Type.department:
+        title = ApLocalizations.of(context).pickTeacher;
+        break;
+      case _Type.teacher:
+        title = ApLocalizations.of(context).pickTeacher;
+        break;
+    }
     showDialog<int>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-        title: Text(AppLocalizations.of(context).picksSemester),
+        title: Text(title),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(8),
