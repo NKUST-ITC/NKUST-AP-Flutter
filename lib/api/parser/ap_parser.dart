@@ -159,7 +159,7 @@ Map<String, dynamic> coursetableParser(String html) {
       var td = topTable[i].getElementsByTagName('td');
       data['courses'].add({
         'code': td[0].text,
-        'title': td[1].text,
+        'title': td[1].text.trim(),
         'className': td[2].text,
         'group': td[3].text,
         'units': td[4].text,
