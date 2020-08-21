@@ -22,7 +22,8 @@ class AppLocalizations {
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
-      'update_note_content': '* Fix school affairs system feature.\n* Support Fist campus bus reserve.\n* Add cache mechanism.',
+      'update_note_content':
+          '* Fix school affairs system feature.\n* Support Fist campus bus reserve.\n* Add cache mechanism.',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright © 2018 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': 'Chosen Date: %s',
@@ -144,6 +145,7 @@ class AppLocalizations {
               "• Violation point recording until the end of the semester(1st Semester ended at 1/31，2nd Semester ended at 8/31)，violation point will restart recording. When you not paid off fine，next semester will stop your reservation right until you pay off fine.\n" +
               "• Go to the auto payment machine or Office of General Affairs cashier pay off fine after you print violation statement by yourself, After paid off, go to Office of General Affairs General Affairs Division write off payment by receipt(Write off payment need receipt on the day.)，After write off and the next day 4A.M. will be reserve class after 9.A.M..\n" +
               "• If you have any suspicion about violation point，please go to Office of General Affairs General Affairs Division check violation directly in 10 days(included holidays).\n",
+      'busViolationRecordEmpty': 'Good！No any bus violation record～',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -257,6 +259,7 @@ class AppLocalizations {
           "• 違規點數統計至學期末為止(上學期學期末1/31，下學期8/31)，新學期違規點數重新計算。當學期罰款未繳清者，次學期停止預約權限至罰款繳清為止\n" +
           "• 罰款請自行列印違規明細後至自動繳費機或總務處出納組繳費，繳費後憑收據至總務處事務組銷帳(當天開列之收據須於當天銷帳)，銷帳完後隔天凌晨4點後才可預約當天9點後的校車。\n" +
           "• 罰款點數如有疑義，請於違規發生日起10日內(含星期例假日)逕向總務處事務組確認。\n",
+      'busViolationRecordEmpty': '太好了！您沒有任何校車罰緩～',
     },
   };
 
@@ -452,6 +455,9 @@ class AppLocalizations {
   String get busRuleFineTitle => _vocabularies['bus_rule_fine_title'];
 
   String get busRuleFineRule => _vocabularies['bus_rule_fine_rule'];
+
+  String get busViolationRecordEmpty =>
+      _vocabularies['busViolationRecordEmpty'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

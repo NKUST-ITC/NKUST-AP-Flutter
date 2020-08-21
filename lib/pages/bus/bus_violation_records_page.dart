@@ -42,7 +42,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app.busReservationEmpty;
+        return app.busViolationRecordEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
