@@ -4,11 +4,10 @@ import 'package:html/parser.dart' show parse;
 String clearHtml(String html) {
   String temp = "";
   for (int i = 0; i < html.length; i++) {
-    if (html.codeUnitAt(i) > 40000 || html.codeUnitAt(i) == 10) continue;
+    if (html.codeUnitAt(i) > 40000) continue;
     temp += html[i];
   }
-
-  return temp;
+  return temp.replaceAll(new RegExp(r"\r\n(\w{1,4})\r\n"), "");
 }
 
 int apLoginParser(String html) {
@@ -143,7 +142,6 @@ Map<String, dynamic> scoresParser(String html) {
 
 Map<String, dynamic> coursetableParser(String html) {
   html = clearHtml(html);
-  html = html.replaceAll("2000", "").replaceAll("981", "").replaceAll("\n", "");
 
   Map<String, dynamic> data = {
     "courses": [],
@@ -347,7 +345,6 @@ Map<String, dynamic> roomListParser(String html) {
 
 Map<String, dynamic> roomCourseTableQueryParser(String html) {
   html = clearHtml(html);
-  html = html.replaceAll("2000", "").replaceAll("981", "").replaceAll("\n", "");
 
   Map<String, dynamic> data = {
     "courses": [],
