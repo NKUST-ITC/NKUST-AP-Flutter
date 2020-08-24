@@ -1,6 +1,15 @@
 import 'dart:io';
 import 'package:html/parser.dart' show parse;
 
+String clearHtml(String html) {
+  String temp = "";
+  for (int i = 0; i < html.length; i++) {
+    if (html.codeUnitAt(i) > 40000) continue;
+    temp += html[i];
+  }
+  return temp.replaceAll(new RegExp(r"\r\n(\w{1,4})\r\n"), "");
+}
+
 int apLoginParser(String html) {
   /*
     Retrun type Int
@@ -132,6 +141,8 @@ Map<String, dynamic> scoresParser(String html) {
 }
 
 Map<String, dynamic> coursetableParser(String html) {
+  html = clearHtml(html);
+
   Map<String, dynamic> data = {
     "courses": [],
     "coursetable": {
@@ -227,9 +238,13 @@ Map<String, dynamic> coursetableParser(String html) {
         if (splitData.length <= 1) {
           continue;
         }
-        String title = splitData[0];
-        if (title.indexOf(">") > -1) {
-          title = title.substring(title.indexOf(">") + 1, title.length);
+        String title = splitData[0].replaceAll("\n", "");
+
+        if (title.lastIndexOf(">") > -1) {
+          title = title
+              .substring(title.lastIndexOf(">") + 1, title.length)
+              .replaceAll("&nbsp;", '')
+              .replaceAll(";", '');
         }
         data['coursetable'][keyName[key]].add({
           'title': title,
@@ -329,6 +344,8 @@ Map<String, dynamic> roomListParser(String html) {
 }
 
 Map<String, dynamic> roomCourseTableQueryParser(String html) {
+  html = clearHtml(html);
+
   Map<String, dynamic> data = {
     "courses": [],
     "coursetable": {
@@ -411,7 +428,6 @@ Map<String, dynamic> roomCourseTableQueryParser(String html) {
             .substring(eachDays.outerHtml.indexOf("; font-family: 細明體") + 20,
                 eachDays.outerHtml.indexOf(";</font>"))
             .split("<br>"));
-
         if (splitData.length < 2) {
           continue;
         }
@@ -429,9 +445,13 @@ Map<String, dynamic> roomCourseTableQueryParser(String html) {
         if (splitData.length <= 1) {
           continue;
         }
-        String title = splitData[0];
-        if (title.indexOf(">") > -1) {
-          title = title.substring(title.indexOf(">") + 1, title.length);
+        String title = splitData[0].replaceAll("\n", "");
+
+        if (title.lastIndexOf(">") > -1) {
+          title = title
+              .substring(title.lastIndexOf(">") + 1, title.length)
+              .replaceAll("&nbsp;", '')
+              .replaceAll(";", '');
         }
         data['coursetable'][keyName[key]].add({
           'title': title.replaceAll("&nbsp;", ""),
