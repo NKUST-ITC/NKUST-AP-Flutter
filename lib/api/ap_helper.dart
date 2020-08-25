@@ -273,6 +273,7 @@ class WebApHelper {
       var query = await apQuery(
         "ag222",
         {"arg01": years, "arg02": semesterValue},
+        bytesResponse: true,
       );
       return CourseData.fromJson(coursetableParser(query.data));
     }
@@ -281,6 +282,7 @@ class WebApHelper {
       {"arg01": years, "arg02": semesterValue},
       cacheKey: "${coursetableCacheKey}_${years}_${semesterValue}",
       cacheExpiredTime: Duration(hours: 6),
+      bytesResponse: true,
     );
     var parsedData = coursetableParser(query.data);
     if (parsedData["courses"].length == 0) {
@@ -335,6 +337,7 @@ class WebApHelper {
     var query = await apQuery(
       "ag302_02",
       {"room_id": roomId, "yms_yms": "${years}#${semesterValue}"},
+      bytesResponse: true,
     );
 
     return CourseData.fromJson(
