@@ -5,6 +5,7 @@ import 'dart:io' show Platform;
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';

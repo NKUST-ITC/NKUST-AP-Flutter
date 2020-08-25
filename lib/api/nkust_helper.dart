@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:nkust_ap/models/notification_data.dart';
 import 'package:dio/dio.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 
