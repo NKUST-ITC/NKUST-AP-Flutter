@@ -56,6 +56,9 @@ int apLoginParser(dynamic html) {
     2 : Relogin
     3 : Not found login message
     */
+  if (html is Uint8List) {
+    html = clearTransEncoding(html);
+  }
   if (html.indexOf("top.location.href='f_index.html'") > -1) {
     return 0;
   }
@@ -178,8 +181,10 @@ Map<String, dynamic> scoresParser(String html) {
   return data;
 }
 
-Map<String, dynamic> coursetableParser(String html) {
-  html = clearHtml(html);
+Map<String, dynamic> coursetableParser(dynamic html) {
+  if (html is Uint8List) {
+    html = clearTransEncoding(html);
+  }
 
   Map<String, dynamic> data = {
     "courses": [],
@@ -381,8 +386,10 @@ Map<String, dynamic> roomListParser(String html) {
   return data;
 }
 
-Map<String, dynamic> roomCourseTableQueryParser(String html) {
-  html = clearHtml(html);
+Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
+  if (html is Uint8List) {
+    html = clearTransEncoding(html);
+  }
 
   Map<String, dynamic> data = {
     "courses": [],
