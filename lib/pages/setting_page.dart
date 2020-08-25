@@ -11,7 +11,6 @@ import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/setting_page_widgets.dart';
-import 'package:app_review/app_review.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -326,65 +325,5 @@ class SettingPageState extends State<SettingPage> {
         },
       ),
     );
-  }
-
-  _showBottomSheet(BuildContext context) async {
-    _scaffoldKey.currentState.showBottomSheet<Null>((context) {
-      return Material(
-        elevation: 20,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  ap.ratingDialogTitle,
-                  style: TextStyle(
-                      color: ApTheme.of(context).blueText, fontSize: 20.0),
-                ),
-              ),
-            ),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: TextStyle(
-                      color: ApTheme.of(context).grey,
-                      height: 1.3,
-                      fontSize: 18.0),
-                  children: [
-                    TextSpan(text: ap.ratingDialogContent),
-                  ]),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    ap.later,
-                    style: TextStyle(
-                        color: ApTheme.of(context).blue, fontSize: 16.0),
-                  ),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    AppReview.requestReview;
-                  },
-                  child: Text(
-                    ap.rateNow,
-                    style: TextStyle(
-                        color: ApTheme.of(context).blue, fontSize: 16.0),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      );
-    });
   }
 }

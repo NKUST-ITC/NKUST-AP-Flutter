@@ -1,15 +1,12 @@
 import 'dart:io';
 
 import 'package:ap_common/config/ap_constants.dart';
-import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/version_info.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:app_review/app_review.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,70 +56,6 @@ class Utils {
   static Future<void> cancelBusNotify() async {
     var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancel(Constants.NOTIFICATION_BUS_ID);
-  }
-
-  static void showAppReviewSheet(BuildContext context) async {
-    // await Future.delayed(Duration(seconds: 1));
-    final app = ApLocalizations.of(context);
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
-      showModalBottomSheet(
-        context: context,
-        builder: (BuildContext context) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: Align(
-                alignment: Alignment.center,
-                child: Text(
-                  app.ratingDialogTitle,
-                  style: TextStyle(
-                      color: ApTheme.of(context).blue, fontSize: 20.0),
-                ),
-              ),
-            ),
-            RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(
-                  style: TextStyle(
-                      color: ApTheme.of(context).grey,
-                      height: 1.3,
-                      fontSize: 18.0),
-                  children: [
-                    TextSpan(text: app.ratingDialogContent),
-                  ]),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(
-                    app.later,
-                    style: TextStyle(
-                        color: ApTheme.of(context).blue, fontSize: 16.0),
-                  ),
-                ),
-                FlatButton(
-                  onPressed: () {
-                    AppReview.requestReview.then((a) {});
-                  },
-                  child: Text(
-                    app.rateNow,
-                    style: TextStyle(
-                        color: ApTheme.of(context).blue, fontSize: 16.0),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      );
-    } else {
-      //TODO implement other platform system local notification
-    }
   }
 
   static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
