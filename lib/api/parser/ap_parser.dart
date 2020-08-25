@@ -3,15 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:html/parser.dart' show parse;
 
-String clearHtml(String html) {
-  String temp = "";
-  for (int i = 0; i < html.length; i++) {
-    if (html.codeUnitAt(i) > 40000) continue;
-    temp += html[i];
-  }
-  return temp.replaceAll(new RegExp(r"\r\n(\w{1,4})\r\n"), "");
-}
-
 String clearTransEncoding(List<int> htmlBytes) {
   // htmlBytes is fixed-length list, need copy.
   var tempData = new List<int>.from(htmlBytes);
