@@ -42,12 +42,16 @@ class HomePageState extends State<HomePage> {
   final GlobalKey<HomePageScaffoldState> _homeKey =
       GlobalKey<HomePageScaffoldState>();
 
+  bool get isTablet => MediaQuery.of(context).size.shortestSide < 680;
+
   var state = HomeState.loading;
 
   AppLocalizations app;
   ApLocalizations ap;
 
   Map<String, List<Announcement>> newsMap;
+
+  Widget content;
 
   List<Announcement> get announcements =>
       (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
@@ -159,6 +163,7 @@ class HomePageState extends State<HomePage> {
       state: state,
       announcements: announcements,
       isLogin: isLogin,
+      content: content,
       actions: <Widget>[
         IconButton(
           icon: Icon(ApIcon.info),
@@ -188,7 +193,7 @@ class HomePageState extends State<HomePage> {
                 UserInfoPage(userInfo: userInfo),
               );
           } else {
-            Navigator.of(context).pop();
+            if (isTablet) Navigator.of(context).pop();
             openLoginPage();
           }
         },
@@ -211,32 +216,47 @@ class HomePageState extends State<HomePage> {
               DrawerSubItem(
                 icon: ApIcon.classIcon,
                 title: ap.course,
-                page: CoursePage(),
+                onTap: () => _openPage(
+                  CoursePage(),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
                 title: ap.score,
-                page: ScorePage(),
+                onTap: () => _openPage(
+                  ScorePage(),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.apps,
                 title: ap.calculateUnits,
-                page: CalculateUnitsPage(),
+                onTap: () => _openPage(
+                  CalculateUnitsPage(),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.warning,
                 title: ap.midtermAlerts,
-                page: MidtermAlertsPage(),
+                onTap: () => _openPage(
+                  MidtermAlertsPage(),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.folder,
                 title: ap.rewardAndPenalty,
-                page: RewardAndPenaltyPage(),
+                onTap: () => _openPage(
+                  RewardAndPenaltyPage(),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.room,
                 title: ap.classroomCourseTableSearch,
-                page: RoomListPage(),
+                onTap: () => _openPage(RoomListPage()),
               ),
             ],
           ),
@@ -258,12 +278,18 @@ class HomePageState extends State<HomePage> {
               DrawerSubItem(
                 icon: ApIcon.edit,
                 title: ap.leaveApply,
-                page: LeavePage(initIndex: 0),
+                onTap: () => _openPage(
+                  LeavePage(initIndex: 0),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
                 title: ap.leaveRecords,
-                page: LeavePage(initIndex: 1),
+                onTap: () => _openPage(
+                  LeavePage(initIndex: 1),
+                  needLogin: true,
+                ),
               ),
             ],
           ),
@@ -285,34 +311,48 @@ class HomePageState extends State<HomePage> {
               DrawerSubItem(
                 icon: ApIcon.dateRange,
                 title: ap.busReserve,
-                page: BusPage(initIndex: 0),
+                onTap: () => _openPage(
+                  BusPage(initIndex: 0),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
                 title: ap.busReservations,
-                page: BusPage(initIndex: 1),
+                onTap: () => _openPage(
+                  BusPage(initIndex: 1),
+                  needLogin: true,
+                ),
               ),
               DrawerSubItem(
                 icon: ApIcon.monetizationOn,
                 title: app.busViolationRecords,
-                page: BusPage(initIndex: 2),
+                onTap: () => _openPage(
+                  BusPage(initIndex: 2),
+                  needLogin: true,
+                ),
               ),
             ],
           ),
           DrawerItem(
             icon: ApIcon.info,
             title: ap.schoolInfo,
-            page: SchoolInfoPage(),
+            onTap: () => _openPage(SchoolInfoPage()),
           ),
           DrawerItem(
             icon: ApIcon.face,
             title: ap.about,
-            page: aboutPage(context, assetImage: sectionImage),
+            onTap: () => _openPage(
+              aboutPage(
+                context,
+                assetImage: sectionImage,
+              ),
+            ),
           ),
           DrawerItem(
             icon: ApIcon.settings,
             title: ap.settings,
-            page: SettingPage(),
+            onTap: () => _openPage(SettingPage()),
           ),
           if (isLogin)
             ListTile(
@@ -552,9 +592,7 @@ class HomePageState extends State<HomePage> {
 
   Future openLoginPage() async {
     var result = await Navigator.of(context).push(
-      CupertinoPageRoute(
-        builder: (_) => LoginPage(),
-      ),
+      CupertinoPageRoute(builder: (_) => LoginPage()),
     );
     checkLogin();
     if (result ?? false) {
@@ -586,6 +624,21 @@ class HomePageState extends State<HomePage> {
           checkLogin();
         },
       );
+    }
+  }
+
+  _openPage(Widget page, {needLogin = false}) {
+    if (isTablet) Navigator.of(context).pop();
+    if (needLogin && !isLogin)
+      ApUtils.showToast(
+        context,
+        ApLocalizations.of(context).notLoginHint,
+      );
+    else {
+      if (isTablet) {
+        ApUtils.pushCupertinoStyle(context, page);
+      } else
+        setState(() => content = page);
     }
   }
 }
