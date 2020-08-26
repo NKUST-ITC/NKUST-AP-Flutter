@@ -365,7 +365,7 @@ class HomePageState extends State<HomePage> {
                 ShareDataWidget.of(context).data.logout();
                 isLogin = false;
                 userInfo = null;
-                Navigator.of(context).pop();
+                if (isTablet) Navigator.of(context).pop();
                 checkLogin();
               },
               title: Text(ap.logout, style: _defaultStyle),
@@ -561,7 +561,6 @@ class HomePageState extends State<HomePage> {
           isLogin = true;
         },
         onError: (GeneralResponse response) {
-          Navigator.of(context, rootNavigator: true).pop();
           String message = '';
           switch (response.statusCode) {
             case ApStatusCode.SCHOOL_SERVER_ERROR:
