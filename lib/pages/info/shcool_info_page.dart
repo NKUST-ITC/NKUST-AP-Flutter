@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/models/notification_data.dart';
@@ -10,6 +11,8 @@ import 'package:ap_common/scaffold/phone_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -120,7 +123,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           PdfScaffold(
             state: pdfState,
             byteList: byteList,
-            onRefresh: () => _getSchedules(),
+            onRefresh: () {
+              setState(() => pdfState = PdfState.loading);
+              _getSchedules();
+            },
           ),
         ],
         controller: controller,
@@ -181,8 +187,21 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   }
 
   _getSchedules() async {
-    downloadFdf(
-        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/039ac35f41173f6c2eacfd9cc73052a257e8d68a/cal108-2.pdf');
+    String pdfUrl =
+        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      try {
+        final RemoteConfig remoteConfig = await RemoteConfig.instance;
+        await remoteConfig.fetch(expiration: const Duration(hours: 1));
+        await remoteConfig.activateFetched();
+        pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
+        downloadFdf(pdfUrl);
+      } catch (exception) {
+        downloadFdf(pdfUrl);
+      }
+    } else {
+      downloadFdf(pdfUrl);
+    }
   }
 
   void downloadFdf(String url) async {
