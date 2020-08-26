@@ -200,7 +200,7 @@ class HomePageState extends State<HomePage> {
         widgets: <Widget>[
           if (!isMobile)
             DrawerItem(
-              icon: ApIcon.face,
+              icon: ApIcon.home,
               title: ap.home,
               onTap: () {
                 setState(() => content = null);
