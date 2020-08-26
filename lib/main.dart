@@ -20,7 +20,7 @@ import 'package:nkust_ap/config/constants.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
-  HttpClient.enableTimelineLogging = isInDebugMode;
+//  HttpClient.enableTimelineLogging = isInDebugMode;
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
