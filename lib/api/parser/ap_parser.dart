@@ -283,8 +283,10 @@ Map<String, dynamic> coursetableParser(dynamic html) {
         data['coursetable'][keyName[key]].add({
           'title': title,
           'date': {
-            "startTime": courseTime[1].split('-')[0],
-            "endTime": courseTime[1].split('-')[1],
+            "startTime":
+                "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
+            "endTime":
+                "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
             'section': courseTime[0]
                 .replaceAll(" ", "")
                 .replaceAll(String.fromCharCode(160), "")
@@ -492,8 +494,10 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
         data['coursetable'][keyName[key]].add({
           'title': title.replaceAll("&nbsp;", ""),
           'date': {
-            "startTime": courseTime[1].split('-')[0],
-            "endTime": courseTime[1].split('-')[1],
+            "startTime":
+                "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
+            "endTime":
+                "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
             'section': courseTime[0]
                 .replaceAll(" ", "")
                 .replaceAll(String.fromCharCode(160), "")
