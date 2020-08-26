@@ -378,10 +378,8 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
     }
+    //TODO revert exception
     return null;
   }
 
