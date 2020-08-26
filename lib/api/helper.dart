@@ -912,7 +912,7 @@ extension GeneralResponseExtension on GeneralResponse {
         message = ap.tokenExpiredContent;
         break;
       default:
-        message = ap.somethingError;
+        message = ap.unknownError;
         break;
     }
     FirebaseAnalyticsUtils.instance.logApiEvent(
