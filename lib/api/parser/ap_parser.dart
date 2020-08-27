@@ -249,7 +249,7 @@ Map<String, dynamic> coursetableParser(dynamic html) {
   try {
     for (int key = 0; key < keyName.length; key++) {
       for (int eachSession = 1;
-          eachSession < data['coursetable']['timeCodes'].length;
+          eachSession < data['coursetable']['timeCodes'].length + 1;
           eachSession++) {
         var eachDays = document
             .getElementsByTagName("table")[1]
@@ -455,7 +455,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
   try {
     for (int key = 0; key < keyName.length; key++) {
       for (int eachSession = 1;
-          eachSession < data['coursetable']['timeCodes'].length;
+          eachSession < data['coursetable']['timeCodes'].length + 1;
           eachSession++) {
         var eachDays = document
             .getElementsByTagName("table")[1]
