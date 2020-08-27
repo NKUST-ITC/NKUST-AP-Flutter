@@ -109,8 +109,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               setState(() => notificationList.clear());
               _getNotifications();
             },
-            onLoadingMore: () => setState(
-                () => notificationState = NotificationState.loadingMore),
+            onLoadingMore: () {
+              page++;
+              setState(() => notificationState = NotificationState.loadingMore);
+              _getNotifications();
+            },
             logEvent: (key, value) =>
                 FirebaseAnalyticsUtils.instance.logAction(key, value),
           ),
