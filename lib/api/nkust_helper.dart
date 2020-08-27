@@ -12,6 +12,9 @@ class NKUSTHelper {
   static NKUSTHelper _instance;
   static Dio dio;
 
+  static int reTryCountsLimit = 3;
+  static int reTryCounts = 0;
+
   static NKUSTHelper get instance {
     if (_instance == null) {
       _instance = NKUSTHelper();
@@ -49,6 +52,9 @@ class NKUSTHelper {
   Future<NotificationsData> getNotifications(int page) async {
     page -= 1;
     int baseIndex = page * 15;
+    if (reTryCounts > reTryCountsLimit) {
+      throw NullThrownError;
+    }
     Response res = await dio.post(
         "https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist",
         data: {
@@ -59,18 +65,22 @@ class NKUSTHelper {
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
         ));
+    List<Map<String, dynamic>> acadData;
     if (res.statusCode == 200) {
-      var acadData = acadParser(
+      acadData = acadParser(
         html: json.decode(res.data)["content"],
         baseIndex: baseIndex,
       );
-
-      return NotificationsData.fromJson({
-        "data": {
-          "page": page + 1,
-          "notification": acadData,
-        }
-      });
+      reTryCounts = 0;
+    } else {
+      reTryCounts++;
+      return getNotifications(page);
     }
+    return NotificationsData.fromJson({
+      "data": {
+        "page": page + 1,
+        "notification": acadData,
+      }
+    });
   }
 }
