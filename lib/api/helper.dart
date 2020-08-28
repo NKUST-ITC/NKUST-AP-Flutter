@@ -264,6 +264,7 @@ class Helper {
     try {
       var data = await WebApHelper.instance.userInfoCrawler();
       reLoginCount = 0;
+      if (data.id == null) data.id = username;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
