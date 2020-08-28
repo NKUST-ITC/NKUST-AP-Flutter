@@ -28,7 +28,6 @@ enum _State {
   loading,
   finish,
   error,
-  empty,
   userNotSupport,
   offline,
   custom,
@@ -78,7 +77,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       case _State.finish:
         return '';
       case _State.error:
-      case _State.empty:
         return ap.somethingError;
       case _State.userNotSupport:
         return ap.userNotSupport;
@@ -118,11 +116,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           alignment: Alignment.center,
         );
       case _State.error:
-      case _State.empty:
       case _State.offline:
       case _State.userNotSupport:
+      case _State.custom:
         return FlatButton(
-          onPressed: null,
+          onPressed: _getLeavesInfo,
           child: HintContent(
             icon: state == _State.offline
                 ? ApIcon.offlineBolt
@@ -130,7 +128,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             content: errorTitle,
           ),
         );
-      default:
+      case _State.finish:
         return GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
@@ -569,6 +567,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           ),
         );
     }
+    return null;
   }
 
   Future _getLeavesInfo() async {
