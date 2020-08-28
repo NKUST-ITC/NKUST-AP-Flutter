@@ -80,7 +80,10 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         onSuccess: (CourseData data) {
           courseData = data;
           setState(() {
-            state = CourseState.finish;
+            if (courseData.courses.length != 0)
+              state = CourseState.finish;
+            else
+              state = CourseState.empty;
           });
         },
         onFailure: (DioError e) async {

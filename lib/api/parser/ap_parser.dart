@@ -428,19 +428,20 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
   //the second talbe.
 
   //make timetable
-  var secondTable =
-      document.getElementsByTagName("table")[1].getElementsByTagName("tr");
-  try {
-    //remark:Best split is regex but... Chinese have some difficulty Q_Q
-    for (int i = 1; i < secondTable.length; i++) {
-      var _temptext =
-          secondTable[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
+  var secondTable = document.getElementsByTagName("table");
+  if (secondTable.length > 0)
+    try {
+      final td = secondTable[1].getElementsByTagName("tr");
+      //remark:Best split is regex but... Chinese have some difficulty Q_Q
+      for (int i = 1; i < td.length; i++) {
+        var _temptext =
+            td[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
 
-      data['coursetable']['timeCodes'].add(_temptext
-          .substring(0, _temptext.length - 10)
-          .replaceAll(String.fromCharCode(160), ""));
-    }
-  } on Exception catch (e) {}
+        data['coursetable']['timeCodes'].add(_temptext
+            .substring(0, _temptext.length - 10)
+            .replaceAll(String.fromCharCode(160), ""));
+      }
+    } on Exception catch (e) {}
   //make each day.
   List keyName = [
     'Monday',
