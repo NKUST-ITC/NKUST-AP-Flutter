@@ -439,18 +439,19 @@ class HomePageState extends State<HomePage> {
         onError: (_) => setState(() => state = HomeState.error),
         onSuccess: (Map<String, List<Announcement>> data) {
           newsMap = data;
-          setState(() {
-            if (announcements == null || announcements.length == 0)
-              state = HomeState.empty;
-            else {
-              newsMap.forEach((_, data) {
-                data.sort((a, b) {
-                  return b.weight.compareTo(a.weight);
+          if (mounted)
+            setState(() {
+              if (announcements == null || announcements.length == 0)
+                state = HomeState.empty;
+              else {
+                newsMap.forEach((_, data) {
+                  data.sort((a, b) {
+                    return b.weight.compareTo(a.weight);
+                  });
                 });
-              });
-              state = HomeState.finish;
-            }
-          });
+                state = HomeState.finish;
+              }
+            });
         },
       ),
     );
