@@ -906,7 +906,7 @@ extension GeneralResponseExtension on GeneralResponse {
         message = ap.schoolSeverError;
         break;
       case ApStatusCode.API_SERVER_ERROR:
-        message = ap.apiSeverError;
+        message = ap.schoolSeverError;
         break;
       case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
