@@ -329,6 +329,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
+    print(semesterData.data[currentSemesterIndex].text);
     Helper.instance.getScores(
       semester: semesterData.data[currentSemesterIndex],
       callback: GeneralCallback(
@@ -339,20 +340,20 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           if (data?.scores != null) {
             for (var score in data.scores) {
               var finalScore = double.tryParse(score.finalScore);
-              if (finalScore != null) {
-                if (finalScore >= 60.0) {
-                  if (score.required == "【必修】") {
-                    requiredUnitsTotal += double.parse(score.units);
-                  } else if (score.required == "【選修】") {
-                    electiveUnitsTotal += double.parse(score.units);
-                  } else {
-                    otherUnitsTotal += double.parse(score.units);
-                  }
-                  if (score.title.contains("延伸通識")) {
-                    extendGeneralEducations.add(score);
-                  } else if (score.title.contains("核心通識")) {
-                    coreGeneralEducations.add(score);
-                  }
+              if ((finalScore != null && finalScore >= 60.0) ||
+                  score.finalScore == '合格' ||
+                  score.finalScore == '通過') {
+                if (score.required == "【必修】") {
+                  requiredUnitsTotal += double.parse(score.units);
+                } else if (score.required == "【選修】") {
+                  electiveUnitsTotal += double.parse(score.units);
+                } else {
+                  otherUnitsTotal += double.parse(score.units);
+                }
+                if (score.title.contains("延伸通識")) {
+                  extendGeneralEducations.add(score);
+                } else if (score.title.contains("核心通識")) {
+                  coreGeneralEducations.add(score);
                 }
               }
             }
