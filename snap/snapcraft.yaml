@@ -1,0 +1,21 @@
+name: nkust-ap
+version: 3.5.0
+summary: NKUST AP
+description: Awesome school affairs(AP) system app!
+
+confinement: strict
+base: core18
+grade: stable
+
+apps:
+  nkust-ap:
+    command: nkust_ap
+    extensions: [flutter-master] # Where "master" defines which Flutter channel to use for the build
+    plugs:
+      - network
+
+parts:
+  nkust-ap:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart # The main entry-point file of the application
