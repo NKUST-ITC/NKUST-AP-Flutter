@@ -15,8 +15,6 @@ import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
@@ -39,7 +37,6 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 export 'package:ap_common/callback/general_callback.dart';
 
@@ -153,7 +150,6 @@ class Helper {
           'password': password,
         },
       );
-      if (response == null) print('null');
       var loginResponse = LoginResponse.fromJson(response.data);
       options.headers = _createBearerTokenAuth(loginResponse.token);
       expireTime = loginResponse.expireTime;
@@ -525,7 +521,6 @@ class Helper {
       BusData data = await BusHelper.instance.timeTableQuery(
         fromDateTime: dateTime,
       );
-      debugPrint(data.toJson().toString());
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -600,7 +595,6 @@ class Helper {
     String cancelKey,
     GeneralCallback<CancelBusData> callback,
   }) async {
-    print(cancelKey);
     try {
       CancelBusData data = await BusHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;

@@ -315,10 +315,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
           _loadCache();
         },
         onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
+          if (mounted)
+            setState(() {
+              state = _State.custom;
+              customStateHint = response.getGeneralMessage(context);
+            });
           _loadCache();
         },
       ),
