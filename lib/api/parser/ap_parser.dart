@@ -216,7 +216,7 @@ Map<String, dynamic> coursetableParser(dynamic html) {
         'location': {'room': td[10].text}
       });
     }
-  } on Exception catch (e) {} on RangeError catch (r) {}
+  } catch (e) {}
 
   //the second talbe.
 
@@ -233,7 +233,7 @@ Map<String, dynamic> coursetableParser(dynamic html) {
           .substring(0, _temptext.length - 10)
           .replaceAll(String.fromCharCode(160), ""));
     }
-  } on Exception catch (e) {}
+  } catch (e) {}
   //make each day.
   List keyName = [
     'Monday',
@@ -296,7 +296,7 @@ Map<String, dynamic> coursetableParser(dynamic html) {
         });
       }
     }
-  } on Exception catch (e) {}
+  } catch (e) {}
   return data;
 }
 

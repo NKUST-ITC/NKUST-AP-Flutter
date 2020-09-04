@@ -329,7 +329,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
-    print(semesterData.data[currentSemesterIndex].text);
     Helper.instance.getScores(
       semester: semesterData.data[currentSemesterIndex],
       callback: GeneralCallback(
