@@ -275,7 +275,7 @@ class WebApHelper {
         {"arg01": years, "arg02": semesterValue},
         bytesResponse: true,
       );
-      return CourseData.fromJson(coursetableParser(query.data));
+      return CourseData.fromJson(await coursetableParser(query.data));
     }
     var query = await apQuery(
       "ag222",
@@ -284,7 +284,7 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
       bytesResponse: true,
     );
-    var parsedData = coursetableParser(query.data);
+    var parsedData = await coursetableParser(query.data);
     if (parsedData["courses"].length == 0) {
       _manager.delete("${coursetableCacheKey}_${years}_${semesterValue}");
     }

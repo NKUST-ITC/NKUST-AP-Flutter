@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 String clearTransEncoding(List<int> htmlBytes) {
   // htmlBytes is fixed-length list, need copy.
@@ -172,7 +174,7 @@ Map<String, dynamic> scoresParser(String html) {
   return data;
 }
 
-Map<String, dynamic> coursetableParser(dynamic html) {
+Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
   if (html is Uint8List) {
     html = clearTransEncoding(html);
   }
@@ -216,7 +218,14 @@ Map<String, dynamic> coursetableParser(dynamic html) {
         'location': {'room': td[10].text}
       });
     }
-  } catch (e) {}
+  } catch (e) {
+    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
+      await Crashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        context: html,
+      );
+  }
 
   //the second talbe.
 
@@ -233,7 +242,14 @@ Map<String, dynamic> coursetableParser(dynamic html) {
           .substring(0, _temptext.length - 10)
           .replaceAll(String.fromCharCode(160), ""));
     }
-  } catch (e) {}
+  } catch (e) {
+    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
+      await Crashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        context: html,
+      );
+  }
   //make each day.
   List keyName = [
     'Monday',
@@ -296,7 +312,14 @@ Map<String, dynamic> coursetableParser(dynamic html) {
         });
       }
     }
-  } catch (e) {}
+  } catch (e) {
+    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
+      await Crashlytics.instance.recordError(
+        e,
+        StackTrace.current,
+        context: html,
+      );
+  }
   return data;
 }
 
