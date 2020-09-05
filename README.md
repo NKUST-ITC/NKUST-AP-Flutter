@@ -11,8 +11,8 @@
 - [X] [iOS](https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8)
 - [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
 - [X] [Windows(Pre-Dev)](https://drive.google.com/file/d/1rgzx7p_kNRpJyGOkwXF_PLBkWUVGhM3J/view?usp=sharing)
-- [X] [MacOS(Beta)](https://drive.google.com/open?id=1ag3fsRN6pQv47T01Aa0EqTY2has83xPV)
-- [X] [Linux(Alpha)](https://drive.google.com/file/d/1JGuuWjjBYjzofB24GrgNjpJ1EYA3GcBd/view?usp=sharing)
+- [X] [MacOS(Beta)](https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8)
+- [X] [Linux(Beta)](https://snapcraft.io/nkust-ap)
 
 # 如何貢獻?
 如果你想為專案付出一份心力，你需要知道:
