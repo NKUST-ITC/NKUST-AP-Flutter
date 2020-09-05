@@ -31,26 +31,21 @@ class Utils {
   static Future<void> setBusNotify(
       BuildContext context, List<BusReservation> busReservations) async {
     var app = AppLocalizations.of(context);
-    //limit Android and iOS system
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS)) {
+    if (NotificationUtils.isSupport)
       for (BusReservation i in busReservations) {
         await NotificationUtils.schedule(
           id: Constants.NOTIFICATION_BUS_ID,
           androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
           androidChannelDescription: app.busNotify,
           androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
-          dateTime: i.getDateTime(),
+          dateTime: i.getDateTime().subtract(Duration(minutes: 30)),
           title: app.busNotify,
           content: sprintf(
             app.busNotifyContent,
             [i.getStart(app), i.getEnd(app)],
           ),
-          beforeMinutes: 30,
         );
       }
-    } else {
-      //TODO implement other platform system local notification
-    }
   }
 
   static Future<void> cancelBusNotify() async {
