@@ -241,12 +241,13 @@ class SettingPageState extends State<SettingPage> {
                       .logAction('feedback', 'click');
                 }),
             SettingItem(
-                text: ap.appVersion,
-                subText: "v$appVersion",
-                onTap: () {
-                  FirebaseAnalyticsUtils.instance
-                      .logAction('app_version', 'click');
-                }),
+              text: ap.appVersion,
+              subText: "v$appVersion",
+              onTap: () {
+                FirebaseAnalyticsUtils.instance
+                    .logAction('app_version', 'click');
+              },
+            ),
           ],
         ),
       ),
