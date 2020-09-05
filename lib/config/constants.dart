@@ -44,6 +44,8 @@ class Constants {
   static const PREF_BUS_ENABLE = "pref_bus_enable";
   static const PREF_LEAVE_ENABLE = "pref_leave_enable";
 
+  static const NOTIFICATION_BUS_INDEX_OFFSET = "notification_bus_index_offset";
+
   static const PREF_IS_OFFLINE_LOGIN = "pref_is_offline_login";
 
   static const SCHEDULE_DATA = "schedule_data";

@@ -31,21 +31,33 @@ class Utils {
   static Future<void> setBusNotify(
       BuildContext context, List<BusReservation> busReservations) async {
     var app = AppLocalizations.of(context);
-    if (NotificationUtils.isSupport)
-      for (BusReservation i in busReservations) {
+    if (NotificationUtils.isSupport) {
+      for (int i = 0;
+          i < Preferences.getInt(Constants.NOTIFICATION_BUS_INDEX_OFFSET, 0);
+          i++)
+        await NotificationUtils.cancelCourseNotify(
+            id: Constants.NOTIFICATION_BUS_ID + i);
+      final len = busReservations?.length ?? 0;
+      Preferences.setInt(Constants.NOTIFICATION_BUS_INDEX_OFFSET, len);
+      for (int i = 0; i < len; i++) {
         await NotificationUtils.schedule(
-          id: Constants.NOTIFICATION_BUS_ID,
+          id: Constants.NOTIFICATION_BUS_ID + i,
           androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
           androidChannelDescription: app.busNotify,
           androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
-          dateTime: i.getDateTime().subtract(Duration(minutes: 30)),
+          dateTime:
+              busReservations[i].getDateTime().subtract(Duration(minutes: 30)),
           title: app.busNotify,
           content: sprintf(
             app.busNotifyContent,
-            [i.getStart(app), i.getEnd(app)],
+            [
+              busReservations[i].getStart(app),
+              busReservations[i].getEnd(app),
+            ],
           ),
         );
       }
+    }
   }
 
   static Future<void> cancelBusNotify() async {
