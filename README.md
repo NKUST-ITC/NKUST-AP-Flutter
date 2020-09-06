@@ -1,6 +1,7 @@
 [![Codemagic build status](https://api.codemagic.io/apps/5c24676757670e0009de0003/5c24676757670e0009de0002/status_badge.svg)](https://codemagic.io/apps/5c24676757670e0009de0003/5c24676757670e0009de0002/latest_build)  
 <a href='https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW'><img alt='Get it on the App Store' src='screenshots/google_play.png' height='48px'/></a>
-<a href='https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8'><img alt='Get it on the App Store' src='screenshots/app_store.png' height='48px'/></a>
+<a href='https://itunes.apple.com/us/app/id1439751462'><img alt='Get it on the App Store' src='screenshots/app_store.png' height='48px'/></a>
+<a href='https://snapcraft.io/nkust-ap'><img alt='Get it on the App Store' src='screenshots/snap_store.png' height='48px'/></a>
 # 高科校務通(NKUST AP)
 
 高雄科技大學校務系統App，使用由Goolge開發的UI框架[Flutter](https://flutter.dev/)開發
@@ -8,11 +9,13 @@
 # 支援平台
 
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
-- [X] [iOS](https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8)
+- [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
 - [X] [Windows(Pre-Dev)](https://drive.google.com/file/d/1rgzx7p_kNRpJyGOkwXF_PLBkWUVGhM3J/view?usp=sharing)
-- [X] [MacOS(Beta)](https://itunes.apple.com/us/app/%E9%AB%98%E7%A7%91%E6%A0%A1%E5%8B%99%E9%80%9A/id1439751462?mt=8)
+- [X] [MacOS(Beta)](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Linux(Beta)](https://snapcraft.io/nkust-ap)
+
+### Web 版本自7月起因為學校阻擋高請求IP，改為客戶端爬蟲，因此暫時無法使用
 
 # 如何貢獻?
 如果你想為專案付出一份心力，你需要知道:
