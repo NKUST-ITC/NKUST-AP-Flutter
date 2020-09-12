@@ -88,7 +88,7 @@ class SchedulePageState extends State<SchedulePage>
           ),
         );
       case _State.pdf:
-        return PdfScaffold(byteList: byteList);
+        return PdfScaffold(byteList: byteList, state: null,);
       case _State.finish:
       default:
         return CustomScrollView(
