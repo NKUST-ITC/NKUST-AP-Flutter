@@ -14,6 +14,7 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -61,6 +62,8 @@ class HomePageState extends State<HomePage> {
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
   bool isLeaveExpanded = false;
+
+  bool busEnable = true;
 
   UserInfo userInfo;
 
@@ -145,6 +148,7 @@ class HomePageState extends State<HomePage> {
       context,
       () => initState(),
     );
+    _checkFeatureEnable();
     super.initState();
   }
 
@@ -301,47 +305,48 @@ class HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          ExpansionTile(
-            initiallyExpanded: isBusExpanded,
-            onExpansionChanged: (bool) {
-              setState(() {
-                isBusExpanded = bool;
-              });
-            },
-            leading: Icon(
-              ApIcon.directionsBus,
-              color: isBusExpanded
-                  ? ApTheme.of(context).blueAccent
-                  : ApTheme.of(context).grey,
+          if (busEnable)
+            ExpansionTile(
+              initiallyExpanded: isBusExpanded,
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isBusExpanded = bool;
+                });
+              },
+              leading: Icon(
+                ApIcon.directionsBus,
+                color: isBusExpanded
+                    ? ApTheme.of(context).blueAccent
+                    : ApTheme.of(context).grey,
+              ),
+              title: Text(ap.bus, style: _defaultStyle),
+              children: <Widget>[
+                DrawerSubItem(
+                  icon: ApIcon.dateRange,
+                  title: ap.busReserve,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 0),
+                    needLogin: true,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.assignment,
+                  title: ap.busReservations,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 1),
+                    needLogin: true,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.monetizationOn,
+                  title: app.busViolationRecords,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 2),
+                    needLogin: true,
+                  ),
+                ),
+              ],
             ),
-            title: Text(ap.bus, style: _defaultStyle),
-            children: <Widget>[
-              DrawerSubItem(
-                icon: ApIcon.dateRange,
-                title: ap.busReserve,
-                onTap: () => _openPage(
-                  BusPage(initIndex: 0),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.assignment,
-                title: ap.busReservations,
-                onTap: () => _openPage(
-                  BusPage(initIndex: 1),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.monetizationOn,
-                title: app.busViolationRecords,
-                onTap: () => _openPage(
-                  BusPage(initIndex: 2),
-                  needLogin: true,
-                ),
-              ),
-            ],
-          ),
           DrawerItem(
             icon: ApIcon.info,
             title: ap.schoolInfo,
@@ -397,8 +402,8 @@ class HomePageState extends State<HomePage> {
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
-          icon: Icon(ApIcon.directionsBus),
-          title: Text(ap.bus),
+          icon: Icon(busEnable ? ApIcon.directionsBus : ApIcon.info),
+          title: Text(busEnable ? ap.bus : ap.schoolInfo),
         ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.classIcon),
@@ -416,7 +421,8 @@ class HomePageState extends State<HomePage> {
     if (isLogin) {
       switch (index) {
         case 0:
-          ApUtils.pushCupertinoStyle(context, BusPage());
+          ApUtils.pushCupertinoStyle(
+              context, busEnable ? BusPage() : SchoolInfoPage());
           break;
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
@@ -648,5 +654,15 @@ class HomePageState extends State<HomePage> {
       } else
         setState(() => content = page);
     }
+  }
+
+  void _checkFeatureEnable() async {
+    await Future.delayed(Duration(milliseconds: 100));
+    try {
+      final RemoteConfig remoteConfig = await RemoteConfig.instance;
+      await remoteConfig.fetch(expiration: const Duration(seconds: 10));
+      await remoteConfig.activateFetched();
+      busEnable = remoteConfig.getBool('bus_enable');
+    } catch (e) {}
   }
 }
