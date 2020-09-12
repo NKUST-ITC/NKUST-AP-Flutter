@@ -37,6 +37,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 export 'package:ap_common/callback/general_callback.dart';
 
@@ -711,7 +712,12 @@ class Helper {
       if (callback == null) throw dioError;
     } catch (e) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
+        await Crashlytics.instance.recordError(
+          e,
+          StackTrace.current,
+          context: 'unknownError',
+        );
     }
     return null;
   }
