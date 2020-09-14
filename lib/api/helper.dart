@@ -710,12 +710,12 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e ,s) {
       callback?.onError(GeneralResponse.unknownError());
       if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
         await Crashlytics.instance.recordError(
           e,
-          StackTrace.current,
+          s,
           context: 'unknownError',
         );
     }

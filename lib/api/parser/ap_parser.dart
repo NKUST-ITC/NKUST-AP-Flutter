@@ -218,11 +218,11 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         'location': {'room': td[10].text}
       });
     }
-  } catch (e) {
+  } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await Crashlytics.instance.recordError(
         e,
-        StackTrace.current,
+        s,
         context: document.getElementsByTagName("table")[0].text,
       );
   }
@@ -242,11 +242,11 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
           .substring(0, _temptext.length - 10)
           .replaceAll(String.fromCharCode(160), ""));
     }
-  } catch (e) {
+  } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await Crashlytics.instance.recordError(
         e,
-        StackTrace.current,
+        s,
         context: document.getElementsByTagName("table")[1].text,
       );
   }
@@ -312,11 +312,11 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         });
       }
     }
-  } catch (e) {
+  } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await Crashlytics.instance.recordError(
         e,
-        StackTrace.current,
+        s,
         context: document.getElementsByTagName("table")[1].text,
       );
   }
