@@ -74,10 +74,10 @@ class InkustHelper {
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
 
-    if (res.data["code"] == 200 && res.data["success"] == true) {
+    if (res.statusCode == 200 && res.data["success"] == true) {
       isLogin = true;
-      ueserRequestData['apiKey'] = res.data["userKey"];
-      ueserRequestData['userId'] = res.data["userIdEncrypt"];
+      ueserRequestData['apiKey'] = res.data['data']["userKey"];
+      ueserRequestData['userId'] = res.data['data']["userIdEncrypt"];
     }
     return res.data;
   }
