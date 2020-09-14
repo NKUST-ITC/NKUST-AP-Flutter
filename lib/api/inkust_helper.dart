@@ -18,6 +18,7 @@ class InkustHelper {
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
   static String loginApiKey = "";
+  static String host = "inkusts.nkust.edu.tw";
 
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
@@ -47,8 +48,7 @@ class InkustHelper {
     dio = Dio();
     cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {
-      _manager =
-          DioCacheManager(CacheConfig(baseUrl: "https://inkusts.nkust.edu.tw"));
+      _manager = DioCacheManager(CacheConfig(baseUrl: "https://${host}"));
       dio.interceptors.add(_manager.interceptor);
     }
 
@@ -65,7 +65,7 @@ class InkustHelper {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
-    Response res = await dio.post("https://inkusts.nkust.edu.tw/User/DoLogin2",
+    Response res = await dio.post("https://${host}/User/DoLogin2",
         data: {
           "apiKey": loginApiKey,
           "userId": Helper.username,
