@@ -1,4 +1,5 @@
 //dio
+import 'package:ap_common/models/course_data.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
@@ -8,6 +9,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/private_cookie_manager.dart';
 import "dart:math";
 import 'helper.dart';
+import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -19,6 +21,8 @@ class InkustHelper {
   static int reLoginReTryCounts = 0;
   static String loginApiKey = "";
   static String host = "inkusts.nkust.edu.tw";
+  static String get coursetableCacheKey =>
+      "${Helper.username}_coursetableCacheKey";
 
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
@@ -80,5 +84,31 @@ class InkustHelper {
       ueserRequestData['userId'] = res.data['data']["userIdEncrypt"];
     }
     return res.data;
+  }
+
+  Future<CourseData> courseTable(String years, String semesterValue) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+    Options _options;
+    _options = Options(contentType: Headers.formUrlEncodedContentType);
+    if (Helper.isSupportCacheData) {
+      _options = buildConfigurableCacheOptions(
+          options: _options,
+          maxAge: Duration(hours: 1),
+          primaryKey: "${coursetableCacheKey}_${years}_${semesterValue}");
+    }
+
+    var requestData = new Map<String, String>.from(ueserRequestData);
+    requestData.addAll({
+      'academicYear': years,
+      'academicSms': semesterValue,
+    });
+    Response res = await dio.post("https://${host}/Course/GetStuCourse2",
+        data: requestData, options: _options);
+    if (res.data['success'] == false) {
+      return null;
+    }
+    return CourseData.fromJson(inkustCourseTableParser(res.data));
   }
 }
