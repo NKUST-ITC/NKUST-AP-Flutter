@@ -28,7 +28,7 @@ packages:
       name: ap_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.0-beta.2"
+    version: "0.7.0-beta.3"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -75,6 +75,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.2"
+  auto_size_text:
+    dependency: transitive
+    description:
+      name: auto_size_text
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.0"
   barcode:
     dependency: transitive
     description:
@@ -116,7 +123,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.1"
+    version: "2.3.2+1"
   characters:
     dependency: transitive
     description:
@@ -368,7 +375,7 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0-beta.8"
+    version: "1.5.0-beta.9"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
@@ -565,7 +572,7 @@ packages:
       name: octo_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.1"
+    version: "0.3.0"
   outline_material_icons:
     dependency: transitive
     description:
@@ -952,5 +959,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.9.0-14.0.dev <3.0.0"
+  dart: ">=2.9.0 <3.0.0"
   flutter: ">=1.20.0 <2.0.0"
