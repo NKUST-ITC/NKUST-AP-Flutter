@@ -20,6 +20,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
@@ -656,6 +657,8 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  static const PREF_API_KEY = 'inkust_api_key';
+
   void _checkFeatureEnable() async {
     await Future.delayed(Duration(milliseconds: 100));
     try {
@@ -663,6 +666,10 @@ class HomePageState extends State<HomePage> {
       await remoteConfig.fetch(expiration: const Duration(seconds: 10));
       await remoteConfig.activateFetched();
       busEnable = remoteConfig.getBool('bus_enable');
-    } catch (e) {}
+      InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
+      Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
+    } catch (e) {
+      InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
+    }
   }
 }
