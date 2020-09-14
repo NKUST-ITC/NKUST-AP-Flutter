@@ -7,6 +7,7 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
+import 'package:sprintf/sprintf.dart';
 
 class NKUSTHelper {
   static NKUSTHelper _instance;
@@ -23,7 +24,12 @@ class NKUSTHelper {
     return _instance;
   }
 
-  Future<UserInfo> getUsername(String rocId) async {
+  Future<UserInfo> getUsername({String rocId, DateTime birthday}) async {
+    String birthdayText = sprintf("%03i%02i%02i", [
+      birthday.year - 1911,
+      birthday.month,
+      birthday.day,
+    ]);
     var response = await http.get(
       Uri(
         scheme: 'https',
@@ -31,6 +37,7 @@ class NKUSTHelper {
         path: '/nkust/system/getuid_1.jsp',
         queryParameters: {
           'uid': rocId,
+          'bir': birthdayText,
           'kind': '2',
         },
       ),
