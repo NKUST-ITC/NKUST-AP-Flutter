@@ -61,8 +61,6 @@ class HomePageState extends State<HomePage> {
   bool isBusExpanded = false;
   bool isLeaveExpanded = false;
 
-  bool busEnable = true;
-
   UserInfo userInfo;
 
   TextStyle get _defaultStyle => TextStyle(
@@ -303,48 +301,47 @@ class HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          if (busEnable)
-            ExpansionTile(
-              initiallyExpanded: isBusExpanded,
-              onExpansionChanged: (bool) {
-                setState(() {
-                  isBusExpanded = bool;
-                });
-              },
-              leading: Icon(
-                ApIcon.directionsBus,
-                color: isBusExpanded
-                    ? ApTheme.of(context).blueAccent
-                    : ApTheme.of(context).grey,
-              ),
-              title: Text(ap.bus, style: _defaultStyle),
-              children: <Widget>[
-                DrawerSubItem(
-                  icon: ApIcon.dateRange,
-                  title: ap.busReserve,
-                  onTap: () => _openPage(
-                    BusPage(initIndex: 0),
-                    needLogin: true,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.assignment,
-                  title: ap.busReservations,
-                  onTap: () => _openPage(
-                    BusPage(initIndex: 1),
-                    needLogin: true,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.monetizationOn,
-                  title: app.busViolationRecords,
-                  onTap: () => _openPage(
-                    BusPage(initIndex: 2),
-                    needLogin: true,
-                  ),
-                ),
-              ],
+          ExpansionTile(
+            initiallyExpanded: isBusExpanded,
+            onExpansionChanged: (bool) {
+              setState(() {
+                isBusExpanded = bool;
+              });
+            },
+            leading: Icon(
+              ApIcon.directionsBus,
+              color: isBusExpanded
+                  ? ApTheme.of(context).blueAccent
+                  : ApTheme.of(context).grey,
             ),
+            title: Text(ap.bus, style: _defaultStyle),
+            children: <Widget>[
+              DrawerSubItem(
+                icon: ApIcon.dateRange,
+                title: ap.busReserve,
+                onTap: () => _openPage(
+                  BusPage(initIndex: 0),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.assignment,
+                title: ap.busReservations,
+                onTap: () => _openPage(
+                  BusPage(initIndex: 1),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.monetizationOn,
+                title: app.busViolationRecords,
+                onTap: () => _openPage(
+                  BusPage(initIndex: 2),
+                  needLogin: true,
+                ),
+              ),
+            ],
+          ),
           DrawerItem(
             icon: ApIcon.info,
             title: ap.schoolInfo,
@@ -400,8 +397,8 @@ class HomePageState extends State<HomePage> {
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
-          icon: Icon(busEnable ? ApIcon.directionsBus : ApIcon.info),
-          title: Text(busEnable ? ap.bus : ap.schoolInfo),
+          icon: Icon(ApIcon.directionsBus),
+          title: Text(ap.bus),
         ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.classIcon),
@@ -419,8 +416,7 @@ class HomePageState extends State<HomePage> {
     if (isLogin) {
       switch (index) {
         case 0:
-          ApUtils.pushCupertinoStyle(
-              context, busEnable ? BusPage() : SchoolInfoPage());
+          ApUtils.pushCupertinoStyle(context, BusPage());
           break;
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
@@ -653,7 +649,6 @@ class HomePageState extends State<HomePage> {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       await remoteConfig.fetch(expiration: const Duration(seconds: 10));
       await remoteConfig.activateFetched();
-      busEnable = remoteConfig.getBool('bus_enable');
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
       Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
     } catch (e) {
