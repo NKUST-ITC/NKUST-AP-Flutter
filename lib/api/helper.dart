@@ -546,7 +546,8 @@ class Helper {
     GeneralCallback<BusReservationsData> callback,
   }) async {
     try {
-      BusReservationsData data = await BusHelper.instance.busReservations();
+      BusReservationsData data =
+          await InkustHelper.instance.inkustBusUserRecord();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
