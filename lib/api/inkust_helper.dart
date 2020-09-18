@@ -125,7 +125,15 @@ class InkustHelper {
           options: _options,
           maxAge: Duration(minutes: 5),
           primaryKey: busUserRecordsCacheKey);
+  Future<BusReservationsData> inkustBusUserRecord() async {
+    if (isLogin != true) {
+      await inkustLogin();
     }
+
+    Options _optionsForDataType;
+    _optionsForDataType =
+        Options(contentType: Headers.formUrlEncodedContentType);
+
     List<List<String>> queryData = [
       ['燕巢', '建工'],
       ['建工', '燕巢'],
@@ -143,9 +151,16 @@ class InkustHelper {
         'start': '0',
         'limit': '99'
       });
+      if (Helper.isSupportCacheData) {
+        _optionsForDataType = buildConfigurableCacheOptions(
+            options: _optionsForDataType,
+            maxAge: Duration(minutes: 5),
+            primaryKey:
+                "${busUserRecordsCacheKey}_${element[0]}_${element[1]}");
+      }
       Future<Response<dynamic>> _req = dio.post(
         'https://inkusts.nkust.edu.tw/Bus/GetUserReserve3',
-        options: _options,
+        options: _optionsForDataType,
         data: _requestData,
       );
       responseList.add(_req);
