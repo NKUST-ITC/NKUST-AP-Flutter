@@ -16,6 +16,7 @@ import 'package:nkust_ap/api/parser/inkust_parser.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -238,5 +239,32 @@ class InkustHelper {
       return BookingBusData(success: true);
     }
     return BookingBusData(success: false);
+  }
+
+  Future<CancelBusData> busUnBook({String busId}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+    var _requestData = new Map<String, String>.from(ueserRequestData);
+
+    _requestData.addAll({"resId": busId});
+    var request = await dio.post(
+      "https://inkusts.nkust.edu.tw/Bus/CancelUserReserve",
+      data: _requestData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    Map<String, dynamic> data;
+
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
+    }
+    if (data['success'] && data['message'] == "取消成功") {
+      if (Helper.isSupportCacheData) _manager.clearAll();
+      return CancelBusData(success: true);
+    }
+    return CancelBusData(success: false);
   }
 }
