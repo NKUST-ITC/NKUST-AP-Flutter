@@ -158,3 +158,25 @@ Map<String, dynamic> inkustBusTimeTableParser(
   Map<String, dynamic> returnData = {"data": temp};
   return returnData;
 }
+
+Map<String, dynamic> inkustBusViolationRecordsParser(
+    Map<String, dynamic> data) {
+  List<Map<String, dynamic>> temp = [];
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
+
+  data['data'].forEach((e) {
+    Map<String, dynamic> _temp = {
+      "time": format.parse(e['driveTime']),
+      "startStation": e['startStation'],
+      "endStation": e['endStation'],
+      "amountend": e['money'],
+      "isPayment": e['stateCode'],
+      "homeCharteredBus": false,
+    };
+    if (e['specialBus'] == "1") {
+      e['homeCharteredBus'] = true;
+    }
+    temp.add(_temp);
+  });
+  return {"reservation": temp};
+}

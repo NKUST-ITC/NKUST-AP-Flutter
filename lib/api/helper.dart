@@ -626,7 +626,7 @@ class Helper {
   }) async {
     try {
       BusViolationRecordsData data =
-          await BusHelper.instance.busViolationRecords();
+          await InkustHelper.instance.busViolationRecords();
 
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);

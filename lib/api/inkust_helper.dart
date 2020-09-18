@@ -17,6 +17,7 @@ import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -32,6 +33,8 @@ class InkustHelper {
       "${Helper.username}_coursetableCacheKey";
   static String get busUserRecordsCacheKey =>
       "${Helper.username}_busUserRecords";
+  static String userViolationRecordsCacheKey =
+      "${Helper.username}_busViolationRecords";
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
     "userId": null,
@@ -266,5 +269,39 @@ class InkustHelper {
       return CancelBusData(success: true);
     }
     return CancelBusData(success: false);
+  }
+
+  Future<BusViolationRecordsData> busViolationRecords() async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    var _requestData = new Map<String, dynamic>.from(ueserRequestData);
+    Options _options;
+    _options = Options(contentType: Headers.formUrlEncodedContentType);
+    if (Helper.isSupportCacheData) {
+      _options = buildConfigurableCacheOptions(
+          options: _options,
+          maxAge: Duration(minutes: 5),
+          primaryKey: userViolationRecordsCacheKey);
+    }
+
+    _requestData.addAll({'paid': 1, 'page': 1, 'start': 0, 'limit': 100});
+    var request = await dio.post(
+      "https://inkusts.nkust.edu.tw/Bus/GetUserIllegal2",
+      data: _requestData,
+      options: _options,
+    );
+    Map<String, dynamic> data;
+
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
+    }
+    return BusViolationRecordsData.fromJson(
+      inkustBusViolationRecordsParser(data),
+    );
   }
 }
