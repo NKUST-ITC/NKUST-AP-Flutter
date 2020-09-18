@@ -46,6 +46,7 @@ class BusTime {
   String description;
   String cancelKey;
   bool homeCharteredBus;
+  bool canBook;
 
   BusTime({
     this.endEnrollDateTime,
@@ -60,6 +61,7 @@ class BusTime {
     this.description,
     this.cancelKey,
     this.homeCharteredBus,
+    this.canBook,
   });
 
   String getSpecialTrainTitle(AppLocalizations local) {
@@ -104,6 +106,7 @@ class BusTime {
         description: json["description"],
         cancelKey: json["cancelKey"],
         homeCharteredBus: json["homeCharteredBus"],
+        canBook: json['canBook'],
       );
 
   Map<String, dynamic> toJson() => {
@@ -119,6 +122,7 @@ class BusTime {
         "description": description,
         "cancelKey": cancelKey,
         "homeCharteredBus": homeCharteredBus,
+        "canBook": canBook,
       };
 
   bool canReserve() {
