@@ -195,10 +195,16 @@ class Helper {
   }
 
   Future<List<Announcement>> getAllAnnouncements({
+    String locale,
     GeneralCallback<List<Announcement>> callback,
   }) async {
     try {
-      var response = await dio.get("/news/announcements/all");
+      var response = await dio.get(
+        "/news/announcements/all",
+        queryParameters: {
+          'lang': locale ?? '',
+        },
+      );
       var data = AnnouncementData(data: []);
       if (response.statusCode != 204) {
         data = AnnouncementData.fromJson(response.data);
@@ -711,7 +717,7 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e ,s) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
       if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
         await Crashlytics.instance.recordError(
