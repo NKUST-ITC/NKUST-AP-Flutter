@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
     "courses": [],
@@ -66,4 +70,39 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
     });
   });
   return result;
+}
+
+Future<Map<String, dynamic>> inkustBusUserRecordsParser(
+    List<Future<Response>> responseList) async {
+  Map<String, dynamic> returnData = {"data": []};
+
+  List<dynamic> dataList = [];
+
+  await Future.forEach(responseList, (e) async {
+    var _temp = await e;
+    Map<String, dynamic> data;
+    if (_temp.data is String &&
+        _temp.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(_temp.data);
+    } else if (_temp.data is Map<String, dynamic>) {
+      data = _temp.data;
+    }
+    if (data['success']) {
+      dataList.addAll(data['data']);
+    }
+  });
+  DateFormat format = new DateFormat("yyyy/MM/dd hh:mm");
+
+  dataList.forEach((element) {
+    returnData['data'].add({
+      "dateTime": format.parse(element['driveTime']),
+      "endTime": format.parse(element['resEndTime']),
+      "cancelKey": element["resId"].toString(),
+      "start": element['startStation'],
+      "end": element['endStation'],
+      "state": element['stateCode'].toString(),
+      "travelState": element['specialBus'].toString()
+    });
+  });
+  return returnData;
 }

@@ -11,6 +11,8 @@ import "dart:math";
 import 'helper.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
+import 'package:nkust_ap/models/bus_reservations_data.dart';
+
 class InkustHelper {
   static Dio dio;
   static DioCacheManager _manager;
@@ -110,5 +112,47 @@ class InkustHelper {
       return null;
     }
     return CourseData.fromJson(inkustCourseTableParser(res.data));
+  }
+  Future<BusReservationsData> inkustBusUserRecord() async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    Options _options;
+    _options = Options(contentType: Headers.formUrlEncodedContentType);
+    if (Helper.isSupportCacheData) {
+      _options = buildConfigurableCacheOptions(
+          options: _options,
+          maxAge: Duration(minutes: 5),
+          primaryKey: busUserRecordsCacheKey);
+    }
+    List<List<String>> queryData = [
+      ['燕巢', '建工'],
+      ['建工', '燕巢'],
+      ['建工', '第一'],
+      ['第一', '建工']
+    ];
+    List<Future<Response>> responseList = [];
+    queryData.forEach((element) {
+      var _requestData = new Map<String, String>.from(ueserRequestData);
+      _requestData.addAll({
+        'state': '0',
+        'startStation': element[0],
+        'endStation': element[1],
+        'page': '1',
+        'start': '0',
+        'limit': '99'
+      });
+      Future<Response<dynamic>> _req = dio.post(
+        'https://inkusts.nkust.edu.tw/Bus/GetUserReserve3',
+        options: _options,
+        data: _requestData,
+      );
+      responseList.add(_req);
+    });
+
+    return BusReservationsData.fromJson(
+      await inkustBusUserRecordsParser(responseList),
+    );
   }
 }
