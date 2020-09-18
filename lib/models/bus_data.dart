@@ -34,6 +34,7 @@ class BusData {
 }
 
 class BusTime {
+  @deprecated
   DateTime endEnrollDateTime;
   DateTime departureTime;
   String startStation;
@@ -132,6 +133,7 @@ class BusTime {
         endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
   }
 
+  @deprecated
   String getEndEnrollDateTime() {
     initializeDateFormatting();
     var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
