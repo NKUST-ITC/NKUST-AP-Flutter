@@ -573,7 +573,7 @@ class Helper {
     GeneralCallback<BookingBusData> callback,
   }) async {
     try {
-      BookingBusData data = await BusHelper.instance.busBook(busId: busId);
+      BookingBusData data = await InkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -599,7 +599,8 @@ class Helper {
     GeneralCallback<CancelBusData> callback,
   }) async {
     try {
-      CancelBusData data = await BusHelper.instance.busUnBook(busId: cancelKey);
+      CancelBusData data =
+          await InkustHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
