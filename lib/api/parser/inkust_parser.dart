@@ -92,7 +92,7 @@ Future<Map<String, dynamic>> inkustBusUserRecordsParser(
       dataList.addAll(data['data']);
     }
   });
-  DateFormat format = new DateFormat("yyyy/MM/dd hh:mm");
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
 
   dataList.forEach((element) {
     returnData['data'].add({
@@ -115,7 +115,7 @@ Map<String, dynamic> inkustBusTimeTableParser(
 ) {
   List<Map<String, dynamic>> temp = [];
 
-  DateFormat format = new DateFormat("yyyy/MM/dd hh:mm");
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
 
   for (int i = 0; i < data.length; i++) {
     Map<String, dynamic> _temp = {
