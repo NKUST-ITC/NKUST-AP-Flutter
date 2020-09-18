@@ -1,4 +1,6 @@
 //dio
+import 'dart:convert';
+
 import 'package:ap_common/models/course_data.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
@@ -13,6 +15,7 @@ import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
+import 'package:nkust_ap/models/booking_bus_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -208,5 +211,32 @@ class InkustHelper {
     return BusReservationsData.fromJson(
       await inkustBusUserRecordsParser(responseList),
     );
+  }
+
+  Future<BookingBusData> busBook({String busId}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+    var _requestData = new Map<String, String>.from(ueserRequestData);
+
+    _requestData.addAll({"busId": busId});
+    var request = await dio.post(
+      "https://inkusts.nkust.edu.tw/Bus/CreateUserReserve",
+      data: _requestData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    Map<String, dynamic> data;
+
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
+    }
+    if (data['success'] && data['message'] == "預約成功") {
+      if (Helper.isSupportCacheData) _manager.clearAll();
+      return BookingBusData(success: true);
+    }
+    return BookingBusData(success: false);
   }
 }
