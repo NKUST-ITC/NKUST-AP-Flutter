@@ -520,7 +520,7 @@ class Helper {
     GeneralCallback<BusData> callback,
   }) async {
     try {
-      BusData data = await BusHelper.instance.timeTableQuery(
+      BusData data = await InkustHelper.instance.inkustBusTimeTableQuery(
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
