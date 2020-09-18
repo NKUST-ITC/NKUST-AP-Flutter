@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
+
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
     "courses": [],
@@ -66,4 +71,112 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
     });
   });
   return result;
+}
+
+Future<Map<String, dynamic>> inkustBusUserRecordsParser(
+    List<Future<Response>> responseList) async {
+  Map<String, dynamic> returnData = {"data": []};
+
+  List<dynamic> dataList = [];
+
+  await Future.forEach(responseList, (e) async {
+    var _temp = await e;
+    Map<String, dynamic> data;
+    if (_temp.data is String &&
+        _temp.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(_temp.data);
+    } else if (_temp.data is Map<String, dynamic>) {
+      data = _temp.data;
+    }
+    if (data['success']) {
+      dataList.addAll(data['data']);
+    }
+  });
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
+
+  dataList.forEach((element) {
+    returnData['data'].add({
+      "dateTime": format.parse(element['driveTime']),
+      "endTime": format.parse(element['resEndTime']),
+      "cancelKey": element["resId"].toString(),
+      "start": element['startStation'],
+      "end": element['endStation'],
+      "state": element['stateCode'].toString(),
+      "travelState": element['specialBus'].toString()
+    });
+  });
+  return returnData;
+}
+
+Map<String, dynamic> inkustBusTimeTableParser(
+  String queryDate,
+  List<dynamic> data,
+  BusReservationsData userRecords,
+) {
+  List<Map<String, dynamic>> temp = [];
+
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
+
+  for (int i = 0; i < data.length; i++) {
+    Map<String, dynamic> _temp = {
+      "endEnrollDateTime": DateTime.now(),
+      "departureTime": format.parse("$queryDate ${data[i]['driveTime']}"),
+      "startStation": data[i]['startStation'],
+      "endStation": data[i]['endStation'],
+      "busId": data[i]['busId'].toString(),
+      "reserveCount": int.parse(data[i]['resCount'].toString()),
+      "limitCount": int.parse(data[i]['limitCount'].toString()),
+      "isReserve": false,
+      "specialTrain": data[i]['specialBus'].toString(),
+      "description": data[i]['specialMsg'],
+      "homeCharteredBus": false,
+      "cancelKey": "",
+      "cabBook": data[i]['resEnable']
+    };
+    if (data[i]['resName'] == "已預約") {
+      _temp['isReserve'] = true;
+    }
+
+    if (data[i]['resEnable'] == false) {
+      _temp['endEnrollDateTime'] = new DateTime(1970, 1, 1, 0, 0);
+    }
+
+    if (_temp['SpecialTrain'] == "1") {
+      _temp['homeCharteredBus'] = true;
+    }
+    if (userRecords.reservations.length > 0) {
+      userRecords.reservations.forEach((element) {
+        if (element.dateTime == _temp['departureTime'] &&
+            element.start == _temp['startStation']) {
+          _temp["cancelKey"] = element.cancelKey.toString();
+        }
+      });
+    }
+
+    temp.add(_temp);
+  }
+  Map<String, dynamic> returnData = {"data": temp};
+  return returnData;
+}
+
+Map<String, dynamic> inkustBusViolationRecordsParser(
+    Map<String, dynamic> data) {
+  List<Map<String, dynamic>> temp = [];
+  DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
+
+  data['data'].forEach((e) {
+    Map<String, dynamic> _temp = {
+      "time": format.parse(e['driveTime']),
+      "startStation": e['startStation'],
+      "endStation": e['endStation'],
+      "amountend": e['money'],
+      "isPayment": e['stateCode'],
+      "homeCharteredBus": false,
+    };
+    if (e['specialBus'] == "1") {
+      e['homeCharteredBus'] = true;
+    }
+    temp.add(_temp);
+  });
+  return {"reservation": temp};
 }
