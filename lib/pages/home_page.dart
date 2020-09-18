@@ -51,12 +51,9 @@ class HomePageState extends State<HomePage> {
   AppLocalizations app;
   ApLocalizations ap;
 
-  Map<String, List<Announcement>> newsMap;
-
   Widget content;
 
-  List<Announcement> get announcements =>
-      (newsMap == null) ? null : newsMap[AppLocalizations.locale.languageCode];
+  List<Announcement> announcements;
 
   var isLogin = false;
   bool displayPicture = true;
@@ -437,27 +434,18 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAnnouncements() async {
-    GitHubHelper.instance.getAnnouncement(
-      gitHubUsername: 'abc873693',
-      hashCode: 'a8e048d24f892ce95a633aa5966c030a',
-      tag: 'nkust',
+    Helper.instance.getAllAnnouncements(
       callback: GeneralCallback(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (Map<String, List<Announcement>> data) {
-          newsMap = data;
+        onSuccess: (List<Announcement> data) {
+          announcements = data;
           if (mounted)
             setState(() {
               if (announcements == null || announcements.length == 0)
                 state = HomeState.empty;
-              else {
-                newsMap.forEach((_, data) {
-                  data.sort((a, b) {
-                    return b.weight.compareTo(a.weight);
-                  });
-                });
+              else
                 state = HomeState.finish;
-              }
             });
         },
       ),
