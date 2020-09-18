@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
@@ -104,5 +105,55 @@ Future<Map<String, dynamic>> inkustBusUserRecordsParser(
       "travelState": element['specialBus'].toString()
     });
   });
+  return returnData;
+}
+
+Map<String, dynamic> inkustBusTimeTableParser(
+  String queryDate,
+  List<dynamic> data,
+  BusReservationsData userRecords,
+) {
+  List<Map<String, dynamic>> temp = [];
+
+  DateFormat format = new DateFormat("yyyy/MM/dd hh:mm");
+
+  for (int i = 0; i < data.length; i++) {
+    Map<String, dynamic> _temp = {
+      "endEnrollDateTime": DateTime.now(),
+      "departureTime": format.parse("$queryDate ${data[i]['driveTime']}"),
+      "startStation": data[i]['startStation'],
+      "endStation": data[i]['endStation'],
+      "busId": data[i]['busId'].toString(),
+      "reserveCount": int.parse(data[i]['resCount'].toString()),
+      "limitCount": int.parse(data[i]['limitCount'].toString()),
+      "isReserve": false,
+      "specialTrain": data[i]['specialBus'].toString(),
+      "description": data[i]['specialMsg'],
+      "homeCharteredBus": false,
+      "cancelKey": ""
+    };
+    if (data[i]['resName'] == "已預約") {
+      _temp['isReserve'] = true;
+    }
+
+    if (data[i]['resEnable'] == false) {
+      _temp['endEnrollDateTime'] = new DateTime(1970, 1, 1, 0, 0);
+    }
+
+    if (_temp['SpecialTrain'] == "1") {
+      _temp['homeCharteredBus'] = true;
+    }
+    if (userRecords.reservations.length > 0) {
+      userRecords.reservations.forEach((element) {
+        if (element.dateTime == _temp['departureTime'] &&
+            element.start == _temp['startStation']) {
+          _temp["cancelKey"] = element.cancelKey.toString();
+        }
+      });
+    }
+
+    temp.add(_temp);
+  }
+  Map<String, dynamic> returnData = {"data": temp};
   return returnData;
 }

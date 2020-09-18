@@ -12,6 +12,7 @@ import 'helper.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -25,7 +26,8 @@ class InkustHelper {
   static String host = "inkusts.nkust.edu.tw";
   static String get coursetableCacheKey =>
       "${Helper.username}_coursetableCacheKey";
-
+  static String get busUserRecordsCacheKey =>
+      "${Helper.username}_busUserRecords";
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
     "userId": null,
@@ -113,18 +115,55 @@ class InkustHelper {
     }
     return CourseData.fromJson(inkustCourseTableParser(res.data));
   }
-  Future<BusReservationsData> inkustBusUserRecord() async {
+
+  Future<BusData> inkustBusTimeTableQuery({
+    DateTime fromDateTime,
+    String year,
+    String month,
+    String day,
+  }) async {
     if (isLogin != true) {
       await inkustLogin();
     }
-
+    if (fromDateTime != null) {
+      year = fromDateTime.year.toString();
+      month = fromDateTime.month.toString();
+      day = fromDateTime.day.toString();
+    }
+    for (int i = 0; month.length < 2; i++) {
+      month = "0" + month;
+    }
+    for (int i = 0; day.length < 2; i++) {
+      day = "0" + day;
+    }
+    Future<BusReservationsData> userRecords = inkustBusUserRecord();
     Options _options;
     _options = Options(contentType: Headers.formUrlEncodedContentType);
     if (Helper.isSupportCacheData) {
+      String userTimeTableSelectCacheKey =
+          "${Helper.username}_busCacheTimTable$year$month$day";
       _options = buildConfigurableCacheOptions(
           options: _options,
           maxAge: Duration(minutes: 5),
-          primaryKey: busUserRecordsCacheKey);
+          primaryKey: userTimeTableSelectCacheKey);
+    }
+    var _requestData = new Map<String, String>.from(ueserRequestData);
+    _requestData.addAll({'driveDate': '$year/$month/$day'});
+
+    var timeQuery = await dio.post(
+      'https://inkusts.nkust.edu.tw/Bus/GetTimetableAndReserve',
+      options: _options,
+      data: _requestData,
+    );
+    if (!timeQuery.data['success']) {
+      return null;
+    }
+    return BusData.fromJson(
+      inkustBusTimeTableParser(
+          '$year/$month/$day', timeQuery.data['data'], await userRecords),
+    );
+  }
+
   Future<BusReservationsData> inkustBusUserRecord() async {
     if (isLogin != true) {
       await inkustLogin();
