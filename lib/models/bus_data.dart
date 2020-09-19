@@ -127,10 +127,7 @@ class BusTime {
       };
 
   bool canReserve() {
-    var now = DateTime.now();
-    initializeDateFormatting();
-    return now.millisecondsSinceEpoch <=
-        endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
+    return canBook ?? true;
   }
 
   @deprecated
