@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:ap_common/api/github_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
@@ -314,11 +313,11 @@ class HomePageState extends State<HomePage> {
                   ? ApTheme.of(context).blueAccent
                   : ApTheme.of(context).grey,
             ),
-            title: Text(ap.bus, style: _defaultStyle),
+            title: Text(app.bus, style: _defaultStyle),
             children: <Widget>[
               DrawerSubItem(
                 icon: ApIcon.dateRange,
-                title: ap.busReserve,
+                title: app.busReserve,
                 onTap: () => _openPage(
                   BusPage(initIndex: 0),
                   needLogin: true,
@@ -326,7 +325,7 @@ class HomePageState extends State<HomePage> {
               ),
               DrawerSubItem(
                 icon: ApIcon.assignment,
-                title: ap.busReservations,
+                title: app.busReservations,
                 onTap: () => _openPage(
                   BusPage(initIndex: 1),
                   needLogin: true,
@@ -398,7 +397,7 @@ class HomePageState extends State<HomePage> {
       bottomNavigationBarItems: [
         BottomNavigationBarItem(
           icon: Icon(ApIcon.directionsBus),
-          title: Text(ap.bus),
+          title: Text(app.bus),
         ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.classIcon),
