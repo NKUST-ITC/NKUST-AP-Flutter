@@ -131,7 +131,7 @@ Map<String, dynamic> inkustBusTimeTableParser(
       "description": data[i]['specialMsg'],
       "homeCharteredBus": false,
       "cancelKey": "",
-      "cabBook": data[i]['resEnable']
+      "canBook": data[i]['resEnable']
     };
     if (data[i]['resName'] == "已預約") {
       _temp['isReserve'] = true;
