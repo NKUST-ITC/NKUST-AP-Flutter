@@ -10,8 +10,6 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart'
-    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/app.dart';
@@ -27,7 +25,6 @@ void main() async {
   if (int.parse(currentVersion) < 30400) _preference340Migrate();
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
-  _setTargetPlatformForDesktop();
   await Firebase.initializeApp();
   if (FirebaseUtils.isSupportCrashlytics) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
@@ -86,10 +83,4 @@ void _preference340Migrate() async {
       Preferences.setString(key, null);
     }
   });
-}
-
-void _setTargetPlatformForDesktop() {
-  if (!kIsWeb && (Platform.isLinux || Platform.isWindows)) {
-    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
-  }
 }
