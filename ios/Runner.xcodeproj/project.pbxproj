@@ -354,7 +354,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Fabric/run\" e15d6071bb62dddcb64d4b3ac3bbc9a870c2b90b 39b0b8b1b8917a56de681b4797351226908471199928ed05c553f5e57e1c9056\n";
+			shellScript = "${PODS_ROOT}/FirebaseCrashlytics/run\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
