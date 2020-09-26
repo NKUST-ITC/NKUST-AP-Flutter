@@ -7,6 +7,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class Utils {
 
   static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
     await Future.delayed(Duration(milliseconds: 100));
-    if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
+    if (!FirebaseUtils.isSupportRemoteConfig) return;
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     var currentVersion =
