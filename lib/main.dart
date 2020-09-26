@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:ap_common/models/course_data.dart';
@@ -8,6 +7,7 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart'
@@ -28,16 +28,16 @@ void main() async {
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   _setTargetPlatformForDesktop();
-  if (isInDebugMode || kIsWeb || !(Platform.isIOS || Platform.isAndroid)) {
-    runApp(MyApp());
-  } else if (!kIsWeb && (Platform.isIOS || Platform.isAndroid)) {
-    Crashlytics.instance.enableInDevMode = isInDebugMode;
-    // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
-    runZonedGuarded(() async {
+  await Firebase.initializeApp();
+  if (FirebaseUtils.isSupportCrashlytics) {
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    runZonedGuarded(() {
       runApp(MyApp());
-    }, Crashlytics.instance.recordError);
-  }
+    }, (error, stackTrace) {
+      FirebaseCrashlytics.instance.recordError(error, stackTrace);
+    });
+  } else
+    runApp(MyApp());
 }
 
 //v3.4.0 preference migrate

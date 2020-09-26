@@ -724,10 +724,10 @@ class Helper {
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
       if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-        await Crashlytics.instance.recordError(
+        await FirebaseCrashlytics.instance.recordError(
           e,
           s,
-          context: 'unknownError',
+          reason: 'unknownError',
         );
     }
     return null;

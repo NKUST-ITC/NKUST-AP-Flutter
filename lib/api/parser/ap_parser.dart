@@ -220,10 +220,10 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await Crashlytics.instance.recordError(
+      await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        context: document.getElementsByTagName("table")[0].text,
+        reason: document.getElementsByTagName("table")[0].text,
       );
   }
 
@@ -244,10 +244,10 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await Crashlytics.instance.recordError(
+      await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        context: document.getElementsByTagName("table")[1].text,
+        reason: document.getElementsByTagName("table")[1].text,
       );
   }
   //make each day.
@@ -314,10 +314,10 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await Crashlytics.instance.recordError(
+      await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        context: document.getElementsByTagName("table")[1].text,
+        reason: document.getElementsByTagName("table")[1].text,
       );
   }
   return data;
