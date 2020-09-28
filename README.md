@@ -11,7 +11,7 @@
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
 - [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
-- [X] [Windows(Pre-Dev)](https://drive.google.com/file/d/1rgzx7p_kNRpJyGOkwXF_PLBkWUVGhM3J/view?usp=sharing)
+- [X] [Windows(Pre-Dev)](https://drive.google.com/file/d/1mtBrdXIxD-UFqKjtulRMSWdsz818y3bs/view?usp=sharing)
 - [X] [MacOS(Beta)](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Linux(Beta)](https://snapcraft.io/nkust-ap)
 
