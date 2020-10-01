@@ -76,7 +76,8 @@ class Utils {
     if (currentVersion != packageInfo.buildNumber) {
       DialogUtils.showUpdateContent(
         context,
-        AppLocalizations.of(context).updateNoteContent,
+        "v${packageInfo.version}\n"
+        "${AppLocalizations.of(context).updateNoteContent}",
       );
       Preferences.setString(
           Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
