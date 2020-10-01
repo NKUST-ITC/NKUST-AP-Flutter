@@ -105,11 +105,8 @@ class SemesterPickerState extends State<SemesterPicker> {
           if (!oldSemester.contains(semesterData.defaultSemester.code)) {
             CourseNotifyData notifyData = CourseNotifyData.load(oldSemester);
             if (notifyData != null && NotificationUtils.isSupport) {
-              notifyData?.data?.forEach((notify) {
-                NotificationUtils.cancelCourseNotify(id: notify.id);
-              });
-              notifyData?.data?.clear();
-              notifyData?.save(oldSemester);
+              CourseNotifyData.clearOldVersionNotification(
+                  tag: oldSemester, newTag: semesterData.defaultSemester.code);
             }
           }
           if (mounted) {

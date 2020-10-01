@@ -82,6 +82,7 @@ class SettingPageState extends State<SettingPage> {
           children: <Widget>[
             SettingTitle(text: ap.notificationItem),
             CheckCourseNotifyItem(),
+            ClearAllNotifyItem(),
             SettingSwitch(
               text: ap.busNotify,
               subText: ap.busNotifySubTitle,
