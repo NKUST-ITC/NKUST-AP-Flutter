@@ -117,6 +117,12 @@ class CoursePageState extends State<CoursePage> {
             setState(() {
               if (data == null) {
                 state = CourseState.empty;
+                if (selectSemester.code == '1091' ||
+                    selectSemester.code == '1092') {
+                  _loadCourseData(selectSemester.code);
+                  ApUtils.showToast(context,
+                      AppLocalizations.of(context).schoolCloseCourseHint);
+                }
               } else {
                 courseData = data;
                 isOffline = false;
