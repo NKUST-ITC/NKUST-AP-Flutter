@@ -79,21 +79,40 @@ struct SimpleEntry: TimelineEntry {
 
 struct CourseAppWidgetEntryView: View {
     var entry: Provider.Entry
+    @Environment(\.colorScheme) var colorScheme
+    
+    func getTitleBackgroudColor() -> Color {
+        return Color.init(
+            colorScheme == .dark ?
+                UIColor(red: 0.08, green: 0.12, blue: 0.18, alpha: 1.00):
+                UIColor(red: 0.15, green: 0.45, blue: 1.00, alpha: 1.00)
+        )
+    }
+    
+    func getContentBackgroudColor() -> Color {
+        return colorScheme == .dark ? Color.init(  UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1.00)):Color.white
+    }
+    
+    func getContentTextColor() -> Color {
+        return colorScheme == .dark ? Color.white : Color.black
+    }
     
     var body: some View {
         GeometryReader { geometry in
             VStack{
                 HStack{
                     Text("上課提醒")
+                        .foregroundColor(Color.white)
                         .frame(width: geometry.size.width, height: 36)
                 }
-                .background(Color.init(UIColor(red: 0.08, green: 0.12, blue: 0.18, alpha: 1.00)))
+                .background(getTitleBackgroudColor())
                 Text("\(entry.text)")
+                    .foregroundColor(getContentTextColor())
                     .frame(height: geometry.size.height - 36)
                     .padding([.trailing, .leading], 8)
                     .multilineTextAlignment(.center)
             }
-            .background(Color.init(UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1.00)))
+            .background(getContentBackgroudColor())
         }
     }
 }
