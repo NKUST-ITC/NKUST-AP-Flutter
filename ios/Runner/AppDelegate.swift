@@ -15,6 +15,20 @@ import Flutter
         UIApplication.shared.cancelAllLocalNotifications()
         UserDefaults.standard.set(true, forKey: "Notification")
     }
+    //Course app widget must be iOS 14 above
+    if #available(iOS 14.0, *) {
+        //Course data export to app group
+        let standrtUserDefaults = UserDefaults.standard
+        print(UserDefaults.standard.dictionaryRepresentation().keys)
+        let groupUserDefaults = UserDefaults(suiteName: "group.com.nkust.ap")
+        if let semester = standrtUserDefaults.string(forKey: "flutter.ap_common.current_semester_code"){
+            print("sememster \(semester)")
+            if let text = standrtUserDefaults.string(forKey: "flutter.ap_common.course_data_\(semester)"){
+                print("text \(text)")
+                groupUserDefaults?.set(text, forKey: "course_notify")
+            }
+        }
+    }
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }
