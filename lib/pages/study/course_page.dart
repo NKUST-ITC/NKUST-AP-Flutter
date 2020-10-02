@@ -99,6 +99,7 @@ class CoursePageState extends State<CoursePage> {
           state = CourseState.offlineEmpty;
         } else {
           state = CourseState.finish;
+          notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
     }
