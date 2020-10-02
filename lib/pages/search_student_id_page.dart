@@ -25,6 +25,8 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   final _id = TextEditingController();
   final idFocusNode = FocusNode();
 
+  DateTime birthday = DateTime(DateTime.now().year - 18);
+
   bool isAutoFill = true;
 
   @override
@@ -42,6 +44,39 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
       forms: <Widget>[
+        InkWell(
+          onTap: () async {
+            var date = await showDatePicker(
+              context: context,
+              initialDate: birthday,
+              firstDate: DateTime(1911),
+              lastDate: DateTime.now(),
+            );
+            if (date != null) setState(() => birthday = date);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(ap.birthDay),
+              Text(
+                sprintf(
+                  "%i-%02i-%02i",
+                  [
+                    birthday.year,
+                    birthday.month,
+                    birthday.day,
+                  ],
+                ),
+                style: TextStyle(
+                  fontSize: 17.0,
+                ),
+              ),
+              Divider(
+                color: ApTheme.of(context).grey,
+              ),
+            ],
+          ),
+        ),
         ApTextField(
           textInputAction: TextInputAction.send,
           controller: _id,
@@ -67,7 +102,8 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ApButton(
           text: ap.search,
           onPressed: () {
-            FirebaseAnalyticsUtils.instance.logAction('search_username', 'click');
+            FirebaseAnalyticsUtils.instance
+                .logAction('search_username', 'click');
             _search();
           },
         )
@@ -85,47 +121,65 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     if (_id.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
-      UserInfo result = await NKUSTHelper.instance.getUsername(_id.text);
-      if (result != null && isAutoFill) {
-        Navigator.pop(context, result.id);
-      } else {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) => DefaultDialog(
-            title: ap.searchResult,
-            actionText: ap.iKnow,
-            actionFunction: () =>
-                Navigator.of(context, rootNavigator: true).pop('dialog'),
-            contentWidget: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  color: ApTheme.of(context).greyText,
-                  height: 1.3,
-                  fontSize: 16.0,
+      NKUSTHelper.instance.getUsername(
+        rocId: _id.text,
+        birthday: birthday,
+        callback: GeneralCallback(
+          onSuccess: (UserInfo data) {
+            if (data != null && isAutoFill) {
+              Navigator.pop(context, data.id);
+            } else {
+              _showResultDialog(
+                sprintf(
+                  app.searchStudentIdFormat,
+                  [
+                    data.name,
+                    data.id,
+                  ],
                 ),
-                children: [
-                  TextSpan(
-                    text: result == null
-                        ? ap.searchStudentIdError
-                        : sprintf(
-                            app.searchStudentIdFormat,
-                            [
-                              result.name,
-                              result.id,
-                            ],
-                          ),
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  if (result != null)
-                    TextSpan(
-                      text: '\n${app.firstLoginHint}',
-                    ),
-                ],
-              ),
-            ),
+              );
+            }
+          },
+          onError: (GeneralResponse response) => _showResultDialog(
+            response.statusCode == 404 ? response.message : ap.unknownError,
+            showFirstHint: false,
           ),
-        );
-      }
+          onFailure: (DioError e) {},
+        ),
+      );
     }
+  }
+
+  _showResultDialog(
+    String text, {
+    bool showFirstHint = true,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => DefaultDialog(
+        title: ap.searchResult,
+        actionText: ap.iKnow,
+        actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
+        contentWidget: SelectableText.rich(
+          TextSpan(
+            style: TextStyle(
+              color: ApTheme.of(context).greyText,
+              height: 1.3,
+              fontSize: 16.0,
+            ),
+            children: [
+              TextSpan(
+                text: text,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              if (showFirstHint)
+                TextSpan(
+                  text: '\n${app.firstLoginHint}',
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

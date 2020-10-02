@@ -12,6 +12,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -195,10 +196,16 @@ class Helper {
   }
 
   Future<List<Announcement>> getAllAnnouncements({
+    String locale,
     GeneralCallback<List<Announcement>> callback,
   }) async {
     try {
-      var response = await dio.get("/news/announcements/all");
+      var response = await dio.get(
+        "/news/announcements/all",
+        queryParameters: {
+          'lang': locale ?? '',
+        },
+      );
       var data = AnnouncementData(data: []);
       if (response.statusCode != 204) {
         data = AnnouncementData.fromJson(response.data);
@@ -212,9 +219,10 @@ class Helper {
         throw dioError;
       else
         callback.onFailure(dioError);
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -278,9 +286,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -307,9 +316,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -340,9 +350,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -377,8 +388,11 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
+    } catch (e, s) {
+      callback?.onError(GeneralResponse.unknownError());
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
-    //TODO revert exception
     return null;
   }
 
@@ -408,9 +422,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -440,9 +455,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -470,9 +486,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -508,9 +525,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -535,9 +553,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -561,9 +580,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -587,9 +607,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -614,9 +635,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -641,9 +663,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -665,9 +688,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -690,9 +714,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -713,14 +738,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-        await Crashlytics.instance.recordError(
-          e,
-          StackTrace.current,
-          context: 'unknownError',
-        );
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }
@@ -743,9 +764,10 @@ class Helper {
       } else
         callback?.onFailure(dioError);
       if (callback == null) throw dioError;
-    } catch (e) {
+    } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
-      throw e;
+      if (FirebaseUtils.isSupportCrashlytics)
+        await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
   }

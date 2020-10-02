@@ -90,12 +90,12 @@ Map<String, dynamic> leaveSubmitInfoParser(String html) {
   var _leaveType = document.getElementsByClassName("aspNetDisabled");
   if (_leaveType.length > 1) {
     for (int i = 1; i < _leaveType.length; i++) {
+      final labels = _leaveType[i].getElementsByTagName("label");
+      final inputs = _leaveType[i].getElementsByTagName("input");
+      if (labels.length == 0) continue;
       leaveType.add({
-        "title": _leaveType[i].getElementsByTagName("label")[0].text,
-        "id": _leaveType[i]
-            .getElementsByTagName("input")[0]
-            .attributes["value"]
-            .toString(),
+        "title": labels[0].text,
+        "id": inputs[0].attributes["value"].toString(),
       });
     }
 

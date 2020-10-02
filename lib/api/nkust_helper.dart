@@ -6,7 +6,9 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
+import 'package:sprintf/sprintf.dart';
 
 class NKUSTHelper {
   static NKUSTHelper _instance;
@@ -23,7 +25,16 @@ class NKUSTHelper {
     return _instance;
   }
 
-  Future<UserInfo> getUsername(String rocId) async {
+  Future<UserInfo> getUsername({
+    String rocId,
+    DateTime birthday,
+    GeneralCallback<UserInfo> callback,
+  }) async {
+    String birthdayText = sprintf("%03i%02i%02i", [
+      birthday.year - 1911,
+      birthday.month,
+      birthday.day,
+    ]);
     var response = await http.get(
       Uri(
         scheme: 'https',
@@ -31,6 +42,7 @@ class NKUSTHelper {
         path: '/nkust/system/getuid_1.jsp',
         queryParameters: {
           'uid': rocId,
+          'bir': birthdayText,
           'kind': '2',
         },
       ),
@@ -40,13 +52,22 @@ class NKUSTHelper {
     );
     var document = parse(response.body);
     var elements = document.getElementsByTagName('b');
-    if (elements.length >= 4)
-      return UserInfo(
+    if (elements.length >= 4) {
+      var userInfo = UserInfo(
         id: elements[4].text.replaceAll(' ', ''),
         name: elements[2].text,
       );
-    else
-      return null;
+      return callback == null ? userInfo : callback.onSuccess(userInfo);
+    } else if (elements.length == 1)
+      return callback?.onError(
+        GeneralResponse(
+          statusCode: 404,
+          message: elements[0].text,
+        ),
+      );
+    else return callback?.onError(
+        GeneralResponse.unknownError(),
+      );
   }
 
   Future<NotificationsData> getNotifications(int page) async {

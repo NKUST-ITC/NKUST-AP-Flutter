@@ -34,6 +34,7 @@ class BusData {
 }
 
 class BusTime {
+  @deprecated
   DateTime endEnrollDateTime;
   DateTime departureTime;
   String startStation;
@@ -126,12 +127,10 @@ class BusTime {
       };
 
   bool canReserve() {
-    var now = DateTime.now();
-    initializeDateFormatting();
-    return now.millisecondsSinceEpoch <=
-        endEnrollDateTime.add(Duration(hours: 8)).millisecondsSinceEpoch;
+    return canBook ?? true;
   }
 
+  @deprecated
   String getEndEnrollDateTime() {
     initializeDateFormatting();
     var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');

@@ -302,13 +302,6 @@ class BusReservePageState extends State<BusReservePage>
                                   ),
                                 ),
                               TextSpan(
-                                text: '${app.reserveDeadline}\n',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              TextSpan(
-                                text: '${busTime.getEndEnrollDateTime()}\n\n',
-                              ),
-                              TextSpan(
                                 text: '${app.busReserveConfirmTitle}',
                                 style: TextStyle(
                                   color: ApTheme.of(context).grey,
