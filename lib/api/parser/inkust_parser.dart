@@ -180,3 +180,61 @@ Map<String, dynamic> inkustBusViolationRecordsParser(
   });
   return {"reservation": temp};
 }
+
+Map<String, dynamic> inkustgetAbsentRecordsParser(Map<String, dynamic> data,
+    {List timeCodes}) {
+  List<Map<String, dynamic>> result = [];
+  if (data["success"] == false || data['count'] < 1) {
+    // return null;
+    return {"data": [], "timeCodes": []};
+  }
+
+  if (timeCodes == null) {
+    timeCodes = [];
+    if (((data['data'][0] ?? const {})['Detail'] ?? false) != false &&
+        data['data'][0]['Detail'].length > 0) {
+      data['data'][0]['Detail'][0].forEach((key, value) {
+        if (key != 'TranCode' && key != 'leaveday') {
+          timeCodes.add(key);
+        }
+      });
+    } else {
+      //lost timeCode
+      // return null;
+      return {"data": [], "timeCodes": []};
+    }
+  }
+
+  for (int i = 0; i < data['data'].length; i++) {
+    for (int dayLeaves = 0;
+        dayLeaves < data['data'][i]['Detail'].length;
+        dayLeaves++) {
+      Map<String, dynamic> _temp = {
+        "leaveSheetId": data['data'][i]['LeaveCode'] ?? "",
+        "date": "",
+        "instructorsComment": data['data'][i]["LeaveTeaSuggest"] ?? "",
+        "sections": []
+      };
+
+      int _index = 0;
+      data['data'][i]['Detail'][dayLeaves].forEach((key, value) {
+        if (key == "leaveday") {
+          _temp["date"] = value;
+        }
+        if (key != 'TranCode' && key != 'leaveday') {
+          value = value.replaceAll("　", "").replaceAll(" ", "");
+          if (value.length > 0) {
+            _temp['sections'].add({
+              "section": timeCodes[_index],
+              "reason": value,
+            });
+          }
+          _index++;
+        }
+      });
+
+      result.add(_temp);
+    }
+  }
+  return {'data': result, 'timeCodes': timeCodes};
+}
