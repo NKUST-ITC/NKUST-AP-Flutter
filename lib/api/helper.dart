@@ -368,11 +368,10 @@ class Helper {
         semester.year,
         semester.value,
       );
-      if (data.courses != null && data.courses.length != 0) {
+      if (data != null && data.courses != null && data.courses.length != 0) {
         data.updateIndex();
         reLoginCount = 0;
-      } else
-        data = null;
+      }
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {

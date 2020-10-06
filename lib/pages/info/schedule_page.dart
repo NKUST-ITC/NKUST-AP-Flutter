@@ -50,6 +50,7 @@ class SchedulePageState extends State<SchedulePage>
   TextStyle get _textStyle => TextStyle(
         fontSize: 16.0,
       );
+  PdfState pdfState = PdfState.loading;
 
   Uint8List byteList;
 
@@ -88,7 +89,11 @@ class SchedulePageState extends State<SchedulePage>
           ),
         );
       case _State.pdf:
-        return PdfScaffold(byteList: byteList);
+        return PdfScaffold(
+          byteList: byteList,
+          state: pdfState,
+          onRefresh: _getSchedules,
+        );
       case _State.finish:
       default:
         return CustomScrollView(
@@ -262,10 +267,12 @@ class SchedulePageState extends State<SchedulePage>
       );
       setState(() {
         state = _State.pdf;
+        pdfState = PdfState.finish;
         byteList = response.data;
       });
     } catch (e) {
       setState(() {
+        pdfState = PdfState.error;
         state = _State.finish;
       });
     }

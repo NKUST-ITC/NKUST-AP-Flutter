@@ -79,15 +79,16 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       callback: GeneralCallback(
         onSuccess: (CourseData data) {
           courseData = data;
-          setState(() {
-            if (courseData.courses.length != 0)
-              state = CourseState.finish;
-            else
-              state = CourseState.empty;
-          });
+          if (mounted)
+            setState(() {
+              if (courseData.courses.length != 0)
+                state = CourseState.finish;
+              else
+                state = CourseState.empty;
+            });
         },
         onFailure: (DioError e) async {
-          if (e.type != DioErrorType.CANCEL)
+          if (e.type != DioErrorType.CANCEL && mounted)
             setState(() {
               state = CourseState.custom;
               customStateHint = ApLocalizations.dioError(context, e);
@@ -98,10 +99,11 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {
-          setState(() {
-            state = CourseState.custom;
-            customStateHint = generalResponse.getGeneralMessage(context);
-          });
+          if (mounted)
+            setState(() {
+              state = CourseState.custom;
+              customStateHint = generalResponse.getGeneralMessage(context);
+            });
         },
       ),
     );

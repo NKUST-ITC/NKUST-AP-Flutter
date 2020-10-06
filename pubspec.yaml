@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.5.6+30506
+version: 3.5.9+30509
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -23,7 +23,7 @@ dependencies:
   ap_common_plugin:
     git:
       url: https://github.com/abc873693/ap_common_plugin
-      ref: v0.0.5
+      ref: v0.0.6
 #    path: ../../GitHub/ap_common_plugin
   #official plugin
   image_picker: ^0.6.7
@@ -38,7 +38,7 @@ dependencies:
       path: plugins/file_chooser/
   #third party plugin
   dio: 3.0.10
-  dio_http_cache: ^0.2.8
+  dio_http_cache: ^0.2.11
   tuple: 1.0.2
   sprintf: 4.1.0
   image: ^2.1.4
