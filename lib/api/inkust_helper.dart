@@ -18,6 +18,7 @@ import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/leave_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -303,5 +304,53 @@ class InkustHelper {
     return BusViolationRecordsData.fromJson(
       inkustBusViolationRecordsParser(data),
     );
+  }
+
+  Future<LeaveData> getAbsentRecords({String year, String semester}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    var _requestData = new Map<String, dynamic>.from(ueserRequestData);
+
+    _requestData.addAll({
+      'academicYear': year,
+      'academicSms': semester,
+    });
+    var request = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetStuApply",
+      data: _requestData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    // TODO: Need flexible solution, remote config?
+    List leavesTimeCodes = [
+      "A",
+      "1",
+      "2",
+      "3",
+      "4",
+      "B",
+      "5",
+      "6",
+      "7",
+      "8",
+      "C",
+      "11",
+      "12",
+      "13",
+      "14"
+    ];
+
+    Map<String, dynamic> data;
+
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
+    }
+
+    return LeaveData.fromJson(
+        inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCodes));
   }
 }
