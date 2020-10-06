@@ -700,8 +700,8 @@ class Helper {
     GeneralCallback<LeaveData> callback,
   }) async {
     try {
-      LeaveData data = await LeaveHelper.instance
-          .getLeaves(year: semester.year, semester: semester.value);
+      LeaveData data = await InkustHelper.instance
+          .getAbsentRecords(year: semester.year, semester: semester.value);
 
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
