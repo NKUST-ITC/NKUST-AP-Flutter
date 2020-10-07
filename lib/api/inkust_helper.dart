@@ -6,11 +6,15 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import "dart:math";
 import 'helper.dart';
+import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -428,5 +432,80 @@ class InkustHelper {
       inkustGetLeaveSubmitInfoParser(
           leaveTypeOptionData, totorRecordsData, leavesTimeCodes),
     );
+  }
+
+  Future<Response> leavesSubmit(LeaveSubmitData data,
+      {PickedFile proofImage}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    var userInfo = await Helper.instance.getUsersInfo();
+    var nowSemester = await Helper.instance.getSemester();
+    bool proofImageExists = false;
+    if (proofImage != null) {
+      proofImageExists = true;
+    }
+
+    // TODO: Need flexible solution, remote config?
+    List leavesTimeCodes = [
+      "A",
+      "1",
+      "2",
+      "3",
+      "4",
+      "B",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "11",
+      "12",
+      "13"
+    ];
+
+    var requestDataList = inkustLeaveDataParser(
+      submitDatas: data,
+      semester: nowSemester,
+      stdId: userInfo.id,
+      proofImageExists: proofImageExists,
+      timeCode: leavesTimeCodes,
+    );
+    Response<dynamic> res;
+    if (proofImageExists) {
+      for (int i = 0; i < requestDataList.length; i++) {
+        Map<String, dynamic> _requestData =
+            new Map<String, dynamic>.from(ueserRequestData);
+        _requestData['insertData'] = json.encode(requestDataList[i]);
+
+        _requestData["file"] = await MultipartFile.fromFile(
+          proofImage.path,
+          filename: "proof.jpg",
+          contentType: MediaType.parse("image/jpeg"),
+        );
+
+        FormData formData = FormData.fromMap(_requestData);
+        res = await dio.post(
+          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          data: formData,
+        );
+      }
+      ;
+    } else {
+      for (int i = 0; i < requestDataList.length; i++) {
+        Map<String, dynamic> _requestData =
+            new Map<String, dynamic>.from(ueserRequestData);
+        _requestData['insertData'] = json.encode(requestDataList[i]);
+        res = await dio.post(
+          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          data: _requestData,
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
+      }
+    }
+
+    return res;
   }
 }
