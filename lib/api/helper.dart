@@ -752,7 +752,7 @@ class Helper {
   }) async {
     try {
       Response res =
-          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
+          await InkustHelper.instance.leavesSubmit(data, proofImage: image);
       return (callback == null) ? data : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
