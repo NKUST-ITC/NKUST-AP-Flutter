@@ -49,7 +49,7 @@ class InkustHelper {
     "apiKey": null,
     "userId": null,
   };
-  static List get leavesTimeCode => [
+  static List<String> leavesTimeCode  = [
         "A",
         "1",
         "2",
