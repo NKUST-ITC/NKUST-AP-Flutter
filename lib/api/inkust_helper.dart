@@ -339,13 +339,12 @@ class InkustHelper {
       "6",
       "7",
       "8",
-      "C",
+      "9",
+      "10",
       "11",
       "12",
-      "13",
-      "14"
+      "13"
     ];
-
     Map<String, dynamic> data;
 
     if (request.data is String &&
@@ -402,13 +401,12 @@ class InkustHelper {
       "6",
       "7",
       "8",
-      "C",
+      "9",
+      "10",
       "11",
       "12",
-      "13",
-      "14"
+      "13"
     ];
-
     Map<String, dynamic> leaveTypeOptionData;
     Map<String, dynamic> totorRecordsData;
 
