@@ -19,6 +19,7 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -36,6 +37,10 @@ class InkustHelper {
       "${Helper.username}_busUserRecords";
   static String userViolationRecordsCacheKey =
       "${Helper.username}_busViolationRecords";
+  static String get userLeaveSubmitInfoCacheKey =>
+      "${Helper.username}_userLeaveSubmitInfo";
+  static String get userLeaveTutorsCacheKey =>
+      "${Helper.username}_userLeaveTutors";
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
     "userId": null,
@@ -352,5 +357,82 @@ class InkustHelper {
 
     return LeaveData.fromJson(
         inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCodes));
+  }
+
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
+    //     result['tutor'] = {
+    //     'name': null,
+    //     'id': null
+    // }
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+    Options leaveTypeOptions =
+        Options(contentType: Headers.formUrlEncodedContentType);
+    Options totorRecordsOptions =
+        Options(contentType: Headers.formUrlEncodedContentType);
+
+    if (Helper.isSupportCacheData) {
+      leaveTypeOptions = buildConfigurableCacheOptions(
+          options: leaveTypeOptions,
+          maxAge: Duration(hours: 24),
+          primaryKey: userLeaveSubmitInfoCacheKey);
+      totorRecordsOptions = buildConfigurableCacheOptions(
+          options: totorRecordsOptions,
+          maxAge: Duration(hours: 24),
+          primaryKey: userLeaveTutorsCacheKey);
+    }
+    var _requestData = new Map<String, dynamic>.from(ueserRequestData);
+
+    var leaveTypeOptionRequest = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetInsertInfo",
+      data: _requestData,
+      options: leaveTypeOptions,
+    );
+    var totorRequest = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetTeacher2",
+      data: _requestData,
+      options: totorRecordsOptions,
+    );
+    // TODO: Need flexible solution, remote config?
+    List leavesTimeCodes = [
+      "A",
+      "1",
+      "2",
+      "3",
+      "4",
+      "B",
+      "5",
+      "6",
+      "7",
+      "8",
+      "C",
+      "11",
+      "12",
+      "13",
+      "14"
+    ];
+
+    Map<String, dynamic> leaveTypeOptionData;
+    Map<String, dynamic> totorRecordsData;
+
+    if (leaveTypeOptionRequest.data is String &&
+        leaveTypeOptionRequest.headers['Content-Type'][0].indexOf("text/html") >
+            -1) {
+      leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data);
+    } else if (leaveTypeOptionRequest.data is Map<String, dynamic>) {
+      leaveTypeOptionData = leaveTypeOptionRequest.data;
+    }
+    if (totorRequest.data is String &&
+        totorRequest.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      totorRecordsData = jsonDecode(totorRequest.data);
+    } else if (totorRequest.data is Map<String, dynamic>) {
+      totorRecordsData = totorRequest.data;
+    }
+
+    return LeaveSubmitInfoData.fromJson(
+      inkustGetLeaveSubmitInfoParser(
+          leaveTypeOptionData, totorRecordsData, leavesTimeCodes),
+    );
   }
 }
