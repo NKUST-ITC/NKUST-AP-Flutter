@@ -238,3 +238,40 @@ Map<String, dynamic> inkustgetAbsentRecordsParser(Map<String, dynamic> data,
   }
   return {'data': result, 'timeCodes': timeCodes};
 }
+
+Map<String, dynamic> inkustGetLeaveSubmitInfoParser(
+    Map<String, dynamic> leaveTypeOptionData,
+    Map<String, dynamic> totorRecordsData,
+    List<dynamic> timeCodes) {
+  Map<String, dynamic> result = {
+    "tutor": {"name": null, "id": null},
+    "type": [],
+    "timeCodes": []
+  };
+  if (!totorRecordsData['success'] || !leaveTypeOptionData['success']) {
+    return result;
+  }
+  if (totorRecordsData['data']['choose'] != "" &&
+      totorRecordsData['data']['enable'] == false) {
+    result['tutor'] = {"name": "", "id": ""};
+    result['tutor']['id'] = totorRecordsData['data']['choose'].toString();
+    for (int i = 0; i < totorRecordsData['data']['teacher'].length; i++) {
+      if (totorRecordsData['data']['teacher'][i]['emp_id'] ==
+          result['tutor']['id']) {
+        result['tutor']['name'] =
+            totorRecordsData['data']['teacher'][i]['emp_name'];
+        break;
+      }
+    }
+  }
+
+  leaveTypeOptionData['data']['leaveTypeOption'].forEach((value) {
+    result['type'].add({
+      "title": value['leave_name'],
+      "id": value['leave_id'],
+    });
+  });
+
+  result['timeCodes'] = timeCodes;
+  return result;
+}
