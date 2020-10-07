@@ -1,7 +1,10 @@
 import 'dart:convert';
+import 'package:ap_common/models/time_code.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
+import 'package:nkust_ap/models/semester_data.dart';
 
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
@@ -179,4 +182,199 @@ Map<String, dynamic> inkustBusViolationRecordsParser(
     temp.add(_temp);
   });
   return {"reservation": temp};
+}
+
+Map<String, dynamic> inkustgetAbsentRecordsParser(Map<String, dynamic> data,
+    {List timeCodes}) {
+  List<Map<String, dynamic>> result = [];
+  if (data["success"] == false || data['count'] < 1) {
+    // return null;
+    return {"data": [], "timeCodes": []};
+  }
+
+  if (timeCodes == null) {
+    timeCodes = [];
+    if (((data['data'][0] ?? const {})['Detail'] ?? false) != false &&
+        data['data'][0]['Detail'].length > 0) {
+      data['data'][0]['Detail'][0].forEach((key, value) {
+        if (key != 'TranCode' && key != 'leaveday') {
+          timeCodes.add(key);
+        }
+      });
+    } else {
+      //lost timeCode
+      // return null;
+      return {"data": [], "timeCodes": []};
+    }
+  }
+
+  for (int i = 0; i < data['data'].length; i++) {
+    for (int dayLeaves = 0;
+        dayLeaves < data['data'][i]['Detail'].length;
+        dayLeaves++) {
+      Map<String, dynamic> _temp = {
+        "leaveSheetId": data['data'][i]['LeaveCode'] ?? "",
+        "date": "",
+        "instructorsComment": data['data'][i]["LeaveTeaSuggest"] ?? "",
+        "sections": []
+      };
+
+      int _index = 0;
+      data['data'][i]['Detail'][dayLeaves].forEach((key, value) {
+        if (key == "leaveday") {
+          _temp["date"] = value;
+        }
+        if (key != 'TranCode' && key != 'leaveday') {
+          value = value.replaceAll("　", "").replaceAll(" ", "");
+          if (value.length > 0) {
+            _temp['sections'].add({
+              "section": timeCodes[_index],
+              "reason": value,
+            });
+          }
+          _index++;
+        }
+      });
+
+      result.add(_temp);
+    }
+  }
+  return {'data': result, 'timeCodes': timeCodes};
+}
+
+Map<String, dynamic> inkustGetLeaveSubmitInfoParser(
+    Map<String, dynamic> leaveTypeOptionData,
+    Map<String, dynamic> totorRecordsData,
+    List<dynamic> timeCodes) {
+  Map<String, dynamic> result = {
+    "tutor": null,
+    "type": [],
+    "timeCodes": [],
+  };
+
+  if (!totorRecordsData['success'] || !leaveTypeOptionData['success']) {
+    return result;
+  }
+  if (totorRecordsData['data']['choose'] != "" &&
+      totorRecordsData['data']['enable'] == false) {
+    result['tutor'] = {"name": "", "id": ""};
+    result['tutor']['id'] = totorRecordsData['data']['choose'].toString();
+    for (int i = 0; i < totorRecordsData['data']['teacher'].length; i++) {
+      if (totorRecordsData['data']['teacher'][i]['emp_id'] ==
+          result['tutor']['id']) {
+        result['tutor']['name'] =
+            totorRecordsData['data']['teacher'][i]['emp_name'];
+        break;
+      }
+    }
+  }
+
+  leaveTypeOptionData['data']['leaveTypeOption'].forEach((value) {
+    result['type'].add({
+      "title": value['leave_name'],
+      "id": value['leave_id'],
+    });
+  });
+
+  result['timeCodes'] = timeCodes;
+  return result;
+}
+
+List<Map<String, dynamic>> inkustLeaveDataParser({
+  LeaveSubmitData submitDatas,
+  SemesterData semester,
+  String stdId,
+  bool proofImageExists,
+  List timeCode,
+}) {
+  var dateFormat = DateFormat("yyyy/M/dd");
+  // continuous days check
+  List<LeaveSubmitData> submitDataList = [];
+  int _tempIndex = 0;
+  for (int i = 0; i < submitDatas.days.length - 1; i++) {
+    var dayDiff = dateFormat
+        .parse(submitDatas.days[i].day)
+        .difference(dateFormat.parse(submitDatas.days[i + 1].day));
+    if (dayDiff < Duration(hours: -25)) {
+      // Need split leave submit
+      Map<String, dynamic> _splitSubmitData = submitDatas.toJson();
+      _splitSubmitData['days'] =
+          _splitSubmitData['days'].getRange(_tempIndex, i + 1);
+      submitDataList.add(LeaveSubmitData.fromJson(_splitSubmitData));
+
+      _tempIndex = i + 1;
+    }
+  }
+  if (_tempIndex != 0) {
+    //add last submit data
+    Map<String, dynamic> _splitSubmitData = submitDatas.toJson();
+    _splitSubmitData['days'] =
+        _splitSubmitData['days'].getRange(_tempIndex, submitDatas.days.length);
+    submitDataList.add(LeaveSubmitData.fromJson(_splitSubmitData));
+  }
+  //check split days
+  // submitDataList.forEach((element) {
+  //   print(element.days);
+  // });
+
+  if (submitDataList.length == 0) {
+    //without split days.
+    submitDataList.add(submitDatas);
+  }
+  List<Map<String, dynamic>> resultDataList = [];
+
+  submitDataList.forEach((submitData) {
+    var _startDayParse = dateFormat.parse(submitData.days[0].day);
+    var _endDayParse =
+        dateFormat.parse(submitData.days[submitData.days.length - 1].day);
+    String startDays =
+        "${_startDayParse.year - 1911}${_startDayParse.month.toString().padLeft(2, '0')}${_startDayParse.day.toString().padLeft(2, '0')}";
+    String endDays =
+        "${_endDayParse.year - 1911}${_endDayParse.month.toString().padLeft(2, '0')}${_endDayParse.day.toString().padLeft(2, '0')}";
+
+    Map<String, dynamic> result = {
+      "year": int.parse(semester.defaultSemester.year),
+      "sms": int.parse(semester.defaultSemester.value),
+      "stdid": stdId,
+      "begdate": startDays,
+      "enddate": endDays,
+      "leave_id": submitData.leaveTypeId,
+      "reason": submitData.reasonText,
+      "teaid": submitData.teacherId,
+      "delayreson": submitData.delayReasonText ?? "",
+      "notifydate": "",
+      "notifyperson": "",
+      "notifyparentphone": "",
+      "day": submitData.days.length,
+      "detail": [],
+      "filesubname": "",
+      "file": ""
+    };
+    if (proofImageExists) {
+      result['filesubname'] = 'jpg';
+      result['file'] = 'proof.jpg';
+    }
+    // for key-value convernt
+    Map<String, String> _tempMap = {};
+    for (int i = 0; i < timeCode.length; i++) {
+      _tempMap[timeCode[i]] = "d$i";
+    }
+
+    submitData.days.forEach((element) {
+      Map<String, dynamic> _temp = {};
+      _tempMap.forEach((key, value) {
+        _temp[value] = "0";
+      });
+      element.dayClass.forEach((element) {
+        _temp[_tempMap[element]] = submitData.leaveTypeId;
+      });
+      var leaveDays = dateFormat.parse(element.day);
+      _temp['leaveday'] =
+          "${leaveDays.year - 1911}${leaveDays.month.toString().padLeft(2, '0')}${leaveDays.day.toString().padLeft(2, '0')}";
+      result['detail'].add(_temp);
+    });
+
+    resultDataList.add(result);
+  });
+  return resultDataList;
 }

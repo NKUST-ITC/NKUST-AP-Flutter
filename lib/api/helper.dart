@@ -700,8 +700,8 @@ class Helper {
     GeneralCallback<LeaveData> callback,
   }) async {
     try {
-      LeaveData data = await LeaveHelper.instance
-          .getLeaves(year: semester.year, semester: semester.value);
+      LeaveData data = await InkustHelper.instance
+          .getAbsentRecords(year: semester.year, semester: semester.value);
 
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -726,7 +726,7 @@ class Helper {
   }) async {
     try {
       LeaveSubmitInfoData data =
-          await LeaveHelper.instance.getLeavesSubmitInfo();
+          await InkustHelper.instance.getLeavesSubmitInfo();
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -752,7 +752,7 @@ class Helper {
   }) async {
     try {
       Response res =
-          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
+          await InkustHelper.instance.leavesSubmit(data, proofImage: image);
       return (callback == null) ? data : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {

@@ -6,11 +6,15 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
 
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import "dart:math";
 import 'helper.dart';
+import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -18,6 +22,8 @@ import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
 class InkustHelper {
   static Dio dio;
@@ -35,10 +41,31 @@ class InkustHelper {
       "${Helper.username}_busUserRecords";
   static String userViolationRecordsCacheKey =
       "${Helper.username}_busViolationRecords";
+  static String get userLeaveSubmitInfoCacheKey =>
+      "${Helper.username}_userLeaveSubmitInfo";
+  static String get userLeaveTutorsCacheKey =>
+      "${Helper.username}_userLeaveTutors";
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
     "userId": null,
   };
+  static List<String> leavesTimeCode  = [
+        "A",
+        "1",
+        "2",
+        "3",
+        "4",
+        "B",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13"
+      ];
 
   bool isLogin = false;
 
@@ -303,5 +330,146 @@ class InkustHelper {
     return BusViolationRecordsData.fromJson(
       inkustBusViolationRecordsParser(data),
     );
+  }
+
+  Future<LeaveData> getAbsentRecords({String year, String semester}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    var _requestData = new Map<String, dynamic>.from(ueserRequestData);
+
+    _requestData.addAll({
+      'academicYear': year,
+      'academicSms': semester,
+    });
+    var request = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetStuApply",
+      data: _requestData,
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+
+    Map<String, dynamic> data;
+
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
+    }
+
+    return LeaveData.fromJson(
+        inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCode));
+  }
+
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+    Options leaveTypeOptions =
+        Options(contentType: Headers.formUrlEncodedContentType);
+    Options totorRecordsOptions =
+        Options(contentType: Headers.formUrlEncodedContentType);
+
+    if (Helper.isSupportCacheData) {
+      leaveTypeOptions = buildConfigurableCacheOptions(
+          options: leaveTypeOptions,
+          maxAge: Duration(hours: 24),
+          primaryKey: userLeaveSubmitInfoCacheKey);
+      totorRecordsOptions = buildConfigurableCacheOptions(
+          options: totorRecordsOptions,
+          maxAge: Duration(hours: 24),
+          primaryKey: userLeaveTutorsCacheKey);
+    }
+    var _requestData = new Map<String, dynamic>.from(ueserRequestData);
+
+    var leaveTypeOptionRequest = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetInsertInfo",
+      data: _requestData,
+      options: leaveTypeOptions,
+    );
+    var totorRequest = await dio.post(
+      "https://inkusts.nkust.edu.tw/Leave/GetTeacher2",
+      data: _requestData,
+      options: totorRecordsOptions,
+    );
+
+    Map<String, dynamic> leaveTypeOptionData;
+    Map<String, dynamic> totorRecordsData;
+
+    if (leaveTypeOptionRequest.data is String &&
+        leaveTypeOptionRequest.headers['Content-Type'][0].indexOf("text/html") >
+            -1) {
+      leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data);
+    } else if (leaveTypeOptionRequest.data is Map<String, dynamic>) {
+      leaveTypeOptionData = leaveTypeOptionRequest.data;
+    }
+    if (totorRequest.data is String &&
+        totorRequest.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      totorRecordsData = jsonDecode(totorRequest.data);
+    } else if (totorRequest.data is Map<String, dynamic>) {
+      totorRecordsData = totorRequest.data;
+    }
+
+    return LeaveSubmitInfoData.fromJson(
+      inkustGetLeaveSubmitInfoParser(
+          leaveTypeOptionData, totorRecordsData, leavesTimeCode),
+    );
+  }
+
+  Future<Response> leavesSubmit(LeaveSubmitData data,
+      {PickedFile proofImage}) async {
+    if (isLogin != true) {
+      await inkustLogin();
+    }
+
+    var userInfo = await Helper.instance.getUsersInfo();
+    var nowSemester = await Helper.instance.getSemester();
+    bool proofImageExists = false;
+    if (proofImage != null) {
+      proofImageExists = true;
+    }
+
+    var requestDataList = inkustLeaveDataParser(
+      submitDatas: data,
+      semester: nowSemester,
+      stdId: userInfo.id,
+      proofImageExists: proofImageExists,
+      timeCode: leavesTimeCode,
+    );
+    Response<dynamic> res;
+    if (proofImageExists) {
+      for (int i = 0; i < requestDataList.length; i++) {
+        Map<String, dynamic> _requestData =
+            new Map<String, dynamic>.from(ueserRequestData);
+        _requestData['insertData'] = json.encode(requestDataList[i]);
+
+        _requestData["file"] = await MultipartFile.fromFile(
+          proofImage.path,
+          filename: "proof.jpg",
+          contentType: MediaType.parse("image/jpeg"),
+        );
+
+        FormData formData = FormData.fromMap(_requestData);
+        res = await dio.post(
+          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          data: formData,
+        );
+      }
+      ;
+    } else {
+      for (int i = 0; i < requestDataList.length; i++) {
+        Map<String, dynamic> _requestData =
+            new Map<String, dynamic>.from(ueserRequestData);
+        _requestData['insertData'] = json.encode(requestDataList[i]);
+        res = await dio.post(
+          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          data: _requestData,
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
+      }
+    }
+
+    return res;
   }
 }
