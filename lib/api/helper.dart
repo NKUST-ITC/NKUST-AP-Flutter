@@ -726,7 +726,7 @@ class Helper {
   }) async {
     try {
       LeaveSubmitInfoData data =
-          await LeaveHelper.instance.getLeavesSubmitInfo();
+          await InkustHelper.instance.getLeavesSubmitInfo();
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
