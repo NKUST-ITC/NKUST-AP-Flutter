@@ -49,6 +49,23 @@ class InkustHelper {
     "apiKey": null,
     "userId": null,
   };
+  static List get leavesTimeCode => [
+        "A",
+        "1",
+        "2",
+        "3",
+        "4",
+        "B",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13"
+      ];
 
   bool isLogin = false;
 
@@ -331,24 +348,7 @@ class InkustHelper {
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-    // TODO: Need flexible solution, remote config?
-    List leavesTimeCodes = [
-      "A",
-      "1",
-      "2",
-      "3",
-      "4",
-      "B",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "11",
-      "12",
-      "13"
-    ];
+
     Map<String, dynamic> data;
 
     if (request.data is String &&
@@ -359,7 +359,7 @@ class InkustHelper {
     }
 
     return LeaveData.fromJson(
-        inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCodes));
+        inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCode));
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
@@ -393,24 +393,7 @@ class InkustHelper {
       data: _requestData,
       options: totorRecordsOptions,
     );
-    // TODO: Need flexible solution, remote config?
-    List leavesTimeCodes = [
-      "A",
-      "1",
-      "2",
-      "3",
-      "4",
-      "B",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "11",
-      "12",
-      "13"
-    ];
+
     Map<String, dynamic> leaveTypeOptionData;
     Map<String, dynamic> totorRecordsData;
 
@@ -430,7 +413,7 @@ class InkustHelper {
 
     return LeaveSubmitInfoData.fromJson(
       inkustGetLeaveSubmitInfoParser(
-          leaveTypeOptionData, totorRecordsData, leavesTimeCodes),
+          leaveTypeOptionData, totorRecordsData, leavesTimeCode),
     );
   }
 
@@ -447,31 +430,12 @@ class InkustHelper {
       proofImageExists = true;
     }
 
-    // TODO: Need flexible solution, remote config?
-    List leavesTimeCodes = [
-      "A",
-      "1",
-      "2",
-      "3",
-      "4",
-      "B",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-      "11",
-      "12",
-      "13"
-    ];
-
     var requestDataList = inkustLeaveDataParser(
       submitDatas: data,
       semester: nowSemester,
       stdId: userInfo.id,
       proofImageExists: proofImageExists,
-      timeCode: leavesTimeCodes,
+      timeCode: leavesTimeCode,
     );
     Response<dynamic> res;
     if (proofImageExists) {
