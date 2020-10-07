@@ -360,10 +360,6 @@ class InkustHelper {
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    //     result['tutor'] = {
-    //     'name': null,
-    //     'id': null
-    // }
     if (isLogin != true) {
       await inkustLogin();
     }
