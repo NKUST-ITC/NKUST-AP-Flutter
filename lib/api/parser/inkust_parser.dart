@@ -244,10 +244,11 @@ Map<String, dynamic> inkustGetLeaveSubmitInfoParser(
     Map<String, dynamic> totorRecordsData,
     List<dynamic> timeCodes) {
   Map<String, dynamic> result = {
-    "tutor": {"name": null, "id": null},
+    "tutor": null,
     "type": [],
-    "timeCodes": []
+    "timeCodes": [],
   };
+
   if (!totorRecordsData['success'] || !leaveTypeOptionData['success']) {
     return result;
   }
