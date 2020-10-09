@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/phone_model.dart';
@@ -68,7 +67,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   PdfState pdfState = PdfState.loading;
 
-  Uint8List byteList;
+  PdfController pdfController;
 
   ApLocalizations ap;
 
@@ -125,7 +124,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           ),
           PdfScaffold(
             state: pdfState,
-            byteList: byteList,
+            pdfController: pdfController,
             onRefresh: () {
               setState(() => pdfState = PdfState.loading);
               _getSchedules();
@@ -209,13 +208,16 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   void downloadFdf(String url) async {
     try {
+      print(url);
       var response = await Dio().get(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
       setState(() {
         pdfState = PdfState.finish;
-        byteList = response.data;
+        pdfController = PdfController(
+          document: PdfDocument.openData(response.data),
+        );
       });
     } catch (e) {
       setState(() {
