@@ -27,7 +27,7 @@ void main() async {
   if (int.parse(currentVersion) < 30400) _preference340Migrate();
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
-  await Firebase.initializeApp();
+  if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (FirebaseUtils.isSupportCrashlytics) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     runZonedGuarded(() {
