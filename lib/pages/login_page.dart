@@ -10,6 +10,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
@@ -194,6 +195,7 @@ class LoginPageState extends State<LoginPage> {
                   Constants.PREF_PASSWORD, _password.text);
             }
             Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+            TextInput.finishAutofillContext();
             Navigator.of(context).pop(true);
           },
           onFailure: (DioError e) {
