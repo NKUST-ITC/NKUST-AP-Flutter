@@ -261,7 +261,7 @@ class SettingPageState extends State<SettingPage> {
       packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      appVersion = packageInfo?.version ?? '3.5.4';
+      appVersion = packageInfo?.version ?? '3.5.10';
       courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
