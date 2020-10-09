@@ -68,6 +68,12 @@ class Leave {
 
   factory Leave.fromRawJson(String str) => Leave.fromJson(json.decode(str));
 
+  String get dateText =>
+      (date.length == 7
+          ? "${date.substring(3, 5)}/${date.substring(5, 7)}"
+          : date) ??
+      "";
+
   String toRawJson() => json.encode(toJson());
 
   factory Leave.fromJson(Map<String, dynamic> json) => new Leave(

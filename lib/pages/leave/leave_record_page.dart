@@ -252,7 +252,10 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   TableRow _leaveBorder(Leave leave, List<String> timeCodes) {
     List<Widget> widgets = [];
     widgets.add(InkWell(
-      child: _textBorder(leave.date.substring(4), false),
+      child: _textBorder(
+        leave.dateText,
+        false,
+      ),
       onTap: (leave.leaveSheetId.isEmpty && leave.instructorsComment.isEmpty)
           ? null
           : () {
@@ -265,23 +268,32 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                       Navigator.of(context, rootNavigator: true).pop('dialog'),
                   contentWidget: RichText(
                     text: TextSpan(
-                        style: TextStyle(
-                            color: ApTheme.of(context).grey,
-                            height: 1.3,
-                            fontSize: 16.0),
-                        children: [
-                          TextSpan(
-                              text: '${ap.leaveSheetId}：',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(text: '${leave.leaveSheetId}\n'),
-                          TextSpan(
-                              text: '${ap.instructorsComment}：'
-                                  '${leave.instructorsComment.length < 8 ? '' : '\n'}',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          TextSpan(
-                              text:
-                                  '${leave.instructorsComment.replaceAll('：', ' ')}'),
-                        ]),
+                      style: TextStyle(
+                          color: ApTheme.of(context).grey,
+                          height: 1.3,
+                          fontSize: 16.0),
+                      children: [
+                        TextSpan(
+                          text: '${ap.leaveSheetId}：',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(text: '${leave.leaveSheetId}\n'),
+                        TextSpan(
+                          text: '${ap.date}：',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(text: '${leave.date}\n'),
+                        TextSpan(
+                          text: '${ap.instructorsComment}：'
+                              '${leave.instructorsComment.length < 8 ? '' : '\n'}',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        TextSpan(
+                          text:
+                              '${leave.instructorsComment.replaceAll('：', ' ')}',
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
