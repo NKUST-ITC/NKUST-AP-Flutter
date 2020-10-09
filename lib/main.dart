@@ -18,7 +18,6 @@ import 'package:nkust_ap/config/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  bool isInDebugMode = Constants.isInDebugMode;
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   GestureBinding.instance.resamplingEnabled = true;
   await Preferences.init(key: Constants.key, iv: Constants.iv);

@@ -82,7 +82,7 @@ class Utils {
       Preferences.setString(
           Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
     }
-    if (!Constants.isInDebugMode) {
+    if (!kDebugMode) {
       try {
         final RemoteConfig remoteConfig = await RemoteConfig.instance;
         await remoteConfig.fetch(expiration: const Duration(seconds: 10));

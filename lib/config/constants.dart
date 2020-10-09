@@ -1,12 +1,6 @@
 import 'package:encrypt/encrypt.dart';
 
 class Constants {
-  static bool get isInDebugMode {
-    bool inDebugMode = false;
-    assert(inDebugMode = true);
-    return inDebugMode;
-  }
-
   static final key = Key.fromUtf8('l9r1W3wcsnJTayxCXwoFt62w1i4sQ5J9');
   static final iv = IV.fromUtf8('auc9OV5r0nLwjCAH');
 
