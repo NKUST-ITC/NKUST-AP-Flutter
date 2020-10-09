@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:ap_common/callback/general_callback.dart';
@@ -646,10 +647,18 @@ class HomePageState extends State<HomePage> {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       await remoteConfig.fetch(expiration: const Duration(seconds: 10));
       await remoteConfig.activateFetched();
+      final leaveTimeCode = List<String>.from(
+          jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
       Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
+      Preferences.setStringList(Constants.LEAVES_TIME_CODE, leaveTimeCode);
+      InkustHelper.leavesTimeCode = leaveTimeCode;
     } catch (e) {
       InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
+      InkustHelper.leavesTimeCode = Preferences.getStringList(
+        Constants.LEAVES_TIME_CODE,
+        InkustHelper.leavesTimeCode,
+      );
     }
   }
 

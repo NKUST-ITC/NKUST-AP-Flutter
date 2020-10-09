@@ -57,6 +57,7 @@ class Constants {
   static const NEW_VERSION_CONTENT_EN = "new_version_content_en";
   static const API_HOST = 'api_host';
   static const LEAVE_CAMPUS_DATA = 'leave_campus_data';
+  static const LEAVES_TIME_CODE = 'leaves_time_code';
 
   static const TAG_STUDENT_PICTURE = "tag_student_picture";
   static const TAG_NEWS_PICTURE = "tag_news_picture";
