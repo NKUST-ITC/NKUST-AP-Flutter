@@ -11,6 +11,7 @@ import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -19,6 +20,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   bool isInDebugMode = Constants.isInDebugMode;
 //  HttpClient.enableTimelineLogging = isInDebugMode;
+  GestureBinding.instance.resamplingEnabled = true;
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
