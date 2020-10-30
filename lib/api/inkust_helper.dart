@@ -34,7 +34,7 @@ class InkustHelper {
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
   static String loginApiKey = "";
-  static String host = "inkusts.nkust.edu.tw";
+  static String inkustHost = "inkusts.nkust.edu.tw";
   static String get coursetableCacheKey =>
       "${Helper.username}_coursetableCacheKey";
   static String get busUserRecordsCacheKey =>
@@ -90,7 +90,7 @@ class InkustHelper {
     dio = Dio();
     cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {
-      _manager = DioCacheManager(CacheConfig(baseUrl: "https://${host}"));
+      _manager = DioCacheManager(CacheConfig(baseUrl: "https://$inkustHost"));
       dio.interceptors.add(_manager.interceptor);
     }
 
@@ -107,7 +107,7 @@ class InkustHelper {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
-    Response res = await dio.post("https://${host}/User/DoLogin2",
+    Response res = await dio.post("https://$inkustHost/User/DoLogin2",
         data: {
           "apiKey": loginApiKey,
           "userId": Helper.username,
@@ -142,7 +142,7 @@ class InkustHelper {
       'academicYear': years,
       'academicSms': semesterValue,
     });
-    Response res = await dio.post("https://${host}/Course/GetStuCourse2",
+    Response res = await dio.post("https://$inkustHost/Course/GetStuCourse2",
         data: requestData, options: _options);
     if (res.data['success'] == false) {
       return null;
@@ -185,7 +185,7 @@ class InkustHelper {
     _requestData.addAll({'driveDate': '$year/$month/$day'});
 
     var timeQuery = await dio.post(
-      'https://inkusts.nkust.edu.tw/Bus/GetTimetableAndReserve',
+      'https://$inkustHost/Bus/GetTimetableAndReserve',
       options: _options,
       data: _requestData,
     );
@@ -232,7 +232,7 @@ class InkustHelper {
                 "${busUserRecordsCacheKey}_${element[0]}_${element[1]}");
       }
       Future<Response<dynamic>> _req = dio.post(
-        'https://inkusts.nkust.edu.tw/Bus/GetUserReserve3',
+        'https://$inkustHost/Bus/GetUserReserve3',
         options: _optionsForDataType,
         data: _requestData,
       );
@@ -252,7 +252,7 @@ class InkustHelper {
 
     _requestData.addAll({"busId": busId});
     var request = await dio.post(
-      "https://inkusts.nkust.edu.tw/Bus/CreateUserReserve",
+      "https://$inkustHost/Bus/CreateUserReserve",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
@@ -279,7 +279,7 @@ class InkustHelper {
 
     _requestData.addAll({"resId": busId});
     var request = await dio.post(
-      "https://inkusts.nkust.edu.tw/Bus/CancelUserReserve",
+      "https://$inkustHost/Bus/CancelUserReserve",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
@@ -315,7 +315,7 @@ class InkustHelper {
 
     _requestData.addAll({'paid': 1, 'page': 1, 'start': 0, 'limit': 100});
     var request = await dio.post(
-      "https://inkusts.nkust.edu.tw/Bus/GetUserIllegal2",
+      "https://$inkustHost/Bus/GetUserIllegal2",
       data: _requestData,
       options: _options,
     );
@@ -344,7 +344,7 @@ class InkustHelper {
       'academicSms': semester,
     });
     var request = await dio.post(
-      "https://inkusts.nkust.edu.tw/Leave/GetStuApply",
+      "https://$inkustHost/Leave/GetStuApply",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
@@ -384,12 +384,12 @@ class InkustHelper {
     var _requestData = new Map<String, dynamic>.from(ueserRequestData);
 
     var leaveTypeOptionRequest = await dio.post(
-      "https://inkusts.nkust.edu.tw/Leave/GetInsertInfo",
+      "https://$inkustHost/Leave/GetInsertInfo",
       data: _requestData,
       options: leaveTypeOptions,
     );
     var totorRequest = await dio.post(
-      "https://inkusts.nkust.edu.tw/Leave/GetTeacher2",
+      "https://$inkustHost/Leave/GetTeacher2",
       data: _requestData,
       options: totorRecordsOptions,
     );
@@ -452,7 +452,7 @@ class InkustHelper {
 
         FormData formData = FormData.fromMap(_requestData);
         res = await dio.post(
-          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          "https://$inkustHost/Leave/DoSaveApply2",
           data: formData,
         );
       }
@@ -463,7 +463,7 @@ class InkustHelper {
             new Map<String, dynamic>.from(ueserRequestData);
         _requestData['insertData'] = json.encode(requestDataList[i]);
         res = await dio.post(
-          "https://inkusts.nkust.edu.tw/Leave/DoSaveApply2",
+          "https://$inkustHost/Leave/DoSaveApply2",
           data: _requestData,
           options: Options(contentType: Headers.formUrlEncodedContentType),
         );
