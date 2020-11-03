@@ -163,9 +163,6 @@ class LoginPageState extends State<LoginPage> {
           : '';
     });
     await Future.delayed(Duration(microseconds: 50));
-    if (isAutoLogin) {
-      _login();
-    }
   }
 
   _login() async {
