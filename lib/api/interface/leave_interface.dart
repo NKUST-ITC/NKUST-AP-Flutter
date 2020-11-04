@@ -5,7 +5,9 @@ import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
 abstract class LeaveInterface {
-  Future<GeneralResponse> login();
+  Future<GeneralResponse> login({String username, String password});
+
+  Future<GeneralResponse> logout();
 
   Future<LeaveData> getLeaves({String year, String value});
 

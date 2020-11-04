@@ -6,7 +6,9 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 abstract class BusInterface {
-  Future<GeneralResponse> login();
+  Future<GeneralResponse> login({String username, String password});
+
+  Future<GeneralResponse> logout();
 
   Future<BusData> getTimeTable(
       {DateTime fromDateTime, String year, String month, String day});
