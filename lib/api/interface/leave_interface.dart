@@ -4,7 +4,7 @@ import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
-abstract class WebApInterface {
+abstract class LeaveInterface {
   Future<GeneralResponse> login();
 
   Future<LeaveData> getLeaves({String year, String value});
