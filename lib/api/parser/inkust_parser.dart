@@ -53,7 +53,7 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
     "4": 'Thursday',
     "5": 'Friday',
     "6": 'Saturday',
-    "0": 'Sunday',
+    "7": 'Sunday',
   };
   //coursetable parse
   data["data"]["course"].forEach((courseElement) {
