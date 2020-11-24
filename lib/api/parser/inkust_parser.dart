@@ -58,7 +58,10 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   //coursetable parse
   data["data"]["course"].forEach((courseElement) {
     courseElement['courseTimeData'].forEach((singleCourseObject) {
-      result['coursetable'][courseWeek[singleCourseObject['courseWeek']]].add({
+      final number = singleCourseObject['courseWeek'] == '0'
+          ? '7'
+          : singleCourseObject['courseWeek'];
+      result['coursetable'][courseWeek[number]].add({
         "title": courseElement['courseName'],
         "date": {
           "startTime":
