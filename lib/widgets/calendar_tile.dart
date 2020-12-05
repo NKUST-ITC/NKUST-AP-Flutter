@@ -46,7 +46,7 @@ class CalendarTile extends StatelessWidget {
               : new BoxDecoration(),
           alignment: Alignment.center,
           child: new Text(
-            DateUtils.formatDay(date).toString(),
+            CalendarDateUtils.formatDay(date).toString(),
             style: isSelected
                 ? new TextStyle(color: ApTheme.of(context).calendarTileSelect)
                 : dateStyles,
