@@ -282,8 +282,8 @@ packages:
     dependency: "direct main"
     description:
       path: "plugins/file_chooser/"
-      ref: HEAD
-      resolved-ref: "1feed8db2e5222af4e5d8495ac45135a2701c755"
+      ref: "43901ebd12548a3c2a077d4dbeb3b56f0a0bdd09"
+      resolved-ref: "43901ebd12548a3c2a077d4dbeb3b56f0a0bdd09"
       url: "https://github.com/google/flutter-desktop-embedding"
     source: git
     version: "0.2.0"

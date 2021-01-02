@@ -34,6 +34,7 @@ dependencies:
   http_parser: 3.1.4
   file_chooser:
     git:
+      ref: 43901ebd12548a3c2a077d4dbeb3b56f0a0bdd09
       url: https://github.com/google/flutter-desktop-embedding
       path: plugins/file_chooser/
   #third party plugin
