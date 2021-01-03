@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/pages/announcement/home_page.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/open_source_page.dart';
@@ -15,6 +17,8 @@ import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
@@ -23,7 +27,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
-import 'package:nkust_ap/pages/announcement/news_admin_page.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/cache_utils.dart';
@@ -161,20 +164,18 @@ class HomePageState extends State<HomePage> {
             content: content,
             actions: <Widget>[
               IconButton(
-                icon: Icon(ApIcon.info),
-                onPressed: _showInformationDialog,
+                icon: Icon(Icons.approval),
+                onPressed: () async {
+                  if (FirebaseUtils.isSupportCloudMessage) {
+                    String token = await FirebaseMessaging().getToken();
+                    AnnouncementHelper.fcmToken = token;
+                  }
+                  ApUtils.pushCupertinoStyle(
+                    context,
+                    AnnouncementHomePage(),
+                  );
+                },
               ),
-              if (ShareDataWidget.of(context).data.loginResponse?.isAdmin ??
-                  false)
-                IconButton(
-                  icon: Icon(Icons.add_to_queue),
-                  onPressed: () {
-                    ApUtils.pushCupertinoStyle(
-                      context,
-                      NewsAdminPage(isAdmin: true),
-                    );
-                  },
-                )
             ],
             drawer: ApDrawer(
               userInfo: userInfo,
@@ -428,7 +429,7 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAnnouncements() async {
-    Helper.instance.getAllAnnouncements(
+    AnnouncementHelper.instance.getAllAnnouncements(
       callback: GeneralCallback(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
