@@ -67,6 +67,14 @@
 	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Feature leaves apply would be select photos to apply leaves</string>
+	<key>NSContactsUsageDescription</key>
+	<string>We want to improve app usage.</string>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>We want to improve app usage.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>We want to improve app usage.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We want to improve app usage.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
