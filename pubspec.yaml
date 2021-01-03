@@ -44,6 +44,7 @@ dependencies:
   sprintf: 5.0.0
   image: ^2.1.4
   flutter_image_compress: 0.7.0
+  extended_image: 1.3.1-dev
 #  image_picker_web: 1.0.8
 
 
