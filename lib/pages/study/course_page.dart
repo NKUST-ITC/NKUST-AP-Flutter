@@ -65,6 +65,7 @@ class CoursePageState extends State<CoursePage> {
           selectSemester.code == semesterData.defaultSemester.code,
       courseNotifySaveKey: courseNotifyCacheKey,
       androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
+      enableCaptureCourseTable: true,
       itemPicker: SemesterPicker(
         key: key,
         onSelect: (semester, index) {
