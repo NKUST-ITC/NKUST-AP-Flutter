@@ -8,6 +8,7 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
+import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -24,6 +25,10 @@ void main() async {
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
   if (int.parse(currentVersion) < 30400) _preference340Migrate();
+  if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
+    GoogleSignInDart.register(
+        clientId:
+            '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
