@@ -4,6 +4,9 @@ class Constants {
   static final key = Key.fromUtf8('l9r1W3wcsnJTayxCXwoFt62w1i4sQ5J9');
   static final iv = IV.fromUtf8('auc9OV5r0nLwjCAH');
 
+  static const FCM_WEB_VAPID_KEY =
+      'BK0jGtEEyOeBv3H0Q95PtNtYFYNpleRPEKAPP5YLIQIARrNn_X20CFffSrrFarbmsMF3aMVEqjePw5z6GwBWbao';
+
   static const PREF_FIRST_ENTER_APP = "pref_first_enter_app";
   static const PREF_CURRENT_VERSION = "pref_current_version";
   static const PREF_REMEMBER_PASSWORD = "pref_remember_password";
