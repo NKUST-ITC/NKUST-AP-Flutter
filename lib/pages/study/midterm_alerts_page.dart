@@ -225,7 +225,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         onFailure: (DioError e) {
           setState(() {
             state = _State.custom;
-            customStateHint = ApLocalizations.dioError(context, e);
+            customStateHint = ApLocalizations.of(context).dioError(e);
           });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

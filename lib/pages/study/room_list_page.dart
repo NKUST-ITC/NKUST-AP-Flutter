@@ -136,7 +136,7 @@ class _RoomListPageState extends State<RoomListPage> {
           if (e.type != DioErrorType.CANCEL)
             setState(() {
               state = _State.custom;
-              customStateHint = ApLocalizations.dioError(context, e);
+              customStateHint = ApLocalizations.of(context).dioError(e);
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

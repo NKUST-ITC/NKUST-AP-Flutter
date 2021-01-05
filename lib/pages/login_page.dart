@@ -70,7 +70,7 @@ class LoginPageState extends State<LoginPage> {
           textInputAction: TextInputAction.next,
           focusNode: usernameFocusNode,
           nextFocusNode: passwordFocusNode,
-          labelText: ap.username,
+          labelText: ap.studentId,
           autofillHints: [AutofillHints.username],
         ),
         ApTextField(
@@ -95,7 +95,7 @@ class LoginPageState extends State<LoginPage> {
               onChanged: _onAutoLoginChanged,
             ),
             TextCheckBox(
-              text: ap.remember,
+              text: ap.rememberPassword,
               value: isRememberPassword,
               onChanged: _onRememberPasswordChanged,
             ),
@@ -205,10 +205,10 @@ class LoginPageState extends State<LoginPage> {
             String message = '';
             switch (response.statusCode) {
               case ApStatusCode.SCHOOL_SERVER_ERROR:
-                message = ap.schoolSeverError;
+                message = ap.schoolServerError;
                 break;
               case ApStatusCode.API_SERVER_ERROR:
-                message = ap.apiSeverError;
+                message = ap.apiServerError;
                 break;
               case ApStatusCode.USER_DATA_ERROR:
                 message = ap.loginFail;

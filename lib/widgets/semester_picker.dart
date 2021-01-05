@@ -136,7 +136,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     showDialog<int>(
       context: context,
       builder: (BuildContext context) => SimpleOptionDialog(
-        title: ApLocalizations.of(context).picksSemester,
+        title: ApLocalizations.of(context).pickSemester,
         items: [for (var item in semesterData.data) item.text],
         index: currentIndex,
         onSelected: (index) {

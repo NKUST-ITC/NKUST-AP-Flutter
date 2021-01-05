@@ -549,7 +549,7 @@ class HomePageState extends State<HomePage> {
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
         },
         onFailure: (DioError e) {
-          final text = ApLocalizations.dioError(context, e);
+          final text = ApLocalizations.of(context).dioError(e);
           _homeKey.currentState.showSnackBar(
             text: text,
             actionText: ap.retry,
@@ -563,10 +563,10 @@ class HomePageState extends State<HomePage> {
           String message = '';
           switch (response.statusCode) {
             case ApStatusCode.SCHOOL_SERVER_ERROR:
-              message = ap.schoolSeverError;
+              message = ap.schoolServerError;
               break;
             case ApStatusCode.API_SERVER_ERROR:
-              message = ap.apiSeverError;
+              message = ap.apiServerError;
               break;
             case ApStatusCode.USER_DATA_ERROR:
               message = ap.loginFail;

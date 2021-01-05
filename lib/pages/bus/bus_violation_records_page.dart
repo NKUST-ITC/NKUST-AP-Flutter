@@ -278,7 +278,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
               default:
                 setState(() {
                   state = _State.custom;
-                  customStateHint = ApLocalizations.dioError(context, e);
+                  customStateHint = ApLocalizations.of(context).dioError(e);
                 });
                 break;
             }
@@ -307,7 +307,7 @@ class ReservationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateFormat dateFormat =
-        DateFormat('E h:mm a', ApLocalizations.dateTimeLocale);
+        DateFormat('E h:mm a', ApLocalizations.of(context).dateTimeLocale);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,

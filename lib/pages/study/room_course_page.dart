@@ -91,7 +91,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
           if (e.type != DioErrorType.CANCEL && mounted)
             setState(() {
               state = CourseState.custom;
-              customStateHint = ApLocalizations.dioError(context, e);
+              customStateHint = ApLocalizations.of(context).dioError(e);
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

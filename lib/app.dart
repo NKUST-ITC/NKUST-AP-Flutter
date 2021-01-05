@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/pages/about_us_page.dart';
@@ -43,6 +42,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool hasBusViolationRecords = false;
 
   ThemeMode themeMode = ThemeMode.system;
+  Locale locale;
 
   logout() {
     setState(() {
@@ -124,13 +124,14 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,
           themeMode: themeMode,
+          locale: locale,
           navigatorObservers: [
             if (FirebaseUtils.isSupportAnalytics)
               FirebaseAnalyticsObserver(analytics: analytics),
           ],
           localizationsDelegates: [
             const AppLocalizationsDelegate(),
-            const ApLocalizationsDelegate(),
+            ApLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
@@ -152,9 +153,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   void loadLocale(Locale locale) {
+    this.locale = locale;
     setState(() {
       AppLocalizationsDelegate().load(locale);
-      ApLocalizationsDelegate().load(locale);
+      ApLocalizations.load(locale);
     });
   }
 }

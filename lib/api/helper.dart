@@ -928,10 +928,10 @@ extension GeneralResponseExtension on GeneralResponse {
     String message = '';
     switch (statusCode) {
       case ApStatusCode.SCHOOL_SERVER_ERROR:
-        message = ap.schoolSeverError;
+        message = ap.schoolServerError;
         break;
       case ApStatusCode.API_SERVER_ERROR:
-        message = ap.schoolSeverError;
+        message = ap.schoolServerError;
         break;
       case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
