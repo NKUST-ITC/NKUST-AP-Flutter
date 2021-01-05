@@ -164,11 +164,21 @@ class HomePageState extends State<HomePage> {
             content: content,
             actions: <Widget>[
               IconButton(
-                icon: Icon(Icons.approval),
+                icon: Icon(Icons.fiber_new_rounded),
+                tooltip: ap.announcementReviewSystem,
                 onPressed: () async {
                   if (FirebaseUtils.isSupportCloudMessage) {
-                    String token = await FirebaseMessaging().getToken();
-                    AnnouncementHelper.fcmToken = token;
+                    final messaging = FirebaseMessaging.instance;
+                    NotificationSettings settings =
+                        await messaging.getNotificationSettings();
+                    if (settings.authorizationStatus ==
+                            AuthorizationStatus.authorized ||
+                        settings.authorizationStatus ==
+                            AuthorizationStatus.provisional) {
+                      String token = await messaging.getToken(
+                          vapidKey: Constants.FCM_WEB_VAPID_KEY);
+                      AnnouncementHelper.fcmToken = token;
+                    }
                   }
                   ApUtils.pushCupertinoStyle(
                     context,
