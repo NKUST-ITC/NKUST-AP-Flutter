@@ -167,23 +167,25 @@ class HomePageState extends State<HomePage> {
                 icon: Icon(Icons.fiber_new_rounded),
                 tooltip: ap.announcementReviewSystem,
                 onPressed: () async {
-                  if (FirebaseUtils.isSupportCloudMessage) {
-                    final messaging = FirebaseMessaging.instance;
-                    NotificationSettings settings =
-                        await messaging.getNotificationSettings();
-                    if (settings.authorizationStatus ==
-                            AuthorizationStatus.authorized ||
-                        settings.authorizationStatus ==
-                            AuthorizationStatus.provisional) {
-                      String token = await messaging.getToken(
-                          vapidKey: Constants.FCM_WEB_VAPID_KEY);
-                      AnnouncementHelper.fcmToken = token;
-                    }
-                  }
                   ApUtils.pushCupertinoStyle(
                     context,
                     AnnouncementHomePage(),
                   );
+                  if (FirebaseUtils.isSupportCloudMessage) {
+                    try {
+                      final messaging = FirebaseMessaging.instance;
+                      NotificationSettings settings =
+                          await messaging.getNotificationSettings();
+                      if (settings.authorizationStatus ==
+                              AuthorizationStatus.authorized ||
+                          settings.authorizationStatus ==
+                              AuthorizationStatus.provisional) {
+                        String token = await messaging.getToken(
+                            vapidKey: Constants.FCM_WEB_VAPID_KEY);
+                        AnnouncementHelper.fcmToken = token;
+                      }
+                    } catch (_) {}
+                  }
                 },
               ),
             ],
