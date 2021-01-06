@@ -18,7 +18,7 @@ dependencies:
   ap_common_firebase:
     git:
       url: https://github.com/abc873693/ap_common_firebase
-      ref: v0.3.2
+      ref: v0.4.0
 #    path: ../../GitHub/ap_common_firebase
   ap_common_plugin:
     git:
