@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:ap_common/api/announcement_helper.dart';
+import 'package:ap_common/api/imgur_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement/home_page.dart';
@@ -167,6 +168,7 @@ class HomePageState extends State<HomePage> {
                 icon: Icon(Icons.fiber_new_rounded),
                 tooltip: ap.announcementReviewSystem,
                 onPressed: () async {
+                  ImgurHelper.clientId = 'bf8e32144d00b04';
                   ApUtils.pushCupertinoStyle(
                     context,
                     AnnouncementHomePage(),
