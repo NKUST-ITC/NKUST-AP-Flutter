@@ -17,10 +17,16 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   GestureBinding.instance.resamplingEnabled = true;
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
