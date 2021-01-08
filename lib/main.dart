@@ -27,7 +27,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   GestureBinding.instance.resamplingEnabled = kDebugMode;
-  AnnouncementHelper.tag = '/ap';
+  AnnouncementHelper.tag = 'ap';
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
