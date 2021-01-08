@@ -92,9 +92,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ApSupportLanguageConstants.SYSTEM,
             );
             if (languageCode == ApSupportLanguageConstants.SYSTEM)
-              return locale;
+              return this.locale = locale;
             else
-              return Locale(
+              return this.locale = Locale(
                 languageCode,
                 languageCode == ApSupportLanguageConstants.ZH ? 'TW' : null,
               );
