@@ -26,8 +26,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
-  GestureBinding.instance.resamplingEnabled = true;
-  AnnouncementHelper.tag = 'v3';
+  GestureBinding.instance.resamplingEnabled = kDebugMode;
+  AnnouncementHelper.tag = '/ap';
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
