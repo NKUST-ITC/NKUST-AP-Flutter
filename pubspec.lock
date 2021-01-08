@@ -28,7 +28,7 @@ packages:
       name: ap_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.0-dev.4"
+    version: "0.10.0-beta.1"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -123,7 +123,7 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.1"
+    version: "2.5.0"
   characters:
     dependency: transitive
     description:
@@ -207,7 +207,14 @@ packages:
       name: device_info
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.2+4"
+    version: "1.0.0"
+  device_info_platform_interface:
+    dependency: transitive
+    description:
+      name: device_info_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   dio:
     dependency: "direct main"
     description:
@@ -396,7 +403,7 @@ packages:
       name: flutter_cache_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "2.1.0"
   flutter_cupertino_localizations:
     dependency: "direct main"
     description:
@@ -551,7 +558,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.14"
+    version: "2.1.19"
   image_gallery_saver:
     dependency: transitive
     description:
@@ -677,14 +684,14 @@ packages:
       name: native_pdf_renderer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.2"
+    version: "2.4.0"
   native_pdf_view:
     dependency: transitive
     description:
       name: native_pdf_view
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.8.0"
+    version: "3.9.0"
   node_interop:
     dependency: transitive
     description:
@@ -719,7 +726,7 @@ packages:
       name: package_info
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.3"
+    version: "0.4.3+2"
   path:
     dependency: transitive
     description:
@@ -728,12 +735,12 @@ packages:
     source: hosted
     version: "1.8.0-nullsafety.3"
   path_provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.22"
+    version: "1.6.24"
   path_provider_linux:
     dependency: transitive
     description:
@@ -1081,7 +1088,7 @@ packages:
       name: uuid
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.0"
+    version: "2.2.2"
   vector_math:
     dependency: transitive
     description:

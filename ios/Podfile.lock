@@ -175,7 +175,7 @@ PODS:
     - nanopb/encode (= 1.30906.0)
   - nanopb/decode (1.30906.0)
   - nanopb/encode (1.30906.0)
-  - native_pdf_renderer (1.0.0):
+  - native_pdf_renderer (1.1.0):
     - Flutter
   - package_info (0.0.1):
     - Flutter
@@ -346,7 +346,7 @@ SPEC CHECKSUMS:
   libwebp: 946cb3063cea9236285f7e9a8505d806d30e07f3
   Mantle: 4c0ed6ce47c96eccc4dc3bb071deb3def0e2c3be
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
-  native_pdf_renderer: fa374da660730abe059e7a178e79895dd202f007
+  native_pdf_renderer: 3e81ffe3d40668cce75694596201bb9fb0fdb6e9
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6
