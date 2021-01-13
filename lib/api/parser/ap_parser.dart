@@ -165,7 +165,7 @@ Map<String, dynamic> scoresParser(String html) {
         'required': td[4].text,
         'at': td[5].text,
         'middleScore': td[6].text,
-        'finalScore': td[7].text,
+        'semesterScore': td[7].text,
         'remark': td[8].text,
       });
     }
