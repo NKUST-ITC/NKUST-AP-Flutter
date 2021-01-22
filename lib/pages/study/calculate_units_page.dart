@@ -78,7 +78,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   _scoreTitle() => TableRow(
         children: <Widget>[
           _scoreTextBorder(ap.generalEductionCourse, true),
-          _scoreTextBorder(ap.finalScore, true),
+          _scoreTextBorder(ap.semesterScore, true),
         ],
       );
 
@@ -117,7 +117,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   _generalEducationsBorder(Score score) {
     return TableRow(children: <Widget>[
       _scoreTextBorder(score.title, false),
-      _scoreTextBorder(score.finalScore, false),
+      _scoreTextBorder(score.semesterScore, false),
     ]);
   }
 
@@ -338,10 +338,12 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           semesterList.add(semesterData.data[currentSemesterIndex]);
           if (data?.scores != null) {
             for (var score in data.scores) {
-              var finalScore = double.tryParse(score.finalScore);
-              if ((finalScore != null && finalScore >= 60.0) ||
-                  score.finalScore == '合格' ||
-                  score.finalScore == '通過') {
+              if (score.semesterScore == null || score.semesterScore.isEmpty)
+                continue;
+              var semesterScore = double.tryParse(score.semesterScore);
+              if ((semesterScore != null && semesterScore >= 60.0) ||
+                  score.semesterScore == '合格' ||
+                  score.semesterScore == '通過') {
                 if (score.required == "【必修】") {
                   requiredUnitsTotal += double.parse(score.units);
                 } else if (score.required == "【選修】") {
