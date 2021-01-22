@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
@@ -80,15 +82,24 @@ Map<String, dynamic> apUserInfoParser(String html) {
     // parse data error.
     return data;
   }
-  String image_url =
-      document.getElementsByTagName("img")[0].attributes["src"].substring(2);
-  data['educationSystem'] = (tdElements[3].text.replaceAll("學　　制：", ""));
-  data['department'] = (tdElements[4].text.replaceAll("科　　系：", ""));
-  data['className'] = (tdElements[8].text.replaceAll("班　　級：", ""));
-  data['id'] = (tdElements[9].text.replaceAll("學　　號：", ""));
-  data['name'] = (tdElements[10].text.replaceAll("姓　　名：", ""));
-  data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust${image_url}";
-
+  try {
+    String image_url =
+        document.getElementsByTagName("img")[0].attributes["src"].substring(2);
+    data['educationSystem'] = (tdElements[3].text.replaceAll("學　　制：", ""));
+    data['department'] = (tdElements[4].text.replaceAll("科　　系：", ""));
+    data['className'] = (tdElements[8].text.replaceAll("班　　級：", ""));
+    data['id'] = (tdElements[9].text.replaceAll("學　　號：", ""));
+    data['name'] = (tdElements[10].text.replaceAll("姓　　名：", ""));
+    data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust${image_url}";
+  } catch (e, s) {
+    if (FirebaseUtils.isSupportCrashlytics)
+      FirebaseCrashlytics.instance.recordFlutterError(
+        FlutterErrorDetails(
+          exception: e,
+          stack: s,
+        ),
+      );
+  }
   return data;
 }
 
