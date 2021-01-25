@@ -35,7 +35,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
               onPressed: () async {
                 // final html = await webViewController.getHtml();
                 // debugPrint(html);
-                MobileNkustHelper.instance.getCourseTable();
+                MobileNkustHelper.instance.getScores();
               },
             )
           : null,
@@ -86,6 +86,8 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
                       "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
               },
             );
+            Navigator.pop(context, true);
+            ApUtils.showToast(context, '登入成功');
           }
         },
       ),
