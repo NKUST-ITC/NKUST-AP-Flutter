@@ -17,6 +17,7 @@ class MobileNkustHelper {
   static const LOGIN = '$BASE_URL/';
   static const HOME = '$BASE_URL/Home/Index';
   static const COURSE = '$BASE_URL/Student/Course';
+  static const SCORE = '$BASE_URL/Student/Grades';
 
   static Dio dio;
 
@@ -70,7 +71,7 @@ class MobileNkustHelper {
       dio.options.headers['Connection'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
       dio.options.headers['Accept'] = 'keep-alive';
-      final response = await dio.post(COURSE);
+      final response = await dio.get(COURSE);
       final rawHtml = response.data;
       if (kDebugMode) debugPrint(rawHtml);
       final courseData = CourseParser.courseTable(rawHtml);
@@ -89,7 +90,14 @@ class MobileNkustHelper {
       dio.options.headers['Connection'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
       dio.options.headers['Accept'] = 'keep-alive';
-      final response = await dio.post(COURSE);
+      final response = await dio.get(
+        SCORE,
+        // data: FormData.fromMap(
+        //   {
+        //     'Yms': '109-1',
+        //   },
+        // ),
+      );
       final rawHtml = response.data;
       if (kDebugMode) debugPrint(rawHtml);
       final courseData = CourseParser.scores(rawHtml);
