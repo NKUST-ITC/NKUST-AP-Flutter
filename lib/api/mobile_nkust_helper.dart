@@ -4,12 +4,14 @@ import 'dart:typed_data';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/user_info.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:nkust_ap/api/helper.dart';
 
 class MobileNkustHelper {
   static const BASE_URL = 'https://mobile.nkust.edu.tw';
@@ -18,6 +20,7 @@ class MobileNkustHelper {
   static const HOME = '$BASE_URL/Home/Index';
   static const COURSE = '$BASE_URL/Student/Course';
   static const SCORE = '$BASE_URL/Student/Grades';
+  static const PICTURE = '$BASE_URL/Common/GetStudentPhoto';
 
   static Dio dio;
 
@@ -108,6 +111,29 @@ class MobileNkustHelper {
       throw e;
     }
   }
+
+  Future<UserInfo> getUserInfo() async {
+    dio.options.headers['Connection'] =
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
+    dio.options.headers['Accept'] = 'keep-alive';
+    final response = await dio.get(HOME);
+    final rawHtml = response.data;
+    // if (kDebugMode) debugPrint(rawHtml);
+    final data = CourseParser.userInfo(rawHtml);
+    return data;
+  }
+
+  Future<Uint8List> getUserPicture() async {
+    dio.options.headers['Accept'] =
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    final response = await dio.get(
+      PICTURE,
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+    return response.data;
+  }
 }
 
 class CourseParser {
@@ -119,5 +145,20 @@ class CourseParser {
   static ScoreData scores(rawHtml) {
     final scoreData = ScoreData();
     return scoreData;
+  }
+
+  static UserInfo userInfo(rawHtml) {
+    final userInfo = UserInfo();
+    final document = html.parse(rawHtml);
+    final list = document.getElementsByClassName('user-header');
+    if (list.length > 0) {
+      final p = list[0].getElementsByTagName('p');
+      if (p.length >= 2) {
+        userInfo.id = p[0].text.split(' ').first;
+        userInfo.name = p[0].text.split(' ').last;
+        userInfo.department = p[1].text;
+      }
+    }
+    return userInfo;
   }
 }

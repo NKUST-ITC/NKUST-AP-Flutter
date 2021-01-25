@@ -26,6 +26,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
@@ -514,23 +515,14 @@ class HomePageState extends State<HomePage> {
 
   _getUserPicture() async {
     try {
-      if ((userInfo?.pictureUrl) == null) return;
-      var response = await http.get(userInfo.pictureUrl);
-      if (!response.body.contains('html')) {
-        if (mounted) {
-          setState(() {
-            userInfo.pictureBytes = response.bodyBytes;
-          });
-        }
-        CacheUtils.savePictureData(response.bodyBytes);
-      } else {
-        var bytes = await CacheUtils.loadPictureData();
-        if (mounted) {
-          setState(() {
-            userInfo.pictureBytes = bytes;
-          });
-        }
+      var response = await MobileNkustHelper.instance.getUserPicture();
+      if (mounted) {
+        setState(() {
+          userInfo.pictureBytes = response;
+        });
+        await MobileNkustHelper.instance.getUserInfo();
       }
+      // CacheUtils.savePictureData(response);
     } catch (e) {
       throw e;
     }
@@ -570,7 +562,7 @@ class HomePageState extends State<HomePage> {
       }
       _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
       return;
-      }
+    }
     Helper.instance.login(
       username: username,
       password: password,
