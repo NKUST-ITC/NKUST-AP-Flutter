@@ -5,6 +5,7 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
@@ -51,6 +52,15 @@ class MobileNkustHelper {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
     cookieJar.loadForRequest(Uri.parse(BASE_URL));
+  }
+
+  void setProxy(String proxyIP) {
+    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      client.findProxy = (uri) {
+        return "PROXY " + proxyIP;
+      };
+    };
   }
 
   void setCookie(
