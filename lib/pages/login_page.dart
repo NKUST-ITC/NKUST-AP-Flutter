@@ -171,7 +171,7 @@ class LoginPageState extends State<LoginPage> {
       ApUtils.showToast(context, ap.doNotEmpty, gravity: gravity);
     } else {
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      Navigator.push(
+      final result = await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => MobileNkustPage(
@@ -180,6 +180,17 @@ class LoginPageState extends State<LoginPage> {
           ),
         ),
       );
+      if (result ?? false) {
+        // ShareDataWidget.of(context).data.loginResponse = response;
+        Preferences.setString(Constants.PREF_USERNAME, _username.text);
+        if (isRememberPassword) {
+          Preferences.setStringSecurity(
+              Constants.PREF_PASSWORD, _password.text);
+        }
+        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+        TextInput.finishAutofillContext();
+        Navigator.of(context).pop(true);
+      }
       // Helper.instance.login(
       //   username: _username.text,
       //   password: _password.text,

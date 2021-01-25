@@ -34,6 +34,7 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'mobile_nkust_page.dart';
 import 'study/midterm_alerts_page.dart';
 import 'study/reward_and_penalty_page.dart';
 
@@ -550,6 +551,26 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MobileNkustPage(
+          username: username,
+          password: password,
+        ),
+      ),
+    );
+    if (result ?? false) {
+      isLogin = true;
+      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+      _getUserInfo();
+      // _setupBusNotify(context);
+      if (state != HomeState.finish) {
+        _getAnnouncements();
+      }
+      _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+      return;
+      }
     Helper.instance.login(
       username: username,
       password: password,
