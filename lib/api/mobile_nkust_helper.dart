@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/api/parser/ap_parser.dart';
 
 class MobileNkustHelper {
   static const BASE_URL = 'https://mobile.nkust.edu.tw';
@@ -45,6 +46,7 @@ class MobileNkustHelper {
       );
       initCookiesJar();
     }
+
     return _instance;
   }
 
@@ -97,20 +99,30 @@ class MobileNkustHelper {
   }
 
   Future<ScoreData> getScores({
+    int year,
+    int semester,
     GeneralCallback<ScoreData> callback,
   }) async {
     try {
       dio.options.headers['Connection'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
       dio.options.headers['Accept'] = 'keep-alive';
-      final response = await dio.get(
+      Response response = await dio.get(
         SCORE,
-        // data: FormData.fromMap(
-        //   {
-        //     'Yms': '109-1',
-        //   },
-        // ),
       );
+
+      // Select year and semester
+      if (year != null && semester != null) {
+        response = await dio.post(SCORE,
+            data: {
+              'Yms': "$year-$semester",
+              '__RequestVerificationToken': CourseParser.getCSRF(response.data)
+            },
+            options: Options(
+              contentType: Headers.formUrlEncodedContentType,
+            ));
+      }
+
       final rawHtml = response.data;
       if (kDebugMode) debugPrint(rawHtml);
       final courseData = CourseParser.scores(rawHtml);
@@ -170,5 +182,16 @@ class CourseParser {
       }
     }
     return userInfo;
+  }
+
+  static String getCSRF(rawHtml) {
+    final document = html.parse(rawHtml);
+    for (var inputElement in document.getElementsByTagName("input")) {
+      if (((inputElement.attributes ?? const {})['name'] ?? "") ==
+          "__RequestVerificationToken") {
+        return inputElement.attributes['value'];
+      }
+    }
+    return "";
   }
 }
