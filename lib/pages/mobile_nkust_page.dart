@@ -69,7 +69,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
                     'document.getElementsByName("Password")[0].value = "${widget.password}";');
             await webViewController.evaluateJavascript(
                 source:
-                    'document.getElementsByName("RememberMe")[0].value = true;');
+                    'document.getElementsByName("RememberMe")[0].checked = true;');
           } else if (path == MobileNkustHelper.HOME) {
             final cookies = await CookieManager.instance()
                 .getCookies(url: MobileNkustHelper.BASE_URL);
