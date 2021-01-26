@@ -184,7 +184,84 @@ class CourseParser {
 
   static ScoreData scores(rawHtml) {
     final scoreData = ScoreData();
-    return scoreData;
+    final document = html.parse(rawHtml);
+    // generate scores list
+    if (document.getElementById("datatable") == null) {
+      return scoreData;
+    }
+    List<Map<String, dynamic>> scoresList = [];
+    //skip table header
+    var _trElements =
+        document.getElementById("datatable").getElementsByTagName('tr');
+    if (_trElements.length <= 1) {
+      return scoreData;
+    }
+
+    for (var trElement in _trElements.sublist(1)) {
+      // select td element
+      var tdElements = trElement.getElementsByTagName("td");
+
+      if (tdElements.length < 8) {
+        // continue;
+        return scoreData;
+      }
+      scoresList.add({
+        "title": tdElements.elementAt(0).text,
+        "units": tdElements.elementAt(1).text,
+        "hours": tdElements.elementAt(2).text,
+        "required": tdElements.elementAt(3).text,
+        "at": tdElements.elementAt(4).text,
+        "middleScore": tdElements.elementAt(5).text,
+        "finalScore": tdElements.elementAt(6).text,
+        "remark": tdElements.elementAt(7).text,
+      });
+    }
+
+    //detail data
+    Map<String, dynamic> detailData = {};
+    var detailDiv = document.getElementsByClassName("text-bold text-info");
+    if (detailDiv == null) {
+      return scoreData;
+    }
+    if (detailDiv.length < 4) {
+      return scoreData;
+    }
+    detailData["average"] = detailDiv
+        .elementAt(0)
+        .parent
+        .text
+        .replaceAll(detailDiv.elementAt(0).text, "")
+        .replaceAll("\n", "")
+        .replaceAll(" ", "");
+    detailData["average"] = double.parse(detailData["average"]);
+    detailData["conduct"] = detailDiv
+        .elementAt(1)
+        .parent
+        .text
+        .replaceAll(detailDiv.elementAt(1).text, "")
+        .replaceAll("\n", "")
+        .replaceAll(" ", "");
+    detailData["conduct"] = double.parse(detailData["conduct"]);
+    detailData["classRank"] = detailDiv
+        .elementAt(2)
+        .parent
+        .text
+        .replaceAll(detailDiv.elementAt(2).text, "")
+        .replaceAll("\n", "")
+        .replaceAll(" ", "");
+
+    detailData["departmentRank"] = detailDiv
+        .elementAt(3)
+        .parent
+        .text
+        .replaceAll(detailDiv.elementAt(3).text, "")
+        .replaceAll("\n", "")
+        .replaceAll(" ", "");
+
+    return ScoreData.fromJson({
+      "scores": scoresList,
+      "detail": detailData,
+    });
   }
 
   static UserInfo userInfo(rawHtml) {
