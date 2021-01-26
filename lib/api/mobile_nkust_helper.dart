@@ -80,13 +80,31 @@ class MobileNkustHelper {
   }
 
   Future<CourseData> getCourseTable({
+    int year,
+    int semester,
     GeneralCallback<CourseData> callback,
   }) async {
     try {
       dio.options.headers['Connection'] =
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
       dio.options.headers['Accept'] = 'keep-alive';
-      final response = await dio.get(COURSE);
+
+      Response response = await dio.get(
+        COURSE,
+      );
+
+      // Select year and semester
+      if (year != null && semester != null) {
+        response = await dio.post(COURSE,
+            data: {
+              'Yms': "$year-$semester",
+              '__RequestVerificationToken': CourseParser.getCSRF(response.data)
+            },
+            options: Options(
+              contentType: Headers.formUrlEncodedContentType,
+            ));
+      }
+
       final rawHtml = response.data;
       if (kDebugMode) debugPrint(rawHtml);
       final courseData = CourseParser.courseTable(rawHtml);
