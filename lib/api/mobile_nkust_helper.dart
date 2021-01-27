@@ -79,30 +79,41 @@ class MobileNkustHelper {
     );
   }
 
+  Future<Response> generalRequest(String url,
+      {Map<String, dynamic> data}) async {
+    Response response = await dio.get(
+      url,
+    );
+
+    if (data != null) {
+      Map<String, dynamic> _requestData = {
+        '__RequestVerificationToken': CourseParser.getCSRF(response.data)
+      };
+      _requestData.addAll(data);
+
+      response = await dio.post(url,
+          data: _requestData,
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+          ));
+    }
+    return response;
+  }
+
   Future<CourseData> getCourseTable({
     int year,
     int semester,
     GeneralCallback<CourseData> callback,
   }) async {
     try {
-      dio.options.headers['Connection'] =
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
-      dio.options.headers['Accept'] = 'keep-alive';
-
-      Response response = await dio.get(
-        COURSE,
-      );
-
-      // Select year and semester
-      if (year != null && semester != null) {
-        response = await dio.post(COURSE,
-            data: {
-              'Yms': "$year-$semester",
-              '__RequestVerificationToken': CourseParser.getCSRF(response.data)
-            },
-            options: Options(
-              contentType: Headers.formUrlEncodedContentType,
-            ));
+      Response response;
+      if (year == null || semester == null) {
+        response = await generalRequest(COURSE);
+      } else {
+        response = await generalRequest(
+          COURSE,
+          data: {"Yms": "$year-$semester"},
+        );
       }
 
       final rawHtml = response.data;
@@ -122,23 +133,14 @@ class MobileNkustHelper {
     GeneralCallback<ScoreData> callback,
   }) async {
     try {
-      dio.options.headers['Connection'] =
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
-      dio.options.headers['Accept'] = 'keep-alive';
-      Response response = await dio.get(
-        SCORE,
-      );
-
-      // Select year and semester
-      if (year != null && semester != null) {
-        response = await dio.post(SCORE,
-            data: {
-              'Yms': "$year-$semester",
-              '__RequestVerificationToken': CourseParser.getCSRF(response.data)
-            },
-            options: Options(
-              contentType: Headers.formUrlEncodedContentType,
-            ));
+      Response response;
+      if (year == null || semester == null) {
+        response = await generalRequest(COURSE);
+      } else {
+        response = await generalRequest(
+          COURSE,
+          data: {"Yms": "$year-$semester"},
+        );
       }
 
       final rawHtml = response.data;
@@ -153,10 +155,7 @@ class MobileNkustHelper {
   }
 
   Future<UserInfo> getUserInfo() async {
-    dio.options.headers['Connection'] =
-        'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9';
-    dio.options.headers['Accept'] = 'keep-alive';
-    final response = await dio.get(HOME);
+    final response = await generalRequest(HOME);
     final rawHtml = response.data;
     // if (kDebugMode) debugPrint(rawHtml);
     final data = CourseParser.userInfo(rawHtml);
