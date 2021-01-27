@@ -14,6 +14,7 @@ import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_ap/models/midterm_alerts_data.dart';
 
 class MobileNkustHelper {
   static const BASE_URL = 'https://mobile.nkust.edu.tw';
@@ -23,6 +24,7 @@ class MobileNkustHelper {
   static const COURSE = '$BASE_URL/Student/Course';
   static const SCORE = '$BASE_URL/Student/Grades';
   static const PICTURE = '$BASE_URL/Common/GetStudentPhoto';
+  static const MIDALERTS = '$BASE_URL/Student/Grades/MidWarning';
 
   static Dio dio;
 
@@ -127,6 +129,35 @@ class MobileNkustHelper {
     }
   }
 
+  Future<MidtermAlertsData> getMidAlerts({
+    int year,
+    int semester,
+    GeneralCallback<MidtermAlertsData> callback,
+  }) async {
+    try {
+      Response response;
+      if (year == null || semester == null) {
+        response = await generalRequest(MIDALERTS);
+      } else {
+        response = await generalRequest(
+          MIDALERTS,
+          data: {"Yms": "$year-$semester"},
+        );
+      }
+
+      final rawHtml = response.data;
+      // if (kDebugMode) debugPrint(rawHtml);
+      final midtermAlertsData = CourseParser.midtermAlerts(rawHtml);
+      return callback != null
+          ? callback.onSuccess(midtermAlertsData)
+          : midtermAlertsData;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
+
   Future<ScoreData> getScores({
     int year,
     int semester,
@@ -179,6 +210,11 @@ class CourseParser {
   static CourseData courseTable(rawHtml) {
     final courseData = CourseData();
     return courseData;
+  }
+
+  static MidtermAlertsData midtermAlerts(rawHtml) {
+    final midtermAlertsData = MidtermAlertsData();
+    return midtermAlertsData;
   }
 
   static ScoreData scores(rawHtml) {
