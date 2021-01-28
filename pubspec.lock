@@ -28,7 +28,7 @@ packages:
       name: ap_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.10.2"
+    version: "0.11.0-dev.1"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -1140,4 +1140,4 @@ packages:
     version: "2.2.1"
 sdks:
   dart: ">=2.12.0-0.0 <3.0.0"
-  flutter: ">=1.22.0 <2.0.0"
+  flutter: ">=1.22.0"

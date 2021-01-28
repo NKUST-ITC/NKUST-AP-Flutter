@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:ap_common/models/time_code.dart';
 import 'package:intl/intl.dart';
 import 'package:dio/dio.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -9,28 +8,26 @@ import 'package:nkust_ap/models/semester_data.dart';
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
     "courses": [],
-    "coursetable": {
-      "Monday": [],
-      "Tuesday": [],
-      'Wednesday': [],
-      'Thursday': [],
-      'Friday': [],
-      'Saturday': [],
-      'Sunday': [],
-      'timeCodes': [],
-    },
+    'timeCodes': [],
   };
-  //reverse data type for more easy to use.
-  Map<String, dynamic> _tempDateTimeChange = {};
-
   //timeCodes parse
   data["data"]["time"].forEach((element) {
-    result["coursetable"]["timeCodes"].add("第${element["periodName"]}節");
-    _tempDateTimeChange.addAll({element["period"]: element});
+    result["timeCodes"].add({
+      "title" : "第${element["periodName"]}節",
+      "startTime" : "${element["begTime"].substring(0, 2)}:${element["begTime"].substring(2, 4)}",
+      "endTime" : "${element["endTime"].substring(0, 2)}:${element["endTime"].substring(2, 4)}",
+    });
   });
 
   //courses parse
   data["data"]["course"].forEach((element) {
+    List<Map<String, dynamic>> times = [];
+    element["courseTimeData"].forEach((courseTime) {
+      times.add({
+        "weekday": int.parse(courseTime["courseWeek"]),
+        "index": int.parse(courseTime["coursePeriod"]),
+      });
+    });
     result["courses"].add({
       "code": "",
       "title": element['courseName'],
@@ -40,40 +37,9 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
       "hours": element["courseHour"],
       "required": element["courseOption"],
       "at": element["courseAnnual"],
-      "times": element["courseTime"],
+      "sectionTimes": times,
       "location": {"room": element['courseRoom']},
       "instructors": [element['courseTeacher']]
-    });
-  });
-
-  Map<String, String> courseWeek = {
-    "1": 'Monday',
-    "2": 'Tuesday',
-    "3": 'Wednesday',
-    "4": 'Thursday',
-    "5": 'Friday',
-    "6": 'Saturday',
-    "7": 'Sunday',
-  };
-  //coursetable parse
-  data["data"]["course"].forEach((courseElement) {
-    courseElement['courseTimeData'].forEach((singleCourseObject) {
-      final number = singleCourseObject['courseWeek'] == '0'
-          ? '7'
-          : singleCourseObject['courseWeek'];
-      result['coursetable'][courseWeek[number]].add({
-        "title": courseElement['courseName'],
-        "date": {
-          "startTime":
-              "${_tempDateTimeChange[singleCourseObject["coursePeriod"]]["begTime"].substring(0, 2)}:${_tempDateTimeChange[singleCourseObject["coursePeriod"]]["begTime"].substring(2, 4)}",
-          "endTime":
-              "${_tempDateTimeChange[singleCourseObject["coursePeriod"]]["endTime"].substring(0, 2)}:${_tempDateTimeChange[singleCourseObject["coursePeriod"]]["endTime"].substring(2, 4)}",
-          "section":
-              "第${_tempDateTimeChange[singleCourseObject["coursePeriod"]]["periodName"]}節"
-        },
-        "location": {"room": courseElement['courseRoom']},
-        "instructors": [courseElement['courseTeacher']]
-      });
     });
   });
   return result;

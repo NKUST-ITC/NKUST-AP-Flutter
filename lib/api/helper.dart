@@ -370,7 +370,6 @@ class Helper {
         semester.value,
       );
       if (data != null && data.courses != null && data.courses.length != 0) {
-        data.updateIndex();
         reLoginCount = 0;
       }
       return (callback == null) ? data : callback.onSuccess(data);
@@ -505,9 +504,6 @@ class Helper {
         semester.year,
         semester.value,
       );
-      if (data != null) {
-        data.updateIndex();
-      }
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
