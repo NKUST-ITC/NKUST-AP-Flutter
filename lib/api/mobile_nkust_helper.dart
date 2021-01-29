@@ -83,12 +83,15 @@ class MobileNkustHelper {
   }
 
   Future<Response> generalRequest(String url,
-      {Map<String, dynamic> data}) async {
+      {String otherRequestUrl, Map<String, dynamic> data}) async {
     Response response = await dio.get(
       url,
     );
 
     if (data != null) {
+      if (otherRequestUrl != null) {
+        url = otherRequestUrl;
+      }
       Map<String, dynamic> _requestData = {
         '__RequestVerificationToken': CourseParser.getCSRF(response.data)
       };
