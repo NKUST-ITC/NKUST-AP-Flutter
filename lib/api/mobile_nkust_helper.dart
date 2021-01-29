@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -208,8 +209,49 @@ class MobileNkustHelper {
 
 class CourseParser {
   static CourseData courseTable(rawHtml) {
-    final courseData = CourseData();
-    return courseData;
+    final document = html.parse(rawHtml);
+
+    Map<String, dynamic> result = {
+      "courses": [],
+      'timeCodes': [],
+    };
+    var coursesJson =
+        jsonDecode(document.getElementById("CourseJsonString").text);
+    var periodTimeJson =
+        jsonDecode(document.getElementById("PeriodTimeJsonString").text);
+
+    periodTimeJson.forEach((periodTime) {
+      result["timeCodes"].add({
+        "title": "第${periodTime["PeriodName"]}節",
+        "startTime":
+            "${periodTime["BegTime"].substring(0, 2)}:${periodTime["BegTime"].substring(2, 4)}",
+        "endTime":
+            "${periodTime["EndTime"].substring(0, 2)}:${periodTime["EndTime"].substring(2, 4)}",
+      });
+    });
+
+    coursesJson.forEach((course) {
+      var _temp = {
+        "code": course['SelectCode'],
+        "title": course['CourseName'],
+        "className": course['ClassNameAbr'],
+        "group": course['CourseGroup'],
+        "units": course['Credit'],
+        "hours": course['Hour'],
+        "required": course['OptionName'],
+        "at": course['Annual'],
+        "sectionTimes": []
+      };
+      for (var time in course['CourseWeekPeriod']) {
+        _temp['sectionTimes'].add({
+          "weekday": int.parse(time['CourseWeek']),
+          "index": int.parse(time['CoursePeriod'])
+        });
+      }
+      result["courses"].add(_temp);
+    });
+
+    return CourseData.fromJson(result);
   }
 
   static MidtermAlertsData midtermAlerts(rawHtml) {
