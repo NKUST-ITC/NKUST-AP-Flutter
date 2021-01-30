@@ -17,6 +17,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 
@@ -32,6 +33,7 @@ class MobileNkustHelper {
   static const BUSTIMETABLE_PAGE = '$BASE_URL/Bus/Timetable';
   static const BUSTIMETABLE_API = '$BASE_URL/Bus/GetTimetableGrid';
   static const BUS_BOOK_API = '$BASE_URL/Bus/CreateReserve';
+  static const BUS_UNBOOK_API = '$BASE_URL/Bus/CancelReserve';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -279,6 +281,7 @@ class MobileNkustHelper {
       throw e;
     }
   }
+
   Future<BookingBusData> busBook({
     String busId,
     GeneralCallback<BookingBusData> callback,
@@ -296,6 +299,36 @@ class MobileNkustHelper {
         data = request.data;
       }
       if (data['success'] && data['title'] == "預約成功") {
+        status.success = true;
+      } else {
+        status.success = false;
+      }
+
+      return callback != null ? callback.onSuccess(status) : status;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
+
+  Future<BookingBusData> busUnBook({
+    String busId,
+    GeneralCallback<CancelBusData> callback,
+  }) async {
+    try {
+      var request = await generalRequest(BUSTIMETABLE_PAGE,
+          otherRequestUrl: BUS_UNBOOK_API, data: {"reserveId": busId});
+
+      Map<String, dynamic> data;
+      CancelBusData status = CancelBusData();
+      if (request.data is String &&
+          request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        data = jsonDecode(request.data);
+      } else if (request.data is Map<String, dynamic>) {
+        data = request.data;
+      }
+      if (data['success'] && data['title'] == "取消成功") {
         status.success = true;
       } else {
         status.success = false;
