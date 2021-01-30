@@ -7,33 +7,33 @@ import Foundation
 
 // MARK: - CourseData
 class CourseData: Codable {
-    let courses: [CourseDetail]
-    let coursetable: Coursetable
+    let courses: [Course]
+    let timeCodes: [TimeCode]
 
-    init(courses: [CourseDetail], coursetable: Coursetable) {
+    init(courses: [Course], timeCodes: [TimeCode]) {
         self.courses = courses
-        self.coursetable = coursetable
+        self.timeCodes = timeCodes
     }
 }
 
 // MARK: - Course
-class CourseDetail: Codable {
+class Course: Codable {
     let code, title, className: String
     let group: String?
     let units: String
     let hours: String?
     let courseRequired: String?
-    let times: String
+    let sectionTimes: [SectionTime]
     let location: Location
     let instructors: [String]
 
     enum CodingKeys: String, CodingKey {
         case code, title, className, group, units, hours
         case courseRequired
-        case times, location, instructors
+        case sectionTimes, location, instructors
     }
 
-    init(code: String, title: String, className: String, group: String?, units: String, hours: String?, courseRequired: String, times: String, location: Location, instructors: [String]) {
+    init(code: String, title: String, className: String, group: String?, units: String, hours: String?, courseRequired: String, sectionTimes: [SectionTime], location: Location, instructors: [String]) {
         self.code = code
         self.title = title
         self.className = className
@@ -41,7 +41,7 @@ class CourseDetail: Codable {
         self.units = units
         self.hours = hours
         self.courseRequired = courseRequired
-        self.times = times
+        self.sectionTimes = sectionTimes
         self.location = location
         self.instructors = instructors
     }
@@ -58,83 +58,40 @@ class Location: Codable {
     }
 }
 
-// MARK: - Coursetable
-class Coursetable: Codable {
-    let monday, tuesday, wednesday, thursday, friday, saturday, sunday: [Course?]?
-    let timeCodes: [String]
+class SectionTime: Codable {
+    let weekday: Int
+    let index: Int
 
-    enum CodingKeys: String, CodingKey {
-        case monday = "Monday"
-        case tuesday = "Tuesday"
-        case wednesday = "Wednesday"
-        case thursday = "Thursday"
-        case friday = "Friday"
-        case saturday = "Saturday"
-        case sunday = "Sunday"
-        case timeCodes
+    init(weekday: Int, index: Int) {
+        self.weekday = weekday
+        self.index = index
     }
+}
 
-    init(monday: [Course], tuesday: [Course], wednesday: [Course], thursday: [Course], friday: [Course], saturday: [Course], sunday: [Course], timeCodes: [String]) {
-        self.monday = monday
-        self.tuesday = tuesday
-        self.wednesday = wednesday
-        self.thursday = thursday
-        self.friday = friday
-        self.saturday = saturday
-        self.sunday = sunday
-        self.timeCodes = timeCodes
-    }
-    
-    func getCourses(weekdayIndex:Int) -> [Course?]?{
-        switch weekdayIndex {
-        case 2:
-            return monday
-        case 3:
-            return tuesday
-        case 4:
-            return wednesday
-        case 5:
-            return thursday
-        case 6:
-            return friday
-        case 7:
-            return saturday
-        case 1:
-            return sunday
-        default:
-            return sunday
-        }
+class TimeCode: Codable {
+    let title: String
+    let startTime: String
+    let endTime: String
+
+    init(title: String, startTime: String, endTime: String) {
+        self.title = title
+        self.startTime = startTime
+        self.endTime = endTime
     }
 }
 
 // MARK: - Course
-class Course: Codable {
+class CourseSimple: Codable {
     let title: String
-    let date: DateClass
-    let location: Location
-    let instructors: [String]
-    let detailIndex: Int
+    let startTime: String
+    let location: String
 
-    init(title: String, date: DateClass, location: Location, instructors: [String], detailIndex: Int) {
+    init(title: String, startTime: String, location: String) {
         self.title = title
-        self.date = date
-        self.location = location
-        self.instructors = instructors
-        self.detailIndex = detailIndex
-    }
-}
-
-// MARK: - DateClass
-class DateClass: Codable {
-    let startTime, endTime, section: String
-
-    init(startTime: String, endTime: String, section: String) {
         self.startTime = startTime
-        self.endTime = endTime
-        self.section = section
+        self.location = location
     }
 }
-
 // MARK: - Encode/decode helpers
 
 class JSONNull: Codable, Hashable {

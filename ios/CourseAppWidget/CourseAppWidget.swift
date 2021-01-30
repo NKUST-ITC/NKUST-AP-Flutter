@@ -31,16 +31,19 @@ struct Provider: IntentTimelineProvider {
             let courseData = try? JSONDecoder().decode(CourseData.self, from: Data(json.utf8))
             let today = Date()
             let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: today)
-            let courses = courseData?.coursetable.getCourses(weekdayIndex: dateComponents.weekday ?? 0)
+            let courses = courseData?.courses
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "HH:mm"
             var minDiff = today.timeIntervalSince1970
             courses?.forEach({ (course) in
-                let time = time2Date(timeText:course?.date.startTime ?? "00:00")
-                let diff = time.timeIntervalSince1970 - today.timeIntervalSince1970
-                if( diff > 0.0  && diff < minDiff){
-                    minDiff = diff
-                    text = "下一節課是\(course?.date.startTime ?? "")\n在 \(course?.location.building ?? "")\(course?.location.room ?? "") 的 \(course?.title ?? "")"
+                course.sectionTimes.forEach { (sectionTime) in
+                    let timeCode = courseData?.timeCodes[sectionTime.index]
+                    let time = time2Date(timeText: timeCode?.startTime ?? "00:00")
+                    let diff = time.timeIntervalSince1970 - today.timeIntervalSince1970
+                    if( diff > 0.0  && diff < minDiff){
+                        minDiff = diff
+                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building )\(course.location.room ) 的 \(course.title )"
+                    }
                 }
             })
             if(courses?.count == 0){
