@@ -17,6 +17,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
@@ -34,6 +35,9 @@ class MobileNkustHelper {
   static const BUSTIMETABLE_API = '$BASE_URL/Bus/GetTimetableGrid';
   static const BUS_BOOK_API = '$BASE_URL/Bus/CreateReserve';
   static const BUS_UNBOOK_API = '$BASE_URL/Bus/CancelReserve';
+  static const BUS_USER_RECORD_PAGE = '$BASE_URL/Bus/Reserve';
+  static const BUS_USER_RECORD_API = '$BASE_URL/Bus/GetReserveGrid';
+
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -341,9 +345,92 @@ class MobileNkustHelper {
       throw e;
     }
   }
+
+  Future<BusReservationsData> busUserRecord({
+    GeneralCallback<BusReservationsData> callback,
+  }) async {
+    try {
+      //get main CORS
+      Response _request = await dio.get(
+        BUS_USER_RECORD_PAGE,
+      );
+
+      List<Response> _requestsList = [];
+      List<List<String>> requestsDataList = [
+        ['建工', '燕巢'],
+        ['燕巢', '建工'],
+        ['第一', '建工'],
+        ['建工', '第一'],
+      ];
+      for (var requestData in requestsDataList) {
+        Response request = await dio.post(BUS_USER_RECORD_API,
+            data: {
+              'reserveStateCode': 0,
+              'beginStation': requestData[0],
+              'endStation': requestData[1],
+              'pageNum': 1,
+              'pageSize': 99,
+              '__RequestVerificationToken': CourseParser.getCSRF(_request.data)
+            },
+            options: Options(
+              contentType: Headers.formUrlEncodedContentType,
+            ));
+        _requestsList.add(request);
+      }
+
+      List result = [];
+
+      for (int i = 0; i < _requestsList.length; i++) {
+        // add <table> tag to avoid parser error.
+        result.addAll(CourseParser.busUserRecords(
+          "<table>${await _requestsList[i].data}</table>",
+          startStation: requestsDataList[i][0],
+          endStation: requestsDataList[i][0],
+        ));
+      }
+
+      final busReservationsData =
+          BusReservationsData.fromJson({"data": result});
+
+      return callback != null
+          ? callback.onSuccess(busReservationsData)
+          : busReservationsData;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
 }
 
 class CourseParser {
+  static List<Map<String, dynamic>> busUserRecords(
+    String rawHtml, {
+    String startStation,
+    String endStation,
+  }) {
+    final document = html.parse(rawHtml);
+    List<Map<String, dynamic>> result = [];
+    var format = DateFormat('yyyy/MM/dd HH:mm');
+
+    for (var trElement in document.getElementsByTagName('tr')) {
+      Map<String, dynamic> _temp = {};
+      _temp['cancelKey'] =
+          trElement.getElementsByTagName("input")[0].attributes['value'];
+      var tdElements = trElement.getElementsByTagName('td');
+
+      _temp['dateTime'] = format.parse(
+          '${tdElements[1].text.substring(0, 10)} ${tdElements[1].text.substring(14)}');
+      _temp['state'] = "";
+      _temp['travelState'] = "";
+      _temp['start'] = startStation;
+      _temp['end'] = endStation;
+      result.add(_temp);
+    }
+
+    return result;
+  }
+
   static CourseData courseTable(rawHtml) {
     final document = html.parse(rawHtml);
 
