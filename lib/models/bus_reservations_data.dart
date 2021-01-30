@@ -58,6 +58,7 @@ class BusReservationsData {
 
 class BusReservation {
   DateTime dateTime;
+  @deprecated
   DateTime endTime;
   String cancelKey;
   String start;
