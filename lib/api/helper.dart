@@ -21,6 +21,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -268,7 +269,7 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var data = await WebApHelper.instance.userInfoCrawler();
+      var data = await MobileNkustHelper.instance.getUserInfo();
       reLoginCount = 0;
       if (data.id == null) data.id = username;
       return (callback == null) ? data : callback.onSuccess(data);

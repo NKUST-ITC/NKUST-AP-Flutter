@@ -26,6 +26,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
@@ -34,6 +35,7 @@ import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
+import 'mobile_nkust_page.dart';
 import 'study/midterm_alerts_page.dart';
 import 'study/reward_and_penalty_page.dart';
 
@@ -513,23 +515,14 @@ class HomePageState extends State<HomePage> {
 
   _getUserPicture() async {
     try {
-      if ((userInfo?.pictureUrl) == null) return;
-      var response = await http.get(userInfo.pictureUrl);
-      if (!response.body.contains('html')) {
-        if (mounted) {
-          setState(() {
-            userInfo.pictureBytes = response.bodyBytes;
-          });
-        }
-        CacheUtils.savePictureData(response.bodyBytes);
-      } else {
-        var bytes = await CacheUtils.loadPictureData();
-        if (mounted) {
-          setState(() {
-            userInfo.pictureBytes = bytes;
-          });
-        }
+      var response = await MobileNkustHelper.instance.getUserPicture();
+      if (mounted) {
+        setState(() {
+          userInfo.pictureBytes = response;
+        });
+        await MobileNkustHelper.instance.getUserInfo();
       }
+      // CacheUtils.savePictureData(response);
     } catch (e) {
       throw e;
     }
@@ -550,6 +543,26 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     var username = Preferences.getString(Constants.PREF_USERNAME, '');
     var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MobileNkustPage(
+          username: username,
+          password: password,
+        ),
+      ),
+    );
+    if (result ?? false) {
+      isLogin = true;
+      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+      _getUserInfo();
+      // _setupBusNotify(context);
+      if (state != HomeState.finish) {
+        _getAnnouncements();
+      }
+      _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+      return;
+    }
     Helper.instance.login(
       username: username,
       password: password,
