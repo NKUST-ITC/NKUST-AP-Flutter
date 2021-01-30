@@ -512,10 +512,9 @@ class CourseParser {
       "courses": [],
       'timeCodes': [],
     };
-    var coursesJson =
-        jsonDecode(document.getElementById("CourseJsonString").text);
-    var periodTimeJson =
-        jsonDecode(document.getElementById("PeriodTimeJsonString").text);
+    var inputElements = document.getElementsByTagName("input");
+    var coursesJson = jsonDecode(inputElements[0].attributes['value']);
+    var periodTimeJson = jsonDecode(inputElements[1].attributes['value']);
 
     periodTimeJson.forEach((periodTime) {
       result["timeCodes"].add({
