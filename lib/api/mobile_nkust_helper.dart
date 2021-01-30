@@ -6,6 +6,7 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -16,6 +17,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
 
 class MobileNkustHelper {
   static const BASE_URL = 'https://mobile.nkust.edu.tw';
@@ -26,7 +28,8 @@ class MobileNkustHelper {
   static const SCORE = '$BASE_URL/Student/Grades';
   static const PICTURE = '$BASE_URL/Common/GetStudentPhoto';
   static const MIDALERTS = '$BASE_URL/Student/Grades/MidWarning';
-
+  static const BUSTIMETABLE_PAGE = '$BASE_URL/Bus/Timetable';
+  static const BUSTIMETABLE_API = '$BASE_URL/Bus/GetTimetableGrid';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -208,6 +211,72 @@ class MobileNkustHelper {
     );
     return response.data;
   }
+
+  Future<BusData> busTimeTableQuery({
+    DateTime fromDateTime,
+    String year,
+    String month,
+    String day,
+    GeneralCallback<BusData> callback,
+  }) async {
+    try {
+      // suport DateTime or {year,month,day}.
+      if (fromDateTime != null) {
+        year = fromDateTime.year.toString();
+        month = fromDateTime.month.toString();
+        day = fromDateTime.day.toString();
+      }
+      for (int i = 0; month.length < 2; i++) {
+        month = "0" + month;
+      }
+      for (int i = 0; day.length < 2; i++) {
+        day = "0" + day;
+      }
+
+      //get main CORS
+      Response _request = await dio.get(
+        BUSTIMETABLE_PAGE,
+      );
+
+      List<Response> _requestsList = [];
+      List<List<String>> requestsDataList = [
+        ['建工', '燕巢'],
+        ['燕巢', '建工'],
+        ['第一', '建工'],
+        ['建工', '第一'],
+      ];
+      for (var requestData in requestsDataList) {
+        Response request = await dio.post(BUSTIMETABLE_API,
+            data: {
+              'driveDate': '$year/$month/$day',
+              'beginStation': requestData[0],
+              'endStation': requestData[1],
+              '__RequestVerificationToken': CourseParser.getCSRF(_request.data)
+            },
+            options: Options(
+              contentType: Headers.formUrlEncodedContentType,
+            ));
+        _requestsList.add(request);
+      }
+
+      List result = [];
+
+      for (int i = 0; i < _requestsList.length; i++) {
+        result.addAll(CourseParser.busTimeTable(
+          await _requestsList[i].data,
+          time: '$year/$month/$day',
+          startStation: requestsDataList[i][0],
+          endStation: requestsDataList[i][1],
+        ));
+      }
+      final busData = BusData.fromJson({"data": result});
+      return callback != null ? callback.onSuccess(busData) : busData;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
 }
 
 class CourseParser {
@@ -260,6 +329,71 @@ class CourseParser {
   static MidtermAlertsData midtermAlerts(rawHtml) {
     final midtermAlertsData = MidtermAlertsData();
     return midtermAlertsData;
+  }
+
+  static List<Map<String, dynamic>> busTimeTable(
+    rawHtml, {
+    String time,
+    String startStation,
+    String endStation,
+  }) {
+    var document = html.parse(rawHtml);
+
+    List<Map<String, dynamic>> result = [];
+
+    for (var trElement in document.getElementsByTagName('tr').sublist(1)) {
+      Map<String, dynamic> _temp = {};
+
+      // Element can't get ById. so build new parser object.
+      var _input_document = html.parse(trElement.outerHtml);
+      _temp['canBook'] = true;
+
+      if (_input_document.getElementById('ReserveEnable').attributes['value'] ==
+          null) {
+        //can't book.
+        _temp['canBook'] = false;
+      }
+      _temp['busId'] =
+          _input_document.getElementById('BusId').attributes['value'];
+      _temp['cancelKey'] =
+          _input_document.getElementById('ReserveId').attributes['value'];
+      _temp['isReserve'] =
+          (_input_document.getElementById('ReserveStateCode').text == '1');
+
+      var tdElements = trElement.getElementsByTagName('td').sublist(1);
+
+      var format = DateFormat('yyyy/MM/dd HH:mm');
+
+      _temp['departureTime'] = format.parse('$time ${tdElements[0].text}');
+      _temp['reserveCount'] = int.parse(tdElements[1].text);
+      _temp['homeCharteredBus'] = false;
+      _temp['specialTrain'] = '';
+      _temp['description'] = '';
+      _temp['startStation'] = startStation;
+      _temp['endStation'] = endStation;
+      _temp['limitCount'] = 999;
+
+      if (tdElements[2].text != '') {
+        if (tdElements[2].getElementsByTagName('button').isNotEmpty) {
+          var _typeString = tdElements[2]
+              .getElementsByTagName('button')[0]
+              .text
+              .replaceAll(' ', '')
+              .replaceAll('\n', '');
+          if (_typeString == '返鄉專車') {
+            _temp['homeCharteredBus'] = true;
+          }
+          if (_typeString == '試辦專車') {
+            _temp['specialTrain'] = '2';
+          }
+          _temp['description'] = tdElements[2]
+              .getElementsByTagName('button')[0]
+              .attributes['data-content'];
+        }
+      }
+      result.add(_temp);
+    }
+    return result;
   }
 
   static ScoreData scores(rawHtml) {
