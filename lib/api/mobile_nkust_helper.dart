@@ -312,7 +312,7 @@ class MobileNkustHelper {
     }
   }
 
-  Future<BookingBusData> busUnBook({
+  Future<CancelBusData> busUnBook({
     String busId,
     GeneralCallback<CancelBusData> callback,
   }) async {
