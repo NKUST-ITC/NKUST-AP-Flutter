@@ -528,13 +528,13 @@ class CourseParser {
 
     coursesJson.forEach((course) {
       var _temp = {
-        "code": course['SelectCode'],
-        "title": course['CourseName'],
-        "className": course['ClassNameAbr'],
-        "group": course['CourseGroup'],
-        "units": course['Credit'],
-        "hours": course['Hour'],
-        "required": course['OptionName'],
+        "code": course['SelectCode'].toString(),
+        "title": course['CourseName'].toString(),
+        "className": course['ClassNameAbr'].toString(),
+        "group": course['CourseGroup'].toString(),
+        "units": course['Credit'].toString(),
+        "hours": course['Hour'].toString(),
+        "required": course['OptionName'].toString(),
         "at": course['Annual'],
         "sectionTimes": []
       };
