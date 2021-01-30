@@ -18,6 +18,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
@@ -37,6 +38,8 @@ class MobileNkustHelper {
   static const BUS_UNBOOK_API = '$BASE_URL/Bus/CancelReserve';
   static const BUS_USER_RECORD_PAGE = '$BASE_URL/Bus/Reserve';
   static const BUS_USER_RECORD_API = '$BASE_URL/Bus/GetReserveGrid';
+  static const BUS_VIOLATION_RECORDS_PAGE = '$BASE_URL/Bus/Illegal';
+  static const BUS_VIOLATION_RECORDS_API = '$BASE_URL/Bus/GetIllegalGrid';
 
   static Dio dio;
 
@@ -401,9 +404,80 @@ class MobileNkustHelper {
       throw e;
     }
   }
+
+  Future<BusViolationRecordsData> busViolationRecords({
+    GeneralCallback<BusViolationRecordsData> callback,
+  }) async {
+    try {
+      // paid request
+      var paidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
+          otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+          data: {
+            'paid': true,
+            'pageNum': 1,
+            'pageSize': 100,
+          });
+      // not pay request
+      var notPaidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
+          otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+          data: {
+            'paid': false,
+            'pageNum': 1,
+            'pageSize': 100,
+          });
+
+      var result = [];
+      result.addAll(CourseParser.busViolationRecords(
+        '<table> ${paidRequest.data} </table>',
+        paidStatus: true,
+      ));
+      result.addAll(CourseParser.busViolationRecords(
+        '<table> ${notPaidRequest.data} </table>',
+        paidStatus: false,
+      ));
+
+      final busViolationRecordsData =
+          BusViolationRecordsData.fromJson({"reservation": result});
+
+      return callback != null
+          ? callback.onSuccess(busViolationRecordsData)
+          : busViolationRecordsData;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
 }
 
 class CourseParser {
+  static List<Map<String, dynamic>> busViolationRecords(
+    String rawHtml, {
+    bool paidStatus,
+  }) {
+    final document = html.parse(rawHtml);
+    List<Map<String, dynamic>> result = [];
+    var format = DateFormat('yyyy/MM/dd HH:mm');
+
+    for (var trElement in document.getElementsByTagName('tr')) {
+      Map<String, dynamic> _temp = {};
+
+      var tdElements = trElement.getElementsByTagName('td');
+      var timeElement = tdElements[1].getElementsByTagName('div')[0];
+      _temp['isPayment'] = paidStatus;
+      var startAndGoal = tdElements[3].text.split(" 到 ");
+      _temp['startStation'] = startAndGoal[0];
+      _temp['endStation'] = startAndGoal[1];
+      _temp['amountend'] = int.parse(tdElements[4].text);
+      _temp['homeCharteredBus'] = false;
+
+      _temp['time'] = format.parse(
+          '${timeElement.text.substring(0, 10)} ${timeElement.text.substring(14)}');
+      result.add(_temp);
+    }
+    return result;
+  }
+
   static List<Map<String, dynamic>> busUserRecords(
     String rawHtml, {
     String startStation,
