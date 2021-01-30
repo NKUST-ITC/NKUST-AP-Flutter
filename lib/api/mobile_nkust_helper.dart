@@ -536,7 +536,8 @@ class CourseParser {
         "hours": course['Hour'].toString(),
         "required": course['OptionName'].toString(),
         "at": course['Annual'],
-        "sectionTimes": []
+        "sectionTimes": [],
+        "instructors": course['TeacherName'].split(",")
       };
       for (var time in course['CourseWeekPeriod']) {
         _temp['sectionTimes'].add({
