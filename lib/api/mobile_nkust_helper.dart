@@ -16,6 +16,7 @@ import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 
@@ -30,6 +31,7 @@ class MobileNkustHelper {
   static const MIDALERTS = '$BASE_URL/Student/Grades/MidWarning';
   static const BUSTIMETABLE_PAGE = '$BASE_URL/Bus/Timetable';
   static const BUSTIMETABLE_API = '$BASE_URL/Bus/GetTimetableGrid';
+  static const BUS_BOOK_API = '$BASE_URL/Bus/CreateReserve';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -271,6 +273,35 @@ class MobileNkustHelper {
       }
       final busData = BusData.fromJson({"data": result});
       return callback != null ? callback.onSuccess(busData) : busData;
+    } catch (e) {
+      if (e is DioError) print(e.request.path);
+      callback?.onError(GeneralResponse.unknownError());
+      throw e;
+    }
+  }
+  Future<BookingBusData> busBook({
+    String busId,
+    GeneralCallback<BookingBusData> callback,
+  }) async {
+    try {
+      var request = await generalRequest(BUSTIMETABLE_PAGE,
+          otherRequestUrl: BUS_BOOK_API, data: {"busId": busId});
+
+      Map<String, dynamic> data;
+      BookingBusData status = BookingBusData();
+      if (request.data is String &&
+          request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        data = jsonDecode(request.data);
+      } else if (request.data is Map<String, dynamic>) {
+        data = request.data;
+      }
+      if (data['success'] && data['title'] == "預約成功") {
+        status.success = true;
+      } else {
+        status.success = false;
+      }
+
+      return callback != null ? callback.onSuccess(status) : status;
     } catch (e) {
       if (e is DioError) print(e.request.path);
       callback?.onError(GeneralResponse.unknownError());
