@@ -192,16 +192,7 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
 
   Map<String, dynamic> data = {
     "courses": [],
-    "coursetable": {
-      "timeCodes": [],
-      "Monday": [],
-      "Tuesday": [],
-      "Wednesday": [],
-      "Thursday": [],
-      "Friday": [],
-      "Saturday": [],
-      "Sunday": []
-    }
+    "timeCodes": [],
   };
   var document = parse(html);
 
@@ -224,7 +215,7 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         'hours': td[5].text,
         'required': td[6].text,
         'at': td[7].text,
-        'times': td[8].text,
+        'sectionTimes': [],
         "instructors": td[9].text.split(","),
         'location': {'room': td[10].text}
       });
@@ -248,10 +239,22 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     for (int i = 1; i < secondTable.length; i++) {
       var _temptext =
           secondTable[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
-
-      data['coursetable']['timeCodes'].add(_temptext
+      final title = _temptext
           .substring(0, _temptext.length - 10)
-          .replaceAll(String.fromCharCode(160), ""));
+          .replaceAll(String.fromCharCode(160), "")
+          .replaceAll(" ", "");
+      var courseTime = _temptext
+          .substring(_temptext.length - 10)
+          .replaceAll(String.fromCharCode(160), "");
+      data['timeCodes'].add(
+        {
+          "title": title,
+          "startTime":
+              "${courseTime.split('-')[0].substring(0, 2)}:${courseTime.split('-')[0].substring(2, 4)}",
+          "endTime":
+              "${courseTime.split('-')[1].substring(0, 2)}:${courseTime.split('-')[1].substring(2, 4)}",
+        },
+      );
     }
   } catch (e, s) {
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
@@ -271,12 +274,11 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     'Saturday',
     'Sunday'
   ];
-  ;
 
   try {
     for (int key = 0; key < keyName.length; key++) {
       for (int eachSession = 1;
-          eachSession < data['coursetable']['timeCodes'].length + 1;
+          eachSession < data['timeCodes'].length + 1;
           eachSession++) {
         var eachDays = document
             .getElementsByTagName("table")[1]
@@ -300,27 +302,29 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
           continue;
         }
         String title = splitData[0].replaceAll("\n", "");
-
         if (title.lastIndexOf(">") > -1) {
           title = title
               .substring(title.lastIndexOf(">") + 1, title.length)
               .replaceAll("&nbsp;", '')
               .replaceAll(";", '');
         }
-        data['coursetable'][keyName[key]].add({
-          'title': title,
-          'date': {
-            "startTime":
-                "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
-            "endTime":
-                "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
-            'section': courseTime[0]
-                .replaceAll(" ", "")
-                .replaceAll(String.fromCharCode(160), "")
-          },
-          'location': {"room": splitData[2]},
-          'instructors': splitData[1].split(","),
-        });
+        final section = courseTime[0]
+            .replaceAll(" ", "")
+            .replaceAll(String.fromCharCode(160), "");
+        for (var i = 0; i < data['courses'].length; i++) {
+          if (data['courses'][i]['title'] == title) {
+            for (var j = 0; j < data['timeCodes'].length; j++) {
+              if (data['timeCodes'][j]['title'] == section) {
+                data['courses'][i]['sectionTimes'].add(
+                  {
+                    "index": j,
+                    "weekday": key + 1,
+                  },
+                );
+              }
+            }
+          }
+        }
       }
     }
   } catch (e, s) {
