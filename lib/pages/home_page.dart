@@ -28,6 +28,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/login_response.dart';
+import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -541,8 +542,18 @@ class HomePageState extends State<HomePage> {
 
   Future _login() async {
     await Future.delayed(Duration(microseconds: 30));
-    var username = Preferences.getString(Constants.PREF_USERNAME, '');
-    var password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    final username = Preferences.getString(Constants.PREF_USERNAME, '');
+    final password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+    final data = MobileCookiesData.load();
+    if (data != null) {
+      MobileNkustHelper.instance.setCookieFromData(data);
+      final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
+      print('isCookieAlive $isCookieAlive');
+      if (isCookieAlive) {
+        handleLoginSuccess(username, password);
+        return;
+      }
+    }
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -553,18 +564,7 @@ class HomePageState extends State<HomePage> {
       ),
     );
     if (result ?? false) {
-      isLogin = true;
-      Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      _getUserInfo();
-      _setupBusNotify(context);
-      if (state != HomeState.finish) {
-        _getAnnouncements();
-      }
-      _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
-      Helper.instance.login(
-        username: username,
-        password: password,
-      );
+      handleLoginSuccess(username, password);
       return;
     }
     Helper.instance.login(
@@ -622,23 +622,30 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  void handleLoginSuccess(String username, String password) {
+    isLogin = true;
+    Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+    _getUserInfo();
+    _setupBusNotify(context);
+    if (state != HomeState.finish) {
+      _getAnnouncements();
+    }
+    _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+    Helper.instance.login(
+      username: username,
+      password: password,
+    );
+  }
+
   Future openLoginPage() async {
     var result = await Navigator.of(context).push(
       CupertinoPageRoute(builder: (_) => LoginPage()),
     );
     checkLogin();
     if (result ?? false) {
-      _getUserInfo();
-      _setupBusNotify(context);
-      if (state != HomeState.finish) {
-        _getAnnouncements();
-      }
-      setState(() {
-        isLogin = true;
-      });
-      Helper.instance.login(
-        username: Helper.username,
-        password: Helper.password,
+      handleLoginSuccess(
+        Helper.username,
+        Helper.password,
       );
     }
   }

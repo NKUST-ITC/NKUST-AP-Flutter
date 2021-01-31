@@ -45,6 +45,8 @@ class Constants {
 
   static const PREF_IS_OFFLINE_LOGIN = "pref_is_offline_login";
 
+  static const MOBILE_COOKIES_DATA = 'mobile_cookies_data';
+
   static const SCHEDULE_DATA = "schedule_data";
   static const SCHEDULE_PDF_URL = 'schedule_pdf_url';
   static const ANDROID_APP_VERSION = "android_app_version";

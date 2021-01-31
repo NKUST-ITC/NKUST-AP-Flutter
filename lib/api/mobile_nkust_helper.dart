@@ -22,6 +22,7 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
+import 'package:nkust_ap/models/mobile_cookies_data.dart';
 
 class MobileNkustHelper {
   static const BASE_URL = 'https://mobile.nkust.edu.tw';
@@ -81,6 +82,19 @@ class MobileNkustHelper {
         return "PROXY " + proxyIP;
       };
     };
+  }
+
+  void setCookieFromData(MobileCookiesData data) {
+    if (data != null) {
+      data.cookies?.forEach((element) {
+        Cookie _tempCookie = Cookie(element.name, element.value);
+        _tempCookie.domain = element.domain;
+        cookieJar.saveFromResponse(
+          Uri.parse(element.path),
+          [_tempCookie],
+        );
+      });
+    }
   }
 
   void setCookie(

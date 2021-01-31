@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/models/mobile_cookies_data.dart';
 
 class MobileNkustPage extends StatefulWidget {
   final String username;
@@ -73,19 +74,22 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           } else if (path == MobileNkustHelper.HOME) {
             final cookies = await CookieManager.instance()
                 .getCookies(url: MobileNkustHelper.BASE_URL);
+            final data = MobileCookiesData(cookies: []);
             cookies.forEach(
               (element) {
-                MobileNkustHelper.instance.setCookie(
-                  path,
-                  cookieName: element.name,
-                  cookieValue: element.value,
-                  cookieDomain: element.domain,
-                );
+                data.cookies.add(MobileCookies(
+                  path: path,
+                  name: element.name,
+                  value: element.value,
+                  domain: element.domain,
+                ));
                 if (kDebugMode)
                   print(
                       "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
               },
             );
+            MobileNkustHelper.instance.setCookieFromData(data);
+            data.save();
             Navigator.pop(context, true);
             ApUtils.showToast(context, '登入成功');
           }
