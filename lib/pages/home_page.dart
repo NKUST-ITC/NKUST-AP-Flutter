@@ -21,18 +21,17 @@ import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
@@ -696,10 +695,19 @@ class HomePageState extends State<HomePage> {
       final leaveTimeCode = List<String>.from(
           jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
+      Helper.selector = CrawlerSelector.fromRawJson(
+        remoteConfig.getString(Constants.CRAWLER_SELECTOR),
+      );
+      Helper.selector.save();
+      final semesterData = SemesterData.fromRawJson(
+        remoteConfig.getString(Constants.SCHEDULE_DATA),
+      );
+      semesterData.save();
       Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
       Preferences.setStringList(Constants.LEAVES_TIME_CODE, leaveTimeCode);
       InkustHelper.leavesTimeCode = leaveTimeCode;
     } catch (e) {
+      Helper.selector = CrawlerSelector.load();
       InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
       InkustHelper.leavesTimeCode = Preferences.getStringList(
         Constants.LEAVES_TIME_CODE,

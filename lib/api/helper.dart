@@ -28,6 +28,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
@@ -63,8 +64,15 @@ class Helper {
   static bool isSupportCacheData =
       (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
 
+  static CrawlerSelector selector;
+
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
+
+  static const WEBAP = 'webap';
+  static const INKUST = 'inkust';
+  static const MOBILE = 'mobile';
+  static const REMOTE_CONFIG = 'config';
 
   int reLoginCount = 0;
 
@@ -300,7 +308,23 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var data = await WebApHelper.instance.semesters();
+      SemesterData data;
+      switch (selector?.semester) {
+        case REMOTE_CONFIG:
+          data = SemesterData.load();
+          await Future.delayed(Duration(milliseconds: 100));
+          break;
+        case INKUST:
+          //TODO
+          break;
+        case MOBILE:
+          //TODO
+          break;
+        case WEBAP:
+        default:
+          data = await WebApHelper.instance.semesters();
+          break;
+      }
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -331,10 +355,25 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var data = await WebApHelper.instance.scores(
-        semester.year,
-        semester.value,
-      );
+      ScoreData data;
+      switch (selector?.score) {
+        case MOBILE:
+          data = await MobileNkustHelper.instance.getScores(
+            year: semester.year,
+            semester: semester.value,
+          );
+          break;
+        case INKUST:
+          //TODO
+          break;
+        case WEBAP:
+        default:
+          data = await WebApHelper.instance.scores(
+            semester.year,
+            semester.value,
+          );
+          break;
+      }
       if (data != null && data.scores.length == 0) data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -363,12 +402,29 @@ class Helper {
     @required Semester semester,
     GeneralCallback<CourseData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
-      var data = await MobileNkustHelper.instance.getCourseTable(
-        year: semester.year,
-        semester: semester.value,
-      );
+      CourseData data;
+      switch (selector?.course) {
+        case MOBILE:
+          data = await MobileNkustHelper.instance.getCourseTable(
+            year: semester.year,
+            semester: semester.value,
+          );
+          break;
+        case INKUST:
+          data = await InkustHelper.instance.courseTable(
+            semester.year,
+            semester.value,
+          );
+          break;
+        case WEBAP:
+        default:
+          data = await WebApHelper.instance.getCourseTable(
+            year: semester.year,
+            semester: semester.value,
+          );
+          break;
+      }
       if (data != null && data.courses != null && data.courses.length != 0) {
         reLoginCount = 0;
       }
