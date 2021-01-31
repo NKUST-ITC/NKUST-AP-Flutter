@@ -268,25 +268,28 @@ class WebApHelper {
     );
   }
 
-  Future<CourseData> coursetable(String years, String semesterValue) async {
+  Future<CourseData> getCourseTable({
+    String year,
+    String semester,
+  }) async {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery(
         "ag222",
-        {"arg01": years, "arg02": semesterValue},
+        {"arg01": year, "arg02": semester},
         bytesResponse: true,
       );
       return CourseData.fromJson(await coursetableParser(query.data));
     }
     var query = await apQuery(
       "ag222",
-      {"arg01": years, "arg02": semesterValue},
-      cacheKey: "${coursetableCacheKey}_${years}_${semesterValue}",
+      {"arg01": year, "arg02": semester},
+      cacheKey: "${coursetableCacheKey}_${year}_${semester}",
       cacheExpiredTime: Duration(hours: 6),
       bytesResponse: true,
     );
     var parsedData = await coursetableParser(query.data);
     if (parsedData["courses"].length == 0) {
-      _manager.delete("${coursetableCacheKey}_${years}_${semesterValue}");
+      _manager.delete("${coursetableCacheKey}_${year}_${semester}");
     }
     return CourseData.fromJson(
       parsedData,
