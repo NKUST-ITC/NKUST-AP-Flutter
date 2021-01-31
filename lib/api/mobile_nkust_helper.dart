@@ -121,30 +121,24 @@ class MobileNkustHelper {
   }
 
   Future<CourseData> getCourseTable({
-    int year,
-    int semester,
+    String year,
+    String semester,
     GeneralCallback<CourseData> callback,
   }) async {
-    try {
-      Response response;
-      if (year == null || semester == null) {
-        response = await generalRequest(COURSE);
-      } else {
-        response = await generalRequest(
-          COURSE,
-          data: {"Yms": "$year-$semester"},
-        );
-      }
-
-      final rawHtml = response.data;
-      if (kDebugMode) debugPrint(rawHtml);
-      final courseData = CourseParser.courseTable(rawHtml);
-      return callback != null ? callback.onSuccess(courseData) : courseData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    Response response;
+    if (year == null || semester == null) {
+      response = await generalRequest(COURSE);
+    } else {
+      response = await generalRequest(
+        COURSE,
+        data: {"Yms": "$year-$semester"},
+      );
     }
+
+    final rawHtml = response.data;
+    // if (kDebugMode) debugPrint(rawHtml);
+    final courseData = CourseParser.courseTable(rawHtml);
+    return callback != null ? callback.onSuccess(courseData) : courseData;
   }
 
   Future<MidtermAlertsData> getMidAlerts({
@@ -193,7 +187,7 @@ class MobileNkustHelper {
       }
 
       final rawHtml = response.data;
-      if (kDebugMode) debugPrint(rawHtml);
+      // if (kDebugMode) debugPrint(rawHtml);
       final courseData = CourseParser.scores(rawHtml);
       return callback != null ? callback.onSuccess(courseData) : courseData;
     } catch (e) {

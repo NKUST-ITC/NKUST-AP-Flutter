@@ -365,9 +365,9 @@ class Helper {
   }) async {
     if (isExpire()) await login(username: username, password: password);
     try {
-      var data = await InkustHelper.instance.courseTable(
-        semester.year,
-        semester.value,
+      var data = await MobileNkustHelper.instance.getCourseTable(
+        year: semester.year,
+        semester: semester.value,
       );
       if (data != null && data.courses != null && data.courses.length != 0) {
         reLoginCount = 0;
