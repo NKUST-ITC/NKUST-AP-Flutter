@@ -423,8 +423,10 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
     html = clearTransEncoding(html);
   }
 
+  var document = parse(html);
+
   Map<String, dynamic> data = {
-    "courses": [],
+    "courses": {},
     "coursetable": {
       "timeCodes": [],
       "Monday": [],
@@ -434,9 +436,10 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
       "Friday": [],
       "Saturday": [],
       "Sunday": []
-    }
+    },
+    "_temp_time": {},
+    "timeCodes": []
   };
-  var document = parse(html);
 
   if (document.getElementsByTagName("table").length == 0) {
     //table not found
@@ -448,17 +451,23 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
         document.getElementsByTagName("table")[0].getElementsByTagName("tr");
     for (int i = 1; i < topTable.length; i++) {
       var td = topTable[i].getElementsByTagName('td');
-      data['courses'].add({
-        'code': td[0].text,
-        'title': td[1].text,
-        'className': td[2].text,
-        'group': td[3].text,
-        'units': td[4].text,
-        'hours': td[5].text,
-        'required': td[6].text,
-        'at': td[8].text,
-        'times': td[9].text,
-        "instructors": td[10].text.split(",")
+      data['courses'].addAll({
+        "${td[1].text.replaceAll(String.fromCharCode(160), '')}${td[10].text.replaceAll(String.fromCharCode(160), '')}":
+            {
+          'code': td[0].text.replaceAll(String.fromCharCode(160), ""),
+          'title': td[1].text.replaceAll(String.fromCharCode(160), ""),
+          'className': td[2].text.replaceAll(String.fromCharCode(160), ""),
+          'group': td[3].text.replaceAll(String.fromCharCode(160), ""),
+          'units': td[4].text.replaceAll(String.fromCharCode(160), ""),
+          'hours': td[5].text.replaceAll(String.fromCharCode(160), ""),
+          'required': td[7].text.replaceAll(String.fromCharCode(160), ""),
+          'at': td[8].text.replaceAll(String.fromCharCode(160), ""),
+          'times': td[9].text.replaceAll(String.fromCharCode(160), ""),
+          'sectionTimes': [],
+          'location': {},
+          "instructors":
+              td[10].text.replaceAll(String.fromCharCode(160), "").split(",")
+        }
       });
     }
   } on Exception catch (e) {} on RangeError catch (r) {}
@@ -474,10 +483,11 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
       for (int i = 1; i < td.length; i++) {
         var _temptext =
             td[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
-
-        data['coursetable']['timeCodes'].add(_temptext
+        _temptext = _temptext
             .substring(0, _temptext.length - 10)
-            .replaceAll(String.fromCharCode(160), ""));
+            .replaceAll(String.fromCharCode(160), "");
+        _temptext = _temptext.substring(1, _temptext.length - 1);
+        data['coursetable']['timeCodes'].add(_temptext);
       }
     } on Exception catch (e) {}
   //make each day.
@@ -506,9 +516,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
             .substring(eachDays.outerHtml.indexOf("; font-family: 細明體") + 20,
                 eachDays.outerHtml.indexOf(";</font>"))
             .split("<br>"));
-        if (splitData.length < 2) {
-          continue;
-        }
+
         var _eachDaysDate = document
             .getElementsByTagName("table")[1]
             .getElementsByTagName("tr")[eachSession]
@@ -519,6 +527,19 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
             .substring(_eachDaysDate.indexOf("&nbsp;<br>") + 10,
                 _eachDaysDate.indexOf("&nbsp;<br><br><"))
             .split("<br>");
+        var _tempSection = courseTime[0]
+            .replaceAll(" ", "")
+            .replaceAll(String.fromCharCode(160), "");
+        _tempSection = _tempSection.substring(1, _tempSection.length - 1);
+        data['_temp_time'].addAll({
+          _tempSection: {
+            "startTime":
+                "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
+            "endTime":
+                "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
+            'section': _tempSection
+          }
+        });
 
         if (splitData.length <= 1) {
           continue;
@@ -531,6 +552,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
               .replaceAll("&nbsp;", '')
               .replaceAll(";", '');
         }
+
         data['coursetable'][keyName[key]].add({
           'title': title.replaceAll("&nbsp;", ""),
           'date': {
@@ -538,15 +560,46 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
                 "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
             "endTime":
                 "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
-            'section': courseTime[0]
-                .replaceAll(" ", "")
-                .replaceAll(String.fromCharCode(160), "")
+            'section': _tempSection
           },
+          'rawInstructors': splitData[1]
+              .replaceAll(String.fromCharCode(160), "")
+              .replaceAll("&nbsp;", ""),
           'instructors': splitData[1].replaceAll("&nbsp;", "").split(","),
         });
       }
     }
+    // mix weekday to course.
+    for (int weekKeyIndex = 0; weekKeyIndex < keyName.length; weekKeyIndex++) {
+      for (var course in data['coursetable'][keyName[weekKeyIndex]]) {
+        var _temp = {
+          "weekday": weekKeyIndex + 1,
+          "index": data['_temp_time']
+              .values
+              .toList()
+              .indexOf(data['_temp_time'][course['date']['section']]),
+        };
+        data['courses']["${course['title']}${course['rawInstructors']}"]
+                ['sectionTimes']
+            .add(_temp);
+      }
+    }
+    // courses to list
+    data['courses'] = data['courses'].values.toList();
+    data.remove('coursetable');
+    data['_temp_time'] = data['_temp_time'].values.toList();
+    for (int timeCodeIndex = 0;
+        timeCodeIndex < data['_temp_time'].length;
+        timeCodeIndex++) {
+      data['timeCodes'].add({
+        "title": data['_temp_time'][timeCodeIndex]['section'],
+        "startTime": data['_temp_time'][timeCodeIndex]['startTime'],
+        "endTime": data['_temp_time'][timeCodeIndex]['endTime']
+      });
+    }
+    data.remove('_temp_time');
   } on Exception catch (e) {}
+
   return data;
 }
 
