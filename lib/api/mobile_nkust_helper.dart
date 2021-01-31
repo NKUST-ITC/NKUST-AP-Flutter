@@ -41,6 +41,7 @@ class MobileNkustHelper {
   static const BUS_VIOLATION_RECORDS_PAGE = '$BASE_URL/Bus/Illegal';
   static const BUS_VIOLATION_RECORDS_API = '$BASE_URL/Bus/GetIllegalGrid';
 
+  static const CHECK_EXPIRE = '$BASE_URL/Account/CheckExpire';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -94,6 +95,17 @@ class MobileNkustHelper {
       Uri.parse(url),
       [_tempCookie],
     );
+  }
+
+  Future<bool> isCookieAlive() async {
+    try {
+      var res  = await dio.get(CHECK_EXPIRE);
+      if (res.data == 'alive'){
+        return true;
+      }
+
+    } catch (e) {}
+    return false;
   }
 
   Future<Response> generalRequest(String url,
