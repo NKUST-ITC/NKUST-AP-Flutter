@@ -99,7 +99,9 @@ class CoursePageState extends State<CoursePage> {
         if (this.courseData == null) {
           state = CourseState.offlineEmpty;
         } else {
-          state = CourseState.finish;
+          state = this.courseData.courses.length == 0
+              ? CourseState.empty
+              : CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
@@ -116,7 +118,7 @@ class CoursePageState extends State<CoursePage> {
         onSuccess: (CourseData data) {
           if (mounted)
             setState(() {
-              if (data == null) {
+              if (data == null || data.courses.length == 0) {
                 state = CourseState.empty;
                 if (selectSemester.code == '1091' ||
                     selectSemester.code == '1092') {
