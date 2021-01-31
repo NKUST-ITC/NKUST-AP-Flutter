@@ -197,8 +197,8 @@ class MobileNkustHelper {
   }
 
   Future<ScoreData> getScores({
-    int year,
-    int semester,
+    String year,
+    String semester,
     GeneralCallback<ScoreData> callback,
   }) async {
     try {
