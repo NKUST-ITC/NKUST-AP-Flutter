@@ -556,11 +556,15 @@ class HomePageState extends State<HomePage> {
       isLogin = true;
       Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
       _getUserInfo();
-      // _setupBusNotify(context);
+      _setupBusNotify(context);
       if (state != HomeState.finish) {
         _getAnnouncements();
       }
       _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+      Helper.instance.login(
+        username: username,
+        password: password,
+      );
       return;
     }
     Helper.instance.login(
@@ -632,6 +636,10 @@ class HomePageState extends State<HomePage> {
       setState(() {
         isLogin = true;
       });
+      Helper.instance.login(
+        username: Helper.username,
+        password: Helper.password,
+      );
     }
   }
 

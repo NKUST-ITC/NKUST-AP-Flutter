@@ -187,6 +187,8 @@ class LoginPageState extends State<LoginPage> {
           Preferences.setStringSecurity(
               Constants.PREF_PASSWORD, _password.text);
         }
+        Helper.username = _username.text;
+        Helper.password = _password.text;
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         TextInput.finishAutofillContext();
         Navigator.of(context).pop(true);
