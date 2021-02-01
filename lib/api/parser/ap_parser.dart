@@ -464,7 +464,10 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
           'at': td[8].text.replaceAll(String.fromCharCode(160), ""),
           'times': td[9].text.replaceAll(String.fromCharCode(160), ""),
           'sectionTimes': [],
-          'location': {},
+          'location': {
+            'room': null,
+            'building': null,
+          },
           "instructors":
               td[10].text.replaceAll(String.fromCharCode(160), "").split(",")
         }
