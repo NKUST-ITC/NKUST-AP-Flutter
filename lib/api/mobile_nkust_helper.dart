@@ -10,12 +10,9 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -25,24 +22,24 @@ import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 
 class MobileNkustHelper {
-  static const BASE_URL = 'https://mobile.nkust.edu.tw';
+  static const BASE_URL = 'https://mobile.nkust.edu.tw/';
 
-  static const LOGIN = '$BASE_URL/';
-  static const HOME = '$BASE_URL/Home/Index';
-  static const COURSE = '$BASE_URL/Student/Course';
-  static const SCORE = '$BASE_URL/Student/Grades';
-  static const PICTURE = '$BASE_URL/Common/GetStudentPhoto';
-  static const MIDALERTS = '$BASE_URL/Student/Grades/MidWarning';
-  static const BUSTIMETABLE_PAGE = '$BASE_URL/Bus/Timetable';
-  static const BUSTIMETABLE_API = '$BASE_URL/Bus/GetTimetableGrid';
-  static const BUS_BOOK_API = '$BASE_URL/Bus/CreateReserve';
-  static const BUS_UNBOOK_API = '$BASE_URL/Bus/CancelReserve';
-  static const BUS_USER_RECORD_PAGE = '$BASE_URL/Bus/Reserve';
-  static const BUS_USER_RECORD_API = '$BASE_URL/Bus/GetReserveGrid';
-  static const BUS_VIOLATION_RECORDS_PAGE = '$BASE_URL/Bus/Illegal';
-  static const BUS_VIOLATION_RECORDS_API = '$BASE_URL/Bus/GetIllegalGrid';
+  static const LOGIN = '$BASE_URL';
+  static const HOME = '${BASE_URL}Home/Index';
+  static const COURSE = '${BASE_URL}Student/Course';
+  static const SCORE = '${BASE_URL}Student/Grades';
+  static const PICTURE = '${BASE_URL}Common/GetStudentPhoto';
+  static const MIDALERTS = '${BASE_URL}Student/Grades/MidWarning';
+  static const BUSTIMETABLE_PAGE = '${BASE_URL}Bus/Timetable';
+  static const BUSTIMETABLE_API = '${BASE_URL}Bus/GetTimetableGrid';
+  static const BUS_BOOK_API = '${BASE_URL}Bus/CreateReserve';
+  static const BUS_UNBOOK_API = '${BASE_URL}Bus/CancelReserve';
+  static const BUS_USER_RECORD_PAGE = '${BASE_URL}Bus/Reserve';
+  static const BUS_USER_RECORD_API = '${BASE_URL}Bus/GetReserveGrid';
+  static const BUS_VIOLATION_RECORDS_PAGE = '${BASE_URL}Bus/Illegal';
+  static const BUS_VIOLATION_RECORDS_API = '${BASE_URL}Bus/GetIllegalGrid';
 
-  static const CHECK_EXPIRE = '$BASE_URL/Account/CheckExpire';
+  static const CHECK_EXPIRE = '${BASE_URL}Account/CheckExpire';
   static Dio dio;
 
   static CookieJar cookieJar;
@@ -113,11 +110,10 @@ class MobileNkustHelper {
 
   Future<bool> isCookieAlive() async {
     try {
-      var res  = await dio.get(CHECK_EXPIRE);
-      if (res.data == 'alive'){
+      var res = await dio.get(CHECK_EXPIRE);
+      if (res.data == 'alive') {
         return true;
       }
-
     } catch (e) {}
     return false;
   }
