@@ -700,7 +700,7 @@ class HomePageState extends State<HomePage> {
       );
       Helper.selector.save();
       final semesterData = SemesterData.fromRawJson(
-        remoteConfig.getString(Constants.SCHEDULE_DATA),
+        remoteConfig.getString(Constants.SEMESTER_DATA),
       );
       semesterData.save();
       Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
