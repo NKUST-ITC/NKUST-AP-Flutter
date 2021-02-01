@@ -203,10 +203,10 @@ class MobileNkustHelper {
     try {
       Response response;
       if (year == null || semester == null) {
-        response = await generalRequest(COURSE);
+        response = await generalRequest(SCORE);
       } else {
         response = await generalRequest(
-          COURSE,
+          SCORE,
           data: {"Yms": "$year-$semester"},
         );
       }
@@ -674,7 +674,7 @@ class CourseParser {
         "required": tdElements.elementAt(3).text,
         "at": tdElements.elementAt(4).text,
         "middleScore": tdElements.elementAt(5).text,
-        "finalScore": tdElements.elementAt(6).text,
+        "semesterScore": tdElements.elementAt(6).text,
         "remark": tdElements.elementAt(7).text,
       });
     }
