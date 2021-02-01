@@ -32,6 +32,7 @@ void main() async {
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
   if (int.parse(currentVersion) < 30400) _preference340Migrate();
+  if (int.parse(currentVersion) < 30603) CourseData.migrateFrom0_10();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux))
     GoogleSignInDart.register(
         clientId:
