@@ -77,12 +77,17 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
             final data = MobileCookiesData(cookies: []);
             cookies.forEach(
               (element) {
-                data.cookies.add(MobileCookies(
-                  path: path,
-                  name: element.name,
-                  value: element.value,
-                  domain: element.domain,
-                ));
+                data.cookies.add(
+                  MobileCookies(
+                    path: path,
+                    name: element.name,
+                    value: element.value,
+                    domain: element.domain ??
+                        (element.name == '.AspNetCore.Cookies'
+                            ? 'mobile.nkust.edu.tw'
+                            : '.nkust.edu.tw'),
+                  ),
+                );
                 if (kDebugMode)
                   print(
                       "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
