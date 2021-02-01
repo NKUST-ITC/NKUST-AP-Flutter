@@ -1,10 +1,12 @@
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class MobileNkustPage extends StatefulWidget {
   final String username;
@@ -23,14 +25,29 @@ class MobileNkustPage extends StatefulWidget {
 }
 
 class _MobileNkustPageState extends State<MobileNkustPage> {
+  AppLocalizations app;
+
   InAppWebViewController webViewController;
 
   @override
   Widget build(BuildContext context) {
+    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('登入驗證'),
+        title: Text(app.loginAuth),
         backgroundColor: ApTheme.of(context).blue,
+        actions: [
+          TextButton(
+            onPressed: () {
+              DialogUtils.showDefault(
+                context: context,
+                title: app.loginAuth,
+                content: app.mobileNkustLoginDescription,
+              );
+            },
+            child: Text(app.clickShowDescription),
+          ),
+        ],
       ),
       floatingActionButton: kDebugMode
           ? FloatingActionButton(
@@ -51,7 +68,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
-          ApUtils.showToast(context, '初始化中');
+          ApUtils.showToast(context, app.mobileNkustLoginHint);
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
           print(jsPromptRequest.defaultValue);
@@ -103,7 +120,6 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
             MobileNkustHelper.instance.setCookieFromData(data);
             data.save();
             Navigator.pop(context, true);
-            ApUtils.showToast(context, '登入成功');
           }
         },
       ),

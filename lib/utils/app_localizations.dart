@@ -22,8 +22,7 @@ class AppLocalizations {
   static Map<String, Map<String, String>> _localizedValues = {
     'en': {
       'app_name': 'NKUST AP',
-      'update_note_content':
-          '* Fix & improve calculate unit.',
+      'update_note_content': '* Fix & improve calculate unit.',
       'about_open_source_content':
           'https://github.com/NKUST-ITC/NKUST-AP-Flutter\n\nThis project is licensed under the terms of the MIT license:\nThe MIT License (MIT)\n\nCopyright © 2020 Rainvisitor\n\nThis project is Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.',
       'bus_pick_date': 'Chosen Date: %s',
@@ -148,6 +147,12 @@ class AppLocalizations {
       'busViolationRecordEmpty': 'Good！No any bus violation record～',
       'schoolCloseCourseHint':
           'School close course system, we can\'t solve it temporarily.\nAny problems are recommended to the school.',
+      'loginAuth': 'Login Authentication',
+      'clickShowDescription': 'Description',
+      'mobileNkustLoginHint':
+          'Wait for the webpage to finish loading, the student ID and password will be filled in automatically.\nAfter completing the Google reCaptcha and clicking login, it will automatically redirected.',
+      'mobileNkustLoginDescription':
+          'Because the school has closed the original crawler function, this version needs to be logged in through the new version of the mobile school system. After successful login, it will be redirected automatically. Unless the certificate expires, repeated verification is rarely required. It is strongly recommended to "記住我" to check it.。',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -263,6 +268,11 @@ class AppLocalizations {
           "• 罰款點數如有疑義，請於違規發生日起10日內(含星期例假日)逕向總務處事務組確認。\n",
       'busViolationRecordEmpty': '太好了！您沒有任何校車罰緩～',
       'schoolCloseCourseHint': '學校關閉課表 我們暫時無法解決\n任何問題建議與校方反應',
+      'loginAuth': '登入驗證',
+      'clickShowDescription': '點擊看說明',
+      'mobileNkustLoginHint': '等待網頁完成載入\n將自動填寫學號密碼\n完成機器人驗證後點擊登入\n將自動跳轉',
+      'mobileNkustLoginDescription':
+          '因應校方關閉原有爬蟲功能，此版本需透過新版手機版校務系統登入。成功登入後會自動跳轉，除非憑證過期，否則極少需要重複驗證，強烈建議將記住我勾選。',
     },
   };
 
@@ -463,6 +473,15 @@ class AppLocalizations {
       _vocabularies['busViolationRecordEmpty'];
 
   String get schoolCloseCourseHint => _vocabularies['schoolCloseCourseHint'];
+
+  String get loginAuth => _vocabularies['loginAuth'];
+
+  String get clickShowDescription => _vocabularies['clickShowDescription'];
+
+  String get mobileNkustLoginHint => _vocabularies['mobileNkustLoginHint'];
+
+  String get mobileNkustLoginDescription =>
+      _vocabularies['mobileNkustLoginDescription'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
