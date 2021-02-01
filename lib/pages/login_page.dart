@@ -177,6 +177,7 @@ class LoginPageState extends State<LoginPage> {
           builder: (_) => MobileNkustPage(
             username: _username.text,
             password: _password.text,
+            clearCache: true,
           ),
         ),
       );

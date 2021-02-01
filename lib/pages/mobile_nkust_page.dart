@@ -9,11 +9,13 @@ import 'package:nkust_ap/models/mobile_cookies_data.dart';
 class MobileNkustPage extends StatefulWidget {
   final String username;
   final String password;
+  final bool clearCache;
 
   const MobileNkustPage({
     Key key,
     this.username,
     this.password,
+    this.clearCache = false,
   }) : super(key: key);
 
   @override
@@ -42,6 +44,11 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           : null,
       body: InAppWebView(
         initialUrl: MobileNkustHelper.LOGIN,
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(
+            clearCache: widget.clearCache,
+          ),
+        ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
           ApUtils.showToast(context, '初始化中');
