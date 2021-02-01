@@ -10,9 +10,12 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:html/parser.dart' as html;
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -404,7 +407,7 @@ class MobileNkustHelper {
         result.addAll(CourseParser.busUserRecords(
           "<table>${await _requestsList[i].data}</table>",
           startStation: requestsDataList[i][0],
-          endStation: requestsDataList[i][0],
+          endStation: requestsDataList[i][1],
         ));
       }
 
