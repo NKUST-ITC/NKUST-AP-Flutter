@@ -94,7 +94,6 @@ class BusReservation {
 
   Map<String, dynamic> toJson() => {
         "dateTime": dateTime.toIso8601String(),
-        "endTime": endTime.toIso8601String(),
         "cancelKey": cancelKey,
         "start": start,
         "end": end,

@@ -111,7 +111,6 @@ class BusTime {
       );
 
   Map<String, dynamic> toJson() => {
-        "endEnrollDateTime": endEnrollDateTime,
         "departureTime": departureTime,
         "startStation": startStation,
         "endStation": endStation,
