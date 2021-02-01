@@ -590,7 +590,7 @@ class Helper {
     GeneralCallback<BusData> callback,
   }) async {
     try {
-      BusData data = await InkustHelper.instance.inkustBusTimeTableQuery(
+      BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
@@ -618,7 +618,7 @@ class Helper {
   }) async {
     try {
       BusReservationsData data =
-          await InkustHelper.instance.inkustBusUserRecord();
+          await MobileNkustHelper.instance.busUserRecord();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -645,7 +645,7 @@ class Helper {
     GeneralCallback<BookingBusData> callback,
   }) async {
     try {
-      BookingBusData data = await InkustHelper.instance.busBook(busId: busId);
+      BookingBusData data = await MobileNkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -673,7 +673,7 @@ class Helper {
   }) async {
     try {
       CancelBusData data =
-          await InkustHelper.instance.busUnBook(busId: cancelKey);
+          await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -700,7 +700,7 @@ class Helper {
   }) async {
     try {
       BusViolationRecordsData data =
-          await InkustHelper.instance.busViolationRecords();
+          await MobileNkustHelper.instance.busViolationRecords();
 
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
