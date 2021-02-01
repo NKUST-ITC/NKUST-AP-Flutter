@@ -560,7 +560,7 @@ class CourseParser {
         "instructors": course['TeacherName'].split(","),
         "location": {
           "building": "",
-          "room": course['CourseRoom'],
+          "room": course['CourseRoom'] ?? "",
         }
       };
       for (var time in course['CourseWeekPeriod']) {
