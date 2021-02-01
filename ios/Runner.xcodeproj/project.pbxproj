@@ -227,6 +227,7 @@
 				A45559A6217D5F9D00687009 /* ShellScript */,
 				A4E3F882252644D800343570 /* Embed App Extensions */,
 				3191102E4181276FF4AD5379 /* [CP] Copy Pods Resources */,
+				A4B0643825C7EC38006D4AAB /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -482,6 +483,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "${PODS_ROOT}/FirebaseCrashlytics/run\n";
+		};
+		A4B0643825C7EC38006D4AAB /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "generatedPath=\"$SRCROOT/Flutter/Generated.xcconfig\"\nversionNumber=$(grep FLUTTER_BUILD_NAME $generatedPath | cut -d '=' -f2)\nbuildNumber=$(grep FLUTTER_BUILD_NUMBER $generatedPath | cut -d '=' -f2)\n/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion $buildNumber\" \"$SRCROOT/CourseAppWidget/Info.plist\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString $versionNumber\" \"$SRCROOT/CourseAppWidget/Info.plist\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
