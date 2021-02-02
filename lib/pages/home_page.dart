@@ -121,7 +121,7 @@ class HomePageState extends State<HomePage> {
           icon: Icon(ApIcon.codeIcon),
           onPressed: () {
             Navigator.of(context).push(
-              CupertinoPageRoute(
+              MaterialPageRoute(
                 builder: (_) => OpenSourcePage(
                   setCurrentScreen: () => FirebaseAnalyticsUtils.instance
                       .setCurrentScreen(
@@ -638,7 +638,7 @@ class HomePageState extends State<HomePage> {
 
   Future openLoginPage() async {
     var result = await Navigator.of(context).push(
-      CupertinoPageRoute(builder: (_) => LoginPage()),
+      MaterialPageRoute(builder: (_) => LoginPage()),
     );
     checkLogin();
     if (result ?? false) {

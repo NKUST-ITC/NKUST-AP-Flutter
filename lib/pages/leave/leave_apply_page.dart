@@ -364,7 +364,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   onTap: leaveSubmitInfo.tutor == null
                       ? () async {
                           var teacher = await Navigator.of(context).push(
-                            CupertinoPageRoute(builder: (BuildContext context) {
+                            MaterialPageRoute(builder: (BuildContext context) {
                               return PickTutorPage();
                             }),
                           );
