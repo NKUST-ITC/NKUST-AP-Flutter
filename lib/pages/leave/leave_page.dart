@@ -60,11 +60,11 @@ class LeavePageState extends State<LeavePage>
         items: [
           BottomNavigationBarItem(
             icon: Icon(ApIcon.edit),
-            title: Text(ap.leaveApply),
+            label: ap.leaveApply,
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.assignment),
-            title: Text(ap.leaveRecords),
+            label: ap.leaveRecords,
           ),
         ],
       ),
