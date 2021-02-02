@@ -29,9 +29,9 @@ class MobileNkustHelper {
   static const COURSE = '${BASE_URL}Student/Course';
   static const SCORE = '${BASE_URL}Student/Grades';
   static const PICTURE = '${BASE_URL}Common/GetStudentPhoto';
-  static const MIDALERTS = '${BASE_URL}Student/Grades/MidWarning';
-  static const BUSTIMETABLE_PAGE = '${BASE_URL}Bus/Timetable';
-  static const BUSTIMETABLE_API = '${BASE_URL}Bus/GetTimetableGrid';
+  static const MID_ALERTS = '${BASE_URL}Student/Grades/MidWarning';
+  static const BUS_TIMETABLE_PAGE = '${BASE_URL}Bus/Timetable';
+  static const BUS_TIMETABLE_API = '${BASE_URL}Bus/GetTimetableGrid';
   static const BUS_BOOK_API = '${BASE_URL}Bus/CreateReserve';
   static const BUS_UNBOOK_API = '${BASE_URL}Bus/CancelReserve';
   static const BUS_USER_RECORD_PAGE = '${BASE_URL}Bus/Reserve';
@@ -40,18 +40,17 @@ class MobileNkustHelper {
   static const BUS_VIOLATION_RECORDS_API = '${BASE_URL}Bus/GetIllegalGrid';
 
   static const CHECK_EXPIRE = '${BASE_URL}Account/CheckExpire';
-  static Dio dio;
-
-  static CookieJar cookieJar;
 
   static MobileNkustHelper _instance;
 
-  int captchaErrorCount = 0;
+  Dio dio;
+
+  CookieJar cookieJar;
 
   static MobileNkustHelper get instance {
     if (_instance == null) {
       _instance = MobileNkustHelper();
-      dio = Dio(
+      _instance.dio = Dio(
         BaseOptions(
           followRedirects: false,
           headers: {
@@ -60,13 +59,12 @@ class MobileNkustHelper {
           },
         ),
       );
-      initCookiesJar();
+      _instance.initCookiesJar();
     }
-
     return _instance;
   }
 
-  static initCookiesJar() {
+  void initCookiesJar() {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
     cookieJar.loadForRequest(Uri.parse(BASE_URL));
@@ -111,15 +109,16 @@ class MobileNkustHelper {
   Future<bool> isCookieAlive() async {
     try {
       var res = await dio.get(CHECK_EXPIRE);
-      if (res.data == 'alive') {
-        return true;
-      }
+      return res?.data == 'alive';
     } catch (e) {}
     return false;
   }
 
-  Future<Response> generalRequest(String url,
-      {String otherRequestUrl, Map<String, dynamic> data}) async {
+  Future<Response> generalRequest(
+    String url, {
+    String otherRequestUrl,
+    Map<String, dynamic> data,
+  }) async {
     Response response = await dio.get(
       url,
     );
@@ -171,10 +170,10 @@ class MobileNkustHelper {
     try {
       Response response;
       if (year == null || semester == null) {
-        response = await generalRequest(MIDALERTS);
+        response = await generalRequest(MID_ALERTS);
       } else {
         response = await generalRequest(
-          MIDALERTS,
+          MID_ALERTS,
           data: {"Yms": "$year-$semester"},
         );
       }
@@ -262,7 +261,7 @@ class MobileNkustHelper {
 
       //get main CORS
       Response _request = await dio.get(
-        BUSTIMETABLE_PAGE,
+        BUS_TIMETABLE_PAGE,
       );
 
       List<Response> _requestsList = [];
@@ -273,7 +272,7 @@ class MobileNkustHelper {
         ['建工', '第一'],
       ];
       for (var requestData in requestsDataList) {
-        Response request = await dio.post(BUSTIMETABLE_API,
+        Response request = await dio.post(BUS_TIMETABLE_API,
             data: {
               'driveDate': '$year/$month/$day',
               'beginStation': requestData[0],
@@ -311,7 +310,7 @@ class MobileNkustHelper {
     GeneralCallback<BookingBusData> callback,
   }) async {
     try {
-      var request = await generalRequest(BUSTIMETABLE_PAGE,
+      var request = await generalRequest(BUS_TIMETABLE_PAGE,
           otherRequestUrl: BUS_BOOK_API, data: {"busId": busId});
 
       Map<String, dynamic> data;
@@ -341,7 +340,7 @@ class MobileNkustHelper {
     GeneralCallback<CancelBusData> callback,
   }) async {
     try {
-      var request = await generalRequest(BUSTIMETABLE_PAGE,
+      var request = await generalRequest(BUS_TIMETABLE_PAGE,
           otherRequestUrl: BUS_UNBOOK_API, data: {"reserveId": busId});
 
       Map<String, dynamic> data;

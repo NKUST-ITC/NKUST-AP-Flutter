@@ -131,20 +131,20 @@ class MobileNkustParser {
       Map<String, dynamic> _temp = {};
 
       // Element can't get ById. so build new parser object.
-      var _input_document = html.parse(trElement.outerHtml);
+      var _inputDocument = html.parse(trElement.outerHtml);
       _temp['canBook'] = true;
 
-      if (_input_document.getElementById('ReserveEnable').attributes['value'] ==
+      if (_inputDocument.getElementById('ReserveEnable').attributes['value'] ==
           null) {
         //can't book.
         _temp['canBook'] = false;
       }
       _temp['busId'] =
-          _input_document.getElementById('BusId').attributes['value'];
+          _inputDocument.getElementById('BusId').attributes['value'];
       _temp['cancelKey'] =
-          _input_document.getElementById('ReserveId').attributes['value'];
+          _inputDocument.getElementById('ReserveId').attributes['value'];
       _temp['isReserve'] =
-          (_input_document.getElementById('ReserveStateCode').text == '1');
+          (_inputDocument.getElementById('ReserveStateCode').text == '1');
 
       var tdElements = trElement.getElementsByTagName('td').sublist(1);
 
