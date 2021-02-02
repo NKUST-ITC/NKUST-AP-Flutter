@@ -1,23 +1,17 @@
 import 'dart:io';
 
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/progress_dialog.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class LoginPage extends StatefulWidget {
   static const String routerName = "/login";
@@ -45,10 +39,10 @@ class LoginPageState extends State<LoginPage> {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("LoginPage", "login_page.dart");
     _getPreference();
-    if ((!kIsWeb && (Platform.isAndroid || Platform.isIOS))) {
-      KeyboardVisibility.onChange.listen(
-        (bool visible) => gravity = visible ? Toast.TOP : Toast.BOTTOM,
-      );
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      KeyboardVisibilityController().onChange.listen(
+            (bool visible) => gravity = visible ? Toast.TOP : Toast.BOTTOM,
+          );
     }
     super.initState();
   }
@@ -182,7 +176,6 @@ class LoginPageState extends State<LoginPage> {
         ),
       );
       if (result ?? false) {
-        // ShareDataWidget.of(context).data.loginResponse = response;
         Preferences.setString(Constants.PREF_USERNAME, _username.text);
         if (isRememberPassword) {
           Preferences.setStringSecurity(
