@@ -28,7 +28,7 @@ packages:
       name: ap_common
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.0-dev.2"
+    version: "0.11.0"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -194,6 +194,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.16.2"
+  cupertino_back_gesture:
+    dependency: transitive
+    description:
+      name: cupertino_back_gesture
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.4+1"
   dart_style:
     dependency: transitive
     description:
@@ -431,7 +438,7 @@ packages:
       name: flutter_keyboard_visibility
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.2"
+    version: "4.0.3"
   flutter_keyboard_visibility_platform_interface:
     dependency: transitive
     description:
