@@ -470,7 +470,7 @@ class BusReservePageState extends State<BusReservePage>
               default:
                 setState(() {
                   state = _State.custom;
-                  customStateHint = ApLocalizations.of(context).dioError(e);
+                  customStateHint = e.i18nMessage;
                 });
                 break;
             }
@@ -658,7 +658,7 @@ class BusReservePageState extends State<BusReservePage>
       case DioErrorType.CANCEL:
         break;
       default:
-        message = ApLocalizations.of(context).dioError(e);
+        message = e.i18nMessage;
         break;
     }
     if (message != null)

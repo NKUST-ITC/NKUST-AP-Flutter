@@ -308,7 +308,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               default:
                 setState(() {
                   state = _State.custom;
-                  customStateHint = ApLocalizations.of(context).dioError(e);
+                  customStateHint = e.i18nMessage;
                 });
                 break;
             }

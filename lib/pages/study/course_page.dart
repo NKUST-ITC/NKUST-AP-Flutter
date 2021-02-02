@@ -140,7 +140,7 @@ class CoursePageState extends State<CoursePage> {
               e.type != DioErrorType.CANCEL)
             setState(() {
               state = CourseState.custom;
-              customStateHint = ApLocalizations.of(context).dioError(e);
+              customStateHint = e.i18nMessage;
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

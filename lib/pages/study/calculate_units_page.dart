@@ -289,7 +289,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   get _onFailure => (DioError e) {
         setState(() {
           state = _State.custom;
-          customStateHint = ApLocalizations.of(context).dioError(e);
+          customStateHint = e.i18nMessage;
         });
       };
 

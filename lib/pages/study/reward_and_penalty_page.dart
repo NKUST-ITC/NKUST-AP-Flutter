@@ -231,7 +231,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         onFailure: (DioError e) {
           setState(() {
             state = _State.custom;
-            customStateHint = ApLocalizations.of(context).dioError(e);
+            customStateHint = e.i18nMessage;
           });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

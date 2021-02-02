@@ -571,7 +571,7 @@ class HomePageState extends State<HomePage> {
           _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
         },
         onFailure: (DioError e) {
-          final text = ApLocalizations.of(context).dioError(e);
+          final text = e.i18nMessage;
           _homeKey.currentState.showSnackBar(
             text: text,
             actionText: ap.retry,

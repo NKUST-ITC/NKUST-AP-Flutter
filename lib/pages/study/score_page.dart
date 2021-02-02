@@ -104,7 +104,7 @@ class ScorePageState extends State<ScorePage> {
           if (await _loadOfflineScoreData() && e.type != DioErrorType.CANCEL)
             setState(() {
               state = ScoreState.custom;
-              customStateHint = ApLocalizations.of(context).dioError(e);
+              customStateHint = e.i18nMessage;
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(

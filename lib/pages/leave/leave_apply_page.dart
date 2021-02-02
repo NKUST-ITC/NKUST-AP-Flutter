@@ -606,7 +606,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               default:
                 setState(() {
                   state = _State.custom;
-                  customStateHint = ApLocalizations.of(context).dioError(e);
+                  customStateHint = e.i18nMessage;
                 });
                 break;
             }
@@ -811,7 +811,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             case DioErrorType.CANCEL:
               break;
             default:
-              text = ApLocalizations.of(context).dioError(e);
+              text = e.i18nMessage;
               break;
           }
           if (text != null)
