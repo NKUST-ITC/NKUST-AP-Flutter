@@ -133,9 +133,9 @@ class MobileNkustHelper {
       _requestData.addAll(data);
 
       response = await dio.post(url,
-          data: _requestData,
-          options: Options(
-            contentType: Headers.formUrlEncodedContentType,
+        data: _requestData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
           ));
     }
     return response;
@@ -144,7 +144,6 @@ class MobileNkustHelper {
   Future<CourseData> getCourseTable({
     String year,
     String semester,
-    GeneralCallback<CourseData> callback,
   }) async {
     Response response;
     if (year == null || semester == null) {
@@ -159,63 +158,47 @@ class MobileNkustHelper {
     final rawHtml = response.data;
     // if (kDebugMode) debugPrint(rawHtml);
     final courseData = MobileNkustParser.courseTable(rawHtml);
-    return callback != null ? callback.onSuccess(courseData) : courseData;
+    return courseData;
   }
 
   Future<MidtermAlertsData> getMidAlerts({
-    int year,
-    int semester,
-    GeneralCallback<MidtermAlertsData> callback,
+    String year,
+    String semester,
   }) async {
-    try {
-      Response response;
-      if (year == null || semester == null) {
-        response = await generalRequest(MID_ALERTS);
-      } else {
-        response = await generalRequest(
-          MID_ALERTS,
-          data: {"Yms": "$year-$semester"},
-        );
-      }
-
-      final rawHtml = response.data;
-      // if (kDebugMode) debugPrint(rawHtml);
-      final midtermAlertsData = MobileNkustParser.midtermAlerts(rawHtml);
-      return callback != null
-          ? callback.onSuccess(midtermAlertsData)
-          : midtermAlertsData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    Response response;
+    if (year == null || semester == null) {
+      response = await generalRequest(MID_ALERTS);
+    } else {
+      response = await generalRequest(
+        MID_ALERTS,
+        data: {"Yms": "$year-$semester"},
+      );
     }
+
+    final rawHtml = response.data;
+    // if (kDebugMode) debugPrint(rawHtml);
+    final midtermAlertsData = MobileNkustParser.midtermAlerts(rawHtml);
+    return midtermAlertsData;
   }
 
   Future<ScoreData> getScores({
     String year,
     String semester,
-    GeneralCallback<ScoreData> callback,
   }) async {
-    try {
-      Response response;
-      if (year == null || semester == null) {
-        response = await generalRequest(SCORE);
-      } else {
-        response = await generalRequest(
-          SCORE,
-          data: {"Yms": "$year-$semester"},
-        );
-      }
-
-      final rawHtml = response.data;
-      // if (kDebugMode) debugPrint(rawHtml);
-      final courseData = MobileNkustParser.scores(rawHtml);
-      return callback != null ? callback.onSuccess(courseData) : courseData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    Response response;
+    if (year == null || semester == null) {
+      response = await generalRequest(SCORE);
+    } else {
+      response = await generalRequest(
+        SCORE,
+        data: {"Yms": "$year-$semester"},
+      );
     }
+
+    final rawHtml = response.data;
+    // if (kDebugMode) debugPrint(rawHtml);
+    final courseData = MobileNkustParser.scores(rawHtml);
+    return courseData;
   }
 
   Future<UserInfo> getUserInfo() async {
@@ -243,226 +226,183 @@ class MobileNkustHelper {
     String year,
     String month,
     String day,
-    GeneralCallback<BusData> callback,
   }) async {
-    try {
-      // suport DateTime or {year,month,day}.
-      if (fromDateTime != null) {
-        year = fromDateTime.year.toString();
-        month = fromDateTime.month.toString();
-        day = fromDateTime.day.toString();
-      }
-      for (int i = 0; month.length < 2; i++) {
-        month = "0" + month;
-      }
-      for (int i = 0; day.length < 2; i++) {
-        day = "0" + day;
-      }
-
-      //get main CORS
-      Response _request = await dio.get(
-        BUS_TIMETABLE_PAGE,
-      );
-
-      List<Response> _requestsList = [];
-      List<List<String>> requestsDataList = [
-        ['建工', '燕巢'],
-        ['燕巢', '建工'],
-        ['第一', '建工'],
-        ['建工', '第一'],
-      ];
-      for (var requestData in requestsDataList) {
-        Response request = await dio.post(BUS_TIMETABLE_API,
-            data: {
-              'driveDate': '$year/$month/$day',
-              'beginStation': requestData[0],
-              'endStation': requestData[1],
-              '__RequestVerificationToken':
-                  MobileNkustParser.getCSRF(_request.data)
-            },
-            options: Options(
-              contentType: Headers.formUrlEncodedContentType,
-            ));
-        _requestsList.add(request);
-      }
-
-      List result = [];
-
-      for (int i = 0; i < _requestsList.length; i++) {
-        result.addAll(MobileNkustParser.busTimeTable(
-          await _requestsList[i].data,
-          time: '$year/$month/$day',
-          startStation: requestsDataList[i][0],
-          endStation: requestsDataList[i][1],
-        ));
-      }
-      final busData = BusData.fromJson({"data": result});
-      return callback != null ? callback.onSuccess(busData) : busData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    // support DateTime or {year,month,day}.
+    if (fromDateTime != null) {
+      year = fromDateTime.year.toString();
+      month = fromDateTime.month.toString();
+      day = fromDateTime.day.toString();
     }
+    for (int i = 0; month.length < 2; i++) {
+      month = "0" + month;
+    }
+    for (int i = 0; day.length < 2; i++) {
+      day = "0" + day;
+    }
+
+    //get main CORS
+    Response _request = await dio.get(
+      BUS_TIMETABLE_PAGE,
+    );
+
+    List<Response> _requestsList = [];
+    List<List<String>> requestsDataList = [
+      ['建工', '燕巢'],
+      ['燕巢', '建工'],
+      ['第一', '建工'],
+      ['建工', '第一'],
+    ];
+    for (var requestData in requestsDataList) {
+      Response request = await dio.post(BUS_TIMETABLE_API,
+          data: {
+            'driveDate': '$year/$month/$day',
+            'beginStation': requestData[0],
+            'endStation': requestData[1],
+            '__RequestVerificationToken':
+                MobileNkustParser.getCSRF(_request.data)
+          },
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+          ));
+      _requestsList.add(request);
+    }
+
+    List result = [];
+
+    for (int i = 0; i < _requestsList.length; i++) {
+      result.addAll(MobileNkustParser.busTimeTable(
+        await _requestsList[i].data,
+        time: '$year/$month/$day',
+        startStation: requestsDataList[i][0],
+        endStation: requestsDataList[i][1],
+      ));
+    }
+    final busData = BusData.fromJson({"data": result});
+    return busData;
   }
 
   Future<BookingBusData> busBook({
     String busId,
-    GeneralCallback<BookingBusData> callback,
   }) async {
-    try {
-      var request = await generalRequest(BUS_TIMETABLE_PAGE,
-          otherRequestUrl: BUS_BOOK_API, data: {"busId": busId});
+    var request = await generalRequest(BUS_TIMETABLE_PAGE,
+        otherRequestUrl: BUS_BOOK_API, data: {"busId": busId});
 
-      Map<String, dynamic> data;
-      BookingBusData status = BookingBusData();
-      if (request.data is String &&
-          request.headers['Content-Type'][0].indexOf("text/html") > -1) {
-        data = jsonDecode(request.data);
-      } else if (request.data is Map<String, dynamic>) {
-        data = request.data;
-      }
-      if (data['success'] && data['title'] == "預約成功") {
-        status.success = true;
-      } else {
-        status.success = false;
-      }
-
-      return callback != null ? callback.onSuccess(status) : status;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    Map<String, dynamic> data;
+    BookingBusData status = BookingBusData();
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
     }
+    if (data['success'] && data['title'] == "預約成功") {
+      status.success = true;
+    } else {
+      status.success = false;
+    }
+
+    return status;
   }
 
   Future<CancelBusData> busUnBook({
     String busId,
-    GeneralCallback<CancelBusData> callback,
   }) async {
-    try {
-      var request = await generalRequest(BUS_TIMETABLE_PAGE,
-          otherRequestUrl: BUS_UNBOOK_API, data: {"reserveId": busId});
+    var request = await generalRequest(BUS_TIMETABLE_PAGE,
+        otherRequestUrl: BUS_UNBOOK_API, data: {"reserveId": busId});
 
-      Map<String, dynamic> data;
-      CancelBusData status = CancelBusData();
-      if (request.data is String &&
-          request.headers['Content-Type'][0].indexOf("text/html") > -1) {
-        data = jsonDecode(request.data);
-      } else if (request.data is Map<String, dynamic>) {
-        data = request.data;
-      }
-      if (data['success'] && data['title'] == "取消成功") {
-        status.success = true;
-      } else {
-        status.success = false;
-      }
-
-      return callback != null ? callback.onSuccess(status) : status;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    Map<String, dynamic> data;
+    CancelBusData status = CancelBusData();
+    if (request.data is String &&
+        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+      data = jsonDecode(request.data);
+    } else if (request.data is Map<String, dynamic>) {
+      data = request.data;
     }
+    if (data['success'] && data['title'] == "取消成功") {
+      status.success = true;
+    } else {
+      status.success = false;
+    }
+    return status;
   }
 
-  Future<BusReservationsData> busUserRecord({
-    GeneralCallback<BusReservationsData> callback,
-  }) async {
-    try {
-      //get main CORS
-      Response _request = await dio.get(
-        BUS_USER_RECORD_PAGE,
-      );
+  Future<BusReservationsData> busUserRecord() async {
+    //get main CORS
+    Response _request = await dio.get(
+      BUS_USER_RECORD_PAGE,
+    );
 
-      List<Response> _requestsList = [];
-      List<List<String>> requestsDataList = [
-        ['建工', '燕巢'],
-        ['燕巢', '建工'],
-        ['第一', '建工'],
-        ['建工', '第一'],
-      ];
-      for (var requestData in requestsDataList) {
-        Response request = await dio.post(BUS_USER_RECORD_API,
-            data: {
-              'reserveStateCode': 0,
-              'beginStation': requestData[0],
-              'endStation': requestData[1],
-              'pageNum': 1,
-              'pageSize': 99,
-              '__RequestVerificationToken':
-                  MobileNkustParser.getCSRF(_request.data)
-            },
-            options: Options(
-              contentType: Headers.formUrlEncodedContentType,
-            ));
-        _requestsList.add(request);
-      }
-
-      List result = [];
-
-      for (int i = 0; i < _requestsList.length; i++) {
-        // add <table> tag to avoid parser error.
-        result.addAll(MobileNkustParser.busUserRecords(
-          "<table>${await _requestsList[i].data}</table>",
-          startStation: requestsDataList[i][0],
-          endStation: requestsDataList[i][1],
-        ));
-      }
-
-      final busReservationsData =
-          BusReservationsData.fromJson({"data": result});
-
-      return callback != null
-          ? callback.onSuccess(busReservationsData)
-          : busReservationsData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
+    List<Response> _requestsList = [];
+    List<List<String>> requestsDataList = [
+      ['建工', '燕巢'],
+      ['燕巢', '建工'],
+      ['第一', '建工'],
+      ['建工', '第一'],
+    ];
+    for (var requestData in requestsDataList) {
+      Response request = await dio.post(BUS_USER_RECORD_API,
+          data: {
+            'reserveStateCode': 0,
+            'beginStation': requestData[0],
+            'endStation': requestData[1],
+            'pageNum': 1,
+            'pageSize': 99,
+            '__RequestVerificationToken':
+                MobileNkustParser.getCSRF(_request.data)
+          },
+          options: Options(
+            contentType: Headers.formUrlEncodedContentType,
+          ));
+      _requestsList.add(request);
     }
+
+    List result = [];
+
+    for (int i = 0; i < _requestsList.length; i++) {
+      // add <table> tag to avoid parser error.
+      result.addAll(MobileNkustParser.busUserRecords(
+        "<table>${await _requestsList[i].data}</table>",
+        startStation: requestsDataList[i][0],
+        endStation: requestsDataList[i][1],
+      ));
+    }
+
+    final busReservationsData = BusReservationsData.fromJson({"data": result});
+
+    return busReservationsData;
   }
 
-  Future<BusViolationRecordsData> busViolationRecords({
-    GeneralCallback<BusViolationRecordsData> callback,
-  }) async {
-    try {
-      // paid request
-      var paidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
-          otherRequestUrl: BUS_VIOLATION_RECORDS_API,
-          data: {
-            'paid': true,
-            'pageNum': 1,
-            'pageSize': 100,
-          });
-      // not pay request
-      var notPaidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
-          otherRequestUrl: BUS_VIOLATION_RECORDS_API,
-          data: {
-            'paid': false,
-            'pageNum': 1,
-            'pageSize': 100,
-          });
+  Future<BusViolationRecordsData> busViolationRecords() async {
+    // paid request
+    var paidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
+        otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+        data: {
+          'paid': true,
+          'pageNum': 1,
+          'pageSize': 100,
+        });
+    // not pay request
+    var notPaidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
+        otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+        data: {
+          'paid': false,
+          'pageNum': 1,
+          'pageSize': 100,
+        });
 
-      var result = [];
-      result.addAll(MobileNkustParser.busViolationRecords(
-        '<table> ${paidRequest.data} </table>',
-        paidStatus: true,
-      ));
-      result.addAll(MobileNkustParser.busViolationRecords(
-        '<table> ${notPaidRequest.data} </table>',
-        paidStatus: false,
-      ));
+    var result = [];
+    result.addAll(MobileNkustParser.busViolationRecords(
+      '<table> ${paidRequest.data} </table>',
+      paidStatus: true,
+    ));
+    result.addAll(MobileNkustParser.busViolationRecords(
+      '<table> ${notPaidRequest.data} </table>',
+      paidStatus: false,
+    ));
 
-      final busViolationRecordsData =
-          BusViolationRecordsData.fromJson({"reservation": result});
+    final busViolationRecordsData =
+        BusViolationRecordsData.fromJson({"reservation": result});
 
-      return callback != null
-          ? callback.onSuccess(busViolationRecordsData)
-          : busViolationRecordsData;
-    } catch (e) {
-      if (e is DioError) print(e.request.path);
-      callback?.onError(GeneralResponse.unknownError());
-      throw e;
-    }
+    return busViolationRecordsData;
   }
 }
