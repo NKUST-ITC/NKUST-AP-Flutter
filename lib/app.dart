@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/open_source_page.dart';
 import 'package:ap_common/resources/ap_icon.dart';
@@ -33,22 +31,23 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  FirebaseAnalytics analytics;
-  FirebaseMessaging firebaseMessaging;
+  ThemeMode themeMode = ThemeMode.system;
   ThemeData themeData;
+
+  Locale locale;
+
   LoginResponse loginResponse;
-  Uint8List pictureBytes;
+
   bool offlineLogin = false;
   bool hasBusViolationRecords = false;
 
-  ThemeMode themeMode = ThemeMode.system;
-  Locale locale;
+  FirebaseAnalytics analytics;
+  FirebaseMessaging firebaseMessaging;
 
   logout() {
     setState(() {
       this.offlineLogin = false;
       this.loginResponse = null;
-      this.pictureBytes = null;
       Helper.clearSetting();
     });
   }
