@@ -151,7 +151,7 @@ class WebApHelper {
       await apLogin(username: Helper.username, password: Helper.password);
     }
     String url =
-        "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/${queryQid}.jsp";
+        "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp";
     Options _options;
     dynamic requestData;
     if (cacheKey == null) {
@@ -162,12 +162,12 @@ class WebApHelper {
       requestData = queryData;
     } else {
       dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-      Options other_options;
+      Options otherOptions;
       if (bytesResponse != null) {
-        other_options = Options(responseType: ResponseType.bytes);
+        otherOptions = Options(responseType: ResponseType.bytes);
       }
       _options = buildConfigurableCacheOptions(
-        options: other_options,
+        options: otherOptions,
         maxAge: cacheExpiredTime ?? Duration(seconds: 60),
         primaryKey: cacheKey,
       );
@@ -254,13 +254,13 @@ class WebApHelper {
     var query = await apQuery(
       "ag008",
       {"arg01": years, "arg02": semesterValue},
-      cacheKey: "${scoresCacheKey}_${years}_${semesterValue}",
+      cacheKey: "${scoresCacheKey}_${years}_$semesterValue",
       cacheExpiredTime: Duration(hours: 6),
     );
 
     var parsedData = scoresParser(query.data);
     if (parsedData["scores"].length == 0) {
-      _manager.delete("${scoresCacheKey}_${years}_${semesterValue}");
+      _manager.delete("${scoresCacheKey}_${years}_$semesterValue");
     }
 
     return ScoreData.fromJson(
@@ -283,13 +283,13 @@ class WebApHelper {
     var query = await apQuery(
       "ag222",
       {"arg01": year, "arg02": semester},
-      cacheKey: "${coursetableCacheKey}_${year}_${semester}",
+      cacheKey: "${coursetableCacheKey}_${year}_$semester",
       cacheExpiredTime: Duration(hours: 6),
       bytesResponse: true,
     );
     var parsedData = await coursetableParser(query.data);
     if (parsedData["courses"].length == 0) {
-      _manager.delete("${coursetableCacheKey}_${year}_${semester}");
+      _manager.delete("${coursetableCacheKey}_${year}_$semester");
     }
     return CourseData.fromJson(
       parsedData,
@@ -339,7 +339,7 @@ class WebApHelper {
       String roomId, String years, String semesterValue) async {
     var query = await apQuery(
       "ag302_02",
-      {"room_id": roomId, "yms_yms": "${years}#${semesterValue}"},
+      {"room_id": roomId, "yms_yms": "$years#$semesterValue"},
       bytesResponse: true,
     );
 

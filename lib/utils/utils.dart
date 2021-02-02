@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/version_info.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';

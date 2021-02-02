@@ -18,11 +18,11 @@ Map<String, dynamic> hiddenInputGet(String html) {
 Map<String, dynamic> allInputValueParser(String html) {
   var document = parse(html);
   Map<String, dynamic> hiddenData = {};
-  var input_dom = document.getElementsByTagName("input");
-  for (int i = 0; i < input_dom.length; i++) {
-    if (input_dom[i].attributes["name"] != null) {
-      hiddenData[input_dom[i].attributes["name"]] =
-          input_dom[i].attributes["value"] ?? "";
+  var inputDoc = document.getElementsByTagName("input");
+  for (int i = 0; i < inputDoc.length; i++) {
+    if (inputDoc[i].attributes["name"] != null) {
+      hiddenData[inputDoc[i].attributes["name"]] =
+          inputDoc[i].attributes["value"] ?? "";
     }
   }
   return hiddenData;
@@ -119,4 +119,5 @@ Map<String, dynamic> leaveSubmitInfoParser(String html) {
       "timeCodes": timeCodeList,
     };
   }
+  return null;
 }

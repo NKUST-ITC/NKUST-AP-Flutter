@@ -528,17 +528,6 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void _showInformationDialog() {
-    FirebaseAnalyticsUtils.instance.logAction('news_rule', 'click');
-    DialogUtils.showAnnouncementRule(
-      context: context,
-      onRightButtonClick: () {
-        ApUtils.launchFbFansPage(context, Constants.FANS_PAGE_ID);
-        FirebaseAnalyticsUtils.instance.logAction('contact_fans_page', 'click');
-      },
-    );
-  }
-
   Future _login() async {
     await Future.delayed(Duration(microseconds: 30));
     final username = Preferences.getString(Constants.PREF_USERNAME, '');

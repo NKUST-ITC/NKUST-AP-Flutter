@@ -83,14 +83,14 @@ Map<String, dynamic> apUserInfoParser(String html) {
     return data;
   }
   try {
-    String image_url =
+    String imageUrl =
         document.getElementsByTagName("img")[0].attributes["src"].substring(2);
     data['educationSystem'] = (tdElements[3].text.replaceAll("學　　制：", ""));
     data['department'] = (tdElements[4].text.replaceAll("科　　系：", ""));
     data['className'] = (tdElements[8].text.replaceAll("班　　級：", ""));
     data['id'] = (tdElements[9].text.replaceAll("學　　號：", ""));
     data['name'] = (tdElements[10].text.replaceAll("姓　　名：", ""));
-    data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust${image_url}";
+    data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust$imageUrl";
   } catch (e, s) {
     if (FirebaseUtils.isSupportCrashlytics)
       FirebaseCrashlytics.instance.recordFlutterError(
@@ -503,7 +503,6 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
     'Saturday',
     'Sunday'
   ];
-  ;
 
   try {
     for (int key = 0; key < keyName.length; key++) {

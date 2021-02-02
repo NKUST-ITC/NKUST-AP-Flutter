@@ -70,9 +70,9 @@ class BusEncrypt {
       throw Exception("Seed get error");
     }
     if (seedDirection == 0) {
-      return generateMd5("${seedValue}${value}");
+      return generateMd5("$seedValue$value");
     }
-    return generateMd5("${value}${seedValue}");
+    return generateMd5("$value$seedValue");
   }
 
   String loginEncrypt(String username, String password) {
@@ -232,7 +232,7 @@ class BusHelper {
     Future<BusReservationsData> userRecord = busReservations();
 
     userTimeTableSelectCacheKey =
-        "${Helper.username}_busCacheTimTable${year}${month}${day}";
+        "${Helper.username}_busCacheTimTable$year$month$day";
     Options _options;
     dynamic _requestData;
     if (!Helper.isSupportCacheData) {

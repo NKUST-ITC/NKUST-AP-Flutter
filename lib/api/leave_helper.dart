@@ -2,8 +2,10 @@
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
+
 //Config
 import 'package:nkust_ap/config/constants.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +13,7 @@ import 'package:http_parser/http_parser.dart';
 
 //parser
 import 'package:nkust_ap/api/parser/leave_parser.dart';
+
 //model
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
@@ -29,6 +32,7 @@ class LeaveHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin;
+
   static LeaveHelper get instance {
     if (_instance == null) {
       _instance = LeaveHelper();
@@ -86,7 +90,7 @@ class LeaveHelper {
     requestData[r"Login1$LoginButton"] = "登入";
     requestData[r"HiddenField1"] = "";
     try {
-      Response login = await dio.post(
+      await dio.post(
         "http://leave.nkust.edu.tw/LogOn.aspx",
         data: requestData,
         options: Options(
@@ -122,7 +126,7 @@ class LeaveHelper {
     );
     var requestData = allInputValueParser(res.data);
     requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] =
-        "${year}-${semester}";
+        "$year-$semester";
     requestData[r"ctl00$ContentPlaceHolder1$Button1	"] = "確定送出";
     requestData.remove(r"ctl00$ButtonLogOut");
     Response queryRequest = await dio.post(
@@ -204,10 +208,10 @@ class LeaveHelper {
 
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
         "${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}";
-    ;
+
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] =
         "${endDate.year - 1911}/${endDate.month}/${endDate.day}";
-    ;
+
     requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
     res = await dio.post(
       "http://leave.nkust.edu.tw/CK001MainM.aspx",

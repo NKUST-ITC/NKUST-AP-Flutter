@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_notify_data.dart';
@@ -9,7 +7,6 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/option_dialog.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/dio.dart';
@@ -18,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
-import 'package:nkust_ap/utils/cache_utils.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 

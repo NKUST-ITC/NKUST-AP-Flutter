@@ -14,7 +14,6 @@ import 'package:nkust_ap/api/private_cookie_manager.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import "dart:math";
 import 'helper.dart';
-import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
 
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -35,37 +34,41 @@ class InkustHelper {
   static int reLoginReTryCounts = 0;
   static String loginApiKey = "";
   static String inkustHost = "inkusts.nkust.edu.tw";
+
   static String get coursetableCacheKey =>
       "${Helper.username}_coursetableCacheKey";
+
   static String get busUserRecordsCacheKey =>
       "${Helper.username}_busUserRecords";
   static String userViolationRecordsCacheKey =
       "${Helper.username}_busViolationRecords";
+
   static String get userLeaveSubmitInfoCacheKey =>
       "${Helper.username}_userLeaveSubmitInfo";
+
   static String get userLeaveTutorsCacheKey =>
       "${Helper.username}_userLeaveTutors";
   static Map<String, String> ueserRequestData = {
     "apiKey": null,
     "userId": null,
   };
-  static List<String> leavesTimeCode  = [
-        "A",
-        "1",
-        "2",
-        "3",
-        "4",
-        "B",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "11",
-        "12",
-        "13"
-      ];
+  static List<String> leavesTimeCode = [
+    "A",
+    "1",
+    "2",
+    "3",
+    "4",
+    "B",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13"
+  ];
 
   bool isLogin = false;
 
@@ -134,7 +137,7 @@ class InkustHelper {
       _options = buildConfigurableCacheOptions(
           options: _options,
           maxAge: Duration(hours: 1),
-          primaryKey: "${coursetableCacheKey}_${years}_${semesterValue}");
+          primaryKey: "${coursetableCacheKey}_${years}_$semesterValue");
     }
 
     var requestData = new Map<String, String>.from(ueserRequestData);
@@ -456,7 +459,6 @@ class InkustHelper {
           data: formData,
         );
       }
-      ;
     } else {
       for (int i = 0; i < requestDataList.length; i++) {
         Map<String, dynamic> _requestData =

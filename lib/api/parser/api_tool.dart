@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 String formUrlEncoded(Map<String, dynamic> data) {
   if (data == null) {
@@ -9,7 +8,7 @@ String formUrlEncoded(Map<String, dynamic> data) {
     if (temp != null) {
       temp += "&";
     }
-    temp += "${key}=${value}";
+    temp += "$key=$value";
   });
   return temp;
 }

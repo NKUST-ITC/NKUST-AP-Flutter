@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:cookie_jar/src/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 
@@ -275,7 +274,7 @@ class _Cookie implements Cookie {
 
     int toInt(String s) {
       int index = 0;
-      for (; index < s.length && isDigit(s[index]); index++);
+      for (; index < s.length && isDigit(s[index]); index++){}
       return int.parse(s.substring(0, index));
     }
 

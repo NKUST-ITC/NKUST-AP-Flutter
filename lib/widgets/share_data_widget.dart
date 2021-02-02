@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/app.dart';
-import 'package:nkust_ap/main.dart';
 
 class ShareDataWidget extends InheritedWidget {
   final MyAppState data;

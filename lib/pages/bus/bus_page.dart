@@ -81,11 +81,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         items: [
           BottomNavigationBarItem(
             icon: Icon(ApIcon.dateRange),
-            title: Text(app.busReserve),
+            label: app.busReserve,
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.assignment),
-            title: Text(app.busReservations),
+            label: app.busReservations,
           ),
           BottomNavigationBarItem(
             icon: Stack(
@@ -107,7 +107,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                   ),
               ],
             ),
-            title: Text(app.busViolationRecords),
+            label: app.busViolationRecords,
           ),
         ],
       ),

@@ -158,7 +158,6 @@ class BusTime {
 
   String getTime() {
     initializeDateFormatting();
-    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
     var formatterTime = new DateFormat('HH:mm', 'zh');
     return formatterTime.format(this.departureTime);
   }
