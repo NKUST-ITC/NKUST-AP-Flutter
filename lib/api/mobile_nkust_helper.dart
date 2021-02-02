@@ -132,11 +132,13 @@ class MobileNkustHelper {
       };
       _requestData.addAll(data);
 
-      response = await dio.post(url,
+      response = await dio.post(
+        url,
         data: _requestData,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
-          ));
+        ),
+      );
     }
     return response;
   }
@@ -240,7 +242,7 @@ class MobileNkustHelper {
       day = "0" + day;
     }
 
-    //get main CORS
+    //get main CSRF
     Response _request = await dio.get(
       BUS_TIMETABLE_PAGE,
     );
@@ -327,7 +329,7 @@ class MobileNkustHelper {
   }
 
   Future<BusReservationsData> busUserRecord() async {
-    //get main CORS
+    //get main CSRF
     Response _request = await dio.get(
       BUS_USER_RECORD_PAGE,
     );

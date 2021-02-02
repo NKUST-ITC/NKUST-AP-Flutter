@@ -20,7 +20,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
@@ -50,22 +49,6 @@ class Helper {
 
   static const VERSION = 'v3';
 
-  static Helper _instance;
-  static BaseOptions options;
-  static Dio dio;
-  static JsonCodec jsonCodec;
-  static CancelToken cancelToken;
-
-  static String username;
-  static String password;
-  static DateTime expireTime;
-
-  /// From sqflite plugin setting
-  static bool isSupportCacheData =
-      (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
-
-  static CrawlerSelector selector;
-
   //LOGIN API
   static const USER_DATA_ERROR = 1401;
 
@@ -73,6 +56,27 @@ class Helper {
   static const INKUST = 'inkust';
   static const MOBILE = 'mobile';
   static const REMOTE_CONFIG = 'config';
+
+  static Helper _instance;
+
+  Dio dio;
+
+  BaseOptions options;
+
+  JsonCodec jsonCodec;
+
+  static CancelToken cancelToken;
+
+  static String username;
+  static String password;
+
+  static DateTime expireTime;
+
+  /// From sqflite plugin setting
+  static bool isSupportCacheData =
+      (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
+
+  static CrawlerSelector selector;
 
   int reLoginCount = 0;
 
@@ -88,7 +92,6 @@ class Helper {
   static Helper get instance {
     if (_instance == null) {
       _instance = Helper();
-      jsonCodec = JsonCodec();
       cancelToken = CancelToken();
     }
     return _instance;
@@ -96,17 +99,17 @@ class Helper {
 
   Helper() {
     var host = Preferences.getString(Constants.API_HOST, HOST);
-    options = BaseOptions(
-      baseUrl: 'https://$host/$VERSION',
-      connectTimeout: 10000,
-      receiveTimeout: 10000,
+    dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://$host/$VERSION',
+        connectTimeout: 10000,
+        receiveTimeout: 10000,
+      ),
     );
-    dio = Dio(options);
   }
 
   static resetInstance() {
     _instance = Helper();
-    jsonCodec = JsonCodec();
     cancelToken = CancelToken();
   }
 
@@ -645,7 +648,8 @@ class Helper {
     GeneralCallback<BookingBusData> callback,
   }) async {
     try {
-      BookingBusData data = await MobileNkustHelper.instance.busBook(busId: busId);
+      BookingBusData data =
+          await MobileNkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
