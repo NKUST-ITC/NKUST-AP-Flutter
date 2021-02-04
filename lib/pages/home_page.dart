@@ -539,6 +539,17 @@ class HomePageState extends State<HomePage> {
       print('isCookieAlive $isCookieAlive');
       if (isCookieAlive) {
         handleLoginSuccess(username, password);
+        final now = DateTime.now();
+        final lastTime = Preferences.getInt(
+          Constants.SEMESTER_DATA,
+          now.microsecondsSinceEpoch,
+        );
+        FirebaseAnalyticsUtils.analytics.logEvent(
+          name: 'cookies_persistence_time',
+          parameters: {
+            'time': now.microsecondsSinceEpoch - lastTime,
+          },
+        );
         return;
       }
     }
