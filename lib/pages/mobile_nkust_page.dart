@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
@@ -13,6 +15,9 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 class MobileNkustPage extends StatefulWidget {
   final String username;
   final String password;
+
+  /// In Android only clear cookies session
+  /// In iOS will clear cache and cookies session both
   final bool clearCache;
 
   const MobileNkustPage({
@@ -67,8 +72,12 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         initialUrl: MobileNkustHelper.LOGIN,
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
-            clearCache: widget.clearCache,
+            clearCache: (Platform.isAndroid ? false : widget.clearCache),
           ),
+          android: AndroidInAppWebViewOptions(
+            clearSessionCache: widget.clearCache,
+          ),
+          ios: IOSInAppWebViewOptions(),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
