@@ -31,6 +31,8 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
 
   InAppWebViewController webViewController;
 
+  bool finish = false;
+
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
@@ -73,20 +75,11 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           ApUtils.showToast(context, app.mobileNkustLoginHint);
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
-          print(jsPromptRequest.defaultValue);
           return;
         },
         onPageCommitVisible: (controller, title) async {
           final path = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $path');
-        },
-        onTitleChanged: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onTitleChanged $title $path');
-        },
-        onLoadStop: (controller, title) async {
-          debugPrint('onLoadStop $title');
-          final path = await controller.getUrl();
           if (path == MobileNkustHelper.LOGIN) {
             await webViewController.evaluateJavascript(
                 source:
@@ -97,38 +90,55 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
             await webViewController.evaluateJavascript(
                 source:
                     'document.getElementsByName("RememberMe")[0].checked = true;');
-          } else if (path == MobileNkustHelper.HOME) {
-            final cookies = await CookieManager.instance()
-                .getCookies(url: MobileNkustHelper.BASE_URL);
-            final data = MobileCookiesData(cookies: []);
-            cookies.forEach(
-              (element) {
-                data.cookies.add(
-                  MobileCookies(
-                    path: path,
-                    name: element.name,
-                    value: element.value,
-                    domain: element.domain ??
-                        (element.name == '.AspNetCore.Cookies'
-                            ? 'mobile.nkust.edu.tw'
-                            : '.nkust.edu.tw'),
-                  ),
-                );
-                if (kDebugMode)
-                  print(
-                      "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
-              },
-            );
-            MobileNkustHelper.instance.setCookieFromData(data);
-            data.save();
-            Preferences.setInt(
-              Constants.SEMESTER_DATA,
-              DateTime.now().microsecondsSinceEpoch,
-            );
-            Navigator.pop(context, true);
           }
+        },
+        onTitleChanged: (controller, title) async {
+          final path = await controller.getUrl();
+          debugPrint('onTitleChanged $title $path');
+          if (path == MobileNkustHelper.HOME) {
+            _finishLogin();
+          }
+        },
+        onLoadStop: (controller, title) async {
+          final path = await controller.getUrl();
+          debugPrint('onLoadStop $title $path');
         },
       ),
     );
+  }
+
+  Future<void> _finishLogin() async {
+    if (finish)
+      return;
+    else
+      finish = true;
+    final cookies = await CookieManager.instance()
+        .getCookies(url: MobileNkustHelper.BASE_URL);
+    final data = MobileCookiesData(cookies: []);
+    cookies.forEach(
+      (element) {
+        data.cookies.add(
+          MobileCookies(
+            path: MobileNkustHelper.HOME,
+            name: element.name,
+            value: element.value,
+            domain: element.domain ??
+                (element.name == '.AspNetCore.Cookies'
+                    ? 'mobile.nkust.edu.tw'
+                    : '.nkust.edu.tw'),
+          ),
+        );
+        if (kDebugMode)
+          print(
+              "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
+      },
+    );
+    MobileNkustHelper.instance.setCookieFromData(data);
+    data.save();
+    Preferences.setInt(
+      Constants.SEMESTER_DATA,
+      DateTime.now().microsecondsSinceEpoch,
+    );
+    Navigator.pop(context, true);
   }
 }
