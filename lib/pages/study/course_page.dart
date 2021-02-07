@@ -114,6 +114,7 @@ class CoursePageState extends State<CoursePage> {
     Helper.cancelToken = CancelToken();
     Helper.instance.getCourseTables(
       semester: selectSemester,
+      semesterDefault: semesterData.defaultSemester,
       callback: GeneralCallback(
         onSuccess: (CourseData data) {
           if (mounted)

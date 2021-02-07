@@ -403,15 +403,17 @@ class Helper {
 
   Future<CourseData> getCourseTables({
     @required Semester semester,
+    Semester semesterDefault,
     GeneralCallback<CourseData> callback,
   }) async {
     try {
       CourseData data;
       switch (selector?.course) {
         case MOBILE:
+          final isDefault = semesterDefault.code == semester.code;
           data = await MobileNkustHelper.instance.getCourseTable(
-            year: semester.year,
-            semester: semester.value,
+            year: isDefault ? null : semester.year,
+            semester: isDefault ? null : semester.value,
           );
           break;
         case INKUST:
