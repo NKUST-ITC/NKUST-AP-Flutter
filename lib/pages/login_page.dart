@@ -186,6 +186,8 @@ class LoginPageState extends State<LoginPage> {
         Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
         TextInput.finishAutofillContext();
         Navigator.of(context).pop(true);
+      } else {
+        FirebaseAnalyticsUtils.instance.logEvent('mobile_nkust_login_cancel');
       }
       // Helper.instance.login(
       //   username: _username.text,
