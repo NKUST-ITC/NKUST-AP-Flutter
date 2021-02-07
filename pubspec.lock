@@ -42,11 +42,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.1.1"
-      resolved-ref: "0f6e28ddacb92345c81f2755bbbcc6d184b970cc"
+      ref: "v0.1.2"
+      resolved-ref: "786f2de4eebad25721be2ae0fc13c61f60368e8e"
       url: "https://github.com/abc873693/ap_common_plugin"
     source: git
-    version: "0.1.1"
+    version: "0.1.2"
   archive:
     dependency: transitive
     description:
