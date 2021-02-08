@@ -121,12 +121,33 @@ class Helper {
     bool clearCache = false,
   }) async {
     try {
-      var loginResponse = await MobileNkustHelper.instance.login(
-        context: context,
-        username: username,
-        password: password,
-        clearCache: clearCache,
-      );
+      LoginResponse loginResponse;
+      switch (selector?.login) {
+        case INKUST:
+          await InkustHelper.instance.login(
+            username: username,
+            password: password,
+          );
+          break;
+        case MOBILE:
+        case WEBAP:
+        default:
+          if (selector != null &&
+              (selector.login == MOBILE || selector.login == null)) {
+            loginResponse = await MobileNkustHelper.instance.login(
+              context: context,
+              username: username,
+              password: password,
+              clearCache: clearCache,
+            );
+          } else {
+            loginResponse = await WebApHelper.instance.login(
+              username: username,
+              password: password,
+            );
+          }
+          break;
+      }
       expireTime = loginResponse.expireTime;
       Helper.username = username;
       Helper.password = password;

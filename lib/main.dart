@@ -18,6 +18,9 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+import 'api/helper.dart';
+import 'models/crawler_selector.dart';
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
@@ -39,6 +42,7 @@ void main() async {
             '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
   ApIcon.code =
       Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
+  Helper.selector = CrawlerSelector.load();
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (kDebugMode && FirebaseUtils.isSupportCrashlytics) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
