@@ -6,6 +6,7 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -106,15 +107,18 @@ class InkustHelper {
         'Mozilla/5.0 (iPhone; CPU iPhone OS ${headerRandom[_random.nextInt(headerRandom.length)]} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
   }
 
-  Future<Map<String, dynamic>> inkustLogin() async {
+  Future<Map<String, dynamic>> login({
+    @required String username,
+    @required String password,
+  }) async {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
     Response res = await dio.post("https://$inkustHost/User/DoLogin2",
         data: {
           "apiKey": loginApiKey,
-          "userId": Helper.username,
-          "userPw": Helper.password,
+          "userId": username,
+          "userPw": password,
           "userKeep": 0
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
@@ -127,10 +131,14 @@ class InkustHelper {
     return res.data;
   }
 
+  Future<Map<String, dynamic>> checkLogin() async {
+    return isLogin
+        ? null
+        : await login(username: Helper.username, password: Helper.password);
+  }
+
   Future<CourseData> courseTable(String years, String semesterValue) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
     Options _options;
     _options = Options(contentType: Headers.formUrlEncodedContentType);
     if (Helper.isSupportCacheData) {
@@ -159,9 +167,7 @@ class InkustHelper {
     String month,
     String day,
   }) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
     if (fromDateTime != null) {
       year = fromDateTime.year.toString();
       month = fromDateTime.month.toString();
@@ -202,9 +208,7 @@ class InkustHelper {
   }
 
   Future<BusReservationsData> inkustBusUserRecord() async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
 
     Options _optionsForDataType;
     _optionsForDataType =
@@ -248,9 +252,7 @@ class InkustHelper {
   }
 
   Future<BookingBusData> busBook({String busId}) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
     var _requestData = new Map<String, String>.from(ueserRequestData);
 
     _requestData.addAll({"busId": busId});
@@ -275,9 +277,7 @@ class InkustHelper {
   }
 
   Future<CancelBusData> busUnBook({String busId}) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
     var _requestData = new Map<String, String>.from(ueserRequestData);
 
     _requestData.addAll({"resId": busId});
@@ -302,9 +302,7 @@ class InkustHelper {
   }
 
   Future<BusViolationRecordsData> busViolationRecords() async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
 
     var _requestData = new Map<String, dynamic>.from(ueserRequestData);
     Options _options;
@@ -336,9 +334,7 @@ class InkustHelper {
   }
 
   Future<LeaveData> getAbsentRecords({String year, String semester}) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
 
     var _requestData = new Map<String, dynamic>.from(ueserRequestData);
 
@@ -366,9 +362,7 @@ class InkustHelper {
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
     Options leaveTypeOptions =
         Options(contentType: Headers.formUrlEncodedContentType);
     Options totorRecordsOptions =
@@ -422,9 +416,7 @@ class InkustHelper {
 
   Future<Response> leavesSubmit(LeaveSubmitData data,
       {PickedFile proofImage}) async {
-    if (isLogin != true) {
-      await inkustLogin();
-    }
+    await checkLogin();
 
     var userInfo = await Helper.instance.getUsersInfo();
     var nowSemester = await Helper.instance.getSemester();
