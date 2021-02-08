@@ -291,7 +291,16 @@ class Helper {
     GeneralCallback<UserInfo> callback,
   }) async {
     try {
-      var data = await MobileNkustHelper.instance.getUserInfo();
+      UserInfo data;
+      switch (selector?.userInfo) {
+        case MOBILE:
+          data = await MobileNkustHelper.instance.getUserInfo();
+          break;
+        case WEBAP:
+        default:
+          data = await WebApHelper.instance.userInfoCrawler();
+          break;
+      }
       reLoginCount = 0;
       if (data.id == null) data.id = username;
       return (callback == null) ? data : callback.onSuccess(data);
