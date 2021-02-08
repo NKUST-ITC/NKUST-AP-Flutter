@@ -13,6 +13,7 @@ import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -50,6 +51,8 @@ class MobileNkustHelper {
   static const CHECK_EXPIRE = '${BASE_URL}Account/CheckExpire';
 
   static MobileNkustHelper _instance;
+
+  static get isSupport => (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
 
   Dio dio;
 

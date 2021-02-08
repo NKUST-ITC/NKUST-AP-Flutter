@@ -42,6 +42,7 @@ import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:nkust_ap/utils/global.dart';
 
 export 'package:ap_common/callback/general_callback.dart';
 
@@ -535,6 +536,8 @@ class Helper {
     GeneralCallback<BusData> callback,
   }) async {
     try {
+      if (!MobileNkustHelper.isSupport)
+        return callback?.onError(GeneralResponse.platformNotSupport());
       BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
         fromDateTime: dateTime,
       );
@@ -562,6 +565,8 @@ class Helper {
     GeneralCallback<BusReservationsData> callback,
   }) async {
     try {
+      if (!MobileNkustHelper.isSupport)
+        return callback?.onError(GeneralResponse.platformNotSupport());
       BusReservationsData data =
           await MobileNkustHelper.instance.busUserRecord();
       reLoginCount = 0;
@@ -590,6 +595,8 @@ class Helper {
     GeneralCallback<BookingBusData> callback,
   }) async {
     try {
+      if (!MobileNkustHelper.isSupport)
+        return callback?.onError(GeneralResponse.platformNotSupport());
       BookingBusData data =
           await MobileNkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
@@ -618,6 +625,8 @@ class Helper {
     GeneralCallback<CancelBusData> callback,
   }) async {
     try {
+      if (!MobileNkustHelper.isSupport)
+        return callback?.onError(GeneralResponse.platformNotSupport());
       CancelBusData data =
           await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
@@ -645,6 +654,8 @@ class Helper {
     GeneralCallback<BusViolationRecordsData> callback,
   }) async {
     try {
+      if (!MobileNkustHelper.isSupport)
+        return callback?.onError(GeneralResponse.platformNotSupport());
       BusViolationRecordsData data =
           await MobileNkustHelper.instance.busViolationRecords();
 
@@ -851,7 +862,7 @@ class Helper {
     WebApHelper.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
-    MobileNkustHelper.instance.cookiesData.clear();
+    MobileNkustHelper.instance.cookiesData?.clear();
   }
 }
 
@@ -896,7 +907,7 @@ extension GeneralResponseExtension on GeneralResponse {
   String getGeneralMessage(
     BuildContext context,
   ) {
-    final ap = ApLocalizations.of(context);
+    final ap = ApLocalizations.current;
     String message = '';
     switch (statusCode) {
       case ApStatusCode.SCHOOL_SERVER_ERROR:
@@ -907,6 +918,9 @@ extension GeneralResponseExtension on GeneralResponse {
         break;
       case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
+        break;
+      case GeneralResponse.PLATFORM_NOT_SUPPORT:
+        message = ap.platformError;
         break;
       default:
         message = ap.unknownError;
