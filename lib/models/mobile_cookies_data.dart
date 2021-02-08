@@ -41,6 +41,10 @@ class MobileCookiesData {
         Constants.MOBILE_COOKIES_DATA, toRawJson());
   }
 
+  Future<void> clear() async {
+    await Preferences.setString(Constants.MOBILE_COOKIES_DATA, null);
+  }
+
   factory MobileCookiesData.load() {
     final str =
         Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, null);

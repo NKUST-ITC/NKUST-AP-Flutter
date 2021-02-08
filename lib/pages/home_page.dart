@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:ap_common/api/announcement_helper.dart';
@@ -22,6 +23,7 @@ import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
@@ -532,44 +534,11 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     final username = Preferences.getString(Constants.PREF_USERNAME, '');
     final password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    final data = MobileCookiesData.load();
-    if (data != null) {
-      MobileNkustHelper.instance.setCookieFromData(data);
-      final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
-      print('isCookieAlive $isCookieAlive');
-      if (isCookieAlive) {
-        handleLoginSuccess(username, password);
-        final now = DateTime.now();
-        final lastTime = Preferences.getInt(
-          Constants.SEMESTER_DATA,
-          now.microsecondsSinceEpoch,
-        );
-        FirebaseAnalyticsUtils.analytics.logEvent(
-          name: 'cookies_persistence_time',
-          parameters: {
-            'time': now.microsecondsSinceEpoch - lastTime,
-          },
-        );
-        return;
-      }
-    }
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MobileNkustPage(
-          username: username,
-          password: password,
-        ),
-      ),
-    );
-    if (result ?? false) {
-      handleLoginSuccess(username, password);
-      return;
-    }
     Helper.instance.login(
+      context: context,
       username: username,
       password: password,
-      callback: GeneralCallback(
+      callback: GeneralCallback<LoginResponse>(
         onSuccess: (LoginResponse response) {
           ShareDataWidget.of(context).data.loginResponse = response;
           isLogin = true;
@@ -695,10 +664,12 @@ class HomePageState extends State<HomePage> {
       final leaveTimeCode = List<String>.from(
           jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
-      Helper.selector = CrawlerSelector.fromRawJson(
-        remoteConfig.getString(Constants.CRAWLER_SELECTOR),
-      );
-      Helper.selector.save();
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        Helper.selector = CrawlerSelector.fromRawJson(
+          remoteConfig.getString(Constants.CRAWLER_SELECTOR),
+        );
+        Helper.selector.save();
+      }
       final semesterData = SemesterData.fromRawJson(
         remoteConfig.getString(Constants.SEMESTER_DATA),
       );

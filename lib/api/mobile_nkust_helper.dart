@@ -6,18 +6,25 @@ import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
+import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
 import 'parser/mobile_nkust_parser.dart';
 
@@ -46,6 +53,8 @@ class MobileNkustHelper {
   Dio dio;
 
   CookieJar cookieJar;
+
+  MobileCookiesData cookiesData;
 
   static MobileNkustHelper get instance {
     if (_instance == null) {
@@ -81,6 +90,7 @@ class MobileNkustHelper {
 
   void setCookieFromData(MobileCookiesData data) {
     if (data != null) {
+      cookiesData = data;
       data.cookies?.forEach((element) {
         Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
@@ -141,6 +151,47 @@ class MobileNkustHelper {
       );
     }
     return response;
+  }
+
+  Future<LoginResponse> login({
+    @required BuildContext context,
+    @required String username,
+    @required String password,
+    bool clearCache = false,
+  }) async {
+    final data = MobileCookiesData.load();
+    if (data != null) {
+      MobileNkustHelper.instance.setCookieFromData(data);
+      final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
+      if (isCookieAlive) {
+        final now = DateTime.now();
+        final lastTime = Preferences.getInt(
+          Constants.MOBILE_COOKIES_LAST_TIME,
+          now.microsecondsSinceEpoch,
+        );
+        FirebaseAnalyticsUtils.analytics.logEvent(
+          name: 'cookies_persistence_time',
+          parameters: {
+            'time': now.microsecondsSinceEpoch - lastTime,
+          },
+        );
+        return LoginResponse();
+      }
+    }
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => MobileNkustPage(
+          username: username,
+          password: password,
+          clearCache: clearCache,
+        ),
+      ),
+    );
+    if (result ?? false)
+      return LoginResponse();
+    else
+      return null;
   }
 
   Future<CourseData> getCourseTable({

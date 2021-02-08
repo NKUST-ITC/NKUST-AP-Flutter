@@ -127,14 +127,18 @@ class Helper {
   }
 
   Future<LoginResponse> login({
+    @required BuildContext context,
     @required String username,
     @required String password,
     GeneralCallback<LoginResponse> callback,
+    bool clearCache = false,
   }) async {
     try {
-      var loginResponse = await WebApHelper.instance.apLogin(
+      var loginResponse = await MobileNkustHelper.instance.login(
+        context: context,
         username: username,
         password: password,
+        clearCache: clearCache,
       );
       expireTime = loginResponse.expireTime;
       Helper.username = username;
@@ -939,6 +943,7 @@ class Helper {
     WebApHelper.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
+    MobileNkustHelper.instance.cookiesData.clear();
   }
 }
 

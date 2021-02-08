@@ -8,6 +8,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -165,72 +167,48 @@ class LoginPageState extends State<LoginPage> {
       ApUtils.showToast(context, ap.doNotEmpty, gravity: gravity);
     } else {
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => MobileNkustPage(
-            username: _username.text,
-            password: _password.text,
-            clearCache: true,
-          ),
+      Helper.instance.login(
+        context: context,
+        username: _username.text,
+        password: _password.text,
+        clearCache: true,
+        callback: GeneralCallback<LoginResponse>(
+          onSuccess: (LoginResponse response) async {
+            Preferences.setString(Constants.PREF_USERNAME, _username.text);
+            if (isRememberPassword) {
+              Preferences.setStringSecurity(
+                  Constants.PREF_PASSWORD, _password.text);
+            }
+            Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+            TextInput.finishAutofillContext();
+            Navigator.of(context).pop(true);
+          },
+          onFailure: (DioError e) {
+            Navigator.of(context, rootNavigator: true).pop();
+            ApUtils.handleDioError(context, e, gravity: gravity);
+            if (e.type != DioErrorType.CANCEL) _offlineLogin();
+          },
+          onError: (GeneralResponse response) {
+            Navigator.of(context, rootNavigator: true).pop();
+            String message = '';
+            switch (response.statusCode) {
+              case ApStatusCode.SCHOOL_SERVER_ERROR:
+                message = ap.schoolServerError;
+                break;
+              case ApStatusCode.API_SERVER_ERROR:
+                message = ap.apiServerError;
+                break;
+              case ApStatusCode.USER_DATA_ERROR:
+                message = ap.loginFail;
+                break;
+              default:
+                message = ap.somethingError;
+                break;
+            }
+            ApUtils.showToast(context, message);
+          },
         ),
       );
-      if (result ?? false) {
-        Preferences.setString(Constants.PREF_USERNAME, _username.text);
-        if (isRememberPassword) {
-          Preferences.setStringSecurity(
-              Constants.PREF_PASSWORD, _password.text);
-        }
-        Helper.username = _username.text;
-        Helper.password = _password.text;
-        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-        TextInput.finishAutofillContext();
-        Navigator.of(context).pop(true);
-      } else {
-        FirebaseAnalyticsUtils.instance.logEvent('mobile_nkust_login_cancel');
-      }
-      // Helper.instance.login(
-      //   username: _username.text,
-      //   password: _password.text,
-      //   callback: GeneralCallback<LoginResponse>(
-      //     onSuccess: (LoginResponse response) async {
-      //       Navigator.of(context, rootNavigator: true).pop();
-      //       ShareDataWidget.of(context).data.loginResponse = response;
-      //       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      //       if (isRememberPassword) {
-      //         Preferences.setStringSecurity(
-      //             Constants.PREF_PASSWORD, _password.text);
-      //       }
-      //       Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      //       TextInput.finishAutofillContext();
-      //       Navigator.of(context).pop(true);
-      //     },
-      //     onFailure: (DioError e) {
-      //       Navigator.of(context, rootNavigator: true).pop();
-      //       ApUtils.handleDioError(context, e, gravity: gravity);
-      //       if (e.type != DioErrorType.CANCEL) _offlineLogin();
-      //     },
-      //     onError: (GeneralResponse response) {
-      //       Navigator.of(context, rootNavigator: true).pop();
-      //       String message = '';
-      //       switch (response.statusCode) {
-      //         case ApStatusCode.SCHOOL_SERVER_ERROR:
-      //           message = ap.schoolServerError;
-      //           break;
-      //         case ApStatusCode.API_SERVER_ERROR:
-      //           message = ap.apiServerError;
-      //           break;
-      //         case ApStatusCode.USER_DATA_ERROR:
-      //           message = ap.loginFail;
-      //           break;
-      //         default:
-      //           message = ap.somethingError;
-      //           break;
-      //       }
-      //       ApUtils.showToast(context, message);
-      //     },
-      //   ),
-      // );
     }
   }
 
