@@ -136,7 +136,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
     MobileNkustHelper.instance.setCookieFromData(data);
     data.save();
     Preferences.setInt(
-      Constants.SEMESTER_DATA,
+      Constants.MOBILE_COOKIES_LAST_TIME,
       DateTime.now().microsecondsSinceEpoch,
     );
     Navigator.pop(context, true);
