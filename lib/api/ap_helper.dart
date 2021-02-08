@@ -1,4 +1,6 @@
 //dio
+import 'dart:typed_data';
+
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
@@ -43,6 +45,8 @@ class WebApHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
+
+  String pictureUrl;
 
   //cache key name
   static String get semesterCacheKey => "semesterCacheKey";
@@ -222,10 +226,23 @@ class WebApHelper {
     if (parsedData["id"] == null) {
       _manager.delete(userInfoCacheKey);
     }
-
-    return UserInfo.fromJson(
+    final data = UserInfo.fromJson(
       apUserInfoParser(query.data),
     );
+    pictureUrl = data.pictureUrl;
+    return data;
+  }
+
+  Future<Uint8List> getUserPicture() async {
+    dio.options.headers['Accept'] =
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    final response = await dio.get(
+      pictureUrl,
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+    return response.data;
   }
 
   Future<SemesterData> semesters() async {

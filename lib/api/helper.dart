@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
+import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/announcement_data.dart';
@@ -313,6 +314,18 @@ class Helper {
         await FirebaseCrashlytics.instance.recordError(e, s);
     }
     return null;
+  }
+
+  Future<Uint8List> getUserPicture() async {
+    switch (selector?.userInfo) {
+      case MOBILE:
+        return await MobileNkustHelper.instance.getUserPicture();
+        break;
+      case WEBAP:
+      default:
+        return await WebApHelper.instance.getUserPicture();
+        break;
+    }
   }
 
   Future<SemesterData> getSemester({

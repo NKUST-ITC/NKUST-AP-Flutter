@@ -15,7 +15,6 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
@@ -30,14 +29,12 @@ import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-import 'mobile_nkust_page.dart';
 import 'study/midterm_alerts_page.dart';
 import 'study/reward_and_penalty_page.dart';
 
@@ -517,7 +514,7 @@ class HomePageState extends State<HomePage> {
 
   _getUserPicture() async {
     try {
-      var response = await MobileNkustHelper.instance.getUserPicture();
+      var response = await Helper.instance.getUserPicture();
       if (mounted) {
         setState(() {
           userInfo.pictureBytes = response;
