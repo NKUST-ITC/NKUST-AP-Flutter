@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -184,12 +183,10 @@ class LoginPageState extends State<LoginPage> {
             Navigator.of(context).pop(true);
           },
           onFailure: (DioError e) {
-            Navigator.of(context, rootNavigator: true).pop();
             ApUtils.handleDioError(context, e, gravity: gravity);
             if (e.type != DioErrorType.CANCEL) _offlineLogin();
           },
           onError: (GeneralResponse response) {
-            Navigator.of(context, rootNavigator: true).pop();
             String message = '';
             switch (response.statusCode) {
               case ApStatusCode.SCHOOL_SERVER_ERROR:
@@ -201,11 +198,14 @@ class LoginPageState extends State<LoginPage> {
               case ApStatusCode.USER_DATA_ERROR:
                 message = ap.loginFail;
                 break;
+              case ApStatusCode.CANCEL:
+                message = null;
+                break;
               default:
                 message = ap.somethingError;
                 break;
             }
-            ApUtils.showToast(context, message);
+            if (message != null) ApUtils.showToast(context, message);
           },
         ),
       );

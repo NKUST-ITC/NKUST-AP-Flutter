@@ -3,6 +3,7 @@ class ApStatusCode {
   static const NETWORK_CONNECT_FAIL = 5000;
 
   //LOGIN API
+  static const CANCEL = 100;
   static const USER_DATA_ERROR = 1401;
 
   //Common

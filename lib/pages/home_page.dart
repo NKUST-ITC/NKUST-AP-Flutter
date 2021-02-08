@@ -571,6 +571,7 @@ class HomePageState extends State<HomePage> {
               message = ap.apiServerError;
               break;
             case ApStatusCode.USER_DATA_ERROR:
+            case ApStatusCode.CANCEL:
               message = ap.loginFail;
               break;
             default:
@@ -599,10 +600,6 @@ class HomePageState extends State<HomePage> {
       _getAnnouncements();
     }
     _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
-    Helper.instance.login(
-      username: username,
-      password: password,
-    );
   }
 
   Future openLoginPage() async {

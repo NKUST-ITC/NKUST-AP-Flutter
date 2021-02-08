@@ -26,6 +26,7 @@ import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
+import 'ap_status_code.dart';
 import 'parser/mobile_nkust_parser.dart';
 
 class MobileNkustHelper {
@@ -191,7 +192,7 @@ class MobileNkustHelper {
     if (result ?? false)
       return LoginResponse();
     else
-      return null;
+      throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
   Future<CourseData> getCourseTable({
