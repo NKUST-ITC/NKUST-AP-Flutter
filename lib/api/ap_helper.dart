@@ -95,7 +95,7 @@ class WebApHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
-  Future<LoginResponse> apLogin({
+  Future<LoginResponse> login({
     @required String username,
     @required String password,
   }) async {
@@ -117,6 +117,7 @@ class WebApHelper {
     Helper.password = password;
     switch (apLoginParser(res.data)) {
       case 0:
+        isLogin = true;
         return LoginResponse(
           expireTime: DateTime.now().add(Duration(hours: 6)),
           isAdmin: false,
@@ -130,6 +131,12 @@ class WebApHelper {
         );
         break;
     }
+  }
+
+  Future<LoginResponse> checkLogin() async {
+    return isLogin
+        ? null
+        : await login(username: Helper.username, password: Helper.password);
   }
 
   Future<Response> apQuery(
@@ -147,9 +154,7 @@ class WebApHelper {
           statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
           message: "Login exceeded retry limit");
     }
-    if (isLogin != true) {
-      await apLogin(username: Helper.username, password: Helper.password);
-    }
+    await checkLogin();
     String url =
         "https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp";
     Options _options;
@@ -192,7 +197,7 @@ class WebApHelper {
     if (apLoginParser(request.data) == 2) {
       if (Helper.isSupportCacheData) _manager.delete(cacheKey);
       reLoginReTryCounts += 1;
-      await apLogin(username: Helper.username, password: Helper.password);
+      await login(username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
     }
     reLoginReTryCounts = 0;
@@ -244,6 +249,7 @@ class WebApHelper {
   }
 
   Future<ScoreData> scores(String years, String semesterValue) async {
+    await checkLogin();
     if (!Helper.isSupportCacheData) {
       var query = await apQuery(
         "ag008",
