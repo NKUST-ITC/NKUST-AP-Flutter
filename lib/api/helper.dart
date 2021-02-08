@@ -113,19 +113,6 @@ class Helper {
     cancelToken = CancelToken();
   }
 
-  Future<bool> reLogin(GeneralCallback callback) async {
-    var loginResponse = await login(
-      username: username,
-      password: password,
-      callback: GeneralCallback<LoginResponse>(
-        onSuccess: (loginResponse) => loginResponse,
-        onFailure: callback?.onFailure,
-        onError: callback?.onError,
-      ),
-    );
-    return loginResponse != null;
-  }
-
   Future<LoginResponse> login({
     @required BuildContext context,
     @required String username,
@@ -282,25 +269,13 @@ class Helper {
   Future<UserInfo> getUsersInfo({
     GeneralCallback<UserInfo> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var data = await MobileNkustHelper.instance.getUserInfo();
       reLoginCount = 0;
       if (data.id == null) data.id = username;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getUsersInfo(callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -313,7 +288,6 @@ class Helper {
   Future<SemesterData> getSemester({
     GeneralCallback<SemesterData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       SemesterData data;
       switch (selector?.semester) {
@@ -335,18 +309,7 @@ class Helper {
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getSemester(callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -360,7 +323,6 @@ class Helper {
     @required Semester semester,
     GeneralCallback<ScoreData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       ScoreData data;
       switch (selector?.score) {
@@ -384,18 +346,7 @@ class Helper {
       if (data != null && data.scores.length == 0) data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getScores(semester: semester, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -439,18 +390,7 @@ class Helper {
       }
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getCourseTables(semester: semester, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -464,7 +404,6 @@ class Helper {
     @required Semester semester,
     GeneralCallback<RewardAndPenaltyData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var data = await WebApHelper.instance.rewardAndPenalty(
         semester.year,
@@ -473,18 +412,7 @@ class Helper {
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getRewardAndPenalty(semester: semester, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -498,7 +426,6 @@ class Helper {
     @required Semester semester,
     GeneralCallback<MidtermAlertsData> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var data = await WebApHelper.instance.midtermAlerts(
         semester.year,
@@ -506,18 +433,7 @@ class Helper {
       );
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getMidtermAlerts(semester: semester, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -537,18 +453,7 @@ class Helper {
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getRoomList(campusCode: campusCode, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -572,19 +477,7 @@ class Helper {
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getRoomCourseTables(
-              roomId: roomId, semester: semester, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback?.onFailure(dioError);
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
       callback?.onError(GeneralResponse.unknownError());
@@ -835,7 +728,6 @@ class Helper {
   }
 
   Future<LibraryInfo> getLibraryInfo() async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.get(
         '/leaves/submit/info',
@@ -855,7 +747,6 @@ class Helper {
     @required String data,
     @required GeneralCallback<EventInfoResponse> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.post(
         '/event/info',
@@ -869,18 +760,7 @@ class Helper {
       else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return getEventInfo(data: data, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else
-            callback.onError(GeneralResponse.fromJson(dioError.response.data));
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
     }
     return null;
   }
@@ -891,7 +771,6 @@ class Helper {
     @required String busId,
     @required EventSendCallback<EventSendResponse> callback,
   }) async {
-    if (isExpire()) await login(username: username, password: password);
     try {
       var response = await dio.post(
         '/event/send',
@@ -909,21 +788,7 @@ class Helper {
       } else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isExpire && canReLogin && await reLogin(callback)) {
-          reLoginCount++;
-          return sendEvent(data: data, busId: busId, callback: callback);
-        } else {
-          if (dioError.isServerError)
-            callback?.onError(dioError.serverErrorResponse);
-          else {
-            var generalResponse =
-                GeneralResponse.fromJson(dioError.response.data);
-            callback.onError(generalResponse);
-          }
-        }
-      } else
-        callback?.onFailure(dioError);
+      callback?.onFailure(dioError);
     }
     return null;
   }
