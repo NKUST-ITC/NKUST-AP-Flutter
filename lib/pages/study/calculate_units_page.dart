@@ -351,9 +351,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                 } else {
                   otherUnitsTotal += double.parse(score.units);
                 }
-                if (score.title.contains("延伸通識")) {
+                if (score.title.contains("延伸通識") ||
+                    score.title.contains("博雅")) {
                   extendGeneralEducations.add(score);
-                } else if (score.title.contains("核心通識")) {
+                } else if (score.title.contains("核心通識") ||
+                    score.title.contains("核心")) {
                   coreGeneralEducations.add(score);
                 }
               }
