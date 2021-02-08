@@ -1,4 +1,4 @@
-name: Flutter Web
+name: Build Test
 on: [push]
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
           channel: 'dev'
       - name: Upgrades flutter
         run: flutter upgrade
-        working-directory: ./example
+        working-directory: ./
       - name: Build Android apk
         run: flutter build apk
-        working-directory: ./example
+        working-directory: ./
