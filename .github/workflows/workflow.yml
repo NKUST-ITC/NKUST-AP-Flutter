@@ -1,14 +1,20 @@
 name: Build Test
 on: [push]
 jobs:
-  build:
+  build_android:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v1
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
         with:
           java-version: '12.x'
+      - name: Decrypt Android keys
+        run: sh ./.github/scripts/decrypt_android_keys.sh
+        env:
+          ANDROID_KEYS_SECRET_PASSPHRASE: ${{ secrets.ANDROID_KEYS_SECRET_PASSPHRASE }}
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '1.26.x' # you can use 1.12
@@ -17,5 +23,5 @@ jobs:
         run: flutter upgrade
         working-directory: ./
       - name: Build Android apk
-        run: flutter build apk
+        run: flutter build apk --release
         working-directory: ./
