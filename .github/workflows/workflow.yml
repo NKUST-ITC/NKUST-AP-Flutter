@@ -42,3 +42,21 @@ jobs:
       - name: Build Android app bundle
         run: flutter build appbundle --release
         working-directory: ./
+
+  build_web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable Web
+        run: flutter config --enable-web
+      - name: Build Web
+        run: flutter build web
+        working-directory: ./example
