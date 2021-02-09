@@ -59,4 +59,3 @@ jobs:
         run: flutter config --enable-web
       - name: Build Web
         run: flutter build web
-        working-directory: ./example
