@@ -25,6 +25,6 @@ jobs:
       - name: flutter doctor
         run: flutter doctor -v
         working-directory: ./
-      - name: Build Android apk
-        run: flutter build apk --release
+      - name: Build Android app bundle
+        run: flutter build appbundle --release
         working-directory: ./
