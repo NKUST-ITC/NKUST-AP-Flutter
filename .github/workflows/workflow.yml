@@ -22,6 +22,9 @@ jobs:
       - name: Upgrades flutter
         run: flutter upgrade
         working-directory: ./
+      - name: flutter doctor
+        run: flutter doctor -v
+        working-directory: ./
       - name: Build Android apk
         run: flutter build apk --release
         working-directory: ./
