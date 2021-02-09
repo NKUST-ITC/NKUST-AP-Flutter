@@ -2,7 +2,7 @@ name: Build Test
 on: [push, pull_request]
 jobs:
   build_ios:
-    name: Build iOS app
+    name: Build iOS App
     runs-on: macOS-latest
     steps:
       - name: Checkout code
@@ -16,8 +16,8 @@ jobs:
         run: flutter build ios --release
 
   build_android:
+    name: Build Android App
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
