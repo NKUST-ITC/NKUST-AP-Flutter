@@ -73,14 +73,6 @@ class _Cookie implements Cookie {
       return s.substring(start, index).trim();
     }
 
-    void expect(String expected) {
-      if (done()) throw new HttpException("Failed to parse header value [$s]");
-      if (s[index] != expected) {
-        throw new HttpException("Failed to parse header value [$s]");
-      }
-      index++;
-    }
-
     void parseAttributes() {
       String parseAttributeName() {
         int start = index;

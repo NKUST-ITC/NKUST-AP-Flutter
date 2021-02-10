@@ -473,7 +473,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
         }
       });
     }
-  } on Exception catch (e) {} on RangeError catch (r) {}
+  } on Exception catch (_) {} on RangeError catch (_) {}
 
   //the second talbe.
 
@@ -492,7 +492,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
         _temptext = _temptext.substring(1, _temptext.length - 1);
         data['coursetable']['timeCodes'].add(_temptext);
       }
-    } on Exception catch (e) {}
+    } on Exception catch (_) {}
   //make each day.
   List keyName = [
     'Monday',
@@ -600,7 +600,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
       });
     }
     data.remove('_temp_time');
-  } on Exception catch (e) {}
+  } on Exception catch (_) {}
 
   return data;
 }

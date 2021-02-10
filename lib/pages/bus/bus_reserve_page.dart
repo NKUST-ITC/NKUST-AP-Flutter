@@ -257,7 +257,7 @@ class BusReservePageState extends State<BusReservePage>
             padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
             onPressed: busTime.canReserve() && !busTime.isReserve
                 ? () {
-                    String start = "", end = "";
+                    String start = "";
                     if (selectStartStation == Station.janGong)
                       start = app.fromJiangong;
                     else if (selectStartStation == Station.yanchao)

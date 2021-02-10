@@ -13,7 +13,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error, empty }

@@ -105,7 +105,7 @@ class Utils {
             content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
           ),
         );
-      } on FetchThrottledException catch (exception) {} catch (exception) {}
+      } on FetchThrottledException catch (_) {} catch (exception) {}
     }
   }
 
