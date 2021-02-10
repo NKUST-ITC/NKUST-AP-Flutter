@@ -93,7 +93,7 @@ BEGIN
             VALUE "FileDescription", "A new Flutter project." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "nkust_ap" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2020 com.kuas. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2021 com.kuas. All rights reserved." "\0"
             VALUE "OriginalFilename", "nkust_ap.exe" "\0"
             VALUE "ProductName", "nkust_ap" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
