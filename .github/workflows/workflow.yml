@@ -93,4 +93,4 @@ jobs:
         run: flutter config --enable-macos-desktop
       - run: flutter pub get
       - name: Build macOS
-        run: flutter build macos --release --no-codesign
+        run: flutter build macos --release
