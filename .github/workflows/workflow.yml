@@ -19,21 +19,6 @@ jobs:
       - name: Model test
         run: flutter test test/model_test.dart
 
-  build_ios:
-    name: Build iOS App
-    runs-on: macOS-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
-        with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
-      - run: flutter pub get
-      - name: Build iOS
-        run: flutter build ios --release --no-codesign
-
   build_android:
     name: Build Android App
     runs-on: ubuntu-latest
@@ -58,6 +43,21 @@ jobs:
       - name: Build Android app bundle
         run: flutter build appbundle --release
 
+  build_ios:
+    name: Build iOS App
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - run: flutter pub get
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign
+
   build_web:
     name: Build Web App
     runs-on: ubuntu-latest
@@ -75,3 +75,22 @@ jobs:
       - run: flutter pub get
       - name: Build Web
         run: flutter build web
+
+  build_macos:
+    name: Build iOS App
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable macOS
+        run: flutter config --enable-macos-desktop
+      - run: flutter pub get
+      - name: Build macOS
+        run: flutter build macos --release --no-codesign
