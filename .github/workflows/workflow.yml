@@ -1,6 +1,24 @@
 name: Build Test
 on: [push, pull_request]
 jobs:
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - run: flutter pub get
+      - name: Analyze files
+        run: flutter analyze .
+      - name: Model test
+        run: flutter test test/model_test.dart
+
   build_ios:
     name: Build iOS App
     runs-on: macOS-latest
