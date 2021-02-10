@@ -77,7 +77,7 @@ jobs:
         run: flutter build web
 
   build_macos:
-    name: Build iOS App
+    name: Build macOS App
     runs-on: macOS-latest
     steps:
       - name: Checkout code
