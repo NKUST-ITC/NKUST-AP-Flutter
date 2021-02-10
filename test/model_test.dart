@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 
 void main() {
@@ -11,5 +12,17 @@ void main() {
     expect(data.data.first.date, "1040618");
     expect(data.data.first.type, "小功");
     expect(data.data.first.isReward, true);
+  });
+
+  test('Leave Data parser', () {
+    final rawData =
+        '{ "data": [ { "leaveSheetId": "", "date": "1071114", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }';
+    final data = LeaveData.fromRawJson(rawData);
+
+    expect(data.leaves.length, 1);
+    expect(data.leaves.first.date, "1071114");
+    expect(data.leaves.first.dateText, "11/14");
+    expect(data.leaves.first.leaveSections.length, 2);
+    expect(data.leaves.first.leaveSections.first.reason, "曠");
   });
 }
