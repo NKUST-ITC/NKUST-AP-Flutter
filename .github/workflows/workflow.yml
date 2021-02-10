@@ -12,6 +12,7 @@ jobs:
         with:
           flutter-version: '1.26.x'
           channel: 'dev'
+      - run: flutter pub get
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
@@ -35,13 +36,9 @@ jobs:
           channel: 'dev'
       - name: Upgrades flutter
         run: flutter upgrade
-        working-directory: ./
-      - name: flutter doctor
-        run: flutter doctor -v
-        working-directory: ./
+      - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release
-        working-directory: ./
 
   build_web:
     name: Build Web App
@@ -57,5 +54,6 @@ jobs:
         run: flutter upgrade
       - name: Enable Web
         run: flutter config --enable-web
+      - run: flutter pub get
       - name: Build Web
         run: flutter build web
