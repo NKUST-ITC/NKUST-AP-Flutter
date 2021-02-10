@@ -95,6 +95,26 @@ jobs:
       - name: Build macOS
         run: flutter build macos --release
 
+  build_linux:
+    name: Build Linux App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable linux
+        run: flutter config --enable-linux-desktop
+      - run: flutter doctor -v
+      - run: flutter pub get
+      - name: Build linux
+        run: flutter build linux --release
+
   build_windows:
     name: Build Windows App
     runs-on: windows-latest
