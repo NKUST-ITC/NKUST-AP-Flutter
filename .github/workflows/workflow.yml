@@ -94,3 +94,23 @@ jobs:
       - run: flutter pub get
       - name: Build macOS
         run: flutter build macos --release
+
+  build_windows:
+    name: Build Windows App
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'dev'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable windows
+        run: flutter config --enable-windows-desktop
+      - run: flutter doctor -v
+      - run: flutter pub get
+      - name: Build windows
+        run: flutter build windows --release
