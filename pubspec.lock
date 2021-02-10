@@ -32,21 +32,17 @@ packages:
   ap_common_firebase:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v0.5.0"
-      resolved-ref: "4d9996ca4bed9ff9d899437c4b173cfe5038c951"
-      url: "https://github.com/abc873693/ap_common_firebase"
-    source: git
-    version: "0.5.0"
+      name: ap_common_firebase
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0-dev.1"
   ap_common_plugin:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "v0.1.2"
-      resolved-ref: "786f2de4eebad25721be2ae0fc13c61f60368e8e"
-      url: "https://github.com/abc873693/ap_common_plugin"
-    source: git
-    version: "0.1.2"
+      name: ap_common_plugin
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.4"
   archive:
     dependency: transitive
     description:
