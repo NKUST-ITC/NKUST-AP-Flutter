@@ -26,7 +26,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -111,21 +110,13 @@ class HomePageState extends State<HomePage> {
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
-      logEvent: (name, value) =>
-          FirebaseAnalyticsUtils.instance.logAction(name, value),
-      setCurrentScreen: () => FirebaseAnalyticsUtils.instance
-          .setCurrentScreen("AboutUsPage", "about_us_page.dart"),
       actions: <Widget>[
         IconButton(
           icon: Icon(ApIcon.codeIcon),
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => OpenSourcePage(
-                  setCurrentScreen: () => FirebaseAnalyticsUtils.instance
-                      .setCurrentScreen(
-                          "OpenSourcePage", "open_source_page.dart"),
-                ),
+                builder: (_) => OpenSourcePage(),
               ),
             );
             FirebaseAnalyticsUtils.instance.logAction('open_source', 'click');
@@ -139,8 +130,10 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("HomePage", "home_page.dart");
+    FirebaseAnalyticsUtils.instance?.setCurrentScreen(
+      "HomePage",
+      "home_page.dart",
+    );
     future = getData();
     super.initState();
   }
@@ -519,7 +512,6 @@ class HomePageState extends State<HomePage> {
         setState(() {
           userInfo.pictureBytes = response;
         });
-        await MobileNkustHelper.instance.getUserInfo();
       }
       // CacheUtils.savePictureData(response);
     } catch (e) {

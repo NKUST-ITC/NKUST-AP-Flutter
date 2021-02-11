@@ -153,7 +153,7 @@ class SettingPageState extends State<SettingPage> {
 //                        code,
 //                      );
 //                      FirebaseAnalyticsUtils.instance.setUserProperty(
-//                        FirebaseConstants.LANGUAGE,
+//                        AnalyticsConstants.LANGUAGE,
 //                        AppLocalizations.locale.languageCode,
 //                      );
                     },

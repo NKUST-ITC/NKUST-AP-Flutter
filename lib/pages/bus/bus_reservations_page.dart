@@ -1,4 +1,5 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/config/analytics_constants.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -8,7 +9,6 @@ import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -265,8 +265,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
             });
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            FirebaseConstants.CAN_USE_BUS,
-            FirebaseConstants.YES,
+            Constants.CAN_USE_BUS,
+            AnalyticsConstants.YES,
           );
           busReservationsData?.save(Helper.username);
         },
@@ -290,8 +290,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 if (e.response.statusCode == 401 ||
                     e.response.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
-                    FirebaseConstants.CAN_USE_BUS,
-                    FirebaseConstants.NO,
+                    Constants.CAN_USE_BUS,
+                    AnalyticsConstants.NO,
                   );
                 break;
               case DioErrorType.DEFAULT:

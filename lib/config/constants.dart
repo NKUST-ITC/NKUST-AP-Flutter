@@ -85,4 +85,7 @@ class Constants {
 
   // Crawler config
   static const TIMEOUT_MS = 5000;
+
+  static const CAN_USE_BUS = 'can_use_bus';
+  static const HAS_BUS_VIOLATION = 'has_bus_violation';
 }

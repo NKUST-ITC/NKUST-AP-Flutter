@@ -1,11 +1,12 @@
+import 'package:ap_common/config/analytics_constants.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common_firebase/constants/fiirebase_constants.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -230,14 +231,14 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             });
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            FirebaseConstants.CAN_USE_BUS,
-            FirebaseConstants.YES,
+            Constants.CAN_USE_BUS,
+            AnalyticsConstants.YES,
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            FirebaseConstants.HAS_BUS_VIOLATION,
+            Constants.HAS_BUS_VIOLATION,
             (data?.hasBusViolationRecords ?? false)
-                ? FirebaseConstants.YES
-                : FirebaseConstants.NO,
+                ? AnalyticsConstants.YES
+                : AnalyticsConstants.NO,
           );
         },
         onFailure: (DioError e) {
@@ -260,8 +261,8 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 if (e.response.statusCode == 401 ||
                     e.response.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
-                    FirebaseConstants.CAN_USE_BUS,
-                    FirebaseConstants.NO,
+                    Constants.CAN_USE_BUS,
+                    AnalyticsConstants.NO,
                   );
                 break;
               case DioErrorType.DEFAULT:
