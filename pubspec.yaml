@@ -13,9 +13,9 @@ dependencies:
     sdk: flutter
   flutter_cupertino_localizations: 1.0.1
 
-  ap_common: 0.11.1
+  ap_common: 0.12.0-dev.1
 #    path: ../ap_common
-  ap_common_firebase: 0.6.0-dev.1
+  ap_common_firebase: 0.6.0-dev.2
 #    path: ../../GitHub/ap_common_firebase
   ap_common_plugin: 0.1.4
 #    path: ../../GitHub/ap_common_plugin
