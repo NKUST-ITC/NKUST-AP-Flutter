@@ -45,8 +45,9 @@ app.*.map.json
 
 ios/GoogleService-Info.plist
 
-android/app/google-services.json
-android/key.jks
+google-services.json
+key.jks
+service_account_key.json
 android/android_keys.zip
 
 .vscode/
