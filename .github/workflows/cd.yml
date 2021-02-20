@@ -62,7 +62,7 @@ jobs:
         run: flutter build windows --release
       - name: 'Tar files'
         run: tar -cvf windows.tar build\windows\runner\Release\
-     - name: upload artifacts
+      - name: upload artifacts
       - uses: actions/upload-artifact@v2
         with:
           name: windows-artifact
