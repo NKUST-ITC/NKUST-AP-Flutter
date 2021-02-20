@@ -51,22 +51,28 @@ class SemesterPickerState extends State<SemesterPicker> {
           AnalyticsUtils.instance
               ?.logEvent('${widget.featureTag}_item_picker_click');
       },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            selectSemester?.text ?? '',
-            style: TextStyle(
-              color: ApTheme.of(context).semesterText,
-              fontSize: 18.0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          vertical: 4.0,
+          horizontal: 16.0,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(
+              selectSemester?.text ?? '',
+              style: TextStyle(
+                color: ApTheme.of(context).semesterText,
+                fontSize: 18.0,
+              ),
             ),
-          ),
-          SizedBox(width: 8.0),
-          Icon(
-            ApIcon.keyboardArrowDown,
-            color: ApTheme.of(context).semesterText,
-          )
-        ],
+            SizedBox(width: 8.0),
+            Icon(
+              ApIcon.keyboardArrowDown,
+              color: ApTheme.of(context).semesterText,
+            )
+          ],
+        ),
       ),
     );
   }
