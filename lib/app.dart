@@ -32,7 +32,6 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   ThemeMode themeMode = ThemeMode.system;
-  ThemeData themeData;
 
   Locale locale;
 
@@ -42,7 +41,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool hasBusViolationRecords = false;
 
   FirebaseAnalytics analytics;
-  FirebaseMessaging firebaseMessaging;
 
   logout() {
     setState(() {
