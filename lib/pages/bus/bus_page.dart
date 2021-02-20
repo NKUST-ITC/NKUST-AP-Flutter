@@ -125,11 +125,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     Helper.instance.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
-          print(data.reservations.length);
-          setState(() {
-            ShareDataWidget.of(context).data.hasBusViolationRecords =
-                data.hasBusViolationRecords;
-          });
+          if (mounted)
+            setState(() {
+              ShareDataWidget.of(context).data.hasBusViolationRecords =
+                  data.hasBusViolationRecords;
+            });
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.CAN_USE_BUS,
             AnalyticsConstants.YES,
