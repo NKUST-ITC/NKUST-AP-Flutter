@@ -437,7 +437,8 @@ class HomePageState extends State<HomePage> {
   }
 
   _getAnnouncements() async {
-    AnnouncementHelper.instance.getAllAnnouncements(
+    AnnouncementHelper.instance.getAnnouncements(
+      tags: ['nkust'],
       callback: GeneralCallback(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
@@ -487,6 +488,7 @@ class HomePageState extends State<HomePage> {
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
               userInfo.save(Helper.username);
+              _checkFeatureEnable();
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
             }
