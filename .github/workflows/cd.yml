@@ -1,0 +1,43 @@
+# cd.yml
+name: Store CD
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  # CD
+  deploy_android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: '1.8'
+      - name: Decrypt Android keys
+        run: sh ./.github/scripts/decrypt_android_keys.sh
+        env:
+          ANDROID_KEYS_SECRET_PASSPHRASE: ${{ secrets.ANDROID_KEYS_SECRET_PASSPHRASE }}
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x' # you can use 1.12
+          channel: 'beta'
+      - name: Install Flutter dependencies
+        run: flutter pub get
+      - run: flutter build appbundle --release
+      - name: Setup ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7.2'
+      - name: Bundle update
+        run: bundle update --bundler
+        working-directory: ./android
+      - name: Run Fastlane
+        uses: maierj/fastlane-action@v2.0.1
+        with:
+          lane: 'beta'
+          subdirectory: 'android'
