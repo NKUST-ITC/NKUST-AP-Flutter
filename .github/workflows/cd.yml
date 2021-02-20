@@ -41,3 +41,29 @@ jobs:
         with:
           lane: 'beta'
           subdirectory: 'android'
+
+  build_windows:
+    name: Windows App
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'dev'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable windows
+        run: flutter config --enable-windows-desktop
+      - run: flutter doctor -v
+      - run: flutter pub get
+      - name: Build windows
+        run: flutter build windows --release
+      - name: 'Tar files'
+        run: tar -cvf windows.tar build\windows\runner\Release\
+     - name: upload artifacts
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-artifact
+          path: windows.tar
