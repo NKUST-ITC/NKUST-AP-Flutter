@@ -40,8 +40,6 @@ void main() async {
     GoogleSignInDart.register(
         clientId:
             '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
-  ApIcon.code =
-      Preferences.getString(Constants.PREF_ICON_STYLE_CODE, ApIcon.OUTLINED);
   Helper.selector = CrawlerSelector.load();
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (kDebugMode && FirebaseUtils.isSupportCrashlytics) {
