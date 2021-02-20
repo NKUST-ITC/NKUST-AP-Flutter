@@ -3,6 +3,7 @@ import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_notify_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
+import 'package:ap_common/utils/analytics_utils.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
@@ -20,8 +21,10 @@ typedef SemesterCallback = void Function(Semester semester, int index);
 
 class SemesterPicker extends StatefulWidget {
   final SemesterCallback onSelect;
+  final String featureTag;
 
-  const SemesterPicker({Key key, this.onSelect}) : super(key: key);
+  const SemesterPicker({Key key, this.onSelect, this.featureTag})
+      : super(key: key);
 
   @override
   SemesterPickerState createState() => SemesterPickerState();
@@ -41,10 +44,12 @@ class SemesterPickerState extends State<SemesterPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return FlatButton(
-      onPressed: () {
+    return InkWell(
+      onTap: () {
         if (semesterData != null) pickSemester();
-        FirebaseAnalyticsUtils.instance.logAction('pick_yms', 'click');
+        if (widget.featureTag != null)
+          AnalyticsUtils.instance
+              ?.logEvent('${widget.featureTag}_item_picker_click');
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
