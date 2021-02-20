@@ -27,7 +27,6 @@ struct Provider: IntentTimelineProvider {
         myUserDefaults = UserDefaults(suiteName: "group.com.nkust.ap")
         var text = "尚無課程資料"
         if let json = myUserDefaults.string(forKey: "course_notify"){
-            print(json)
             let courseData = try? JSONDecoder().decode(CourseData.self, from: Data(json.utf8))
             let today = Date()
             let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: today)
