@@ -165,10 +165,7 @@ class HomePageState extends State<HomePage> {
                   ImgurHelper.clientId = 'bf8e32144d00b04';
                   ApUtils.pushCupertinoStyle(
                     context,
-                    AnnouncementHomePage(
-                      catchException: (e, s) =>
-                          FirebaseCrashlytics.instance.recordError(e, s),
-                    ),
+                    AnnouncementHomePage(),
                   );
                   if (FirebaseUtils.isSupportCloudMessage) {
                     try {

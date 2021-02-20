@@ -113,14 +113,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               setState(() => notificationState = NotificationState.loadingMore);
               _getNotifications();
             },
-            logEvent: (key, value) =>
-                FirebaseAnalyticsUtils.instance.logAction(key, value),
           ),
           PhoneScaffold(
             state: phoneState,
             phoneModelList: phoneModelList,
-            logEvent: (key, value) =>
-                FirebaseAnalyticsUtils.instance.logAction(key, value),
           ),
           PdfScaffold(
             state: pdfState,
