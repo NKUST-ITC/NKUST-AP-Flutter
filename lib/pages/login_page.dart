@@ -33,18 +33,11 @@ class LoginPageState extends State<LoginPage> {
   var isRememberPassword = true;
   var isAutoLogin = false;
 
-  int gravity = Toast.BOTTOM;
-
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("LoginPage", "login_page.dart");
     _getPreference();
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      KeyboardVisibilityController().onChange.listen(
-            (bool visible) => gravity = visible ? Toast.TOP : Toast.BOTTOM,
-          );
-    }
     super.initState();
   }
 
@@ -163,7 +156,7 @@ class LoginPageState extends State<LoginPage> {
 
   _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
-      ApUtils.showToast(context, ap.doNotEmpty, gravity: gravity);
+      ApUtils.showToast(context, ap.doNotEmpty);
     } else {
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance.login(
@@ -183,7 +176,7 @@ class LoginPageState extends State<LoginPage> {
             Navigator.of(context).pop(true);
           },
           onFailure: (DioError e) {
-            ApUtils.handleDioError(context, e, gravity: gravity);
+            ApUtils.handleDioError(context, e);
             if (e.type != DioErrorType.CANCEL) _offlineLogin();
           },
           onError: (GeneralResponse response) {
