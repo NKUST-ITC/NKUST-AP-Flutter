@@ -36,7 +36,7 @@ jobs:
       - uses: subosito/flutter-action@v1
         with:
           flutter-version: '1.26.x' # you can use 1.12
-          channel: 'dev'
+          channel: 'beta'
       - name: Upgrades flutter
         run: flutter upgrade
       - run: flutter pub get
@@ -53,7 +53,7 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           flutter-version: '1.26.x'
-          channel: 'dev'
+          channel: 'beta'
       - run: flutter pub get
       - name: Build iOS
         run: flutter build ios --release --no-codesign
