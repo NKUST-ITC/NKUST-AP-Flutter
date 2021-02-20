@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
@@ -51,7 +52,7 @@ class SchedulePageState extends State<SchedulePage>
       );
   PdfState pdfState = PdfState.loading;
 
-  PdfController pdfController;
+  Uint8List data;
 
   @override
   void initState() {
@@ -90,7 +91,7 @@ class SchedulePageState extends State<SchedulePage>
       case _State.pdf:
         return PdfScaffold(
           state: pdfState,
-          pdfController: pdfController,
+          data: data,
           onRefresh: _getSchedules,
         );
       case _State.finish:
@@ -267,9 +268,7 @@ class SchedulePageState extends State<SchedulePage>
       setState(() {
         state = _State.pdf;
         pdfState = PdfState.finish;
-        pdfController = PdfController(
-          document: PdfDocument.openData(response.data),
-        );
+        data = response.data;
       });
     } catch (e) {
       setState(() {
