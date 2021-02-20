@@ -42,7 +42,7 @@ jobs:
           lane: 'beta'
           subdirectory: 'android'
 
-  build_windows:
+  deploy_windows:
     name: Windows App
     runs-on: windows-latest
     steps:
