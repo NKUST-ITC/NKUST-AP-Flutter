@@ -2,6 +2,7 @@ import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/pages/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/leave/leave_record_page.dart';
 
@@ -27,6 +28,18 @@ class LeavePageState extends State<LeavePage>
 
   int _currentIndex = 0;
 
+  InAppWebViewController webViewController;
+
+  String get path {
+    switch (_currentIndex) {
+      case 0:
+        return 'https://mobile.nkust.edu.tw/Student/Leave/Create';
+      case 1:
+      default:
+        return 'https://mobile.nkust.edu.tw/Student/Absenteeism';
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -49,10 +62,15 @@ class LeavePageState extends State<LeavePage>
         title: Text(ap.leave),
         backgroundColor: ApTheme.of(context).blue,
       ),
-      body: TabBarView(
-          children: widget._children,
-          controller: controller,
-          physics: NeverScrollableScrollPhysics()),
+      body: InAppWebView(
+        initialUrl: path,
+        initialOptions: InAppWebViewGroupOptions(
+          crossPlatform: InAppWebViewOptions(),
+        ),
+        onWebViewCreated: (InAppWebViewController webViewController) {
+          this.webViewController = webViewController;
+        },
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
@@ -75,6 +93,7 @@ class LeavePageState extends State<LeavePage>
     setState(() {
       _currentIndex = index;
       controller.animateTo(_currentIndex);
+      webViewController.loadUrl(url: path);
     });
   }
 }
