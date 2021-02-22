@@ -29,6 +29,7 @@ void main() async {
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   GestureBinding.instance.resamplingEnabled = kDebugMode;
   AnnouncementHelper.tag = 'ap';
+  AnnouncementHelper.organization = 'nkust';
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   var currentVersion =
