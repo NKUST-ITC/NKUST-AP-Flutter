@@ -42,7 +42,7 @@ packages:
       name: ap_common_plugin
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.5"
+    version: "0.2.0"
   archive:
     dependency: transitive
     description:
