@@ -101,10 +101,10 @@ class MobileNkustParser {
         }
       };
       for (var time in course['CourseWeekPeriod']) {
-        _temp['sectionTimes'].add({
-          "weekday": int.parse(time['CourseWeek']),
-          "index": int.parse(time['CoursePeriod'])
-        });
+        final weekday = int.tryParse(time['CourseWeek']) ?? 0;
+        if (weekday <= 0 || weekday > 7) continue;
+        _temp['sectionTimes'].add(
+            {"weekday": weekday, "index": int.parse(time['CoursePeriod'])});
       }
       result["courses"].add(_temp);
     });
