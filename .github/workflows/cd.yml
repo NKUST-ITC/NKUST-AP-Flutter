@@ -94,7 +94,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [deploy_android, deploy_windows]
+    needs: [deploy_android, deploy_web, deploy_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
