@@ -110,6 +110,10 @@ jobs:
           body_path: RELEASE_NOTE.md
           draft: false
           prerelease: false
+      - name: Use Download Artifact v2
+        uses: actions/download-artifact@v2
+        with:
+          name: windows-artifact
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
