@@ -42,6 +42,30 @@ jobs:
           lane: 'beta'
           subdirectory: 'android'
 
+  deploy_web:
+    name: Web Firebase Hosting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x'
+          channel: 'beta'
+      - name: Upgrades flutter
+        run: flutter upgrade
+      - name: Enable Web
+        run: flutter config --enable-web
+      - run: flutter pub get
+      - name: Build Web
+        run: flutter build web
+      - name: Deploy to Firebase
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: nkust-ap-flutter
+
   deploy_windows:
     name: Windows App
     runs-on: windows-latest
