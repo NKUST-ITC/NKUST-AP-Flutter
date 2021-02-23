@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
@@ -60,7 +61,12 @@ class MobileNkustHelper {
 
   MobileCookiesData cookiesData;
 
+  static List<String> userAgentList = [
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_1_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"
+  ];
+
   static MobileNkustHelper get instance {
+    final _random = new Random();
     if (_instance == null) {
       _instance = MobileNkustHelper();
       _instance.dio = Dio(
@@ -68,7 +74,7 @@ class MobileNkustHelper {
           followRedirects: false,
           headers: {
             "user-agent":
-                "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+                "${userAgentList[_random.nextInt(userAgentList.length)]}",
           },
         ),
       );
