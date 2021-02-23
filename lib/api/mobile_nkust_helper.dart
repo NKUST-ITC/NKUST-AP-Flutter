@@ -130,11 +130,14 @@ class MobileNkustHelper {
 
   Future<Response> generalRequest(
     String url, {
+    Map<String, dynamic> firstRequestHeader,
     String otherRequestUrl,
+    Map<String, dynamic> otherRequestHeader,
     Map<String, dynamic> data,
   }) async {
     Response response = await dio.get(
       url,
+      options: Options(headers: firstRequestHeader),
     );
 
     if (data != null) {
@@ -151,6 +154,7 @@ class MobileNkustHelper {
         data: _requestData,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
+          headers: otherRequestHeader,
         ),
       );
     }
@@ -204,11 +208,15 @@ class MobileNkustHelper {
   }) async {
     Response response;
     if (year == null || semester == null) {
-      response = await generalRequest(COURSE);
+      response = await generalRequest(
+        COURSE,
+        firstRequestHeader: {"Referer": HOME},
+      );
     } else {
       response = await generalRequest(
         COURSE,
         data: {"Yms": "$year-$semester"},
+        firstRequestHeader: {"Referer": COURSE},
       );
     }
 
@@ -224,11 +232,15 @@ class MobileNkustHelper {
   }) async {
     Response response;
     if (year == null || semester == null) {
-      response = await generalRequest(MID_ALERTS);
+      response = await generalRequest(
+        MID_ALERTS,
+        firstRequestHeader: {"Referer": HOME},
+      );
     } else {
       response = await generalRequest(
         MID_ALERTS,
         data: {"Yms": "$year-$semester"},
+        firstRequestHeader: {"Referer": MID_ALERTS},
       );
     }
 
@@ -244,11 +256,15 @@ class MobileNkustHelper {
   }) async {
     Response response;
     if (year == null || semester == null) {
-      response = await generalRequest(SCORE);
+      response = await generalRequest(
+        SCORE,
+        firstRequestHeader: {"Referer": HOME},
+      );
     } else {
       response = await generalRequest(
         SCORE,
         data: {"Yms": "$year-$semester"},
+        firstRequestHeader: {"Referer": SCORE},
       );
     }
 
@@ -259,7 +275,10 @@ class MobileNkustHelper {
   }
 
   Future<UserInfo> getUserInfo() async {
-    final response = await generalRequest(HOME);
+    final response = await generalRequest(
+      HOME,
+      firstRequestHeader: {"Referer": HOME},
+    );
     final rawHtml = response.data;
     // if (kDebugMode) debugPrint(rawHtml);
     final data = MobileNkustParser.userInfo(rawHtml);
@@ -273,6 +292,7 @@ class MobileNkustHelper {
       PICTURE,
       options: Options(
         responseType: ResponseType.bytes,
+        headers: {"Referer": HOME},
       ),
     );
     return response.data;
@@ -300,6 +320,7 @@ class MobileNkustHelper {
     //get main CSRF
     Response _request = await dio.get(
       BUS_TIMETABLE_PAGE,
+      options: Options(headers: {"Referer": HOME}),
     );
 
     List<Response> _requestsList = [];
@@ -320,6 +341,7 @@ class MobileNkustHelper {
           },
           options: Options(
             contentType: Headers.formUrlEncodedContentType,
+            headers: {"Referer": BUS_TIMETABLE_PAGE},
           ));
       _requestsList.add(request);
     }
@@ -341,8 +363,13 @@ class MobileNkustHelper {
   Future<BookingBusData> busBook({
     String busId,
   }) async {
-    var request = await generalRequest(BUS_TIMETABLE_PAGE,
-        otherRequestUrl: BUS_BOOK_API, data: {"busId": busId});
+    var request = await generalRequest(
+      BUS_TIMETABLE_PAGE,
+      otherRequestUrl: BUS_BOOK_API,
+      data: {"busId": busId},
+      firstRequestHeader: {"Referer": HOME},
+      otherRequestHeader: {"Referer": BUS_TIMETABLE_PAGE},
+    );
 
     Map<String, dynamic> data;
     BookingBusData status = BookingBusData();
@@ -364,8 +391,13 @@ class MobileNkustHelper {
   Future<CancelBusData> busUnBook({
     String busId,
   }) async {
-    var request = await generalRequest(BUS_TIMETABLE_PAGE,
-        otherRequestUrl: BUS_UNBOOK_API, data: {"reserveId": busId});
+    var request = await generalRequest(
+      BUS_TIMETABLE_PAGE,
+      otherRequestUrl: BUS_UNBOOK_API,
+      data: {"reserveId": busId},
+      firstRequestHeader: {"Referer": HOME},
+      otherRequestHeader: {"Referer": BUS_TIMETABLE_PAGE},
+    );
 
     Map<String, dynamic> data;
     CancelBusData status = CancelBusData();
@@ -387,6 +419,7 @@ class MobileNkustHelper {
     //get main CSRF
     Response _request = await dio.get(
       BUS_USER_RECORD_PAGE,
+      options: Options(headers: {"Referer": HOME}),
     );
 
     List<Response> _requestsList = [];
@@ -397,19 +430,20 @@ class MobileNkustHelper {
       ['建工', '第一'],
     ];
     for (var requestData in requestsDataList) {
-      Response request = await dio.post(BUS_USER_RECORD_API,
-          data: {
-            'reserveStateCode': 0,
-            'beginStation': requestData[0],
-            'endStation': requestData[1],
-            'pageNum': 1,
-            'pageSize': 99,
-            '__RequestVerificationToken':
-                MobileNkustParser.getCSRF(_request.data)
-          },
-          options: Options(
+      Response request = await dio.post(
+        BUS_USER_RECORD_API,
+        data: {
+          'reserveStateCode': 0,
+          'beginStation': requestData[0],
+          'endStation': requestData[1],
+          'pageNum': 1,
+          'pageSize': 99,
+          '__RequestVerificationToken': MobileNkustParser.getCSRF(_request.data)
+        },
+        options: Options(
             contentType: Headers.formUrlEncodedContentType,
-          ));
+            headers: {"Referer": BUS_USER_RECORD_PAGE}),
+      );
       _requestsList.add(request);
     }
 
@@ -431,21 +465,29 @@ class MobileNkustHelper {
 
   Future<BusViolationRecordsData> busViolationRecords() async {
     // paid request
-    var paidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
-        otherRequestUrl: BUS_VIOLATION_RECORDS_API,
-        data: {
-          'paid': true,
-          'pageNum': 1,
-          'pageSize': 100,
-        });
+    var paidRequest = await generalRequest(
+      BUS_VIOLATION_RECORDS_PAGE,
+      otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+      data: {
+        'paid': true,
+        'pageNum': 1,
+        'pageSize': 100,
+      },
+      firstRequestHeader: {"Referer": HOME},
+      otherRequestHeader: {"Referer": BUS_VIOLATION_RECORDS_PAGE},
+    );
     // not pay request
-    var notPaidRequest = await generalRequest(BUS_VIOLATION_RECORDS_PAGE,
-        otherRequestUrl: BUS_VIOLATION_RECORDS_API,
-        data: {
-          'paid': false,
-          'pageNum': 1,
-          'pageSize': 100,
-        });
+    var notPaidRequest = await generalRequest(
+      BUS_VIOLATION_RECORDS_PAGE,
+      otherRequestUrl: BUS_VIOLATION_RECORDS_API,
+      data: {
+        'paid': false,
+        'pageNum': 1,
+        'pageSize': 100,
+      },
+      firstRequestHeader: {"Referer": HOME},
+      otherRequestHeader: {"Referer": BUS_VIOLATION_RECORDS_PAGE},
+    );
 
     var result = [];
     result.addAll(MobileNkustParser.busViolationRecords(
