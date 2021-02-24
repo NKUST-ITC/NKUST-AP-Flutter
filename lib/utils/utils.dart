@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/version_info.dart';
+import 'package:ap_common/utils/analytics_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -71,6 +72,10 @@ class Utils {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     var currentVersion =
         Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
+    AnalyticsUtils.instance?.setUserProperty(
+      Constants.VERSION_CODE,
+      packageInfo.buildNumber,
+    );
     if (currentVersion != packageInfo.buildNumber) {
       DialogUtils.showUpdateContent(
         context,
