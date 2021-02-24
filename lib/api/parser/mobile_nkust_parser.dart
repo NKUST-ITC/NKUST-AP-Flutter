@@ -100,6 +100,7 @@ class MobileNkustParser {
           "room": course['CourseRoom'] ?? "",
         }
       };
+      final hasMorning = periodTimeJson[0]["PeriodName"] == "M";
       for (var time in course['CourseWeekPeriod']) {
         final weekday = int.tryParse(time['CourseWeek']) ?? 0;
         final sectionIndex = int.tryParse(time['CoursePeriod']);
@@ -107,7 +108,7 @@ class MobileNkustParser {
         _temp['sectionTimes'].add(
           {
             "weekday": weekday,
-            "index": sectionIndex - 1,
+            "index": sectionIndex - (hasMorning ? 0 : 1),
           },
         );
       }
