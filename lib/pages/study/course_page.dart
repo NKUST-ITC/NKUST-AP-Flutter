@@ -68,6 +68,7 @@ class CoursePageState extends State<CoursePage> {
       enableCaptureCourseTable: true,
       itemPicker: SemesterPicker(
         key: key,
+        featureTag: 'course',
         onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;

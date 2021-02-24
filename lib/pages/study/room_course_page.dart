@@ -54,6 +54,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       enableNotifyControl: false,
       itemPicker: SemesterPicker(
         key: key,
+        featureTag: 'room_coruse',
         onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;

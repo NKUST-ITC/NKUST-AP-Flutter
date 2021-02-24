@@ -81,6 +81,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             SizedBox(height: 8.0),
             SemesterPicker(
                 key: key,
+                featureTag: 'midterm_alerts',
                 onSelect: (semester, index) {
                   setState(() {
                     selectSemester = semester;

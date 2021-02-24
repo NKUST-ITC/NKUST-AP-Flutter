@@ -53,6 +53,7 @@ class ScorePageState extends State<ScorePage> {
       customStateHint: customStateHint,
       itemPicker: SemesterPicker(
         key: key,
+        featureTag: 'score',
         onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;

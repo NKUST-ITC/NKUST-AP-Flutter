@@ -81,6 +81,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             SizedBox(height: 8.0),
             SemesterPicker(
                 key: key,
+                featureTag: 'reward',
                 onSelect: (semester, index) {
                   setState(() {
                     selectSemester = semester;
