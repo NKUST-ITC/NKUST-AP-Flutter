@@ -239,6 +239,16 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     for (int i = 1; i < secondTable.length; i++) {
       var _temptext =
           secondTable[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
+      if (_temptext.length < 10 && i == 1) {
+        data['timeCodes'].add(
+          {
+            "title": "第A節",
+            "startTime": "07:10",
+            "endTime": "08:00",
+          },
+        );
+        continue;
+      }
       final title = _temptext
           .substring(0, _temptext.length - 10)
           .replaceAll(String.fromCharCode(160), "")
