@@ -434,6 +434,14 @@ class Helper {
       }
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
+      if (selector?.course == MOBILE && dioError.response?.statusCode == 302) {
+        FirebaseAnalyticsUtils.analytics?.logEvent(
+          name: 'mobile_user_agent_error',
+          parameters: {
+            'message': MobileNkustHelper.instance.userAgent,
+          },
+        );
+      }
       callback?.onFailure(dioError);
       if (callback == null) throw dioError;
     } catch (e, s) {
