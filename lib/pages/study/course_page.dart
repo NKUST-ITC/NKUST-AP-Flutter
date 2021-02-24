@@ -74,9 +74,9 @@ class CoursePageState extends State<CoursePage> {
             state = CourseState.loading;
           });
           semesterData = key.currentState.semesterData;
-          if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
-            _loadCourseData(semester.code);
-          else
+          notifyData = CourseNotifyData.load(courseNotifyCacheKey);
+          _loadCacheData(semester.code);
+          if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
             _getCourseTables();
         },
       ),
@@ -91,7 +91,7 @@ class CoursePageState extends State<CoursePage> {
     );
   }
 
-  Future<bool> _loadCourseData(String value) async {
+  Future<bool> _loadCacheData(String value) async {
     courseData = CourseData.load(selectSemester.cacheSaveTag);
     if (mounted) {
       setState(() {
@@ -120,10 +120,10 @@ class CoursePageState extends State<CoursePage> {
           if (mounted)
             setState(() {
               if (data == null || data.courses.length == 0) {
-                state = CourseState.empty;
+                if (state == CourseState.loading) state = CourseState.empty;
                 if (selectSemester.code == '1091' ||
                     selectSemester.code == '1092') {
-                  _loadCourseData(selectSemester.code);
+                  _loadCacheData(selectSemester.code);
                   ApUtils.showToast(context,
                       AppLocalizations.of(context).schoolCloseCourseHint);
                 }
@@ -137,7 +137,7 @@ class CoursePageState extends State<CoursePage> {
             });
         },
         onFailure: (DioError e) async {
-          if (await _loadCourseData(selectSemester.code) &&
+          if (await _loadCacheData(selectSemester.code) &&
               e.type != DioErrorType.CANCEL)
             setState(() {
               state = CourseState.custom;
@@ -149,7 +149,7 @@ class CoursePageState extends State<CoursePage> {
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {
-          if (await _loadCourseData(selectSemester.code))
+          if (await _loadCacheData(selectSemester.code))
             setState(() {
               state = CourseState.custom;
               customStateHint = generalResponse.getGeneralMessage(context);
