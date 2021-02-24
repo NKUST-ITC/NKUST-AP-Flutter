@@ -60,6 +60,7 @@ class Constants {
   static const LEAVES_TIME_CODE = 'leaves_time_code';
   static const CRAWLER_SELECTOR = 'crawler_selector';
   static const SEMESTER_DATA = 'semester_data';
+  static const MOBILE_NKUST_USER_AGENT = 'mobile_nksut_user_agent';
 
   static const TAG_STUDENT_PICTURE = "tag_student_picture";
   static const TAG_NEWS_PICTURE = "tag_news_picture";
