@@ -318,6 +318,7 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
               .replaceAll("&nbsp;", '')
               .replaceAll(";", '');
         }
+        title = title.replaceAll('(1週)', '');
         final section = courseTime[0]
             .replaceAll(" ", "")
             .replaceAll(String.fromCharCode(160), "");
