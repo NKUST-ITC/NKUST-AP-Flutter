@@ -242,7 +242,7 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       if (_temptext.length < 10 && i == 1) {
         data['timeCodes'].add(
           {
-            "title": "第A節",
+            "title": "第M節",
             "startTime": "07:10",
             "endTime": "08:00",
           },
