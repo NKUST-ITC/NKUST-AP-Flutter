@@ -26,6 +26,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -648,6 +649,8 @@ class HomePageState extends State<HomePage> {
       await remoteConfig.activateFetched();
       final leaveTimeCode = List<String>.from(
           jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
+      final mobileNkustUserAgent = List<String>.from(jsonDecode(
+          remoteConfig.getString(Constants.MOBILE_NKUST_USER_AGENT)));
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         Helper.selector = CrawlerSelector.fromRawJson(
@@ -661,7 +664,10 @@ class HomePageState extends State<HomePage> {
       semesterData.save();
       Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
       Preferences.setStringList(Constants.LEAVES_TIME_CODE, leaveTimeCode);
+      Preferences.setStringList(
+          Constants.MOBILE_NKUST_USER_AGENT, mobileNkustUserAgent);
       InkustHelper.leavesTimeCode = leaveTimeCode;
+      MobileNkustHelper.userAgentList = mobileNkustUserAgent;
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
       InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');

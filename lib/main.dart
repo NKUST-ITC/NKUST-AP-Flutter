@@ -18,6 +18,7 @@ import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 import 'api/helper.dart';
+import 'api/mobile_nkust_helper.dart';
 import 'models/crawler_selector.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -32,6 +33,10 @@ void main() async {
   AnnouncementHelper.organization = 'nkust';
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
+  MobileNkustHelper.userAgentList = Preferences.getStringList(
+    Constants.MOBILE_NKUST_USER_AGENT,
+    MobileNkustHelper.userAgentList,
+  );
   var currentVersion =
       Preferences.getString(Constants.PREF_CURRENT_VERSION, '0');
   if (int.parse(currentVersion) < 30400) _preference340Migrate();
