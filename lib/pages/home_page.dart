@@ -392,14 +392,6 @@ class HomePageState extends State<HomePage> {
                 context,
                 AnnouncementContentPage(announcement: announcement),
               );
-              String message = announcement.description.length > 12
-                  ? announcement.description
-                  : announcement.description.substring(0, 12);
-              FirebaseAnalyticsUtils.instance.logAction(
-                'news_image',
-                'click',
-                message: message,
-              );
             },
             onTabTapped: onTabTapped,
             bottomNavigationBarItems: [
