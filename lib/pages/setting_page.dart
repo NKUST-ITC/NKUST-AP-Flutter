@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/analytics_utils.dart';
@@ -9,12 +7,10 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/setting_page_widgets.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
-import 'package:package_info/package_info.dart';
 
 class SettingPage extends StatefulWidget {
   static const String routerName = "/setting";
@@ -144,12 +140,10 @@ class SettingPageState extends State<SettingPage> {
   }
 
   _getPreference() async {
-    PackageInfo packageInfo;
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS))
-      packageInfo = await PackageInfo.fromPlatform();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      appVersion = packageInfo?.version ?? '3.5.10';
+      appVersion = packageInfo?.version;
       courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
