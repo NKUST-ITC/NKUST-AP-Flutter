@@ -276,80 +276,82 @@ class HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                ExpansionTile(
-                  initiallyExpanded: isLeaveExpanded,
-                  onExpansionChanged: (bool) {
-                    setState(() {
-                      isLeaveExpanded = bool;
-                    });
-                  },
-                  leading: Icon(
-                    ApIcon.calendarToday,
-                    color: isLeaveExpanded
-                        ? ApTheme.of(context).blueAccent
-                        : ApTheme.of(context).grey,
+                if (MobileNkustHelper.isSupport)
+                  ExpansionTile(
+                    initiallyExpanded: isLeaveExpanded,
+                    onExpansionChanged: (bool) {
+                      setState(() {
+                        isLeaveExpanded = bool;
+                      });
+                    },
+                    leading: Icon(
+                      ApIcon.calendarToday,
+                      color: isLeaveExpanded
+                          ? ApTheme.of(context).blueAccent
+                          : ApTheme.of(context).grey,
+                    ),
+                    title: Text(ap.leave, style: _defaultStyle),
+                    children: <Widget>[
+                      DrawerSubItem(
+                        icon: ApIcon.edit,
+                        title: ap.leaveApply,
+                        onTap: () => _openPage(
+                          LeavePage(initIndex: 0),
+                          needLogin: true,
+                        ),
+                      ),
+                      DrawerSubItem(
+                        icon: ApIcon.assignment,
+                        title: ap.leaveRecords,
+                        onTap: () => _openPage(
+                          LeavePage(initIndex: 1),
+                          needLogin: true,
+                        ),
+                      ),
+                    ],
                   ),
-                  title: Text(ap.leave, style: _defaultStyle),
-                  children: <Widget>[
-                    DrawerSubItem(
-                      icon: ApIcon.edit,
-                      title: ap.leaveApply,
-                      onTap: () => _openPage(
-                        LeavePage(initIndex: 0),
-                        needLogin: true,
-                      ),
+                if (MobileNkustHelper.isSupport)
+                  ExpansionTile(
+                    initiallyExpanded: isBusExpanded,
+                    onExpansionChanged: (bool) {
+                      setState(() {
+                        isBusExpanded = bool;
+                      });
+                    },
+                    leading: Icon(
+                      ApIcon.directionsBus,
+                      color: isBusExpanded
+                          ? ApTheme.of(context).blueAccent
+                          : ApTheme.of(context).grey,
                     ),
-                    DrawerSubItem(
-                      icon: ApIcon.assignment,
-                      title: ap.leaveRecords,
-                      onTap: () => _openPage(
-                        LeavePage(initIndex: 1),
-                        needLogin: true,
+                    title: Text(app.bus, style: _defaultStyle),
+                    children: <Widget>[
+                      DrawerSubItem(
+                        icon: ApIcon.dateRange,
+                        title: app.busReserve,
+                        onTap: () => _openPage(
+                          BusPage(initIndex: 0),
+                          needLogin: true,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                ExpansionTile(
-                  initiallyExpanded: isBusExpanded,
-                  onExpansionChanged: (bool) {
-                    setState(() {
-                      isBusExpanded = bool;
-                    });
-                  },
-                  leading: Icon(
-                    ApIcon.directionsBus,
-                    color: isBusExpanded
-                        ? ApTheme.of(context).blueAccent
-                        : ApTheme.of(context).grey,
+                      DrawerSubItem(
+                        icon: ApIcon.assignment,
+                        title: app.busReservations,
+                        onTap: () => _openPage(
+                          BusPage(initIndex: 1),
+                          needLogin: true,
+                        ),
+                      ),
+                      DrawerSubItem(
+                        icon: ApIcon.monetizationOn,
+                        title: app.busViolationRecords,
+                        onTap: () => _openPage(
+                          BusPage(initIndex: 2),
+                          needLogin: true,
+                        ),
+                      ),
+                    ],
                   ),
-                  title: Text(app.bus, style: _defaultStyle),
-                  children: <Widget>[
-                    DrawerSubItem(
-                      icon: ApIcon.dateRange,
-                      title: app.busReserve,
-                      onTap: () => _openPage(
-                        BusPage(initIndex: 0),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.assignment,
-                      title: app.busReservations,
-                      onTap: () => _openPage(
-                        BusPage(initIndex: 1),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.monetizationOn,
-                      title: app.busViolationRecords,
-                      onTap: () => _openPage(
-                        BusPage(initIndex: 2),
-                        needLogin: true,
-                      ),
-                    ),
-                  ],
-                ),
                 DrawerItem(
                   icon: ApIcon.info,
                   title: ap.schoolInfo,
@@ -418,7 +420,10 @@ class HomePageState extends State<HomePage> {
     if (isLogin) {
       switch (index) {
         case 0:
-          ApUtils.pushCupertinoStyle(context, BusPage());
+          if (MobileNkustHelper.isSupport)
+            ApUtils.pushCupertinoStyle(context, BusPage());
+          else
+            ApUtils.showToast(context, ap.platformError);
           break;
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
