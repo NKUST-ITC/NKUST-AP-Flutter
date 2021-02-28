@@ -37,8 +37,6 @@ dependencies:
   flutter_image_compress: 0.7.0
   extended_image: 1.3.1-dev
   flutter_inappwebview: 4.0.0+4
-#  image_picker_web: 1.0.8
-
 
 dev_dependencies:
   flutter_test:
@@ -49,15 +47,8 @@ dev_dependencies:
 #  ap_common:
 #    path: ../ap_common
 
-# For information on the generic Dart part of this file, see the
-# following page: https://www.dartlang.org/tools/pub/pubspec
-
-# The following section is specific to Flutter.
 flutter:
 
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
   assets:
     - assets/images/
