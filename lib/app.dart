@@ -1,3 +1,4 @@
+import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/config/analytics_constants.dart';
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/open_source_page.dart';
@@ -88,14 +89,16 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               ApSupportLanguageConstants.SYSTEM,
             );
             if (languageCode == ApSupportLanguageConstants.SYSTEM)
-              return this.locale = ApLocalizations.delegate.isSupported(locale)
+              this.locale = ApLocalizations.delegate.isSupported(locale)
                   ? locale
                   : Locale('en');
             else
-              return this.locale = Locale(
+              this.locale = Locale(
                 languageCode,
                 languageCode == ApSupportLanguageConstants.ZH ? 'TW' : null,
               );
+            AnnouncementHelper.instance.setLocale(this.locale);
+            return this.locale;
           },
           onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
@@ -155,6 +158,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void loadLocale(Locale locale) {
     this.locale = locale;
+    AnnouncementHelper.instance.setLocale(this.locale);
     setState(() {
       AppLocalizationsDelegate().load(locale);
       ApLocalizations.load(locale);

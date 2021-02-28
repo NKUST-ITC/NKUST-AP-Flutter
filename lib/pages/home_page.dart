@@ -166,7 +166,9 @@ class HomePageState extends State<HomePage> {
                   ImgurHelper.clientId = 'bf8e32144d00b04';
                   ApUtils.pushCupertinoStyle(
                     context,
-                    AnnouncementHomePage(),
+                    AnnouncementHomePage(
+                      organizationDomain: '@nkust.edu.tw',
+                    ),
                   );
                   if (FirebaseUtils.isSupportCloudMessage) {
                     try {
