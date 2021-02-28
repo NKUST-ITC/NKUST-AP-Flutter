@@ -1,9 +1,12 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/analytics_constants.dart';
+import 'package:ap_common/l10n/l10n.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/bus/bus_violation_records_page.dart';
@@ -33,12 +36,14 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     BusViolationRecordsPage()
   ];
 
+  Future<bool> _login;
+
   @override
   void initState() {
     _currentIndex = widget.initIndex;
     controller =
         TabController(length: 3, initialIndex: widget.initIndex, vsync: this);
-    if (widget.initIndex != 2) getBusViolationRecords();
+    _login = Future.microtask(() => login());
     super.initState();
   }
 
@@ -69,10 +74,30 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         ],
         elevation: (_currentIndex == 2) ? 0.0 : null,
       ),
-      body: TabBarView(
-        children: _children,
-        controller: controller,
-        physics: NeverScrollableScrollPhysics(),
+      body: FutureBuilder<bool>(
+        future: _login,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data)
+            return TabBarView(
+              children: _children,
+              controller: controller,
+              physics: NeverScrollableScrollPhysics(),
+            );
+          else if (snapshot.connectionState == ConnectionState.waiting)
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          else
+            return InkWell(
+              onTap: () {
+                _login = Future.microtask(() => login());
+              },
+              child: HintContent(
+                content: ApLocalizations.of(context).clickToRetry,
+                icon: ApIcon.error,
+              ),
+            );
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
@@ -153,5 +178,21 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         },
       ),
     );
+  }
+
+  Future<bool> login() async {
+    if (MobileNkustHelper.instance.cookiesData == null) {
+      try {
+        await MobileNkustHelper.instance.login(
+          context: context,
+          username: Helper.username,
+          password: Helper.password,
+        );
+      } catch (e) {
+        return false;
+      }
+    }
+    if (widget.initIndex != 2) getBusViolationRecords();
+    return true;
   }
 }

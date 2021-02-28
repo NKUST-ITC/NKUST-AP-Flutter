@@ -190,7 +190,7 @@ class MobileNkustHelper {
     bool clearCache = false,
   }) async {
     final data = MobileCookiesData.load();
-    if (data != null) {
+    if (data != null && !clearCache) {
       MobileNkustHelper.instance.setCookieFromData(data);
       final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
       if (isCookieAlive) {
