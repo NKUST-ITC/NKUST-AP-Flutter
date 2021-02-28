@@ -70,8 +70,7 @@ class SettingPageState extends State<SettingPage> {
               subText: ap.busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
-                FirebaseAnalyticsUtils.instance
-                    .logAction('notify_bus', 'create');
+                FirebaseAnalyticsUtils.instance.logEvent('notify_bus_create');
                 setState(() {
                   busNotify = !busNotify;
                 });
@@ -81,8 +80,7 @@ class SettingPageState extends State<SettingPage> {
                   await Utils.cancelBusNotify();
                 }
                 Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
-                FirebaseAnalyticsUtils.instance
-                    .logAction('notify_bus', 'click', message: '$busNotify');
+                FirebaseAnalyticsUtils.instance.logEvent('notify_bus_click');
               },
             ),
             Divider(
