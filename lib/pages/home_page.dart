@@ -384,6 +384,7 @@ class HomePageState extends State<HomePage> {
                       ShareDataWidget.of(context).data.logout();
                       isLogin = false;
                       userInfo = null;
+                      content = null;
                       if (isMobile) Navigator.of(context).pop();
                       checkLogin();
                     },
