@@ -164,6 +164,8 @@ class HomePageState extends State<HomePage> {
                 tooltip: ap.announcementReviewSystem,
                 onPressed: () async {
                   ImgurHelper.clientId = 'bf8e32144d00b04';
+                  AnnouncementHelper.tag = 'ap';
+                  AnnouncementHelper.organization = 'nkust';
                   ApUtils.pushCupertinoStyle(
                     context,
                     AnnouncementHomePage(

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
@@ -29,8 +28,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   GestureBinding.instance.resamplingEnabled = kDebugMode;
-  AnnouncementHelper.tag = 'ap';
-  AnnouncementHelper.organization = 'nkust';
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   MobileNkustHelper.userAgentList = Preferences.getStringList(
