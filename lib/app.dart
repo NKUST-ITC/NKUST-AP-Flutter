@@ -1,7 +1,6 @@
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/pages/about_us_page.dart';
-import 'package:ap_common/pages/open_source_page.dart';
+import 'package:ap_common/pages/announcement/home_page.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -15,7 +14,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -104,23 +102,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
             Navigator.defaultRouteName: (context) => HomePage(),
-            LoginPage.routerName: (BuildContext context) => LoginPage(),
-            HomePage.routerName: (BuildContext context) => HomePage(),
-            CoursePage.routerName: (BuildContext context) => CoursePage(),
-            BusPage.routerName: (BuildContext context) => BusPage(),
-            BusRulePage.routerName: (BuildContext context) => BusRulePage(),
-            ScorePage.routerName: (BuildContext context) => ScorePage(),
-            SchoolInfoPage.routerName: (BuildContext context) =>
-                SchoolInfoPage(),
-            SettingPage.routerName: (BuildContext context) => SettingPage(),
-            AboutUsPage.routerName: (BuildContext context) =>
-                HomePageState.aboutPage(context),
-            OpenSourcePage.routerName: (BuildContext context) =>
-                OpenSourcePage(),
-            UserInfoPage.routerName: (BuildContext context) => UserInfoPage(),
-            CalculateUnitsPage.routerName: (BuildContext context) =>
-                CalculateUnitsPage(),
-            LeavePage.routerName: (BuildContext context) => LeavePage(),
+            AnnouncementHomePage.routerName: (BuildContext context) =>
+                AnnouncementHomePage(),
           },
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,
