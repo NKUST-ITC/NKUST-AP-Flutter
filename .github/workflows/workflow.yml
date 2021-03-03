@@ -81,24 +81,24 @@ jobs:
       - name: Build Web
         run: flutter build web
 
-  build_macos:
-    name: Build macOS App
-    runs-on: macOS-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
-        with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
-      - name: Upgrades flutter
-        run: flutter upgrade
-      - name: Enable macOS
-        run: flutter config --enable-macos-desktop
-      - run: flutter pub get
-      - name: Build macOS
-        run: flutter build macos --release
+#  build_macos:
+#    name: Build macOS App
+#    runs-on: macOS-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v2
+#      - name: Run Flutter tasks
+#        uses: subosito/flutter-action@v1
+#        with:
+#          flutter-version: '1.26.x'
+#          channel: 'dev'
+#      - name: Upgrades flutter
+#        run: flutter upgrade
+#      - name: Enable macOS
+#        run: flutter config --enable-macos-desktop
+#      - run: flutter pub get
+#      - name: Build macOS
+#        run: flutter build macos --release
 
   build_linux:
     name: Build Linux App
