@@ -34,18 +34,23 @@ struct Provider: IntentTimelineProvider {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "HH:mm"
             var minDiff = today.timeIntervalSince1970
+            var todayCount = 0
             courses?.forEach({ (course) in
                 course.sectionTimes.forEach { (sectionTime) in
                     let timeCode = courseData?.timeCodes[sectionTime.index]
                     let time = time2Date(timeText: timeCode?.startTime ?? "00:00")
                     let diff = time.timeIntervalSince1970 - today.timeIntervalSince1970
-                    if( diff > 0.0  && diff < minDiff){
+                    let weekday = dateComponents.weekday == 1 ? 7 :  (dateComponents.weekday ?? 1) - 1
+                    if(weekday == sectionTime.weekday) {
+                        todayCount = todayCount + 1
+                    }
+                    if( diff > 0.0  && diff < minDiff && weekday == sectionTime.weekday){
                         minDiff = diff
-                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building )\(course.location.room ) 的 \(course.title )"
+                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的 \(course.title )"
                     }
                 }
             })
-            if(courses?.count == 0){
+            if(todayCount == 0){
                 text = "太好了今天沒有任何課"
             } else if (minDiff == today.timeIntervalSince1970){
                 text = "太好了今天已經沒有任何課"

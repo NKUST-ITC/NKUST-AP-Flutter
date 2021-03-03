@@ -20,7 +20,7 @@ class CourseData: Codable {
 class Course: Codable {
     let code, title, className: String
     let group: String?
-    let units: String
+    let units: String?
     let hours: String?
     let courseRequired: String?
     let sectionTimes: [SectionTime]
@@ -49,8 +49,8 @@ class Course: Codable {
 
 // MARK: - Location
 class Location: Codable {
-    let building: String
-    let room: String
+    let building: String?
+    let room: String?
 
     init(building: String, room: String) {
         self.building = building
