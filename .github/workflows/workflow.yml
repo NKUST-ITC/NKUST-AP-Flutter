@@ -54,6 +54,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Decrypt iOS keys
+        run: sh ./.github/scripts/decrypt_ios_keys.sh
+        env:
+          KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
