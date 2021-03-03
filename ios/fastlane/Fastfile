@@ -1,7 +1,7 @@
 default_platform(:ios)
 
-APPLE_STORE_APP_ID = ENV["APPLE_STORE_APP_ID"]
-APPLE_STORE_APP_IDENTIFIER = ENV["APPLE_STORE_APP_IDENTIFIER"]
+APP_STORE_CONNECT_APPLE_ID = ENV["APP_STORE_CONNECT_APPLE_ID"]
+APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_BUNDLE_IDENTIFIER"]
 PROVISIONING_PROFILE_SPECIFIER = ENV["PROVISIONING_PROFILE_SPECIFIER"]
 TEMP_KEYCHAIN_USER = ENV["TEMP_KEYCHAIN_USER"]
 TEMP_KEYCHAIN_PASSWORD = ENV["TEMP_KEYCHAIN_PASSWORD"]
@@ -34,7 +34,7 @@ platform :ios do
 
     match(
       type: 'appstore',
-      app_identifier: ["#{APPLE_STORE_APP_IDENTIFIER}", "#{APPLE_STORE_APP_IDENTIFIER}.CourseAppWidget"],
+      app_identifier: ["#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}", "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}.CourseAppWidget"],
       git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
       readonly: true,
       keychain_name: keychain_name,
@@ -48,14 +48,14 @@ platform :ios do
       export_method: "app-store",
       export_options: {
         provisioningProfiles: {
-            APPLE_STORE_APP_ID => PROVISIONING_PROFILE_SPECIFIER
+            APP_STORE_CONNECT_APPLE_ID => PROVISIONING_PROFILE_SPECIFIER
         }
       }
     )
 
     pilot(
-      apple_id: "#{APPLE_STORE_APP_IDZ}",
-      app_identifier: "#{APPLE_STORE_APP_IDENTIFIER}",
+      apple_id: "#{APP_STORE_CONNECT_APPLE_ID}",
+      app_identifier: "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}",
       skip_waiting_for_build_processing: true,
       skip_submission: true,
       distribute_external: false,
