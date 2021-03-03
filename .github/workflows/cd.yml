@@ -42,6 +42,49 @@ jobs:
           lane: 'beta'
           subdirectory: 'android'
 
+  deploy_ios:
+    name: iOS Deploy TestFlight
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
+      - name: Decrypt iOS keys
+        run: sh ./.github/scripts/decrypt_ios_keys.sh
+        env:
+          KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
+      - name: Run Flutter tasks
+        uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '1.26.x' # you can use 1.12
+          channel: 'beta'
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7.2'
+      - name: Bundle update
+        run: bundle update --bundler
+        working-directory: ./ios
+      - name: Deploy iOS Beta to TestFlight via Fastlane
+        uses: maierj/fastlane-action@v2.0.1
+        with:
+          lane: 'closed_beta'
+          subdirectory: 'ios'
+        env:
+          APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
+          APPLE_STORE_APP_ID: '${{ secrets.APPLE_STORE_APP_ID }}'
+          APPLE_STORE_APP_IDENTIFIER: '${{ secrets.APPLE_STORE_APP_IDENTIFIER }}'
+          DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
+          FASTLANE_APPLE_ID: '${{ secrets.FASTLANE_APPLE_ID }}'
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: '${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}'
+          MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
+          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
+          PROVISIONING_PROFILE_SPECIFIER: '${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}'
+          TEMP_KEYCHAIN_PASSWORD: '${{ secrets.TEMP_KEYCHAIN_PASSWORD }}'
+          TEMP_KEYCHAIN_USER: '${{ secrets.TEMP_KEYCHAIN_USER }}'
+
   deploy_web:
     name: Web Firebase Hosting
     runs-on: ubuntu-latest
@@ -94,7 +137,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [deploy_android, deploy_web, deploy_windows]
+    needs: [deploy_android, deploy_ios, deploy_web, deploy_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
