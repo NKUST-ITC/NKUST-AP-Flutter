@@ -50,8 +50,8 @@ class MobileNkustParser {
           trElement.getElementsByTagName("input")[0].attributes['value'];
       var tdElements = trElement.getElementsByTagName('td');
 
-      _temp['dateTime'] = format.parse(
-          '${tdElements[1].text.substring(0, 10)} ${tdElements[1].text.substring(14)}');
+      _temp['dateTime'] =
+          '${tdElements[1].text.substring(0, 10)} ${tdElements[1].text.substring(14)}';
       _temp['state'] = "";
       _temp['travelState'] = "";
       _temp['start'] = startStation;

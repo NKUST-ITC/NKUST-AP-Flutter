@@ -33,7 +33,7 @@ class BusReservationsData {
 
   static BusReservationsData sample() {
     return BusReservationsData.fromRawJson(
-        '{ "data": [ { "dateTime": "2019-03-17T16:51:57Z", "endTime": "2019-03-14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T00:20:00Z", "endTime": "2019-03-17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019-03-18T08:40:00Z", "endTime": "2019-03-18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }');
+        '{ "data": [ { "dateTime": "2019/03/17T16:51:57Z", "endTime": "2019/03/14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T00:20:00Z", "endTime": "2019/03/17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T08:40:00Z", "endTime": "2019/03/18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }');
   }
 
   // Waiting setString support Map.
@@ -57,9 +57,9 @@ class BusReservationsData {
 }
 
 class BusReservation {
-  DateTime dateTime;
+  String dateTime;
   @deprecated
-  DateTime endTime;
+  String endTime;
   String cancelKey;
   String start;
   String end;
@@ -81,19 +81,23 @@ class BusReservation {
 
   String toRawJson() => json.encode(toJson());
 
-  factory BusReservation.fromJson(Map<String, dynamic> json) =>
-      new BusReservation(
-        dateTime: json["dateTime"],
-        endTime: json["endTime"],
-        cancelKey: json["cancelKey"],
-        start: json["start"],
-        end: json["end"],
-        state: json["state"],
-        travelState: json["travelState"],
-      );
+  factory BusReservation.fromJson(Map<String, dynamic> json) {
+    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    return BusReservation(
+      dateTime: json["dateTime"] is DateTime
+          ? formatterDateTime.format(json["dateTime"])
+          : json["dateTime"],
+      endTime: json["endTime"],
+      cancelKey: json["cancelKey"],
+      start: json["start"],
+      end: json["end"],
+      state: json["state"],
+      travelState: json["travelState"],
+    );
+  }
 
   Map<String, dynamic> toJson() => {
-        "dateTime": dateTime.toIso8601String(),
+        "dateTime": dateTime,
         "cancelKey": cancelKey,
         "start": start,
         "end": end,
@@ -113,25 +117,27 @@ class BusReservation {
 
   String getDate() {
     initializeDateFormatting();
-    var formatterTime = new DateFormat('yyyy-MM-dd');
-    return formatterTime.format(this.dateTime);
+    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    var formatterTime = DateFormat('yyyy/MM/dd');
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   String getTime() {
-    initializeDateFormatting();
+    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = new DateFormat('HH:mm');
-    return formatterTime.format(this.dateTime);
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   DateTime getDateTime() {
-    initializeDateFormatting();
-    return this.dateTime;
+    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    return formatterDateTime.parse(this.dateTime);
   }
 
   String getDateTimeStr() {
-    initializeDateFormatting();
-    var formatterTime = new DateFormat('yyyy-MM-dd HH:mm');
-    return formatterTime.format(this.dateTime);
+    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    var formatterTime = new DateFormat('yyyy/MM/dd HH:mm');
+    final s = formatterDateTime.parse(this.dateTime);
+    return formatterTime.format(s);
   }
 
   String getStart(AppLocalizations local) {
@@ -145,7 +151,7 @@ class BusReservation {
 //  bool canCancel() {
 //    var now = new DateTime.now();
 //    initializeDateFormatting();
-//    var formatter = new DateFormat('yyyy-MM-ddTHH:mm:ssZ');
+//    var formatter = new DateFormat('yyyy/MM/ddTHH:mm:ssZ');
 //    var endEnrollDateTime = formatter.parse(this.endTime);
 //    return now.millisecondsSinceEpoch <
 //        endEnrollDateTime.millisecondsSinceEpoch;

@@ -175,7 +175,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busReservation.getDateTimeStr(),
+                    busReservation.dateTime,
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
