@@ -1,1 +1,1 @@
-* 加入自動部署附帶 Changelog
+* 修正自動部署附帶 Changelog
