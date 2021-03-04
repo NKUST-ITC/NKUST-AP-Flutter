@@ -21,6 +21,10 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
+      - name: Use JD
+          uses: r26d/jq-action@master
+          with:
+            cmd: jq -n env
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
