@@ -60,8 +60,6 @@ jobs:
         run: sh ./.github/scripts/decrypt_ios_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
-      - name: Use JD
-        run: brew install jq
       - name: Generate changelog
         run: sh ./.github/scripts/generate_ios_changelog.sh
       - name: Run Flutter tasks
