@@ -60,7 +60,7 @@ platform :ios do
       skip_submission: true,
       distribute_external: false,
       notify_external_testers: false,
-      ipa: "./Runner.ipa"
+      ipa: "./Runner.ipa",
       localized_build_info: {
           "default": {
             whats_new: File.read("./zh-TW.txt"),
