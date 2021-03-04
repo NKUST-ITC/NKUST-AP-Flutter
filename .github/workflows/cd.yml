@@ -22,9 +22,9 @@ jobs:
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Use JD
-          uses: r26d/jq-action@master
-          with:
-            cmd: jq -n env
+        uses: r26d/jq-action@master
+        with:
+          cmd: jq -n env
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
@@ -59,9 +59,9 @@ jobs:
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Use JD
-          uses: r26d/jq-action@master
-          with:
-            cmd: jq -n env
+        uses: r26d/jq-action@master
+        with:
+          cmd: jq -n env
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
