@@ -1,11 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-declare -a locales=("en-US" "zh-TW")
 
-for locale in "${locales[@]}"
+for locale in "en-US" "zh-TW"
 do
-  mkdir -p android/fastlane/metadata/android/"${locale}"/changelogs/
-  jq -r ".\"$1\".\"${locale}\"" assets/changelog.json >> android/fastlane/metadata/android/"${locale}"/changelogs/default.txt
+  mkdir -p fastlane/metadata/android/"${locale}"/changelogs/
+  jq -r ".\"$1\".\"${locale}\"" ../assets/changelog.json >> fastlane/metadata/android/"${locale}"/changelogs/default.txt
 done
 
 echo "Generate android changelog success"

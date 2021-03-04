@@ -9,6 +9,9 @@ platform :android do
         task: "bundle",
         build_type: 'Release'
       )
+
+      sh("../.github/scripts/generate_android_changelog.sh", flutter_version()["version_code"])
+
       upload_to_play_store(
         track: 'beta',
         aab: '../build/app/outputs/bundle/release/app-release.aab',
