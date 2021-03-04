@@ -24,8 +24,8 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x' # you can use 1.12
-          channel: 'beta'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Install Flutter dependencies
         run: flutter pub get
       - run: flutter build appbundle --release
@@ -57,8 +57,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x' # you can use 1.12
-          channel: 'beta'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
       - uses: actions/setup-ruby@v1
@@ -92,8 +92,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'beta'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
       - name: Enable Web
@@ -118,7 +118,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          channel: 'dev'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
       - name: Enable windows
