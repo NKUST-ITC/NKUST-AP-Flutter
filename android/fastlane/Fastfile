@@ -9,6 +9,7 @@ platform :android do
         task: "bundle",
         build_type: 'Release'
       )
+      sh("ls")
       sh("bash", "../.github/scripts/generate_android_changelog.sh", flutter_version()["version_code"])
       upload_to_play_store(
         track: 'beta',
