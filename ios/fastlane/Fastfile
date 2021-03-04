@@ -32,8 +32,6 @@ platform :ios do
     keychain_password = TEMP_KEYCHAIN_PASSWORD
     ensure_temp_keychain(keychain_name, keychain_password)
 
-    sh("sh", "../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
-
     match(
       type: 'appstore',
       app_identifier: ["#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}", "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}.CourseAppWidget"],

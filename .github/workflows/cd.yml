@@ -25,6 +25,8 @@ jobs:
         uses: r26d/jq-action@master
         with:
           cmd: jq -n env
+      - name: Generate changelog
+        run: sh ./.github/scripts/generate_android_changelog.sh
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
@@ -60,6 +62,8 @@ jobs:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Use JD
         run: brew install jq
+      - name: Generate changelog
+        run: sh ./.github/scripts/generate_ios_changelog.sh
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
