@@ -53,7 +53,7 @@ platform :ios do
       }
     )
 
-    sh("../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
+    sh("../../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
 
     pilot(
       apple_id: "#{APP_STORE_CONNECT_APPLE_ID}",
