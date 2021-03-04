@@ -135,12 +135,12 @@ jobs:
       - name: Build windows
         run: flutter build windows --release
       - name: 'Zip files'
-        run: powershell Compress-Archive build\windows\runner\Release\ nkust_ap_windows_${{ github.ref }}.zip
+        run: powershell Compress-Archive build\windows\runner\Release\ windows.zip
       - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: windows-artifact
-          path: nkust_ap_windows_${{ github.ref }}.zip
+          path: windows.zip
 
   github_release:
     name: Create GitHub Release
@@ -172,5 +172,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: ./windows.zip
-          asset_name: windows.zip
+          asset_name: nkust_ap_windows.zip
           asset_content_type: application/zip
