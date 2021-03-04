@@ -61,6 +61,14 @@ platform :ios do
       distribute_external: false,
       notify_external_testers: false,
       ipa: "./Runner.ipa"
+      localized_build_info: {
+          "default": {
+            whats_new: File.read("./zh-TW.txt"),
+          },
+          "en-US": {
+            whats_new: File.read("./en-US.txt"),
+          }
+        }
     )
 
     delete_temp_keychain(keychain_name)
