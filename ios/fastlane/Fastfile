@@ -26,6 +26,11 @@ def ensure_temp_keychain(name, password)
   create_temp_keychain(name, password)
 end
 
+
+sh("chmod", "a+x", "../../.github/scripts/generate_ios_changelog.sh")
+
+sh("../../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
+
 platform :ios do
   lane :closed_beta do
     keychain_name = TEMP_KEYCHAIN_USER
@@ -52,8 +57,6 @@ platform :ios do
         }
       }
     )
-
-    sh("../../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
 
     pilot(
       apple_id: "#{APP_STORE_CONNECT_APPLE_ID}",
