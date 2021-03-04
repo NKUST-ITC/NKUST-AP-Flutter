@@ -26,7 +26,7 @@ jobs:
         with:
           cmd: jq -n env
       - name: Generate changelog
-        run: sh ./.github/scripts/generate_android_changelog.sh
+        run: bash ./.github/scripts/generate_android_changelog.sh
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
@@ -61,7 +61,7 @@ jobs:
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Generate changelog
-        run: sh ./.github/scripts/generate_ios_changelog.sh
+        run: bash ./.github/scripts/generate_ios_changelog.sh
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
