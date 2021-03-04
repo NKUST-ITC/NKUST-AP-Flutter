@@ -1,10 +1,12 @@
 name: Build Test
+
 on:
   push:
     branches:
       - master
     tags-ignore:
       - v*
+      -
 jobs:
 
   test:
@@ -16,8 +18,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - run: flutter pub get
 #      - name: Analyze files
 #        run: flutter analyze .
@@ -40,8 +42,8 @@ jobs:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x' # you can use 1.12
-          channel: 'beta'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
       - run: flutter pub get
@@ -61,8 +63,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'beta'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - run: flutter pub get
       - name: Build iOS
         run: flutter build ios --release --no-codesign
@@ -75,8 +77,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
       - name: Enable Web
@@ -85,24 +87,24 @@ jobs:
       - name: Build Web
         run: flutter build web
 
-#  build_macos:
-#    name: Build macOS App
-#    runs-on: macOS-latest
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v2
-#      - name: Run Flutter tasks
-#        uses: subosito/flutter-action@v1
-#        with:
-#          flutter-version: '1.26.x'
-#          channel: 'dev'
-#      - name: Upgrades flutter
-#        run: flutter upgrade
-#      - name: Enable macOS
-#        run: flutter config --enable-macos-desktop
-#      - run: flutter pub get
-#      - name: Build macOS
-#        run: flutter build macos --release
+  #  build_macos:
+  #    name: Build macOS App
+  #    runs-on: macOS-latest
+  #    steps:
+  #      - name: Checkout code
+  #        uses: actions/checkout@v2
+  #      - name: Run Flutter tasks
+  #        uses: subosito/flutter-action@v1
+  #        with:
+  #          flutter-version: '2.0.x'
+  #          channel: 'stable'
+  #      - name: Upgrades flutter
+  #        run: flutter upgrade
+  #      - name: Enable macOS
+  #        run: flutter config --enable-macos-desktop
+  #      - run: flutter pub get
+  #      - name: Build macOS
+  #        run: flutter build macos --release
 
   build_linux:
     name: Build Linux App
@@ -113,8 +115,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Intall requird Dependencies
         run: sudo apt -y install ninja-build libgtk-3-dev libblkid-dev
       - name: Upgrades flutter
@@ -135,8 +137,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '1.26.x'
-          channel: 'dev'
+          flutter-version: '2.0.x'
+          channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
       - name: Enable windows
