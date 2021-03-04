@@ -1,10 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-declare -a locales=("en-US" "zh-TW")
-
-for locale in "${locales[@]}"
+for locale in "en-US" "zh-TW"
 do
-  jq -r ".\"$1\".\"${locale}\"" assets/changelog.json >> ios/fastlane/"${locale}".txt
+  jq -r ".\"$1\".\"${locale}\"" ../assets/changelog.json >> fastlane/"${locale}".txt
 done
 
 echo "Generate iOS changelog success"
