@@ -32,7 +32,7 @@ platform :ios do
     keychain_password = TEMP_KEYCHAIN_PASSWORD
     ensure_temp_keychain(keychain_name, keychain_password)
 
-    sh("bash", "../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
+    sh("sh", "../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
 
     match(
       type: 'appstore',
