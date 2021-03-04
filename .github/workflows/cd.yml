@@ -128,12 +128,12 @@ jobs:
       - name: Build windows
         run: flutter build windows --release
       - name: 'Zip files'
-        run: powershell Compress-Archive build\windows\runner\Release\ windows.zip
+        run: powershell Compress-Archive build\windows\runner\Release\ nkust-ap-windows-${{ github.ref }}.zip
       - name: upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: windows-artifact
-          path: windows.zip
+          path: nkust-ap-windows-${{ github.ref }}.zip
 
   github_release:
     name: Create GitHub Release
