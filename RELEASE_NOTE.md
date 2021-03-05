@@ -1,1 +1,1 @@
-* 修正自動部署附帶 Changelog
+* 嘗試加入 Fastlane 正式版本上傳
