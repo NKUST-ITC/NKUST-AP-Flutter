@@ -1,1 +1,1 @@
-* 嘗試加入 Fastlane 正式版本上傳
+* 修正 Fastlane 正式版本命名

@@ -1,4 +1,9 @@
 {
+  "30713": {
+    "visible": false,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
   "30712": {
     "visible": false,
     "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
