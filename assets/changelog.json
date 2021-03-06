@@ -1,6 +1,12 @@
 {
-  "30800": {
+  "30801": {
     "visible": true,
+    "date": "2021/03/06",
+    "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
+    "en-US": "* Improve app stability.\n* Improve news content text overflow"
+  },
+  "30800": {
+    "visible": false,
     "date": "2021/03/06",
     "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
     "en-US": "* Improve app stability.\n* Improve news content text overflow"
