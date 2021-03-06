@@ -491,7 +491,7 @@ class HomePageState extends State<HomePage> {
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
               userInfo.save(Helper.username);
-              _checkInitialData();
+              _checkData();
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
             }
@@ -643,7 +643,7 @@ class HomePageState extends State<HomePage> {
 
   static const PREF_API_KEY = 'inkust_api_key';
 
-  Future<void> _checkInitialData() async {
+  Future<void> _checkData({bool first = false}) async {
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final currentVersion =
@@ -652,14 +652,23 @@ class HomePageState extends State<HomePage> {
       Constants.VERSION_CODE,
       packageInfo.buildNumber,
     );
-    if (currentVersion != packageInfo.buildNumber) {
+    print(
+        'current = $currentVersion buildNumber = ${packageInfo.buildNumber} ${first}');
+    if (currentVersion != packageInfo.buildNumber && first) {
+      final rawData = await FileAssets.changelogData;
+      print(ApLocalizations.current.locale);
+      final updateNoteContent =
+          rawData["${packageInfo.buildNumber}"][ApLocalizations.current.locale];
+      print(updateNoteContent);
       DialogUtils.showUpdateContent(
         context,
         "v${packageInfo.version}\n"
-        "${AppLocalizations.of(context).updateNoteContent}",
+        "$updateNoteContent",
       );
       Preferences.setString(
-          Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
+        Constants.PREF_CURRENT_VERSION,
+        packageInfo.buildNumber,
+      );
     }
     VersionInfo versionInfo;
     try {
@@ -692,17 +701,18 @@ class HomePageState extends State<HomePage> {
         isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
         content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
       );
-      DialogUtils.showNewVersionContent(
-        context: context,
-        appName: app.appName,
-        iOSAppId: '1439751462',
-        defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-        githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-        windowsPath:
-            'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
-        snapStoreId: 'nkust-ap',
-        versionInfo: versionInfo,
-      );
+      if (first)
+        DialogUtils.showNewVersionContent(
+          context: context,
+          appName: app.appName,
+          iOSAppId: '1439751462',
+          defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+          githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
+          windowsPath:
+              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          snapStoreId: 'nkust-ap',
+          versionInfo: versionInfo,
+        );
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
       InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
@@ -720,6 +730,6 @@ class HomePageState extends State<HomePage> {
     } else {
       checkLogin();
     }
-    await _checkInitialData();
+    await _checkData(first: true);
   }
 }
