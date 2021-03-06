@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/api/imgur_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/announcement/home_page.dart';
 import 'package:ap_common/pages/announcement_content_page.dart';
@@ -13,8 +14,10 @@ import 'package:ap_common/pages/open_source_page.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/scaffold/home_page_scaffold.dart';
+import 'package:ap_common/utils/analytics_utils.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
@@ -135,7 +138,7 @@ class HomePageState extends State<HomePage> {
       "HomePage",
       "home_page.dart",
     );
-    future = getData();
+    future = Future.microtask(() => getData());
     super.initState();
   }
 
@@ -488,7 +491,7 @@ class HomePageState extends State<HomePage> {
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
               userInfo.save(Helper.username);
-              _checkFeatureEnable();
+              _checkInitialData();
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
             }
@@ -640,8 +643,25 @@ class HomePageState extends State<HomePage> {
 
   static const PREF_API_KEY = 'inkust_api_key';
 
-  Future<void> _checkFeatureEnable() async {
-    await Future.delayed(Duration(milliseconds: 100));
+  Future<void> _checkInitialData() async {
+    final app = AppLocalizations.of(context);
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion =
+        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
+    AnalyticsUtils.instance?.setUserProperty(
+      Constants.VERSION_CODE,
+      packageInfo.buildNumber,
+    );
+    if (currentVersion != packageInfo.buildNumber) {
+      DialogUtils.showUpdateContent(
+        context,
+        "v${packageInfo.version}\n"
+        "${AppLocalizations.of(context).updateNoteContent}",
+      );
+      Preferences.setString(
+          Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
+    }
+    VersionInfo versionInfo;
     try {
       final RemoteConfig remoteConfig = await RemoteConfig.instance;
       await remoteConfig.fetch(expiration: const Duration(seconds: 10));
@@ -667,6 +687,22 @@ class HomePageState extends State<HomePage> {
           Constants.MOBILE_NKUST_USER_AGENT, mobileNkustUserAgent);
       InkustHelper.leavesTimeCode = leaveTimeCode;
       MobileNkustHelper.userAgentList = mobileNkustUserAgent;
+      versionInfo = VersionInfo(
+        code: remoteConfig.getInt(ApConstants.APP_VERSION),
+        isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
+        content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
+      );
+      DialogUtils.showNewVersionContent(
+        context: context,
+        appName: app.appName,
+        iOSAppId: '1439751462',
+        defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+        githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
+        windowsPath:
+            'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+        snapStoreId: 'nkust-ap',
+        versionInfo: versionInfo,
+      );
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
       InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
@@ -684,12 +720,6 @@ class HomePageState extends State<HomePage> {
     } else {
       checkLogin();
     }
-    if (FirebaseUtils.isSupportRemoteConfig) {
-      await _checkFeatureEnable();
-      Utils.checkRemoteConfig(
-        context,
-        () => initState(),
-      );
-    }
+    await _checkInitialData();
   }
 }

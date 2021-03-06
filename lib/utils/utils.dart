@@ -1,20 +1,12 @@
 import 'dart:io';
 
-import 'package:ap_common/config/ap_constants.dart';
-import 'package:ap_common/models/version_info.dart';
-import 'package:ap_common/utils/analytics_utils.dart';
 import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firebase/utils/firebase_utils.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image/image.dart' as ImageUtils;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
@@ -63,58 +55,6 @@ class Utils {
   static Future<void> cancelBusNotify() async {
     var flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     await flutterLocalNotificationsPlugin.cancel(Constants.NOTIFICATION_BUS_ID);
-  }
-
-  static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
-    await Future.delayed(Duration(milliseconds: 100));
-    final app = AppLocalizations.of(context);
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    var currentVersion =
-        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
-    AnalyticsUtils.instance?.setUserProperty(
-      Constants.VERSION_CODE,
-      packageInfo.buildNumber,
-    );
-    if (currentVersion != packageInfo.buildNumber) {
-      DialogUtils.showUpdateContent(
-        context,
-        "v${packageInfo.version}\n"
-        "${AppLocalizations.of(context).updateNoteContent}",
-      );
-      Preferences.setString(
-          Constants.PREF_CURRENT_VERSION, packageInfo.buildNumber);
-    }
-    if (!kDebugMode) {
-      try {
-        final RemoteConfig remoteConfig = await RemoteConfig.instance;
-        await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-        await remoteConfig.activateFetched();
-        String apiHostLocal =
-            Preferences.getString(Constants.API_HOST, Helper.HOST);
-        String apiHostRemote = remoteConfig.getString(Constants.API_HOST);
-        await Preferences.setString(Constants.API_HOST, apiHostRemote);
-        if (apiHostLocal != apiHostRemote) {
-          Helper.resetInstance();
-          apiHostUpdate();
-        }
-        print(remoteConfig.getInt(ApConstants.APP_VERSION));
-        DialogUtils.showNewVersionContent(
-          context: context,
-          appName: app.appName,
-          iOSAppId: '1439751462',
-          defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-          githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-          windowsPath:
-              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
-          snapStoreId: 'nkust-ap',
-          versionInfo: VersionInfo(
-            code: remoteConfig.getInt(ApConstants.APP_VERSION),
-            isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
-            content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
-          ),
-        );
-      } on FetchThrottledException catch (_) {} catch (exception) {}
-    }
   }
 
   static Future<File> resizeImageByDart(File source) async {
