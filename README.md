@@ -1,4 +1,6 @@
-![Build Test](https://github.com/NKUST-ITC/NKUST-AP-Flutter/workflows/Build%20Test/badge.svg)  
+[![Build Test](https://github.com/NKUST-ITC/NKUST-AP-Flutter/workflows/Build%20Test/badge.svg)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/actions/workflows/workflow.yml)
+[![CD Store](https://github.com/NKUST-ITC/NKUST-AP-Flutter/workflows/Store%20CD/badge.svg)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/actions/workflows/workflow.yml)
+
 <a href='https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW'><img alt='Get it on the App Store' src='screenshots/google_play.png' height='48px'/></a>
 <a href='https://itunes.apple.com/us/app/id1439751462'><img alt='Get it on the App Store' src='screenshots/app_store.png' height='48px'/></a>
 <a href='https://snapcraft.io/nkust-ap'><img alt='Get it on the App Store' src='screenshots/snap_store.png' height='48px'/></a>
@@ -10,9 +12,9 @@
 
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
 - [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
-- [X] [Web(Beta)](https://nkust-ap-flutter.firebaseapp.com)
-- [X] [Windows(Pre-Dev)](https://drive.google.com/file/d/1mtBrdXIxD-UFqKjtulRMSWdsz818y3bs/view?usp=sharing)
-- [X] [MacOS(Beta)](https://itunes.apple.com/us/app/id1439751462)
+- [X] [Web](https://nkust-ap-flutter.web.app)
+- [X] [Windows(Beta)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/v3.8.0/nkust_ap_windows.zip)
+- [X] [MacOS](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Linux(Beta)](https://snapcraft.io/nkust-ap)
 
 ### Web 版本自7月起因為學校阻擋高請求IP，改為客戶端爬蟲，因此暫時無法使用
