@@ -90,4 +90,6 @@ class Constants {
 
   static const CAN_USE_BUS = 'can_use_bus';
   static const HAS_BUS_VIOLATION = 'has_bus_violation';
+
+  static const MAIL_DOMAIN = '@nkust.edu.tw';
 }

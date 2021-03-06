@@ -103,7 +103,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           routes: <String, WidgetBuilder>{
             Navigator.defaultRouteName: (context) => HomePage(),
             AnnouncementHomePage.routerName: (BuildContext context) =>
-                AnnouncementHomePage(),
+                AnnouncementHomePage(
+                  organizationDomain: Constants.MAIL_DOMAIN,
+                ),
           },
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,

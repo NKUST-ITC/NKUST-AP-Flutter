@@ -163,13 +163,10 @@ class HomePageState extends State<HomePage> {
                 icon: Icon(Icons.fiber_new_rounded),
                 tooltip: ap.announcementReviewSystem,
                 onPressed: () async {
-                  ImgurHelper.clientId = 'bf8e32144d00b04';
-                  AnnouncementHelper.tag = 'ap';
-                  AnnouncementHelper.organization = 'nkust';
                   ApUtils.pushCupertinoStyle(
                     context,
                     AnnouncementHomePage(
-                      organizationDomain: '@nkust.edu.tw',
+                      organizationDomain: Constants.MAIL_DOMAIN,
                     ),
                   );
                   if (FirebaseUtils.isSupportCloudMessage) {
@@ -183,7 +180,7 @@ class HomePageState extends State<HomePage> {
                               AuthorizationStatus.provisional) {
                         String token = await messaging.getToken(
                             vapidKey: Constants.FCM_WEB_VAPID_KEY);
-                        AnnouncementHelper.fcmToken = token;
+                        AnnouncementHelper.instance.fcmToken = token;
                       }
                     } catch (_) {}
                   }

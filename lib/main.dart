@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
@@ -39,6 +40,7 @@ void main() async {
         clientId:
             '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
   Helper.selector = CrawlerSelector.load();
+  AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (!kDebugMode && FirebaseUtils.isSupportCrashlytics) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
