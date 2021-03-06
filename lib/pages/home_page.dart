@@ -684,10 +684,12 @@ class HomePageState extends State<HomePage> {
     } else {
       checkLogin();
     }
-    await _checkFeatureEnable();
-    Utils.checkRemoteConfig(
-      context,
-      () => initState(),
-    );
+    if (FirebaseUtils.isSupportRemoteConfig) {
+      await _checkFeatureEnable();
+      Utils.checkRemoteConfig(
+        context,
+        () => initState(),
+      );
+    }
   }
 }

@@ -67,7 +67,6 @@ class Utils {
 
   static checkRemoteConfig(BuildContext context, Function apiHostUpdate) async {
     await Future.delayed(Duration(milliseconds: 100));
-    if (!FirebaseUtils.isSupportRemoteConfig) return;
     final app = AppLocalizations.of(context);
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     var currentVersion =
@@ -104,6 +103,10 @@ class Utils {
           appName: app.appName,
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
+          githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
+          windowsPath:
+              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          snapStoreId: 'nkust-ap',
           versionInfo: VersionInfo(
             code: remoteConfig.getInt(ApConstants.APP_VERSION),
             isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
