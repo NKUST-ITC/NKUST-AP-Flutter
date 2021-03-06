@@ -652,14 +652,10 @@ class HomePageState extends State<HomePage> {
       Constants.VERSION_CODE,
       packageInfo.buildNumber,
     );
-    print(
-        'current = $currentVersion buildNumber = ${packageInfo.buildNumber} ${first}');
     if (currentVersion != packageInfo.buildNumber && first) {
       final rawData = await FileAssets.changelogData;
-      print(ApLocalizations.current.locale);
       final updateNoteContent =
           rawData["${packageInfo.buildNumber}"][ApLocalizations.current.locale];
-      print(updateNoteContent);
       DialogUtils.showUpdateContent(
         context,
         "v${packageInfo.version}\n"
