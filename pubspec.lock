@@ -274,15 +274,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.0.0-nullsafety.4"
-  file_chooser:
-    dependency: "direct main"
-    description:
-      path: "plugins/file_chooser/"
-      ref: "43901ebd12548a3c2a077d4dbeb3b56f0a0bdd09"
-      resolved-ref: "43901ebd12548a3c2a077d4dbeb3b56f0a0bdd09"
-      url: "https://github.com/google/flutter-desktop-embedding"
-    source: git
-    version: "0.2.0"
   file_selector:
     dependency: transitive
     description:

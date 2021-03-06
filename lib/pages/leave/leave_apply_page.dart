@@ -22,7 +22,6 @@ import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
-import 'package:file_chooser/file_chooser.dart';
 
 enum _State {
   loading,
@@ -443,13 +442,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                         },
                       );
                     else if (!kIsWeb) {
-                      var result = await showOpenPanel(allowedFileTypes: [
-                        FileTypeFilterGroup(
-                            fileExtensions: ['jpg', 'jpeg', 'png', 'gif'])
-                      ]);
-                      if (result.paths.length > 0) {
-                        var image = File(result.paths.first);
-                        if ((image.mb) >= Constants.MAX_IMAGE_SIZE) {
+                      var image = await ApUtils.pickImage();
+                      if (image != null) {
+                        var file = File(image.path);
+                        if ((file.mb) >= Constants.MAX_IMAGE_SIZE) {
                           ApUtils.showToast(
                             context,
                             sprintf(
@@ -459,7 +455,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           );
                         } else
                           setState(() {
-                            this.image = PickedFile(image.path);
+                            this.image = PickedFile(file.path);
                           });
                       }
                     }
