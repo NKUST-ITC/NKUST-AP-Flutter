@@ -101,7 +101,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
-            Navigator.defaultRouteName: (context) => HomePage(),
+            Navigator.defaultRouteName: (context) => kIsWeb
+                ? AnnouncementHomePage(
+                    organizationDomain: Constants.MAIL_DOMAIN,
+                  )
+                : HomePage(),
             AnnouncementHomePage.routerName: (BuildContext context) =>
                 AnnouncementHomePage(
                   organizationDomain: Constants.MAIL_DOMAIN,
