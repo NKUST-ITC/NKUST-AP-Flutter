@@ -1,6 +1,4 @@
 PODS:
-  - file_chooser (0.0.2):
-    - FlutterMacOS
   - file_selector_macos (0.0.1):
     - FlutterMacOS
   - Firebase/CoreOnly (7.3.0):
@@ -122,7 +120,6 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
-  - file_chooser (from `Flutter/ephemeral/.symlinks/plugins/file_chooser/macos`)
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_crashlytics (from `Flutter/ephemeral/.symlinks/plugins/firebase_crashlytics/macos`)
@@ -157,8 +154,6 @@ SPEC REPOS:
     - PromisesObjC
 
 EXTERNAL SOURCES:
-  file_chooser:
-    :path: Flutter/ephemeral/.symlinks/plugins/file_chooser/macos
   file_selector_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   firebase_core:
@@ -191,7 +186,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
-  file_chooser: 24432cf5dc836722b05c11c2a0a30d19c3c9b996
   file_selector_macos: ff6dc948d4ddd34e8602a1f60b7d0b4cc6051a47
   Firebase: 26223c695fe322633274198cb19dca8cb7e54416
   firebase_core: 2385663692e232c6bb79fd8dd9c5df711b7ac55b

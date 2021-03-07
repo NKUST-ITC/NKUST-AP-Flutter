@@ -402,10 +402,11 @@ class HomePageState extends State<HomePage> {
             },
             onTabTapped: onTabTapped,
             bottomNavigationBarItems: [
-              BottomNavigationBarItem(
-                icon: Icon(ApIcon.directionsBus),
-                label: app.bus,
-              ),
+              if (MobileNkustHelper.isSupport)
+                BottomNavigationBarItem(
+                  icon: Icon(ApIcon.directionsBus),
+                  label: app.bus,
+                ),
               BottomNavigationBarItem(
                 icon: Icon(ApIcon.classIcon),
                 label: ap.course,
@@ -421,6 +422,7 @@ class HomePageState extends State<HomePage> {
 
   void onTabTapped(int index) async {
     if (isLogin) {
+      if (!MobileNkustHelper.isSupport) index++;
       switch (index) {
         case 0:
           if (MobileNkustHelper.isSupport)
