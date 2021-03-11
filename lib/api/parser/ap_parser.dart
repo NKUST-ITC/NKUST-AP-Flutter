@@ -222,11 +222,12 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       });
     }
   } catch (e, s) {
+    if (kDebugMode) throw e;
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: document.getElementsByTagName("table")[0].text,
+        reason: "Section A = ${document.getElementsByTagName("table")[0].innerHtml}",
       );
   }
 
@@ -268,11 +269,12 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       );
     }
   } catch (e, s) {
+    if (kDebugMode) throw e;
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: document.getElementsByTagName("table")[1].text,
+        reason: document.getElementsByTagName("table")[1].innerHtml,
       );
   }
   //make each day.
@@ -340,11 +342,12 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       }
     }
   } catch (e, s) {
+    if (kDebugMode) throw e;
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: document.getElementsByTagName("table")[1].text,
+        reason: "Section C = ${document.getElementsByTagName("table")[0].innerHtml}",
       );
   }
   return data;
