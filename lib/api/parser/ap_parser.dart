@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ap_common/utils/crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -514,7 +515,7 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
     'Saturday',
     'Sunday'
   ];
-
+  String tmpCourseName = '';
   try {
     for (int key = 0; key < keyName.length; key++) {
       for (int eachSession = 1;
@@ -592,9 +593,8 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
               .toList()
               .indexOf(data['_temp_time'][course['date']['section']]),
         };
-        data['courses']["${course['title']}${course['rawInstructors']}"]
-                ['sectionTimes']
-            .add(_temp);
+        tmpCourseName = "${course['title']}${course['rawInstructors']}";
+        data['courses'][tmpCourseName]['sectionTimes'].add(_temp);
       }
     }
     // courses to list
@@ -611,7 +611,10 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
       });
     }
     data.remove('_temp_time');
-  } on Exception catch (_) {}
+  } catch (e, s) {
+    CrashlyticsUtils.instance
+        .recordError(e, s, reason: "course name = $tmpCourseName");
+  }
 
   return data;
 }
