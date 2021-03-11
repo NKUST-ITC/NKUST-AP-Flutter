@@ -274,7 +274,10 @@ class HomePageState extends State<HomePage> {
                     DrawerSubItem(
                       icon: ApIcon.room,
                       title: ap.classroomCourseTableSearch,
-                      onTap: () => _openPage(RoomListPage()),
+                      onTap: () => _openPage(
+                        RoomListPage(),
+                        needLogin: true,
+                      ),
                     ),
                   ],
                 ),
