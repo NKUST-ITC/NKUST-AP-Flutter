@@ -1,4 +1,10 @@
 {
+  "30802": {
+    "visible": true,
+    "date": "2021/03/14",
+    "zh-TW": "* 修正部分裝置點擊錯誤\n* 修正校車與缺曠登入錯誤",
+    "en-US": "* Fix a part of device click error.\n* Fix bus and leave login error."
+  },
   "30801": {
     "visible": true,
     "date": "2021/03/06",
