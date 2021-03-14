@@ -83,6 +83,8 @@ class MobileNkustHelper {
 
   static MobileNkustHelper get instance {
     final _random = new Random();
+    final i = _random.nextInt(userAgentList.length);
+    // print('user agnent index = $i');
     if (_instance == null) {
       _instance = MobileNkustHelper();
       _instance.dio = Dio(
@@ -90,7 +92,7 @@ class MobileNkustHelper {
           followRedirects: false,
           headers: {
             "user-agent":
-                "${userAgentList[_random.nextInt(userAgentList.length)]}",
+                "${userAgentList[i]}",
           },
         ),
       );

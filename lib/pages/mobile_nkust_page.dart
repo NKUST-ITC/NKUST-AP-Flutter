@@ -68,6 +68,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
+            userAgent: MobileNkustHelper.instance.userAgent,
           ),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
@@ -80,6 +81,9 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         onPageCommitVisible: (controller, title) async {
           final path = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $path');
+          // await webViewController.evaluateJavascript(
+          //     source:
+          //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
           if (path == MobileNkustHelper.LOGIN) {
             await webViewController.evaluateJavascript(
                 source:
