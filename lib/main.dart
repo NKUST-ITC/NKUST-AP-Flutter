@@ -25,7 +25,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
-  GestureBinding.instance.resamplingEnabled = true;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   MobileNkustHelper.userAgentList = Preferences.getStringList(
