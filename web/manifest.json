@@ -1,11 +1,11 @@
 {
-    "name": "nkust_ap",
-    "short_name": "nkust_ap",
+    "name": "NKUST AP",
+    "short_name": "NKUST AP",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "NKUST AP",
+    "description": "史上最強大的高科大校務系統",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
