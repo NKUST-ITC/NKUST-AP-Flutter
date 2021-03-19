@@ -149,8 +149,12 @@ class MobileNkustParser {
           _inputDocument.getElementById('BusId').attributes['value'];
       _temp['cancelKey'] =
           _inputDocument.getElementById('ReserveId').attributes['value'];
-      _temp['isReserve'] =
-          (_inputDocument.getElementById('ReserveStateCode').text == '1');
+      _temp['isReserve'] = (_inputDocument
+                  .getElementById('ReserveStateCode')
+                  .attributes['value'] ==
+              '0' &&
+          _inputDocument.getElementById('ReserveId').attributes['value'] !=
+              '0');
 
       var tdElements = trElement.getElementsByTagName('td').sublist(1);
 
