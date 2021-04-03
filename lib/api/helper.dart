@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
@@ -718,8 +719,8 @@ class Helper {
     GeneralCallback<LeaveData> callback,
   }) async {
     try {
-      LeaveData data = await InkustHelper.instance
-          .getAbsentRecords(year: semester.year, semester: semester.value);
+      LeaveData data = await LeaveHelper.instance
+          .getLeaves(year: semester.year, semester: semester.value);
 
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -744,7 +745,7 @@ class Helper {
   }) async {
     try {
       LeaveSubmitInfoData data =
-          await InkustHelper.instance.getLeavesSubmitInfo();
+          await LeaveHelper.instance.getLeavesSubmitInfo();
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -770,7 +771,7 @@ class Helper {
   }) async {
     try {
       Response res =
-          await InkustHelper.instance.leavesSubmit(data, proofImage: image);
+          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
       return (callback == null) ? data : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {

@@ -1,7 +1,11 @@
 //dio
+import 'dart:io';
+
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
@@ -20,7 +24,11 @@ import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:intl/intl.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:nkust_ap/models/login_response.dart';
+import 'package:nkust_ap/models/mobile_cookies_data.dart';
+import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
+import 'ap_status_code.dart';
 import 'helper.dart';
 
 class LeaveHelper {
@@ -36,6 +44,8 @@ class LeaveHelper {
   bool isLogin;
 
   static const HOME = '${BASE_PATH}masterindex.aspx';
+
+  MobileCookiesData cookiesData;
 
   static LeaveHelper get instance {
     if (_instance == null) {
@@ -77,6 +87,86 @@ class LeaveHelper {
     dio.options.headers['Connection'] = 'close';
     dio.options.connectTimeout = Constants.TIMEOUT_MS;
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
+  }
+
+
+
+  void setCookieFromData(MobileCookiesData data) {
+    if (data != null) {
+      cookiesData = data;
+      data.cookies?.forEach((element) {
+        Cookie _tempCookie = Cookie(element.name, element.value);
+        _tempCookie.domain = element.domain;
+        cookieJar.saveFromResponse(
+          Uri.parse(element.path),
+          [_tempCookie],
+        );
+      });
+    }
+  }
+
+  void setCookie(
+      String url, {
+        String cookieName,
+        String cookieValue,
+        String cookieDomain,
+      }) {
+    Cookie _tempCookie = Cookie(cookieName, cookieValue);
+    _tempCookie.domain = cookieDomain;
+    cookieJar.saveFromResponse(
+      Uri.parse(url),
+      [_tempCookie],
+    );
+  }
+
+  Future<bool> isCookieAlive() async {
+    try {
+      //TODO check cookies is expire
+      var res = await dio.get('');
+      return res?.data == 'alive';
+    } catch (e) {}
+    return false;
+  }
+
+  Future<LoginResponse> login({
+    @required BuildContext context,
+    @required String username,
+    @required String password,
+    bool clearCache = false,
+  }) async {
+    // final data = MobileCookiesData.load();
+    // if (data != null && !clearCache) {
+    //   MobileNkustHelper.instance.setCookieFromData(data);
+    //   final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
+    //   if (isCookieAlive) {
+    //     final now = DateTime.now();
+    //     final lastTime = Preferences.getInt(
+    //       Constants.MOBILE_COOKIES_LAST_TIME,
+    //       now.microsecondsSinceEpoch,
+    //     );
+    //     FirebaseAnalyticsUtils.analytics.logEvent(
+    //       name: 'cookies_persistence_time',
+    //       parameters: {
+    //         'time': now.microsecondsSinceEpoch - lastTime,
+    //       },
+    //     );
+    //     return LoginResponse();
+    //   }
+    // }
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => LeaveNkustPage(
+          username: username,
+          password: password,
+          clearCache: clearCache,
+        ),
+      ),
+    );
+    if (result ?? false)
+      return LoginResponse();
+    else
+      throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
   Future<bool> leaveLogin() async {
