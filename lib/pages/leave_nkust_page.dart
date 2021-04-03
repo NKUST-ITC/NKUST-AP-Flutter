@@ -84,14 +84,6 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
-          if (path == LeaveHelper.BASE_PATH) {
-            await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');
-            await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";');
-          }
         },
         onTitleChanged: (controller, title) async {
           final path = await controller.getUrl();
@@ -103,6 +95,14 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         onLoadStop: (controller, title) async {
           final path = await controller.getUrl();
           debugPrint('onLoadStop $title $path');
+          if (path == LeaveHelper.BASE_PATH) {
+            await webViewController.evaluateJavascript(
+                source:
+                'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');
+            await webViewController.evaluateJavascript(
+                source:
+                'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";');
+          }
         },
       ),
     );
