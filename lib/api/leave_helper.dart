@@ -24,6 +24,8 @@ import 'package:html/parser.dart' show parse;
 import 'helper.dart';
 
 class LeaveHelper {
+  static const BASE_PATH = 'https://leave.nkust.edu.tw/';
+
   static Dio dio;
   static LeaveHelper _instance;
   static CookieJar cookieJar;
@@ -32,6 +34,8 @@ class LeaveHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin;
+
+  static const HOME = '${BASE_PATH}masterindex.aspx';
 
   static LeaveHelper get instance {
     if (_instance == null) {
@@ -65,7 +69,7 @@ class LeaveHelper {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Accept':
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-      'Referer': 'http://leave.nkust.edu.tw/LogOn.aspx',
+      'Referer': 'https://leave.nkust.edu.tw/LogOn.aspx',
       'Accept-Encoding': 'gzip, deflate',
       'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6'
     });
@@ -82,7 +86,7 @@ class LeaveHelper {
 
     //Get base hidden data.
     Response res = await dio.get(
-      "http://leave.nkust.edu.tw/LogOn.aspx",
+      "https://leave.nkust.edu.tw/LogOn.aspx",
     );
     var requestData = hiddenInputGet(res.data);
     requestData[r"Login1$UserName"] = Helper.username;
@@ -91,7 +95,7 @@ class LeaveHelper {
     requestData[r"HiddenField1"] = "";
     try {
       await dio.post(
-        "http://leave.nkust.edu.tw/LogOn.aspx",
+        "https://leave.nkust.edu.tw/LogOn.aspx",
         data: requestData,
         options: Options(
             followRedirects: false,
@@ -102,7 +106,7 @@ class LeaveHelper {
     } on DioError catch (e) {
       if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
         //Use 302 to mean login success, nice...
-        await dio.get('http://leave.nkust.edu.tw/masterindex.aspx');
+        await dio.get('https://leave.nkust.edu.tw/masterindex.aspx');
         isLogin = true;
         return true;
       }
@@ -122,7 +126,7 @@ class LeaveHelper {
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
-      "http://leave.nkust.edu.tw/AK002MainM.aspx",
+      "https://leave.nkust.edu.tw/AK002MainM.aspx",
     );
     var requestData = allInputValueParser(res.data);
     requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] =
@@ -130,7 +134,7 @@ class LeaveHelper {
     requestData[r"ctl00$ContentPlaceHolder1$Button1	"] = "確定送出";
     requestData.remove(r"ctl00$ButtonLogOut");
     Response queryRequest = await dio.post(
-      "http://leave.nkust.edu.tw/AK002MainM.aspx",
+      "https://leave.nkust.edu.tw/AK002MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -152,13 +156,13 @@ class LeaveHelper {
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
     );
     var requestData = hiddenInputGet(res.data);
     requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonEnter"] = "進入請假作業";
 
     res = await dio.post(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -172,7 +176,7 @@ class LeaveHelper {
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] = fakeDate;
     requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
     res = await dio.post(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -187,14 +191,14 @@ class LeaveHelper {
     await leaveLogin();
 
     Response res = await dio.get(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
     );
 
     var requestData = hiddenInputGet(res.data);
     requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonEnter"] = "進入請假作業";
 
     res = await dio.post(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -214,7 +218,7 @@ class LeaveHelper {
 
     requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
     res = await dio.post(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -267,7 +271,7 @@ class LeaveHelper {
 
       requestData[_clickList[i]] = "";
       res = await dio.post(
-        "http://leave.nkust.edu.tw/CK001MainM.aspx",
+        "https://leave.nkust.edu.tw/CK001MainM.aspx",
         data: requestData,
         options: Options(
             followRedirects: false,
@@ -283,7 +287,7 @@ class LeaveHelper {
     }
     requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonCommit2'] = '下一步';
     res = await dio.post(
-      "http://leave.nkust.edu.tw/CK001MainM.aspx",
+      "https://leave.nkust.edu.tw/CK001MainM.aspx",
       data: requestData,
       options: Options(
           followRedirects: false,
@@ -306,7 +310,7 @@ class LeaveHelper {
 
     dio.options.headers["Content-Type"] =
         "multipart/form-data; boundary=${formData.boundary}";
-    res = await dio.post("http://leave.nkust.edu.tw/CK001MainM.aspx",
+    res = await dio.post("https://leave.nkust.edu.tw/CK001MainM.aspx",
         data: formData);
 
     if (res.data.toString().indexOf("假單存檔成功") > -1) {
