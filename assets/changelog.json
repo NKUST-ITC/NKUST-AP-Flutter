@@ -1,4 +1,10 @@
 {
+  "30804": {
+    "visible": true,
+    "date": "2021/04/04",
+    "zh-TW": "* 修復缺曠系統",
+    "en-US": "* Fix leave system."
+  },
   "30803": {
     "visible": true,
     "date": "2021/03/21",
