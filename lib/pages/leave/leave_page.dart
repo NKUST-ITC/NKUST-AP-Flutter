@@ -4,9 +4,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/pages/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/leave/leave_record_page.dart';
 
@@ -72,7 +70,7 @@ class LeavePageState extends State<LeavePage>
       body: FutureBuilder<bool>(
         future: _login,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && snapshot.data)
+          if (snapshot.connectionState == ConnectionState.done)
             return TabBarView(
               children: widget._children,
               controller: controller,
@@ -120,17 +118,7 @@ class LeavePageState extends State<LeavePage>
   }
 
   Future<bool> login() async {
-    if (MobileNkustHelper.instance.cookiesData == null) {
-      try {
-        await LeaveHelper.instance.login(
-          context: context,
-          username: Helper.username,
-          password: Helper.password,
-        );
-      } catch (e) {
-        return false;
-      }
-    }
+    await WebApHelper.instance.loginToLeave();
     return true;
   }
 }

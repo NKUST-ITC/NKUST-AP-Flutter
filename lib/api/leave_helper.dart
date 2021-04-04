@@ -8,6 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 
 //overwrite origin Cookie Manager.
+import 'package:cookie_jar/cookie_jar.dart';
+
 import 'package:nkust_ap/api/private_cookie_manager.dart';
 
 //Config
@@ -33,26 +35,27 @@ import 'helper.dart';
 
 class LeaveHelper {
   static const BASE_PATH = 'https://leave.nkust.edu.tw/';
-
-  static Dio dio;
-  static LeaveHelper _instance;
-
-  static int reLoginReTryCountsLimit = 3;
-  static int reLoginReTryCounts = 0;
-
-  bool isLogin;
-
   static const HOME = '${BASE_PATH}masterindex.aspx';
 
-  MobileCookiesData cookiesData;
+  static LeaveHelper _instance;
 
   static LeaveHelper get instance {
     if (_instance == null) {
       _instance = LeaveHelper();
-      dioInit();
+      _instance.dioInit();
     }
     return _instance;
   }
+
+  int reLoginReTryCountsLimit = 3;
+  int reLoginReTryCounts = 0;
+
+  bool isLogin;
+
+  Dio dio;
+  CookieJar cookieJar;
+
+  MobileCookiesData cookiesData;
 
   void setProxy(String proxyIP) {
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
@@ -63,7 +66,7 @@ class LeaveHelper {
     };
   }
 
-  static dioInit() {
+  void dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
@@ -93,7 +96,7 @@ class LeaveHelper {
       data.cookies?.forEach((element) {
         Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
-        WebApHelper.instance.cookieJar.saveFromResponse(
+        cookieJar.saveFromResponse(
           Uri.parse(element.path),
           [_tempCookie],
         );
@@ -109,7 +112,7 @@ class LeaveHelper {
   }) {
     Cookie _tempCookie = Cookie(cookieName, cookieValue);
     _tempCookie.domain = cookieDomain;
-    WebApHelper.instance.cookieJar.saveFromResponse(
+    cookieJar.saveFromResponse(
       Uri.parse(url),
       [_tempCookie],
     );
@@ -130,7 +133,6 @@ class LeaveHelper {
     @required String password,
     bool clearCache = false,
   }) async {
-    return WebApHelper.instance.loginToLeave();
     // final data = MobileCookiesData.load();
     // if (data != null && !clearCache) {
     //   MobileNkustHelper.instance.setCookieFromData(data);
@@ -166,6 +168,7 @@ class LeaveHelper {
       throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
+  @deprecated
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;

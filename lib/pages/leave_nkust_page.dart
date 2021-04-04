@@ -135,11 +135,6 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       },
     );
     LeaveHelper.instance.setCookieFromData(data);
-    data.save();
-    Preferences.setInt(
-      Constants.MOBILE_COOKIES_LAST_TIME,
-      DateTime.now().microsecondsSinceEpoch,
-    );
     Navigator.pop(context, true);
   }
 }
