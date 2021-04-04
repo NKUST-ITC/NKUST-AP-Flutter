@@ -168,6 +168,7 @@ class LeaveHelper {
       throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
+  /// Since 2021/07 School add Google re-captcha in leave system crawler login not working
   @deprecated
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
@@ -211,8 +212,8 @@ class LeaveHelper {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
-    if (isLogin == false || isLogin == null) {
-      await leaveLogin();
+    if (!(isLogin ?? false)) {
+      await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -241,8 +242,8 @@ class LeaveHelper {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
-    if (isLogin == false || isLogin == null) {
-      await leaveLogin();
+    if (!(isLogin ?? false)) {
+      await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -278,7 +279,7 @@ class LeaveHelper {
   Future<Response> leavesSubmit(LeaveSubmitData data,
       {PickedFile proofImage}) async {
     //force relogin to aviod error.
-    await leaveLogin();
+    await WebApHelper.instance.loginToLeave();
 
     Response res = await dio.get(
       "https://leave.nkust.edu.tw/CK001MainM.aspx",
