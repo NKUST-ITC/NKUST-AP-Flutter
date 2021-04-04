@@ -37,10 +37,11 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'helper.dart';
 
 class WebApHelper {
-  static Dio dio;
-  static DioCacheManager _manager;
   static WebApHelper _instance;
-  static CookieJar cookieJar;
+
+  Dio dio;
+  DioCacheManager _manager;
+  CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
@@ -62,7 +63,7 @@ class WebApHelper {
   static WebApHelper get instance {
     if (_instance == null) {
       _instance = WebApHelper();
-      dioInit();
+      _instance.dioInit();
     }
     return _instance;
   }
@@ -82,17 +83,17 @@ class WebApHelper {
     } catch (e) {}
   }
 
-  static dioInit() {
+  void dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-
+    cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
       dio.interceptors.add(_manager.interceptor);
     }
-    dio.interceptors.add(PrivateCookieManager(Helper.cookieJar));
+    dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';

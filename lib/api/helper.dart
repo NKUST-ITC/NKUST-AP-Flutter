@@ -63,7 +63,6 @@ class Helper {
   static const REMOTE_CONFIG = 'config';
 
   static Helper _instance;
-  static CookieJar cookieJar;
 
   Dio dio;
 
@@ -97,7 +96,6 @@ class Helper {
 
   static Helper get instance {
     if (_instance == null) {
-      cookieJar = CookieJar();
       _instance = Helper();
       cancelToken = CancelToken();
     }
@@ -872,7 +870,7 @@ class Helper {
     username = null;
     password = null;
     WebApHelper.instance.logout();
-    WebApHelper.dioInit();
+    WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
     MobileNkustHelper.instance.cookiesData?.clear();

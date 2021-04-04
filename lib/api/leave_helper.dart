@@ -67,7 +67,7 @@ class LeaveHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    dio.interceptors.add(PrivateCookieManager(Helper.cookieJar));
+    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
 
@@ -93,7 +93,7 @@ class LeaveHelper {
       data.cookies?.forEach((element) {
         Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
-        Helper.cookieJar.saveFromResponse(
+        WebApHelper.instance.cookieJar.saveFromResponse(
           Uri.parse(element.path),
           [_tempCookie],
         );
@@ -109,7 +109,7 @@ class LeaveHelper {
   }) {
     Cookie _tempCookie = Cookie(cookieName, cookieValue);
     _tempCookie.domain = cookieDomain;
-    Helper.cookieJar.saveFromResponse(
+    WebApHelper.instance.cookieJar.saveFromResponse(
       Uri.parse(url),
       [_tempCookie],
     );
