@@ -138,6 +138,54 @@ class WebApHelper {
     }
   }
 
+  Future<LoginResponse> loginToLeave() async {
+    // Login leave.nkust from webap.
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+          statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
+          message: "Login exceeded retry limit");
+    }
+    await checkLogin();
+
+    Response res = await dio.post(
+      "https://webap.nkust.edu.tw/nkust/fnc.jsp",
+      data: {"fncid": 'CK004'},
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    var _skyDirectData = webapToleaveParser(res.data);
+    res = await dio.get(
+      "https://leave.nkust.edu.tw/SkyDir.aspx",
+      queryParameters: {
+        'u': _skyDirectData['uid'],
+        'r': _skyDirectData['ls_randnum']
+      },
+      options: Options(
+          followRedirects: false,
+          validateStatus: (status) {
+            return status < 500;
+          },
+          contentType: Headers.formUrlEncodedContentType),
+    );
+    if (res.data.indexOf('masterindex.aspx') > -1) {
+      res = await dio.get(
+        "https://leave.nkust.edu.tw/masterindex.aspx",
+        options: Options(
+            followRedirects: false,
+            validateStatus: (status) {
+              return status < 500;
+            },
+            contentType: Headers.formUrlEncodedContentType),
+      );
+
+      LeaveHelper.instance.isLogin = true;
+      return LoginResponse(
+        expireTime: DateTime.now().add(Duration(hours: 1)),
+        isAdmin: false,
+      );
+    }
+    throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
+  }
+
   Future<LoginResponse> checkLogin() async {
     return isLogin
         ? null
