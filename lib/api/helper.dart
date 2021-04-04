@@ -47,6 +47,8 @@ import 'package:nkust_ap/utils/global.dart';
 
 export 'package:ap_common/callback/general_callback.dart';
 
+import 'package:cookie_jar/cookie_jar.dart';
+
 class Helper {
   static const HOST = 'nkust.taki.dog';
 
@@ -61,6 +63,7 @@ class Helper {
   static const REMOTE_CONFIG = 'config';
 
   static Helper _instance;
+  static CookieJar cookieJar;
 
   Dio dio;
 
@@ -94,6 +97,7 @@ class Helper {
 
   static Helper get instance {
     if (_instance == null) {
+      cookieJar = CookieJar();
       _instance = Helper();
       cancelToken = CancelToken();
     }

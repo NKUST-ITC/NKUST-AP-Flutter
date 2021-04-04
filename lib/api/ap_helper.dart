@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
@@ -85,13 +86,13 @@ class WebApHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    cookieJar = CookieJar();
+
     if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
       dio.interceptors.add(_manager.interceptor);
     }
-    dio.interceptors.add(PrivateCookieManager(cookieJar));
+    dio.interceptors.add(PrivateCookieManager(Helper.cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';
@@ -135,6 +136,54 @@ class WebApHelper {
         );
         break;
     }
+  }
+
+  Future<LoginResponse> loginToLeave() async {
+    // Login leave.nkust from webap.
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+          statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
+          message: "Login exceeded retry limit");
+    }
+    await checkLogin();
+
+    Response res = await dio.post(
+      "https://webap.nkust.edu.tw/nkust/fnc.jsp",
+      data: {"fncid": 'CK004'},
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
+    var _skyDirectData = webapToleaveParser(res.data);
+    res = await dio.get(
+      "https://leave.nkust.edu.tw/SkyDir.aspx",
+      queryParameters: {
+        'u': _skyDirectData['uid'],
+        'r': _skyDirectData['ls_randnum']
+      },
+      options: Options(
+          followRedirects: false,
+          validateStatus: (status) {
+            return status < 500;
+          },
+          contentType: Headers.formUrlEncodedContentType),
+    );
+    if (res.data.indexOf('masterindex.aspx') > -1) {
+      res = await dio.get(
+        "https://leave.nkust.edu.tw/masterindex.aspx",
+        options: Options(
+            followRedirects: false,
+            validateStatus: (status) {
+              return status < 500;
+            },
+            contentType: Headers.formUrlEncodedContentType),
+      );
+
+      LeaveHelper.instance.isLogin = true;
+      return LoginResponse(
+        expireTime: DateTime.now().add(Duration(hours: 1)),
+        isAdmin: false,
+      );
+    }
+    throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
   Future<LoginResponse> checkLogin() async {

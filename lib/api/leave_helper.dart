@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
@@ -36,7 +36,6 @@ class LeaveHelper {
 
   static Dio dio;
   static LeaveHelper _instance;
-  static CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
@@ -68,8 +67,7 @@ class LeaveHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    cookieJar = CookieJar();
-    dio.interceptors.add(PrivateCookieManager(cookieJar));
+    dio.interceptors.add(PrivateCookieManager(Helper.cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
 
@@ -89,15 +87,13 @@ class LeaveHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
-
-
   void setCookieFromData(MobileCookiesData data) {
     if (data != null) {
       cookiesData = data;
       data.cookies?.forEach((element) {
         Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
-        cookieJar.saveFromResponse(
+        Helper.cookieJar.saveFromResponse(
           Uri.parse(element.path),
           [_tempCookie],
         );
@@ -106,14 +102,14 @@ class LeaveHelper {
   }
 
   void setCookie(
-      String url, {
-        String cookieName,
-        String cookieValue,
-        String cookieDomain,
-      }) {
+    String url, {
+    String cookieName,
+    String cookieValue,
+    String cookieDomain,
+  }) {
     Cookie _tempCookie = Cookie(cookieName, cookieValue);
     _tempCookie.domain = cookieDomain;
-    cookieJar.saveFromResponse(
+    Helper.cookieJar.saveFromResponse(
       Uri.parse(url),
       [_tempCookie],
     );
@@ -134,6 +130,7 @@ class LeaveHelper {
     @required String password,
     bool clearCache = false,
   }) async {
+    return WebApHelper.instance.loginToLeave();
     // final data = MobileCookiesData.load();
     // if (data != null && !clearCache) {
     //   MobileNkustHelper.instance.setCookieFromData(data);

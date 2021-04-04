@@ -104,6 +104,17 @@ Map<String, dynamic> apUserInfoParser(String html) {
   return data;
 }
 
+Map<String, dynamic> webapToleaveParser(String html) {
+  Map<String, dynamic> data = {};
+  var document = parse(html);
+  var _inputElements = document.getElementsByTagName("input");
+  _inputElements.forEach((element) {
+    data.addAll({element.attributes['id']: element.attributes['value']});
+  });
+
+  return data;
+}
+
 Map<String, dynamic> semestersParser(String html) {
   Map<String, dynamic> data = {
     "data": [],
