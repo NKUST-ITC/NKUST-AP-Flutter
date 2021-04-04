@@ -283,40 +283,39 @@ class HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                if (MobileNkustHelper.isSupport)
-                  ExpansionTile(
-                    initiallyExpanded: isLeaveExpanded,
-                    onExpansionChanged: (bool) {
-                      setState(() {
-                        isLeaveExpanded = bool;
-                      });
-                    },
-                    leading: Icon(
-                      ApIcon.calendarToday,
-                      color: isLeaveExpanded
-                          ? ApTheme.of(context).blueAccent
-                          : ApTheme.of(context).grey,
-                    ),
-                    title: Text(ap.leave, style: _defaultStyle),
-                    children: <Widget>[
-                      DrawerSubItem(
-                        icon: ApIcon.edit,
-                        title: ap.leaveApply,
-                        onTap: () => _openPage(
-                          LeavePage(initIndex: 0),
-                          needLogin: true,
-                        ),
-                      ),
-                      DrawerSubItem(
-                        icon: ApIcon.assignment,
-                        title: ap.leaveRecords,
-                        onTap: () => _openPage(
-                          LeavePage(initIndex: 1),
-                          needLogin: true,
-                        ),
-                      ),
-                    ],
+                ExpansionTile(
+                  initiallyExpanded: isLeaveExpanded,
+                  onExpansionChanged: (bool) {
+                    setState(() {
+                      isLeaveExpanded = bool;
+                    });
+                  },
+                  leading: Icon(
+                    ApIcon.calendarToday,
+                    color: isLeaveExpanded
+                        ? ApTheme.of(context).blueAccent
+                        : ApTheme.of(context).grey,
                   ),
+                  title: Text(ap.leave, style: _defaultStyle),
+                  children: <Widget>[
+                    DrawerSubItem(
+                      icon: ApIcon.edit,
+                      title: ap.leaveApply,
+                      onTap: () => _openPage(
+                        LeavePage(initIndex: 0),
+                        needLogin: true,
+                      ),
+                    ),
+                    DrawerSubItem(
+                      icon: ApIcon.assignment,
+                      title: ap.leaveRecords,
+                      onTap: () => _openPage(
+                        LeavePage(initIndex: 1),
+                        needLogin: true,
+                      ),
+                    ),
+                  ],
+                ),
                 if (MobileNkustHelper.isSupport)
                   ExpansionTile(
                     initiallyExpanded: isBusExpanded,
