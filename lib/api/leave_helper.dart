@@ -5,6 +5,7 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 
 //overwrite origin Cookie Manager.
 import 'package:nkust_ap/api/private_cookie_manager.dart';
@@ -129,6 +130,7 @@ class LeaveHelper {
     @required String password,
     bool clearCache = false,
   }) async {
+    return WebApHelper.instance.loginToLeave();
     // final data = MobileCookiesData.load();
     // if (data != null && !clearCache) {
     //   MobileNkustHelper.instance.setCookieFromData(data);
