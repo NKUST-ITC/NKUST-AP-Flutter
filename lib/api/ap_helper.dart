@@ -147,6 +147,7 @@ class WebApHelper {
           message: "Login exceeded retry limit");
     }
     await checkLogin();
+    await apQuery("ag304_01", null);
 
     Response res = await dio.post(
       "https://webap.nkust.edu.tw/nkust/fnc.jsp",
