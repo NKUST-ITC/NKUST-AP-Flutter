@@ -1,6 +1,18 @@
 import 'package:html/parser.dart' show parse;
 
-Map<String, dynamic> hiddenInputGet(String html) {
+Map<String, dynamic> hiddenInputGet(String html, {bool removeTdElement}) {
+  if (removeTdElement == true) {
+    String firstMatchString = '<td width="40px" nowrap="nowrap" align="left">';
+    String lastMatchString = '</td>';
+    var startIndex = html.indexOf(firstMatchString);
+    while (startIndex > -1) {
+      html = html.substring(0, startIndex) +
+          html.substring(html.indexOf(lastMatchString, startIndex) +
+              lastMatchString.length);
+      startIndex = html.indexOf(firstMatchString);
+    }
+  }
+
   var document = parse(html);
   Map<String, dynamic> hiddenData = {};
   var inputDom = document.getElementsByTagName("input");
