@@ -304,6 +304,7 @@ class HomePageState extends State<HomePage> {
                       onTap: () => _openPage(
                         LeavePage(initIndex: 0),
                         needLogin: true,
+                        useCupertinoRoute: false,
                       ),
                     ),
                     DrawerSubItem(
@@ -312,6 +313,7 @@ class HomePageState extends State<HomePage> {
                       onTap: () => _openPage(
                         LeavePage(initIndex: 1),
                         needLogin: true,
+                        useCupertinoRoute: false,
                       ),
                     ),
                   ],
@@ -632,7 +634,11 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  _openPage(Widget page, {needLogin = false}) {
+  void _openPage(
+    Widget page, {
+    needLogin = false,
+    bool useCupertinoRoute = true,
+  }) async {
     if (isMobile) Navigator.of(context).pop();
     if (needLogin && !isLogin)
       ApUtils.showToast(
@@ -641,7 +647,14 @@ class HomePageState extends State<HomePage> {
       );
     else {
       if (isMobile) {
-        ApUtils.pushCupertinoStyle(context, page);
+        if (useCupertinoRoute)
+          ApUtils.pushCupertinoStyle(context, page);
+        else
+          await Navigator.push(
+            context,
+            CupertinoPageRoute(builder: (_) => page),
+          );
+        checkLogin();
       } else
         setState(() => content = page);
     }
