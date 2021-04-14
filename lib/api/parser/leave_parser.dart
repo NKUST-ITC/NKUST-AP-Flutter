@@ -86,16 +86,35 @@ Map<String, dynamic> leaveSubmitInfoParser(String html) {
 
   //TimeCode generate part.
   List<String> timeCodeList = [];
-  var _timeCode = document
-      .getElementsByClassName("mGrid")[0]
-      .getElementsByTagName("tr")[0]
-      .getElementsByTagName("th");
-  if (_timeCode.length > 5) {
-    for (int i = 3; i < _timeCode.length; i++) {
-      timeCodeList.add(_timeCode[i].text);
+  final grids = document.getElementsByClassName("mGrid");
+  if (grids.length >= 1) {
+    var _timeCode = document
+        .getElementsByClassName("mGrid")[0]
+        .getElementsByTagName("tr")[0]
+        .getElementsByTagName("th");
+    if (_timeCode.length > 5) {
+      for (int i = 3; i < _timeCode.length; i++) {
+        timeCodeList.add(_timeCode[i].text);
+      }
     }
-  }
-
+  } else
+    timeCodeList = [
+      'M',
+      '1',
+      '2',
+      '3',
+      '4',
+      'A',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13'
+    ];
   //LeaveType generate part.
   List<Map<String, String>> leaveType = [];
 
