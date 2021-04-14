@@ -1,4 +1,10 @@
 {
+  "30805": {
+    "visible": true,
+    "date": "2021/04/14",
+    "zh-TW": "* 修復缺曠申請下載資料過多導致崩潰",
+    "en-US": "* Fix leave apply download data too much lead to crash."
+  },
   "30804": {
     "visible": true,
     "date": "2021/04/04",
