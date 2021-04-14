@@ -261,7 +261,7 @@ class LeaveHelper {
     );
     String fakeDate =
         "${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}";
-    requestData = hiddenInputGet(res.data);
+    requestData = hiddenInputGet(res.data, removeTdElement: true);
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
         fakeDate;
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] = fakeDate;
