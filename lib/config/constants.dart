@@ -92,4 +92,7 @@ class Constants {
   static const HAS_BUS_VIOLATION = 'has_bus_violation';
 
   static const MAIL_DOMAIN = '@nkust.edu.tw';
+
+  static const BUS_ENABLE = 'bus_enable';
+  static const LEAVE_ENABLE = 'leave_enable';
 }

@@ -29,7 +29,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -39,7 +38,6 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-import 'leave_nkust_page.dart';
 import 'study/midterm_alerts_page.dart';
 import 'study/reward_and_penalty_page.dart';
 
@@ -70,6 +68,9 @@ class HomePageState extends State<HomePage> {
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
   bool isLeaveExpanded = false;
+
+  bool leaveEnable = true;
+  bool busEnable = true;
 
   UserInfo userInfo;
 
@@ -106,6 +107,8 @@ class HomePageState extends State<HomePage> {
         return ImageAssets.drawerIconDark;
     }
   }
+
+  bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
   static aboutPage(BuildContext context, {String assetImage}) {
     return AboutUsPage(
@@ -283,42 +286,43 @@ class HomePageState extends State<HomePage> {
                     ),
                   ],
                 ),
-                ExpansionTile(
-                  initiallyExpanded: isLeaveExpanded,
-                  onExpansionChanged: (bool) {
-                    setState(() {
-                      isLeaveExpanded = bool;
-                    });
-                  },
-                  leading: Icon(
-                    ApIcon.calendarToday,
-                    color: isLeaveExpanded
-                        ? ApTheme.of(context).blueAccent
-                        : ApTheme.of(context).grey,
+                if (leaveEnable)
+                  ExpansionTile(
+                    initiallyExpanded: isLeaveExpanded,
+                    onExpansionChanged: (bool) {
+                      setState(() {
+                        isLeaveExpanded = bool;
+                      });
+                    },
+                    leading: Icon(
+                      ApIcon.calendarToday,
+                      color: isLeaveExpanded
+                          ? ApTheme.of(context).blueAccent
+                          : ApTheme.of(context).grey,
+                    ),
+                    title: Text(ap.leave, style: _defaultStyle),
+                    children: <Widget>[
+                      DrawerSubItem(
+                        icon: ApIcon.edit,
+                        title: ap.leaveApply,
+                        onTap: () => _openPage(
+                          LeavePage(initIndex: 0),
+                          needLogin: true,
+                          useCupertinoRoute: false,
+                        ),
+                      ),
+                      DrawerSubItem(
+                        icon: ApIcon.assignment,
+                        title: ap.leaveRecords,
+                        onTap: () => _openPage(
+                          LeavePage(initIndex: 1),
+                          needLogin: true,
+                          useCupertinoRoute: false,
+                        ),
+                      ),
+                    ],
                   ),
-                  title: Text(ap.leave, style: _defaultStyle),
-                  children: <Widget>[
-                    DrawerSubItem(
-                      icon: ApIcon.edit,
-                      title: ap.leaveApply,
-                      onTap: () => _openPage(
-                        LeavePage(initIndex: 0),
-                        needLogin: true,
-                        useCupertinoRoute: false,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.assignment,
-                      title: ap.leaveRecords,
-                      onTap: () => _openPage(
-                        LeavePage(initIndex: 1),
-                        needLogin: true,
-                        useCupertinoRoute: false,
-                      ),
-                    ),
-                  ],
-                ),
-                if (MobileNkustHelper.isSupport)
+                if (canUseBus)
                   ExpansionTile(
                     initiallyExpanded: isBusExpanded,
                     onExpansionChanged: (bool) {
@@ -408,7 +412,7 @@ class HomePageState extends State<HomePage> {
             },
             onTabTapped: onTabTapped,
             bottomNavigationBarItems: [
-              if (MobileNkustHelper.isSupport)
+              if (canUseBus)
                 BottomNavigationBarItem(
                   icon: Icon(ApIcon.directionsBus),
                   label: app.bus,
@@ -428,10 +432,10 @@ class HomePageState extends State<HomePage> {
 
   void onTabTapped(int index) async {
     if (isLogin) {
-      if (!MobileNkustHelper.isSupport) index++;
+      if (!canUseBus) index++;
       switch (index) {
         case 0:
-          if (MobileNkustHelper.isSupport)
+          if (canUseBus)
             ApUtils.pushCupertinoStyle(context, BusPage());
           else
             ApUtils.showToast(context, ap.platformError);
@@ -695,6 +699,10 @@ class HomePageState extends State<HomePage> {
       final mobileNkustUserAgent = List<String>.from(jsonDecode(
           remoteConfig.getString(Constants.MOBILE_NKUST_USER_AGENT)));
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
+      busEnable = remoteConfig.getBool(Constants.BUS_ENABLE);
+      leaveEnable = remoteConfig.getBool(Constants.LEAVE_ENABLE);
+      Preferences.setBool(Constants.BUS_ENABLE, busEnable);
+      Preferences.setBool(Constants.LEAVE_ENABLE, leaveEnable);
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         Helper.selector = CrawlerSelector.fromRawJson(
           remoteConfig.getString(Constants.CRAWLER_SELECTOR),
@@ -735,7 +743,10 @@ class HomePageState extends State<HomePage> {
         Constants.LEAVES_TIME_CODE,
         InkustHelper.leavesTimeCode,
       );
+      busEnable = Preferences.getBool(Constants.BUS_ENABLE, true);
+      leaveEnable = Preferences.getBool(Constants.LEAVE_ENABLE, true);
     }
+    setState(() {});
   }
 
   Future<void> getData() async {
