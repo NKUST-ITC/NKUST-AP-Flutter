@@ -296,7 +296,7 @@ class LeaveHelper {
           contentType: Headers.formUrlEncodedContentType),
     );
 
-    requestData = hiddenInputGet(res.data);
+    requestData = hiddenInputGet(res.data, removeTdElement: true);
     var dateFormate = DateFormat("yyyy/MM/dd");
     var beginDate = dateFormate.parse(data.days[0].day);
     var endDate = dateFormate.parse(data.days[data.days.length - 1].day);
