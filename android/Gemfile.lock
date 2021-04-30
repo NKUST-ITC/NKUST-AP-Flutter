@@ -1,3 +1,9 @@
+GIT
+  remote: https://github.com/tianhaoz95/fastlane-plugin-flutter-version
+  revision: aa0adb1d0e231802868e7bd96af867c1100786fd
+  specs:
+    fastlane-plugin-flutter_version (1.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -153,7 +159,7 @@ GEM
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
     retriable (3.1.2)
-    rexml (3.2.4)
+    rexml (3.2.5)
     rouge (2.0.7)
     ruby2_keywords (0.0.4)
     rubyzip (2.3.0)
@@ -197,6 +203,7 @@ PLATFORMS
 
 DEPENDENCIES
   fastlane
+  fastlane-plugin-flutter_version!
 
 BUNDLED WITH
    1.17.2
