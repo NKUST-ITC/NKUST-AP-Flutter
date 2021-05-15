@@ -91,8 +91,7 @@ class MobileNkustHelper {
         BaseOptions(
           followRedirects: false,
           headers: {
-            "user-agent":
-                "${userAgentList[i]}",
+            "user-agent": "${userAgentList[i]}",
           },
         ),
       );
@@ -201,8 +200,8 @@ class MobileNkustHelper {
           Constants.MOBILE_COOKIES_LAST_TIME,
           now.microsecondsSinceEpoch,
         );
-        FirebaseAnalyticsUtils.analytics.logEvent(
-          name: 'cookies_persistence_time',
+        FirebaseAnalyticsUtils.instance?.logEvent(
+          'cookies_persistence_time',
           parameters: {
             'time': now.microsecondsSinceEpoch - lastTime,
           },
