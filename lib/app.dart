@@ -50,7 +50,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    analytics = FirebaseUtils.init(vapidKey: Constants.FCM_WEB_VAPID_KEY);
+    analytics = FirebaseUtils.init();
+    FirebaseUtils.initFcm(
+      vapidKey: Constants.FCM_WEB_VAPID_KEY,
+    );
     themeMode = ThemeMode
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
     FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
