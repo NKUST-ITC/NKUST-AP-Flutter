@@ -139,7 +139,7 @@ class CoursePageState extends State<CoursePage> {
         },
         onFailure: (DioError e) async {
           if (await _loadCacheData(selectSemester.code) &&
-              e.type != DioErrorType.CANCEL)
+              e.type != DioErrorType.cancel)
             setState(() {
               state = CourseState.custom;
               customStateHint = e.i18nMessage;

@@ -102,7 +102,7 @@ class ScorePageState extends State<ScorePage> {
               }
             });
         }, onFailure: (DioError e) async {
-          if (await _loadOfflineScoreData() && e.type != DioErrorType.CANCEL)
+          if (await _loadOfflineScoreData() && e.type != DioErrorType.cancel)
             setState(() {
               state = ScoreState.custom;
               customStateHint = e.i18nMessage;

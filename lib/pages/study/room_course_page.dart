@@ -89,7 +89,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             });
         },
         onFailure: (DioError e) async {
-          if (e.type != DioErrorType.CANCEL && mounted)
+          if (e.type != DioErrorType.cancel && mounted)
             setState(() {
               state = CourseState.custom;
               customStateHint = e.i18nMessage;

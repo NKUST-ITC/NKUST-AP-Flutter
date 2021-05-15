@@ -244,7 +244,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
         onFailure: (DioError e) {
           if (mounted)
             switch (e.type) {
-              case DioErrorType.RESPONSE:
+              case DioErrorType.response:
                 setState(() {
                   if (e.response.statusCode == 401)
                     state = _State.userNotSupport;
@@ -265,7 +265,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     AnalyticsConstants.NO,
                   );
                 break;
-              case DioErrorType.DEFAULT:
+              case DioErrorType.other:
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
@@ -274,7 +274,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     state = _State.error;
                 });
                 break;
-              case DioErrorType.CANCEL:
+              case DioErrorType.cancel:
                 break;
               default:
                 setState(() {

@@ -196,7 +196,7 @@ class SettingPageState extends State<SettingPage> {
                   'getBusReservations', e.response.statusCode,
                   message: e.message);
             }
-          } else if (e.type == DioErrorType.DEFAULT) {
+          } else if (e.type == DioErrorType.other) {
             ApUtils.showToast(context, ap.busFailInfinity);
           } else
             ApUtils.handleDioError(context, e);

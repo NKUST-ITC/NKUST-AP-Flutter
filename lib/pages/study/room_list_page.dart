@@ -133,7 +133,7 @@ class _RoomListPageState extends State<RoomListPage> {
           });
         },
         onFailure: (DioError e) async {
-          if (e.type != DioErrorType.CANCEL)
+          if (e.type != DioErrorType.cancel)
             setState(() {
               state = _State.custom;
               customStateHint = e.i18nMessage;

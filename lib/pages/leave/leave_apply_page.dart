@@ -581,7 +581,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         onFailure: (DioError e) {
           if (mounted)
             switch (e.type) {
-              case DioErrorType.RESPONSE:
+              case DioErrorType.response:
                 setState(() {
                   if (e.response.statusCode == 403)
                     state = _State.userNotSupport;
@@ -594,10 +594,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   }
                 });
                 break;
-              case DioErrorType.DEFAULT:
+              case DioErrorType.other:
                 setState(() => state = _State.error);
                 break;
-              case DioErrorType.CANCEL:
+              case DioErrorType.cancel:
                 break;
               default:
                 setState(() {
@@ -795,16 +795,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           Navigator.of(context, rootNavigator: true).pop();
           String text;
           switch (e.type) {
-            case DioErrorType.RESPONSE:
+            case DioErrorType.response:
               if (e.response.data is Map<String, dynamic>)
                 text = ErrorResponse.fromJson(e.response.data).description;
               else
                 text = ap.somethingError;
               break;
-            case DioErrorType.DEFAULT:
+            case DioErrorType.other:
               text = ap.somethingError;
               break;
-            case DioErrorType.CANCEL:
+            case DioErrorType.cancel:
               break;
             default:
               text = e.i18nMessage;

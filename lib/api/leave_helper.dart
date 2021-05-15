@@ -195,7 +195,7 @@ class LeaveHelper {
       //login fail
       return false;
     } on DioError catch (e) {
-      if (e.type == DioErrorType.RESPONSE && e.response.statusCode == 302) {
+      if (e.type == DioErrorType.response && e.response.statusCode == 302) {
         //Use 302 to mean login success, nice...
         await dio.get('https://leave.nkust.edu.tw/masterindex.aspx');
         isLogin = true;

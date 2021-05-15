@@ -435,7 +435,7 @@ class BusReservePageState extends State<BusReservePage>
         onFailure: (DioError e) {
           if (mounted)
             switch (e.type) {
-              case DioErrorType.RESPONSE:
+              case DioErrorType.response:
                 setState(() {
                   if (e.response.statusCode == 401)
                     state = _State.userNotSupport;
@@ -456,7 +456,7 @@ class BusReservePageState extends State<BusReservePage>
                     AnalyticsConstants.NO,
                   );
                 break;
-              case DioErrorType.DEFAULT:
+              case DioErrorType.other:
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
@@ -465,7 +465,7 @@ class BusReservePageState extends State<BusReservePage>
                     state = _State.error;
                 });
                 break;
-              case DioErrorType.CANCEL:
+              case DioErrorType.cancel:
                 break;
               default:
                 setState(() {
@@ -643,19 +643,19 @@ class BusReservePageState extends State<BusReservePage>
     Navigator.of(context, rootNavigator: true).pop();
     String message;
     switch (e.type) {
-      case DioErrorType.RESPONSE:
+      case DioErrorType.response:
         final errorResponse = ErrorResponse.fromJson(e.response.data);
         message = errorResponse.description;
         FirebaseAnalyticsUtils.instance.logAction(tag, 'status',
             message: 'fail_${errorResponse.description}');
         break;
-      case DioErrorType.DEFAULT:
+      case DioErrorType.other:
         if (e.message.contains("HttpException"))
           message = AppLocalizations.of(context).busFailInfinity;
         else
           message = ApLocalizations.of(context).somethingError;
         break;
-      case DioErrorType.CANCEL:
+      case DioErrorType.cancel:
         break;
       default:
         message = e.i18nMessage;

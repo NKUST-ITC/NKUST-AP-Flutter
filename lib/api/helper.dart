@@ -889,7 +889,7 @@ extension NewsExtension on Announcement {
 }
 
 extension DioErrorExtension on DioError {
-  bool get hasResponse => type == DioErrorType.RESPONSE;
+  bool get hasResponse => type == DioErrorType.response;
 
   bool get isExpire => response.statusCode == ApStatusCode.API_EXPIRE;
 
