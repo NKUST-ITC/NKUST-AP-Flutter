@@ -9,14 +9,15 @@ class PrivateCookieManager extends CookieManager {
   PrivateCookieManager(CookieJar cookieJar) : super(cookieJar);
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) =>
+  Future<void> onResponse(
+          Response response, ResponseInterceptorHandler handler) async =>
       _saveCookies(response);
 
   @override
-  void onError(DioError err, ErrorInterceptorHandler handler) =>
+  Future<void> onError(DioError err, ErrorInterceptorHandler handler) async =>
       _saveCookies(err.response);
 
-  _saveCookies(Response response) {
+  void _saveCookies(Response response) {
     if (response != null && response.headers != null) {
       List<String> cookies = response.headers[HttpHeaders.setCookieHeader];
       if (cookies != null) {
