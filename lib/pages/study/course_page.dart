@@ -36,8 +36,8 @@ class CoursePageState extends State<CoursePage> {
   String customStateHint = '';
 
   String get courseNotifyCacheKey => Preferences.getString(
-        ApConstants.CURRENT_SEMESTER_CODE,
-        ApConstants.SEMESTER_LATEST,
+        ApConstants.currentSemesterCode,
+        ApConstants.semesterLatest,
       );
 
   @override

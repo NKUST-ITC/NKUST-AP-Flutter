@@ -58,7 +58,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
     FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
     FirebaseAnalyticsUtils.instance
-        .setUserProperty(AnalyticsConstants.ICON_STYLE, ApIcon.code);
+        .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
@@ -87,16 +87,16 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               (Locale locale, Iterable<Locale> supportedLocales) {
             String languageCode = Preferences.getString(
               Constants.PREF_LANGUAGE_CODE,
-              ApSupportLanguageConstants.SYSTEM,
+              ApSupportLanguageConstants.system,
             );
-            if (languageCode == ApSupportLanguageConstants.SYSTEM)
+            if (languageCode == ApSupportLanguageConstants.system)
               this.locale = ApLocalizations.delegate.isSupported(locale)
                   ? locale
                   : Locale('en');
             else
               this.locale = Locale(
                 languageCode,
-                languageCode == ApSupportLanguageConstants.ZH ? 'TW' : null,
+                languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
               );
             AnnouncementHelper.instance.setLocale(this.locale);
             return this.locale;

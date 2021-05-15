@@ -930,7 +930,7 @@ extension GeneralResponseExtension on GeneralResponse {
       case ApStatusCode.API_EXPIRE:
         message = ap.tokenExpiredContent;
         break;
-      case GeneralResponse.PLATFORM_NOT_SUPPORT:
+      case GeneralResponse.platformNotSupportCode:
         message = ap.platformError;
         break;
       default:

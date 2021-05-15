@@ -99,13 +99,13 @@ class SemesterPickerState extends State<SemesterPicker> {
           this.semesterData = data;
           semesterData.save();
           var oldSemester = Preferences.getString(
-            ApConstants.CURRENT_SEMESTER_CODE,
-            ApConstants.SEMESTER_LATEST,
+            ApConstants.currentSemesterCode,
+            ApConstants.semesterLatest,
           );
           final newSemester =
               '${Helper.username}_${semesterData.defaultSemester.code}';
           Preferences.setString(
-            ApConstants.CURRENT_SEMESTER_CODE,
+            ApConstants.currentSemesterCode,
             newSemester,
           );
           //TODO clear old course notify, but may be improve

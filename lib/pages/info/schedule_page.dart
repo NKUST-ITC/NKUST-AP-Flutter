@@ -85,7 +85,9 @@ class SchedulePageState extends State<SchedulePage>
           onPressed: _getSchedules,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? ap.clickToRetry : ap.busEmpty,
+            content: state == _State.error
+                ? ap.clickToRetry
+                : AppLocalizations.of(context).busEmpty,
           ),
         );
       case _State.pdf:

@@ -725,9 +725,9 @@ class HomePageState extends State<HomePage> {
       InkustHelper.leavesTimeCode = leaveTimeCode;
       MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
-        code: remoteConfig.getInt(ApConstants.APP_VERSION),
-        isForceUpdate: remoteConfig.getBool(ApConstants.IS_FORCE_UPDATE),
-        content: remoteConfig.getString(ApConstants.NEW_VERSION_CONTENT),
+        code: remoteConfig.getInt(ApConstants.appVersion),
+        isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),
+        content: remoteConfig.getString(ApConstants.newVersionContent),
       );
       if (first)
         DialogUtils.showNewVersionContent(

@@ -266,7 +266,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.CAN_USE_BUS,
-            AnalyticsConstants.YES,
+            AnalyticsConstants.yes,
           );
           busReservationsData?.save(Helper.username);
         },
@@ -291,7 +291,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                     e.response.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
-                    AnalyticsConstants.NO,
+                    AnalyticsConstants.no,
                   );
                 break;
               case DioErrorType.other:

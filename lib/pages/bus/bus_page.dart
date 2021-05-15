@@ -157,13 +157,13 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             });
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.CAN_USE_BUS,
-            AnalyticsConstants.YES,
+            AnalyticsConstants.yes,
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.HAS_BUS_VIOLATION,
             (data?.hasBusViolationRecords ?? false)
-                ? AnalyticsConstants.YES
-                : AnalyticsConstants.NO,
+                ? AnalyticsConstants.yes
+                : AnalyticsConstants.no,
           );
         },
         onError: (GeneralResponse response) {},
@@ -172,7 +172,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
               (e.response.statusCode == 401 || e.response.statusCode == 403)) {
             FirebaseAnalyticsUtils.instance.setUserProperty(
               Constants.CAN_USE_BUS,
-              AnalyticsConstants.NO,
+              AnalyticsConstants.no,
             );
           }
         },

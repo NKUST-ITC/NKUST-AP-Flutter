@@ -232,13 +232,13 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.CAN_USE_BUS,
-            AnalyticsConstants.YES,
+            AnalyticsConstants.yes,
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.HAS_BUS_VIOLATION,
             (data?.hasBusViolationRecords ?? false)
-                ? AnalyticsConstants.YES
-                : AnalyticsConstants.NO,
+                ? AnalyticsConstants.yes
+                : AnalyticsConstants.no,
           );
         },
         onFailure: (DioError e) {
@@ -262,7 +262,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     e.response.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
-                    AnalyticsConstants.NO,
+                    AnalyticsConstants.no,
                   );
                 break;
               case DioErrorType.other:

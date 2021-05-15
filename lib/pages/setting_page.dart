@@ -178,7 +178,10 @@ class SettingPageState extends State<SettingPage> {
             await Utils.setBusNotify(context, data.reservations);
             ApUtils.showToast(context, ap.busNotifyHint);
           } else
-            ApUtils.showToast(context, ap.busReservationEmpty);
+            ApUtils.showToast(
+              context,
+              AppLocalizations.of(context).busReservationEmpty,
+            );
           Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
         },
         onFailure: (DioError e) {

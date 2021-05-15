@@ -429,7 +429,7 @@ class BusReservePageState extends State<BusReservePage>
             });
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.CAN_USE_BUS,
-            AnalyticsConstants.YES,
+            AnalyticsConstants.yes,
           );
         },
         onFailure: (DioError e) {
@@ -453,7 +453,7 @@ class BusReservePageState extends State<BusReservePage>
                     e.response.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
-                    AnalyticsConstants.NO,
+                    AnalyticsConstants.no,
                   );
                 break;
               case DioErrorType.other:
