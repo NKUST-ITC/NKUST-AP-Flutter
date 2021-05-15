@@ -1,0 +1,69 @@
+{
+  "30805": {
+    "visible": true,
+    "date": "2021/04/14",
+    "zh-TW": "* 修復缺曠申請下載資料過多導致崩潰",
+    "en-US": "* Fix leave apply download data too much lead to crash."
+  },
+  "30804": {
+    "visible": true,
+    "date": "2021/04/04",
+    "zh-TW": "* 修復缺曠系統",
+    "en-US": "* Fix leave system."
+  },
+  "30803": {
+    "visible": true,
+    "date": "2021/03/21",
+    "zh-TW": "* 校車申請錯誤",
+    "en-US": "* Fix bus reverse error."
+  },
+  "30802": {
+    "visible": true,
+    "date": "2021/03/14",
+    "zh-TW": "* 修正部分裝置點擊錯誤\n* 修正校車與缺曠登入錯誤",
+    "en-US": "* Fix a part of device click error.\n* Fix bus and leave login error."
+  },
+  "30801": {
+    "visible": true,
+    "date": "2021/03/06",
+    "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
+    "en-US": "* Improve app stability.\n* Improve news content text overflow"
+  },
+  "30800": {
+    "visible": false,
+    "date": "2021/03/06",
+    "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
+    "en-US": "* Improve app stability.\n* Improve news content text overflow"
+  },
+  "30713": {
+    "visible": false,
+    "date": "2021/03/05",
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
+  "30712": {
+    "visible": false,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
+  "30711": {
+    "visible": false,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
+  "30710": {
+    "visible": false,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
+  "30709": {
+    "visible": false,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  },
+  "30708": {
+    "visible": true,
+    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
+    "en-US": "* Fix part of device home widget error."
+  }
+}
