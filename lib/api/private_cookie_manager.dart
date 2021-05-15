@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
@@ -10,17 +9,19 @@ class PrivateCookieManager extends CookieManager {
   PrivateCookieManager(CookieJar cookieJar) : super(cookieJar);
 
   @override
-  Future onResponse(Response response) async => _saveCookies(response);
+  void onResponse(Response response, ResponseInterceptorHandler handler) =>
+      _saveCookies(response);
 
   @override
-  Future onError(DioError err) async => _saveCookies(err.response);
+  void onError(DioError err, ErrorInterceptorHandler handler) =>
+      _saveCookies(err.response);
 
   _saveCookies(Response response) {
     if (response != null && response.headers != null) {
       List<String> cookies = response.headers[HttpHeaders.setCookieHeader];
       if (cookies != null) {
         cookieJar.saveFromResponse(
-          response.request.uri,
+          response.requestOptions.uri,
           cookies.map((str) => _Cookie.fromSetCookieValue(str)).toList(),
         );
       }
@@ -266,7 +267,7 @@ class _Cookie implements Cookie {
 
     int toInt(String s) {
       int index = 0;
-      for (; index < s.length && isDigit(s[index]); index++){}
+      for (; index < s.length && isDigit(s[index]); index++) {}
       return int.parse(s.substring(0, index));
     }
 
