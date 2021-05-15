@@ -171,7 +171,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               setState(() => notificationState = NotificationState.finish);
           },
           onFailure: (DioError e) {
-            ApUtils.handleDioError(context, e);
+            ApUtils.showToast(context, e.i18nMessage);
             if (mounted && notificationList.length == 0)
               setState(() => notificationState = NotificationState.error);
           },

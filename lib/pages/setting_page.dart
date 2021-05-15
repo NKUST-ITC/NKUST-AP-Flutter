@@ -199,7 +199,7 @@ class SettingPageState extends State<SettingPage> {
           } else if (e.type == DioErrorType.other) {
             ApUtils.showToast(context, ap.busFailInfinity);
           } else
-            ApUtils.handleDioError(context, e);
+            ApUtils.showToast(context, e.i18nMessage);
         },
         onError: (GeneralResponse response) {
           Navigator.of(context, rootNavigator: true).pop();

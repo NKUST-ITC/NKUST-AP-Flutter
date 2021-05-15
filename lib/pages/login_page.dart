@@ -173,7 +173,7 @@ class LoginPageState extends State<LoginPage> {
             Navigator.of(context).pop(true);
           },
           onFailure: (DioError e) {
-            ApUtils.handleDioError(context, e);
+            ApUtils.showToast(context, e.i18nMessage);
             if (e.type != DioErrorType.cancel) _offlineLogin();
           },
           onError: (GeneralResponse response) {

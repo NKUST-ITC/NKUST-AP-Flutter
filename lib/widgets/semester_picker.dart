@@ -126,7 +126,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           }
         },
         onFailure: (DioError e) {
-          ApUtils.handleDioError(context, e);
+          ApUtils.showToast(context, e.i18nMessage);
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getSemester', e.response.statusCode,
