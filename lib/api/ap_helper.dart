@@ -10,7 +10,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 
 //overwrite origin Cookie Manager.
-import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:ap_common/models/private_cookies_manager.dart';
 
 //parser
 import 'package:nkust_ap/api/parser/ap_parser.dart';

@@ -5,7 +5,7 @@ import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 
 //overwrite origin Cookie Manager.
-import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:ap_common/models/private_cookies_manager.dart';
 
 //parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';

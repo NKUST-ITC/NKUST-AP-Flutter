@@ -10,7 +10,7 @@ import 'package:nkust_ap/api/ap_helper.dart';
 //overwrite origin Cookie Manager.
 import 'package:cookie_jar/cookie_jar.dart';
 
-import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:ap_common/models/private_cookies_manager.dart';
 
 //Config
 import 'package:nkust_ap/config/constants.dart';

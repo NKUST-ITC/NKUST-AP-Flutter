@@ -11,7 +11,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 
 //overwrite origin Cookie Manager.
-import 'package:nkust_ap/api/private_cookie_manager.dart';
+import 'package:ap_common/models/private_cookies_manager.dart';
+
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import "dart:math";
 import 'helper.dart';
