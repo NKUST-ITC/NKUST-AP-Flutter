@@ -64,7 +64,9 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
             )
           : null,
       body: InAppWebView(
-        initialUrl: LeaveHelper.BASE_PATH,
+        initialUrlRequest: URLRequest(
+          url: Uri.parse(LeaveHelper.BASE_PATH),
+        ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
@@ -86,22 +88,22 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
         },
         onTitleChanged: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onTitleChanged $title $path');
-          if (path == LeaveHelper.HOME) {
+          final uri = await controller.getUrl();
+          debugPrint('onTitleChanged $title $uri');
+          if (uri.path == LeaveHelper.HOME) {
             _finishLogin();
           }
         },
         onLoadStop: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onLoadStop $title $path');
-          if (path == LeaveHelper.BASE_PATH) {
+          final uri = await controller.getUrl();
+          debugPrint('onLoadStop $title $uri');
+          if (uri.path == LeaveHelper.BASE_PATH) {
             await webViewController.evaluateJavascript(
                 source:
-                'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');
+                    'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');
             await webViewController.evaluateJavascript(
                 source:
-                'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";');
+                    'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";');
           }
         },
       ),
@@ -113,8 +115,9 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       return;
     else
       finish = true;
-    final cookies =
-        await CookieManager.instance().getCookies(url: LeaveHelper.BASE_PATH);
+    final cookies = await CookieManager.instance().getCookies(
+      url: Uri.parse(LeaveHelper.BASE_PATH),
+    );
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {

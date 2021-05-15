@@ -64,7 +64,9 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
             )
           : null,
       body: InAppWebView(
-        initialUrl: MobileNkustHelper.LOGIN,
+        initialUrlRequest: URLRequest(
+          url: Uri.parse(MobileNkustHelper.LOGIN),
+        ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
@@ -79,12 +81,12 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           return;
         },
         onPageCommitVisible: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onPageCommitVisible $title $path');
+          final uri = await controller.getUrl();
+          debugPrint('onPageCommitVisible $title $uri');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
-          if (path == MobileNkustHelper.LOGIN) {
+          if (uri.path == MobileNkustHelper.LOGIN) {
             await webViewController.evaluateJavascript(
                 source:
                     'document.getElementsByName("Account")[0].value = "${widget.username}";');
@@ -116,8 +118,9 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
       return;
     else
       finish = true;
-    final cookies = await CookieManager.instance()
-        .getCookies(url: MobileNkustHelper.BASE_URL);
+    final cookies = await CookieManager.instance().getCookies(
+      url: Uri.parse(MobileNkustHelper.BASE_URL),
+    );
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {
