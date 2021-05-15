@@ -81,8 +81,8 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           return;
         },
         onPageCommitVisible: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onPageCommitVisible $title $path');
+          final uri = await controller.getUrl();
+          debugPrint('onPageCommitVisible $title $uri');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
@@ -90,14 +90,14 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         onTitleChanged: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onTitleChanged $title $uri');
-          if (uri.path == LeaveHelper.HOME) {
+          if (uri.toString() == LeaveHelper.HOME) {
             _finishLogin();
           }
         },
         onLoadStop: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onLoadStop $title $uri');
-          if (uri.path == LeaveHelper.BASE_PATH) {
+          if (uri.toString() == LeaveHelper.BASE_PATH) {
             await webViewController.evaluateJavascript(
                 source:
                     'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');

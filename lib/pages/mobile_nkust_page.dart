@@ -82,11 +82,11 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         },
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
-          debugPrint('onPageCommitVisible $title $uri');
+          debugPrint('onPageCommitVisible $title ${uri.toString()}');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
-          if (uri.path == MobileNkustHelper.LOGIN) {
+          if (uri.toString() == MobileNkustHelper.LOGIN) {
             await webViewController.evaluateJavascript(
                 source:
                     'document.getElementsByName("Account")[0].value = "${widget.username}";');
@@ -99,15 +99,15 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           }
         },
         onTitleChanged: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onTitleChanged $title $path');
-          if (path == MobileNkustHelper.HOME) {
+          final uri = await controller.getUrl();
+          debugPrint('onTitleChanged $title $uri');
+          if (uri.toString() == MobileNkustHelper.HOME) {
             _finishLogin();
           }
         },
         onLoadStop: (controller, title) async {
-          final path = await controller.getUrl();
-          debugPrint('onLoadStop $title $path');
+          final uri = await controller.getUrl();
+          debugPrint('onLoadStop $title $uri');
         },
       ),
     );
