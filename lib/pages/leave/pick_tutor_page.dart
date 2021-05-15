@@ -178,13 +178,16 @@ class _PickTutorPageState extends State<PickTutorPage> {
     String text;
     if (kIsWeb) {
     } else if (Platform.isAndroid || Platform.isIOS) {
-      remoteConfig = await RemoteConfig.instance;
+      remoteConfig = RemoteConfig.instance;
       try {
-        await remoteConfig.fetch(
-          expiration: const Duration(seconds: 10),
+        await remoteConfig.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: Duration(seconds: 10),
+            minimumFetchInterval: const Duration(hours: 1),
+          ),
         );
-        await remoteConfig.activateFetched();
-      } on FetchThrottledException catch (_) {} catch (exception) {}
+        await remoteConfig.fetchAndActivate();
+      } catch (exception) {}
     }
     if (remoteConfig != null) {
       Preferences.setString(Constants.LEAVE_CAMPUS_DATA,
@@ -208,7 +211,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
   void pickItem(_Type type, int currentIndex, List<String> items) {
     //TODO text fix
     String title = '';
-    switch(type){
+    switch (type) {
       case _Type.campus:
         title = ApLocalizations.of(context).pickTeacher;
         break;

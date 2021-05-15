@@ -108,15 +108,20 @@ class SchedulePageState extends State<SchedulePage>
     var data = '';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final RemoteConfig remoteConfig = await RemoteConfig.instance;
-        await remoteConfig.fetch(expiration: const Duration(hours: 1));
-        await remoteConfig.activateFetched();
+        final RemoteConfig remoteConfig = RemoteConfig.instance;
+        await remoteConfig.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: Duration(seconds: 10),
+            minimumFetchInterval: const Duration(hours: 1),
+          ),
+        );
+        await remoteConfig.fetchAndActivate();
         final pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
         if (pdfUrl != null && pdfUrl.isNotEmpty) {
           downloadFdf(pdfUrl);
         } else
           data = remoteConfig.getString(Constants.SCHEDULE_DATA);
-      } on FetchThrottledException catch (_) {} catch (exception) {}
+      } catch (exception) {}
     } else {
       downloadFdf(
           'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/039ac35f41173f6c2eacfd9cc73052a257e8d68a/cal108-2.pdf');

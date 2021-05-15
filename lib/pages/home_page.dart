@@ -691,9 +691,14 @@ class HomePageState extends State<HomePage> {
     }
     VersionInfo versionInfo;
     try {
-      final RemoteConfig remoteConfig = await RemoteConfig.instance;
-      await remoteConfig.fetch(expiration: const Duration(seconds: 10));
-      await remoteConfig.activateFetched();
+      final RemoteConfig remoteConfig = RemoteConfig.instance;
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: Duration(seconds: 10),
+          minimumFetchInterval: const Duration(seconds: 10),
+        ),
+      );
+      await remoteConfig.fetchAndActivate();
       final leaveTimeCode = List<String>.from(
           jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
       final mobileNkustUserAgent = List<String>.from(jsonDecode(

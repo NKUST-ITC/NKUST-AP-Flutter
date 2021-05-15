@@ -190,9 +190,14 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final RemoteConfig remoteConfig = await RemoteConfig.instance;
-        await remoteConfig.fetch(expiration: const Duration(hours: 1));
-        await remoteConfig.activateFetched();
+        final RemoteConfig remoteConfig = RemoteConfig.instance;
+        await remoteConfig.setConfigSettings(
+          RemoteConfigSettings(
+            fetchTimeout: Duration(seconds: 10),
+            minimumFetchInterval: const Duration(hours: 1),
+          ),
+        );
+        await remoteConfig.fetchAndActivate();
         pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
         downloadFdf(pdfUrl);
       } catch (exception) {
