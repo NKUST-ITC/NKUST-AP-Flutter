@@ -1,7 +1,7 @@
 name: nkust_ap
 description: A new Flutter application.
 
-version: 3.8.5+30805
+version: 3.8.6+30806
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -46,6 +46,8 @@ dev_dependencies:
 #dependency_overrides:
 #  ap_common:
 #    path: ../ap_common
+#  ap_common_firebase:
+#    path: ../../GitHub/ap_common_firebase
 
 flutter:
 
