@@ -12,7 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  ap_common: ^0.16.0
+  ap_common: ^0.17.0-dev.2
 #    path: ../ap_common
   ap_common_firebase: ^0.8.0-nullsafety.2
 #    path: ../../GitHub/ap_common_firebase
