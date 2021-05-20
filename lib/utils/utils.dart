@@ -4,7 +4,7 @@ import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/notification_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
+// import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:image/image.dart' as ImageUtils;
 import 'package:nkust_ap/config/constants.dart';
@@ -75,12 +75,12 @@ class Utils {
   static Future<File> resizeImageByNative(File file) async {
     Directory appDocDir = await getTemporaryDirectory();
     String tmpPath = '${appDocDir.path}/proof.jpg';
-    var result = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      tmpPath,
-      quality: 70,
-    );
-    return result;
+    // var result = await FlutterImageCompress.compressAndGetFile(
+    //   file.absolute.path,
+    //   tmpPath,
+    //   quality: 70,
+    // );
+    return file;
   }
 
   static String parserImageFileType(String last) {
