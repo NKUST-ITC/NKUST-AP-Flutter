@@ -1,3 +1,4 @@
+import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 
 DateTime busRealTime(dynamic timestamp) {
@@ -40,8 +41,10 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
       _temp['homeCharteredBus'] = true;
     }
     if (busReservations != null) {
+      final format = DateFormat('yyyy/MM/dd HH:mm');
       busReservations.reservations.forEach((element) {
-        if (element.dateTime == busRealTime(data["data"][i]["runDateTime"]) &&
+        if (format.parse(element.dateTime) ==
+                busRealTime(data["data"][i]["runDateTime"]) &&
             element.start == data["data"][i]["startStation"]) {
           _temp["cancelKey"] = element.cancelKey;
         }

@@ -42,7 +42,6 @@ class MobileNkustParser {
   }) {
     final document = html.parse(rawHtml);
     List<Map<String, dynamic>> result = [];
-    var format = DateFormat('yyyy/MM/dd HH:mm');
 
     for (var trElement in document.getElementsByTagName('tr')) {
       Map<String, dynamic> _temp = {};

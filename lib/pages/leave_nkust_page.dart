@@ -1,13 +1,11 @@
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
-import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 

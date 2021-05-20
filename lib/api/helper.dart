@@ -47,8 +47,6 @@ import 'package:nkust_ap/utils/global.dart';
 
 export 'package:ap_common/callback/general_callback.dart';
 
-import 'package:cookie_jar/cookie_jar.dart';
-
 class Helper {
   static const HOST = 'nkust.taki.dog';
 
