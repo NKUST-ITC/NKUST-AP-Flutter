@@ -36,7 +36,7 @@ jobs:
         run: flutter pub get
       - run: flutter build appbundle --release
       - name: Setup ruby
-        uses: actions/setup-ruby@v1
+        uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.2'
       - name: Bundle update
@@ -69,7 +69,7 @@ jobs:
           channel: 'stable'
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
-      - uses: actions/setup-ruby@v1
+      - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '2.7.2'
       - name: Bundle update
