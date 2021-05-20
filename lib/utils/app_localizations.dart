@@ -77,10 +77,9 @@ class AppLocalizations {
           'Oops! No bus today~\n Please choose another date \uD83D\uDE0B',
       'bus_not_pick':
           'You have not chosen a date!\n Please choose a date first %s',
-      'bus_notify_hint':
+      'busNotifyHint':
           'Reminder will pop up 30 mins before reserved bus !\nIf you reserved or canceled the seat via website, please restart the app.',
-      'bus_notify_content" formatted="false':
-          'You\'ve got a bus departing at %s from %s!',
+      'busNotifyContent': 'You\'ve got a bus departing at %s from %s!',
       'bus_notify_jiangong': 'JianGong',
       'bus_notify_yanchao': 'YanChao',
       'bus_notify': 'Bus Reservation Reminder',
@@ -209,8 +208,8 @@ class AppLocalizations {
       'i_know': '我知道了',
       'bus_no_bus': 'Oops！本日校車沒上班喔～\n請選擇其他日期 \uD83D\uDE0B',
       'bus_not_pick': '您尚未選擇日期！\n請先選擇日期 %s',
-      'bus_notify_hint': '校車預約將於發車前三十分鐘提醒！\n若在網頁預約或取消校車請重登入此App。',
-      'bus_notify_content': '親，您有一班 %s 從%s出發的校車！',
+      'busNotifyHint': '校車預約將於發車前三十分鐘提醒！\n若在網頁預約或取消校車請重登入此App。',
+      'busNotifyContent': '您有一班 %s 從%s出發的校車！',
       'bus_notify_jiangong': '建工',
       'bus_notify_yanchao': '燕巢',
       'bus_notify': '校車提醒',
@@ -344,6 +343,10 @@ class AppLocalizations {
 
   String get busReservationEmpty => _vocabularies['bus_no_reservation'];
 
+  String get busNotifyHint => _vocabularies['busNotifyHint'];
+
+  String get busNotifyContent => _vocabularies['busNotifyContent'];
+
   String get busEmpty => _vocabularies['bus_no_bus'];
 
   String get busReserveConfirmTitle =>
@@ -394,10 +397,6 @@ class AppLocalizations {
   String get reserving => _vocabularies['reserving'];
 
   String get canceling => _vocabularies['canceling'];
-
-  String get busNotifyHint => _vocabularies['bus_notify_hint'];
-
-  String get busNotifyContent => _vocabularies['bus_notify_content'];
 
   String get busNotifyJiangong => _vocabularies['bus_notify_jiangong'];
 

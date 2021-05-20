@@ -62,8 +62,8 @@ class SettingPageState extends State<SettingPage> {
             CheckCourseNotifyItem(),
             ClearAllNotifyItem(),
             SettingSwitch(
-              text: ap.busNotify,
-              subText: ap.busNotifySubTitle,
+              text: AppLocalizations.of(context).busNotify,
+              subText: AppLocalizations.of(context).busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
                 FirebaseAnalyticsUtils.instance.logEvent('notify_bus_create');
@@ -165,7 +165,7 @@ class SettingPageState extends State<SettingPage> {
         ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        ApUtils.showToast(context, ap.busNotifyHint);
+        ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
       }
       Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       return;
@@ -176,7 +176,7 @@ class SettingPageState extends State<SettingPage> {
           Navigator.of(context, rootNavigator: true).pop();
           if (data != null) {
             await Utils.setBusNotify(context, data.reservations);
-            ApUtils.showToast(context, ap.busNotifyHint);
+            ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
           } else
             ApUtils.showToast(
               context,

@@ -254,7 +254,7 @@ class HomePageState extends State<HomePage> {
                     ),
                     DrawerSubItem(
                       icon: ApIcon.apps,
-                      title: ap.calculateUnits,
+                      title: ap.calculateCredits,
                       onTap: () => _openPage(
                         CalculateUnitsPage(),
                         needLogin: true,
