@@ -115,7 +115,7 @@ class HomePageState extends State<HomePage> {
     return AboutUsPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
-      email: 'abc873693@gmail.com',
+      email: 'nkust.itc@gmail.com',
       appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
