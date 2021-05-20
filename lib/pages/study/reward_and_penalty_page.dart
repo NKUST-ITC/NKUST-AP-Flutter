@@ -146,8 +146,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       case _State.error:
       case _State.offline:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             if (state == _State.empty)
               key.currentState.pickSemester();
             else

@@ -75,8 +75,8 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       case _State.campusNotSupport:
       case _State.userNotSupport:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             getBusViolationRecords();
             FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
@@ -429,8 +429,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
     return Container(
       color: ApTheme.of(context).blue,
       child: Stack(
-        fit: StackFit.expand,
-        overflow: Overflow.visible,
+        clipBehavior: Clip.none, fit: StackFit.expand,
         children: [
           Opacity(
             opacity: 1 - shrinkOffset / expandedHeight,

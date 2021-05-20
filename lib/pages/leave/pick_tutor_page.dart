@@ -64,8 +64,8 @@ class _PickTutorPageState extends State<PickTutorPage> {
         );
       case _State.error:
       case _State.empty:
-        return FlatButton(
-          onPressed: null,
+        return InkWell(
+          onTap: null,
           child: HintContent(
             icon: ApIcon.permIdentity,
             content:
@@ -147,17 +147,19 @@ class _PickTutorPageState extends State<PickTutorPage> {
             SizedBox(height: 16.0),
             FractionallySizedBox(
               widthFactor: 0.8,
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(30.0),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
                   ),
+                  padding: EdgeInsets.all(14.0),
+                  primary: ApTheme.of(context).blueAccent,
                 ),
-                padding: EdgeInsets.all(14.0),
                 onPressed: () {
                   Navigator.pop(context, teacher);
                 },
-                color: ApTheme.of(context).blueAccent,
                 child: Text(
                   ap.confirm,
                   style: TextStyle(

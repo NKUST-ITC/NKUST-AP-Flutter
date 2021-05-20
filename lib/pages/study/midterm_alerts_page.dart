@@ -147,8 +147,8 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       case _State.empty:
       case _State.offline:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             if (state == _State.empty)
               key.currentState.pickSemester();
             else

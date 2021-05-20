@@ -179,16 +179,16 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       case _State.error:
       case _State.empty:
       case _State.custom:
-        return FlatButton(
-          onPressed: _calculate,
+        return InkWell(
+                onTap: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
             content: state == _State.error ? ap.clickToRetry : customStateHint,
           ),
         );
       case _State.ready:
-        return FlatButton(
-          onPressed: _calculate,
+        return InkWell(
+                onTap: _calculate,
           child: HintContent(
             icon: ApIcon.apps,
             content: ap.beginCalculate,

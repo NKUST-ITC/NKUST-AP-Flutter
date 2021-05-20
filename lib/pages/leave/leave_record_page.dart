@@ -152,8 +152,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       case _State.empty:
       case _State.offlineEmpty:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             if (state == _State.empty || state == _State.offlineEmpty)
               key.currentState.pickSemester();
             else

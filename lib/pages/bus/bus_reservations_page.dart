@@ -112,8 +112,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.campusNotSupport:
       case _State.userNotSupport:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             _getBusReservations();
             FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },

@@ -118,8 +118,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       case _State.offline:
       case _State.userNotSupport:
       case _State.custom:
-        return FlatButton(
-          onPressed: _getLeavesInfo,
+        return InkWell(
+          onTap: _getLeavesInfo,
           child: HintContent(
             icon: state == _State.offline
                 ? ApIcon.offlineBolt
@@ -207,14 +207,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 SizedBox(height: 16),
                 FractionallySizedBox(
                   widthFactor: 0.3,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(30.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(30.0),
+                        ),
                       ),
+                      padding: EdgeInsets.all(4.0),
+                      primary: ApTheme.of(context).blueAccent,
                     ),
-                    padding: EdgeInsets.all(4.0),
-                    color: ApTheme.of(context).blueAccent,
                     onPressed: () async {
                       final picked = await showDateRangePicker(
                         context: context,
@@ -307,8 +309,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                     childAspectRatio: 1.0,
                                   ),
                                   itemBuilder: (context, sectionIndex) {
-                                    return FlatButton(
-                                      padding: EdgeInsets.all(0.0),
+                                    return InkWell(
                                       child: Container(
                                         margin: EdgeInsets.all(4.0),
                                         padding: EdgeInsets.all(2.0),
@@ -336,7 +337,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                           ),
                                         ),
                                       ),
-                                      onPressed: () {
+                                      onTap: () {
                                         setState(() {
                                           leaveModels[index]
                                                   .selected[sectionIndex] =
@@ -535,19 +536,21 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 SizedBox(height: 36),
                 FractionallySizedBox(
                   widthFactor: 0.8,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(30.0),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(30.0),
+                        ),
                       ),
+                      padding: EdgeInsets.all(14.0),
+                      primary: ApTheme.of(context).blueAccent,
                     ),
-                    padding: EdgeInsets.all(14.0),
                     onPressed: () {
                       _leaveSubmit();
                       FirebaseAnalyticsUtils.instance
                           .logAction('leave_submit', 'click');
                     },
-                    color: ApTheme.of(context).blueAccent,
                     child: Text(
                       ap.confirm,
                       style: TextStyle(

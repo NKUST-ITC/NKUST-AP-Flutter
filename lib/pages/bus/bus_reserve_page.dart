@@ -205,8 +205,8 @@ class BusReservePageState extends State<BusReservePage>
       case _State.campusNotSupport:
       case _State.userNotSupport:
       case _State.custom:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+          onTap: () {
             _getBusTimeTables();
             FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },
@@ -253,9 +253,8 @@ class BusReservePageState extends State<BusReservePage>
 
   _busTimeWidget(BusTime busTime) => Column(
         children: <Widget>[
-          FlatButton(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            onPressed: busTime.canReserve() && !busTime.isReserve
+          InkWell(
+            onTap: busTime.canReserve() && !busTime.isReserve
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -285,7 +284,8 @@ class BusReservePageState extends State<BusReservePage>
                                 ),
                               ),
                               TextSpan(
-                                text: '${app.destination}：${busTime.getEnd(app)}\n\n',
+                                text:
+                                    '${app.destination}：${busTime.getEnd(app)}\n\n',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -344,58 +344,61 @@ class BusReservePageState extends State<BusReservePage>
                             .logAction('cancel_bus', 'create');
                       }
                     : null,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Icon(
-                    ApIcon.directionsBus,
-                    size: 20.0,
-                    color: busTime.getColorState(context),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    flex: 1,
+                    child: Icon(
+                      ApIcon.directionsBus,
+                      size: 20.0,
+                      color: busTime.getColorState(context),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getTime(),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getTime(),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    "${busTime.reserveCount} ${ap.people}",
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      "${busTime.reserveCount} ${ap.people}",
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getSpecialTrainTitle(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getSpecialTrainTitle(app),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Icon(
-                    ApIcon.accessTime,
-                    size: 20.0,
-                    color: busTime.getColorState(context),
+                  Expanded(
+                    flex: 2,
+                    child: Icon(
+                      ApIcon.accessTime,
+                      size: 20.0,
+                      color: busTime.getColorState(context),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getReserveState(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
-                  ),
-                )
-              ],
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getReserveState(app),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           Container(

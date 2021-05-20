@@ -81,8 +81,8 @@ class SchedulePageState extends State<SchedulePage>
             child: CircularProgressIndicator(), alignment: Alignment.center);
       case _State.error:
       case _State.empty:
-        return FlatButton(
-          onPressed: _getSchedules,
+        return InkWell(
+          onTap: _getSchedules,
           child: HintContent(
             icon: ApIcon.assignment,
             content: state == _State.error
@@ -173,9 +173,8 @@ class SchedulePageState extends State<SchedulePage>
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
-            return FlatButton(
-              padding: EdgeInsets.all(0.0),
-              onPressed: () {
+            return InkWell(
+              onTap: () {
                 FirebaseAnalyticsUtils.instance
                     .logAction('add_schedule', 'create');
                 showDialog(

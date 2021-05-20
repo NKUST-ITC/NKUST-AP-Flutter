@@ -104,8 +104,8 @@ class _RoomListPageState extends State<RoomListPage> {
         );
       case _State.custom:
       default:
-        return FlatButton(
-          onPressed: () {
+        return InkWell(
+                onTap: () {
             _getRoomList();
             FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
           },

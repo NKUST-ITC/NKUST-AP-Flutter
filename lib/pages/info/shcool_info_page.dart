@@ -105,11 +105,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           NotificationScaffold(
             state: notificationState,
             notificationList: notificationList,
-            onRefresh: () {
+            onRefresh: () async {
               setState(() => notificationList.clear());
               _getNotifications();
             },
-            onLoadingMore: () {
+            onLoadingMore: () async {
               page++;
               setState(() => notificationState = NotificationState.loadingMore);
               _getNotifications();
