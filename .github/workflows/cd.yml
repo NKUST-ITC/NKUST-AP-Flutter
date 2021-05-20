@@ -100,7 +100,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.0.x'
+          flutter-version: '2.2.x'
           channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
