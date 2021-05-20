@@ -128,7 +128,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       // Appbar
       appBar: new AppBar(
         // Title
-        title: new Text(ap.calculateUnits),
+        title: new Text(ap.calculateCredits),
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: Container(
@@ -241,11 +241,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${ap.requiredUnits}：$requiredUnitsTotal", true),
+                          "${ap.requiredCredits}：$requiredUnitsTotal", true),
                       _textBorder(
-                          "${ap.electiveUnits}：$electiveUnitsTotal", false),
-                      _textBorder("${ap.otherUnits}：$otherUnitsTotal", false),
-                      _textBorder("${ap.unitsTotal}：$unitsTotal", false),
+                          "${ap.electiveCredits}：$electiveUnitsTotal", false),
+                      _textBorder("${ap.otherCredits}：$otherUnitsTotal", false),
+                      _textBorder("${ap.totalCredits}：$unitsTotal", false),
                     ],
                   ),
                 ),
