@@ -5,12 +5,12 @@ import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/phone_model.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/scaffold/notification_scaffold.dart';
-import 'package:ap_common/scaffold/pdf_scaffold.dart';
-import 'package:ap_common/scaffold/phone_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/views/notification_list_view.dart';
+import 'package:ap_common/views/pdf_view.dart';
+import 'package:ap_common/views/phone_list_view.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +102,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
       ),
       body: TabBarView(
         children: [
-          NotificationScaffold(
+          NotificationListView(
             state: notificationState,
             notificationList: notificationList,
             onRefresh: () async {
@@ -115,11 +115,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               _getNotifications();
             },
           ),
-          PhoneScaffold(
+          PhoneListView(
             state: phoneState,
             phoneModelList: phoneModelList,
           ),
-          PdfScaffold(
+          PdfView(
             state: pdfState,
             data: data,
             onRefresh: () {

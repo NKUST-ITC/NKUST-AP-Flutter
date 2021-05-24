@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/scaffold/pdf_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/views/pdf_view.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -91,7 +91,7 @@ class SchedulePageState extends State<SchedulePage>
           ),
         );
       case _State.pdf:
-        return PdfScaffold(
+        return PdfView(
           state: pdfState,
           data: data,
           onRefresh: _getSchedules,
