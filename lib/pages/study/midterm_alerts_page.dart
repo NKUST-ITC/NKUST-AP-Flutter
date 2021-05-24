@@ -98,7 +98,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getMidtermAlertsData();
-                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
                   return null;
                 },
                 child: _body(),
@@ -153,7 +153,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
               key.currentState.pickSemester();
             else
               _getMidtermAlertsData();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: stateIcon,

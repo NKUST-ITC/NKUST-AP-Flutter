@@ -91,7 +91,7 @@ class LoginPageState extends State<LoginPage> {
         ApButton(
           text: ap.login,
           onPressed: () {
-            FirebaseAnalyticsUtils.instance.logAction('login', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('login_click');
             _login();
           },
         ),

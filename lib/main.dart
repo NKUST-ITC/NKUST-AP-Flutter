@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ void main() async {
   Helper.selector = CrawlerSelector.load();
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
-  if (!kDebugMode && FirebaseUtils.isSupportCrashlytics) {
+  if (!kDebugMode && FirebaseCrashlyticsUtils.isSupported) {
     await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     runZonedGuarded(() {
       runApp(MyApp());

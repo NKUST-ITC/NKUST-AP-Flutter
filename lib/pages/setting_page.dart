@@ -94,8 +94,7 @@ class SettingPageState extends State<SettingPage> {
                 });
                 Preferences.setBool(
                     Constants.PREF_DISPLAY_PICTURE, displayPicture);
-                FirebaseAnalyticsUtils.instance
-                    .logAction('head_photo', 'click');
+                FirebaseAnalyticsUtils.instance.logEvent('head_photo_click');
               },
             ),
             ChangeLanguageItem(
@@ -176,7 +175,8 @@ class SettingPageState extends State<SettingPage> {
           Navigator.of(context, rootNavigator: true).pop();
           if (data != null) {
             await Utils.setBusNotify(context, data.reservations);
-            ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
+            ApUtils.showToast(
+                context, AppLocalizations.of(context).busNotifyHint);
           } else
             ApUtils.showToast(
               context,

@@ -150,7 +150,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
               flex: 19,
               child: RefreshIndicator(
                 onRefresh: () async {
-                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
                   _calculate();
                   return null;
                 },

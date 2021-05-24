@@ -20,6 +20,7 @@ import 'package:ap_common/utils/app_tracking_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
+import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -164,7 +165,7 @@ class HomePageState extends State<HomePage> {
                       organizationDomain: Constants.MAIL_DOMAIN,
                     ),
                   );
-                  if (FirebaseUtils.isSupportCloudMessage) {
+                  if (FirebaseMessagingUtils.isSupported) {
                     try {
                       final messaging = FirebaseMessaging.instance;
                       NotificationSettings settings =

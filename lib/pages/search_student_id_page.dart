@@ -103,7 +103,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           text: ap.search,
           onPressed: () {
             FirebaseAnalyticsUtils.instance
-                .logAction('search_username', 'click');
+                .logEvent('search_username_click');
             _search();
           },
         )

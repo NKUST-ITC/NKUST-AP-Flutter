@@ -83,7 +83,7 @@ class CoursePageState extends State<CoursePage> {
       ),
       onRefresh: () async {
         await _getCourseTables();
-        FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+        FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
         return null;
       },
       onSearchButtonClick: () {

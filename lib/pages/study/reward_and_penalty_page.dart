@@ -98,7 +98,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getMidtermAlertsData();
-                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
                   return null;
                 },
                 child: _body(),
@@ -152,7 +152,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
               key.currentState.pickSemester();
             else
               _getMidtermAlertsData();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,

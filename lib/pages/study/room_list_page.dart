@@ -107,7 +107,7 @@ class _RoomListPageState extends State<RoomListPage> {
         return InkWell(
                 onTap: () {
             _getRoomList();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,

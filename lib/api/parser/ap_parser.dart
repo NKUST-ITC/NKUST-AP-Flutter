@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:ap_common/utils/crashlytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 String clearTransEncoding(List<int> htmlBytes) {
   // htmlBytes is fixed-length list, need copy.
@@ -93,7 +93,7 @@ Map<String, dynamic> apUserInfoParser(String html) {
     data['name'] = (tdElements[10].text.replaceAll("姓　　名：", ""));
     data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust$imageUrl";
   } catch (e, s) {
-    if (FirebaseUtils.isSupportCrashlytics)
+    if (FirebaseCrashlyticsUtils.isSupported)
       FirebaseCrashlytics.instance.recordFlutterError(
         FlutterErrorDetails(
           exception: e,

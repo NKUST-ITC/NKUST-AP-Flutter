@@ -175,8 +175,7 @@ class SchedulePageState extends State<SchedulePage>
           (BuildContext context, int index) {
             return InkWell(
               onTap: () {
-                FirebaseAnalyticsUtils.instance
-                    .logAction('add_schedule', 'create');
+                FirebaseAnalyticsUtils.instance.logEvent('add_schedule_create');
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
@@ -202,7 +201,7 @@ class SchedulePageState extends State<SchedulePage>
                       if (schedule.events != null || schedule.events.length > 0)
                         _addToCalendar(schedule.events[index]);
                       FirebaseAnalyticsUtils.instance
-                          .logAction('add_schedule', 'click');
+                          .logEvent('add_schedule_click');
                     },
                   ),
                 );

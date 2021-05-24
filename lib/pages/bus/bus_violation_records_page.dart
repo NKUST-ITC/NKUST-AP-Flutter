@@ -78,7 +78,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
         return InkWell(
                 onTap: () {
             getBusViolationRecords();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,

@@ -109,7 +109,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getSemesterLeaveRecord();
-                  FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
                   return null;
                 },
                 child: OrientationBuilder(
@@ -158,7 +158,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               key.currentState.pickSemester();
             else
               _getSemesterLeaveRecord();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,

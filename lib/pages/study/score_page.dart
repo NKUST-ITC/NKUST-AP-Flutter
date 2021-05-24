@@ -67,7 +67,7 @@ class ScorePageState extends State<ScorePage> {
       ),
       onRefresh: () async {
         await _getSemesterScore();
-        FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+        FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
         return null;
       },
       onSearchButtonClick: () {

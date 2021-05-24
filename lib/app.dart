@@ -6,6 +6,7 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
@@ -51,7 +52,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     analytics = FirebaseUtils.init();
-    FirebaseUtils.initFcm(
+    FirebaseMessagingUtils.instance.init(
       vapidKey: Constants.FCM_WEB_VAPID_KEY,
     );
     themeMode = ThemeMode
@@ -119,7 +120,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           themeMode: themeMode,
           locale: locale,
           navigatorObservers: [
-            if (FirebaseUtils.isSupportAnalytics)
+            if (FirebaseAnalyticsUtils.isSupported)
               FirebaseAnalyticsObserver(analytics: analytics),
           ],
           localizationsDelegates: [

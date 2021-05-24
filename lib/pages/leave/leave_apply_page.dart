@@ -177,7 +177,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       ),
                     );
                     FirebaseAnalyticsUtils.instance
-                        .logAction('leave_type', 'click');
+                        .logEvent('leave_type_click');
                   },
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 24,
@@ -549,7 +549,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     onPressed: () {
                       _leaveSubmit();
                       FirebaseAnalyticsUtils.instance
-                          .logAction('leave_submit', 'click');
+                          .logEvent('leave_submit_click');
                     },
                     child: Text(
                       ap.confirm,

@@ -113,9 +113,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.userNotSupport:
       case _State.custom:
         return InkWell(
-                onTap: () {
+          onTap: () {
             _getBusReservations();
-            FirebaseAnalyticsUtils.instance.logAction('retry', 'click');
+            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -131,7 +131,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return RefreshIndicator(
           onRefresh: () async {
             _getBusReservations();
-            FirebaseAnalyticsUtils.instance.logAction('refresh', 'swipe');
+            FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
             return null;
           },
           child: ListView.builder(
@@ -208,12 +208,12 @@ class BusReservationsPageState extends State<BusReservationsPage>
                                 rightActionFunction: () {
                                   cancelBusReservation(busReservation);
                                   FirebaseAnalyticsUtils.instance
-                                      .logAction('cancel_bus', 'click');
+                                      .logEvent('cancel_bus_click');
                                 },
                               ),
                             );
                             FirebaseAnalyticsUtils.instance
-                                .logAction('cancel_bus', 'create');
+                                .logEvent('cancel_bus_create');
                           },
                   ),
                 )
@@ -342,8 +342,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       callback: GeneralCallback(
         onSuccess: (data) {
           _getBusReservations();
-          FirebaseAnalyticsUtils.instance
-              .logAction('cancel_bus', 'status', message: 'success');
+          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,
