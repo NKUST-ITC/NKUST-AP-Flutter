@@ -30,7 +30,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.0.x'
+          flutter-version: '2.2.x'
           channel: 'stable'
       - name: Install Flutter dependencies
         run: flutter pub get
@@ -65,7 +65,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.0.x'
+          flutter-version: '2.2.x'
           channel: 'stable'
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
@@ -126,7 +126,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v1
         with:
-          flutter-version: '2.0.x'
+          flutter-version: '2.2.x'
           channel: 'stable'
       - name: Upgrades flutter
         run: flutter upgrade
