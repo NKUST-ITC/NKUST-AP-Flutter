@@ -1,4 +1,10 @@
 {
+  "30807": {
+    "visible": true,
+    "date": "2021/07/21",
+    "zh-TW": "* 修正隱私權追蹤說明跑版問題",
+    "en-US": "* Fix privacy tracking description overflow pixel."
+  },
   "30806": {
     "visible": true,
     "date": "2021/05/20",
