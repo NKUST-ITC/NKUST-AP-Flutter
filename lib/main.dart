@@ -6,10 +6,10 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
-import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 
