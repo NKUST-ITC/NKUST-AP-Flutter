@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/utils/ap_hive_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
@@ -26,6 +27,7 @@ void main() async {
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await Preferences.init(key: Constants.key, iv: Constants.iv);
+  await ApHiveUtils.instance.init();
   MobileNkustHelper.userAgentList = Preferences.getStringList(
     Constants.MOBILE_NKUST_USER_AGENT,
     MobileNkustHelper.userAgentList,
