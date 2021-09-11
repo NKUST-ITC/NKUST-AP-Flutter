@@ -54,3 +54,5 @@ android/android_keys.zip
 .vscode/
 
 .firebase/
+
+.fvm/flutter_sdk
