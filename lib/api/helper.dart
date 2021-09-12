@@ -19,13 +19,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
+import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
-import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -33,9 +33,9 @@ import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/event_callback.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -166,7 +166,11 @@ class Helper {
       callback?.onError(
         GeneralResponse.unknownError(),
       );
-      throw e;
+      if (FirebaseCrashlyticsUtils.isSupported)
+        FirebaseCrashlyticsUtils.instance.recordError(
+          e,
+          StackTrace.current,
+        );
     }
     return null;
   }
