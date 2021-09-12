@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:ap_common/utils/crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
 String clearTransEncoding(List<int> htmlBytes) {
@@ -238,7 +239,8 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       await FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: "Section A = ${document.getElementsByTagName("table")[0].innerHtml}",
+        reason:
+            "Section A = ${document.getElementsByTagName("table")[0].innerHtml}",
       );
   }
 
@@ -289,7 +291,7 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
       );
   }
   //make each day.
-  List keyName = [
+  List weekdays = [
     'Monday',
     'Tuesday',
     'Wednesday',
@@ -298,52 +300,45 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     'Saturday',
     'Sunday'
   ];
-
+  final Element table2 = document.getElementsByTagName("table")[1];
   try {
-    for (int key = 0; key < keyName.length; key++) {
+    for (int weekdayIndex = 0; weekdayIndex < weekdays.length; weekdayIndex++) {
       for (int eachSession = 1;
           eachSession < data['timeCodes'].length + 1;
           eachSession++) {
-        var eachDays = document
-            .getElementsByTagName("table")[1]
-            .getElementsByTagName("tr")[eachSession]
-            .getElementsByTagName("td")[key + 1];
-        var splitData = (eachDays.outerHtml
+        final sectionElement = table2.getElementsByTagName("tr")[eachSession];
+        final sectionTds = sectionElement.getElementsByTagName("td");
+        final eachDays = sectionTds[weekdayIndex + 1];
+        final splitData = (eachDays.outerHtml
             .substring(35, eachDays.outerHtml.length - 11)
             .split("<br>"));
-
-        var _eachDaysDate = document
-            .getElementsByTagName("table")[1]
-            .getElementsByTagName("tr")[eachSession]
-            .getElementsByTagName("td")[0]
-            .outerHtml;
-        var courseTime = _eachDaysDate
-            .substring(_eachDaysDate.indexOf("&nbsp;<br>") + 10,
-                _eachDaysDate.indexOf("<br>&nbsp;<"))
+        final timeCodeHtml = sectionTds[0].outerHtml;
+        final courseTime = timeCodeHtml
+            .substring(timeCodeHtml.indexOf("&nbsp;<br>") + 10,
+                timeCodeHtml.indexOf("<br>&nbsp;<"))
             .split("<br>");
-
         if (splitData.length <= 1) {
           continue;
         }
-        String title = splitData[0].replaceAll("\n", "");
-        if (title.lastIndexOf(">") > -1) {
-          title = title
-              .substring(title.lastIndexOf(">") + 1, title.length)
+        String courseName = splitData[0].replaceAll("\n", "");
+        if (courseName.lastIndexOf(">") > -1) {
+          courseName = courseName
+              .substring(courseName.lastIndexOf(">") + 1, courseName.length)
               .replaceAll("&nbsp;", '')
               .replaceAll(";", '');
         }
-        title = title.replaceAll('(1週)', '');
+        courseName = courseName.replaceAll('(1週)', '');
         final section = courseTime[0]
             .replaceAll(" ", "")
             .replaceAll(String.fromCharCode(160), "");
         for (var i = 0; i < data['courses'].length; i++) {
-          if (data['courses'][i]['title'] == title) {
+          if (data['courses'][i]['title'] == courseName) {
             for (var j = 0; j < data['timeCodes'].length; j++) {
               if (data['timeCodes'][j]['title'] == section) {
                 data['courses'][i]['sectionTimes'].add(
                   {
                     "index": j,
-                    "weekday": key + 1,
+                    "weekday": weekdayIndex + 1,
                   },
                 );
               }
@@ -352,13 +347,13 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         }
       }
     }
-  } catch (e, s) {
+  } catch (e) {
     if (kDebugMode) throw e;
     if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
       await FirebaseCrashlytics.instance.recordError(
         e,
-        s,
-        reason: "Section C = ${document.getElementsByTagName("table")[0].innerHtml}",
+        StackTrace.current,
+        reason: "Section C = ${table2.innerHtml}",
       );
   }
   return data;
@@ -499,7 +494,8 @@ Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
         }
       });
     }
-  } on Exception catch (_) {} on RangeError catch (_) {}
+  } on Exception catch (_) {
+  } on RangeError catch (_) {}
 
   //the second talbe.
 
