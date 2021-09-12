@@ -250,37 +250,52 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
   //make timetable
   final trs = table2.getElementsByTagName("tr");
   final List<Element> sectionElements = [];
-  //remark:Best split is regex but... Chinese have some difficulty Q_Q
-  for (int i = 1; i < trs.length; i++) {
-    final sectionElement = trs[i].getElementsByTagName('td')[0];
-    sectionElements.add(sectionElement);
-    var _temptext = sectionElement.text.replaceAll(" ", "");
-    if (_temptext.length < 10 && i == 1) {
+  try {
+    //remark:Best split is regex but... Chinese have some difficulty Q_Q
+    for (int i = 1; i < trs.length; i++) {
+      final sectionElement = trs[i].getElementsByTagName('td')[0];
+      sectionElements.add(sectionElement);
+      var _temptext = sectionElement.text.replaceAll(" ", "");
+      if (_temptext.length < 10 && i == 1) {
+        data['timeCodes'].add(
+          {
+            "title": "第M節",
+            "startTime": "07:10",
+            "endTime": "08:00",
+          },
+        );
+        continue;
+      }
+      final title = _temptext
+          .substring(0, _temptext.length - 10)
+          .replaceAll(String.fromCharCode(160), "")
+          .replaceAll(" ", "");
+      var courseTime = _temptext
+          .substring(_temptext.length - 10)
+          .replaceAll(String.fromCharCode(160), "");
       data['timeCodes'].add(
         {
-          "title": "第M節",
-          "startTime": "07:10",
-          "endTime": "08:00",
+          "title": title,
+          "startTime":
+              "${courseTime.split('-')[0].substring(0, 2)}:${courseTime.split('-')[0].substring(2, 4)}",
+          "endTime":
+              "${courseTime.split('-')[1].substring(0, 2)}:${courseTime.split('-')[1].substring(2, 4)}",
         },
       );
-      continue;
     }
-    final title = _temptext
-        .substring(0, _temptext.length - 10)
-        .replaceAll(String.fromCharCode(160), "")
-        .replaceAll(" ", "");
-    var courseTime = _temptext
-        .substring(_temptext.length - 10)
-        .replaceAll(String.fromCharCode(160), "");
-    data['timeCodes'].add(
-      {
-        "title": title,
-        "startTime":
-            "${courseTime.split('-')[0].substring(0, 2)}:${courseTime.split('-')[0].substring(2, 4)}",
-        "endTime":
-            "${courseTime.split('-')[1].substring(0, 2)}:${courseTime.split('-')[1].substring(2, 4)}",
-      },
-    );
+  } catch (e) {
+    if (kDebugMode) throw e;
+    if (FirebaseCrashlyticsUtils.isSupported) {
+      String html = '';
+      for (var value in sectionElements) {
+        html += value.innerHtml;
+      }
+      await FirebaseCrashlyticsUtils.instance.recordError(
+        e,
+        StackTrace.current,
+        reason: html,
+      );
+    }
   }
   //make each day.
   List weekdays = [
