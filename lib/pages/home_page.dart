@@ -123,15 +123,25 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> future;
-
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance?.setCurrentScreen(
       "HomePage",
       "home_page.dart",
     );
-    future = Future.microtask(() => getData());
+    Future.microtask(() async {
+      _getAnnouncements();
+      if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
+        _login();
+      } else {
+        checkLogin();
+      }
+      if (await AppTrackingUtils.trackingAuthorizationStatus ==
+          TrackingStatus.notDetermined) {
+        AppTrackingUtils.show(context: context);
+      }
+      await _checkData(first: true);
+    });
     super.initState();
   }
 
@@ -144,278 +154,273 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     ap = ApLocalizations.of(context);
-    return FutureBuilder(
-        future: future,
-        builder: (_, __) {
-          return HomePageScaffold(
-            title: app.appName,
-            key: _homeKey,
-            state: state,
-            announcements: announcements,
-            isLogin: isLogin,
-            content: content,
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.fiber_new_rounded),
-                tooltip: ap.announcementReviewSystem,
-                onPressed: () async {
-                  ApUtils.pushCupertinoStyle(
-                    context,
-                    AnnouncementHomePage(
-                      organizationDomain: Constants.MAIL_DOMAIN,
-                    ),
-                  );
-                  if (FirebaseMessagingUtils.isSupported) {
-                    try {
-                      final messaging = FirebaseMessaging.instance;
-                      NotificationSettings settings =
-                          await messaging.getNotificationSettings();
-                      if (settings.authorizationStatus ==
-                              AuthorizationStatus.authorized ||
-                          settings.authorizationStatus ==
-                              AuthorizationStatus.provisional) {
-                        String token = await messaging.getToken(
-                            vapidKey: Constants.FCM_WEB_VAPID_KEY);
-                        AnnouncementHelper.instance.fcmToken = token;
-                      }
-                    } catch (_) {}
-                  }
-                },
+    return HomePageScaffold(
+      title: app.appName,
+      key: _homeKey,
+      state: state,
+      announcements: announcements,
+      isLogin: isLogin,
+      content: content,
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.fiber_new_rounded),
+          tooltip: ap.announcementReviewSystem,
+          onPressed: () async {
+            ApUtils.pushCupertinoStyle(
+              context,
+              AnnouncementHomePage(
+                organizationDomain: Constants.MAIL_DOMAIN,
               ),
-            ],
-            drawer: ApDrawer(
-              userInfo: userInfo,
-              displayPicture:
-                  Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true),
-              imageAsset: drawerIcon,
-              onTapHeader: () {
-                if (isLogin) {
-                  if (userInfo != null && isLogin)
-                    ApUtils.pushCupertinoStyle(
-                      context,
-                      UserInfoPage(userInfo: userInfo),
-                    );
-                } else {
-                  if (isMobile) Navigator.of(context).pop();
-                  openLoginPage();
+            );
+            if (FirebaseMessagingUtils.isSupported) {
+              try {
+                final messaging = FirebaseMessaging.instance;
+                NotificationSettings settings =
+                    await messaging.getNotificationSettings();
+                if (settings.authorizationStatus ==
+                        AuthorizationStatus.authorized ||
+                    settings.authorizationStatus ==
+                        AuthorizationStatus.provisional) {
+                  String token = await messaging.getToken(
+                      vapidKey: Constants.FCM_WEB_VAPID_KEY);
+                  AnnouncementHelper.instance.fcmToken = token;
                 }
-              },
-              widgets: <Widget>[
-                if (!isMobile)
-                  DrawerItem(
-                    icon: ApIcon.home,
-                    title: ap.home,
-                    onTap: () {
-                      setState(() => content = null);
-                    },
-                  ),
-                ExpansionTile(
-                  initiallyExpanded: isStudyExpanded,
-                  onExpansionChanged: (bool) {
-                    setState(() {
-                      isStudyExpanded = bool;
-                    });
-                  },
-                  leading: Icon(
-                    ApIcon.school,
-                    color: isStudyExpanded
-                        ? ApTheme.of(context).blueAccent
-                        : ApTheme.of(context).grey,
-                  ),
-                  title: Text(ap.courseInfo, style: _defaultStyle),
-                  children: <Widget>[
-                    DrawerSubItem(
-                      icon: ApIcon.classIcon,
-                      title: ap.course,
-                      onTap: () => _openPage(
-                        CoursePage(),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.assignment,
-                      title: ap.score,
-                      onTap: () => _openPage(
-                        ScorePage(),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.apps,
-                      title: ap.calculateCredits,
-                      onTap: () => _openPage(
-                        CalculateUnitsPage(),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.warning,
-                      title: ap.midtermAlerts,
-                      onTap: () => _openPage(
-                        MidtermAlertsPage(),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.folder,
-                      title: ap.rewardAndPenalty,
-                      onTap: () => _openPage(
-                        RewardAndPenaltyPage(),
-                        needLogin: true,
-                      ),
-                    ),
-                    DrawerSubItem(
-                      icon: ApIcon.room,
-                      title: ap.classroomCourseTableSearch,
-                      onTap: () => _openPage(
-                        RoomListPage(),
-                        needLogin: true,
-                      ),
-                    ),
-                  ],
-                ),
-                if (leaveEnable)
-                  ExpansionTile(
-                    initiallyExpanded: isLeaveExpanded,
-                    onExpansionChanged: (bool) {
-                      setState(() {
-                        isLeaveExpanded = bool;
-                      });
-                    },
-                    leading: Icon(
-                      ApIcon.calendarToday,
-                      color: isLeaveExpanded
-                          ? ApTheme.of(context).blueAccent
-                          : ApTheme.of(context).grey,
-                    ),
-                    title: Text(ap.leave, style: _defaultStyle),
-                    children: <Widget>[
-                      DrawerSubItem(
-                        icon: ApIcon.edit,
-                        title: ap.leaveApply,
-                        onTap: () => _openPage(
-                          LeavePage(initIndex: 0),
-                          needLogin: true,
-                          useCupertinoRoute: false,
-                        ),
-                      ),
-                      DrawerSubItem(
-                        icon: ApIcon.assignment,
-                        title: ap.leaveRecords,
-                        onTap: () => _openPage(
-                          LeavePage(initIndex: 1),
-                          needLogin: true,
-                          useCupertinoRoute: false,
-                        ),
-                      ),
-                    ],
-                  ),
-                if (canUseBus)
-                  ExpansionTile(
-                    initiallyExpanded: isBusExpanded,
-                    onExpansionChanged: (bool) {
-                      setState(() {
-                        isBusExpanded = bool;
-                      });
-                    },
-                    leading: Icon(
-                      ApIcon.directionsBus,
-                      color: isBusExpanded
-                          ? ApTheme.of(context).blueAccent
-                          : ApTheme.of(context).grey,
-                    ),
-                    title: Text(app.bus, style: _defaultStyle),
-                    children: <Widget>[
-                      DrawerSubItem(
-                        icon: ApIcon.dateRange,
-                        title: app.busReserve,
-                        onTap: () => _openPage(
-                          BusPage(initIndex: 0),
-                          needLogin: true,
-                        ),
-                      ),
-                      DrawerSubItem(
-                        icon: ApIcon.assignment,
-                        title: app.busReservations,
-                        onTap: () => _openPage(
-                          BusPage(initIndex: 1),
-                          needLogin: true,
-                        ),
-                      ),
-                      DrawerSubItem(
-                        icon: ApIcon.monetizationOn,
-                        title: app.busViolationRecords,
-                        onTap: () => _openPage(
-                          BusPage(initIndex: 2),
-                          needLogin: true,
-                        ),
-                      ),
-                    ],
-                  ),
-                DrawerItem(
-                  icon: ApIcon.info,
-                  title: ap.schoolInfo,
-                  onTap: () => _openPage(SchoolInfoPage()),
-                ),
-                DrawerItem(
-                  icon: ApIcon.face,
-                  title: ap.about,
-                  onTap: () => _openPage(
-                    aboutPage(
-                      context,
-                      assetImage: sectionImage,
-                    ),
-                  ),
-                ),
-                DrawerItem(
-                  icon: ApIcon.settings,
-                  title: ap.settings,
-                  onTap: () => _openPage(SettingPage()),
-                ),
-                if (isLogin)
-                  ListTile(
-                    leading: Icon(
-                      ApIcon.powerSettingsNew,
-                      color: ApTheme.of(context).grey,
-                    ),
-                    onTap: () async {
-                      await Preferences.setBool(
-                          Constants.PREF_AUTO_LOGIN, false);
-                      ShareDataWidget.of(context).data.logout();
-                      isLogin = false;
-                      userInfo = null;
-                      content = null;
-                      if (isMobile) Navigator.of(context).pop();
-                      checkLogin();
-                    },
-                    title: Text(ap.logout, style: _defaultStyle),
-                  ),
-              ],
-            ),
-            onImageTapped: (Announcement announcement) {
+              } catch (_) {}
+            }
+          },
+        ),
+      ],
+      drawer: ApDrawer(
+        userInfo: userInfo,
+        displayPicture:
+            Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true),
+        imageAsset: drawerIcon,
+        onTapHeader: () {
+          if (isLogin) {
+            if (userInfo != null && isLogin)
               ApUtils.pushCupertinoStyle(
                 context,
-                AnnouncementContentPage(announcement: announcement),
+                UserInfoPage(userInfo: userInfo),
               );
+          } else {
+            if (isMobile) Navigator.of(context).pop();
+            openLoginPage();
+          }
+        },
+        widgets: <Widget>[
+          if (!isMobile)
+            DrawerItem(
+              icon: ApIcon.home,
+              title: ap.home,
+              onTap: () {
+                setState(() => content = null);
+              },
+            ),
+          ExpansionTile(
+            initiallyExpanded: isStudyExpanded,
+            onExpansionChanged: (bool) {
+              setState(() {
+                isStudyExpanded = bool;
+              });
             },
-            onTabTapped: onTabTapped,
-            bottomNavigationBarItems: [
-              if (canUseBus)
-                BottomNavigationBarItem(
-                  icon: Icon(ApIcon.directionsBus),
-                  label: app.bus,
+            leading: Icon(
+              ApIcon.school,
+              color: isStudyExpanded
+                  ? ApTheme.of(context).blueAccent
+                  : ApTheme.of(context).grey,
+            ),
+            title: Text(ap.courseInfo, style: _defaultStyle),
+            children: <Widget>[
+              DrawerSubItem(
+                icon: ApIcon.classIcon,
+                title: ap.course,
+                onTap: () => _openPage(
+                  CoursePage(),
+                  needLogin: true,
                 ),
-              BottomNavigationBarItem(
-                icon: Icon(ApIcon.classIcon),
-                label: ap.course,
               ),
-              BottomNavigationBarItem(
-                icon: Icon(ApIcon.assignment),
-                label: ap.score,
+              DrawerSubItem(
+                icon: ApIcon.assignment,
+                title: ap.score,
+                onTap: () => _openPage(
+                  ScorePage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.apps,
+                title: ap.calculateCredits,
+                onTap: () => _openPage(
+                  CalculateUnitsPage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.warning,
+                title: ap.midtermAlerts,
+                onTap: () => _openPage(
+                  MidtermAlertsPage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.folder,
+                title: ap.rewardAndPenalty,
+                onTap: () => _openPage(
+                  RewardAndPenaltyPage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: ApIcon.room,
+                title: ap.classroomCourseTableSearch,
+                onTap: () => _openPage(
+                  RoomListPage(),
+                  needLogin: true,
+                ),
               ),
             ],
-          );
-        });
+          ),
+          if (leaveEnable)
+            ExpansionTile(
+              initiallyExpanded: isLeaveExpanded,
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isLeaveExpanded = bool;
+                });
+              },
+              leading: Icon(
+                ApIcon.calendarToday,
+                color: isLeaveExpanded
+                    ? ApTheme.of(context).blueAccent
+                    : ApTheme.of(context).grey,
+              ),
+              title: Text(ap.leave, style: _defaultStyle),
+              children: <Widget>[
+                DrawerSubItem(
+                  icon: ApIcon.edit,
+                  title: ap.leaveApply,
+                  onTap: () => _openPage(
+                    LeavePage(initIndex: 0),
+                    needLogin: true,
+                    useCupertinoRoute: false,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.assignment,
+                  title: ap.leaveRecords,
+                  onTap: () => _openPage(
+                    LeavePage(initIndex: 1),
+                    needLogin: true,
+                    useCupertinoRoute: false,
+                  ),
+                ),
+              ],
+            ),
+          if (canUseBus)
+            ExpansionTile(
+              initiallyExpanded: isBusExpanded,
+              onExpansionChanged: (bool) {
+                setState(() {
+                  isBusExpanded = bool;
+                });
+              },
+              leading: Icon(
+                ApIcon.directionsBus,
+                color: isBusExpanded
+                    ? ApTheme.of(context).blueAccent
+                    : ApTheme.of(context).grey,
+              ),
+              title: Text(app.bus, style: _defaultStyle),
+              children: <Widget>[
+                DrawerSubItem(
+                  icon: ApIcon.dateRange,
+                  title: app.busReserve,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 0),
+                    needLogin: true,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.assignment,
+                  title: app.busReservations,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 1),
+                    needLogin: true,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.monetizationOn,
+                  title: app.busViolationRecords,
+                  onTap: () => _openPage(
+                    BusPage(initIndex: 2),
+                    needLogin: true,
+                  ),
+                ),
+              ],
+            ),
+          DrawerItem(
+            icon: ApIcon.info,
+            title: ap.schoolInfo,
+            onTap: () => _openPage(SchoolInfoPage()),
+          ),
+          DrawerItem(
+            icon: ApIcon.face,
+            title: ap.about,
+            onTap: () => _openPage(
+              aboutPage(
+                context,
+                assetImage: sectionImage,
+              ),
+            ),
+          ),
+          DrawerItem(
+            icon: ApIcon.settings,
+            title: ap.settings,
+            onTap: () => _openPage(SettingPage()),
+          ),
+          if (isLogin)
+            ListTile(
+              leading: Icon(
+                ApIcon.powerSettingsNew,
+                color: ApTheme.of(context).grey,
+              ),
+              onTap: () async {
+                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                ShareDataWidget.of(context).data.logout();
+                isLogin = false;
+                userInfo = null;
+                content = null;
+                if (isMobile) Navigator.of(context).pop();
+                checkLogin();
+              },
+              title: Text(ap.logout, style: _defaultStyle),
+            ),
+        ],
+      ),
+      onImageTapped: (Announcement announcement) {
+        ApUtils.pushCupertinoStyle(
+          context,
+          AnnouncementContentPage(announcement: announcement),
+        );
+      },
+      onTabTapped: onTabTapped,
+      bottomNavigationBarItems: [
+        if (canUseBus)
+          BottomNavigationBarItem(
+            icon: Icon(ApIcon.directionsBus),
+            label: app.bus,
+          ),
+        BottomNavigationBarItem(
+          icon: Icon(ApIcon.classIcon),
+          label: ap.course,
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(ApIcon.assignment),
+          label: ap.score,
+        ),
+      ],
+    );
   }
 
   void onTabTapped(int index) async {
@@ -740,19 +745,5 @@ class HomePageState extends State<HomePage> {
       leaveEnable = Preferences.getBool(Constants.LEAVE_ENABLE, true);
     }
     setState(() {});
-  }
-
-  Future<void> getData() async {
-    _getAnnouncements();
-    if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
-      _login();
-    } else {
-      checkLogin();
-    }
-    if (await AppTrackingUtils.trackingAuthorizationStatus ==
-        TrackingStatus.notDetermined) {
-      AppTrackingUtils.show(context: context);
-    }
-    await _checkData(first: true);
   }
 }
