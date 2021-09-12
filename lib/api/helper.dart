@@ -123,6 +123,8 @@ class Helper {
     GeneralCallback<LoginResponse> callback,
     bool clearCache = false,
   }) async {
+    Helper.username = username;
+    Helper.password = password;
     try {
       LoginResponse loginResponse;
       switch (selector?.login) {
@@ -152,8 +154,6 @@ class Helper {
           break;
       }
       expireTime = loginResponse.expireTime;
-      Helper.username = username;
-      Helper.password = password;
       if (callback != null)
         return callback.onSuccess(loginResponse);
       else
