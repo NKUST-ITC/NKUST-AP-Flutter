@@ -235,8 +235,8 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e, s) {
     if (kDebugMode) throw e;
-    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await FirebaseCrashlytics.instance.recordError(
+    if (FirebaseCrashlyticsUtils.isSupported)
+      await FirebaseCrashlyticsUtils.instance.recordError(
         e,
         s,
         reason:
@@ -283,8 +283,8 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e, s) {
     if (kDebugMode) throw e;
-    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await FirebaseCrashlytics.instance.recordError(
+    if (FirebaseCrashlyticsUtils.isSupported)
+      await FirebaseCrashlyticsUtils.instance.recordError(
         e,
         s,
         reason: document.getElementsByTagName("table")[1].innerHtml,
@@ -349,8 +349,8 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     }
   } catch (e) {
     if (kDebugMode) throw e;
-    if (!kIsWeb || (Platform.isAndroid || Platform.isIOS))
-      await FirebaseCrashlytics.instance.recordError(
+    if (FirebaseCrashlyticsUtils.isSupported)
+      await FirebaseCrashlyticsUtils.instance.recordError(
         e,
         StackTrace.current,
         reason: "Section C = ${table2.innerHtml}",
