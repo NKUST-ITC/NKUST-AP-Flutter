@@ -246,14 +246,16 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
 
   //the second talbe.
 
+  final Element table2 = document.getElementsByTagName("table")[1];
   //make timetable
-  var secondTable =
-      document.getElementsByTagName("table")[1].getElementsByTagName("tr");
+  final trs = table2.getElementsByTagName("tr");
+  final List<Element> sectionElements = [];
   try {
     //remark:Best split is regex but... Chinese have some difficulty Q_Q
-    for (int i = 1; i < secondTable.length; i++) {
-      var _temptext =
-          secondTable[i].getElementsByTagName('td')[0].text.replaceAll(" ", "");
+    for (int i = 1; i < trs.length; i++) {
+      final sectionElement = trs[i].getElementsByTagName('td')[0];
+      sectionElements.add(sectionElement);
+      var _temptext = sectionElement.text.replaceAll(" ", "");
       if (_temptext.length < 10 && i == 1) {
         data['timeCodes'].add(
           {
@@ -281,14 +283,19 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         },
       );
     }
-  } catch (e, s) {
+  } catch (e) {
     if (kDebugMode) throw e;
-    if (FirebaseCrashlyticsUtils.isSupported)
+    if (FirebaseCrashlyticsUtils.isSupported) {
+      String html = '';
+      for (var value in sectionElements) {
+        html += value.innerHtml;
+      }
       await FirebaseCrashlyticsUtils.instance.recordError(
         e,
-        s,
-        reason: document.getElementsByTagName("table")[1].innerHtml,
+        StackTrace.current,
+        reason: html,
       );
+    }
   }
   //make each day.
   List weekdays = [
@@ -300,7 +307,6 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
     'Saturday',
     'Sunday'
   ];
-  final Element table2 = document.getElementsByTagName("table")[1];
   try {
     for (int weekdayIndex = 0; weekdayIndex < weekdays.length; weekdayIndex++) {
       for (int eachSession = 1;
