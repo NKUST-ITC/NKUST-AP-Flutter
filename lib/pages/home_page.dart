@@ -316,6 +316,14 @@ class HomePageState extends State<HomePage> {
                   ),
                 ),
               ],
+            )
+          else
+            DrawerItem(
+              icon: ApIcon.calendarToday,
+              title: ap.leave,
+              onTap: () => ApUtils.launchUrl(
+                'https://mobile.nkust.edu.tw/Student/Leave',
+              ),
             ),
           if (canUseBus)
             ExpansionTile(
@@ -358,6 +366,14 @@ class HomePageState extends State<HomePage> {
                   ),
                 ),
               ],
+            )
+          else
+            DrawerItem(
+              icon: ApIcon.directionsBus,
+              title: ap.bus,
+              onTap: () => ApUtils.launchUrl(
+                'https://mobile.nkust.edu.tw/Bus/Timetable',
+              ),
             ),
           DrawerItem(
             icon: ApIcon.info,
