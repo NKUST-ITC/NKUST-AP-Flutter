@@ -1,9 +1,9 @@
 {
-  "30810": {
+  "30811": {
     "visible": true,
     "date": "2021/09/13",
-    "zh-TW": "* 穩定性更新",
-    "en-US": "* Update stability."
+    "zh-TW": "* 穩定性更新\n* 修正部分課表無法顯示\n* 缺曠系統暫時以連結至網頁版本呈顯",
+    "en-US": "* Update stability.\n* Fix some user course table error.\n* Leave system use web version temporary."
   },
   "30807": {
     "visible": true,
