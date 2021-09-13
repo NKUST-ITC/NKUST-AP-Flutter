@@ -249,13 +249,13 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
   final Element table2 = document.getElementsByTagName("table")[1];
   //make timetable
   final trs = table2.getElementsByTagName("tr");
-  final List<Element> sectionElements = [];
+  final List<Element> timeCodeElements = [];
   try {
     //remark:Best split is regex but... Chinese have some difficulty Q_Q
     for (int i = 1; i < trs.length; i++) {
-      final sectionElement = trs[i].getElementsByTagName('td')[0];
-      sectionElements.add(sectionElement);
-      var _temptext = sectionElement.text.replaceAll(" ", "");
+      final timeCodeElement = trs[i].getElementsByTagName('td')[0];
+      timeCodeElements.add(timeCodeElement);
+      var _temptext = timeCodeElement.text.replaceAll(" ", "");
       if (_temptext.length < 10 && i == 1) {
         data['timeCodes'].add(
           {
@@ -270,29 +270,31 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
           .substring(0, _temptext.length - 10)
           .replaceAll(String.fromCharCode(160), "")
           .replaceAll(" ", "");
-      var courseTime = _temptext
+      final courseTimeRange = _temptext
           .substring(_temptext.length - 10)
           .replaceAll(String.fromCharCode(160), "");
+      final courseTimeSlits = courseTimeRange.split('-');
+      final startTime = courseTimeSlits[0];
+      final endTime = courseTimeSlits[1];
       data['timeCodes'].add(
         {
           "title": title,
           "startTime":
-              "${courseTime.split('-')[0].substring(0, 2)}:${courseTime.split('-')[0].substring(2, 4)}",
-          "endTime":
-              "${courseTime.split('-')[1].substring(0, 2)}:${courseTime.split('-')[1].substring(2, 4)}",
+              "${startTime.substring(0, 2)}:${startTime.substring(2, 4)}",
+          "endTime": "${endTime.substring(0, 2)}:${endTime.substring(2, 4)}",
         },
       );
     }
-  } catch (e) {
+  } catch (e, s) {
     if (kDebugMode) throw e;
     if (FirebaseCrashlyticsUtils.isSupported) {
       String html = '';
-      for (var value in sectionElements) {
+      for (var value in timeCodeElements) {
         html += value.innerHtml;
       }
       await FirebaseCrashlyticsUtils.instance.recordError(
         e,
-        StackTrace.current,
+        s,
         reason: html,
       );
     }
@@ -309,20 +311,16 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
   ];
   try {
     for (int weekdayIndex = 0; weekdayIndex < weekdays.length; weekdayIndex++) {
-      for (int eachSession = 1;
-          eachSession < data['timeCodes'].length + 1;
-          eachSession++) {
-        final sectionElement = table2.getElementsByTagName("tr")[eachSession];
+      for (int rwaTimeCodeIndex = 1;
+          rwaTimeCodeIndex < data['timeCodes'].length + 1;
+          rwaTimeCodeIndex++) {
+        final sectionElement =
+            table2.getElementsByTagName("tr")[rwaTimeCodeIndex];
         final sectionTds = sectionElement.getElementsByTagName("td");
         final eachDays = sectionTds[weekdayIndex + 1];
         final splitData = (eachDays.outerHtml
             .substring(35, eachDays.outerHtml.length - 11)
             .split("<br>"));
-        final timeCodeHtml = sectionTds[0].outerHtml;
-        final courseTime = timeCodeHtml
-            .substring(timeCodeHtml.indexOf("&nbsp;<br>") + 10,
-                timeCodeHtml.indexOf("<br>&nbsp;<"))
-            .split("<br>");
         if (splitData.length <= 1) {
           continue;
         }
@@ -334,13 +332,10 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
               .replaceAll(";", '');
         }
         courseName = courseName.replaceAll('(1週)', '');
-        final section = courseTime[0]
-            .replaceAll(" ", "")
-            .replaceAll(String.fromCharCode(160), "");
         for (var i = 0; i < data['courses'].length; i++) {
           if (data['courses'][i]['title'] == courseName) {
             for (var j = 0; j < data['timeCodes'].length; j++) {
-              if (data['timeCodes'][j]['title'] == section) {
+              if (j == rwaTimeCodeIndex - 1) {
                 data['courses'][i]['sectionTimes'].add(
                   {
                     "index": j,
@@ -353,12 +348,12 @@ Future<Map<String, dynamic>> coursetableParser(dynamic html) async {
         }
       }
     }
-  } catch (e) {
+  } catch (e, s) {
     if (kDebugMode) throw e;
     if (FirebaseCrashlyticsUtils.isSupported)
       await FirebaseCrashlyticsUtils.instance.recordError(
         e,
-        StackTrace.current,
+        s,
         reason: "Section C = ${table2.innerHtml}",
       );
   }
