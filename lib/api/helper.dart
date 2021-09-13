@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
@@ -76,8 +75,7 @@ class Helper {
   static DateTime expireTime;
 
   /// From sqflite plugin setting
-  static bool isSupportCacheData =
-      (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid));
+  static bool isSupportCacheData = false;
 
   static CrawlerSelector selector;
 
