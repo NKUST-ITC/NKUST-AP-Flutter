@@ -1,38 +1,32 @@
 //dio
 import 'dart:typed_data';
 
+// callback
+import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/course_data.dart';
+//overwrite origin Cookie Manager.
+import 'package:ap_common/models/private_cookies_manager.dart';
+import 'package:ap_common/models/score_data.dart';
+//Model
+import 'package:ap_common/models/user_info.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/parser/api_tool.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
-
-//overwrite origin Cookie Manager.
-import 'package:ap_common/models/private_cookies_manager.dart';
-
+//Ap helper errorCode
+import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
 //parser
 import 'package:nkust_ap/api/parser/ap_parser.dart';
-
+import 'package:nkust_ap/api/parser/api_tool.dart';
 //Config
 import 'package:nkust_ap/config/constants.dart';
-
-//Model
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/course_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
-
-// callback
-import 'package:ap_common/callback/general_callback.dart';
-
-//Ap helper errorCode
-import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/models/semester_data.dart';
 
 import 'helper.dart';
 
@@ -121,7 +115,7 @@ class WebApHelper {
     );
     Helper.username = username;
     Helper.password = password;
-    switch (apLoginParser(res.data)) {
+    switch (WebApParser.instance.apLoginParser(res.data)) {
       case 0:
         isLogin = true;
         return LoginResponse(
@@ -154,7 +148,7 @@ class WebApHelper {
       data: {"fncid": 'CK004'},
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-    var _skyDirectData = webapToleaveParser(res.data);
+    var _skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
     res = await dio.get(
       "https://leave.nkust.edu.tw/SkyDir.aspx",
       queryParameters: {
@@ -249,7 +243,7 @@ class WebApHelper {
       );
     }
 
-    if (apLoginParser(request.data) == 2) {
+    if (WebApParser.instance.apLoginParser(request.data) == 2) {
       if (Helper.isSupportCacheData) _manager.delete(cacheKey);
       reLoginReTryCounts += 1;
       await login(username: Helper.username, password: Helper.password);
@@ -263,7 +257,7 @@ class WebApHelper {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag003", null);
       return UserInfo.fromJson(
-        apUserInfoParser(query.data),
+        WebApParser.instance.apUserInfoParser(query.data),
       );
     }
     var query = await apQuery(
@@ -273,12 +267,12 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
     );
 
-    var parsedData = apUserInfoParser(query.data);
+    var parsedData = WebApParser.instance.apUserInfoParser(query.data);
     if (parsedData["id"] == null) {
       _manager.delete(userInfoCacheKey);
     }
     final data = UserInfo.fromJson(
-      apUserInfoParser(query.data),
+      WebApParser.instance.apUserInfoParser(query.data),
     );
     pictureUrl = data.pictureUrl;
     return data;
@@ -299,7 +293,8 @@ class WebApHelper {
   Future<SemesterData> semesters() async {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag304_01", null);
-      return SemesterData.fromJson(semestersParser(query.data));
+      return SemesterData.fromJson(
+          WebApParser.instance.semestersParser(query.data));
     }
     var query = await apQuery(
       "ag304_01",
@@ -307,7 +302,7 @@ class WebApHelper {
       cacheKey: semesterCacheKey,
       cacheExpiredTime: Duration(hours: 3),
     );
-    var parsedData = semestersParser(query.data);
+    var parsedData = WebApParser.instance.semestersParser(query.data);
     if (parsedData["data"].length < 1) {
       //data error delete cache
       _manager.delete(semesterCacheKey);
@@ -323,7 +318,8 @@ class WebApHelper {
         "ag008",
         {"arg01": years, "arg02": semesterValue},
       );
-      return ScoreData.fromJson(semestersParser(query.data));
+      return ScoreData.fromJson(
+          WebApParser.instance.semestersParser(query.data));
     }
     var query = await apQuery(
       "ag008",
@@ -332,7 +328,7 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
     );
 
-    var parsedData = scoresParser(query.data);
+    var parsedData = WebApParser.instance.scoresParser(query.data);
     if (parsedData["scores"].length == 0) {
       _manager.delete("${scoresCacheKey}_${years}_$semesterValue");
     }
@@ -352,7 +348,8 @@ class WebApHelper {
         {"arg01": year, "arg02": semester},
         bytesResponse: true,
       );
-      return CourseData.fromJson(await coursetableParser(query.data));
+      return CourseData.fromJson(
+          await WebApParser.instance.coursetableParser(query.data));
     }
     var query = await apQuery(
       "ag222",
@@ -361,7 +358,7 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
       bytesResponse: true,
     );
-    var parsedData = await coursetableParser(query.data);
+    var parsedData = await WebApParser.instance.coursetableParser(query.data);
     if (parsedData["courses"].length == 0) {
       _manager.delete("${coursetableCacheKey}_${year}_$semester");
     }
@@ -378,7 +375,7 @@ class WebApHelper {
     );
 
     return MidtermAlertsData.fromJson(
-      midtermAlertsParser(query.data),
+      WebApParser.instance.midtermAlertsParser(query.data),
     );
   }
 
@@ -390,7 +387,7 @@ class WebApHelper {
     );
 
     return RewardAndPenaltyData.fromJson(
-      rewardAndPenaltyParser(query.data),
+      WebApParser.instance.rewardAndPenaltyParser(query.data),
     );
   }
 
@@ -405,7 +402,7 @@ class WebApHelper {
     );
 
     return RoomData.fromJson(
-      roomListParser(query.data),
+      WebApParser.instance.roomListParser(query.data),
     );
   }
 
@@ -418,7 +415,7 @@ class WebApHelper {
     );
 
     return CourseData.fromJson(
-      roomCourseTableQueryParser(query.data),
+      WebApParser.instance.roomCourseTableQueryParser(query.data),
     );
   }
 }
