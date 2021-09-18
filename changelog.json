@@ -1,4 +1,10 @@
 {
+  "30812": {
+    "visible": true,
+    "date": "2021/09/18",
+    "zh-TW": "* 修正無法載入照片\n* 修正無法載入學期成績",
+    "en-US": "* Fix can't load user image.\n* Fix load semester score error."
+  },
   "30811": {
     "visible": true,
     "date": "2021/09/13",
