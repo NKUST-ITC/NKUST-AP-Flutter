@@ -319,7 +319,8 @@ class WebApHelper {
         {"arg01": years, "arg02": semesterValue},
       );
       return ScoreData.fromJson(
-          WebApParser.instance.semestersParser(query.data));
+        WebApParser.instance.scoresParser(query.data),
+      );
     }
     var query = await apQuery(
       "ag008",
