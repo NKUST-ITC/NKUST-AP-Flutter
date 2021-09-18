@@ -256,9 +256,11 @@ class WebApHelper {
   Future<UserInfo> userInfoCrawler() async {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag003", null);
-      return UserInfo.fromJson(
+      var data = UserInfo.fromJson(
         WebApParser.instance.apUserInfoParser(query.data),
       );
+      pictureUrl = data.pictureUrl;
+      return data;
     }
     var query = await apQuery(
       "ag003",
