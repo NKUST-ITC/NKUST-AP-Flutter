@@ -25,9 +25,9 @@ packages:
   ap_common:
     dependency: "direct main"
     description:
-      path: "../ap_common"
-      relative: true
-    source: path
+      name: ap_common
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.19.1"
   ap_common_firebase:
     dependency: "direct main"

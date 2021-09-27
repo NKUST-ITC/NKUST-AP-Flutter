@@ -1,4 +1,10 @@
 {
+  "30813": {
+    "visible": true,
+    "date": "2021/09/28",
+    "zh-TW": "* 改善校車無法預約提示",
+    "en-US": "* Improve bus reservation hint when can't reserve."
+  },
   "30812": {
     "visible": true,
     "date": "2021/09/18",
