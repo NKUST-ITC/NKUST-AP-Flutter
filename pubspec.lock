@@ -14,7 +14,7 @@ packages:
       name: add_2_calendar
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   analyzer:
     dependency: transitive
     description:
@@ -25,10 +25,10 @@ packages:
   ap_common:
     dependency: "direct main"
     description:
-      name: ap_common
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.18.0"
+      path: "../ap_common"
+      relative: true
+    source: path
+    version: "0.19.1"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -126,7 +126,21 @@ packages:
       name: cached_network_image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.1.0"
+  cached_network_image_platform_interface:
+    dependency: transitive
+    description:
+      name: cached_network_image_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
+  cached_network_image_web:
+    dependency: transitive
+    description:
+      name: cached_network_image_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   characters:
     dependency: transitive
     description:
@@ -247,7 +261,7 @@ packages:
       name: encrypt
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.1"
   extended_image:
     dependency: "direct main"
     description:
@@ -289,7 +303,7 @@ packages:
       name: file_saver
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.9"
+    version: "0.0.10"
   file_selector:
     dependency: transitive
     description:
@@ -303,14 +317,14 @@ packages:
       name: file_selector_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.2+1"
   file_selector_macos:
     dependency: transitive
     description:
       name: file_selector_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4"
+    version: "0.0.4+1"
   file_selector_platform_interface:
     dependency: transitive
     description:
@@ -331,7 +345,7 @@ packages:
       name: file_selector_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.2+1"
   firebase:
     dependency: transitive
     description:
@@ -483,7 +497,7 @@ packages:
       name: flutter_keyboard_visibility
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.2"
+    version: "5.0.3"
   flutter_keyboard_visibility_platform_interface:
     dependency: transitive
     description:
@@ -511,14 +525,14 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.0"
+    version: "8.2.0"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
       name: flutter_local_notifications_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.1"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -554,7 +568,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.3"
+    version: "5.1.1"
   google_sign_in_dartio:
     dependency: "direct main"
     description:
@@ -661,7 +675,7 @@ packages:
       name: in_app_review
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "2.0.3"
   in_app_review_platform_interface:
     dependency: transitive
     description:
@@ -759,7 +773,7 @@ packages:
       name: package_info_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.6"
   package_info_plus_linux:
     dependency: transitive
     description:
@@ -787,7 +801,7 @@ packages:
       name: package_info_plus_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   package_info_plus_windows:
     dependency: transitive
     description:
@@ -850,7 +864,7 @@ packages:
       name: pdf
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.4.2"
+    version: "3.6.0"
   pedantic:
     dependency: transitive
     description:
@@ -899,14 +913,14 @@ packages:
       name: pointycastle
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.3.4"
   printing:
     dependency: transitive
     description:
       name: printing
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.4.3"
+    version: "5.6.0"
   process:
     dependency: transitive
     description:
@@ -997,7 +1011,7 @@ packages:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.5"
+    version: "2.0.8"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -1128,7 +1142,7 @@ packages:
       name: timezone
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.0"
+    version: "0.8.0"
   tuple:
     dependency: "direct main"
     description:
@@ -1235,5 +1249,5 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.12.0 <3.0.0"
-  flutter: ">=2.2.0"
+  dart: ">=2.14.0 <3.0.0"
+  flutter: ">=2.5.0"
