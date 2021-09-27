@@ -5,12 +5,12 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
-import 'package:intl/intl.dart';
 
 enum _State {
   loading,
@@ -76,7 +76,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       case _State.userNotSupport:
       case _State.custom:
         return InkWell(
-                onTap: () {
+          onTap: () {
             getBusViolationRecords();
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
@@ -219,6 +219,9 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
+          violationData.reservations.sort(
+            (a, b) => b.time.compareTo(a.time),
+          );
           if (mounted) {
             setState(() {
               if (violationData == null ||
@@ -429,7 +432,8 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
     return Container(
       color: ApTheme.of(context).blue,
       child: Stack(
-        clipBehavior: Clip.none, fit: StackFit.expand,
+        clipBehavior: Clip.none,
+        fit: StackFit.expand,
         children: [
           Opacity(
             opacity: 1 - shrinkOffset / expandedHeight,
