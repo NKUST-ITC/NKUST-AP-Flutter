@@ -9,22 +9,22 @@ import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
-import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
@@ -346,6 +346,8 @@ class MobileNkustHelper {
       options: Options(headers: {"Referer": HOME}),
     );
 
+    var busInfo = MobileNkustParser.busInfo(_request.data);
+
     List<Response> _requestsList = [];
     List<List<String>> requestsDataList = [
       ['建工', '燕巢'],
@@ -379,7 +381,12 @@ class MobileNkustHelper {
         endStation: requestsDataList[i][1],
       ));
     }
-    final busData = BusData.fromJson({"data": result});
+    final busData = BusData.fromJson(
+      {
+        "data": result,
+        ...busInfo,
+      },
+    );
     return busData;
   }
 

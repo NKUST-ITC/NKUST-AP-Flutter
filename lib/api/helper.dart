@@ -553,7 +553,17 @@ class Helper {
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
-      return (callback == null) ? data : callback.onSuccess(data);
+      if (data.canReserve) {
+        return (callback == null) ? data : callback.onSuccess(data);
+      } else {
+        callback.onError(
+          GeneralResponse(
+            statusCode: 403,
+            message: data.description,
+          ),
+        );
+        return null;
+      }
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;

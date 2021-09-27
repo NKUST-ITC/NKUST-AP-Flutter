@@ -122,6 +122,28 @@ class MobileNkustParser {
     return midtermAlertsData;
   }
 
+  static Map<String, dynamic> busInfo(
+    String rawHtml,
+  ) {
+    var document = html.parse(rawHtml);
+    String canNotReserveText =
+        document.getElementById('BusMemberStop').attributes['value'];
+    bool canReserve = bool.fromEnvironment(
+      canNotReserveText,
+      defaultValue: false,
+    );
+    var elements =
+        document.getElementsByClassName('alert alert-danger alert-dismissible');
+    String description = '';
+    if (elements.length > 0) {
+      description = elements.first.text;
+    }
+    return {
+      'canReserve': canReserve,
+      'description': description.trim().replaceAll(' ', ''),
+    };
+  }
+
   static List<Map<String, dynamic>> busTimeTable(
     rawHtml, {
     String time,

@@ -481,7 +481,11 @@ class BusReservePageState extends State<BusReservePage>
         onError: (GeneralResponse response) {
           setState(() {
             state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
+            if (response.statusCode == 403) {
+              customStateHint = response.message;
+            } else {
+              customStateHint = response.getGeneralMessage(context);
+            }
           });
         },
       ),

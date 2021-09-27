@@ -8,9 +8,13 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 class BusData {
+  bool canReserve;
+  String description;
   List<BusTime> timetable;
 
   BusData({
+    this.canReserve,
+    this.description,
     this.timetable,
   });
 
@@ -19,12 +23,19 @@ class BusData {
   String toRawJson() => json.encode(toJson());
 
   factory BusData.fromJson(Map<String, dynamic> json) => BusData(
-        timetable:
-            List<BusTime>.from(json["data"].map((x) => BusTime.fromJson(x))),
+        timetable: List<BusTime>.from(
+          json["data"].map(
+            (x) => BusTime.fromJson(x),
+          ),
+        ),
+        canReserve: json["canReserve"],
+        description: json["description"],
       );
 
   Map<String, dynamic> toJson() => {
         "data": List<dynamic>.from(timetable.map((x) => x.toJson())),
+        "canReserve": canReserve,
+        "description": description,
       };
 
   static BusData sample() {
@@ -147,7 +158,9 @@ class BusTime {
   String getReserveState(AppLocalizations local) {
     return isReserve
         ? local.reserved
-        : canReserve() ? local.reserve : local.canNotReserve;
+        : canReserve()
+            ? local.reserve
+            : local.canNotReserve;
   }
 
   String getDate() {
