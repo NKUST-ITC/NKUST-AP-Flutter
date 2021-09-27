@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:ap_common/utils/crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
@@ -105,11 +104,10 @@ class WebApParser {
       data['pictureUrl'] = "https://webap.nkust.edu.tw/nkust$imageUrl";
     } catch (e, s) {
       if (FirebaseCrashlyticsUtils.isSupported)
-        FirebaseCrashlytics.instance.recordFlutterError(
-          FlutterErrorDetails(
-            exception: e,
-            stack: s,
-          ),
+        FirebaseCrashlyticsUtils.instance.recordError(
+          e,
+          s,
+          reason: document.outerHtml,
         );
     }
     return data;
