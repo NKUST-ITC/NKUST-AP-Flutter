@@ -1,4 +1,10 @@
 {
+  "30814": {
+    "visible": true,
+    "date": "2021/09/30",
+    "zh-TW": "* 修復校車無法顯示",
+    "en-US": "* Fix bus can't reserve."
+  },
   "30813": {
     "visible": true,
     "date": "2021/09/28",
