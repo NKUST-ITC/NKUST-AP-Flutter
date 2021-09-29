@@ -128,7 +128,7 @@ class MobileNkustParser {
     var document = html.parse(rawHtml);
     String canNotReserveText =
         document.getElementById('BusMemberStop').attributes['value'];
-    bool canReserve = bool.fromEnvironment(
+    bool canReserve = !bool.fromEnvironment(
       canNotReserveText,
       defaultValue: false,
     );
