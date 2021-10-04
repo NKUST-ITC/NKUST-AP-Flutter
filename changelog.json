@@ -1,4 +1,10 @@
 {
+  "30815": {
+    "visible": true,
+    "date": "2021/10/04",
+    "zh-TW": "* 修復 Android 11 無法匯出課表",
+    "en-US": "* Fix android 11 export course to calendar error."
+  },
   "30814": {
     "visible": true,
     "date": "2021/09/30",
