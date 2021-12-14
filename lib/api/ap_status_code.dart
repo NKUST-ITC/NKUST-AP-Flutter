@@ -5,6 +5,7 @@ class ApStatusCode {
   //LOGIN API
   static const CANCEL = 100;
   static const USER_DATA_ERROR = 1401;
+  static const UNKNOWN_ERROR = 1402;
 
   //Common
   static const API_EXPIRE = 401;

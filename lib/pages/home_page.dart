@@ -582,6 +582,7 @@ class HomePageState extends State<HomePage> {
             case ApStatusCode.API_SERVER_ERROR:
               message = ap.apiServerError;
               break;
+            case ApStatusCode.UNKNOWN_ERROR:
             case ApStatusCode.USER_DATA_ERROR:
             case ApStatusCode.CANCEL:
               message = ap.loginFail;
