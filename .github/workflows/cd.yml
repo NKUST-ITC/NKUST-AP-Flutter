@@ -52,7 +52,6 @@ jobs:
     name: iOS Deploy TestFlight
     runs-on: macOS-latest
     steps:
-      - name: Change Xcode version
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '12.5'
