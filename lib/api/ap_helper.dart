@@ -27,6 +27,7 @@ import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
+import 'package:nkust_ap/utils/captcha_utils.dart';
 
 import 'helper.dart';
 
@@ -95,6 +96,14 @@ class WebApHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
+  Future<Uint8List> getValidationImage() async {
+    var response = await dio.get(
+      "https://webap.nkust.edu.tw/nkust/validateCode.jsp",
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data;
+  }
+
   Future<LoginResponse> login({
     @required String username,
     @required String password,
@@ -102,35 +111,49 @@ class WebApHelper {
     //
     /*
     Retrun type Int
+    -1: captcha error
     0 : Login Success
     1 : Password error or not found user
     2 : Relogin
     3 : Not found login message
     */
+    //
+    for (int i = 0; i < 5; i++) {
+      String captchaCode = await CaptchaUtils.extractByTfLite(
+          bodyBytes: await getValidationImage());
 
-    Response res = await dio.post(
-      "https://webap.nkust.edu.tw/nkust/perchk.jsp",
-      data: {"uid": username, "pwd": password},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
-    Helper.username = username;
-    Helper.password = password;
-    switch (WebApParser.instance.apLoginParser(res.data)) {
-      case 0:
-        isLogin = true;
-        return LoginResponse(
-          expireTime: DateTime.now().add(Duration(hours: 6)),
-          isAdmin: false,
-        );
-        break;
-      case 1:
-      default:
-        throw GeneralResponse(
-          statusCode: ApStatusCode.USER_DATA_ERROR,
-          message: 'username or password error',
-        );
-        break;
+      Response res = await dio.post(
+        "https://webap.nkust.edu.tw/nkust/perchk.jsp",
+        data: {"uid": username, "pwd": password, "etxt_code": captchaCode},
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+      Helper.username = username;
+      Helper.password = password;
+      switch (WebApParser.instance.apLoginParser(res.data)) {
+        case -1:
+          //Captcha error, go retry.
+          break;
+        case 0:
+          isLogin = true;
+          return LoginResponse(
+            expireTime: DateTime.now().add(Duration(hours: 6)),
+            isAdmin: false,
+          );
+          break;
+        case 1:
+        default:
+          throw GeneralResponse(
+            statusCode: ApStatusCode.USER_DATA_ERROR,
+            message: 'username or password error',
+          );
+          break;
+      }
     }
+    //
+    throw GeneralResponse(
+      statusCode: ApStatusCode.UNKNOWN_ERROR,
+      message: 'captcha error or unknown error',
+    );
   }
 
   Future<LoginResponse> loginToLeave() async {
