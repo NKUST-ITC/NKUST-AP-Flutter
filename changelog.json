@@ -1,4 +1,10 @@
 {
+  "30816": {
+    "visible": true,
+    "date": "2021/12/15",
+    "zh-TW": "* 增加登入驗證碼辨識功能",
+    "en-US": "* Add login captcha detection method."
+  },
   "30815": {
     "visible": true,
     "date": "2021/10/04",
