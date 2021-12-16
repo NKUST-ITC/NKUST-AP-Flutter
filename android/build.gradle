@@ -16,7 +16,11 @@ buildscript {
 allprojects {
     repositories {
         google()
-        mavenCentral()
+        mavenCentral {
+            content {
+                excludeGroupByRegex "com\\.google\\.android\\.gms"
+            }
+        }
     }
 }
 
