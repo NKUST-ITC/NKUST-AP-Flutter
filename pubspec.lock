@@ -35,7 +35,7 @@ packages:
       name: ap_common_firebase
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.11.1"
+    version: "0.11.2"
   ap_common_plugin:
     dependency: "direct main"
     description:
