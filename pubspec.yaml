@@ -12,7 +12,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  ap_common: ^0.19.2
+  ap_common: ^0.19.3
   ap_common_firebase: ^0.11.2
   ap_common_plugin: ^0.3.0
   #official plugin
