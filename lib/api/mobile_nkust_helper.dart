@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
+import 'package:ap_common/models/private_cookies_manager.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/preferences.dart';
@@ -28,6 +29,7 @@ import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
+import 'ap_helper.dart';
 import 'ap_status_code.dart';
 import 'parser/mobile_nkust_parser.dart';
 
@@ -103,6 +105,7 @@ class MobileNkustHelper {
   void initCookiesJar() {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
+    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
     cookieJar.loadForRequest(Uri.parse(BASE_URL));
   }
 
