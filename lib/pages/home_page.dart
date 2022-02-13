@@ -28,6 +28,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
@@ -130,6 +131,13 @@ class HomePageState extends State<HomePage> {
       "home_page.dart",
     );
     Future.microtask(() async {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarContrastEnforced: true,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
       if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
         _login();
