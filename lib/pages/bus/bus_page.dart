@@ -6,6 +6,7 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
@@ -183,11 +184,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   Future<bool> login() async {
     if (MobileNkustHelper.instance.cookiesData == null) {
       try {
-        await MobileNkustHelper.instance.login(
-          context: context,
-          username: Helper.username,
-          password: Helper.password,
-        );
+        await WebApHelper.instance.loginToMobile();
       } catch (e) {
         return false;
       }
