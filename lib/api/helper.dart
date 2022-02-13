@@ -137,12 +137,11 @@ class Helper {
         default:
           if (selector != null &&
               (selector.login == MOBILE || selector.login == null)) {
-            loginResponse = await MobileNkustHelper.instance.login(
-              context: context,
+            loginResponse = await WebApHelper.instance.login(
               username: username,
               password: password,
-              clearCache: clearCache,
             );
+            await WebApHelper.instance.loginToMobile();
           } else {
             loginResponse = await WebApHelper.instance.login(
               username: username,

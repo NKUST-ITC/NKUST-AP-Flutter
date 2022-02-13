@@ -156,6 +156,43 @@ class WebApHelper {
     );
   }
 
+  Future<LoginResponse> loginToMobile() async {
+    // Login leave.nkust from webap.
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+          statusCode: ApStatusCode.NETWORK_CONNECT_FAIL,
+          message: "Login exceeded retry limit");
+    }
+    await checkLogin();
+    await apQuery("ag304_01", null);
+
+    Response res = await dio.post(
+      "https://webap.nkust.edu.tw/nkust/fnc.jsp",
+      data: {"fncid": 'CK004'},
+      options: Options(contentType: "application/x-www-form-urlencoded"),
+    );
+    var _skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
+
+    res = await dio.post(
+      "https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow",
+      data: _skyDirectData,
+      options: Options(
+          followRedirects: false,
+          validateStatus: (status) {
+            return status < 500;
+          },
+          contentType: "application/x-www-form-urlencoded"),
+    );
+    if (res.statusCode == 200 &&
+        res.data.indexOf('/Student/Leave/Create') > -1) {
+      return LoginResponse(
+        expireTime: DateTime.now().add(Duration(hours: 1)),
+        isAdmin: false,
+      );
+    }
+    throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
+  }
+
   Future<LoginResponse> loginToLeave() async {
     // Login leave.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
