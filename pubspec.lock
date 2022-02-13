@@ -42,7 +42,7 @@ packages:
       name: ap_common_plugin
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.3.1"
   app_tracking_transparency:
     dependency: transitive
     description:
