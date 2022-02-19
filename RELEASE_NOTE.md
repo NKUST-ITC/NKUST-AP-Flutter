@@ -1,4 +1,3 @@
-### 基於 Flutter v2.10.0 開發
+### 基於 Flutter v2.10.1 開發
 
-* 更新套件至最新版本
-* 改善校車登入使用 Webap
+* 缺曠系統使用 webap cookies
