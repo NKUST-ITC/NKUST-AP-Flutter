@@ -289,7 +289,7 @@ class HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          if (leaveEnable)
+          if (!leaveEnable)
             ExpansionTile(
               initiallyExpanded: isLeaveExpanded,
               onExpansionChanged: (bool) {
@@ -319,6 +319,15 @@ class HomePageState extends State<HomePage> {
                   title: ap.leaveRecords,
                   onTap: () => _openPage(
                     LeavePage(initIndex: 1),
+                    needLogin: true,
+                    useCupertinoRoute: false,
+                  ),
+                ),
+                DrawerSubItem(
+                  icon: ApIcon.folder,
+                  title: app.leaveApplyRecord,
+                  onTap: () => _openPage(
+                    LeavePage(initIndex: 2),
                     needLogin: true,
                     useCupertinoRoute: false,
                   ),

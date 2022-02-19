@@ -7,6 +7,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/pages/leave/leave_apply_page.dart';
 import 'package:nkust_ap/pages/leave/leave_record_page.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = "/leave";
@@ -41,8 +42,10 @@ class LeavePageState extends State<LeavePage>
       case 0:
         return 'https://mobile.nkust.edu.tw/Student/Leave/Create';
       case 1:
-      default:
         return 'https://mobile.nkust.edu.tw/Student/Absenteeism';
+      case 2:
+      default:
+        return 'https://mobile.nkust.edu.tw/Student/Leave';
     }
   }
 
@@ -50,8 +53,11 @@ class LeavePageState extends State<LeavePage>
   void initState() {
     super.initState();
     _currentIndex = widget.initIndex;
-    controller =
-        TabController(length: 2, initialIndex: widget.initIndex, vsync: this);
+    controller = TabController(
+      length: 3,
+      initialIndex: widget.initIndex,
+      vsync: this,
+    );
     _login = Future.microtask(() => login());
   }
 
@@ -107,6 +113,10 @@ class LeavePageState extends State<LeavePage>
             icon: Icon(ApIcon.assignment),
             label: ap.leaveRecords,
           ),
+          BottomNavigationBarItem(
+            icon: Icon(ApIcon.folder),
+            label: AppLocalizations.of(context).leaveApplyRecord,
+          ),
         ],
       ),
     );
@@ -115,8 +125,13 @@ class LeavePageState extends State<LeavePage>
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
-      controller.animateTo(_currentIndex);
+      // controller.animateTo(_currentIndex);
     });
+    webViewController?.loadUrl(
+      urlRequest: URLRequest(
+        url: Uri.parse(path),
+      ),
+    );
   }
 
   Future<bool> login() async {

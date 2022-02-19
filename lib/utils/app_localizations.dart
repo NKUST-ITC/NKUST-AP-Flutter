@@ -152,6 +152,7 @@ class AppLocalizations {
           'Wait for the webpage to finish loading, the student ID and password will be filled in automatically.\nAfter completing the Google reCaptcha and clicking login, it will automatically redirected.',
       'mobileNkustLoginDescription':
           'Because the school has closed the original crawler function, this version needs to be logged in through the new version of the mobile school system. After successful login, it will be redirected automatically. Unless the certificate expires, repeated verification is rarely required. It is strongly recommended to "記住我" to check it.。',
+      'leaveApplyRecord': 'Apply Records',
     },
     'zh': {
       'app_name': '高科校務通',
@@ -272,6 +273,7 @@ class AppLocalizations {
       'mobileNkustLoginHint': '等待網頁完成載入\n將自動填寫學號密碼\n完成機器人驗證後點擊登入\n將自動跳轉',
       'mobileNkustLoginDescription':
           '因應校方關閉原有爬蟲功能，此版本需透過新版手機版校務系統登入。成功登入後會自動跳轉，除非憑證過期，否則極少需要重複驗證，強烈建議將記住我勾選。',
+      'leaveApplyRecord': '請假查詢',
     },
   };
 
@@ -481,6 +483,8 @@ class AppLocalizations {
 
   String get mobileNkustLoginDescription =>
       _vocabularies['mobileNkustLoginDescription'];
+
+  String get leaveApplyRecord => _vocabularies['leaveApplyRecord'];
 }
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
