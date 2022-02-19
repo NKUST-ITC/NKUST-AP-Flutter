@@ -83,6 +83,21 @@ class LeavePageState extends State<LeavePage>
               initialUrlRequest: URLRequest(
                 url: Uri.parse(path),
               ),
+              initialOptions: InAppWebViewGroupOptions(
+                crossPlatform: InAppWebViewOptions(
+                  useShouldOverrideUrlLoading: true,
+                  mediaPlaybackRequiresUserGesture: false,
+                ),
+                android: AndroidInAppWebViewOptions(
+                  useHybridComposition: true,
+                ),
+                ios: IOSInAppWebViewOptions(
+                  allowsInlineMediaPlayback: true,
+                ),
+              ),
+              onWebViewCreated: (controller) {
+                webViewController = controller;
+              },
             );
           else if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
