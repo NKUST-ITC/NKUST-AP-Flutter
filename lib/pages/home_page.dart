@@ -289,7 +289,7 @@ class HomePageState extends State<HomePage> {
               ),
             ],
           ),
-          if (!leaveEnable)
+          if (leaveEnable)
             ExpansionTile(
               initiallyExpanded: isLeaveExpanded,
               onExpansionChanged: (bool) {
