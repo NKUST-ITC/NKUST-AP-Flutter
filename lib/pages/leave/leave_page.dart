@@ -32,6 +32,8 @@ class LeavePageState extends State<LeavePage>
 
   InAppWebViewController webViewController;
 
+  CookieManager cookieManager = CookieManager.instance();
+
   Future<bool> _login;
 
   String get path {
@@ -71,10 +73,10 @@ class LeavePageState extends State<LeavePage>
         future: _login,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done)
-            return TabBarView(
-              children: widget._children,
-              controller: controller,
-              physics: NeverScrollableScrollPhysics(),
+            return InAppWebView(
+              initialUrlRequest: URLRequest(
+                url: Uri.parse(path),
+              ),
             );
           else if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
@@ -118,7 +120,21 @@ class LeavePageState extends State<LeavePage>
   }
 
   Future<bool> login() async {
-    await WebApHelper.instance.loginToLeave();
-    return true;
+    try {
+      await WebApHelper.instance.loginToMobile();
+      final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
+        Uri.parse("https://mobile.nkust.edu.tw"),
+      );
+      for (var cookie in cookies) {
+        cookieManager.setCookie(
+          url: Uri.parse("https://mobile.nkust.edu.tw"),
+          name: cookie.name,
+          value: cookie.value,
+        );
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 }
