@@ -63,6 +63,10 @@ class WebApParser {
     if (html is Uint8List) {
       html = clearTransEncoding(html);
     }
+
+    if (html.indexOf('onclick="go_change()') > -1) {
+      return 4;
+    }
     // 驗證碼錯誤
     if (html.indexOf("驗證碼") > -1) {
       return -1;
@@ -512,7 +516,8 @@ class WebApParser {
           }
         });
       }
-    } on Exception catch (_) {} on RangeError catch (_) {}
+    } on Exception catch (_) {
+    } on RangeError catch (_) {}
 
     //the second talbe.
 
