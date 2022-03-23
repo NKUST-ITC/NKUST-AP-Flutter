@@ -133,6 +133,11 @@ class WebApHelper {
         case -1:
           //Captcha error, go retry.
           break;
+        case 4:
+          //Stay old password and relogin.
+          await stayOldPwd();
+          return login(username: username, password: password);
+          break;
         case 0:
           isLogin = true;
           return LoginResponse(
@@ -154,6 +159,24 @@ class WebApHelper {
       statusCode: ApStatusCode.UNKNOWN_ERROR,
       message: 'captcha error or unknown error',
     );
+  }
+
+  Future<Response> stayOldPwd() async {
+    Response res = await dio.post(
+      "https://webap.nkust.edu.tw/nkust/system/sys010_stay.jsp",
+      data: {
+        "cpwd": '',
+        "opwd": '',
+        "spwd": '',
+      },
+      options: Options(
+          followRedirects: false,
+          validateStatus: (status) {
+            return status < 500;
+          },
+          contentType: "application/x-www-form-urlencoded"),
+    );
+    return res;
   }
 
   Future<LoginResponse> loginToMobile() async {
