@@ -14,7 +14,7 @@ dependencies:
 
   ap_common: ^0.20.0
   ap_common_firebase: ^0.13.0
-  ap_common_plugin: ^0.3.1
+  ap_common_plugin: ^0.4.0
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
