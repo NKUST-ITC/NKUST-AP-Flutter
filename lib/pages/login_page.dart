@@ -30,6 +30,8 @@ class LoginPageState extends State<LoginPage> {
   var isRememberPassword = true;
   var isAutoLogin = false;
 
+  bool isLoginIng = false;
+
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
@@ -90,10 +92,12 @@ class LoginPageState extends State<LoginPage> {
         SizedBox(height: 8.0),
         ApButton(
           text: ap.login,
-          onPressed: () {
-            FirebaseAnalyticsUtils.instance.logEvent('login_click');
-            _login();
-          },
+          onPressed: isLoginIng
+              ? null
+              : () {
+                  FirebaseAnalyticsUtils.instance.logEvent('login_click');
+                  _login();
+                },
         ),
         ApFlatButton(
           text: ap.offlineLogin,
@@ -155,6 +159,7 @@ class LoginPageState extends State<LoginPage> {
     if (_username.text.isEmpty || _password.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
+      setState(() => isLoginIng = true);
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
       Helper.instance.login(
         context: context,
@@ -174,6 +179,7 @@ class LoginPageState extends State<LoginPage> {
           },
           onFailure: (DioError e) {
             ApUtils.showToast(context, e.i18nMessage);
+            setState(() => isLoginIng = false);
             if (e.type != DioErrorType.cancel) _offlineLogin();
           },
           onError: (GeneralResponse response) {
