@@ -1,4 +1,10 @@
 {
+  "30902": {
+    "visible": true,
+    "date": "2021/03/24",
+    "zh-TW": "* 修正登入需要修改密碼導致無法登入\n* 改善登入點擊體驗",
+    "en-US": "* Fix login need to modify password error.\n* Improve login button click UX."
+  },
   "30901": {
     "visible": true,
     "date": "2021/02/20",
