@@ -1,4 +1,10 @@
 {
+  "30903": {
+    "visible": true,
+    "date": "2021/04/27",
+    "zh-TW": "* 修正憑證檢查導致無法登入",
+    "en-US": "* Fix login error for certificate check."
+  },
   "30902": {
     "visible": true,
     "date": "2021/03/24",
