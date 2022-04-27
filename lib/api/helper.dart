@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:ap_common/callback/general_callback.dart';
@@ -952,5 +953,14 @@ extension GeneralResponseExtension on GeneralResponse {
       message: message,
     );
     return message;
+  }
+}
+
+class BadHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

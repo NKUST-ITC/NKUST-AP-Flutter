@@ -41,6 +41,7 @@ void main() async {
         clientId:
             '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
   Helper.selector = CrawlerSelector.load();
+  HttpOverrides.global = BadHttpOverrides();
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (kDebugMode) {
