@@ -19,7 +19,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
@@ -43,7 +43,7 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
@@ -62,7 +62,7 @@ jobs:
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
@@ -76,7 +76,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
@@ -93,7 +93,7 @@ jobs:
   #      - name: Checkout code
   #        uses: actions/checkout@v2
   #      - name: Run Flutter tasks
-  #        uses: subosito/flutter-action@v1
+  #        uses: subosito/flutter-action@v2
   #        with:
   #          flutter-version: '3.0.x'
   #          channel: 'stable'
@@ -110,7 +110,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
@@ -130,7 +130,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.0.x'
           channel: 'stable'
