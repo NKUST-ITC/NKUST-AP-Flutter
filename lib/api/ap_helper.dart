@@ -125,7 +125,7 @@ class WebApHelper {
       Response res = await dio.post(
         "https://webap.nkust.edu.tw/nkust/perchk.jsp",
         data: {"uid": username, "pwd": password, "etxt_code": captchaCode},
-        options: Options(contentType: Headers.formUrlEncodedContentType),
+        options: Options(contentType: "application/x-www-form-urlencoded"),
       );
       Helper.username = username;
       Helper.password = password;
@@ -229,7 +229,7 @@ class WebApHelper {
     Response res = await dio.post(
       "https://webap.nkust.edu.tw/nkust/fnc.jsp",
       data: {"fncid": 'CK004'},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      options: Options(contentType: "application/x-www-form-urlencoded"),
     );
     var _skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
     res = await dio.get(
@@ -243,7 +243,7 @@ class WebApHelper {
           validateStatus: (status) {
             return status < 500;
           },
-          contentType: Headers.formUrlEncodedContentType),
+          contentType: "application/x-www-form-urlencoded"),
     );
     if (res.data.indexOf('masterindex.aspx') > -1) {
       res = await dio.get(
@@ -253,7 +253,7 @@ class WebApHelper {
             validateStatus: (status) {
               return status < 500;
             },
-            contentType: Headers.formUrlEncodedContentType),
+            contentType: "application/x-www-form-urlencoded"),
       );
 
       LeaveHelper.instance.isLogin = true;
@@ -292,7 +292,7 @@ class WebApHelper {
     Options _options;
     dynamic requestData;
     if (cacheKey == null) {
-      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      _options = Options(contentType: "application/x-www-form-urlencoded");
       if (bytesResponse != null) {
         _options.responseType = ResponseType.bytes;
       }
