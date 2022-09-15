@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
@@ -11,6 +12,7 @@ import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -27,6 +29,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  final ByteData data = await PlatformAssetBundle().load(
+    'assets/ca/twca_nkust.cer',
+  );
+  SecurityContext.defaultContext.setTrustedCertificatesBytes(
+    data.buffer.asUint8List(),
+  );
   await Preferences.init(key: Constants.key, iv: Constants.iv);
   await ApHiveUtils.instance.init();
   MobileNkustHelper.userAgentList = Preferences.getStringList(
@@ -41,7 +49,6 @@ void main() async {
         clientId:
             '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com');
   Helper.selector = CrawlerSelector.load();
-  HttpOverrides.global = BadHttpOverrides();
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (kDebugMode) {

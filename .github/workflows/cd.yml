@@ -105,8 +105,6 @@ jobs:
         with:
           flutter-version: '2.10.x'
           channel: 'stable'
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable Web
         run: flutter config --enable-web
       - run: flutter pub get
@@ -131,8 +129,6 @@ jobs:
         with:
           flutter-version: '2.10.x'
           channel: 'stable'
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable windows
         run: flutter config --enable-windows-desktop
       - run: flutter doctor -v

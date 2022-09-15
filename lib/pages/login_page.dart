@@ -202,6 +202,7 @@ class LoginPageState extends State<LoginPage> {
                 break;
             }
             if (message != null) ApUtils.showToast(context, message);
+            setState(() => isLoginIng = false);
           },
         ),
       );
