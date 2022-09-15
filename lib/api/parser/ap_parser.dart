@@ -126,7 +126,8 @@ class WebApParser {
     var document = parse(html);
     var _inputElements = document.getElementsByTagName("input");
     _inputElements.forEach((element) {
-      data.addAll({element.attributes['id']: element.attributes['value']});
+      if (element.attributes['id'] != null)
+        data.addAll({element.attributes['id']: element.attributes['value']});
     });
 
     return data;

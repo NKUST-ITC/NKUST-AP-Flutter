@@ -1,6 +1,8 @@
 import 'dart:convert';
-import 'package:intl/intl.dart';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/semester_data.dart';
@@ -13,9 +15,11 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   //timeCodes parse
   data["data"]["time"].forEach((element) {
     result["timeCodes"].add({
-      "title" : "第${element["periodName"]}節",
-      "startTime" : "${element["begTime"].substring(0, 2)}:${element["begTime"].substring(2, 4)}",
-      "endTime" : "${element["endTime"].substring(0, 2)}:${element["endTime"].substring(2, 4)}",
+      "title": "第${element["periodName"]}節",
+      "startTime":
+          "${element["begTime"].substring(0, 2)}:${element["begTime"].substring(2, 4)}",
+      "endTime":
+          "${element["endTime"].substring(0, 2)}:${element["endTime"].substring(2, 4)}",
     });
   });
 
@@ -250,11 +254,11 @@ Map<String, dynamic> inkustGetLeaveSubmitInfoParser(
 }
 
 List<Map<String, dynamic>> inkustLeaveDataParser({
-  LeaveSubmitData submitDatas,
-  SemesterData semester,
-  String stdId,
-  bool proofImageExists,
-  List timeCode,
+  @required LeaveSubmitData submitDatas,
+  @required SemesterData semester,
+  @required String stdId,
+  @required bool proofImageExists,
+  @required List timeCode,
 }) {
   var dateFormat = DateFormat("yyyy/M/dd");
   // continuous days check

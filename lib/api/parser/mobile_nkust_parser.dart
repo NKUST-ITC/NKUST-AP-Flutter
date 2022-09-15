@@ -4,13 +4,14 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' as html;
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 
 class MobileNkustParser {
   static List<Map<String, dynamic>> busViolationRecords(
     String rawHtml, {
-    bool paidStatus,
+    @required bool paidStatus,
   }) {
     final document = html.parse(rawHtml);
     List<Map<String, dynamic>> result = [];
@@ -37,8 +38,8 @@ class MobileNkustParser {
 
   static List<Map<String, dynamic>> busUserRecords(
     String rawHtml, {
-    String startStation,
-    String endStation,
+    @required String startStation,
+    @required String endStation,
   }) {
     final document = html.parse(rawHtml);
     List<Map<String, dynamic>> result = [];
