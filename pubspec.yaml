@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  intl: ^0.17.0
   multiple_localization: ^0.3.0
 
   ap_common: ^0.21.2
@@ -64,3 +65,11 @@ flutter:
     - changelog.json
     - assets/webap_captcha.tflite
     - assets/labels.txt
+
+flutter_intl:
+  enabled: true
+  class_name: AppLocalizations
+  main_locale: 'zh_TW'
+  arb_dir: lib/l10n
+  output_dir: lib/l10n
+  use_deferred_loading: true
