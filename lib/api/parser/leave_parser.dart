@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' show parse;
 
-Map<String, dynamic> hiddenInputGet(String html,
-    {@required bool removeTdElement}) {
+Map<String, dynamic> hiddenInputGet(String html, {bool removeTdElement}) {
   if (removeTdElement == true) {
     String firstMatchString = '<td width="40px" nowrap="nowrap" align="left">';
     String lastMatchString = '</td>';
