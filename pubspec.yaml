@@ -57,6 +57,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+    - assets/ca/
     - assets/leave_campus_data.json
     - assets/schedule_data.json
     - changelog.json
