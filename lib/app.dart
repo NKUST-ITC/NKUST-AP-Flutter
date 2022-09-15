@@ -123,8 +123,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               FirebaseAnalyticsObserver(analytics: analytics),
           ],
           localizationsDelegates: [
-            const AppLocalizationsDelegate(),
-            ApLocalizations.delegate,
+            apLocalizationsDelegate,
+            appDelegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
@@ -152,7 +152,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     this.locale = locale;
     AnnouncementHelper.instance.setLocale(this.locale);
     setState(() {
-      AppLocalizationsDelegate().load(locale);
+      appDelegate.load(locale);
       ApLocalizations.load(locale);
     });
   }
