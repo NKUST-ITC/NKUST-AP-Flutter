@@ -47,8 +47,6 @@ jobs:
         with:
           flutter-version: '2.10.x'
           channel: 'stable'
-      - name: Upgrades flutter
-        run: flutter upgrade
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release
@@ -82,8 +80,6 @@ jobs:
         with:
           flutter-version: '2.10.x'
           channel: 'stable'
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable Web
         run: flutter config --enable-web
       - run: flutter pub get
@@ -101,8 +97,6 @@ jobs:
   #        with:
   #          flutter-version: '2.10.x'
   #          channel: 'stable'
-  #      - name: Upgrades flutter
-  #        run: flutter upgrade
   #      - name: Enable macOS
   #        run: flutter config --enable-macos-desktop
   #      - run: flutter pub get
@@ -122,8 +116,6 @@ jobs:
           channel: 'stable'
       - name: Intall requird Dependencies
         run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable linux
         run: flutter config --enable-linux-desktop
       - run: flutter doctor -v
@@ -142,8 +134,6 @@ jobs:
         with:
           flutter-version: '2.10.x'
           channel: 'stable'
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable windows
         run: flutter config --enable-windows-desktop
       - run: flutter doctor -v
