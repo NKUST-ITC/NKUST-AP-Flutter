@@ -803,7 +803,7 @@ packages:
     source: hosted
     version: "1.0.2"
   multiple_localization:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: multiple_localization
       url: "https://pub.dartlang.org"

@@ -11,6 +11,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  multiple_localization: ^0.3.0
 
   ap_common: ^0.21.2
   ap_common_firebase: ^0.15.0
