@@ -19,9 +19,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - run: flutter pub get
 #      - name: Analyze files
@@ -38,14 +38,14 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
-          java-version: '1.8'
+          java-version: '11.0'
       - name: Decrypt Android keys
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -62,9 +62,9 @@ jobs:
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build iOS
@@ -76,9 +76,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - name: Enable Web
         run: flutter config --enable-web
@@ -93,9 +93,9 @@ jobs:
   #      - name: Checkout code
   #        uses: actions/checkout@v2
   #      - name: Run Flutter tasks
-  #        uses: subosito/flutter-action@v1
+  #        uses: subosito/flutter-action@v2
   #        with:
-  #          flutter-version: '2.10.x'
+  #          flutter-version: '3.0.x'
   #          channel: 'stable'
   #      - name: Enable macOS
   #        run: flutter config --enable-macos-desktop
@@ -110,9 +110,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - name: Intall requird Dependencies
         run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
@@ -130,9 +130,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Run Flutter tasks
-        uses: subosito/flutter-action@v1
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: '2.10.x'
+          flutter-version: '3.0.x'
           channel: 'stable'
       - name: Enable windows
         run: flutter config --enable-windows-desktop
