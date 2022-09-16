@@ -30,6 +30,7 @@ enum _State {
   offline,
   custom
 }
+
 enum Station { janGong, yanchao, first }
 
 class BusReservePage extends StatefulWidget {
@@ -102,11 +103,13 @@ class BusReservePageState extends State<BusReservePage>
                             showTodayAction: false,
                             showCalendarPickerIcon: true,
                             showChevronsToChangeRange: true,
-                            onDateSelected: (DateTime datetime) {
-                              dateTime = datetime;
-                              _getBusTimeTables();
-                              FirebaseAnalyticsUtils.instance
-                                  .logEvent('date_picker_click');
+                            onDateSelected: (DateTime? datetime) {
+                              if (datetime != null) {
+                                dateTime = datetime;
+                                _getBusTimeTables();
+                                FirebaseAnalyticsUtils.instance
+                                    .logEvent('date_picker_click');
+                              }
                             },
                             initialCalendarDateOverride: dateTime,
                             dayChildAspectRatio:

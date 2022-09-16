@@ -42,13 +42,13 @@ class MobileCookiesData {
   }
 
   Future<void> clear() async {
-    await Preferences.setString(Constants.MOBILE_COOKIES_DATA, null);
+    await Preferences.remove(Constants.MOBILE_COOKIES_DATA);
   }
 
-  factory MobileCookiesData.load() {
+  static MobileCookiesData? load() {
     final str =
-        Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, null);
-    return str == null ? null : MobileCookiesData.fromRawJson(str);
+        Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, '');
+    return str.isEmpty ? null : MobileCookiesData.fromRawJson(str);
   }
 }
 

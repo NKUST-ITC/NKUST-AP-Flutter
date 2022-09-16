@@ -84,7 +84,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
                 featureTag: 'midterm_alerts',
                 onSelect: (semester, index) {
                   setState(() {
-                    selectSemester = semester;
+                    selectSemester = semester!;
                     state = _State.loading;
                   });
                   _getMidtermAlertsData();
@@ -148,7 +148,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       case _State.offline:
       case _State.custom:
         return InkWell(
-                onTap: () {
+          onTap: () {
             if (state == _State.empty)
               key.currentState!.pickSemester();
             else

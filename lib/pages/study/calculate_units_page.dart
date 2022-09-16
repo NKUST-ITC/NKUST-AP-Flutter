@@ -34,7 +34,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   _State state = _State.ready;
   String? customStateHint = '';
 
-  int? currentSemesterIndex;
+  int currentSemesterIndex = 0;
 
   SemesterData? semesterData;
   late List<Semester> semesterList;
@@ -180,7 +180,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       case _State.empty:
       case _State.custom:
         return InkWell(
-                onTap: _calculate,
+          onTap: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
             content: state == _State.error ? ap.clickToRetry : customStateHint!,
@@ -188,7 +188,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         );
       case _State.ready:
         return InkWell(
-                onTap: _calculate,
+          onTap: _calculate,
           child: HintContent(
             icon: ApIcon.apps,
             content: ap.beginCalculate,
@@ -334,7 +334,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       callback: GeneralCallback(
         onSuccess: (ScoreData? data) {
           if (startYear == -1)
-            startYear = int.parse(semesterData!.data![currentSemesterIndex!].year!);
+            startYear =
+                int.parse(semesterData!.data![currentSemesterIndex!].year!);
           semesterList.add(semesterData!.data![currentSemesterIndex!]);
           if (data?.scores != null) {
             for (var score in data!.scores!) {

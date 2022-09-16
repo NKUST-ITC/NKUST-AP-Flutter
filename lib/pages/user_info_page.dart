@@ -5,9 +5,12 @@ import 'package:nkust_ap/utils/global.dart';
 
 class UserInfoPage extends StatefulWidget {
   static const String routerName = "/userInfo";
-  final UserInfo? userInfo;
+  final UserInfo userInfo;
 
-  const UserInfoPage({Key? key, this.userInfo}) : super(key: key);
+  const UserInfoPage({
+    Key? key,
+    required this.userInfo,
+  }) : super(key: key);
 
   @override
   UserInfoPageState createState() => UserInfoPageState();
@@ -24,7 +27,7 @@ class UserInfoPageState extends State<UserInfoPage> {
   @override
   Widget build(BuildContext context) {
     return UserInfoScaffold(
-      userInfo: widget.userInfo!,
+      userInfo: widget.userInfo,
       actions: <Widget>[],
       enableBarCode: true,
       onRefresh: () async {

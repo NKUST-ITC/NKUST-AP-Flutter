@@ -1,30 +1,27 @@
 //dio
 import 'dart:convert';
+import "dart:math";
 
 import 'package:ap_common/models/course_data.dart';
+//overwrite origin Cookie Manager.
+import 'package:ap_common/models/private_cookies_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-
-//overwrite origin Cookie Manager.
-import 'package:ap_common/models/private_cookies_manager.dart';
-
-import 'package:nkust_ap/models/leave_submit_data.dart';
-import "dart:math";
-import 'helper.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
-
-import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
+
+import 'helper.dart';
 
 class InkustHelper {
   static late Dio dio;
@@ -396,7 +393,8 @@ class InkustHelper {
     Map<String, dynamic>? totorRecordsData;
 
     if (leaveTypeOptionRequest.data is String &&
-        leaveTypeOptionRequest.headers['Content-Type']![0].indexOf("text/html") >
+        leaveTypeOptionRequest.headers['Content-Type']![0]
+                .indexOf("text/html") >
             -1) {
       leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data);
     } else if (leaveTypeOptionRequest.data is Map<String, dynamic>) {
@@ -419,7 +417,7 @@ class InkustHelper {
       {PickedFile? proofImage}) async {
     await checkLogin();
 
-    var userInfo = await (Helper.instance!.getUsersInfo() as FutureOr<UserInfo>);
+    var userInfo = await Helper.instance!.getUsersInfo();
     var nowSemester = await Helper.instance!.getSemester();
     bool proofImageExists = false;
     if (proofImage != null) {
@@ -429,7 +427,7 @@ class InkustHelper {
     var requestDataList = inkustLeaveDataParser(
       submitDatas: data,
       semester: nowSemester,
-      stdId: userInfo.id,
+      stdId: userInfo!.id,
       proofImageExists: proofImageExists,
       timeCode: leavesTimeCode,
     );

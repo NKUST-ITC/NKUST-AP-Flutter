@@ -16,7 +16,6 @@ import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -90,12 +89,8 @@ class Helper {
       return DateTime.now().isAfter(expireTime!.add(Duration(hours: 8)));
   }
 
-  static Helper? get instance {
-    if (_instance == null) {
-      _instance = Helper();
-      cancelToken = CancelToken();
-    }
-    return _instance;
+  static Helper get instance {
+    return _instance ??= Helper();
   }
 
   Helper() {
@@ -107,6 +102,7 @@ class Helper {
         receiveTimeout: 10000,
       ),
     );
+    cancelToken = CancelToken();
   }
 
   static resetInstance() {
@@ -163,11 +159,7 @@ class Helper {
       callback?.onError(
         GeneralResponse.unknownError(),
       );
-      if (FirebaseCrashlyticsUtils.isSupported)
-        FirebaseCrashlyticsUtils.instance.recordError(
-          e,
-          StackTrace.current,
-        );
+      rethrow;
     }
     return null;
   }
@@ -783,7 +775,9 @@ class Helper {
     try {
       Response? res =
           await LeaveHelper.instance!.leavesSubmit(data, proofImage: image);
-      return (callback == null) ? data as FutureOr<Response<dynamic>?> : callback.onSuccess(res);
+      return (callback == null)
+          ? data as Future<Response<dynamic>?>
+          : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError)

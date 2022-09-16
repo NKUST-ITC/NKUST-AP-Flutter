@@ -157,7 +157,7 @@ class SettingPageState extends State<SettingPage> {
       barrierDismissible: false,
     );
     if (isOffline) {
-      BusReservationsData response = BusReservationsData.load(Helper.username);
+      BusReservationsData? response = BusReservationsData.load(Helper.username);
       Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() => busNotify = false);

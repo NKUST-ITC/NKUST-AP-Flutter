@@ -1,12 +1,11 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
-import 'package:tflite/tflite.dart';
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:tflite/tflite.dart';
 
 class CaptchaUtils {
   static Future<String> extractByTfLite({
@@ -42,7 +41,7 @@ class CaptchaUtils {
       for (var i = 0; i < digitsCount; i++) {
         var target = img.copyCrop(
             grayscaleImage, (imageWidth ~/ digitsCount) * i, 0, w, h);
-        var recognitions = await (Tflite.runModelOnBinary(
+        var recognitions = await Tflite.runModelOnBinary(
             binary: imageToByteListFloat32(target, w, h, 127.5, 255.0),
             // required
             numResults: 1,
@@ -50,8 +49,8 @@ class CaptchaUtils {
             threshold: 0.05,
             // defaults to 0.1
             asynch: true // defaults to true
-            ) as FutureOr<List<dynamic>>);
-        replaceText += recognitions.first['label'];
+            );
+        replaceText += recognitions!.first['label'];
       }
       end = DateTime.now();
       final processTime =

@@ -27,7 +27,7 @@ class CoursePageState extends State<CoursePage> {
 
   Semester? selectSemester;
   SemesterData? semesterData;
-  CourseData? courseData;
+  CourseData courseData = CourseData();
 
   CourseNotifyData? notifyData;
 
@@ -57,7 +57,7 @@ class CoursePageState extends State<CoursePage> {
     ap = ApLocalizations.of(context);
     return CourseScaffold(
       state: state,
-      courseData: courseData!,
+      courseData: courseData,
       notifyData: notifyData,
       customHint: isOffline ? ap.offlineCourse : '',
       customStateHint: customStateHint,
@@ -76,7 +76,7 @@ class CoursePageState extends State<CoursePage> {
           });
           semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
-          _loadCacheData(semester.code);
+          _loadCacheData(semester!.code);
           if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
             _getCourseTables();
         },
@@ -93,27 +93,28 @@ class CoursePageState extends State<CoursePage> {
   }
 
   Future<bool> _loadCacheData(String value) async {
-    courseData = CourseData.load(selectSemester!.cacheSaveTag);
+    final cacheData = CourseData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (this.courseData == null) {
+        if (cacheData == null) {
           state = CourseState.offlineEmpty;
         } else {
-          state = this.courseData!.courses!.length == 0
+          courseData = cacheData;
+          state = courseData.courses!.length == 0
               ? CourseState.empty
               : CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
     }
-    return this.courseData == null;
+    return cacheData == null;
   }
 
   _getCourseTables() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance!.getCourseTables(
+    Helper.instance.getCourseTables(
       semester: selectSemester,
       semesterDefault: semesterData!.defaultSemester,
       callback: GeneralCallback(
@@ -125,7 +126,7 @@ class CoursePageState extends State<CoursePage> {
               } else {
                 courseData = data;
                 isOffline = false;
-                courseData!.save(selectSemester!.cacheSaveTag);
+                courseData.save(selectSemester!.cacheSaveTag);
                 state = CourseState.finish;
                 notifyData = CourseNotifyData.load(courseNotifyCacheKey);
               }

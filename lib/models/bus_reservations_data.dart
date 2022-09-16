@@ -44,7 +44,7 @@ class BusReservationsData {
     );
   }
 
-  factory BusReservationsData.load(String? tag) {
+  static BusReservationsData? load(String? tag) {
     String rawString = Preferences.getString(
       '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
       '',

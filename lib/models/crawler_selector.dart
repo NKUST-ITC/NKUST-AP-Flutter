@@ -62,7 +62,7 @@ class CrawlerSelector {
     );
   }
 
-  factory CrawlerSelector.load() {
+  static CrawlerSelector? load() {
     String rawString = Preferences.getString(
       Constants.CRAWLER_SELECTOR,
       '',

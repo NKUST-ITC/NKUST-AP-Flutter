@@ -57,7 +57,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         featureTag: 'room_coruse',
         onSelect: (semester, index) {
           setState(() {
-            selectSemester = semester;
+            selectSemester = semester!;
             state = CourseState.loading;
           });
           semesterData = key.currentState!.semesterData;

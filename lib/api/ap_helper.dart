@@ -13,7 +13,6 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:flutter/cupertino.dart';
 //Ap helper errorCode
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -55,12 +54,12 @@ class WebApHelper {
 
   static String get userInfoCacheKey => "${Helper.username}_userInfoCacheKey";
 
-  static WebApHelper? get instance {
-    if (_instance == null) {
-      _instance = WebApHelper();
-      _instance!.dioInit();
-    }
-    return _instance;
+  static WebApHelper get instance {
+    return _instance ??= WebApHelper();
+  }
+
+  WebApHelper() {
+    dioInit();
   }
 
   void setProxy(String proxyIP) {
@@ -120,7 +119,8 @@ class WebApHelper {
     //
     for (int i = 0; i < 5; i++) {
       String captchaCode = await CaptchaUtils.extractByTfLite(
-          bodyBytes: await (getValidationImage() as FutureOr<Uint8List>));
+        bodyBytes: (await getValidationImage())!,
+      );
 
       Response res = await dio.post(
         "https://webap.nkust.edu.tw/nkust/perchk.jsp",

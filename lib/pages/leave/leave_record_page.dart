@@ -91,7 +91,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               key: key,
               onSelect: (semester, index) {
                 setState(() {
-                  selectSemester = semester;
+                  selectSemester = semester!;
                   state = _State.loading;
                 });
                 if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
@@ -153,7 +153,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       case _State.offlineEmpty:
       case _State.custom:
         return InkWell(
-                onTap: () {
+          onTap: () {
             if (state == _State.empty || state == _State.offlineEmpty)
               key.currentState!.pickSemester();
             else

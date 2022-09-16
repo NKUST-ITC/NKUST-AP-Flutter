@@ -42,7 +42,7 @@ class LeaveData {
     );
   }
 
-  factory LeaveData.load(String tag) {
+  static LeaveData? load(String tag) {
     String rawString = Preferences.getString(
       '${Constants.PREF_LEAVE_DATA}_$tag',
       '',

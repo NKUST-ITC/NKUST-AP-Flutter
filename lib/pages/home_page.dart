@@ -63,7 +63,7 @@ class HomePageState extends State<HomePage> {
 
   Widget? content;
 
-  List<Announcement>? announcements;
+  List<Announcement> announcements = <Announcement>[];
 
   var isLogin = false;
   bool displayPicture = true;
@@ -205,11 +205,12 @@ class HomePageState extends State<HomePage> {
         imageAsset: drawerIcon,
         onTapHeader: () {
           if (isLogin) {
-            if (userInfo != null && isLogin)
+            if (userInfo != null && isLogin) {
               ApUtils.pushCupertinoStyle(
                 context,
-                UserInfoPage(userInfo: userInfo),
+                UserInfoPage(userInfo: userInfo!),
               );
+            }
           } else {
             if (isMobile) Navigator.of(context).pop();
             openLoginPage();
@@ -483,16 +484,16 @@ class HomePageState extends State<HomePage> {
       callback: GeneralCallback(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (List<Announcement> data) {
-          announcements = data;
+        onSuccess: (List<Announcement>? data) {
+          announcements = data ?? <Announcement>[];
           if (mounted)
             setState(() {
-              if (announcements == null || announcements!.length == 0)
+              if (data == null || data.length == 0)
                 state = HomeState.empty;
               else
                 state = HomeState.finish;
             });
-        } as dynamic Function(List<Announcement>?),
+        },
       ),
     );
   }
@@ -703,9 +704,9 @@ class HomePageState extends State<HomePage> {
       packageInfo.buildNumber,
     );
     if (currentVersion != packageInfo.buildNumber && first) {
-      final rawData = await (FileAssets.changelogData as FutureOr<Map<String, dynamic>>);
-      final updateNoteContent =
-          rawData["${packageInfo.buildNumber}"][ApLocalizations.current.locale];
+      final Map<String, dynamic>? rawData = await FileAssets.changelogData;
+      final updateNoteContent = rawData!["${packageInfo.buildNumber}"]
+          [ApLocalizations.current.locale];
       DialogUtils.showUpdateContent(
         context,
         "v${packageInfo.version}\n"

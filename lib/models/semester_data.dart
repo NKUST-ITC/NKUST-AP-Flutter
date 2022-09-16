@@ -49,7 +49,7 @@ class SemesterData {
     );
   }
 
-  factory SemesterData.load() {
+  static SemesterData? load() {
     String rawString = Preferences.getString(
       Constants.PREF_SEMESTER_DATA,
       '',

@@ -84,7 +84,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
                 featureTag: 'reward',
                 onSelect: (semester, index) {
                   setState(() {
-                    selectSemester = semester;
+                    selectSemester = semester!;
                     state = _State.loading;
                   });
                   _getMidtermAlertsData();
@@ -147,7 +147,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       case _State.offline:
       case _State.custom:
         return InkWell(
-                onTap: () {
+          onTap: () {
             if (state == _State.empty)
               key.currentState!.pickSemester();
             else
