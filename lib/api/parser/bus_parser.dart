@@ -2,7 +2,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 
 DateTime busRealTime(dynamic timestamp) {
-  int time;
+  late int time;
   if (timestamp is String) {
     time = int.parse(timestamp);
   }
@@ -20,7 +20,7 @@ DateTime busRealTime(dynamic timestamp) {
 bool intToBool(int a) => a == 0 ? false : true;
 
 Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
-    {BusReservationsData busReservations}) {
+    {BusReservationsData? busReservations}) {
   List<Map<String, dynamic>> temp = [];
   for (int i = 0; i < data["data"].length; i++) {
     Map<String, dynamic> _temp = {
@@ -42,8 +42,8 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
     }
     if (busReservations != null) {
       final format = DateFormat('yyyy/MM/dd HH:mm');
-      busReservations.reservations.forEach((element) {
-        if (format.parse(element.dateTime) ==
+      busReservations.reservations!.forEach((element) {
+        if (format.parse(element.dateTime!) ==
                 busRealTime(data["data"][i]["runDateTime"]) &&
             element.start == data["data"][i]["startStation"]) {
           _temp["cancelKey"] = element.cancelKey;

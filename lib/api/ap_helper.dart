@@ -32,18 +32,18 @@ import 'package:nkust_ap/utils/captcha_utils.dart';
 import 'helper.dart';
 
 class WebApHelper {
-  static WebApHelper _instance;
+  static WebApHelper? _instance;
 
-  Dio dio;
-  DioCacheManager _manager;
-  CookieJar cookieJar;
+  late Dio dio;
+  late DioCacheManager _manager;
+  late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
 
-  String pictureUrl;
+  String? pictureUrl;
 
   //cache key name
   static String get semesterCacheKey => "semesterCacheKey";
@@ -55,10 +55,10 @@ class WebApHelper {
 
   static String get userInfoCacheKey => "${Helper.username}_userInfoCacheKey";
 
-  static WebApHelper get instance {
+  static WebApHelper? get instance {
     if (_instance == null) {
       _instance = WebApHelper();
-      _instance.dioInit();
+      _instance!.dioInit();
     }
     return _instance;
   }
@@ -96,7 +96,7 @@ class WebApHelper {
     dio.options.receiveTimeout = Constants.TIMEOUT_MS;
   }
 
-  Future<Uint8List> getValidationImage() async {
+  Future<Uint8List?> getValidationImage() async {
     var response = await dio.get(
       "https://webap.nkust.edu.tw/nkust/validateCode.jsp",
       options: Options(responseType: ResponseType.bytes),
@@ -105,8 +105,8 @@ class WebApHelper {
   }
 
   Future<LoginResponse> login({
-    @required String username,
-    @required String password,
+    required String? username,
+    required String? password,
   }) async {
     //
     /*
@@ -120,7 +120,7 @@ class WebApHelper {
     //
     for (int i = 0; i < 5; i++) {
       String captchaCode = await CaptchaUtils.extractByTfLite(
-          bodyBytes: await getValidationImage());
+          bodyBytes: await (getValidationImage() as FutureOr<Uint8List>));
 
       Response res = await dio.post(
         "https://webap.nkust.edu.tw/nkust/perchk.jsp",
@@ -172,7 +172,7 @@ class WebApHelper {
       options: Options(
           followRedirects: false,
           validateStatus: (status) {
-            return status < 500;
+            return status! < 500;
           },
           contentType: "application/x-www-form-urlencoded"),
     );
@@ -202,7 +202,7 @@ class WebApHelper {
       options: Options(
           followRedirects: false,
           validateStatus: (status) {
-            return status < 500;
+            return status! < 500;
           },
           contentType: "application/x-www-form-urlencoded"),
     );
@@ -241,7 +241,7 @@ class WebApHelper {
       options: Options(
           followRedirects: false,
           validateStatus: (status) {
-            return status < 500;
+            return status! < 500;
           },
           contentType: "application/x-www-form-urlencoded"),
     );
@@ -251,12 +251,12 @@ class WebApHelper {
         options: Options(
             followRedirects: false,
             validateStatus: (status) {
-              return status < 500;
+              return status! < 500;
             },
             contentType: "application/x-www-form-urlencoded"),
       );
 
-      LeaveHelper.instance.isLogin = true;
+      LeaveHelper.instance!.isLogin = true;
       return LoginResponse(
         expireTime: DateTime.now().add(Duration(hours: 1)),
         isAdmin: false,
@@ -265,7 +265,7 @@ class WebApHelper {
     throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
   }
 
-  Future<LoginResponse> checkLogin() async {
+  Future<LoginResponse?> checkLogin() async {
     return isLogin
         ? null
         : await login(username: Helper.username, password: Helper.password);
@@ -273,10 +273,10 @@ class WebApHelper {
 
   Future<Response> apQuery(
     String queryQid,
-    Map<String, String> queryData, {
-    String cacheKey,
-    Duration cacheExpiredTime,
-    bool bytesResponse,
+    Map<String, String?>? queryData, {
+    String? cacheKey,
+    Duration? cacheExpiredTime,
+    bool? bytesResponse,
   }) async {
     /*
     Retrun type Response <Dio>
@@ -299,7 +299,7 @@ class WebApHelper {
       requestData = queryData;
     } else {
       dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-      Options otherOptions;
+      Options? otherOptions;
       if (bytesResponse != null) {
         otherOptions = Options(responseType: ResponseType.bytes);
       }
@@ -327,7 +327,7 @@ class WebApHelper {
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
-      if (Helper.isSupportCacheData) _manager.delete(cacheKey);
+      if (Helper.isSupportCacheData) _manager.delete(cacheKey!);
       reLoginReTryCounts += 1;
       await login(username: Helper.username, password: Helper.password);
       return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
@@ -363,11 +363,11 @@ class WebApHelper {
     return data;
   }
 
-  Future<Uint8List> getUserPicture() async {
+  Future<Uint8List?> getUserPicture() async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final response = await dio.get(
-      pictureUrl,
+      pictureUrl!,
       options: Options(
         responseType: ResponseType.bytes,
       ),
@@ -396,7 +396,7 @@ class WebApHelper {
     return SemesterData.fromJson(parsedData);
   }
 
-  Future<ScoreData> scores(String years, String semesterValue) async {
+  Future<ScoreData> scores(String? years, String? semesterValue) async {
     await checkLogin();
     if (!Helper.isSupportCacheData) {
       var query = await apQuery(
@@ -425,8 +425,8 @@ class WebApHelper {
   }
 
   Future<CourseData> getCourseTable({
-    String year,
-    String semester,
+    String? year,
+    String? semester,
   }) async {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery(
@@ -454,7 +454,7 @@ class WebApHelper {
   }
 
   Future<MidtermAlertsData> midtermAlerts(
-      String years, String semesterValue) async {
+      String? years, String? semesterValue) async {
     var query = await apQuery(
       "ag009",
       {"arg01": years, "arg02": semesterValue},
@@ -466,7 +466,7 @@ class WebApHelper {
   }
 
   Future<RewardAndPenaltyData> rewardAndPenalty(
-      String years, String semesterValue) async {
+      String? years, String? semesterValue) async {
     var query = await apQuery(
       "ak010",
       {"arg01": years, "arg02": semesterValue},
@@ -493,7 +493,7 @@ class WebApHelper {
   }
 
   Future<CourseData> roomCourseTableQuery(
-      String roomId, String years, String semesterValue) async {
+      String? roomId, String? years, String? semesterValue) async {
     var query = await apQuery(
       "ag302_02",
       {"room_id": roomId, "yms_yms": "$years#$semesterValue"},

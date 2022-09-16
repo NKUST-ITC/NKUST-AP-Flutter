@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class MidtermAlertsData {
-  List<MidtermAlerts> courses;
+  List<MidtermAlerts>? courses;
 
   MidtermAlertsData({
     this.courses,
@@ -23,18 +23,18 @@ class MidtermAlertsData {
       );
 
   Map<String, dynamic> toJson() => {
-        "courses": new List<dynamic>.from(courses.map((x) => x.toJson())),
+        "courses": new List<dynamic>.from(courses!.map((x) => x.toJson())),
       };
 }
 
 class MidtermAlerts {
-  String entry;
-  String className;
-  String title;
-  String group;
-  String instructors;
-  String reason;
-  String remark;
+  String? entry;
+  String? className;
+  String? title;
+  String? group;
+  String? instructors;
+  String? reason;
+  String? remark;
 
   MidtermAlerts({
     this.entry,

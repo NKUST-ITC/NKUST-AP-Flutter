@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class RoomData {
-  List<Room> data;
+  List<Room>? data;
 
   RoomData({
     this.data,
@@ -21,13 +21,13 @@ class RoomData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(data.map((x) => x.toJson())),
+        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
       };
 }
 
 class Room {
-  String name;
-  String id;
+  String? name;
+  String? id;
 
   Room({
     this.name,

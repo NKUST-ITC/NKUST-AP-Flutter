@@ -22,9 +22,9 @@ class SettingPage extends StatefulWidget {
 class SettingPageState extends State<SettingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
-  String appVersion;
+  String? appVersion;
   bool busNotify = false, courseNotify = false, displayPicture = true;
   bool isOffline = false;
 
@@ -62,8 +62,8 @@ class SettingPageState extends State<SettingPage> {
             CheckCourseNotifyItem(),
             ClearAllNotifyItem(),
             SettingSwitch(
-              text: AppLocalizations.of(context).busNotify,
-              subText: AppLocalizations.of(context).busNotifySubTitle,
+              text: AppLocalizations.of(context)!.busNotify,
+              subText: AppLocalizations.of(context)!.busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
                 FirebaseAnalyticsUtils.instance.logEvent('notify_bus_create');
@@ -99,17 +99,17 @@ class SettingPageState extends State<SettingPage> {
             ),
             ChangeLanguageItem(
               onChange: (locale) {
-                ShareDataWidget.of(context).data.loadLocale(locale);
+                ShareDataWidget.of(context)!.data!.loadLocale(locale);
               },
             ),
             ChangeThemeModeItem(
               onChange: (themeMode) {
-                ShareDataWidget.of(context).data.loadTheme(themeMode);
+                ShareDataWidget.of(context)!.data!.loadTheme(themeMode);
               },
             ),
             ChangeIconStyleItem(
               onChange: (String code) {
-                ShareDataWidget.of(context).data.update();
+                ShareDataWidget.of(context)!.data!.update();
               },
             ),
             Divider(
@@ -164,23 +164,23 @@ class SettingPageState extends State<SettingPage> {
         ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
+        ApUtils.showToast(context, AppLocalizations.of(context)!.busNotifyHint);
       }
       Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       return;
     }
-    Helper.instance.getBusReservations(
+    Helper.instance!.getBusReservations(
       callback: GeneralCallback(
         onSuccess: (BusReservationsData data) async {
           Navigator.of(context, rootNavigator: true).pop();
           if (data != null) {
             await Utils.setBusNotify(context, data.reservations);
             ApUtils.showToast(
-                context, AppLocalizations.of(context).busNotifyHint);
+                context, AppLocalizations.of(context)!.busNotifyHint);
           } else
             ApUtils.showToast(
               context,
-              AppLocalizations.of(context).busReservationEmpty,
+              AppLocalizations.of(context)!.busReservationEmpty,
             );
           Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
         },
@@ -189,14 +189,14 @@ class SettingPageState extends State<SettingPage> {
           setState(() => busNotify = false);
           Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
           if (e.hasResponse) {
-            if (e.response.statusCode == 401)
+            if (e.response!.statusCode == 401)
               ApUtils.showToast(context, ap.userNotSupport);
-            else if (e.response.statusCode == 403)
+            else if (e.response!.statusCode == 403)
               ApUtils.showToast(context, ap.campusNotSupport);
             else {
               ApUtils.showToast(context, e.message);
               FirebaseAnalyticsUtils.instance.logApiEvent(
-                  'getBusReservations', e.response.statusCode,
+                  'getBusReservations', e.response!.statusCode!,
                   message: e.message);
             }
           } else if (e.type == DioErrorType.other) {

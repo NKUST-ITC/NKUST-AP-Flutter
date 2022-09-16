@@ -1,5 +1,5 @@
 
-String formUrlEncoded(Map<String, dynamic> data) {
+String? formUrlEncoded(Map<String, dynamic>? data) {
   if (data == null) {
     return null;
   }

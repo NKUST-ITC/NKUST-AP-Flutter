@@ -20,17 +20,17 @@ class RoomListPage extends StatefulWidget {
 }
 
 class _RoomListPageState extends State<RoomListPage> {
-  AppLocalizations app;
+  AppLocalizations? app;
 
   _State state = _State.loading;
 
   int campusIndex = 0;
   int roomIndex = 0;
 
-  RoomData roomData;
-  CourseData courseData;
+  RoomData? roomData;
+  CourseData? courseData;
 
-  String customStateHint;
+  String? customStateHint;
 
   @override
   void initState() {
@@ -55,8 +55,8 @@ class _RoomListPageState extends State<RoomListPage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           ItemPicker(
-            dialogTitle: app.campus,
-            items: app.campuses,
+            dialogTitle: app!.campus,
+            items: app!.campuses,
             currentIndex: campusIndex,
             onSelected: (int index) {
               setState(() => campusIndex = index);
@@ -88,19 +88,19 @@ class _RoomListPageState extends State<RoomListPage> {
         return ListView.builder(
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(roomData.data[index].name),
+              title: Text(roomData!.data![index].name!),
               onTap: () {
                 roomIndex = index;
                 ApUtils.pushCupertinoStyle(
                   context,
                   EmptyRoomPage(
-                    room: roomData.data[roomIndex],
+                    room: roomData!.data![roomIndex],
                   ),
                 );
               },
             );
           },
-          itemCount: roomData.data.length,
+          itemCount: roomData!.data!.length,
         );
       case _State.custom:
       default:
@@ -111,14 +111,14 @@ class _RoomListPageState extends State<RoomListPage> {
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content: customStateHint,
+            content: customStateHint!,
           ),
         );
     }
   }
 
   _getRoomList() async {
-    Helper.instance.getRoomList(
+    Helper.instance!.getRoomList(
       campusCode: campusIndex + 1,
       callback: GeneralCallback(
         onSuccess: (RoomData data) {
@@ -140,7 +140,7 @@ class _RoomListPageState extends State<RoomListPage> {
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRoomCourseTables', e.response.statusCode,
+                'getRoomCourseTables', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {

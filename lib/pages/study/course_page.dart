@@ -21,19 +21,19 @@ class CoursePage extends StatefulWidget {
 class CoursePageState extends State<CoursePage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
 
-  Semester selectSemester;
-  SemesterData semesterData;
-  CourseData courseData;
+  Semester? selectSemester;
+  SemesterData? semesterData;
+  CourseData? courseData;
 
-  CourseNotifyData notifyData;
+  CourseNotifyData? notifyData;
 
   bool isOffline = false;
 
-  String customStateHint = '';
+  String? customStateHint = '';
 
   String get courseNotifyCacheKey => Preferences.getString(
         ApConstants.currentSemesterCode,
@@ -57,12 +57,12 @@ class CoursePageState extends State<CoursePage> {
     ap = ApLocalizations.of(context);
     return CourseScaffold(
       state: state,
-      courseData: courseData,
+      courseData: courseData!,
       notifyData: notifyData,
       customHint: isOffline ? ap.offlineCourse : '',
       customStateHint: customStateHint,
       enableNotifyControl: semesterData != null &&
-          selectSemester.code == semesterData.defaultSemester.code,
+          selectSemester!.code == semesterData!.defaultSemester!.code,
       courseNotifySaveKey: courseNotifyCacheKey,
       androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
       enableCaptureCourseTable: true,
@@ -74,7 +74,7 @@ class CoursePageState extends State<CoursePage> {
             selectSemester = semester;
             state = CourseState.loading;
           });
-          semesterData = key.currentState.semesterData;
+          semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           _loadCacheData(semester.code);
           if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
@@ -87,20 +87,20 @@ class CoursePageState extends State<CoursePage> {
         return null;
       },
       onSearchButtonClick: () {
-        key.currentState.pickSemester();
+        key.currentState!.pickSemester();
       },
     );
   }
 
   Future<bool> _loadCacheData(String value) async {
-    courseData = CourseData.load(selectSemester.cacheSaveTag);
+    courseData = CourseData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
         if (this.courseData == null) {
           state = CourseState.offlineEmpty;
         } else {
-          state = this.courseData.courses.length == 0
+          state = this.courseData!.courses!.length == 0
               ? CourseState.empty
               : CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
@@ -111,28 +111,28 @@ class CoursePageState extends State<CoursePage> {
   }
 
   _getCourseTables() async {
-    Helper.cancelToken.cancel('');
+    Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getCourseTables(
+    Helper.instance!.getCourseTables(
       semester: selectSemester,
-      semesterDefault: semesterData.defaultSemester,
+      semesterDefault: semesterData!.defaultSemester,
       callback: GeneralCallback(
-        onSuccess: (CourseData data) {
+        onSuccess: (CourseData? data) {
           if (mounted)
             setState(() {
-              if (data == null || data.courses.length == 0) {
+              if (data == null || data.courses!.length == 0) {
                 state = CourseState.empty;
               } else {
                 courseData = data;
                 isOffline = false;
-                courseData.save(selectSemester.cacheSaveTag);
+                courseData!.save(selectSemester!.cacheSaveTag);
                 state = CourseState.finish;
                 notifyData = CourseNotifyData.load(courseNotifyCacheKey);
               }
             });
         },
         onFailure: (DioError e) async {
-          if (await _loadCacheData(selectSemester.code) &&
+          if (await _loadCacheData(selectSemester!.code) &&
               e.type != DioErrorType.cancel)
             setState(() {
               state = CourseState.custom;
@@ -140,11 +140,11 @@ class CoursePageState extends State<CoursePage> {
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getCourseTables', e.response.statusCode,
+                'getCourseTables', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {
-          if (await _loadCacheData(selectSemester.code))
+          if (await _loadCacheData(selectSemester!.code))
             setState(() {
               state = CourseState.custom;
               customStateHint = generalResponse.getGeneralMessage(context);

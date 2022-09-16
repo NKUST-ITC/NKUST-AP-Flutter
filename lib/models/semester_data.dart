@@ -9,9 +9,9 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 class SemesterData {
-  List<Semester> data;
-  Semester defaultSemester;
-  int defaultIndex;
+  List<Semester>? data;
+  Semester? defaultSemester;
+  int? defaultIndex;
 
   SemesterData({
     this.data,
@@ -21,8 +21,8 @@ class SemesterData {
   }
 
   getDefaultIndex() {
-    for (var i = 0; i < data.length; i++)
-      if (defaultSemester.text == data[i].text) return i;
+    for (var i = 0; i < data!.length; i++)
+      if (defaultSemester!.text == data![i].text) return i;
     return 0;
   }
 
@@ -38,8 +38,8 @@ class SemesterData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(data.map((x) => x.toJson())),
-        "default": defaultSemester.toJson(),
+        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
+        "default": defaultSemester!.toJson(),
       };
 
   void save() {
@@ -62,9 +62,9 @@ class SemesterData {
 }
 
 class Semester {
-  String year;
-  String value;
-  String text;
+  String? year;
+  String? value;
+  String? text;
 
   String get code => '$year$value';
 

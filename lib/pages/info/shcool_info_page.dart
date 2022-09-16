@@ -68,13 +68,13 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   PdfState pdfState = PdfState.loading;
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
-  TabController controller;
+  TabController? controller;
 
   int _currentIndex = 0;
 
-  Uint8List data;
+  Uint8List? data;
 
   @override
   void initState() {
@@ -88,7 +88,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   void dispose() {
-    controller.dispose();
+    controller!.dispose();
     super.dispose();
   }
 
@@ -136,7 +136,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         onTap: (index) {
           setState(() {
             _currentIndex = index;
-            controller.animateTo(_currentIndex);
+            controller!.animateTo(_currentIndex);
           });
         },
         fixedColor: ApTheme.of(context).yellow,
@@ -162,11 +162,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
-      Helper.instance.getNotifications(
+      Helper.instance!.getNotifications(
         page: page,
         callback: GeneralCallback(
           onSuccess: (NotificationsData data) {
-            notificationList.addAll(data.data.notifications);
+            notificationList.addAll(data.data!.notifications!);
             if (mounted)
               setState(() => notificationState = NotificationState.finish);
           },

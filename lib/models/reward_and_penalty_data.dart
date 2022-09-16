@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class RewardAndPenaltyData {
-  List<RewardAndPenalty> data;
+  List<RewardAndPenalty>? data;
 
   RewardAndPenaltyData({
     this.data,
@@ -23,15 +23,15 @@ class RewardAndPenaltyData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(data.map((x) => x.toJson())),
+        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
       };
 }
 
 class RewardAndPenalty {
-  String date;
-  String type;
-  String counts;
-  String reason;
+  String? date;
+  String? type;
+  String? counts;
+  String? reason;
 
   RewardAndPenalty({
     this.date,

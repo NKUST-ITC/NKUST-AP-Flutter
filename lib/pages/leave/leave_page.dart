@@ -25,17 +25,17 @@ class LeavePage extends StatefulWidget {
 
 class LeavePageState extends State<LeavePage>
     with SingleTickerProviderStateMixin {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
-  TabController controller;
+  late TabController controller;
 
   int _currentIndex = 0;
 
-  InAppWebViewController webViewController;
+  InAppWebViewController? webViewController;
 
   CookieManager cookieManager = CookieManager.instance();
 
-  Future<bool> _login;
+  Future<bool>? _login;
 
   String get path {
     switch (_currentIndex) {
@@ -130,7 +130,7 @@ class LeavePageState extends State<LeavePage>
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.folder),
-            label: AppLocalizations.of(context).leaveApplyRecord,
+            label: AppLocalizations.of(context)!.leaveApplyRecord,
           ),
         ],
       ),
@@ -151,8 +151,8 @@ class LeavePageState extends State<LeavePage>
 
   Future<bool> login() async {
     try {
-      await WebApHelper.instance.loginToMobile();
-      final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
+      await WebApHelper.instance!.loginToMobile();
+      final cookies = await WebApHelper.instance!.cookieJar.loadForRequest(
         Uri.parse("https://mobile.nkust.edu.tw"),
       );
       for (var cookie in cookies) {

@@ -10,12 +10,12 @@ import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeaveNkustPage extends StatefulWidget {
-  final String username;
-  final String password;
+  final String? username;
+  final String? password;
   final bool clearCache;
 
   const LeaveNkustPage({
-    Key key,
+    Key? key,
     this.username,
     this.password,
     this.clearCache = false,
@@ -26,9 +26,9 @@ class LeaveNkustPage extends StatefulWidget {
 }
 
 class _LeaveNkustPageState extends State<LeaveNkustPage> {
-  AppLocalizations app;
+  AppLocalizations? app;
 
-  InAppWebViewController webViewController;
+  late InAppWebViewController webViewController;
 
   bool finish = false;
 
@@ -37,18 +37,18 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
     app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.loginAuth),
+        title: Text(app!.loginAuth),
         backgroundColor: ApTheme.of(context).blue,
         actions: [
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
                 context: context,
-                title: app.loginAuth,
-                content: app.mobileNkustLoginDescription,
+                title: app!.loginAuth,
+                content: app!.mobileNkustLoginDescription,
               );
             },
-            child: Text(app.clickShowDescription),
+            child: Text(app!.clickShowDescription),
           ),
         ],
       ),
@@ -68,16 +68,16 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance.userAgent,
+            userAgent: MobileNkustHelper.instance!.userAgent!,
           ),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
-          ApUtils.showToast(context, app.mobileNkustLoginHint);
+          ApUtils.showToast(context, app!.mobileNkustLoginHint);
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
           return;
-        },
+        } as Future<JsPromptResponse?> Function(InAppWebViewController, JsPromptRequest)?,
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $uri');
@@ -119,7 +119,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {
-        data.cookies.add(
+        data.cookies!.add(
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,
@@ -135,7 +135,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
               "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
       },
     );
-    LeaveHelper.instance.setCookieFromData(data);
+    LeaveHelper.instance!.setCookieFromData(data);
     Navigator.pop(context, true);
   }
 }

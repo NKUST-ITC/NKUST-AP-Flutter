@@ -25,9 +25,9 @@ class BusPage extends StatefulWidget {
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  AppLocalizations app;
+  AppLocalizations? app;
 
-  TabController controller;
+  TabController? controller;
 
   int _currentIndex = 0;
 
@@ -37,7 +37,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     BusViolationRecordsPage()
   ];
 
-  Future<bool> _login;
+  Future<bool>? _login;
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     super.dispose();
-    controller.dispose();
+    controller!.dispose();
   }
 
   @override
@@ -59,7 +59,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.bus),
+        title: Text(app!.bus),
         actions: <Widget>[
           IconButton(
               icon: Icon(
@@ -78,7 +78,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       body: FutureBuilder<bool>(
         future: _login,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && snapshot.data)
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data!)
             return TabBarView(
               children: _children,
               controller: controller,
@@ -107,17 +107,17 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         items: [
           BottomNavigationBarItem(
             icon: Icon(ApIcon.dateRange),
-            label: app.busReserve,
+            label: app!.busReserve,
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.assignment),
-            label: app.busReservations,
+            label: app!.busReservations,
           ),
           BottomNavigationBarItem(
             icon: Stack(
               children: <Widget>[
                 Icon(ApIcon.monetizationOn),
-                if (ShareDataWidget.of(context).data.hasBusViolationRecords)
+                if (ShareDataWidget.of(context)!.data!.hasBusViolationRecords)
                   Positioned(
                     top: -1.0,
                     right: -1.0,
@@ -133,7 +133,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                   ),
               ],
             ),
-            label: app.busViolationRecords,
+            label: app!.busViolationRecords,
           ),
         ],
       ),
@@ -143,17 +143,17 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
-      controller.animateTo(_currentIndex);
+      controller!.animateTo(_currentIndex);
     });
   }
 
   void getBusViolationRecords() {
-    Helper.instance.getBusViolationRecords(
+    Helper.instance!.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           if (mounted)
             setState(() {
-              ShareDataWidget.of(context).data.hasBusViolationRecords =
+              ShareDataWidget.of(context)!.data!.hasBusViolationRecords =
                   data.hasBusViolationRecords;
             });
           FirebaseAnalyticsUtils.instance.setUserProperty(
@@ -170,7 +170,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         onError: (GeneralResponse response) {},
         onFailure: (DioError e) {
           if (e.hasResponse &&
-              (e.response.statusCode == 401 || e.response.statusCode == 403)) {
+              (e.response!.statusCode == 401 || e.response!.statusCode == 403)) {
             FirebaseAnalyticsUtils.instance.setUserProperty(
               Constants.CAN_USE_BUS,
               AnalyticsConstants.no,
@@ -182,9 +182,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> login() async {
-    if (MobileNkustHelper.instance.cookiesData == null) {
+    if (MobileNkustHelper.instance!.cookiesData == null) {
       try {
-        await WebApHelper.instance.loginToMobile();
+        await WebApHelper.instance!.loginToMobile();
       } catch (e) {
         return false;
       }

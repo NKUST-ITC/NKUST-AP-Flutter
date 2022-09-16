@@ -5,18 +5,18 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 class BusViolationRecordsData {
-  List<Reservation> reservations;
+  List<Reservation>? reservations;
   List<Reservation> notPaymentReservations = [];
 
   int get notPaymentAmountend {
     int sum = 0;
-    notPaymentReservations?.forEach((element) => sum += element.amountend);
+    notPaymentReservations?.forEach((element) => sum += element.amountend!);
     return sum;
   }
 
   bool get hasBusViolationRecords {
-    for (var item in reservations) {
-      if (item != null && item.isPayment != null && !item.isPayment)
+    for (var item in reservations!) {
+      if (item != null && item.isPayment != null && !item.isPayment!)
         return true;
     }
     return false;
@@ -41,25 +41,25 @@ class BusViolationRecordsData {
 
   Map<String, dynamic> toJson() => {
         "reservation":
-            new List<dynamic>.from(reservations.map((x) => x.toJson())),
+            new List<dynamic>.from(reservations!.map((x) => x.toJson())),
       };
 
   void updateNotPaymentReservations() {
     notPaymentReservations.clear();
     reservations?.forEach((element) {
-      if (element.isPayment != null && !element.isPayment)
+      if (element.isPayment != null && !element.isPayment!)
         notPaymentReservations.add(element);
     });
   }
 }
 
 class Reservation {
-  DateTime time;
-  String startStation;
-  String endStation;
-  bool homeCharteredBus;
-  int amountend;
-  bool isPayment;
+  DateTime? time;
+  String? startStation;
+  String? endStation;
+  bool? homeCharteredBus;
+  int? amountend;
+  bool? isPayment;
 
   Reservation({
     this.time,
@@ -76,11 +76,11 @@ class Reservation {
   String get amountendText =>
       (amountend == null || amountend == 0) ? '' : '\$$amountend';
 
-  String startStationText(BuildContext context) {
+  String? startStationText(BuildContext context) {
     return Utils.parserCampus(AppLocalizations.of(context), startStation);
   }
 
-  String endStationText(AppLocalizations local) {
+  String? endStationText(AppLocalizations local) {
     return Utils.parserCampus(local, endStation);
   }
 
@@ -96,7 +96,7 @@ class Reservation {
       );
 
   Map<String, dynamic> toJson() => {
-        "time": time.toIso8601String(),
+        "time": time!.toIso8601String(),
         "startStation": startStation,
         "endStation": endStation,
         "homeCharteredBus": homeCharteredBus,

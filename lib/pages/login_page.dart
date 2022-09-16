@@ -19,7 +19,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   final _username = TextEditingController();
   final _password = TextEditingController();
@@ -27,8 +27,8 @@ class LoginPageState extends State<LoginPage> {
   final usernameFocusNode = FocusNode();
   final passwordFocusNode = FocusNode();
 
-  var isRememberPassword = true;
-  var isAutoLogin = false;
+  bool? isRememberPassword = true;
+  bool? isAutoLogin = false;
 
   bool isLoginIng = false;
 
@@ -79,12 +79,12 @@ class LoginPageState extends State<LoginPage> {
           children: <Widget>[
             TextCheckBox(
               text: ap.autoLogin,
-              value: isAutoLogin,
+              value: isAutoLogin!,
               onChanged: _onAutoLoginChanged,
             ),
             TextCheckBox(
               text: ap.rememberPassword,
-              value: isRememberPassword,
+              value: isRememberPassword!,
               onChanged: _onRememberPasswordChanged,
             ),
           ],
@@ -124,21 +124,21 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  _onRememberPasswordChanged(bool value) async {
+  _onRememberPasswordChanged(bool? value) async {
     setState(() {
       isRememberPassword = value;
-      if (!isRememberPassword) isAutoLogin = false;
-      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      if (!isRememberPassword!) isAutoLogin = false;
+      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin!);
+      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
     });
   }
 
-  _onAutoLoginChanged(bool value) async {
+  _onAutoLoginChanged(bool? value) async {
     setState(() {
       isAutoLogin = value;
       isRememberPassword = isAutoLogin;
-      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin!);
+      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
     });
   }
 
@@ -148,7 +148,7 @@ class LoginPageState extends State<LoginPage> {
     isAutoLogin = Preferences.getBool(Constants.PREF_AUTO_LOGIN, false);
     setState(() {
       _username.text = Preferences.getString(Constants.PREF_USERNAME, '');
-      _password.text = isRememberPassword
+      _password.text = isRememberPassword!
           ? Preferences.getStringSecurity(Constants.PREF_PASSWORD, '')
           : '';
     });
@@ -161,15 +161,15 @@ class LoginPageState extends State<LoginPage> {
     } else {
       setState(() => isLoginIng = true);
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      Helper.instance.login(
+      Helper.instance!.login(
         context: context,
         username: _username.text,
         password: _password.text,
         clearCache: true,
-        callback: GeneralCallback<LoginResponse>(
-          onSuccess: (LoginResponse response) async {
+        callback: GeneralCallback<LoginResponse?>(
+          onSuccess: (LoginResponse? response) async {
             Preferences.setString(Constants.PREF_USERNAME, _username.text);
-            if (isRememberPassword) {
+            if (isRememberPassword!) {
               Preferences.setStringSecurity(
                   Constants.PREF_PASSWORD, _password.text);
             }
@@ -183,7 +183,7 @@ class LoginPageState extends State<LoginPage> {
             if (e.type != DioErrorType.cancel) _offlineLogin();
           },
           onError: (GeneralResponse response) {
-            String message = '';
+            String? message = '';
             switch (response.statusCode) {
               case ApStatusCode.SCHOOL_SERVER_ERROR:
                 message = ap.schoolServerError;

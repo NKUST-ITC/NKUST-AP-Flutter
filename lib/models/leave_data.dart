@@ -4,8 +4,8 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 class LeaveData {
-  List<Leave> leaves;
-  List<String> timeCodes;
+  List<Leave>? leaves;
+  List<String>? timeCodes;
 
   LeaveData({
     this.leaves,
@@ -26,8 +26,8 @@ class LeaveData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(leaves.map((x) => x.toJson())),
-        "timeCodes": new List<dynamic>.from(timeCodes.map((x) => x)),
+        "data": new List<dynamic>.from(leaves!.map((x) => x.toJson())),
+        "timeCodes": new List<dynamic>.from(timeCodes!.map((x) => x)),
       };
 
   static LeaveData sample() {
@@ -55,10 +55,10 @@ class LeaveData {
 }
 
 class Leave {
-  String leaveSheetId;
-  String date;
-  String instructorsComment;
-  List<LeaveSections> leaveSections;
+  String? leaveSheetId;
+  String? date;
+  String? instructorsComment;
+  List<LeaveSections>? leaveSections;
 
   Leave(
       {this.leaveSheetId,
@@ -69,8 +69,8 @@ class Leave {
   factory Leave.fromRawJson(String str) => Leave.fromJson(json.decode(str));
 
   String get dateText =>
-      (date.length == 7
-          ? "${date.substring(3, 5)}/${date.substring(5, 7)}"
+      (date!.length == 7
+          ? "${date!.substring(3, 5)}/${date!.substring(5, 7)}"
           : date) ??
       "";
 
@@ -89,13 +89,13 @@ class Leave {
         "date": date,
         "instructorsComment": instructorsComment,
         "sections":
-            new List<dynamic>.from(leaveSections.map((x) => x.toJson())),
+            new List<dynamic>.from(leaveSections!.map((x) => x.toJson())),
       };
 
-  String getReason(String timeCode) {
+  String? getReason(String timeCode) {
     if (leaveSections == null) return "";
-    if (leaveSections.length == 0) return "";
-    for (var leaveSection in leaveSections) {
+    if (leaveSections!.length == 0) return "";
+    for (var leaveSection in leaveSections!) {
       if (leaveSection.section == timeCode) return leaveSection.reason;
     }
     return "";
@@ -103,8 +103,8 @@ class Leave {
 }
 
 class LeaveSections {
-  String section;
-  String reason;
+  String? section;
+  String? reason;
 
   LeaveSections({this.section, this.reason});
 

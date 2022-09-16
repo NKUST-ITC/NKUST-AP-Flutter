@@ -38,13 +38,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
   bool get wantKeepAlive => true;
 
   _State state = _State.finish;
-  String customStateHint;
+  String? customStateHint;
 
-  BusReservationsData busReservationsData;
+  BusReservationsData? busReservationsData;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations app;
-  ApLocalizations ap;
+  AppLocalizations? app;
+  late ApLocalizations ap;
 
   bool isOffline = false;
 
@@ -72,7 +72,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           padding: EdgeInsets.symmetric(vertical: 8),
           child: isOffline
               ? Text(
-                  app.offlineBusReservations,
+                  app!.offlineBusReservations,
                   style: TextStyle(color: ApTheme.of(context).grey),
                 )
               : null,
@@ -84,12 +84,12 @@ class BusReservationsPageState extends State<BusReservationsPage>
     );
   }
 
-  String get errorText {
+  String? get errorText {
     switch (state) {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app.busReservationEmpty;
+        return app!.busReservationEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -119,7 +119,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content: errorText,
+            content: errorText!,
           ),
         );
       case _State.offlineEmpty:
@@ -135,10 +135,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
             return null;
           },
           child: ListView.builder(
-              itemCount: busReservationsData.reservations.length,
+              itemCount: busReservationsData!.reservations!.length,
               itemBuilder: (context, i) {
                 return _busReservationWidget(
-                    busReservationsData.reservations[i]);
+                    busReservationsData!.reservations![i]);
               }),
         );
     }
@@ -175,7 +175,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busReservation.dateTime,
+                    busReservation.dateTime!,
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
@@ -196,11 +196,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
                             showDialog(
                               context: context,
                               builder: (BuildContext context) => YesNoDialog(
-                                title: app.busCancelReserve,
+                                title: app!.busCancelReserve,
                                 contentWidget: Text(
-                                  "${app.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
-                                  "${app.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
-                                  "${busReservation.getTime()}${app.busCancelReserveConfirmContent3}",
+                                  "${app!.busCancelReserveConfirmContent1}${busReservation.getStart(app)}"
+                                  "${app!.busCancelReserveConfirmContent2}${busReservation.getEnd(app)}\n"
+                                  "${busReservation.getTime()}${app!.busCancelReserveConfirmContent3}",
                                   textAlign: TextAlign.center,
                                 ),
                                 leftActionText: ap.back,
@@ -238,7 +238,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           isOffline = true;
           if (busReservationsData == null)
             state = _State.offlineEmpty;
-          else if (busReservationsData.reservations.length != 0)
+          else if (busReservationsData!.reservations!.length != 0)
             state = _State.finish;
           else
             state = _State.empty;
@@ -251,14 +251,14 @@ class BusReservationsPageState extends State<BusReservationsPage>
         state = _State.loading;
       });
     }
-    Helper.instance.getBusReservations(
+    Helper.instance!.getBusReservations(
       callback: GeneralCallback(
         onSuccess: (BusReservationsData data) {
           busReservationsData = data;
           if (mounted) {
             setState(() {
               if (busReservationsData == null ||
-                  busReservationsData.reservations.length == 0)
+                  busReservationsData!.reservations!.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
@@ -275,20 +275,20 @@ class BusReservationsPageState extends State<BusReservationsPage>
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response.statusCode == 401)
+                  if (e.response!.statusCode == 401)
                     state = _State.userNotSupport;
-                  else if (e.response.statusCode == 403)
+                  else if (e.response!.statusCode == 403)
                     state = _State.campusNotSupport;
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getBusReservations', e.response.statusCode,
+                        'getBusReservations', e.response!.statusCode!,
                         message: e.message);
                   }
                 });
-                if (e.response.statusCode == 401 ||
-                    e.response.statusCode == 403)
+                if (e.response!.statusCode == 401 ||
+                    e.response!.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
                     AnalyticsConstants.no,
@@ -298,7 +298,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
-                    customStateHint = app.busFailInfinity;
+                    customStateHint = app!.busFailInfinity;
                   } else
                     state = _State.error;
                 });
@@ -330,14 +330,14 @@ class BusReservationsPageState extends State<BusReservationsPage>
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-        child: ProgressDialog(app.canceling),
+        child: ProgressDialog(app!.canceling),
         onWillPop: () async {
           return false;
         },
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(
+    Helper.instance!.cancelBusReservation(
       cancelKey: busTime.cancelKey,
       callback: GeneralCallback(
         onSuccess: (data) {
@@ -347,7 +347,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           showDialog(
             context: context,
             builder: (BuildContext context) => DefaultDialog(
-              title: app.busCancelReserveSuccess,
+              title: app!.busCancelReserveSuccess,
               contentWidget: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
@@ -357,21 +357,21 @@ class BusReservationsPageState extends State<BusReservationsPage>
                         fontSize: 16.0),
                     children: [
                       TextSpan(
-                        text: '${app.busReserveCancelDate}：',
+                        text: '${app!.busReserveCancelDate}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
                         text: '${busTime.getDate()}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveCancelLocation}：',
+                        text: '${app!.busReserveCancelLocation}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
-                        text: '${busTime.getStart(app)}${app.campus}\n',
+                        text: '${busTime.getStart(app)}${app!.campus}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveCancelTime}：',
+                        text: '${app!.busReserveCancelTime}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
@@ -386,10 +386,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
           );
         },
         onFailure: (DioError e) => BusReservePageState.handleDioError(
-            context, e, app.busCancelReserveFail, 'cancel_bus'),
+            context, e, app!.busCancelReserveFail, 'cancel_bus'),
         onError: (GeneralResponse response) =>
             BusReservePageState.handleGeneralError(
-                context, response, app.busCancelReserveFail),
+                context, response, app!.busCancelReserveFail),
       ),
     );
   }
@@ -401,7 +401,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         isOffline = true;
         if (busReservationsData == null)
           state = _State.offlineEmpty;
-        else if (busReservationsData.reservations.length != 0)
+        else if (busReservationsData!.reservations!.length != 0)
           state = _State.finish;
         else
           state = _State.empty;

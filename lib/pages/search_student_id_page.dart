@@ -19,15 +19,15 @@ class SearchStudentIdPage extends StatefulWidget {
 }
 
 class SearchStudentIdPageState extends State<SearchStudentIdPage> {
-  AppLocalizations app;
-  ApLocalizations ap;
+  AppLocalizations? app;
+  late ApLocalizations ap;
 
   final _id = TextEditingController();
   final idFocusNode = FocusNode();
 
   DateTime birthday = DateTime(DateTime.now().year - 18);
 
-  bool isAutoFill = true;
+  bool? isAutoFill = true;
 
   @override
   void initState() {
@@ -94,7 +94,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             TextCheckBox(
               text: ap.autoFill,
               onChanged: _onAutoFillChanged,
-              value: isAutoFill,
+              value: isAutoFill!,
             ),
           ],
         ),
@@ -111,7 +111,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     );
   }
 
-  _onAutoFillChanged(bool value) async {
+  _onAutoFillChanged(bool? value) async {
     setState(() {
       isAutoFill = value;
     });
@@ -121,17 +121,17 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     if (_id.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
-      NKUSTHelper.instance.getUsername(
+      NKUSTHelper.instance!.getUsername(
         rocId: _id.text,
         birthday: birthday,
         callback: GeneralCallback(
           onSuccess: (UserInfo data) {
-            if (data != null && isAutoFill) {
+            if (data != null && isAutoFill!) {
               Navigator.pop(context, data.id);
             } else {
               _showResultDialog(
                 sprintf(
-                  app.searchStudentIdFormat,
+                  app!.searchStudentIdFormat,
                   [
                     data.name,
                     data.id,
@@ -151,7 +151,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   }
 
   _showResultDialog(
-    String text, {
+    String? text, {
     bool showFirstHint = true,
   }) {
     showDialog(
@@ -174,7 +174,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               ),
               if (showFirstHint)
                 TextSpan(
-                  text: '\n${app.firstLoginHint}',
+                  text: '\n${app!.firstLoginHint}',
                 ),
             ],
           ),

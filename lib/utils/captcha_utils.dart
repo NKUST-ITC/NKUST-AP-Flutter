@@ -10,7 +10,7 @@ import 'package:image/image.dart' as img;
 
 class CaptchaUtils {
   static Future<String> extractByTfLite({
-    @required Uint8List bodyBytes,
+    required Uint8List bodyBytes,
   }) async {
     final digitsCount = 4;
     final imageHeight = 40;
@@ -24,10 +24,10 @@ class CaptchaUtils {
       await File(imagePath).writeAsBytes(bodyBytes);
       var start = DateTime.now();
       var end = DateTime.now();
-      var source = img.decodeImage(File(imagePath).readAsBytesSync());
+      var source = img.decodeImage(File(imagePath).readAsBytesSync())!;
       var grayscaleImage = img.grayscale(source);
       start = DateTime.now();
-      String res = await Tflite.loadModel(
+      String? res = await Tflite.loadModel(
           model: "assets/webap_captcha.tflite",
           labels: "assets/labels.txt",
           numThreads: 1 // defaults to 1
@@ -42,7 +42,7 @@ class CaptchaUtils {
       for (var i = 0; i < digitsCount; i++) {
         var target = img.copyCrop(
             grayscaleImage, (imageWidth ~/ digitsCount) * i, 0, w, h);
-        var recognitions = await Tflite.runModelOnBinary(
+        var recognitions = await (Tflite.runModelOnBinary(
             binary: imageToByteListFloat32(target, w, h, 127.5, 255.0),
             // required
             numResults: 1,
@@ -50,7 +50,7 @@ class CaptchaUtils {
             threshold: 0.05,
             // defaults to 0.1
             asynch: true // defaults to true
-            );
+            ) as FutureOr<List<dynamic>>);
         replaceText += recognitions.first['label'];
       }
       end = DateTime.now();

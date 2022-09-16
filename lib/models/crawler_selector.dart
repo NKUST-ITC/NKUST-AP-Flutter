@@ -12,18 +12,18 @@ class CrawlerSelector {
     this.semester,
   });
 
-  String login;
-  String userInfo;
-  String course;
-  String score;
-  String semester;
+  String? login;
+  String? userInfo;
+  String? course;
+  String? score;
+  String? semester;
 
   CrawlerSelector copyWith({
-    String login,
-    String userInfo,
-    String course,
-    String score,
-    String semester,
+    String? login,
+    String? userInfo,
+    String? course,
+    String? score,
+    String? semester,
   }) =>
       CrawlerSelector(
         login: login ?? this.login,

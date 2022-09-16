@@ -19,17 +19,17 @@ class ScorePage extends StatefulWidget {
 class ScorePageState extends State<ScorePage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   ScoreState state = ScoreState.loading;
 
-  Semester selectSemester;
-  SemesterData semesterData;
-  ScoreData scoreData;
+  Semester? selectSemester;
+  SemesterData? semesterData;
+  ScoreData? scoreData;
 
   bool isOffline = false;
 
-  String customStateHint = '';
+  String? customStateHint = '';
 
   @override
   void initState() {
@@ -71,7 +71,7 @@ class ScorePageState extends State<ScorePage> {
         return null;
       },
       onSearchButtonClick: () {
-        key.currentState.pickSemester();
+        key.currentState!.pickSemester();
       },
       details: [
         '${ap.conductScore}：${scoreData?.detail?.conduct ?? ''}',
@@ -88,9 +88,9 @@ class ScorePageState extends State<ScorePage> {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
       _loadOfflineScoreData();
     else
-      Helper.instance.getScores(
+      Helper.instance!.getScores(
         semester: selectSemester,
-        callback: GeneralCallback(onSuccess: (ScoreData data) {
+        callback: GeneralCallback(onSuccess: (ScoreData? data) {
           if (mounted)
             setState(() {
               if (data == null) {
@@ -98,7 +98,7 @@ class ScorePageState extends State<ScorePage> {
               } else {
                 scoreData = data;
                 state = ScoreState.finish;
-                scoreData.save(selectSemester.cacheSaveTag);
+                scoreData!.save(selectSemester!.cacheSaveTag);
               }
             });
         }, onFailure: (DioError e) async {
@@ -109,7 +109,7 @@ class ScorePageState extends State<ScorePage> {
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getSemesterScore', e.response.statusCode,
+                'getSemesterScore', e.response!.statusCode!,
                 message: e.message);
         }, onError: (GeneralResponse generalResponse) async {
           if (await _loadOfflineScoreData())
@@ -122,7 +122,7 @@ class ScorePageState extends State<ScorePage> {
   }
 
   Future<bool> _loadOfflineScoreData() async {
-    scoreData = ScoreData.load(selectSemester.cacheSaveTag);
+    scoreData = ScoreData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;

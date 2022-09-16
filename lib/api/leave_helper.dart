@@ -37,12 +37,12 @@ class LeaveHelper {
   static const BASE_PATH = 'https://leave.nkust.edu.tw/';
   static const HOME = '${BASE_PATH}masterindex.aspx';
 
-  static LeaveHelper _instance;
+  static LeaveHelper? _instance;
 
-  static LeaveHelper get instance {
+  static LeaveHelper? get instance {
     if (_instance == null) {
       _instance = LeaveHelper();
-      _instance.dioInit();
+      _instance!.dioInit();
     }
     return _instance;
   }
@@ -50,12 +50,12 @@ class LeaveHelper {
   int reLoginReTryCountsLimit = 3;
   int reLoginReTryCounts = 0;
 
-  bool isLogin;
+  bool? isLogin;
 
-  Dio dio;
-  CookieJar cookieJar;
+  late Dio dio;
+  late CookieJar cookieJar;
 
-  MobileCookiesData cookiesData;
+  MobileCookiesData? cookiesData;
 
   void setProxy(String proxyIP) {
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
@@ -70,7 +70,7 @@ class LeaveHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
+    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance!.cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
 
@@ -94,10 +94,10 @@ class LeaveHelper {
     if (data != null) {
       cookiesData = data;
       data.cookies?.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name, element.value);
+        Cookie _tempCookie = Cookie(element.name!, element.value!);
         _tempCookie.domain = element.domain;
         cookieJar.saveFromResponse(
-          Uri.parse(element.path),
+          Uri.parse(element.path!),
           [_tempCookie],
         );
       });
@@ -106,9 +106,9 @@ class LeaveHelper {
 
   void setCookie(
     String url, {
-    String cookieName,
-    String cookieValue,
-    String cookieDomain,
+    required String cookieName,
+    required String cookieValue,
+    String? cookieDomain,
   }) {
     Cookie _tempCookie = Cookie(cookieName, cookieValue);
     _tempCookie.domain = cookieDomain;
@@ -128,9 +128,9 @@ class LeaveHelper {
   }
 
   Future<LoginResponse> login({
-    @required BuildContext context,
-    @required String username,
-    @required String password,
+    required BuildContext context,
+    required String username,
+    required String password,
     bool clearCache = false,
   }) async {
     // final data = MobileCookiesData.load();
@@ -195,7 +195,7 @@ class LeaveHelper {
       //login fail
       return false;
     } on DioError catch (e) {
-      if (e.type == DioErrorType.response && e.response.statusCode == 302) {
+      if (e.type == DioErrorType.response && e.response!.statusCode == 302) {
         //Use 302 to mean login success, nice...
         await dio.get('https://leave.nkust.edu.tw/masterindex.aspx');
         isLogin = true;
@@ -205,7 +205,7 @@ class LeaveHelper {
     return false;
   }
 
-  Future<LeaveData> getLeaves({String year, String semester}) async {
+  Future<LeaveData> getLeaves({String? year, String? semester}) async {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
@@ -213,7 +213,7 @@ class LeaveHelper {
       throw NullThrownError;
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
+      await WebApHelper.instance!.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -243,7 +243,7 @@ class LeaveHelper {
       throw NullThrownError;
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
+      await WebApHelper.instance!.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -273,13 +273,13 @@ class LeaveHelper {
           followRedirects: false,
           contentType: Headers.formUrlEncodedContentType),
     );
-    return LeaveSubmitInfoData.fromJson(leaveSubmitInfoParser(res.data));
+    return LeaveSubmitInfoData.fromJson(leaveSubmitInfoParser(res.data)!);
   }
 
-  Future<Response> leavesSubmit(LeaveSubmitData data,
-      {PickedFile proofImage}) async {
+  Future<Response?> leavesSubmit(LeaveSubmitData data,
+      {PickedFile? proofImage}) async {
     //force relogin to aviod error.
-    await WebApHelper.instance.loginToLeave();
+    await WebApHelper.instance!.loginToLeave();
 
     Response res = await dio.get(
       "https://leave.nkust.edu.tw/CK001MainM.aspx",
@@ -298,8 +298,8 @@ class LeaveHelper {
 
     requestData = hiddenInputGet(res.data, removeTdElement: true);
     var dateFormate = DateFormat("yyyy/MM/dd");
-    var beginDate = dateFormate.parse(data.days[0].day);
-    var endDate = dateFormate.parse(data.days[data.days.length - 1].day);
+    var beginDate = dateFormate.parse(data.days![0].day!);
+    var endDate = dateFormate.parse(data.days![data.days!.length - 1].day!);
 
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
         "${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}";
@@ -344,12 +344,12 @@ class LeaveHelper {
       print("Error: not found leave days options");
       return null;
     }
-    List<String> _clickList = [];
+    List<String?> _clickList = [];
     for (int i = 1; i < trObj.length; i++) {
       var td = trObj[i].getElementsByTagName("td");
-      var _leaveDays = data.days[i - 1].dayClass;
+      var _leaveDays = data.days![i - 1].dayClass!;
       for (int l = 0; l < _leaveDays.length; l++) {
-        _clickList.add(td[submitData["timeCodes"].indexOf(_leaveDays[l]) + 3]
+        _clickList.add(td[submitData!["timeCodes"].indexOf(_leaveDays[l]) + 3]
             .getElementsByTagName("input")[0]
             .attributes["name"]);
       }
@@ -397,7 +397,7 @@ class LeaveHelper {
               contentType: MediaType.parse("image/jpeg"));
     }
 
-    FormData formData = FormData.fromMap(requestData);
+    FormData formData = FormData.fromMap(requestData as Map<String, dynamic>);
 
     dio.options.headers["Content-Type"] =
         "multipart/form-data; boundary=${formData.boundary}";

@@ -5,9 +5,9 @@ import 'package:nkust_ap/utils/global.dart';
 
 class UserInfoPage extends StatefulWidget {
   static const String routerName = "/userInfo";
-  final UserInfo userInfo;
+  final UserInfo? userInfo;
 
-  const UserInfoPage({Key key, this.userInfo}) : super(key: key);
+  const UserInfoPage({Key? key, this.userInfo}) : super(key: key);
 
   @override
   UserInfoPageState createState() => UserInfoPageState();
@@ -24,11 +24,11 @@ class UserInfoPageState extends State<UserInfoPage> {
   @override
   Widget build(BuildContext context) {
     return UserInfoScaffold(
-      userInfo: widget.userInfo,
+      userInfo: widget.userInfo!,
       actions: <Widget>[],
       enableBarCode: true,
       onRefresh: () async {
-        var userInfo = await Helper.instance.getUsersInfo();
+        var userInfo = await Helper.instance!.getUsersInfo();
         if (userInfo != null)
           setState(
             () => widget.userInfo
@@ -42,7 +42,7 @@ class UserInfoPageState extends State<UserInfoPage> {
           );
         FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
         return null;
-      },
+      } as Future<UserInfo> Function()?,
     );
   }
 }

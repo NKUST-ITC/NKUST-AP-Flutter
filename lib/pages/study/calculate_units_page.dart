@@ -29,28 +29,28 @@ class CalculateUnitsPage extends StatefulWidget {
 
 class CalculateUnitsPageState extends State<CalculateUnitsPage>
     with SingleTickerProviderStateMixin {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   _State state = _State.ready;
-  String customStateHint = '';
+  String? customStateHint = '';
 
-  int currentSemesterIndex;
+  int? currentSemesterIndex;
 
-  SemesterData semesterData;
-  List<Semester> semesterList;
+  SemesterData? semesterData;
+  late List<Semester> semesterList;
 
-  double unitsTotal;
-  double requiredUnitsTotal;
-  double electiveUnitsTotal;
-  double otherUnitsTotal;
+  double? unitsTotal;
+  late double requiredUnitsTotal;
+  late double electiveUnitsTotal;
+  late double otherUnitsTotal;
 
   int startYear = 0;
   int count = 0;
 
-  List<Score> coreGeneralEducations;
-  List<Score> extendGeneralEducations;
+  late List<Score> coreGeneralEducations;
+  late List<Score> extendGeneralEducations;
 
-  DateTime start;
+  late DateTime start;
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     );
   }
 
-  Widget _scoreTextBorder(String text, bool isTitle) {
+  Widget _scoreTextBorder(String? text, bool isTitle) {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
@@ -183,7 +183,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                 onTap: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? ap.clickToRetry : customStateHint,
+            content: state == _State.error ? ap.clickToRetry : customStateHint!,
           ),
         );
       case _State.ready:
@@ -302,15 +302,15 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   _getSemester() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)!) {
       setState(() {
         state = _State.offline;
       });
       return;
     }
-    Helper.instance.getSemester(
+    Helper.instance!.getSemester(
       callback: GeneralCallback(
-        onSuccess: (SemesterData data) {
+        onSuccess: (SemesterData? data) {
           this.semesterData = data;
         },
         onFailure: _onFailure,
@@ -320,50 +320,50 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _getSemesterScore() {
-    Helper.cancelToken.cancel("");
+    Helper.cancelToken!.cancel("");
     Helper.cancelToken = CancelToken();
     setState(() {
       state = _State.loading;
     });
-    if (semesterData == null || semesterData.data == null) {
+    if (semesterData == null || semesterData!.data == null) {
       _getSemester();
       return;
     }
-    Helper.instance.getScores(
-      semester: semesterData.data[currentSemesterIndex],
+    Helper.instance!.getScores(
+      semester: semesterData!.data![currentSemesterIndex!],
       callback: GeneralCallback(
-        onSuccess: (ScoreData data) {
+        onSuccess: (ScoreData? data) {
           if (startYear == -1)
-            startYear = int.parse(semesterData.data[currentSemesterIndex].year);
-          semesterList.add(semesterData.data[currentSemesterIndex]);
+            startYear = int.parse(semesterData!.data![currentSemesterIndex!].year!);
+          semesterList.add(semesterData!.data![currentSemesterIndex!]);
           if (data?.scores != null) {
-            for (var score in data.scores) {
-              if (score.semesterScore == null || score.semesterScore.isEmpty)
+            for (var score in data!.scores!) {
+              if (score.semesterScore == null || score.semesterScore!.isEmpty)
                 continue;
-              var semesterScore = double.tryParse(score.semesterScore);
+              var semesterScore = double.tryParse(score.semesterScore!);
               if ((semesterScore != null && semesterScore >= 60.0) ||
                   score.semesterScore == '合格' ||
                   score.semesterScore == '通過') {
                 if (score.required == "【必修】") {
-                  requiredUnitsTotal += double.parse(score.units);
+                  requiredUnitsTotal += double.parse(score.units!);
                 } else if (score.required == "【選修】") {
-                  electiveUnitsTotal += double.parse(score.units);
+                  electiveUnitsTotal += double.parse(score.units!);
                 } else {
-                  otherUnitsTotal += double.parse(score.units);
+                  otherUnitsTotal += double.parse(score.units!);
                 }
-                if (score.title.contains("延伸通識") ||
-                    score.title.contains("博雅")) {
+                if (score.title!.contains("延伸通識") ||
+                    score.title!.contains("博雅")) {
                   extendGeneralEducations.add(score);
-                } else if (score.title.contains("核心通識") ||
-                    score.title.contains("核心")) {
+                } else if (score.title!.contains("核心通識") ||
+                    score.title!.contains("核心")) {
                   coreGeneralEducations.add(score);
                 }
               }
             }
           }
           var currentYear =
-              int.parse(semesterData.data[currentSemesterIndex].year);
-          if (currentSemesterIndex < semesterData.data.length - 1 &&
+              int.parse(semesterData!.data![currentSemesterIndex!].year!);
+          if (currentSemesterIndex! < semesterData!.data!.length - 1 &&
               ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
             currentSemesterIndex++;
             if (mounted) _getSemesterScore();

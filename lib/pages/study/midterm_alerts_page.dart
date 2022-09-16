@@ -33,14 +33,14 @@ class MidtermAlertsPage extends StatefulWidget {
 class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   _State state = _State.loading;
-  String customStateHint;
+  String? customStateHint;
 
-  Semester selectSemester;
-  SemesterData semesterData;
-  MidtermAlertsData midtermAlertData;
+  late Semester selectSemester;
+  SemesterData? semesterData;
+  late MidtermAlertsData midtermAlertData;
 
   bool isOffline = false;
 
@@ -69,7 +69,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
         onPressed: () {
-          key.currentState.pickSemester();
+          key.currentState!.pickSemester();
         },
       ),
       body: Container(
@@ -110,7 +110,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     );
   }
 
-  String get stateHint {
+  String? get stateHint {
     switch (state) {
       case _State.error:
         return ap.somethingError;
@@ -150,22 +150,22 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         return InkWell(
                 onTap: () {
             if (state == _State.empty)
-              key.currentState.pickSemester();
+              key.currentState!.pickSemester();
             else
               _getMidtermAlertsData();
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: stateIcon,
-            content: stateHint,
+            content: stateHint!,
           ),
         );
       case _State.finish:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _midtermAlertsItem(midtermAlertData.courses[index]);
+            return _midtermAlertsItem(midtermAlertData.courses![index]);
           },
-          itemCount: midtermAlertData.courses.length,
+          itemCount: midtermAlertData.courses!.length,
         );
     }
   }
@@ -181,7 +181,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(
-            item.title,
+            item.title!,
             style: TextStyle(fontSize: 18.0),
           ),
           subtitle: Padding(
@@ -208,16 +208,16 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       });
       return;
     }
-    Helper.cancelToken.cancel('');
+    Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getMidtermAlerts(
+    Helper.instance!.getMidtermAlerts(
       semester: selectSemester,
       callback: GeneralCallback(
         onSuccess: (MidtermAlertsData data) {
           if (mounted)
             setState(() {
               midtermAlertData = data;
-              if (data == null || data.courses.length == 0)
+              if (data == null || data.courses!.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
@@ -230,7 +230,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getMidtermAlert', e.response.statusCode,
+                'getMidtermAlert', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse response) {

@@ -29,21 +29,21 @@ class BusViolationRecordsPage extends StatefulWidget {
 }
 
 class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
-  AppLocalizations app;
-  ApLocalizations ap;
+  AppLocalizations? app;
+  late ApLocalizations ap;
 
   _State state = _State.loading;
 
-  String customStateHint = '';
+  String? customStateHint = '';
 
-  BusViolationRecordsData violationData;
+  BusViolationRecordsData? violationData;
 
-  String get errorText {
+  String? get errorText {
     switch (state) {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app.busViolationRecordEmpty;
+        return app!.busViolationRecordEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -82,7 +82,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content: errorText,
+            content: errorText!,
           ),
         );
       default:
@@ -110,13 +110,13 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
                 bool isLeft = (index % 2 != 0);
-                final reservations = violationData.reservations;
+                final reservations = violationData!.reservations!;
                 final isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
-                    (reservations[index].time.year !=
-                        reservations[index + 1].time.year) ||
-                    (reservations[index].time.year !=
-                        reservations[index - 1].time.year);
+                    (reservations[index].time!.year !=
+                        reservations[index + 1].time!.year) ||
+                    (reservations[index].time!.year !=
+                        reservations[index - 1].time!.year);
                 return Row(
                   children: <Widget>[
                     Expanded(
@@ -128,7 +128,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           : Center(
                               child: isShowYear
                                   ? Text(
-                                      '${reservations[index].time.year}',
+                                      '${reservations[index].time!.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
                                         color: ApTheme.of(context).greyText,
@@ -163,7 +163,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           child: Text(
                             '${reservations[index].amountendText}',
                             style: TextStyle(
-                              color: reservations[index].isPayment
+                              color: reservations[index].isPayment!
                                   ? ApTheme.of(context).yellow
                                   : ApTheme.of(context).red,
                             ),
@@ -192,7 +192,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           : Center(
                               child: isShowYear
                                   ? Text(
-                                      '${reservations[index].time.year}',
+                                      '${reservations[index].time!.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
                                         color: ApTheme.of(context).greyText,
@@ -215,21 +215,21 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Future<void> getBusViolationRecords() async {
-    Helper.instance.getBusViolationRecords(
+    Helper.instance!.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
-          violationData.reservations.sort(
-            (a, b) => b.time.compareTo(a.time),
+          violationData!.reservations!.sort(
+            (a, b) => b.time!.compareTo(a.time!),
           );
           if (mounted) {
             setState(() {
               if (violationData == null ||
-                  violationData.reservations.length == 0)
+                  violationData!.reservations!.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
-              ShareDataWidget.of(context).data.hasBusViolationRecords =
+              ShareDataWidget.of(context)!.data!.hasBusViolationRecords =
                   (data?.hasBusViolationRecords ?? false);
             });
           }
@@ -249,20 +249,20 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response.statusCode == 401)
+                  if (e.response!.statusCode == 401)
                     state = _State.userNotSupport;
-                  else if (e.response.statusCode == 403)
+                  else if (e.response!.statusCode == 403)
                     state = _State.campusNotSupport;
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getBusViolationRecords', e.response.statusCode,
+                        'getBusViolationRecords', e.response!.statusCode!,
                         message: e.message);
                   }
                 });
-                if (e.response.statusCode == 401 ||
-                    e.response.statusCode == 403)
+                if (e.response!.statusCode == 401 ||
+                    e.response!.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
                     AnalyticsConstants.no,
@@ -272,7 +272,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
-                    customStateHint = app.busFailInfinity;
+                    customStateHint = app!.busFailInfinity;
                   } else
                     state = _State.error;
                 });
@@ -299,11 +299,11 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
 }
 
 class ReservationItem extends StatelessWidget {
-  final Reservation reservation;
-  final bool isLeft;
+  final Reservation? reservation;
+  final bool? isLeft;
 
   const ReservationItem({
-    Key key,
+    Key? key,
     this.reservation,
     this.isLeft,
   }) : super(key: key);
@@ -317,24 +317,24 @@ class ReservationItem extends StatelessWidget {
         horizontal: 8.0,
         vertical: 2.0,
       ),
-      alignment: isLeft ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isLeft! ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              if (isLeft)
+              if (isLeft!)
                 startStation(
                   context,
-                  reservation.startStationText(context),
+                  reservation!.startStationText(context),
                 ),
               Tooltip(
-                message: '${reservation.time.year}',
+                message: '${reservation!.time!.year}',
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2.0),
                   child: Text(
-                    '${reservation.time.month}/${reservation.time.day}',
+                    '${reservation!.time!.month}/${reservation!.time!.day}',
                     style: TextStyle(
                       fontSize: 24.0,
                       color: ApTheme.of(context).greyText,
@@ -344,10 +344,10 @@ class ReservationItem extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!isLeft)
+              if (!isLeft!)
                 startStation(
                   context,
-                  reservation.startStationText(context),
+                  reservation!.startStationText(context),
                 ),
             ],
           ),
@@ -362,25 +362,25 @@ class ReservationItem extends StatelessWidget {
               ),
               SizedBox(width: 2.0),
               Text(
-                dateFormat.format(reservation.time.add(Duration(hours: 8))),
+                dateFormat.format(reservation!.time!.add(Duration(hours: 8))),
                 style: TextStyle(
                   color: ApTheme.of(context).greyText,
                 ),
               ),
             ],
           ),
-          if (reservation.amountend != 0)
+          if (reservation!.amountend != 0)
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Center(
                   child: Text(
-                    reservation.isPayment
-                        ? AppLocalizations.of(context).paid
-                        : AppLocalizations.of(context).unpaid,
+                    reservation!.isPayment!
+                        ? AppLocalizations.of(context)!.paid
+                        : AppLocalizations.of(context)!.unpaid,
                     style: TextStyle(
-                      color: reservation.isPayment
+                      color: reservation!.isPayment!
                           ? ApTheme.of(context).green
                           : ApTheme.of(context).red,
                     ),
@@ -393,7 +393,7 @@ class ReservationItem extends StatelessWidget {
     );
   }
 
-  Widget startStation(BuildContext context, String station) {
+  Widget startStation(BuildContext context, String? station) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(
@@ -406,7 +406,7 @@ class ReservationItem extends StatelessWidget {
         horizontal: 8.0,
       ),
       child: Text(
-        station ?? AppLocalizations.of(context).unknown,
+        station ?? AppLocalizations.of(context)!.unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,
@@ -422,8 +422,8 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
   final String text;
 
   MySliverAppBar({
-    @required this.expandedHeight,
-    @required this.text,
+    required this.expandedHeight,
+    required this.text,
   });
 
   @override

@@ -17,13 +17,13 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/semester_data.dart';
 
-typedef SemesterCallback = void Function(Semester semester, int index);
+typedef SemesterCallback = void Function(Semester? semester, int? index);
 
 class SemesterPicker extends StatefulWidget {
-  final SemesterCallback onSelect;
-  final String featureTag;
+  final SemesterCallback? onSelect;
+  final String? featureTag;
 
-  const SemesterPicker({Key key, this.onSelect, this.featureTag})
+  const SemesterPicker({Key? key, this.onSelect, this.featureTag})
       : super(key: key);
 
   @override
@@ -31,10 +31,10 @@ class SemesterPicker extends StatefulWidget {
 }
 
 class SemesterPickerState extends State<SemesterPicker> {
-  SemesterData semesterData;
-  Semester selectSemester;
+  SemesterData? semesterData;
+  Semester? selectSemester;
 
-  int currentIndex = 0;
+  int? currentIndex = 0;
 
   @override
   void initState() {
@@ -80,10 +80,10 @@ class SemesterPickerState extends State<SemesterPicker> {
   void _loadSemesterData() async {
     this.semesterData = SemesterData.load();
     if (this.semesterData == null) return;
-    widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
+    widget.onSelect!(semesterData!.defaultSemester, semesterData!.defaultIndex);
     if (mounted) {
       setState(() {
-        selectSemester = semesterData.defaultSemester;
+        selectSemester = semesterData!.defaultSemester;
       });
     }
   }
@@ -93,35 +93,35 @@ class SemesterPickerState extends State<SemesterPicker> {
       _loadSemesterData();
       return;
     }
-    Helper.instance.getSemester(
+    Helper.instance!.getSemester(
       callback: GeneralCallback(
-        onSuccess: (SemesterData data) {
+        onSuccess: (SemesterData? data) {
           this.semesterData = data;
-          semesterData.save();
+          semesterData!.save();
           var oldSemester = Preferences.getString(
             ApConstants.currentSemesterCode,
             ApConstants.semesterLatest,
           );
           final newSemester =
-              '${Helper.username}_${semesterData.defaultSemester.code}';
+              '${Helper.username}_${semesterData!.defaultSemester!.code}';
           Preferences.setString(
             ApConstants.currentSemesterCode,
             newSemester,
           );
           //TODO clear old course notify, but may be improve
-          if (!oldSemester.contains(semesterData.defaultSemester.code)) {
+          if (!oldSemester.contains(semesterData!.defaultSemester!.code)) {
             CourseNotifyData notifyData = CourseNotifyData.load(oldSemester);
             if (notifyData != null && NotificationUtils.isSupport) {
               CourseNotifyData.clearOldVersionNotification(
-                  tag: oldSemester, newTag: semesterData.defaultSemester.code);
+                  tag: oldSemester, newTag: semesterData!.defaultSemester!.code);
             }
           }
           if (mounted) {
-            currentIndex = semesterData.defaultIndex;
-            widget.onSelect(
-                semesterData.defaultSemester, semesterData.defaultIndex);
+            currentIndex = semesterData!.defaultIndex;
+            widget.onSelect!(
+                semesterData!.defaultSemester, semesterData!.defaultIndex);
             setState(() {
-              selectSemester = semesterData.defaultSemester;
+              selectSemester = semesterData!.defaultSemester;
             });
           }
         },
@@ -129,7 +129,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           ApUtils.showToast(context, e.i18nMessage);
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getSemester', e.response.statusCode,
+                'getSemester', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse response) {
@@ -144,13 +144,13 @@ class SemesterPickerState extends State<SemesterPicker> {
       context: context,
       builder: (BuildContext context) => SimpleOptionDialog(
         title: ApLocalizations.of(context).pickSemester,
-        items: [for (var item in semesterData.data) item.text],
-        index: currentIndex,
+        items: [for (var item in semesterData!.data!) item.text!],
+        index: currentIndex!,
         onSelected: (index) {
           currentIndex = index;
-          widget.onSelect(semesterData.data[currentIndex], currentIndex);
+          widget.onSelect!(semesterData!.data![currentIndex!], currentIndex);
           setState(() {
-            selectSemester = semesterData.data[currentIndex];
+            selectSemester = semesterData!.data![currentIndex!];
           });
         },
       ),

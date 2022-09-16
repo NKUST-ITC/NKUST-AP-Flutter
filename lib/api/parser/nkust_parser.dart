@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' show parse;
 
 List<Map<String, dynamic>> acadParser({
-  @required String html,
-  @required int baseIndex,
+  required String? html,
+  required int baseIndex,
 }) {
   List<Map<String, dynamic>> dataList = [];
   var document = parse(html);

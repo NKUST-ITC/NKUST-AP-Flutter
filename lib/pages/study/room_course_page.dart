@@ -12,8 +12,8 @@ class EmptyRoomPage extends StatefulWidget {
   final Room room;
 
   const EmptyRoomPage({
-    Key key,
-    @required this.room,
+    Key? key,
+    required this.room,
   }) : super(key: key);
 
   @override
@@ -23,16 +23,16 @@ class EmptyRoomPage extends StatefulWidget {
 class _EmptyRoomPageState extends State<EmptyRoomPage> {
   final key = GlobalKey<SemesterPickerState>();
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
 
-  Semester selectSemester;
-  SemesterData semesterData;
+  late Semester selectSemester;
+  SemesterData? semesterData;
 
-  CourseData courseData;
+  late CourseData courseData;
 
-  String customStateHint;
+  String? customStateHint;
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             selectSemester = semester;
             state = CourseState.loading;
           });
-          semesterData = key.currentState.semesterData;
+          semesterData = key.currentState!.semesterData;
           _getRoomCourseTable();
         },
       ),
@@ -68,13 +68,13 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         _getRoomCourseTable();
       },
       onSearchButtonClick: () {
-        key.currentState.pickSemester();
+        key.currentState!.pickSemester();
       },
     );
   }
 
   _getRoomCourseTable() async {
-    Helper.instance.getRoomCourseTables(
+    Helper.instance!.getRoomCourseTables(
       roomId: widget.room.id,
       semester: selectSemester,
       callback: GeneralCallback(
@@ -82,7 +82,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
           courseData = data;
           if (mounted)
             setState(() {
-              if (courseData.courses.length != 0)
+              if (courseData.courses!.length != 0)
                 state = CourseState.finish;
               else
                 state = CourseState.empty;
@@ -96,7 +96,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRoomCourseTables', e.response.statusCode,
+                'getRoomCourseTables', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {

@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class LeavesCampusData {
-  List<LeavesCampus> data;
+  List<LeavesCampus>? data;
 
   LeavesCampusData({
     this.data,
@@ -20,13 +20,13 @@ class LeavesCampusData {
   );
 
   Map<String, dynamic> toJson() => {
-    "data": data == null ? null : List<dynamic>.from(data.map((x) => x.toJson())),
+    "data": data == null ? null : List<dynamic>.from(data!.map((x) => x.toJson())),
   };
 }
 
 class LeavesCampus {
-  String campusName;
-  List<LeavesDepartment> department;
+  String? campusName;
+  List<LeavesDepartment>? department;
 
   LeavesCampus({
     this.campusName,
@@ -44,13 +44,13 @@ class LeavesCampus {
 
   Map<String, dynamic> toJson() => {
     "campusName": campusName == null ? null : campusName,
-    "department": department == null ? null : List<dynamic>.from(department.map((x) => x.toJson())),
+    "department": department == null ? null : List<dynamic>.from(department!.map((x) => x.toJson())),
   };
 }
 
 class LeavesDepartment {
-  String departmentName;
-  List<LeavesTeacher> teacherList;
+  String? departmentName;
+  List<LeavesTeacher>? teacherList;
 
   LeavesDepartment({
     this.departmentName,
@@ -68,13 +68,13 @@ class LeavesDepartment {
 
   Map<String, dynamic> toJson() => {
     "departmentName": departmentName == null ? null : departmentName,
-    "teacherList": teacherList == null ? null : List<dynamic>.from(teacherList.map((x) => x.toJson())),
+    "teacherList": teacherList == null ? null : List<dynamic>.from(teacherList!.map((x) => x.toJson())),
   };
 }
 
 class LeavesTeacher {
-  String name;
-  String id;
+  String? name;
+  String? id;
 
   LeavesTeacher({
     this.name,

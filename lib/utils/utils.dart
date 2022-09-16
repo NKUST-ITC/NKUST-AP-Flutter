@@ -21,7 +21,7 @@ class Utils {
   }
 
   static Future<void> setBusNotify(
-      BuildContext context, List<BusReservation> busReservations) async {
+      BuildContext context, List<BusReservation>? busReservations) async {
     var app = AppLocalizations.of(context);
     if (NotificationUtils.isSupport) {
       for (int i = 0;
@@ -35,10 +35,10 @@ class Utils {
         await NotificationUtils.schedule(
           id: Constants.NOTIFICATION_BUS_ID + i,
           androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
-          androidChannelDescription: app.busNotify,
+          androidChannelDescription: app!.busNotify,
           androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
           dateTime:
-              busReservations[i].getDateTime().subtract(Duration(minutes: 30)),
+              busReservations![i].getDateTime().subtract(Duration(minutes: 30)),
           title: app.busNotify,
           content: sprintf(
             app.busNotifyContent,
@@ -58,7 +58,7 @@ class Utils {
   }
 
   static Future<File> resizeImageByDart(File source) async {
-    ImageUtils.Image image = ImageUtils.decodeImage(source.readAsBytesSync());
+    ImageUtils.Image image = ImageUtils.decodeImage(source.readAsBytesSync())!;
     double sourceSize = source.lengthSync() / 1024 / 1024;
     double rate = sourceSize / Constants.IMAGE_RESIZE_RATE;
     ImageUtils.Image thumbnail = ImageUtils.copyResize(
@@ -104,18 +104,18 @@ class Utils {
       return 'unkwon';
   }
 
-  static String parserCampus(AppLocalizations local, String campus) {
+  static String? parserCampus(AppLocalizations? local, String? campus) {
     switch (campus) {
       case "建工":
-        return local.jiangong;
+        return local!.jiangong;
       case "燕巢":
-        return local.yanchao;
+        return local!.yanchao;
       case "第一":
-        return local.first;
+        return local!.first;
       case '楠梓':
-        return local.nanzi;
+        return local!.nanzi;
       case '旗津':
-        return local.qijin;
+        return local!.qijin;
       default:
         return campus;
     }

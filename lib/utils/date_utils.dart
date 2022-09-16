@@ -13,15 +13,15 @@ import "package:intl/intl.dart";
 */
 class CalendarDateUtils {
   static final DateFormat _monthFormat =
-      new DateFormat("MMMM yyyy", Locale(Intl.defaultLocale).languageCode);
+      new DateFormat("MMMM yyyy", Locale(Intl.defaultLocale!).languageCode);
   static final DateFormat _dayFormat =
-      new DateFormat("dd", Locale(Intl.defaultLocale).languageCode);
+      new DateFormat("dd", Locale(Intl.defaultLocale!).languageCode);
   static final DateFormat _firstDayFormat =
-      new DateFormat("MMM dd", Locale(Intl.defaultLocale).languageCode);
+      new DateFormat("MMM dd", Locale(Intl.defaultLocale!).languageCode);
   static final DateFormat _fullDayFormat = new DateFormat(
-      "EEE MMM dd, yyyy", Locale(Intl.defaultLocale).languageCode);
+      "EEE MMM dd, yyyy", Locale(Intl.defaultLocale!).languageCode);
   static final DateFormat _apiDayFormat =
-      new DateFormat("yyyy-MM-dd", Locale(Intl.defaultLocale).languageCode);
+      new DateFormat("yyyy-MM-dd", Locale(Intl.defaultLocale!).languageCode);
 
   static String formatMonth(DateTime d) => _monthFormat.format(d);
 

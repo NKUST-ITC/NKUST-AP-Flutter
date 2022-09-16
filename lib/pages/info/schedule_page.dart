@@ -33,7 +33,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   bool get wantKeepAlive => true;
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   List<ScheduleData> scheduleDataList = [];
 
@@ -52,7 +52,7 @@ class SchedulePageState extends State<SchedulePage>
       );
   PdfState pdfState = PdfState.loading;
 
-  Uint8List data;
+  Uint8List? data;
 
   @override
   void initState() {
@@ -87,7 +87,7 @@ class SchedulePageState extends State<SchedulePage>
             icon: ApIcon.assignment,
             content: state == _State.error
                 ? ap.clickToRetry
-                : AppLocalizations.of(context).busEmpty,
+                : AppLocalizations.of(context)!.busEmpty,
           ),
         );
       case _State.pdf:
@@ -137,7 +137,7 @@ class SchedulePageState extends State<SchedulePage>
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
     List<Widget> events = [];
-    for (var i in schedule.events) {
+    for (var i in schedule.events!) {
       events.add(
         Container(
           alignment: Alignment.centerLeft,
@@ -190,7 +190,7 @@ class SchedulePageState extends State<SchedulePage>
                           children: [
                             TextSpan(
                               text: sprintf(ap.addCalendarContent,
-                                  [schedule.events[index]]),
+                                  [schedule.events![index]]),
                             ),
                           ]),
                     ),
@@ -198,8 +198,8 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionText: ap.determine,
                     leftActionFunction: null,
                     rightActionFunction: () {
-                      if (schedule.events != null || schedule.events.length > 0)
-                        _addToCalendar(schedule.events[index]);
+                      if (schedule.events != null || schedule.events!.length > 0)
+                        _addToCalendar(schedule.events![index]);
                       FirebaseAnalyticsUtils.instance
                           .logEvent('add_schedule_click');
                     },
@@ -215,14 +215,14 @@ class SchedulePageState extends State<SchedulePage>
                 ),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  schedule.events[index],
+                  schedule.events![index],
                   style: _textStyle,
                   textAlign: TextAlign.left,
                 ),
               ),
             );
           },
-          childCount: schedule.events.length,
+          childCount: schedule.events!.length,
         ),
       ),
     ];
@@ -286,9 +286,9 @@ class SchedulePageState extends State<SchedulePage>
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverAppBarDelegate({
-    @required this.minHeight,
-    @required this.maxHeight,
-    @required this.child,
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
   });
 
   final double minHeight;

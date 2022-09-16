@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class LibraryInfoData {
-  LibraryInfo data;
+  LibraryInfo? data;
 
   LibraryInfoData({
     this.data,
@@ -22,7 +22,7 @@ class LibraryInfoData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": data.toJson(),
+        "data": data!.toJson(),
       };
 
   static LibraryInfoData sample() {
@@ -32,10 +32,10 @@ class LibraryInfoData {
 }
 
 class LibraryInfo {
-  String department;
-  String libraryId;
-  String name;
-  Record record;
+  String? department;
+  String? libraryId;
+  String? name;
+  Record? record;
 
   LibraryInfo({
     this.department,
@@ -60,14 +60,14 @@ class LibraryInfo {
         "department": department,
         "libraryId": libraryId,
         "name": name,
-        "record": record.toJson(),
+        "record": record!.toJson(),
       };
 }
 
 class Record {
-  int borrowing;
-  int reserveRental;
-  int userFine;
+  int? borrowing;
+  int? reserveRental;
+  int? userFine;
 
   Record({
     this.borrowing,
