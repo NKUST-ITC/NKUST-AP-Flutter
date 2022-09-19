@@ -247,7 +247,10 @@ class WebApParser {
           'at': td[7].text,
           'sectionTimes': [],
           "instructors": td[9].text.split(","),
-          'location': {'room': td[10].text}
+          'location': {
+            'building': '',
+            'room': td[10].text,
+          }
         });
       }
     } catch (e, s) {
@@ -508,10 +511,7 @@ class WebApParser {
             'at': td[8].text.replaceAll(String.fromCharCode(160), ""),
             'times': td[9].text.replaceAll(String.fromCharCode(160), ""),
             'sectionTimes': [],
-            'location': {
-              'room': null,
-              'building': null,
-            },
+            'location': null,
             "instructors":
                 td[10].text.replaceAll(String.fromCharCode(160), "").split(",")
           }

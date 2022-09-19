@@ -27,7 +27,7 @@ class CoursePageState extends State<CoursePage> {
 
   Semester? selectSemester;
   SemesterData? semesterData;
-  CourseData courseData = CourseData();
+  CourseData courseData = CourseData.empty();
 
   CourseNotifyData? notifyData;
 

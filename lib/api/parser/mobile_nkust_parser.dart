@@ -4,7 +4,6 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' as html;
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 
@@ -215,18 +214,17 @@ class MobileNkustParser {
   }
 
   static ScoreData scores(rawHtml) {
-    final scoreData = ScoreData();
     final document = html.parse(rawHtml);
     // generate scores list
     if (document.getElementById("datatable") == null) {
-      return scoreData;
+      return ScoreData.empty();
     }
     List<Map<String, dynamic>> scoresList = [];
     //skip table header
     var _trElements =
         document.getElementById("datatable")!.getElementsByTagName('tr');
     if (_trElements.length <= 1) {
-      return scoreData;
+      return ScoreData.empty();
     }
 
     for (var trElement in _trElements.sublist(1)) {
@@ -235,7 +233,7 @@ class MobileNkustParser {
 
       if (tdElements.length < 8) {
         // continue;
-        return scoreData;
+        return ScoreData.empty();
       }
       scoresList.add({
         "title": tdElements.elementAt(0).text,
@@ -253,10 +251,10 @@ class MobileNkustParser {
     Map<String, dynamic> detailData = {};
     var detailDiv = document.getElementsByClassName("text-bold text-info");
     if (detailDiv == null) {
-      return scoreData;
+      return ScoreData.empty();
     }
     if (detailDiv.length < 4) {
-      return scoreData;
+      return ScoreData.empty();
     }
     detailData["average"] = detailDiv
         .elementAt(0)
@@ -297,18 +295,19 @@ class MobileNkustParser {
   }
 
   static UserInfo userInfo(rawHtml) {
-    final userInfo = UserInfo();
     final document = html.parse(rawHtml);
     final list = document.getElementsByClassName('user-header');
     if (list.length > 0) {
       final p = list[0].getElementsByTagName('p');
       if (p.length >= 2) {
-        userInfo.id = p[0].text.split(' ').first;
-        userInfo.name = p[0].text.split(' ').last;
-        userInfo.department = p[1].text;
+        return UserInfo(
+          id: p[0].text.split(' ').first,
+          department: p[0].text.split(' ').last,
+          name: p[1].text,
+        );
       }
     }
-    return userInfo;
+    return UserInfo.empty();
   }
 
   static String? getCSRF(rawHtml) {

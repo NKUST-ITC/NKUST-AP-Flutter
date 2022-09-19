@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
 List<Map<String, dynamic>> acadParser({
@@ -12,13 +12,11 @@ List<Map<String, dynamic>> acadParser({
     //find date
     Map<String, dynamic> temp = {};
     Map<String, dynamic> info = {};
-
+    final List<Element> dTxtList = element.getElementsByClassName("d-txt");
     if (element.getElementsByClassName("d-txt").length > 0) {
-      info["date"] = element
-          .getElementsByClassName("d-txt")[0]
-          .text
-          .replaceAll("	", "")
-          .replaceAll("\n", "");
+      info["date"] = dTxtList[0].text.replaceAll("	", "").replaceAll("\n", "");
+      info["department"] =
+          dTxtList[1].text.replaceAll("	", "").replaceAll("\n", "");
     }
     if (element.getElementsByTagName("a").length > 0) {
       info["index"] = baseIndex;

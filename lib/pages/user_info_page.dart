@@ -17,35 +17,33 @@ class UserInfoPage extends StatefulWidget {
 }
 
 class UserInfoPageState extends State<UserInfoPage> {
+  late UserInfo userInfo;
+
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
         .setCurrentScreen("UserInfoPage", "user_info_page.dart");
+    userInfo = widget.userInfo;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return UserInfoScaffold(
-      userInfo: widget.userInfo,
+      userInfo: userInfo,
       actions: <Widget>[],
       enableBarCode: true,
       onRefresh: () async {
         var userInfo = await Helper.instance!.getUsersInfo();
         if (userInfo != null)
           setState(
-            () => widget.userInfo
-              ..name = userInfo.name
-              ..department = userInfo.department
-              ..className = userInfo.className
-              ..pictureUrl = userInfo.pictureUrl
-              ..educationSystem = userInfo.educationSystem
-              ..email = userInfo.email
-              ..id = userInfo.id,
+            () => this.userInfo = userInfo.copyWith(
+              pictureBytes: this.userInfo.pictureBytes,
+            ),
           );
         FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
         return null;
-      } as Future<UserInfo> Function()?,
+      },
     );
   }
 }

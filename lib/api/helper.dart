@@ -298,7 +298,10 @@ class Helper {
           break;
       }
       reLoginCount = 0;
-      if (data.id == null) data.id = username;
+      if (data.id.isEmpty)
+        data.copyWith(
+          id: username,
+        );
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       callback?.onFailure(dioError);
