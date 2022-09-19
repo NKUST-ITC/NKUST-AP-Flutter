@@ -74,7 +74,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   }
 
   _getRoomCourseTable() async {
-    Helper.instance!.getRoomCourseTables(
+    Helper.instance.getRoomCourseTables(
       roomId: widget.room.id,
       semester: selectSemester,
       callback: GeneralCallback(
@@ -82,7 +82,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
           courseData = data;
           if (mounted)
             setState(() {
-              if (courseData.courses!.length != 0)
+              if (courseData.courses.length != 0)
                 state = CourseState.finish;
               else
                 state = CourseState.empty;

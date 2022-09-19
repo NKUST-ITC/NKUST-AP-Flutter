@@ -421,7 +421,7 @@ class BusReservePageState extends State<BusReservePage>
     Helper.cancelToken!.cancel("");
     Helper.cancelToken = CancelToken();
     if (mounted) setState(() => state = _State.loading);
-    Helper.instance!.getBusTimeTables(
+    Helper.instance.getBusTimeTables(
       dateTime: dateTime,
       callback: GeneralCallback(
         onSuccess: (BusData data) {
@@ -505,7 +505,7 @@ class BusReservePageState extends State<BusReservePage>
           }),
       barrierDismissible: false,
     );
-    Helper.instance!.bookingBusReservation(
+    Helper.instance.bookingBusReservation(
       busId: busTime.busId,
       callback: GeneralCallback(
         onSuccess: (BookingBusData data) {
@@ -573,7 +573,7 @@ class BusReservePageState extends State<BusReservePage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance!.cancelBusReservation(
+    Helper.instance.cancelBusReservation(
       cancelKey: busTime.cancelKey,
       callback: GeneralCallback(
         onSuccess: (CancelBusData data) {
@@ -663,7 +663,7 @@ class BusReservePageState extends State<BusReservePage>
         break;
       case DioErrorType.other:
         if (e.message.contains("HttpException"))
-          message = AppLocalizations.of(context)!.busFailInfinity;
+          message = AppLocalizations.of(context).busFailInfinity;
         else
           message = ApLocalizations.of(context).somethingError;
         break;

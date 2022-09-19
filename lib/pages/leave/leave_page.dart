@@ -130,7 +130,7 @@ class LeavePageState extends State<LeavePage>
           ),
           BottomNavigationBarItem(
             icon: Icon(ApIcon.folder),
-            label: AppLocalizations.of(context)!.leaveApplyRecord,
+            label: AppLocalizations.of(context).leaveApplyRecord,
           ),
         ],
       ),
@@ -151,8 +151,8 @@ class LeavePageState extends State<LeavePage>
 
   Future<bool> login() async {
     try {
-      await WebApHelper.instance!.loginToMobile();
-      final cookies = await WebApHelper.instance!.cookieJar.loadForRequest(
+      await WebApHelper.instance.loginToMobile();
+      final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
         Uri.parse("https://mobile.nkust.edu.tw"),
       );
       for (var cookie in cookies) {

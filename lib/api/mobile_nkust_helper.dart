@@ -105,7 +105,7 @@ class MobileNkustHelper {
   void initCookiesJar() {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
-    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance!.cookieJar));
+    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
     cookieJar.loadForRequest(Uri.parse(BASE_URL));
   }
 
@@ -119,17 +119,15 @@ class MobileNkustHelper {
   }
 
   void setCookieFromData(MobileCookiesData data) {
-    if (data != null) {
-      cookiesData = data;
-      data.cookies?.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name!, element.value!);
-        _tempCookie.domain = element.domain;
-        cookieJar.saveFromResponse(
-          Uri.parse(element.path!),
-          [_tempCookie],
-        );
-      });
-    }
+    cookiesData = data;
+    data.cookies?.forEach((element) {
+      Cookie _tempCookie = Cookie(element.name!, element.value!);
+      _tempCookie.domain = element.domain;
+      cookieJar.saveFromResponse(
+        Uri.parse(element.path!),
+        [_tempCookie],
+      );
+    });
   }
 
   void setCookie(
@@ -149,7 +147,7 @@ class MobileNkustHelper {
   Future<bool> isCookieAlive() async {
     try {
       var res = await dio.get(CHECK_EXPIRE);
-      return res?.data == 'alive';
+      return res.data == 'alive';
     } catch (e) {}
     return false;
   }
@@ -203,7 +201,7 @@ class MobileNkustHelper {
           Constants.MOBILE_COOKIES_LAST_TIME,
           now.microsecondsSinceEpoch,
         );
-        FirebaseAnalyticsUtils.instance?.logEvent(
+        FirebaseAnalyticsUtils.instance.logEvent(
           'cookies_persistence_time',
           parameters: {
             'time': now.microsecondsSinceEpoch - lastTime,

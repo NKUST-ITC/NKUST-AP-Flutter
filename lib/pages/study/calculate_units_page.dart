@@ -94,7 +94,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         ),
       ),
       child: Text(
-        text ?? "",
+        text,
         textAlign: TextAlign.center,
         style: _textBlueStyle(),
       ),
@@ -308,7 +308,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       });
       return;
     }
-    Helper.instance!.getSemester(
+    Helper.instance.getSemester(
       callback: GeneralCallback(
         onSuccess: (SemesterData? data) {
           this.semesterData = data;
@@ -329,16 +329,16 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
-    Helper.instance!.getScores(
-      semester: semesterData!.data![currentSemesterIndex!],
+    Helper.instance.getScores(
+      semester: semesterData!.data![currentSemesterIndex],
       callback: GeneralCallback(
         onSuccess: (ScoreData? data) {
           if (startYear == -1)
             startYear =
-                int.parse(semesterData!.data![currentSemesterIndex!].year!);
-          semesterList.add(semesterData!.data![currentSemesterIndex!]);
+                int.parse(semesterData!.data![currentSemesterIndex].year!);
+          semesterList.add(semesterData!.data![currentSemesterIndex]);
           if (data?.scores != null) {
-            for (var score in data!.scores!) {
+            for (var score in data!.scores) {
               if (score.semesterScore == null || score.semesterScore!.isEmpty)
                 continue;
               var semesterScore = double.tryParse(score.semesterScore!);
@@ -346,25 +346,25 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                   score.semesterScore == '合格' ||
                   score.semesterScore == '通過') {
                 if (score.required == "【必修】") {
-                  requiredUnitsTotal += double.parse(score.units!);
+                  requiredUnitsTotal += double.parse(score.units);
                 } else if (score.required == "【選修】") {
-                  electiveUnitsTotal += double.parse(score.units!);
+                  electiveUnitsTotal += double.parse(score.units);
                 } else {
-                  otherUnitsTotal += double.parse(score.units!);
+                  otherUnitsTotal += double.parse(score.units);
                 }
-                if (score.title!.contains("延伸通識") ||
-                    score.title!.contains("博雅")) {
+                if (score.title.contains("延伸通識") ||
+                    score.title.contains("博雅")) {
                   extendGeneralEducations.add(score);
-                } else if (score.title!.contains("核心通識") ||
-                    score.title!.contains("核心")) {
+                } else if (score.title.contains("核心通識") ||
+                    score.title.contains("核心")) {
                   coreGeneralEducations.add(score);
                 }
               }
             }
           }
           var currentYear =
-              int.parse(semesterData!.data![currentSemesterIndex!].year!);
-          if (currentSemesterIndex! < semesterData!.data!.length - 1 &&
+              int.parse(semesterData!.data![currentSemesterIndex].year!);
+          if (currentSemesterIndex < semesterData!.data!.length - 1 &&
               ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
             currentSemesterIndex++;
             if (mounted) _getSemesterScore();

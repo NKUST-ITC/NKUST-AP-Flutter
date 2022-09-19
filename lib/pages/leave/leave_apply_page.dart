@@ -16,9 +16,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/models/error_response.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -31,6 +31,7 @@ enum _State {
   offline,
   custom,
 }
+
 enum Leave { normal, sick, official, funeral, maternity }
 
 class LeaveApplyPage extends StatefulWidget {
@@ -198,7 +199,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    leaveSubmitInfo?.type![typeIndex]?.title ?? '',
+                    leaveSubmitInfo.type![typeIndex].title ?? '',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -480,7 +481,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    image?.path?.split('/')?.last ?? ap.leaveProofHint,
+                    image?.path.split('/').last ?? ap.leaveProofHint,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -570,11 +571,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   }
 
   Future _getLeavesInfo() async {
-    Helper.instance!.getLeavesSubmitInfo(
+    Helper.instance.getLeavesSubmitInfo(
       callback: GeneralCallback(
         onSuccess: (LeaveSubmitInfoData data) {
           setState(() {
-            if (data != null && data.type != null) {
+            if (data.type != null) {
               leaveSubmitInfo = data;
               state = _State.finish;
             } else
@@ -677,8 +678,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         days: days,
         leaveTypeId: leaveSubmitInfo.type![typeIndex].id,
         teacherId: tutorId,
-        reasonText: _reason.text ?? '',
-        delayReasonText: isDelay ? (_delayReason.text ?? '') : '',
+        reasonText: _reason.text,
+        delayReasonText: isDelay ? (_delayReason.text) : '',
       );
       showDialog(
         context: context,
@@ -710,7 +711,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                            text: '${leaveSubmitInfo.type![typeIndex].title}\n'),
+                            text:
+                                '${leaveSubmitInfo.type![typeIndex].title}\n'),
                         TextSpan(
                           text: '${ap.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -779,7 +781,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance!.sendLeavesSubmit(
+    Helper.instance.sendLeavesSubmit(
       data: data,
       image: image,
       callback: GeneralCallback(

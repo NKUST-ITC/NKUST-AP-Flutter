@@ -162,11 +162,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
-      Helper.instance!.getNotifications(
+      Helper.instance.getNotifications(
         page: page,
         callback: GeneralCallback(
           onSuccess: (NotificationsData data) {
-            notificationList.addAll(data.data!.notifications!);
+            notificationList.addAll(data.data.notifications);
             if (mounted)
               setState(() => notificationState = NotificationState.finish);
           },

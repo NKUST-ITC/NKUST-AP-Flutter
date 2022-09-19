@@ -129,7 +129,8 @@ class LoginPageState extends State<LoginPage> {
       isRememberPassword = value;
       if (!isRememberPassword!) isAutoLogin = false;
       Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin!);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
+      Preferences.setBool(
+          Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
     });
   }
 
@@ -138,7 +139,8 @@ class LoginPageState extends State<LoginPage> {
       isAutoLogin = value;
       isRememberPassword = isAutoLogin;
       Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin!);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
+      Preferences.setBool(
+          Constants.PREF_REMEMBER_PASSWORD, isRememberPassword!);
     });
   }
 
@@ -161,7 +163,7 @@ class LoginPageState extends State<LoginPage> {
     } else {
       setState(() => isLoginIng = true);
       Preferences.setString(Constants.PREF_USERNAME, _username.text);
-      Helper.instance!.login(
+      Helper.instance.login(
         context: context,
         username: _username.text,
         password: _password.text,

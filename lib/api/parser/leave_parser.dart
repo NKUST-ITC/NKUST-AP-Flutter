@@ -60,9 +60,9 @@ Map<String, dynamic> leaveQueryParser(String? html) {
     Map<String, dynamic> temp = {};
 
     var td = trDom[i].getElementsByTagName("td");
-    temp["leaveSheetId"] = td[1].text ?? "";
-    temp["date"] = td[2].text ?? "";
-    temp["instructorsComment"] = td[3].text ?? "";
+    temp["leaveSheetId"] = td[1].text;
+    temp["date"] = td[2].text;
+    temp["instructorsComment"] = td[3].text;
     temp["sections"] = [];
     for (int e = 4; e < td.length; e++) {
       if (td[e].text == "　") {

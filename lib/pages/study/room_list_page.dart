@@ -105,7 +105,7 @@ class _RoomListPageState extends State<RoomListPage> {
       case _State.custom:
       default:
         return InkWell(
-                onTap: () {
+          onTap: () {
             _getRoomList();
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
@@ -118,7 +118,7 @@ class _RoomListPageState extends State<RoomListPage> {
   }
 
   _getRoomList() async {
-    Helper.instance!.getRoomList(
+    Helper.instance.getRoomList(
       campusCode: campusIndex + 1,
       callback: GeneralCallback(
         onSuccess: (RoomData data) {

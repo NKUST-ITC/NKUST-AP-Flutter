@@ -210,7 +210,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance!.getMidtermAlerts(
+    Helper.instance.getMidtermAlerts(
       semester: selectSemester,
       callback: GeneralCallback(
         onSuccess: (MidtermAlertsData data) {

@@ -101,7 +101,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
             AnnouncementHelper.instance.setLocale(this.locale!);
             return this.locale;
           },
-          onGenerateTitle: (context) => AppLocalizations.of(context)!.appName,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
             Navigator.defaultRouteName: (context) => kIsWeb

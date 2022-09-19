@@ -34,7 +34,7 @@ class UserInfoPageState extends State<UserInfoPage> {
       actions: <Widget>[],
       enableBarCode: true,
       onRefresh: () async {
-        var userInfo = await Helper.instance!.getUsersInfo();
+        var userInfo = await Helper.instance.getUsersInfo();
         if (userInfo != null)
           setState(
             () => this.userInfo = userInfo.copyWith(

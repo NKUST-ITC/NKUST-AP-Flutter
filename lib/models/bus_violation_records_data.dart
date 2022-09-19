@@ -10,7 +10,7 @@ class BusViolationRecordsData {
 
   int get notPaymentAmountend {
     int sum = 0;
-    notPaymentReservations?.forEach((element) => sum += element.amountend!);
+    notPaymentReservations.forEach((element) => sum += element.amountend!);
     return sum;
   }
 

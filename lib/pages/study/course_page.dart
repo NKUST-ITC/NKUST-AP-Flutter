@@ -101,7 +101,7 @@ class CoursePageState extends State<CoursePage> {
           state = CourseState.offlineEmpty;
         } else {
           courseData = cacheData;
-          state = courseData.courses!.length == 0
+          state = courseData.courses.length == 0
               ? CourseState.empty
               : CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
@@ -121,7 +121,7 @@ class CoursePageState extends State<CoursePage> {
         onSuccess: (CourseData? data) {
           if (mounted)
             setState(() {
-              if (data == null || data.courses!.length == 0) {
+              if (data == null || data.courses.length == 0) {
                 state = CourseState.empty;
               } else {
                 courseData = data;

@@ -93,7 +93,7 @@ class SemesterPickerState extends State<SemesterPicker> {
       _loadSemesterData();
       return;
     }
-    Helper.instance!.getSemester(
+    Helper.instance.getSemester(
       callback: GeneralCallback(
         onSuccess: (SemesterData? data) {
           this.semesterData = data;
@@ -113,7 +113,8 @@ class SemesterPickerState extends State<SemesterPicker> {
             CourseNotifyData notifyData = CourseNotifyData.load(oldSemester);
             if (notifyData != null && NotificationUtils.isSupport) {
               CourseNotifyData.clearOldVersionNotification(
-                  tag: oldSemester, newTag: semesterData!.defaultSemester!.code);
+                  tag: oldSemester,
+                  newTag: semesterData!.defaultSemester!.code);
             }
           }
           if (mounted) {

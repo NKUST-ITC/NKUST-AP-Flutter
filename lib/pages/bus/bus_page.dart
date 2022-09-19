@@ -78,7 +78,8 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       body: FutureBuilder<bool>(
         future: _login,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done && snapshot.data!)
+          if (snapshot.connectionState == ConnectionState.done &&
+              snapshot.data!)
             return TabBarView(
               children: _children,
               controller: controller,
@@ -148,7 +149,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   }
 
   void getBusViolationRecords() {
-    Helper.instance!.getBusViolationRecords(
+    Helper.instance.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           if (mounted)
@@ -162,7 +163,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.HAS_BUS_VIOLATION,
-            (data?.hasBusViolationRecords ?? false)
+            (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
           );
@@ -170,7 +171,8 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         onError: (GeneralResponse response) {},
         onFailure: (DioError e) {
           if (e.hasResponse &&
-              (e.response!.statusCode == 401 || e.response!.statusCode == 403)) {
+              (e.response!.statusCode == 401 ||
+                  e.response!.statusCode == 403)) {
             FirebaseAnalyticsUtils.instance.setUserProperty(
               Constants.CAN_USE_BUS,
               AnalyticsConstants.no,
@@ -184,7 +186,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   Future<bool> login() async {
     if (MobileNkustHelper.instance!.cookiesData == null) {
       try {
-        await WebApHelper.instance!.loginToMobile();
+        await WebApHelper.instance.loginToMobile();
       } catch (e) {
         return false;
       }

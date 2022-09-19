@@ -417,8 +417,8 @@ class InkustHelper {
       {PickedFile? proofImage}) async {
     await checkLogin();
 
-    var userInfo = await Helper.instance!.getUsersInfo();
-    var nowSemester = await Helper.instance!.getSemester();
+    var userInfo = await Helper.instance.getUsersInfo();
+    var nowSemester = await Helper.instance.getSemester();
     bool proofImageExists = false;
     if (proofImage != null) {
       proofImageExists = true;

@@ -216,7 +216,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance!.getRewardAndPenalty(
+    Helper.instance.getRewardAndPenalty(
       semester: selectSemester,
       callback: GeneralCallback(
         onSuccess: (RewardAndPenaltyData data) {

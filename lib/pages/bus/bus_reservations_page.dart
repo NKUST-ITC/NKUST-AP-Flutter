@@ -251,7 +251,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         state = _State.loading;
       });
     }
-    Helper.instance!.getBusReservations(
+    Helper.instance.getBusReservations(
       callback: GeneralCallback(
         onSuccess: (BusReservationsData data) {
           busReservationsData = data;
@@ -337,7 +337,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance!.cancelBusReservation(
+    Helper.instance.cancelBusReservation(
       cancelKey: busTime.cancelKey,
       callback: GeneralCallback(
         onSuccess: (data) {

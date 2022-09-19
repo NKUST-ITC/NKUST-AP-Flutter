@@ -117,7 +117,7 @@ class HomePageState extends State<HomePage> {
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
       email: 'nkust.itc@gmail.com',
-      appLicense: AppLocalizations.of(context)!.aboutOpenSourceContent,
+      appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
@@ -126,7 +126,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance?.setCurrentScreen(
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
       "HomePage",
       "home_page.dart",
     );
@@ -166,7 +166,7 @@ class HomePageState extends State<HomePage> {
       title: app!.appName,
       key: _homeKey,
       state: state,
-      announcements: announcements!,
+      announcements: announcements,
       isLogin: isLogin,
       content: content,
       actions: <Widget>[
@@ -500,7 +500,7 @@ class HomePageState extends State<HomePage> {
 
   _setupBusNotify(BuildContext context) async {
     if (Preferences.getBool(Constants.PREF_BUS_NOTIFY, false))
-      Helper.instance!.getBusReservations(
+      Helper.instance.getBusReservations(
         callback: GeneralCallback(
           onSuccess: (BusReservationsData response) async {
             if (response != null)
@@ -521,7 +521,7 @@ class HomePageState extends State<HomePage> {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
       userInfo = UserInfo.load(Helper.username!);
     } else
-      Helper.instance!.getUsersInfo(
+      Helper.instance.getUsersInfo(
         callback: GeneralCallback(
           onSuccess: (UserInfo data) {
             if (mounted) {
@@ -548,7 +548,7 @@ class HomePageState extends State<HomePage> {
 
   _getUserPicture() async {
     try {
-      var response = await Helper.instance!.getUserPicture();
+      var response = await Helper.instance.getUserPicture();
       if (mounted) {
         setState(() {
           userInfo!.pictureBytes = response;
@@ -564,7 +564,7 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(Duration(microseconds: 30));
     final username = Preferences.getString(Constants.PREF_USERNAME, '');
     final password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
-    Helper.instance!.login(
+    Helper.instance.login(
       context: context,
       username: username,
       password: password,
@@ -760,7 +760,7 @@ class HomePageState extends State<HomePage> {
       if (first)
         DialogUtils.showNewVersionContent(
           context: context,
-          appName: app!.appName,
+          appName: app.appName,
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',

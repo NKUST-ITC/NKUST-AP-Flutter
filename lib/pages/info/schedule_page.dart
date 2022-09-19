@@ -87,7 +87,7 @@ class SchedulePageState extends State<SchedulePage>
             icon: ApIcon.assignment,
             content: state == _State.error
                 ? ap.clickToRetry
-                : AppLocalizations.of(context)!.busEmpty,
+                : AppLocalizations.of(context).busEmpty,
           ),
         );
       case _State.pdf:
@@ -198,7 +198,8 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionText: ap.determine,
                     leftActionFunction: null,
                     rightActionFunction: () {
-                      if (schedule.events != null || schedule.events!.length > 0)
+                      if (schedule.events != null ||
+                          schedule.events!.length > 0)
                         _addToCalendar(schedule.events![index]);
                       FirebaseAnalyticsUtils.instance
                           .logEvent('add_schedule_click');

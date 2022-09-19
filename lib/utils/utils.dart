@@ -35,7 +35,7 @@ class Utils {
         await NotificationUtils.schedule(
           id: Constants.NOTIFICATION_BUS_ID + i,
           androidChannelId: '${Constants.NOTIFICATION_BUS_ID}',
-          androidChannelDescription: app!.busNotify,
+          androidChannelDescription: app.busNotify,
           androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
           dateTime:
               busReservations![i].getDateTime().subtract(Duration(minutes: 30)),

@@ -107,7 +107,7 @@ class BusReservation {
 
   static List<BusReservation> toList(List<dynamic> jsonArray) {
     List<BusReservation> list = [];
-    for (var item in (jsonArray ?? [])) list.add(BusReservation.fromJson(item));
+    for (var item in (jsonArray)) list.add(BusReservation.fromJson(item));
     return list;
   }
 

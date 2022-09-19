@@ -74,10 +74,10 @@ class ScorePageState extends State<ScorePage> {
         key.currentState!.pickSemester();
       },
       details: [
-        '${ap.conductScore}：${scoreData?.detail?.conduct ?? ''}',
-        '${ap.average}：${scoreData?.detail?.average ?? ''}',
-        '${ap.classRank}：${scoreData?.detail?.classRank ?? ''}',
-        '${ap.departmentRank}：${scoreData?.detail?.departmentRank ?? ''}',
+        '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
+        '${ap.average}：${scoreData?.detail.average ?? ''}',
+        '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
+        '${ap.departmentRank}：${scoreData?.detail.departmentRank ?? ''}',
       ],
     );
   }
@@ -88,7 +88,7 @@ class ScorePageState extends State<ScorePage> {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
       _loadOfflineScoreData();
     else
-      Helper.instance!.getScores(
+      Helper.instance.getScores(
         semester: selectSemester,
         callback: GeneralCallback(onSuccess: (ScoreData? data) {
           if (mounted)

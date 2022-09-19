@@ -313,7 +313,7 @@ class MobileNkustParser {
   static String? getCSRF(rawHtml) {
     final document = html.parse(rawHtml);
     for (var inputElement in document.getElementsByTagName("input")) {
-      if (((inputElement.attributes ?? const {})['name'] ?? "") ==
+      if (((inputElement.attributes)['name'] ?? "") ==
           "__RequestVerificationToken") {
         return inputElement.attributes['value'];
       }

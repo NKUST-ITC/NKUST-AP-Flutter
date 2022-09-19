@@ -215,7 +215,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Future<void> getBusViolationRecords() async {
-    Helper.instance!.getBusViolationRecords(
+    Helper.instance.getBusViolationRecords(
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
@@ -230,7 +230,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
               else
                 state = _State.finish;
               ShareDataWidget.of(context)!.data!.hasBusViolationRecords =
-                  (data?.hasBusViolationRecords ?? false);
+                  (data.hasBusViolationRecords);
             });
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
@@ -239,7 +239,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
             Constants.HAS_BUS_VIOLATION,
-            (data?.hasBusViolationRecords ?? false)
+            (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
           );
@@ -377,8 +377,8 @@ class ReservationItem extends StatelessWidget {
                 Center(
                   child: Text(
                     reservation!.isPayment!
-                        ? AppLocalizations.of(context)!.paid
-                        : AppLocalizations.of(context)!.unpaid,
+                        ? AppLocalizations.of(context).paid
+                        : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
                       color: reservation!.isPayment!
                           ? ApTheme.of(context).green
@@ -406,7 +406,7 @@ class ReservationItem extends StatelessWidget {
         horizontal: 8.0,
       ),
       child: Text(
-        station ?? AppLocalizations.of(context)!.unknown,
+        station ?? AppLocalizations.of(context).unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,

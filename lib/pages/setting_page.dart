@@ -62,8 +62,8 @@ class SettingPageState extends State<SettingPage> {
             CheckCourseNotifyItem(),
             ClearAllNotifyItem(),
             SettingSwitch(
-              text: AppLocalizations.of(context)!.busNotify,
-              subText: AppLocalizations.of(context)!.busNotifySubTitle,
+              text: AppLocalizations.of(context).busNotify,
+              subText: AppLocalizations.of(context).busNotifySubTitle,
               value: busNotify,
               onChanged: (b) async {
                 FirebaseAnalyticsUtils.instance.logEvent('notify_bus_create');
@@ -142,7 +142,7 @@ class SettingPageState extends State<SettingPage> {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
       isOffline = Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
-      appVersion = packageInfo?.version;
+      appVersion = packageInfo.version;
       courseNotify = Preferences.getBool(Constants.PREF_COURSE_NOTIFY, false);
       displayPicture =
           Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true);
@@ -164,23 +164,23 @@ class SettingPageState extends State<SettingPage> {
         ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        ApUtils.showToast(context, AppLocalizations.of(context)!.busNotifyHint);
+        ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
       }
       Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
       return;
     }
-    Helper.instance!.getBusReservations(
+    Helper.instance.getBusReservations(
       callback: GeneralCallback(
         onSuccess: (BusReservationsData data) async {
           Navigator.of(context, rootNavigator: true).pop();
           if (data != null) {
             await Utils.setBusNotify(context, data.reservations);
             ApUtils.showToast(
-                context, AppLocalizations.of(context)!.busNotifyHint);
+                context, AppLocalizations.of(context).busNotifyHint);
           } else
             ApUtils.showToast(
               context,
-              AppLocalizations.of(context)!.busReservationEmpty,
+              AppLocalizations.of(context).busReservationEmpty,
             );
           Preferences.setBool(Constants.PREF_BUS_NOTIFY, busNotify);
         },

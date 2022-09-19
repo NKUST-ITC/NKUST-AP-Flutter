@@ -1,31 +1,26 @@
 //dio
 import 'dart:io';
 
+import 'package:ap_common/models/private_cookies_manager.dart';
+//overwrite origin Cookie Manager.
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nkust_ap/api/ap_helper.dart';
-
-//overwrite origin Cookie Manager.
-import 'package:cookie_jar/cookie_jar.dart';
-
-import 'package:ap_common/models/private_cookies_manager.dart';
-
-//Config
-import 'package:nkust_ap/config/constants.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 //parser
 import 'package:nkust_ap/api/parser/leave_parser.dart';
-
+//Config
+import 'package:nkust_ap/config/constants.dart';
 //model
 import 'package:nkust_ap/models/leave_data.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
-import 'package:intl/intl.dart';
-import 'package:html/parser.dart' show parse;
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/leave_nkust_page.dart';
@@ -70,7 +65,7 @@ class LeaveHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance!.cookieJar));
+    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
 
@@ -122,7 +117,7 @@ class LeaveHelper {
     try {
       //TODO check cookies is expire
       var res = await dio.get('');
-      return res?.data == 'alive';
+      return res.data == 'alive';
     } catch (e) {}
     return false;
   }
@@ -213,7 +208,7 @@ class LeaveHelper {
       throw NullThrownError;
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance!.loginToLeave();
+      await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -243,7 +238,7 @@ class LeaveHelper {
       throw NullThrownError;
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance!.loginToLeave();
+      await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
     Response res = await dio.get(
@@ -279,7 +274,7 @@ class LeaveHelper {
   Future<Response?> leavesSubmit(LeaveSubmitData data,
       {PickedFile? proofImage}) async {
     //force relogin to aviod error.
-    await WebApHelper.instance!.loginToLeave();
+    await WebApHelper.instance.loginToLeave();
 
     Response res = await dio.get(
       "https://leave.nkust.edu.tw/CK001MainM.aspx",

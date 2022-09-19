@@ -133,13 +133,13 @@ class Helper {
         default:
           if (selector != null &&
               (selector!.login == MOBILE || selector!.login == null)) {
-            loginResponse = await WebApHelper.instance!.login(
+            loginResponse = await WebApHelper.instance.login(
               username: username,
               password: password,
             );
-            await WebApHelper.instance!.loginToMobile();
+            await WebApHelper.instance.loginToMobile();
           } else {
-            loginResponse = await WebApHelper.instance!.login(
+            loginResponse = await WebApHelper.instance.login(
               username: username,
               password: password,
             );
@@ -229,8 +229,8 @@ class Helper {
       var data = AnnouncementData(data: []);
       if (response.statusCode != 204) {
         data = AnnouncementData.fromJson(response.data);
-        data.data!.sort((a, b) {
-          return b.weight!.compareTo(a.weight!);
+        data.data.sort((a, b) {
+          return b.weight.compareTo(a.weight);
         });
       }
       return (callback == null) ? data.data : callback.onSuccess(data.data);
@@ -294,7 +294,7 @@ class Helper {
           break;
         case WEBAP:
         default:
-          data = await WebApHelper.instance!.userInfoCrawler();
+          data = await WebApHelper.instance.userInfoCrawler();
           break;
       }
       reLoginCount = 0;
@@ -321,7 +321,7 @@ class Helper {
         break;
       case WEBAP:
       default:
-        return await WebApHelper.instance!.getUserPicture();
+        return await WebApHelper.instance.getUserPicture();
         break;
     }
   }
@@ -344,7 +344,7 @@ class Helper {
           break;
         case WEBAP:
         default:
-          data = await WebApHelper.instance!.semesters();
+          data = await WebApHelper.instance.semesters();
           break;
       }
       reLoginCount = 0;
@@ -378,13 +378,13 @@ class Helper {
           break;
         case WEBAP:
         default:
-          data = await WebApHelper.instance!.scores(
+          data = await WebApHelper.instance.scores(
             semester!.year,
             semester.value,
           );
           break;
       }
-      if (data != null && data.scores!.length == 0) data = null;
+      if (data != null && data.scores.length == 0) data = null;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       callback?.onFailure(dioError);
@@ -420,19 +420,19 @@ class Helper {
           break;
         case WEBAP:
         default:
-          data = await WebApHelper.instance!.getCourseTable(
+          data = await WebApHelper.instance.getCourseTable(
             year: semester!.year,
             semester: semester.value,
           );
           break;
       }
-      if (data != null && data.courses != null && data.courses!.length != 0) {
+      if (data != null && data.courses != null && data.courses.length != 0) {
         reLoginCount = 0;
       }
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (selector?.course == MOBILE && dioError.response?.statusCode == 302) {
-        FirebaseAnalyticsUtils.instance?.logEvent(
+        FirebaseAnalyticsUtils.instance.logEvent(
           'mobile_user_agent_error',
           parameters: {
             'message': MobileNkustHelper.instance!.userAgent,
@@ -454,7 +454,7 @@ class Helper {
     GeneralCallback<RewardAndPenaltyData>? callback,
   }) async {
     try {
-      var data = await WebApHelper.instance!.rewardAndPenalty(
+      var data = await WebApHelper.instance.rewardAndPenalty(
         semester.year,
         semester.value,
       );
@@ -476,7 +476,7 @@ class Helper {
     GeneralCallback<MidtermAlertsData>? callback,
   }) async {
     try {
-      var data = await WebApHelper.instance!.midtermAlerts(
+      var data = await WebApHelper.instance.midtermAlerts(
         semester.year,
         semester.value,
       );
@@ -498,7 +498,7 @@ class Helper {
     GeneralCallback<RoomData>? callback,
   }) async {
     try {
-      var data = await WebApHelper.instance!.roomList('$campusCode');
+      var data = await WebApHelper.instance.roomList('$campusCode');
       reLoginCount = 0;
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -518,7 +518,7 @@ class Helper {
     GeneralCallback<CourseData>? callback,
   }) async {
     try {
-      var data = await WebApHelper.instance!.roomCourseTableQuery(
+      var data = await WebApHelper.instance.roomCourseTableQuery(
         roomId,
         semester.year,
         semester.value,
@@ -831,7 +831,7 @@ class Helper {
       else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      callback?.onFailure(dioError);
+      callback.onFailure(dioError);
     }
     return null;
   }
@@ -854,12 +854,12 @@ class Helper {
       if (response.statusCode == 200) {
         var generalResponse = GeneralResponse.fromJson(response.data);
         if (generalResponse.statusCode == 401)
-          callback?.onNeedPick(EventInfoResponse.fromJson(response.data));
+          callback.onNeedPick(EventInfoResponse.fromJson(response.data));
         return callback.onSuccess(EventSendResponse.fromJson(response.data));
       } else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      callback?.onFailure(dioError);
+      callback.onFailure(dioError);
     }
     return null;
   }
@@ -875,9 +875,9 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
-    WebApHelper.instance!.logout();
-    WebApHelper.instance!.dioInit();
-    WebApHelper.instance!.isLogin = false;
+    WebApHelper.instance.logout();
+    WebApHelper.instance.dioInit();
+    WebApHelper.instance.isLogin = false;
     BusHelper.instance!.isLogin = false;
     MobileNkustHelper.instance!.cookiesData?.clear();
   }

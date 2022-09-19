@@ -97,7 +97,7 @@ class BusTime {
 
   static List<BusTime> toList(List<dynamic> jsonArray) {
     List<BusTime> list = [];
-    for (var item in (jsonArray ?? [])) list.add(BusTime.fromJson(item));
+    for (var item in (jsonArray)) list.add(BusTime.fromJson(item));
     return list;
   }
 
