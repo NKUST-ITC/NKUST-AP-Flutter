@@ -7,6 +7,7 @@ import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
@@ -327,7 +328,7 @@ class Helper {
   }
 
   Future<SemesterData?> getSemester({
-    GeneralCallback<SemesterData?>? callback,
+    GeneralCallback<SemesterData>? callback,
   }) async {
     try {
       SemesterData? data;
@@ -348,7 +349,7 @@ class Helper {
           break;
       }
       reLoginCount = 0;
-      return (callback == null) ? data : callback.onSuccess(data);
+      return (callback == null) ? data : callback.onSuccess(data!);
     } on DioError catch (dioError) {
       callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -950,4 +951,8 @@ extension GeneralResponseExtension on GeneralResponse {
     );
     return message;
   }
+}
+
+extension SemesterExtension on Semester {
+  String get cacheSaveTag => '${Helper.username}_$code';
 }

@@ -1,4 +1,5 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -8,7 +9,6 @@ import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
@@ -91,7 +91,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               key: key,
               onSelect: (semester, index) {
                 setState(() {
-                  selectSemester = semester!;
+                  selectSemester = semester;
                   state = _State.loading;
                 });
                 if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))

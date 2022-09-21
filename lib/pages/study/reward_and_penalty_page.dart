@@ -1,4 +1,5 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -9,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
@@ -84,7 +84,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
                 featureTag: 'reward',
                 onSelect: (semester, index) {
                   setState(() {
-                    selectSemester = semester!;
+                    selectSemester = semester;
                     state = _State.loading;
                   });
                   _getMidtermAlertsData();

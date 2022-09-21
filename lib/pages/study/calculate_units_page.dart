@@ -1,12 +1,12 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -330,13 +330,13 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       return;
     }
     Helper.instance.getScores(
-      semester: semesterData!.data![currentSemesterIndex],
+      semester: semesterData!.data[currentSemesterIndex],
       callback: GeneralCallback(
         onSuccess: (ScoreData? data) {
           if (startYear == -1)
             startYear =
-                int.parse(semesterData!.data![currentSemesterIndex].year!);
-          semesterList.add(semesterData!.data![currentSemesterIndex]);
+                int.parse(semesterData!.data[currentSemesterIndex].year);
+          semesterList.add(semesterData!.data[currentSemesterIndex]);
           if (data?.scores != null) {
             for (var score in data!.scores) {
               if (score.semesterScore == null || score.semesterScore!.isEmpty)
@@ -363,8 +363,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             }
           }
           var currentYear =
-              int.parse(semesterData!.data![currentSemesterIndex].year!);
-          if (currentSemesterIndex < semesterData!.data!.length - 1 &&
+              int.parse(semesterData!.data[currentSemesterIndex].year);
+          if (currentSemesterIndex < semesterData!.data.length - 1 &&
               ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
             currentSemesterIndex++;
             if (mounted) _getSemesterScore();

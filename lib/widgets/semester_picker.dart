@@ -1,6 +1,7 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_notify_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/analytics_utils.dart';
@@ -15,9 +16,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 
-typedef SemesterCallback = void Function(Semester? semester, int? index);
+typedef SemesterCallback = void Function(Semester semester, int index);
 
 class SemesterPicker extends StatefulWidget {
   final SemesterCallback? onSelect;
@@ -31,10 +31,10 @@ class SemesterPicker extends StatefulWidget {
 }
 
 class SemesterPickerState extends State<SemesterPicker> {
-  SemesterData? semesterData;
+  late SemesterData semesterData;
   Semester? selectSemester;
 
-  int? currentIndex = 0;
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -78,13 +78,16 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void _loadSemesterData() async {
-    this.semesterData = SemesterData.load();
-    if (this.semesterData == null) return;
-    widget.onSelect!(semesterData!.defaultSemester, semesterData!.defaultIndex);
-    if (mounted) {
-      setState(() {
-        selectSemester = semesterData!.defaultSemester;
-      });
+    final cacheData = SemesterData.load();
+    if (cacheData != null) {
+      semesterData = cacheData;
+      widget.onSelect
+          ?.call(semesterData.defaultSemester, semesterData.defaultIndex);
+      if (mounted) {
+        setState(() {
+          selectSemester = semesterData.defaultSemester;
+        });
+      }
     }
   }
 
@@ -95,34 +98,35 @@ class SemesterPickerState extends State<SemesterPicker> {
     }
     Helper.instance.getSemester(
       callback: GeneralCallback(
-        onSuccess: (SemesterData? data) {
+        onSuccess: (SemesterData data) {
           this.semesterData = data;
-          semesterData!.save();
+          semesterData.save();
           var oldSemester = Preferences.getString(
             ApConstants.currentSemesterCode,
             ApConstants.semesterLatest,
           );
           final newSemester =
-              '${Helper.username}_${semesterData!.defaultSemester!.code}';
+              '${Helper.username}_${semesterData.defaultSemester.code}';
           Preferences.setString(
             ApConstants.currentSemesterCode,
             newSemester,
           );
           //TODO clear old course notify, but may be improve
-          if (!oldSemester.contains(semesterData!.defaultSemester!.code)) {
+          if (!oldSemester.contains(semesterData.defaultSemester.code)) {
             CourseNotifyData notifyData = CourseNotifyData.load(oldSemester);
             if (notifyData != null && NotificationUtils.isSupport) {
               CourseNotifyData.clearOldVersionNotification(
-                  tag: oldSemester,
-                  newTag: semesterData!.defaultSemester!.code);
+                  tag: oldSemester, newTag: semesterData.defaultSemester.code);
             }
           }
           if (mounted) {
-            currentIndex = semesterData!.defaultIndex;
-            widget.onSelect!(
-                semesterData!.defaultSemester, semesterData!.defaultIndex);
+            currentIndex = semesterData.defaultIndex;
+            widget.onSelect?.call(
+              semesterData.defaultSemester,
+              semesterData.defaultIndex,
+            );
             setState(() {
-              selectSemester = semesterData!.defaultSemester;
+              selectSemester = semesterData.defaultSemester;
             });
           }
         },
@@ -145,13 +149,13 @@ class SemesterPickerState extends State<SemesterPicker> {
       context: context,
       builder: (BuildContext context) => SimpleOptionDialog(
         title: ApLocalizations.of(context).pickSemester,
-        items: [for (var item in semesterData!.data!) item.text!],
-        index: currentIndex!,
+        items: [for (var item in semesterData.data) item.text],
+        index: currentIndex,
         onSelected: (index) {
           currentIndex = index;
-          widget.onSelect!(semesterData!.data![currentIndex!], currentIndex);
+          widget.onSelect!(semesterData.data[currentIndex], currentIndex);
           setState(() {
-            selectSemester = semesterData!.data![currentIndex!];
+            selectSemester = semesterData.data[currentIndex];
           });
         },
       ),

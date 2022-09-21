@@ -1,11 +1,11 @@
 import 'package:ap_common/callback/general_callback.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
 class EmptyRoomPage extends StatefulWidget {
@@ -57,7 +57,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         featureTag: 'room_coruse',
         onSelect: (semester, index) {
           setState(() {
-            selectSemester = semester!;
+            selectSemester = semester;
             state = CourseState.loading;
           });
           semesterData = key.currentState!.semesterData;

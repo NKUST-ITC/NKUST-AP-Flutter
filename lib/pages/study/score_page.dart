@@ -1,11 +1,11 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/scaffold/score_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 

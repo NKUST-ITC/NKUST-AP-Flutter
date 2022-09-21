@@ -6,6 +6,7 @@ import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/api/imgur_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/announcement/home_page.dart';

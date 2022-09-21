@@ -1,11 +1,10 @@
 import 'dart:convert';
 
+import 'package:ap_common/models/semester_data.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 
 Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
   Map<String, dynamic> result = {
@@ -306,8 +305,8 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
         "${_endDayParse.year - 1911}${_endDayParse.month.toString().padLeft(2, '0')}${_endDayParse.day.toString().padLeft(2, '0')}";
 
     Map<String, dynamic> result = {
-      "year": int.parse(semester!.defaultSemester!.year!),
-      "sms": int.parse(semester.defaultSemester!.value!),
+      "year": int.parse(semester!.defaultSemester.year),
+      "sms": int.parse(semester.defaultSemester.value),
       "stdid": stdId,
       "begdate": startDays,
       "enddate": endDays,

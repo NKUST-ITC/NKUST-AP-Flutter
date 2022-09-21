@@ -25,7 +25,7 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:nkust_ap/models/semester_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 
 import 'helper.dart';

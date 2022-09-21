@@ -1,13 +1,13 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_notify_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
@@ -62,7 +62,7 @@ class CoursePageState extends State<CoursePage> {
       customHint: isOffline ? ap.offlineCourse : '',
       customStateHint: customStateHint,
       enableNotifyControl: semesterData != null &&
-          selectSemester!.code == semesterData!.defaultSemester!.code,
+          selectSemester!.code == semesterData!.defaultSemester.code,
       courseNotifySaveKey: courseNotifyCacheKey,
       androidResourceIcon: Constants.ANDROID_DEFAULT_NOTIFICATION_NAME,
       enableCaptureCourseTable: true,
@@ -76,7 +76,7 @@ class CoursePageState extends State<CoursePage> {
           });
           semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
-          _loadCacheData(semester!.code);
+          _loadCacheData(semester.code);
           if (!Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
             _getCourseTables();
         },
