@@ -702,7 +702,7 @@ class Helper {
   }) async {
     try {
       NotificationsData data =
-          await NKUSTHelper.instance!.getNotifications(page);
+          await NKUSTHelper.instance.getNotifications(page);
       return callback == null ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {

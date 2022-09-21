@@ -5,10 +5,10 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
@@ -102,8 +102,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ApButton(
           text: ap.search,
           onPressed: () {
-            FirebaseAnalyticsUtils.instance
-                .logEvent('search_username_click');
+            FirebaseAnalyticsUtils.instance.logEvent('search_username_click');
             _search();
           },
         )
@@ -121,7 +120,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     if (_id.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
-      NKUSTHelper.instance!.getUsername(
+      NKUSTHelper.instance.getUsername(
         rocId: _id.text,
         birthday: birthday,
         callback: GeneralCallback(

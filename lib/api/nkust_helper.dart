@@ -11,19 +11,18 @@ import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:sprintf/sprintf.dart';
 
 class NKUSTHelper {
+  NKUSTHelper();
+
+  static NKUSTHelper get instance {
+    return _instance ??= NKUSTHelper();
+  }
+
   static NKUSTHelper? _instance;
-  static late Dio dio;
 
   static int reTryCountsLimit = 3;
   static int reTryCounts = 0;
 
-  static NKUSTHelper? get instance {
-    if (_instance == null) {
-      _instance = NKUSTHelper();
-      dio = Dio();
-    }
-    return _instance;
-  }
+  Dio dio = Dio();
 
   Future<UserInfo?> getUsername({
     String? rocId,
