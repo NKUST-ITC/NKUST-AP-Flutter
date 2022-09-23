@@ -29,7 +29,7 @@ class BusViolationRecordsPage extends StatefulWidget {
 }
 
 class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
-  AppLocalizations? app;
+  late AppLocalizations app;
   late ApLocalizations ap;
 
   _State state = _State.loading;
@@ -43,7 +43,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app!.busViolationRecordEmpty;
+        return app.busViolationRecordEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -272,7 +272,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
-                    customStateHint = app!.busFailInfinity;
+                    customStateHint = app.busFailInfinity;
                   } else
                     state = _State.error;
                 });

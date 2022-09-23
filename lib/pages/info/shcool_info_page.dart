@@ -70,7 +70,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   late ApLocalizations ap;
 
-  TabController? controller;
+  late TabController controller;
 
   int _currentIndex = 0;
 
@@ -88,7 +88,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   void dispose() {
-    controller!.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -136,7 +136,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         onTap: (index) {
           setState(() {
             _currentIndex = index;
-            controller!.animateTo(_currentIndex);
+            controller.animateTo(_currentIndex);
           });
         },
         fixedColor: ApTheme.of(context).yellow,

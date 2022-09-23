@@ -7,6 +7,7 @@ import 'package:ap_common/models/course_data.dart';
 //overwrite origin Cookie Manager.
 import 'package:ap_common/models/private_cookies_manager.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 //Model
 import 'package:ap_common/models/user_info.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -25,7 +26,6 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:ap_common/models/semester_data.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 
 import 'helper.dart';
@@ -256,7 +256,7 @@ class WebApHelper {
             contentType: "application/x-www-form-urlencoded"),
       );
 
-      LeaveHelper.instance!.isLogin = true;
+      LeaveHelper.instance.isLogin = true;
       return LoginResponse(
         expireTime: DateTime.now().add(Duration(hours: 1)),
         isAdmin: false,

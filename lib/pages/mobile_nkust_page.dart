@@ -27,7 +27,7 @@ class MobileNkustPage extends StatefulWidget {
 }
 
 class _MobileNkustPageState extends State<MobileNkustPage> {
-  AppLocalizations? app;
+  late AppLocalizations app;
 
   late InAppWebViewController webViewController;
 
@@ -38,18 +38,18 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
     app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app!.loginAuth),
+        title: Text(app.loginAuth),
         backgroundColor: ApTheme.of(context).blue,
         actions: [
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
                 context: context,
-                title: app!.loginAuth,
-                content: app!.mobileNkustLoginDescription,
+                title: app.loginAuth,
+                content: app.mobileNkustLoginDescription,
               );
             },
-            child: Text(app!.clickShowDescription),
+            child: Text(app.clickShowDescription),
           ),
         ],
       ),
@@ -59,7 +59,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
               onPressed: () async {
                 // final html = await webViewController.getHtml();
                 // debugPrint(html);
-                MobileNkustHelper.instance!.getScores();
+                MobileNkustHelper.instance.getScores();
               },
             )
           : null,
@@ -70,16 +70,17 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance!.userAgent!,
+            userAgent: MobileNkustHelper.instance.userAgent!,
           ),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
-          ApUtils.showToast(context, app!.mobileNkustLoginHint);
+          ApUtils.showToast(context, app.mobileNkustLoginHint);
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
           return;
-        } as Future<JsPromptResponse?> Function(InAppWebViewController, JsPromptRequest)?,
+        } as Future<JsPromptResponse?> Function(
+            InAppWebViewController, JsPromptRequest)?,
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title ${uri.toString()}');
@@ -140,7 +141,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
               "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
       },
     );
-    MobileNkustHelper.instance!.setCookieFromData(data);
+    MobileNkustHelper.instance.setCookieFromData(data);
     data.save();
     Preferences.setInt(
       Constants.MOBILE_COOKIES_LAST_TIME,

@@ -124,7 +124,7 @@ class Helper {
       LoginResponse? loginResponse;
       switch (selector?.login) {
         case INKUST:
-          await InkustHelper.instance!.login(
+          await InkustHelper.instance.login(
             username: username,
             password: password,
           );
@@ -291,7 +291,7 @@ class Helper {
       UserInfo data;
       switch (selector?.userInfo) {
         case MOBILE:
-          data = await MobileNkustHelper.instance!.getUserInfo();
+          data = await MobileNkustHelper.instance.getUserInfo();
           break;
         case WEBAP:
         default:
@@ -318,7 +318,7 @@ class Helper {
   Future<Uint8List?> getUserPicture() async {
     switch (selector?.userInfo) {
       case MOBILE:
-        return await MobileNkustHelper.instance!.getUserPicture();
+        return await MobileNkustHelper.instance.getUserPicture();
         break;
       case WEBAP:
       default:
@@ -369,7 +369,7 @@ class Helper {
       ScoreData? data;
       switch (selector?.score) {
         case MOBILE:
-          data = await MobileNkustHelper.instance!.getScores(
+          data = await MobileNkustHelper.instance.getScores(
             year: semester!.year,
             semester: semester.value,
           );
@@ -408,13 +408,13 @@ class Helper {
       switch (selector?.course) {
         case MOBILE:
           final isDefault = semesterDefault!.code == semester!.code;
-          data = await MobileNkustHelper.instance!.getCourseTable(
+          data = await MobileNkustHelper.instance.getCourseTable(
             year: isDefault ? null : semester.year,
             semester: isDefault ? null : semester.value,
           );
           break;
         case INKUST:
-          data = await InkustHelper.instance!.courseTable(
+          data = await InkustHelper.instance.courseTable(
             semester!.year,
             semester.value,
           );
@@ -436,7 +436,7 @@ class Helper {
         FirebaseAnalyticsUtils.instance.logEvent(
           'mobile_user_agent_error',
           parameters: {
-            'message': MobileNkustHelper.instance!.userAgent,
+            'message': MobileNkustHelper.instance.userAgent,
           },
         );
       }
@@ -544,7 +544,7 @@ class Helper {
     try {
       if (!MobileNkustHelper.isSupport)
         return callback?.onError(GeneralResponse.platformNotSupport());
-      BusData data = await MobileNkustHelper.instance!.busTimeTableQuery(
+      BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
@@ -584,7 +584,7 @@ class Helper {
       if (!MobileNkustHelper.isSupport)
         return callback?.onError(GeneralResponse.platformNotSupport());
       BusReservationsData data =
-          await MobileNkustHelper.instance!.busUserRecord();
+          await MobileNkustHelper.instance.busUserRecord();
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -614,7 +614,7 @@ class Helper {
       if (!MobileNkustHelper.isSupport)
         return callback?.onError(GeneralResponse.platformNotSupport());
       BookingBusData data =
-          await MobileNkustHelper.instance!.busBook(busId: busId);
+          await MobileNkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -644,7 +644,7 @@ class Helper {
       if (!MobileNkustHelper.isSupport)
         return callback?.onError(GeneralResponse.platformNotSupport());
       CancelBusData data =
-          await MobileNkustHelper.instance!.busUnBook(busId: cancelKey);
+          await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
@@ -673,7 +673,7 @@ class Helper {
       if (!MobileNkustHelper.isSupport)
         return callback?.onError(GeneralResponse.platformNotSupport());
       BusViolationRecordsData data =
-          await MobileNkustHelper.instance!.busViolationRecords();
+          await MobileNkustHelper.instance.busViolationRecords();
 
       reLoginCount = 0;
       return (callback == null) ? data : callback.onSuccess(data);
@@ -726,7 +726,7 @@ class Helper {
     GeneralCallback<LeaveData>? callback,
   }) async {
     try {
-      LeaveData data = await LeaveHelper.instance!
+      LeaveData data = await LeaveHelper.instance
           .getLeaves(year: semester.year, semester: semester.value);
 
       return (callback == null) ? data : callback.onSuccess(data);
@@ -752,7 +752,7 @@ class Helper {
   }) async {
     try {
       LeaveSubmitInfoData data =
-          await LeaveHelper.instance!.getLeavesSubmitInfo();
+          await LeaveHelper.instance.getLeavesSubmitInfo();
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
@@ -778,7 +778,7 @@ class Helper {
   }) async {
     try {
       Response? res =
-          await LeaveHelper.instance!.leavesSubmit(data, proofImage: image);
+          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
       return (callback == null)
           ? data as Future<Response<dynamic>?>
           : callback.onSuccess(res);
@@ -879,8 +879,8 @@ class Helper {
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
-    BusHelper.instance!.isLogin = false;
-    MobileNkustHelper.instance!.cookiesData?.clear();
+    BusHelper.instance.isLogin = false;
+    MobileNkustHelper.instance.cookiesData?.clear();
   }
 }
 

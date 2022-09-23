@@ -19,7 +19,7 @@ class SearchStudentIdPage extends StatefulWidget {
 }
 
 class SearchStudentIdPageState extends State<SearchStudentIdPage> {
-  AppLocalizations? app;
+  late AppLocalizations app;
   late ApLocalizations ap;
 
   final _id = TextEditingController();
@@ -27,7 +27,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   DateTime birthday = DateTime(DateTime.now().year - 18);
 
-  bool? isAutoFill = true;
+  bool isAutoFill = true;
 
   @override
   void initState() {
@@ -94,7 +94,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             TextCheckBox(
               text: ap.autoFill,
               onChanged: _onAutoFillChanged,
-              value: isAutoFill!,
+              value: isAutoFill,
             ),
           ],
         ),
@@ -111,9 +111,11 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   }
 
   _onAutoFillChanged(bool? value) async {
-    setState(() {
-      isAutoFill = value;
-    });
+    if (value != null) {
+      setState(() {
+        isAutoFill = value;
+      });
+    }
   }
 
   _search() async {
@@ -125,12 +127,12 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         birthday: birthday,
         callback: GeneralCallback(
           onSuccess: (UserInfo data) {
-            if (data != null && isAutoFill!) {
+            if (isAutoFill) {
               Navigator.pop(context, data.id);
             } else {
               _showResultDialog(
                 sprintf(
-                  app!.searchStudentIdFormat,
+                  AppLocalizations.of(context).searchStudentIdFormat,
                   [
                     data.name,
                     data.id,
@@ -173,7 +175,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               ),
               if (showFirstHint)
                 TextSpan(
-                  text: '\n${app!.firstLoginHint}',
+                  text: '\n${AppLocalizations.of(context).firstLoginHint}',
                 ),
             ],
           ),

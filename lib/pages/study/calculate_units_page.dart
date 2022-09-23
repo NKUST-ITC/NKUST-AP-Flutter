@@ -37,20 +37,20 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   int currentSemesterIndex = 0;
 
   SemesterData? semesterData;
-  late List<Semester> semesterList;
+  List<Semester> semesterList = <Semester>[];
 
-  double? unitsTotal;
-  late double requiredUnitsTotal;
-  late double electiveUnitsTotal;
-  late double otherUnitsTotal;
+  double unitsTotal = 0.0;
+  double requiredUnitsTotal = 0.0;
+  double electiveUnitsTotal = 0.0;
+  double otherUnitsTotal = 0.0;
 
   int startYear = 0;
   int count = 0;
 
-  late List<Score> coreGeneralEducations;
-  late List<Score> extendGeneralEducations;
+  List<Score> coreGeneralEducations = <Score>[];
+  List<Score> extendGeneralEducations = <Score>[];
 
-  late DateTime start;
+  DateTime start = DateTime.now();
 
   @override
   void initState() {

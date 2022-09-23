@@ -24,10 +24,14 @@ import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'helper.dart';
 
 class InkustHelper {
-  static late Dio dio;
-  static late DioCacheManager _manager;
+  InkustHelper() {
+    dioInit();
+  }
+
+  late Dio dio;
+  late DioCacheManager _manager;
   static InkustHelper? _instance;
-  static late CookieJar cookieJar;
+  late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
@@ -71,12 +75,8 @@ class InkustHelper {
 
   bool isLogin = false;
 
-  static InkustHelper? get instance {
-    if (_instance == null) {
-      _instance = InkustHelper();
-      dioInit();
-    }
-    return _instance;
+  static InkustHelper get instance {
+    return _instance ??= InkustHelper();
   }
 
   void setProxy(String proxyIP) {
@@ -88,7 +88,7 @@ class InkustHelper {
     };
   }
 
-  static dioInit() {
+  void dioInit() {
     dio = Dio();
     cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {

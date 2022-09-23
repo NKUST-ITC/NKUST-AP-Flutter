@@ -29,17 +29,17 @@ import 'ap_status_code.dart';
 import 'helper.dart';
 
 class LeaveHelper {
+  LeaveHelper() {
+    dioInit();
+  }
+
   static const BASE_PATH = 'https://leave.nkust.edu.tw/';
   static const HOME = '${BASE_PATH}masterindex.aspx';
 
   static LeaveHelper? _instance;
 
-  static LeaveHelper? get instance {
-    if (_instance == null) {
-      _instance = LeaveHelper();
-      _instance!.dioInit();
-    }
-    return _instance;
+  static LeaveHelper get instance {
+    return _instance ??= LeaveHelper();
   }
 
   int reLoginReTryCountsLimit = 3;

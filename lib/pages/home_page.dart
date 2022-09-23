@@ -59,7 +59,7 @@ class HomePageState extends State<HomePage> {
 
   var state = HomeState.loading;
 
-  AppLocalizations? app;
+  late AppLocalizations app;
   late ApLocalizations ap;
 
   Widget? content;
@@ -164,7 +164,7 @@ class HomePageState extends State<HomePage> {
     app = AppLocalizations.of(context);
     ap = ApLocalizations.of(context);
     return HomePageScaffold(
-      title: app!.appName,
+      title: app.appName,
       key: _homeKey,
       state: state,
       announcements: announcements,
@@ -327,7 +327,7 @@ class HomePageState extends State<HomePage> {
                 ),
                 DrawerSubItem(
                   icon: ApIcon.folder,
-                  title: app!.leaveApplyRecord,
+                  title: app.leaveApplyRecord,
                   onTap: () => _openPage(
                     LeavePage(initIndex: 2),
                     needLogin: true,
@@ -358,11 +358,11 @@ class HomePageState extends State<HomePage> {
                     ? ApTheme.of(context).blueAccent
                     : ApTheme.of(context).grey,
               ),
-              title: Text(app!.bus, style: _defaultStyle),
+              title: Text(app.bus, style: _defaultStyle),
               children: <Widget>[
                 DrawerSubItem(
                   icon: ApIcon.dateRange,
-                  title: app!.busReserve,
+                  title: app.busReserve,
                   onTap: () => _openPage(
                     BusPage(initIndex: 0),
                     needLogin: true,
@@ -370,7 +370,7 @@ class HomePageState extends State<HomePage> {
                 ),
                 DrawerSubItem(
                   icon: ApIcon.assignment,
-                  title: app!.busReservations,
+                  title: app.busReservations,
                   onTap: () => _openPage(
                     BusPage(initIndex: 1),
                     needLogin: true,
@@ -378,7 +378,7 @@ class HomePageState extends State<HomePage> {
                 ),
                 DrawerSubItem(
                   icon: ApIcon.monetizationOn,
-                  title: app!.busViolationRecords,
+                  title: app.busViolationRecords,
                   onTap: () => _openPage(
                     BusPage(initIndex: 2),
                     needLogin: true,
@@ -444,7 +444,7 @@ class HomePageState extends State<HomePage> {
         if (canUseBus)
           BottomNavigationBarItem(
             icon: Icon(ApIcon.directionsBus),
-            label: app!.bus,
+            label: app.bus,
           ),
         BottomNavigationBarItem(
           icon: Icon(ApIcon.classIcon),

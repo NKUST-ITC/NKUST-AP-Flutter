@@ -34,6 +34,21 @@ import 'ap_status_code.dart';
 import 'parser/mobile_nkust_parser.dart';
 
 class MobileNkustHelper {
+  MobileNkustHelper() {
+    final _random = new Random();
+    final i = _random.nextInt(userAgentList.length);
+    // print('user agnent index = $i');
+    dio = Dio(
+      BaseOptions(
+        followRedirects: false,
+        headers: {
+          "user-agent": "${userAgentList[i]}",
+        },
+      ),
+    );
+    initCookiesJar();
+  }
+
   static const BASE_URL = 'https://mobile.nkust.edu.tw/';
 
   static const LOGIN = '$BASE_URL';
@@ -83,23 +98,8 @@ class MobileNkustHelper {
 
   String? get userAgent => dio.options.headers['user-agent'];
 
-  static MobileNkustHelper? get instance {
-    final _random = new Random();
-    final i = _random.nextInt(userAgentList.length);
-    // print('user agnent index = $i');
-    if (_instance == null) {
-      _instance = MobileNkustHelper();
-      _instance!.dio = Dio(
-        BaseOptions(
-          followRedirects: false,
-          headers: {
-            "user-agent": "${userAgentList[i]}",
-          },
-        ),
-      );
-      _instance!.initCookiesJar();
-    }
-    return _instance;
+  static MobileNkustHelper get instance {
+    return _instance ??= MobileNkustHelper();
   }
 
   void initCookiesJar() {
@@ -193,8 +193,8 @@ class MobileNkustHelper {
   }) async {
     final data = MobileCookiesData.load();
     if (data != null && !clearCache) {
-      MobileNkustHelper.instance!.setCookieFromData(data);
-      final isCookieAlive = await MobileNkustHelper.instance!.isCookieAlive();
+      MobileNkustHelper.instance.setCookieFromData(data);
+      final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
       if (isCookieAlive) {
         final now = DateTime.now();
         final lastTime = Preferences.getInt(

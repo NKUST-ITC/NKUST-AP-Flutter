@@ -1,25 +1,22 @@
 //dio
-import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:cookie_jar/cookie_jar.dart';
+import 'dart:convert';
 
 //overwrite origin Cookie Manager.
 import 'package:ap_common/models/private_cookies_manager.dart';
-
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:crypto/crypto.dart';
+import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/parser/api_tool.dart';
 //parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';
-
 //model
 import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-
-import 'package:nkust_ap/api/parser/api_tool.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 import 'helper.dart';
 
@@ -113,10 +110,14 @@ class BusEncrypt {
 }
 
 class BusHelper {
-  static late Dio dio;
-  static late DioCacheManager _manager;
+  BusHelper() {
+    dioInit();
+  }
+
+  late Dio dio;
+  late DioCacheManager _manager;
   static BusHelper? _instance;
-  static late CookieJar cookieJar;
+  late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 5;
   static int reLoginReTryCounts = 0;
@@ -130,12 +131,8 @@ class BusHelper {
   static late BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
 
-  static BusHelper? get instance {
-    if (_instance == null) {
-      _instance = BusHelper();
-      dioInit();
-    }
-    return _instance;
+  static BusHelper get instance {
+    return _instance ??= BusHelper();
   }
 
   void setProxy(String proxyIP) {
@@ -147,7 +144,7 @@ class BusHelper {
     };
   }
 
-  static dioInit() {
+  void dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
@@ -267,7 +264,8 @@ class BusHelper {
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
       // Remove fail cache.
-      if (Helper.isSupportCacheData) _manager.delete(userTimeTableSelectCacheKey!);
+      if (Helper.isSupportCacheData)
+        _manager.delete(userTimeTableSelectCacheKey!);
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -403,7 +401,8 @@ class BusHelper {
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      if (Helper.isSupportCacheData) _manager.delete(userViolationRecordsCacheKey);
+      if (Helper.isSupportCacheData)
+        _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();

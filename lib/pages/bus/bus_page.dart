@@ -184,7 +184,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> login() async {
-    if (MobileNkustHelper.instance!.cookiesData == null) {
+    if (MobileNkustHelper.instance.cookiesData == null) {
       try {
         await WebApHelper.instance.loginToMobile();
       } catch (e) {

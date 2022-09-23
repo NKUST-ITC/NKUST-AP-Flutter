@@ -20,7 +20,7 @@ class RoomListPage extends StatefulWidget {
 }
 
 class _RoomListPageState extends State<RoomListPage> {
-  AppLocalizations? app;
+  late AppLocalizations app;
 
   _State state = _State.loading;
 
@@ -55,8 +55,8 @@ class _RoomListPageState extends State<RoomListPage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           ItemPicker(
-            dialogTitle: app!.campus,
-            items: app!.campuses,
+            dialogTitle: app.campus,
+            items: app.campuses,
             currentIndex: campusIndex,
             onSelected: (int index) {
               setState(() => campusIndex = index);
