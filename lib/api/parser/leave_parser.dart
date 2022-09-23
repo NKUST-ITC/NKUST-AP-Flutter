@@ -1,12 +1,12 @@
 import 'package:html/parser.dart' show parse;
 
-Map<String, dynamic> hiddenInputGet(String html, {bool removeTdElement}) {
+Map<String?, dynamic> hiddenInputGet(String? html, {bool? removeTdElement}) {
   if (removeTdElement == true) {
     String firstMatchString = '<td width="40px" nowrap="nowrap" align="left">';
     String lastMatchString = '</td>';
-    var startIndex = html.indexOf(firstMatchString);
+    var startIndex = html!.indexOf(firstMatchString);
     while (startIndex > -1) {
-      html = html.substring(0, startIndex) +
+      html = html!.substring(0, startIndex) +
           html.substring(html.indexOf(lastMatchString, startIndex) +
               lastMatchString.length);
       startIndex = html.indexOf(firstMatchString);
@@ -14,12 +14,12 @@ Map<String, dynamic> hiddenInputGet(String html, {bool removeTdElement}) {
   }
 
   var document = parse(html);
-  Map<String, dynamic> hiddenData = {};
+  Map<String?, dynamic> hiddenData = {};
   var inputDom = document.getElementsByTagName("input");
   for (int i = 0; i < inputDom.length; i++) {
     if (inputDom[i].attributes["type"] == "hidden" &&
         inputDom[i].attributes["name"] != null &&
-        inputDom[i].attributes["name"].substring(0, 1) == "_") {
+        inputDom[i].attributes["name"]!.substring(0, 1) == "_") {
       hiddenData[inputDom[i].attributes["name"]] =
           inputDom[i].attributes["value"] ?? "";
     }
@@ -27,9 +27,9 @@ Map<String, dynamic> hiddenInputGet(String html, {bool removeTdElement}) {
   return hiddenData;
 }
 
-Map<String, dynamic> allInputValueParser(String html) {
+Map<String?, dynamic> allInputValueParser(String? html) {
   var document = parse(html);
-  Map<String, dynamic> hiddenData = {};
+  Map<String?, dynamic> hiddenData = {};
   var inputDoc = document.getElementsByTagName("input");
   for (int i = 0; i < inputDoc.length; i++) {
     if (inputDoc[i].attributes["name"] != null) {
@@ -40,7 +40,7 @@ Map<String, dynamic> allInputValueParser(String html) {
   return hiddenData;
 }
 
-Map<String, dynamic> leaveQueryParser(String html) {
+Map<String, dynamic> leaveQueryParser(String? html) {
   var document = parse(html);
   List<Map<String, dynamic>> dataList = [];
   List<String> timeCodeList = [];
@@ -60,9 +60,9 @@ Map<String, dynamic> leaveQueryParser(String html) {
     Map<String, dynamic> temp = {};
 
     var td = trDom[i].getElementsByTagName("td");
-    temp["leaveSheetId"] = td[1].text ?? "";
-    temp["date"] = td[2].text ?? "";
-    temp["instructorsComment"] = td[3].text ?? "";
+    temp["leaveSheetId"] = td[1].text;
+    temp["date"] = td[2].text;
+    temp["instructorsComment"] = td[3].text;
     temp["sections"] = [];
     for (int e = 4; e < td.length; e++) {
       if (td[e].text == "　") {
@@ -80,7 +80,7 @@ Map<String, dynamic> leaveQueryParser(String html) {
   return {"data": dataList, "timeCodes": timeCodeList};
 }
 
-Map<String, dynamic> leaveSubmitInfoParser(String html) {
+Map<String, dynamic>? leaveSubmitInfoParser(String? html) {
   // Leave parser haven't any check, check is unnecessary on this system.
   var document = parse(html);
 
@@ -130,10 +130,10 @@ Map<String, dynamic> leaveSubmitInfoParser(String html) {
       });
     }
 
-    Map<String, dynamic> tutorData;
+    Map<String, dynamic>? tutorData;
     //Get default tutor
     var _toturSelect = document
-        .getElementById("ContentPlaceHolder1_CK001_ddlTeach")
+        .getElementById("ContentPlaceHolder1_CK001_ddlTeach")!
         .getElementsByTagName("option");
     for (int i = 1; i < _toturSelect.length; i++) {
       if (_toturSelect[i].attributes["selected"] != null) {

@@ -11,12 +11,12 @@ import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class MobileNkustPage extends StatefulWidget {
-  final String username;
-  final String password;
+  final String? username;
+  final String? password;
   final bool clearCache;
 
   const MobileNkustPage({
-    Key key,
+    Key? key,
     this.username,
     this.password,
     this.clearCache = false,
@@ -27,9 +27,9 @@ class MobileNkustPage extends StatefulWidget {
 }
 
 class _MobileNkustPageState extends State<MobileNkustPage> {
-  AppLocalizations app;
+  late AppLocalizations app;
 
-  InAppWebViewController webViewController;
+  late InAppWebViewController webViewController;
 
   bool finish = false;
 
@@ -70,7 +70,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance.userAgent,
+            userAgent: MobileNkustHelper.instance.userAgent!,
           ),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
@@ -79,7 +79,8 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
           return;
-        },
+        } as Future<JsPromptResponse?> Function(
+            InAppWebViewController, JsPromptRequest)?,
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title ${uri.toString()}');
@@ -124,7 +125,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {
-        data.cookies.add(
+        data.cookies!.add(
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,

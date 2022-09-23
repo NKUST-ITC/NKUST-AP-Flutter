@@ -24,11 +24,11 @@ class PickTutorPage extends StatefulWidget {
 }
 
 class _PickTutorPageState extends State<PickTutorPage> {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   _State state = _State.loading;
 
-  LeavesCampusData leavesCampusData;
+  LeavesCampusData? leavesCampusData;
 
   int campusIndex = 0;
   int departmentIndex = 0;
@@ -73,9 +73,9 @@ class _PickTutorPageState extends State<PickTutorPage> {
           ),
         );
       default:
-        var campus = leavesCampusData.data[campusIndex];
-        var department = campus.department[departmentIndex];
-        var teacher = department.teacherList[teacherIndex];
+        var campus = leavesCampusData!.data![campusIndex];
+        var department = campus.department![departmentIndex];
+        var teacher = department.teacherList![teacherIndex];
         return ListView(
           children: <Widget>[
             SizedBox(height: 16.0),
@@ -87,7 +87,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.campus,
                   campusIndex,
-                  leavesCampusData.data.map(
+                  leavesCampusData!.data!.map(
                     (item) {
                       return item.campusName;
                     },
@@ -109,7 +109,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.department,
                   departmentIndex,
-                  campus.department.map(
+                  campus.department!.map(
                     (item) {
                       return item.departmentName;
                     },
@@ -131,7 +131,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.teacher,
                   teacherIndex,
-                  department.teacherList.map(
+                  department.teacherList!.map(
                     (item) {
                       return item.name;
                     },
@@ -176,7 +176,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   Future<void> getTeacherData() async {
     var start = DateTime.now();
-    RemoteConfig remoteConfig;
+    RemoteConfig? remoteConfig;
     String text;
     if (kIsWeb) {
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -210,7 +210,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
         'read json time = ${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}ms');
   }
 
-  void pickItem(_Type type, int currentIndex, List<String> items) {
+  void pickItem(_Type type, int currentIndex, List<String?> items) {
     //TODO text fix
     String title = '';
     switch (type) {
@@ -243,7 +243,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
             itemCount: items.length,
             itemBuilder: (BuildContext context, int index) {
               return DialogOption(
-                text: items[index],
+                text: items[index]!,
                 check: currentIndex == index,
                 onPressed: () {
                   Navigator.pop(context, index);
@@ -256,7 +256,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
           ),
         ),
       ),
-    ).then<void>((int position) async {
+    ).then<void>((int? position) async {
       if (position != null) {
         switch (type) {
           case _Type.campus:

@@ -34,6 +34,21 @@ import 'ap_status_code.dart';
 import 'parser/mobile_nkust_parser.dart';
 
 class MobileNkustHelper {
+  MobileNkustHelper() {
+    final _random = new Random();
+    final i = _random.nextInt(userAgentList.length);
+    // print('user agnent index = $i');
+    dio = Dio(
+      BaseOptions(
+        followRedirects: false,
+        headers: {
+          "user-agent": "${userAgentList[i]}",
+        },
+      ),
+    );
+    initCookiesJar();
+  }
+
   static const BASE_URL = 'https://mobile.nkust.edu.tw/';
 
   static const LOGIN = '$BASE_URL';
@@ -53,15 +68,15 @@ class MobileNkustHelper {
 
   static const CHECK_EXPIRE = '${BASE_URL}Account/CheckExpire';
 
-  static MobileNkustHelper _instance;
+  static MobileNkustHelper? _instance;
 
   static get isSupport => (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
 
-  Dio dio;
+  late Dio dio;
 
-  CookieJar cookieJar;
+  late CookieJar cookieJar;
 
-  MobileCookiesData cookiesData;
+  MobileCookiesData? cookiesData;
 
   static List<String> userAgentList = [
     'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.16 Safari/537.36',
@@ -81,25 +96,10 @@ class MobileNkustHelper {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
   ];
 
-  String get userAgent => dio.options.headers['user-agent'];
+  String? get userAgent => dio.options.headers['user-agent'];
 
   static MobileNkustHelper get instance {
-    final _random = new Random();
-    final i = _random.nextInt(userAgentList.length);
-    // print('user agnent index = $i');
-    if (_instance == null) {
-      _instance = MobileNkustHelper();
-      _instance.dio = Dio(
-        BaseOptions(
-          followRedirects: false,
-          headers: {
-            "user-agent": "${userAgentList[i]}",
-          },
-        ),
-      );
-      _instance.initCookiesJar();
-    }
-    return _instance;
+    return _instance ??= MobileNkustHelper();
   }
 
   void initCookiesJar() {
@@ -119,24 +119,22 @@ class MobileNkustHelper {
   }
 
   void setCookieFromData(MobileCookiesData data) {
-    if (data != null) {
-      cookiesData = data;
-      data.cookies?.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name, element.value);
-        _tempCookie.domain = element.domain;
-        cookieJar.saveFromResponse(
-          Uri.parse(element.path),
-          [_tempCookie],
-        );
-      });
-    }
+    cookiesData = data;
+    data.cookies?.forEach((element) {
+      Cookie _tempCookie = Cookie(element.name!, element.value!);
+      _tempCookie.domain = element.domain;
+      cookieJar.saveFromResponse(
+        Uri.parse(element.path!),
+        [_tempCookie],
+      );
+    });
   }
 
   void setCookie(
     String url, {
-    String cookieName,
-    String cookieValue,
-    String cookieDomain,
+    required String cookieName,
+    required String cookieValue,
+    String? cookieDomain,
   }) {
     Cookie _tempCookie = Cookie(cookieName, cookieValue);
     _tempCookie.domain = cookieDomain;
@@ -149,17 +147,17 @@ class MobileNkustHelper {
   Future<bool> isCookieAlive() async {
     try {
       var res = await dio.get(CHECK_EXPIRE);
-      return res?.data == 'alive';
+      return res.data == 'alive';
     } catch (e) {}
     return false;
   }
 
   Future<Response> generalRequest(
     String url, {
-    Map<String, dynamic> firstRequestHeader,
-    String otherRequestUrl,
-    Map<String, dynamic> otherRequestHeader,
-    Map<String, dynamic> data,
+    Map<String, dynamic>? firstRequestHeader,
+    String? otherRequestUrl,
+    Map<String, dynamic>? otherRequestHeader,
+    Map<String, dynamic>? data,
   }) async {
     Response response = await dio.get(
       url,
@@ -188,9 +186,9 @@ class MobileNkustHelper {
   }
 
   Future<LoginResponse> login({
-    @required BuildContext context,
-    @required String username,
-    @required String password,
+    required BuildContext context,
+    required String username,
+    required String password,
     bool clearCache = false,
   }) async {
     final data = MobileCookiesData.load();
@@ -203,7 +201,7 @@ class MobileNkustHelper {
           Constants.MOBILE_COOKIES_LAST_TIME,
           now.microsecondsSinceEpoch,
         );
-        FirebaseAnalyticsUtils.instance?.logEvent(
+        FirebaseAnalyticsUtils.instance.logEvent(
           'cookies_persistence_time',
           parameters: {
             'time': now.microsecondsSinceEpoch - lastTime,
@@ -229,8 +227,8 @@ class MobileNkustHelper {
   }
 
   Future<CourseData> getCourseTable({
-    String year,
-    String semester,
+    String? year,
+    String? semester,
   }) async {
     Response response;
     if (year == null || semester == null) {
@@ -253,8 +251,8 @@ class MobileNkustHelper {
   }
 
   Future<MidtermAlertsData> getMidAlerts({
-    String year,
-    String semester,
+    String? year,
+    String? semester,
   }) async {
     Response response;
     if (year == null || semester == null) {
@@ -277,8 +275,8 @@ class MobileNkustHelper {
   }
 
   Future<ScoreData> getScores({
-    String year,
-    String semester,
+    String? year,
+    String? semester,
   }) async {
     Response response;
     if (year == null || semester == null) {
@@ -311,7 +309,7 @@ class MobileNkustHelper {
     return data;
   }
 
-  Future<Uint8List> getUserPicture() async {
+  Future<Uint8List?> getUserPicture() async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final response = await dio.get(
@@ -325,10 +323,10 @@ class MobileNkustHelper {
   }
 
   Future<BusData> busTimeTableQuery({
-    DateTime fromDateTime,
-    String year,
-    String month,
-    String day,
+    DateTime? fromDateTime,
+    String? year,
+    String? month,
+    String? day,
   }) async {
     // support DateTime or {year,month,day}.
     if (fromDateTime != null) {
@@ -336,10 +334,10 @@ class MobileNkustHelper {
       month = fromDateTime.month.toString();
       day = fromDateTime.day.toString();
     }
-    for (int i = 0; month.length < 2; i++) {
+    for (int i = 0; month!.length < 2; i++) {
       month = "0" + month;
     }
-    for (int i = 0; day.length < 2; i++) {
+    for (int i = 0; day!.length < 2; i++) {
       day = "0" + day;
     }
 
@@ -394,7 +392,7 @@ class MobileNkustHelper {
   }
 
   Future<BookingBusData> busBook({
-    String busId,
+    String? busId,
   }) async {
     var request = await generalRequest(
       BUS_TIMETABLE_PAGE,
@@ -404,15 +402,15 @@ class MobileNkustHelper {
       otherRequestHeader: {"Referer": BUS_TIMETABLE_PAGE},
     );
 
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
     BookingBusData status = BookingBusData();
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data['success'] && data['title'] == "預約成功") {
+    if (data!['success'] && data['title'] == "預約成功") {
       status.success = true;
     } else {
       status.success = false;
@@ -422,7 +420,7 @@ class MobileNkustHelper {
   }
 
   Future<CancelBusData> busUnBook({
-    String busId,
+    String? busId,
   }) async {
     var request = await generalRequest(
       BUS_TIMETABLE_PAGE,
@@ -432,15 +430,15 @@ class MobileNkustHelper {
       otherRequestHeader: {"Referer": BUS_TIMETABLE_PAGE},
     );
 
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
     CancelBusData status = CancelBusData();
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data['success'] && data['title'] == "取消成功") {
+    if (data!['success'] && data['title'] == "取消成功") {
       status.success = true;
     } else {
       status.success = false;

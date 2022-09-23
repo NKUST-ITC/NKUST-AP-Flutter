@@ -10,7 +10,7 @@ import 'package:nkust_ap/models/midterm_alerts_data.dart';
 class MobileNkustParser {
   static List<Map<String, dynamic>> busViolationRecords(
     String rawHtml, {
-    bool paidStatus,
+    required bool paidStatus,
   }) {
     final document = html.parse(rawHtml);
     List<Map<String, dynamic>> result = [];
@@ -37,8 +37,8 @@ class MobileNkustParser {
 
   static List<Map<String, dynamic>> busUserRecords(
     String rawHtml, {
-    String startStation,
-    String endStation,
+    required String startStation,
+    required String endStation,
   }) {
     final document = html.parse(rawHtml);
     List<Map<String, dynamic>> result = [];
@@ -69,8 +69,8 @@ class MobileNkustParser {
       'timeCodes': [],
     };
     var inputElements = document.getElementsByTagName("input");
-    var coursesJson = jsonDecode(inputElements[0].attributes['value']);
-    var periodTimeJson = jsonDecode(inputElements[1].attributes['value']);
+    var coursesJson = jsonDecode(inputElements[0].attributes['value']!);
+    var periodTimeJson = jsonDecode(inputElements[1].attributes['value']!);
 
     periodTimeJson.forEach((periodTime) {
       result["timeCodes"].add({
@@ -123,11 +123,11 @@ class MobileNkustParser {
   }
 
   static Map<String, dynamic> busInfo(
-    String rawHtml,
+    String? rawHtml,
   ) {
     var document = html.parse(rawHtml);
     String canNotReserveText =
-        document.getElementById('BusMemberStop').attributes['value'];
+        document.getElementById('BusMemberStop')!.attributes['value']!;
     bool canReserve = !bool.fromEnvironment(
       canNotReserveText,
       defaultValue: false,
@@ -146,9 +146,9 @@ class MobileNkustParser {
 
   static List<Map<String, dynamic>> busTimeTable(
     rawHtml, {
-    String time,
-    String startStation,
-    String endStation,
+    String? time,
+    String? startStation,
+    String? endStation,
   }) {
     var document = html.parse(rawHtml);
 
@@ -161,20 +161,20 @@ class MobileNkustParser {
       var _inputDocument = html.parse(trElement.outerHtml);
       _temp['canBook'] = true;
 
-      if (_inputDocument.getElementById('ReserveEnable').attributes['value'] ==
+      if (_inputDocument.getElementById('ReserveEnable')!.attributes['value'] ==
           null) {
         //can't book.
         _temp['canBook'] = false;
       }
       _temp['busId'] =
-          _inputDocument.getElementById('BusId').attributes['value'];
+          _inputDocument.getElementById('BusId')!.attributes['value'];
       _temp['cancelKey'] =
-          _inputDocument.getElementById('ReserveId').attributes['value'];
+          _inputDocument.getElementById('ReserveId')!.attributes['value'];
       _temp['isReserve'] = (_inputDocument
-                  .getElementById('ReserveStateCode')
+                  .getElementById('ReserveStateCode')!
                   .attributes['value'] ==
               '0' &&
-          _inputDocument.getElementById('ReserveId').attributes['value'] !=
+          _inputDocument.getElementById('ReserveId')!.attributes['value'] !=
               '0');
 
       var tdElements = trElement.getElementsByTagName('td').sublist(1);
@@ -214,18 +214,17 @@ class MobileNkustParser {
   }
 
   static ScoreData scores(rawHtml) {
-    final scoreData = ScoreData();
     final document = html.parse(rawHtml);
     // generate scores list
     if (document.getElementById("datatable") == null) {
-      return scoreData;
+      return ScoreData.empty();
     }
     List<Map<String, dynamic>> scoresList = [];
     //skip table header
     var _trElements =
-        document.getElementById("datatable").getElementsByTagName('tr');
+        document.getElementById("datatable")!.getElementsByTagName('tr');
     if (_trElements.length <= 1) {
-      return scoreData;
+      return ScoreData.empty();
     }
 
     for (var trElement in _trElements.sublist(1)) {
@@ -234,7 +233,7 @@ class MobileNkustParser {
 
       if (tdElements.length < 8) {
         // continue;
-        return scoreData;
+        return ScoreData.empty();
       }
       scoresList.add({
         "title": tdElements.elementAt(0).text,
@@ -252,14 +251,14 @@ class MobileNkustParser {
     Map<String, dynamic> detailData = {};
     var detailDiv = document.getElementsByClassName("text-bold text-info");
     if (detailDiv == null) {
-      return scoreData;
+      return ScoreData.empty();
     }
     if (detailDiv.length < 4) {
-      return scoreData;
+      return ScoreData.empty();
     }
     detailData["average"] = detailDiv
         .elementAt(0)
-        .parent
+        .parent!
         .text
         .replaceAll(detailDiv.elementAt(0).text, "")
         .replaceAll("\n", "")
@@ -267,7 +266,7 @@ class MobileNkustParser {
     detailData["average"] = double.parse(detailData["average"]);
     detailData["conduct"] = detailDiv
         .elementAt(1)
-        .parent
+        .parent!
         .text
         .replaceAll(detailDiv.elementAt(1).text, "")
         .replaceAll("\n", "")
@@ -275,7 +274,7 @@ class MobileNkustParser {
     detailData["conduct"] = double.parse(detailData["conduct"]);
     detailData["classRank"] = detailDiv
         .elementAt(2)
-        .parent
+        .parent!
         .text
         .replaceAll(detailDiv.elementAt(2).text, "")
         .replaceAll("\n", "")
@@ -283,7 +282,7 @@ class MobileNkustParser {
 
     detailData["departmentRank"] = detailDiv
         .elementAt(3)
-        .parent
+        .parent!
         .text
         .replaceAll(detailDiv.elementAt(3).text, "")
         .replaceAll("\n", "")
@@ -296,24 +295,25 @@ class MobileNkustParser {
   }
 
   static UserInfo userInfo(rawHtml) {
-    final userInfo = UserInfo();
     final document = html.parse(rawHtml);
     final list = document.getElementsByClassName('user-header');
     if (list.length > 0) {
       final p = list[0].getElementsByTagName('p');
       if (p.length >= 2) {
-        userInfo.id = p[0].text.split(' ').first;
-        userInfo.name = p[0].text.split(' ').last;
-        userInfo.department = p[1].text;
+        return UserInfo(
+          id: p[0].text.split(' ').first,
+          department: p[0].text.split(' ').last,
+          name: p[1].text,
+        );
       }
     }
-    return userInfo;
+    return UserInfo.empty();
   }
 
-  static String getCSRF(rawHtml) {
+  static String? getCSRF(rawHtml) {
     final document = html.parse(rawHtml);
     for (var inputElement in document.getElementsByTagName("input")) {
-      if (((inputElement.attributes ?? const {})['name'] ?? "") ==
+      if (((inputElement.attributes)['name'] ?? "") ==
           "__RequestVerificationToken") {
         return inputElement.attributes['value'];
       }

@@ -8,10 +8,10 @@ class MobileCookiesData {
     this.cookies,
   });
 
-  List<MobileCookies> cookies;
+  List<MobileCookies>? cookies;
 
   MobileCookiesData copyWith({
-    List<MobileCookies> cookies,
+    List<MobileCookies>? cookies,
   }) =>
       MobileCookiesData(
         cookies: cookies ?? this.cookies,
@@ -33,7 +33,7 @@ class MobileCookiesData {
   Map<String, dynamic> toJson() => {
         "cookies": cookies == null
             ? null
-            : List<dynamic>.from(cookies.map((x) => x.toJson())),
+            : List<dynamic>.from(cookies!.map((x) => x.toJson())),
       };
 
   Future<void> save() async {
@@ -42,13 +42,13 @@ class MobileCookiesData {
   }
 
   Future<void> clear() async {
-    await Preferences.setString(Constants.MOBILE_COOKIES_DATA, null);
+    await Preferences.remove(Constants.MOBILE_COOKIES_DATA);
   }
 
-  factory MobileCookiesData.load() {
+  static MobileCookiesData? load() {
     final str =
-        Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, null);
-    return str == null ? null : MobileCookiesData.fromRawJson(str);
+        Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, '');
+    return str.isEmpty ? null : MobileCookiesData.fromRawJson(str);
   }
 }
 
@@ -60,16 +60,16 @@ class MobileCookies {
     this.domain,
   });
 
-  String path;
-  String name;
-  String value;
-  String domain;
+  String? path;
+  String? name;
+  String? value;
+  String? domain;
 
   MobileCookies copyWith({
-    String path,
-    String name,
-    String value,
-    String domain,
+    String? path,
+    String? name,
+    String? value,
+    String? domain,
   }) =>
       MobileCookies(
         path: path ?? this.path,

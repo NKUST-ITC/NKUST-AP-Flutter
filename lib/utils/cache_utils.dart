@@ -14,7 +14,7 @@ class CacheUtils {
         '${Constants.PREF_PICTURE_DATA}_$username', base64.encode(bytes));
   }
 
-  static Future<Uint8List> loadPictureData() async {
+  static Future<Uint8List?> loadPictureData() async {
     String username = Preferences.getString(Constants.PREF_USERNAME, '');
     String base64String =
         Preferences.getString('${Constants.PREF_PICTURE_DATA}_$username', '');

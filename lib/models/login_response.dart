@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 class LoginResponse {
-  DateTime expireTime;
-  String token;
-  bool isAdmin;
+  DateTime? expireTime;
+  String? token;
+  bool? isAdmin;
 
   LoginResponse({
     this.expireTime,
@@ -25,7 +25,7 @@ class LoginResponse {
       );
 
   Map<String, dynamic> toJson() => {
-        "expireTime": expireTime == null ? null : expireTime.toIso8601String(),
+        "expireTime": expireTime == null ? null : expireTime!.toIso8601String(),
         "token": token == null ? null : token,
         "isAdmin": isAdmin == null ? null : isAdmin,
       };

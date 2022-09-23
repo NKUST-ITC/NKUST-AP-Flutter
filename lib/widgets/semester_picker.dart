@@ -1,6 +1,7 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/course_notify_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/analytics_utils.dart';
@@ -15,15 +16,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/semester_data.dart';
 
 typedef SemesterCallback = void Function(Semester semester, int index);
 
 class SemesterPicker extends StatefulWidget {
-  final SemesterCallback onSelect;
-  final String featureTag;
+  final SemesterCallback? onSelect;
+  final String? featureTag;
 
-  const SemesterPicker({Key key, this.onSelect, this.featureTag})
+  const SemesterPicker({Key? key, this.onSelect, this.featureTag})
       : super(key: key);
 
   @override
@@ -31,8 +31,8 @@ class SemesterPicker extends StatefulWidget {
 }
 
 class SemesterPickerState extends State<SemesterPicker> {
-  SemesterData semesterData;
-  Semester selectSemester;
+  late SemesterData semesterData;
+  Semester? selectSemester;
 
   int currentIndex = 0;
 
@@ -78,13 +78,16 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void _loadSemesterData() async {
-    this.semesterData = SemesterData.load();
-    if (this.semesterData == null) return;
-    widget.onSelect(semesterData.defaultSemester, semesterData.defaultIndex);
-    if (mounted) {
-      setState(() {
-        selectSemester = semesterData.defaultSemester;
-      });
+    final cacheData = SemesterData.load();
+    if (cacheData != null) {
+      semesterData = cacheData;
+      widget.onSelect
+          ?.call(semesterData.defaultSemester, semesterData.defaultIndex);
+      if (mounted) {
+        setState(() {
+          selectSemester = semesterData.defaultSemester;
+        });
+      }
     }
   }
 
@@ -118,8 +121,10 @@ class SemesterPickerState extends State<SemesterPicker> {
           }
           if (mounted) {
             currentIndex = semesterData.defaultIndex;
-            widget.onSelect(
-                semesterData.defaultSemester, semesterData.defaultIndex);
+            widget.onSelect?.call(
+              semesterData.defaultSemester,
+              semesterData.defaultIndex,
+            );
             setState(() {
               selectSemester = semesterData.defaultSemester;
             });
@@ -129,7 +134,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           ApUtils.showToast(context, e.i18nMessage);
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getSemester', e.response.statusCode,
+                'getSemester', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse response) {
@@ -148,7 +153,7 @@ class SemesterPickerState extends State<SemesterPicker> {
         index: currentIndex,
         onSelected: (index) {
           currentIndex = index;
-          widget.onSelect(semesterData.data[currentIndex], currentIndex);
+          widget.onSelect!(semesterData.data[currentIndex], currentIndex);
           setState(() {
             selectSemester = semesterData.data[currentIndex];
           });

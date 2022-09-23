@@ -19,7 +19,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageState extends State<LoginPage> {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   final _username = TextEditingController();
   final _password = TextEditingController();
@@ -27,8 +27,8 @@ class LoginPageState extends State<LoginPage> {
   final usernameFocusNode = FocusNode();
   final passwordFocusNode = FocusNode();
 
-  var isRememberPassword = true;
-  var isAutoLogin = false;
+  bool isRememberPassword = true;
+  bool isAutoLogin = false;
 
   bool isLoginIng = false;
 
@@ -124,22 +124,28 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  _onRememberPasswordChanged(bool value) async {
-    setState(() {
-      isRememberPassword = value;
-      if (!isRememberPassword) isAutoLogin = false;
-      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
-    });
+  _onRememberPasswordChanged(bool? value) async {
+    if (value != null) {
+      setState(() {
+        isRememberPassword = value;
+        if (!isRememberPassword) isAutoLogin = false;
+        Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        Preferences.setBool(
+            Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      });
+    }
   }
 
-  _onAutoLoginChanged(bool value) async {
-    setState(() {
-      isAutoLogin = value;
-      isRememberPassword = isAutoLogin;
-      Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
-      Preferences.setBool(Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
-    });
+  _onAutoLoginChanged(bool? value) async {
+    if (value != null) {
+      setState(() {
+        isAutoLogin = value;
+        isRememberPassword = isAutoLogin;
+        Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        Preferences.setBool(
+            Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+      });
+    }
   }
 
   _getPreference() async {
@@ -166,8 +172,8 @@ class LoginPageState extends State<LoginPage> {
         username: _username.text,
         password: _password.text,
         clearCache: true,
-        callback: GeneralCallback<LoginResponse>(
-          onSuccess: (LoginResponse response) async {
+        callback: GeneralCallback<LoginResponse?>(
+          onSuccess: (LoginResponse? response) async {
             Preferences.setString(Constants.PREF_USERNAME, _username.text);
             if (isRememberPassword) {
               Preferences.setStringSecurity(
@@ -183,7 +189,7 @@ class LoginPageState extends State<LoginPage> {
             if (e.type != DioErrorType.cancel) _offlineLogin();
           },
           onError: (GeneralResponse response) {
-            String message = '';
+            String? message = '';
             switch (response.statusCode) {
               case ApStatusCode.SCHOOL_SERVER_ERROR:
                 message = ap.schoolServerError;

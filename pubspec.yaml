@@ -4,7 +4,7 @@ description: A new Flutter application.
 version: 3.9.4+30904
 
 environment:
-  sdk: ">=2.6.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
@@ -14,7 +14,7 @@ dependencies:
   intl: ^0.17.0
   multiple_localization: ^0.3.0
 
-  ap_common: ^0.21.2
+  ap_common: ^0.22.0-dev.3
   ap_common_firebase: ^0.15.0
   ap_common_plugin: ^0.4.0
   #official plugin

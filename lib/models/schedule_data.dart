@@ -1,6 +1,6 @@
 class ScheduleData {
-  String week;
-  List<String> events;
+  String? week;
+  List<String>? events;
 
   ScheduleData({
     this.week,
@@ -19,7 +19,7 @@ class ScheduleData {
         'events': events,
       };
 
-  static List<ScheduleData> toList(List<dynamic> jsonArray) {
+  static List<ScheduleData> toList(List<dynamic>? jsonArray) {
     List<ScheduleData> list = [];
     for (var item in (jsonArray ?? [])) list.add(ScheduleData.fromJson(item));
     return list;

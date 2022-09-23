@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/date_utils.dart';
 
 class CalendarTile extends StatelessWidget {
-  final VoidCallback onDateSelected;
-  final DateTime date;
-  final String dayOfWeek;
+  final VoidCallback? onDateSelected;
+  final DateTime? date;
+  final String? dayOfWeek;
   final bool isDayOfWeek;
   final bool isSelected;
-  final TextStyle dayOfWeekStyles;
-  final TextStyle dateStyles;
-  final Widget child;
+  final TextStyle? dayOfWeekStyles;
+  final TextStyle? dateStyles;
+  final Widget? child;
 
   CalendarTile({
     this.onDateSelected,
@@ -29,7 +29,7 @@ class CalendarTile extends StatelessWidget {
         child: new Container(
           alignment: Alignment.center,
           child: new Text(
-            dayOfWeek,
+            dayOfWeek!,
             style: dayOfWeekStyles,
           ),
         ),
@@ -46,7 +46,7 @@ class CalendarTile extends StatelessWidget {
               : new BoxDecoration(),
           alignment: Alignment.center,
           child: new Text(
-            CalendarDateUtils.formatDay(date).toString(),
+            CalendarDateUtils.formatDay(date!).toString(),
             style: isSelected
                 ? new TextStyle(color: ApTheme.of(context).calendarTileSelect)
                 : dateStyles,

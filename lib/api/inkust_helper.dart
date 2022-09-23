@@ -1,36 +1,37 @@
 //dio
 import 'dart:convert';
+import "dart:math";
 
 import 'package:ap_common/models/course_data.dart';
+//overwrite origin Cookie Manager.
+import 'package:ap_common/models/private_cookies_manager.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
-
-//overwrite origin Cookie Manager.
-import 'package:ap_common/models/private_cookies_manager.dart';
-
-import 'package:nkust_ap/models/leave_submit_data.dart';
-import "dart:math";
-import 'helper.dart';
 import 'package:nkust_ap/api/parser/inkust_parser.dart';
-
-import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
+import 'package:nkust_ap/models/bus_data.dart';
+import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/leave_data.dart';
+import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 
+import 'helper.dart';
+
 class InkustHelper {
-  static Dio dio;
-  static DioCacheManager _manager;
-  static InkustHelper _instance;
-  static CookieJar cookieJar;
+  InkustHelper() {
+    dioInit();
+  }
+
+  late Dio dio;
+  late DioCacheManager _manager;
+  static InkustHelper? _instance;
+  late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
@@ -50,7 +51,7 @@ class InkustHelper {
 
   static String get userLeaveTutorsCacheKey =>
       "${Helper.username}_userLeaveTutors";
-  static Map<String, String> ueserRequestData = {
+  static Map<String, String?> ueserRequestData = {
     "apiKey": null,
     "userId": null,
   };
@@ -75,11 +76,7 @@ class InkustHelper {
   bool isLogin = false;
 
   static InkustHelper get instance {
-    if (_instance == null) {
-      _instance = InkustHelper();
-      dioInit();
-    }
-    return _instance;
+    return _instance ??= InkustHelper();
   }
 
   void setProxy(String proxyIP) {
@@ -91,7 +88,7 @@ class InkustHelper {
     };
   }
 
-  static dioInit() {
+  void dioInit() {
     dio = Dio();
     cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {
@@ -108,9 +105,9 @@ class InkustHelper {
         'Mozilla/5.0 (iPhone; CPU iPhone OS ${headerRandom[_random.nextInt(headerRandom.length)]} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
   }
 
-  Future<Map<String, dynamic>> login({
-    @required String username,
-    @required String password,
+  Future<Map<String, dynamic>?> login({
+    required String? username,
+    required String? password,
   }) async {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
@@ -132,13 +129,13 @@ class InkustHelper {
     return res.data;
   }
 
-  Future<Map<String, dynamic>> checkLogin() async {
+  Future<Map<String, dynamic>?> checkLogin() async {
     return isLogin
         ? null
         : await login(username: Helper.username, password: Helper.password);
   }
 
-  Future<CourseData> courseTable(String years, String semesterValue) async {
+  Future<CourseData?> courseTable(String? years, String? semesterValue) async {
     await checkLogin();
     Options _options;
     _options = Options(contentType: Headers.formUrlEncodedContentType);
@@ -149,7 +146,7 @@ class InkustHelper {
           primaryKey: "${coursetableCacheKey}_${years}_$semesterValue");
     }
 
-    var requestData = new Map<String, String>.from(ueserRequestData);
+    var requestData = new Map<String, String?>.from(ueserRequestData);
     requestData.addAll({
       'academicYear': years,
       'academicSms': semesterValue,
@@ -162,11 +159,11 @@ class InkustHelper {
     return CourseData.fromJson(inkustCourseTableParser(res.data));
   }
 
-  Future<BusData> inkustBusTimeTableQuery({
-    DateTime fromDateTime,
-    String year,
-    String month,
-    String day,
+  Future<BusData?> inkustBusTimeTableQuery({
+    DateTime? fromDateTime,
+    String? year,
+    String? month,
+    String? day,
   }) async {
     await checkLogin();
     if (fromDateTime != null) {
@@ -174,10 +171,10 @@ class InkustHelper {
       month = fromDateTime.month.toString();
       day = fromDateTime.day.toString();
     }
-    for (int i = 0; month.length < 2; i++) {
+    for (int i = 0; month!.length < 2; i++) {
       month = "0" + month;
     }
-    for (int i = 0; day.length < 2; i++) {
+    for (int i = 0; day!.length < 2; i++) {
       day = "0" + day;
     }
     Future<BusReservationsData> userRecords = inkustBusUserRecord();
@@ -252,9 +249,9 @@ class InkustHelper {
     );
   }
 
-  Future<BookingBusData> busBook({String busId}) async {
+  Future<BookingBusData> busBook({String? busId}) async {
     await checkLogin();
-    var _requestData = new Map<String, String>.from(ueserRequestData);
+    var _requestData = new Map<String, String?>.from(ueserRequestData);
 
     _requestData.addAll({"busId": busId});
     var request = await dio.post(
@@ -262,24 +259,24 @@ class InkustHelper {
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
 
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data['success'] && data['message'] == "預約成功") {
+    if (data!['success'] && data['message'] == "預約成功") {
       if (Helper.isSupportCacheData) _manager.clearAll();
       return BookingBusData(success: true);
     }
     return BookingBusData(success: false);
   }
 
-  Future<CancelBusData> busUnBook({String busId}) async {
+  Future<CancelBusData> busUnBook({String? busId}) async {
     await checkLogin();
-    var _requestData = new Map<String, String>.from(ueserRequestData);
+    var _requestData = new Map<String, String?>.from(ueserRequestData);
 
     _requestData.addAll({"resId": busId});
     var request = await dio.post(
@@ -287,15 +284,15 @@ class InkustHelper {
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
 
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data['success'] && data['message'] == "取消成功") {
+    if (data!['success'] && data['message'] == "取消成功") {
       if (Helper.isSupportCacheData) _manager.clearAll();
       return CancelBusData(success: true);
     }
@@ -321,20 +318,20 @@ class InkustHelper {
       data: _requestData,
       options: _options,
     );
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
 
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
     return BusViolationRecordsData.fromJson(
-      inkustBusViolationRecordsParser(data),
+      inkustBusViolationRecordsParser(data!),
     );
   }
 
-  Future<LeaveData> getAbsentRecords({String year, String semester}) async {
+  Future<LeaveData> getAbsentRecords({String? year, String? semester}) async {
     await checkLogin();
 
     var _requestData = new Map<String, dynamic>.from(ueserRequestData);
@@ -349,17 +346,17 @@ class InkustHelper {
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
-    Map<String, dynamic> data;
+    Map<String, dynamic>? data;
 
     if (request.data is String &&
-        request.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
 
     return LeaveData.fromJson(
-        inkustgetAbsentRecordsParser(data, timeCodes: leavesTimeCode));
+        inkustgetAbsentRecordsParser(data!, timeCodes: leavesTimeCode));
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
@@ -392,18 +389,19 @@ class InkustHelper {
       options: totorRecordsOptions,
     );
 
-    Map<String, dynamic> leaveTypeOptionData;
-    Map<String, dynamic> totorRecordsData;
+    Map<String, dynamic>? leaveTypeOptionData;
+    Map<String, dynamic>? totorRecordsData;
 
     if (leaveTypeOptionRequest.data is String &&
-        leaveTypeOptionRequest.headers['Content-Type'][0].indexOf("text/html") >
+        leaveTypeOptionRequest.headers['Content-Type']![0]
+                .indexOf("text/html") >
             -1) {
       leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data);
     } else if (leaveTypeOptionRequest.data is Map<String, dynamic>) {
       leaveTypeOptionData = leaveTypeOptionRequest.data;
     }
     if (totorRequest.data is String &&
-        totorRequest.headers['Content-Type'][0].indexOf("text/html") > -1) {
+        totorRequest.headers['Content-Type']![0].indexOf("text/html") > -1) {
       totorRecordsData = jsonDecode(totorRequest.data);
     } else if (totorRequest.data is Map<String, dynamic>) {
       totorRecordsData = totorRequest.data;
@@ -411,12 +409,12 @@ class InkustHelper {
 
     return LeaveSubmitInfoData.fromJson(
       inkustGetLeaveSubmitInfoParser(
-          leaveTypeOptionData, totorRecordsData, leavesTimeCode),
+          leaveTypeOptionData, totorRecordsData!, leavesTimeCode),
     );
   }
 
-  Future<Response> leavesSubmit(LeaveSubmitData data,
-      {PickedFile proofImage}) async {
+  Future<Response?> leavesSubmit(LeaveSubmitData data,
+      {PickedFile? proofImage}) async {
     await checkLogin();
 
     var userInfo = await Helper.instance.getUsersInfo();
@@ -429,11 +427,11 @@ class InkustHelper {
     var requestDataList = inkustLeaveDataParser(
       submitDatas: data,
       semester: nowSemester,
-      stdId: userInfo.id,
+      stdId: userInfo!.id,
       proofImageExists: proofImageExists,
       timeCode: leavesTimeCode,
     );
-    Response<dynamic> res;
+    Response<dynamic>? res;
     if (proofImageExists) {
       for (int i = 0; i < requestDataList.length; i++) {
         Map<String, dynamic> _requestData =
@@ -441,7 +439,7 @@ class InkustHelper {
         _requestData['insertData'] = json.encode(requestDataList[i]);
 
         _requestData["file"] = await MultipartFile.fromFile(
-          proofImage.path,
+          proofImage!.path,
           filename: "proof.jpg",
           contentType: MediaType.parse("image/jpeg"),
         );

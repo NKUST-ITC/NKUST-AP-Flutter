@@ -68,13 +68,13 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   PdfState pdfState = PdfState.loading;
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
-  TabController controller;
+  late TabController controller;
 
   int _currentIndex = 0;
 
-  Uint8List data;
+  Uint8List? data;
 
   @override
   void initState() {

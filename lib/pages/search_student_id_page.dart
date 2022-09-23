@@ -5,10 +5,10 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
@@ -19,8 +19,8 @@ class SearchStudentIdPage extends StatefulWidget {
 }
 
 class SearchStudentIdPageState extends State<SearchStudentIdPage> {
-  AppLocalizations app;
-  ApLocalizations ap;
+  late AppLocalizations app;
+  late ApLocalizations ap;
 
   final _id = TextEditingController();
   final idFocusNode = FocusNode();
@@ -102,8 +102,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ApButton(
           text: ap.search,
           onPressed: () {
-            FirebaseAnalyticsUtils.instance
-                .logEvent('search_username_click');
+            FirebaseAnalyticsUtils.instance.logEvent('search_username_click');
             _search();
           },
         )
@@ -111,10 +110,12 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     );
   }
 
-  _onAutoFillChanged(bool value) async {
-    setState(() {
-      isAutoFill = value;
-    });
+  _onAutoFillChanged(bool? value) async {
+    if (value != null) {
+      setState(() {
+        isAutoFill = value;
+      });
+    }
   }
 
   _search() async {
@@ -126,12 +127,12 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         birthday: birthday,
         callback: GeneralCallback(
           onSuccess: (UserInfo data) {
-            if (data != null && isAutoFill) {
+            if (isAutoFill) {
               Navigator.pop(context, data.id);
             } else {
               _showResultDialog(
                 sprintf(
-                  app.searchStudentIdFormat,
+                  AppLocalizations.of(context).searchStudentIdFormat,
                   [
                     data.name,
                     data.id,
@@ -151,7 +152,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   }
 
   _showResultDialog(
-    String text, {
+    String? text, {
     bool showFirstHint = true,
   }) {
     showDialog(
@@ -174,7 +175,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               ),
               if (showFirstHint)
                 TextSpan(
-                  text: '\n${app.firstLoginHint}',
+                  text: '\n${AppLocalizations.of(context).firstLoginHint}',
                 ),
             ],
           ),

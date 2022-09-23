@@ -5,9 +5,9 @@
 import 'dart:convert';
 
 class LeaveSubmitInfoData {
-  Tutor tutor;
-  List<Type> type;
-  List<String> timeCodes;
+  Tutor? tutor;
+  List<Type>? type;
+  List<String>? timeCodes;
 
   LeaveSubmitInfoData({
     this.tutor,
@@ -26,15 +26,15 @@ class LeaveSubmitInfoData {
   );
 
   Map<String, dynamic> toJson() => {
-    "tutor": tutor == null ? null : tutor.toJson(),
-    "type": type == null ? null : List<dynamic>.from(type.map((x) => x.toJson())),
-    "timeCodes": timeCodes == null ? null : List<dynamic>.from(timeCodes.map((x) => x)),
+    "tutor": tutor == null ? null : tutor!.toJson(),
+    "type": type == null ? null : List<dynamic>.from(type!.map((x) => x.toJson())),
+    "timeCodes": timeCodes == null ? null : List<dynamic>.from(timeCodes!.map((x) => x)),
   };
 }
 
 class Tutor {
-  String name;
-  String id;
+  String? name;
+  String? id;
 
   Tutor({
     this.name,
@@ -57,8 +57,8 @@ class Tutor {
 }
 
 class Type {
-  String title;
-  String id;
+  String? title;
+  String? id;
 
   Type({
     this.title,

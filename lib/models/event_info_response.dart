@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 class EventInfoResponse {
-  int code;
-  String description;
-  String title;
-  List<EventInfo> data;
+  int? code;
+  String? description;
+  String? title;
+  List<EventInfo>? data;
 
   EventInfoResponse({
     this.code,
@@ -35,15 +35,15 @@ class EventInfoResponse {
         "title": title == null ? null : title,
         "data": data == null
             ? null
-            : List<dynamic>.from(data.map((x) => x.toJson())),
+            : List<dynamic>.from(data!.map((x) => x.toJson())),
       };
 }
 
 class EventSendResponse {
-  int code;
-  String description;
-  String title;
-  EventInfo data;
+  int? code;
+  String? description;
+  String? title;
+  EventInfo? data;
 
   EventSendResponse({
     this.code,
@@ -69,15 +69,15 @@ class EventSendResponse {
         "code": code == null ? null : code,
         "description": description == null ? null : description,
         "title": title == null ? null : title,
-        "data": data == null ? null : data.toJson(),
+        "data": data == null ? null : data!.toJson(),
       };
 }
 
 class EventInfo {
-  String id;
-  String start;
-  String end;
-  String name;
+  String? id;
+  String? start;
+  String? end;
+  String? name;
 
   EventInfo({
     this.id,

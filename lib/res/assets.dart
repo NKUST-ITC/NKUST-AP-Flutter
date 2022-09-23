@@ -29,7 +29,7 @@ class FileAssets {
   static const String scheduleData = '$basePath/schedule_data.json';
   static const String changelog = 'changelog.json';
 
-  static Future<Map<String, dynamic>> get changelogData async {
+  static Future<Map<String, dynamic>?> get changelogData async {
     return jsonDecode(await rootBundle.loadString(changelog));
   }
 }

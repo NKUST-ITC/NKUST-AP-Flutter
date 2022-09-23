@@ -20,17 +20,17 @@ class RoomListPage extends StatefulWidget {
 }
 
 class _RoomListPageState extends State<RoomListPage> {
-  AppLocalizations app;
+  late AppLocalizations app;
 
   _State state = _State.loading;
 
   int campusIndex = 0;
   int roomIndex = 0;
 
-  RoomData roomData;
-  CourseData courseData;
+  RoomData? roomData;
+  CourseData? courseData;
 
-  String customStateHint;
+  String? customStateHint;
 
   @override
   void initState() {
@@ -88,30 +88,30 @@ class _RoomListPageState extends State<RoomListPage> {
         return ListView.builder(
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(roomData.data[index].name),
+              title: Text(roomData!.data![index].name!),
               onTap: () {
                 roomIndex = index;
                 ApUtils.pushCupertinoStyle(
                   context,
                   EmptyRoomPage(
-                    room: roomData.data[roomIndex],
+                    room: roomData!.data![roomIndex],
                   ),
                 );
               },
             );
           },
-          itemCount: roomData.data.length,
+          itemCount: roomData!.data!.length,
         );
       case _State.custom:
       default:
         return InkWell(
-                onTap: () {
+          onTap: () {
             _getRoomList();
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,
-            content: customStateHint,
+            content: customStateHint!,
           ),
         );
     }
@@ -140,7 +140,7 @@ class _RoomListPageState extends State<RoomListPage> {
             });
           if (e.hasResponse)
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRoomCourseTables', e.response.statusCode,
+                'getRoomCourseTables', e.response!.statusCode!,
                 message: e.message);
         },
         onError: (GeneralResponse generalResponse) async {

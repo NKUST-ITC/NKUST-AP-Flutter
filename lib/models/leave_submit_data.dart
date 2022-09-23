@@ -5,11 +5,11 @@
 import 'dart:convert';
 
 class LeaveSubmitData {
-  List<Day> days;
-  String leaveTypeId;
-  String teacherId;
-  String reasonText;
-  String delayReasonText;
+  List<Day>? days;
+  String? leaveTypeId;
+  String? teacherId;
+  String? reasonText;
+  String? delayReasonText;
 
   LeaveSubmitData({
     this.days,
@@ -34,7 +34,7 @@ class LeaveSubmitData {
       );
 
   Map<String, dynamic> toJson() => {
-        "days": new List<dynamic>.from(days.map((x) => x.toJson())),
+        "days": new List<dynamic>.from(days!.map((x) => x.toJson())),
         "leaveType": leaveTypeId,
         "teacherId": teacherId,
         "reasonText": reasonText,
@@ -43,8 +43,8 @@ class LeaveSubmitData {
 }
 
 class Day {
-  String day;
-  List<String> dayClass;
+  String? day;
+  List<String>? dayClass;
 
   Day({
     this.day,
@@ -62,7 +62,7 @@ class Day {
 
   Map<String, dynamic> toJson() => {
         "day": day,
-        "class": new List<dynamic>.from(dayClass.map((x) => x)),
+        "class": new List<dynamic>.from(dayClass!.map((x) => x)),
       };
 
   @override
@@ -70,11 +70,11 @@ class Day {
     if (day == null && dayClass == null)
       return 'empty';
     else {
-      String text = day;
-      dayClass.forEach((item) {
+      String? text = day;
+      dayClass!.forEach((item) {
         text = '$text ($item)';
       });
-      return text;
+      return text!;
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 class CancelBusData {
-  bool success;
+  bool? success;
 
   CancelBusData({
     this.success,

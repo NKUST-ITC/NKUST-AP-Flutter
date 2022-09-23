@@ -16,9 +16,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/models/error_response.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
+import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -31,6 +31,7 @@ enum _State {
   offline,
   custom,
 }
+
 enum Leave { normal, sick, official, funeral, maternity }
 
 class LeaveApplyPage extends StatefulWidget {
@@ -45,20 +46,20 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   bool get wantKeepAlive => true;
 
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   ImagePicker imagePicker = ImagePicker();
 
   _State state = _State.loading;
-  String customStateHint;
+  String? customStateHint;
 
   var _formKey = GlobalKey<FormState>();
 
-  LeaveSubmitInfoData leaveSubmitInfo;
+  late LeaveSubmitInfoData leaveSubmitInfo;
 
   int typeIndex = 0;
 
-  LeavesTeacher teacher;
+  LeavesTeacher? teacher;
 
   List<LeaveModel> leaveModels = [];
 
@@ -68,9 +69,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   var _delayReason = TextEditingController();
 
-  PickedFile image;
+  PickedFile? image;
 
-  String get errorTitle {
+  String? get errorTitle {
     switch (state) {
       case _State.loading:
       case _State.finish:
@@ -104,10 +105,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   Widget build(BuildContext context) {
     super.build(context);
     ap = ApLocalizations.of(context);
-    return _body();
+    return _body()!;
   }
 
-  Widget _body() {
+  Widget? _body() {
     switch (state) {
       case _State.loading:
         return Container(
@@ -124,7 +125,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             icon: state == _State.offline
                 ? ApIcon.offlineBolt
                 : ApIcon.permIdentity,
-            content: errorTitle,
+            content: errorTitle!,
           ),
         );
       case _State.finish:
@@ -155,10 +156,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                             shrinkWrap: true,
                             controller: ScrollController(
                                 initialScrollOffset: typeIndex * 40.0),
-                            itemCount: leaveSubmitInfo.type.length,
+                            itemCount: leaveSubmitInfo.type!.length,
                             itemBuilder: (BuildContext context, int index) {
                               return DialogOption(
-                                text: leaveSubmitInfo.type[index].title,
+                                text: leaveSubmitInfo.type![index].title!,
                                 check: typeIndex == index,
                                 onPressed: () {
                                   setState(() {
@@ -198,7 +199,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    leaveSubmitInfo?.type[typeIndex]?.title ?? '',
+                    leaveSubmitInfo.type![typeIndex].title ?? '',
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -240,7 +241,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                             leaveModels.add(
                               LeaveModel(
                                 dateTime,
-                                leaveSubmitInfo.timeCodes.length,
+                                leaveSubmitInfo.timeCodes!.length,
                               ),
                             );
                           }
@@ -327,7 +328,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          '${leaveSubmitInfo.timeCodes[sectionIndex]}',
+                                          '${leaveSubmitInfo.timeCodes![sectionIndex]}',
                                           style: TextStyle(
                                             color: leaveModels[index]
                                                     .selected[sectionIndex]
@@ -347,7 +348,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                       },
                                     );
                                   },
-                                  itemCount: leaveSubmitInfo.timeCodes.length,
+                                  itemCount: leaveSubmitInfo.timeCodes!.length,
                                 ),
                               ),
                             ],
@@ -480,7 +481,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    image?.path?.split('/')?.last ?? ap.leaveProofHint,
+                    image?.path.split('/').last ?? ap.leaveProofHint,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -492,7 +493,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     maxLines: 2,
                     controller: _reason,
                     validator: (value) {
-                      if (value.isEmpty) {
+                      if (value!.isEmpty) {
                         return ap.doNotEmpty;
                       }
                       return null;
@@ -516,7 +517,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     child: TextFormField(
                       maxLines: 2,
                       validator: (value) {
-                        if (isDelay && value.isEmpty) {
+                        if (isDelay && value!.isEmpty) {
                           return ap.doNotEmpty;
                         }
                         return null;
@@ -574,7 +575,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       callback: GeneralCallback(
         onSuccess: (LeaveSubmitInfoData data) {
           setState(() {
-            if (data != null && data.type != null) {
+            if (data.type != null) {
               leaveSubmitInfo = data;
               state = _State.finish;
             } else
@@ -586,13 +587,13 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response.statusCode == 403)
+                  if (e.response!.statusCode == 403)
                     state = _State.userNotSupport;
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getLeaveSubmitInfo', e.response.statusCode,
+                        'getLeaveSubmitInfo', e.response!.statusCode!,
                         message: e.message);
                   }
                 });
@@ -647,7 +648,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       for (var i = 0; i < leaveModel.selected.length; i++) {
         if (leaveModel.selected[i]) {
           isNotEmpty = true;
-          sections.add(leaveSubmitInfo.timeCodes[i]);
+          sections.add(leaveSubmitInfo.timeCodes![i]);
         }
       }
       if (isNotEmpty) {
@@ -663,22 +664,22 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ApUtils.showToast(context, ap.pleasePickDateAndSection);
     } else if (leaveSubmitInfo.tutor == null && teacher == null) {
       ApUtils.showToast(context, ap.pickTeacher);
-    } else if (_formKey.currentState.validate()) {
+    } else if (_formKey.currentState!.validate()) {
       //TODO submit summary
-      String tutorId, tutorName;
+      String? tutorId, tutorName;
       if (leaveSubmitInfo.tutor == null) {
-        tutorId = teacher.id;
-        tutorName = teacher.name;
+        tutorId = teacher!.id;
+        tutorName = teacher!.name;
       } else {
-        tutorId = leaveSubmitInfo.tutor.id;
-        tutorName = leaveSubmitInfo.tutor.name;
+        tutorId = leaveSubmitInfo.tutor!.id;
+        tutorName = leaveSubmitInfo.tutor!.name;
       }
       var data = LeaveSubmitData(
         days: days,
-        leaveTypeId: leaveSubmitInfo.type[typeIndex].id,
+        leaveTypeId: leaveSubmitInfo.type![typeIndex].id,
         teacherId: tutorId,
-        reasonText: _reason.text ?? '',
-        delayReasonText: isDelay ? (_delayReason.text ?? '') : '',
+        reasonText: _reason.text,
+        delayReasonText: isDelay ? (_delayReason.text) : '',
       );
       showDialog(
         context: context,
@@ -710,7 +711,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                            text: '${leaveSubmitInfo.type[typeIndex].title}\n'),
+                            text:
+                                '${leaveSubmitInfo.type![typeIndex].title}\n'),
                         TextSpan(
                           text: '${ap.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),
@@ -751,8 +753,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       right: 30.0,
                     ),
                     child: kIsWeb
-                        ? Image.network(image.path)
-                        : Image.file(File(image.path)),
+                        ? Image.network(image!.path)
+                        : Image.file(File(image!.path)),
                   ),
               ],
             ),
@@ -783,12 +785,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       data: data,
       image: image,
       callback: GeneralCallback(
-        onSuccess: (Response<dynamic> data) {
+        onSuccess: (Response<dynamic>? data) {
           Navigator.of(context, rootNavigator: true).pop();
           DialogUtils.showDefault(
             context: context,
             title:
-                data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
+                data!.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
             content:
                 data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
           );
@@ -796,11 +798,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         },
         onFailure: (DioError e) {
           Navigator.of(context, rootNavigator: true).pop();
-          String text;
+          String? text;
           switch (e.type) {
             case DioErrorType.response:
-              if (e.response.data is Map<String, dynamic>)
-                text = ErrorResponse.fromJson(e.response.data).description;
+              if (e.response!.data is Map<String, dynamic>)
+                text = ErrorResponse.fromJson(e.response!.data).description;
               else
                 text = ap.somethingError;
               break;

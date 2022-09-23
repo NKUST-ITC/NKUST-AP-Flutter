@@ -22,7 +22,7 @@ import 'api/helper.dart';
 import 'models/login_response.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   MyAppState createState() => MyAppState();
@@ -31,14 +31,14 @@ class MyApp extends StatefulWidget {
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   ThemeMode themeMode = ThemeMode.system;
 
-  Locale locale;
+  Locale? locale;
 
-  LoginResponse loginResponse;
+  LoginResponse? loginResponse;
 
   bool offlineLogin = false;
   bool hasBusViolationRecords = false;
 
-  FirebaseAnalytics analytics;
+  FirebaseAnalytics? analytics;
 
   logout() {
     setState(() {
@@ -84,13 +84,13 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         themeMode,
         child: MaterialApp(
           localeResolutionCallback:
-              (Locale locale, Iterable<Locale> supportedLocales) {
+              (Locale? locale, Iterable<Locale> supportedLocales) {
             String languageCode = Preferences.getString(
               Constants.PREF_LANGUAGE_CODE,
               ApSupportLanguageConstants.system,
             );
             if (languageCode == ApSupportLanguageConstants.system)
-              this.locale = ApLocalizations.delegate.isSupported(locale)
+              this.locale = ApLocalizations.delegate.isSupported(locale!)
                   ? locale
                   : Locale('en');
             else
@@ -98,7 +98,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 languageCode,
                 languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
               );
-            AnnouncementHelper.instance.setLocale(this.locale);
+            AnnouncementHelper.instance.setLocale(this.locale!);
             return this.locale;
           },
           onGenerateTitle: (context) => AppLocalizations.of(context).appName,
@@ -120,7 +120,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           locale: locale,
           navigatorObservers: [
             if (FirebaseAnalyticsUtils.isSupported)
-              FirebaseAnalyticsObserver(analytics: analytics),
+              FirebaseAnalyticsObserver(analytics: analytics!),
           ],
           localizationsDelegates: [
             apLocalizationsDelegate,
@@ -150,7 +150,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void loadLocale(Locale locale) {
     this.locale = locale;
-    AnnouncementHelper.instance.setLocale(this.locale);
+    AnnouncementHelper.instance.setLocale(this.locale!);
     setState(() {
       appDelegate.load(locale);
       ApLocalizations.load(locale);

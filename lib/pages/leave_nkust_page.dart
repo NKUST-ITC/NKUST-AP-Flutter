@@ -15,9 +15,9 @@ class LeaveNkustPage extends StatefulWidget {
   final bool clearCache;
 
   const LeaveNkustPage({
-    Key key,
-    this.username,
-    this.password,
+    Key? key,
+    required this.username,
+    required this.password,
     this.clearCache = false,
   }) : super(key: key);
 
@@ -26,9 +26,9 @@ class LeaveNkustPage extends StatefulWidget {
 }
 
 class _LeaveNkustPageState extends State<LeaveNkustPage> {
-  AppLocalizations app;
+  late AppLocalizations app;
 
-  InAppWebViewController webViewController;
+  late InAppWebViewController webViewController;
 
   bool finish = false;
 
@@ -68,7 +68,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
             clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance.userAgent,
+            userAgent: MobileNkustHelper.instance.userAgent!,
           ),
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
@@ -77,7 +77,8 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         },
         onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
           return;
-        },
+        } as Future<JsPromptResponse?> Function(
+            InAppWebViewController, JsPromptRequest)?,
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $uri');
@@ -119,7 +120,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {
-        data.cookies.add(
+        data.cookies!.add(
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,

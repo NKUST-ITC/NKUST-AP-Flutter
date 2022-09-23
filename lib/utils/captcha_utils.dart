@@ -1,16 +1,15 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart';
-import 'package:tflite/tflite.dart';
 import 'package:image/image.dart' as img;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:tflite/tflite.dart';
 
 class CaptchaUtils {
   static Future<String> extractByTfLite({
-    @required Uint8List bodyBytes,
+    required Uint8List bodyBytes,
   }) async {
     final digitsCount = 4;
     final imageHeight = 40;
@@ -24,10 +23,10 @@ class CaptchaUtils {
       await File(imagePath).writeAsBytes(bodyBytes);
       var start = DateTime.now();
       var end = DateTime.now();
-      var source = img.decodeImage(File(imagePath).readAsBytesSync());
+      var source = img.decodeImage(File(imagePath).readAsBytesSync())!;
       var grayscaleImage = img.grayscale(source);
       start = DateTime.now();
-      String res = await Tflite.loadModel(
+      String? res = await Tflite.loadModel(
           model: "assets/webap_captcha.tflite",
           labels: "assets/labels.txt",
           numThreads: 1 // defaults to 1
@@ -51,7 +50,7 @@ class CaptchaUtils {
             // defaults to 0.1
             asynch: true // defaults to true
             );
-        replaceText += recognitions.first['label'];
+        replaceText += recognitions!.first['label'];
       }
       end = DateTime.now();
       final processTime =

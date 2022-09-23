@@ -6,6 +6,7 @@ import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/api/imgur_helper.dart';
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/pages/about_us_page.dart';
 import 'package:ap_common/pages/announcement/home_page.dart';
@@ -58,12 +59,12 @@ class HomePageState extends State<HomePage> {
 
   var state = HomeState.loading;
 
-  AppLocalizations app;
-  ApLocalizations ap;
+  late AppLocalizations app;
+  late ApLocalizations ap;
 
-  Widget content;
+  Widget? content;
 
-  List<Announcement> announcements;
+  List<Announcement> announcements = <Announcement>[];
 
   var isLogin = false;
   bool displayPicture = true;
@@ -74,7 +75,7 @@ class HomePageState extends State<HomePage> {
   bool leaveEnable = true;
   bool busEnable = true;
 
-  UserInfo userInfo;
+  UserInfo? userInfo;
 
   TextStyle get _defaultStyle => TextStyle(
         color: ApTheme.of(context).grey,
@@ -112,7 +113,7 @@ class HomePageState extends State<HomePage> {
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
-  static aboutPage(BuildContext context, {String assetImage}) {
+  static aboutPage(BuildContext context, {String? assetImage}) {
     return AboutUsPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
@@ -126,7 +127,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance?.setCurrentScreen(
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
       "HomePage",
       "home_page.dart",
     );
@@ -189,7 +190,7 @@ class HomePageState extends State<HomePage> {
                         AuthorizationStatus.authorized ||
                     settings.authorizationStatus ==
                         AuthorizationStatus.provisional) {
-                  String token = await messaging.getToken(
+                  String? token = await messaging.getToken(
                       vapidKey: Constants.FCM_WEB_VAPID_KEY);
                   AnnouncementHelper.instance.fcmToken = token;
                 }
@@ -205,11 +206,12 @@ class HomePageState extends State<HomePage> {
         imageAsset: drawerIcon,
         onTapHeader: () {
           if (isLogin) {
-            if (userInfo != null && isLogin)
+            if (userInfo != null && isLogin) {
               ApUtils.pushCupertinoStyle(
                 context,
-                UserInfoPage(userInfo: userInfo),
+                UserInfoPage(userInfo: userInfo!),
               );
+            }
           } else {
             if (isMobile) Navigator.of(context).pop();
             openLoginPage();
@@ -420,7 +422,7 @@ class HomePageState extends State<HomePage> {
               ),
               onTap: () async {
                 await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-                ShareDataWidget.of(context).data.logout();
+                ShareDataWidget.of(context)!.data.logout();
                 isLogin = false;
                 userInfo = null;
                 content = null;
@@ -483,11 +485,11 @@ class HomePageState extends State<HomePage> {
       callback: GeneralCallback(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (List<Announcement> data) {
-          announcements = data;
+        onSuccess: (List<Announcement>? data) {
+          announcements = data ?? <Announcement>[];
           if (mounted)
             setState(() {
-              if (announcements == null || announcements.length == 0)
+              if (data == null || data.length == 0)
                 state = HomeState.empty;
               else
                 state = HomeState.finish;
@@ -508,7 +510,7 @@ class HomePageState extends State<HomePage> {
           onFailure: (DioError e) {
             if (e.hasResponse)
               FirebaseAnalyticsUtils.instance.logApiEvent(
-                  'getBusReservations', e.response.statusCode,
+                  'getBusReservations', e.response!.statusCode!,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -518,7 +520,7 @@ class HomePageState extends State<HomePage> {
 
   _getUserInfo() async {
     if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
-      userInfo = UserInfo.load(Helper.username);
+      userInfo = UserInfo.load(Helper.username!);
     } else
       Helper.instance.getUsersInfo(
         callback: GeneralCallback(
@@ -528,7 +530,7 @@ class HomePageState extends State<HomePage> {
                 this.userInfo = data;
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
-              userInfo.save(Helper.username);
+              userInfo!.save(Helper.username!);
               _checkData();
               if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
                 _getUserPicture();
@@ -537,7 +539,7 @@ class HomePageState extends State<HomePage> {
           onFailure: (DioError e) {
             if (e.hasResponse)
               FirebaseAnalyticsUtils.instance.logApiEvent(
-                  'getUserInfo', e.response.statusCode,
+                  'getUserInfo', e.response!.statusCode!,
                   message: e.message);
           },
           onError: (GeneralResponse e) => null,
@@ -550,7 +552,7 @@ class HomePageState extends State<HomePage> {
       var response = await Helper.instance.getUserPicture();
       if (mounted) {
         setState(() {
-          userInfo.pictureBytes = response;
+          userInfo!.pictureBytes = response;
         });
       }
       // CacheUtils.savePictureData(response);
@@ -567,9 +569,9 @@ class HomePageState extends State<HomePage> {
       context: context,
       username: username,
       password: password,
-      callback: GeneralCallback<LoginResponse>(
-        onSuccess: (LoginResponse response) {
-          ShareDataWidget.of(context).data.loginResponse = response;
+      callback: GeneralCallback<LoginResponse?>(
+        onSuccess: (LoginResponse? response) {
+          ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
           Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
           _getUserInfo();
@@ -577,11 +579,11 @@ class HomePageState extends State<HomePage> {
           if (state != HomeState.finish) {
             _getAnnouncements();
           }
-          _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+          _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
         },
         onFailure: (DioError e) {
-          final text = e.i18nMessage;
-          _homeKey.currentState.showSnackBar(
+          final text = e.i18nMessage!;
+          _homeKey.currentState!.showSnackBar(
             text: text,
             actionText: ap.retry,
             onSnackBarTapped: _login,
@@ -608,7 +610,7 @@ class HomePageState extends State<HomePage> {
               message = ap.somethingError;
               break;
           }
-          _homeKey.currentState.showSnackBar(
+          _homeKey.currentState!.showSnackBar(
             text: message,
             actionText: ap.retry,
             onSnackBarTapped: _login,
@@ -621,7 +623,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void handleLoginSuccess(String username, String password) {
+  void handleLoginSuccess(String? username, String? password) {
     isLogin = true;
     Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
     _getUserInfo();
@@ -629,7 +631,7 @@ class HomePageState extends State<HomePage> {
     if (state != HomeState.finish) {
       _getAnnouncements();
     }
-    _homeKey.currentState.showBasicHint(text: ap.loginSuccess);
+    _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
   }
 
   Future openLoginPage() async {
@@ -648,14 +650,14 @@ class HomePageState extends State<HomePage> {
   void checkLogin() async {
     await Future.delayed(Duration(microseconds: 30));
     if (isLogin) {
-      _homeKey.currentState.hideSnackBar();
+      _homeKey.currentState!.hideSnackBar();
     } else {
-      _homeKey.currentState
+      _homeKey.currentState!
           .showSnackBar(
             text: ApLocalizations.of(context).notLogin,
             actionText: ApLocalizations.of(context).login,
             onSnackBarTapped: openLoginPage,
-          )
+          )!
           .closed
           .then(
         (SnackBarClosedReason reason) {
@@ -703,9 +705,9 @@ class HomePageState extends State<HomePage> {
       packageInfo.buildNumber,
     );
     if (currentVersion != packageInfo.buildNumber && first) {
-      final rawData = await FileAssets.changelogData;
-      final updateNoteContent =
-          rawData["${packageInfo.buildNumber}"][ApLocalizations.current.locale];
+      final Map<String, dynamic>? rawData = await FileAssets.changelogData;
+      final updateNoteContent = rawData!["${packageInfo.buildNumber}"]
+          [ApLocalizations.current.locale];
       DialogUtils.showUpdateContent(
         context,
         "v${packageInfo.version}\n"
@@ -739,7 +741,7 @@ class HomePageState extends State<HomePage> {
         Helper.selector = CrawlerSelector.fromRawJson(
           remoteConfig.getString(Constants.CRAWLER_SELECTOR),
         );
-        Helper.selector.save();
+        Helper.selector!.save();
       }
       final semesterData = SemesterData.fromRawJson(
         remoteConfig.getString(Constants.SEMESTER_DATA),

@@ -1,25 +1,22 @@
 //dio
-import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:cookie_jar/cookie_jar.dart';
+import 'dart:convert';
 
 //overwrite origin Cookie Manager.
 import 'package:ap_common/models/private_cookies_manager.dart';
-
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:crypto/crypto.dart';
+import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
+import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/parser/api_tool.dart';
 //parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';
-
 //model
 import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-
-import 'package:nkust_ap/api/parser/api_tool.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
+import 'package:nkust_ap/models/bus_violation_records_data.dart';
+import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 import 'helper.dart';
 
@@ -29,11 +26,11 @@ String generateMd5(String input) {
 
 class BusEncrypt {
   //0 is from first, 1 is from last.
-  static int seedDirection;
+  static int? seedDirection;
 
-  static String seedValue;
+  static String? seedValue;
 
-  BusEncrypt({String jsCode}) {
+  BusEncrypt({required String jsCode}) {
     jsEncryptCodeParser(jsCode);
   }
 
@@ -45,8 +42,8 @@ class BusEncrypt {
 
     var firstMatches = seedFromFirstRegex.allMatches(content);
     var lastMatches = seedFromLastRegex.allMatches(content);
-    String seedFromFirst;
-    String seedFromLast;
+    String? seedFromFirst;
+    String? seedFromLast;
 
     if (firstMatches.length > 0) {
       seedFromFirst = firstMatches.toList()[firstMatches.length - 1].group(1);
@@ -95,7 +92,7 @@ class BusEncrypt {
     return json.encode({"a": l, "b": g, "c": i, "d": j, "e": k, "f": password});
   }
 
-  int findEndString(String content, String targetString) {
+  int findEndString(String content, String? targetString) {
     if (targetString == null) {
       return -1;
     }
@@ -113,29 +110,29 @@ class BusEncrypt {
 }
 
 class BusHelper {
-  static Dio dio;
-  static DioCacheManager _manager;
-  static BusHelper _instance;
-  static CookieJar cookieJar;
+  BusHelper() {
+    dioInit();
+  }
+
+  late Dio dio;
+  late DioCacheManager _manager;
+  static BusHelper? _instance;
+  late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 5;
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
 
-  static String userTimeTableSelectCacheKey;
+  static String? userTimeTableSelectCacheKey;
   static String userRecordsCacheKey = "${Helper.username}_busUserRecords";
   static String userViolationRecordsCacheKey =
       "${Helper.username}_busViolationRecords";
-  static BusEncrypt busEncryptObject;
+  static late BusEncrypt busEncryptObject;
   static String busHost = "http://bus.kuas.edu.tw/";
 
   static BusHelper get instance {
-    if (_instance == null) {
-      _instance = BusHelper();
-      dioInit();
-    }
-    return _instance;
+    return _instance ??= BusHelper();
   }
 
   void setProxy(String proxyIP) {
@@ -147,7 +144,7 @@ class BusHelper {
     };
   }
 
-  static dioInit() {
+  void dioInit() {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
@@ -175,7 +172,7 @@ class BusHelper {
     busEncryptObject = new BusEncrypt(jsCode: res.data);
   }
 
-  Future<Map<String, dynamic>> busLogin() async {
+  Future<Map<String, dynamic>?> busLogin() async {
     /*
     Return type Map<String, dynamic>(from Json)
     response data (from NKUST)
@@ -201,7 +198,7 @@ class BusHelper {
         data: {
           "account": Helper.username,
           "password": Helper.password,
-          "n": busEncryptObject.loginEncrypt(Helper.username, Helper.password)
+          "n": busEncryptObject.loginEncrypt(Helper.username!, Helper.password!)
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
 
@@ -212,10 +209,10 @@ class BusHelper {
   }
 
   Future<BusData> timeTableQuery({
-    DateTime fromDateTime,
-    String year,
-    String month,
-    String day,
+    DateTime? fromDateTime,
+    String? year,
+    String? month,
+    String? day,
   }) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
@@ -267,7 +264,8 @@ class BusHelper {
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
       // Remove fail cache.
-      if (Helper.isSupportCacheData) _manager.delete(userTimeTableSelectCacheKey);
+      if (Helper.isSupportCacheData)
+        _manager.delete(userTimeTableSelectCacheKey!);
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -278,7 +276,7 @@ class BusHelper {
     );
   }
 
-  Future<BookingBusData> busBook({String busId}) async {
+  Future<BookingBusData> busBook({required String busId}) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -288,7 +286,7 @@ class BusHelper {
     }
     if (Helper.isSupportCacheData) {
       _manager.delete(userRecordsCacheKey);
-      _manager.delete(userTimeTableSelectCacheKey);
+      _manager.delete(userTimeTableSelectCacheKey!);
     }
 
     Response res = await dio.post(
@@ -307,7 +305,7 @@ class BusHelper {
     return BookingBusData.fromJson(res.data);
   }
 
-  Future<CancelBusData> busUnBook({String busId}) async {
+  Future<CancelBusData> busUnBook({required String busId}) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
     }
@@ -403,7 +401,8 @@ class BusHelper {
 
     if (res.data["code"] == 400 &&
         res.data["message"].indexOf("未登入或是登入逾") > -1) {
-      if (Helper.isSupportCacheData) _manager.delete(userViolationRecordsCacheKey);
+      if (Helper.isSupportCacheData)
+        _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();

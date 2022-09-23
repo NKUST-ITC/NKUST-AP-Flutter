@@ -9,7 +9,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
 class WebApParser {
-  static WebApParser _instance;
+  static WebApParser? _instance;
 
   // ignore: prefer_constructors_over_static_methods
   static WebApParser get instance {
@@ -84,7 +84,7 @@ class WebApParser {
     return 3;
   }
 
-  Map<String, dynamic> apUserInfoParser(String html) {
+  Map<String, dynamic> apUserInfoParser(String? html) {
     Map<String, dynamic> data = {
       "educationSystem": null,
       "department": null,
@@ -102,7 +102,7 @@ class WebApParser {
     try {
       String imageUrl = document
           .getElementsByTagName("img")[0]
-          .attributes["src"]
+          .attributes["src"]!
           .substring(2);
       data['educationSystem'] = (tdElements[3].text.replaceAll("學　　制：", ""));
       data['department'] = (tdElements[4].text.replaceAll("科　　系：", ""));
@@ -121,18 +121,19 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> webapToleaveParser(String html) {
-    Map<String, dynamic> data = {};
+  Map<String?, dynamic> webapToleaveParser(String? html) {
+    Map<String?, dynamic> data = {};
     var document = parse(html);
     var _inputElements = document.getElementsByTagName("input");
     _inputElements.forEach((element) {
-      data.addAll({element.attributes['id']: element.attributes['value']});
+      if (element.attributes['id'] != null)
+        data.addAll({element.attributes['id']: element.attributes['value']});
     });
 
     return data;
   }
 
-  Map<String, dynamic> semestersParser(String html) {
+  Map<String, dynamic> semestersParser(String? html) {
     Map<String, dynamic> data = {
       "data": [],
       "default": {"year": "108", "value": "2", "text": "108學年第二學期(Parse失敗)"}
@@ -140,22 +141,22 @@ class WebApParser {
     var document = parse(html);
 
     var ymsElements =
-        document.getElementById("yms_yms").getElementsByTagName("option");
+        document.getElementById("yms_yms")!.getElementsByTagName("option");
     if (ymsElements.length < 30) {
       //parse fail.
       return data;
     }
     for (int i = 0; i < ymsElements.length; i++) {
       data['data'].add({
-        "year": ymsElements[i].attributes["value"].split("#")[0],
-        "value": ymsElements[i].attributes["value"].split("#")[1],
+        "year": ymsElements[i].attributes["value"]!.split("#")[0],
+        "value": ymsElements[i].attributes["value"]!.split("#")[1],
         "text": ymsElements[i].text
       });
       if (ymsElements[i].attributes["selected"] != null) {
         //set default
         data['default'] = {
-          "year": ymsElements[i].attributes["value"].split("#")[0],
-          "value": ymsElements[i].attributes["value"].split("#")[1],
+          "year": ymsElements[i].attributes["value"]!.split("#")[0],
+          "value": ymsElements[i].attributes["value"]!.split("#")[1],
           "text": ymsElements[i].text
         };
       }
@@ -163,7 +164,7 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> scoresParser(String html) {
+  Map<String, dynamic> scoresParser(String? html) {
     var document = parse(html);
 
     Map<String, dynamic> data = {
@@ -183,11 +184,11 @@ class WebApParser {
           .getElementsByTagName("div")[0]
           .text);
       data['detail'] = {
-        "conduct": double.parse(matches.elementAt(0).group(1)),
+        "conduct": double.parse(matches.elementAt(0).group(1)!),
         "classRank": matches.elementAt(2).group(1),
         "departmentRank": matches.elementAt(3).group(1),
         "average": (matches.elementAt(1).group(1) != "")
-            ? double.parse(matches.elementAt(1).group(1))
+            ? double.parse(matches.elementAt(1).group(1)!)
             : 0.0
       };
     } catch (e) {}
@@ -246,7 +247,10 @@ class WebApParser {
           'at': td[7].text,
           'sectionTimes': [],
           "instructors": td[9].text.split(","),
-          'location': {'room': td[10].text}
+          'location': {
+            'building': '',
+            'room': td[10].text,
+          }
         });
       }
     } catch (e, s) {
@@ -378,7 +382,7 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> midtermAlertsParser(String html) {
+  Map<String, dynamic> midtermAlertsParser(String? html) {
     Map<String, dynamic> data = {"courses": []};
 
     var document = parse(html);
@@ -409,7 +413,7 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> rewardAndPenaltyParser(String html) {
+  Map<String, dynamic> rewardAndPenaltyParser(String? html) {
     Map<String, dynamic> data = {"data": []};
 
     var document = parse(html);
@@ -442,12 +446,12 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> roomListParser(String html) {
+  Map<String, dynamic> roomListParser(String? html) {
     Map<String, dynamic> data = {"data": []};
 
     var document = parse(html);
     var table =
-        document.getElementById("room_id").getElementsByTagName("option");
+        document.getElementById("room_id")!.getElementsByTagName("option");
     try {
       for (int i = 1; i < table.length; i++) {
         data["data"].add({
@@ -507,10 +511,7 @@ class WebApParser {
             'at': td[8].text.replaceAll(String.fromCharCode(160), ""),
             'times': td[9].text.replaceAll(String.fromCharCode(160), ""),
             'sectionTimes': [],
-            'location': {
-              'room': null,
-              'building': null,
-            },
+            'location': null,
             "instructors":
                 td[10].text.replaceAll(String.fromCharCode(160), "").split(",")
           }
@@ -646,7 +647,7 @@ class WebApParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtils.instance
+      CrashlyticsUtils.instance!
           .recordError(e, s, reason: "course name = $tmpCourseName");
     }
 

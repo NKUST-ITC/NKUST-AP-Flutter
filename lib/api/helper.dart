@@ -7,6 +7,7 @@ import 'package:ap_common/models/announcement_data.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
@@ -16,7 +17,6 @@ import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -59,25 +59,25 @@ class Helper {
   static const MOBILE = 'mobile';
   static const REMOTE_CONFIG = 'config';
 
-  static Helper _instance;
+  static Helper? _instance;
 
-  Dio dio;
+  late Dio dio;
 
-  BaseOptions options;
+  late BaseOptions options;
 
-  JsonCodec jsonCodec;
+  JsonCodec? jsonCodec;
 
-  static CancelToken cancelToken;
+  static CancelToken? cancelToken;
 
-  static String username;
-  static String password;
+  static String? username;
+  static String? password;
 
-  static DateTime expireTime;
+  static DateTime? expireTime;
 
   /// From sqflite plugin setting
   static bool isSupportCacheData = false;
 
-  static CrawlerSelector selector;
+  static CrawlerSelector? selector;
 
   int reLoginCount = 0;
 
@@ -87,15 +87,11 @@ class Helper {
     if (expireTime == null)
       return false;
     else
-      return DateTime.now().isAfter(expireTime.add(Duration(hours: 8)));
+      return DateTime.now().isAfter(expireTime!.add(Duration(hours: 8)));
   }
 
   static Helper get instance {
-    if (_instance == null) {
-      _instance = Helper();
-      cancelToken = CancelToken();
-    }
-    return _instance;
+    return _instance ??= Helper();
   }
 
   Helper() {
@@ -107,6 +103,7 @@ class Helper {
         receiveTimeout: 10000,
       ),
     );
+    cancelToken = CancelToken();
   }
 
   static resetInstance() {
@@ -114,17 +111,17 @@ class Helper {
     cancelToken = CancelToken();
   }
 
-  Future<LoginResponse> login({
-    @required BuildContext context,
-    @required String username,
-    @required String password,
-    GeneralCallback<LoginResponse> callback,
+  Future<LoginResponse?> login({
+    required BuildContext context,
+    required String username,
+    required String password,
+    GeneralCallback<LoginResponse?>? callback,
     bool clearCache = false,
   }) async {
     Helper.username = username;
     Helper.password = password;
     try {
-      LoginResponse loginResponse;
+      LoginResponse? loginResponse;
       switch (selector?.login) {
         case INKUST:
           await InkustHelper.instance.login(
@@ -136,7 +133,7 @@ class Helper {
         case WEBAP:
         default:
           if (selector != null &&
-              (selector.login == MOBILE || selector.login == null)) {
+              (selector!.login == MOBILE || selector!.login == null)) {
             loginResponse = await WebApHelper.instance.login(
               username: username,
               password: password,
@@ -150,7 +147,7 @@ class Helper {
           }
           break;
       }
-      expireTime = loginResponse.expireTime;
+      expireTime = loginResponse!.expireTime;
       if (callback != null)
         return callback.onSuccess(loginResponse);
       else
@@ -163,11 +160,7 @@ class Helper {
       callback?.onError(
         GeneralResponse.unknownError(),
       );
-      if (FirebaseCrashlyticsUtils.isSupported)
-        FirebaseCrashlyticsUtils.instance.recordError(
-          e,
-          StackTrace.current,
-        );
+      rethrow;
     }
     return null;
   }
@@ -223,9 +216,9 @@ class Helper {
     }
   }
 
-  Future<List<Announcement>> getAllAnnouncements({
-    String locale,
-    GeneralCallback<List<Announcement>> callback,
+  Future<List<Announcement>?> getAllAnnouncements({
+    String? locale,
+    GeneralCallback<List<Announcement>?>? callback,
   }) async {
     try {
       var response = await dio.get(
@@ -291,8 +284,8 @@ class Helper {
     }
   }
 
-  Future<UserInfo> getUsersInfo({
-    GeneralCallback<UserInfo> callback,
+  Future<UserInfo?> getUsersInfo({
+    GeneralCallback<UserInfo>? callback,
   }) async {
     try {
       UserInfo data;
@@ -306,7 +299,10 @@ class Helper {
           break;
       }
       reLoginCount = 0;
-      if (data.id == null) data.id = username;
+      if (data.id.isEmpty)
+        data.copyWith(
+          id: username,
+        );
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       callback?.onFailure(dioError);
@@ -319,7 +315,7 @@ class Helper {
     return null;
   }
 
-  Future<Uint8List> getUserPicture() async {
+  Future<Uint8List?> getUserPicture() async {
     switch (selector?.userInfo) {
       case MOBILE:
         return await MobileNkustHelper.instance.getUserPicture();
@@ -331,11 +327,11 @@ class Helper {
     }
   }
 
-  Future<SemesterData> getSemester({
-    GeneralCallback<SemesterData> callback,
+  Future<SemesterData?> getSemester({
+    GeneralCallback<SemesterData>? callback,
   }) async {
     try {
-      SemesterData data;
+      SemesterData? data;
       switch (selector?.semester) {
         case REMOTE_CONFIG:
           data = SemesterData.load();
@@ -353,7 +349,7 @@ class Helper {
           break;
       }
       reLoginCount = 0;
-      return (callback == null) ? data : callback.onSuccess(data);
+      return (callback == null) ? data : callback.onSuccess(data!);
     } on DioError catch (dioError) {
       callback?.onFailure(dioError);
       if (callback == null) throw dioError;
@@ -365,16 +361,16 @@ class Helper {
     return null;
   }
 
-  Future<ScoreData> getScores({
-    @required Semester semester,
-    GeneralCallback<ScoreData> callback,
+  Future<ScoreData?> getScores({
+    required Semester? semester,
+    GeneralCallback<ScoreData?>? callback,
   }) async {
     try {
-      ScoreData data;
+      ScoreData? data;
       switch (selector?.score) {
         case MOBILE:
           data = await MobileNkustHelper.instance.getScores(
-            year: semester.year,
+            year: semester!.year,
             semester: semester.value,
           );
           break;
@@ -384,7 +380,7 @@ class Helper {
         case WEBAP:
         default:
           data = await WebApHelper.instance.scores(
-            semester.year,
+            semester!.year,
             semester.value,
           );
           break;
@@ -402,16 +398,16 @@ class Helper {
     return null;
   }
 
-  Future<CourseData> getCourseTables({
-    @required Semester semester,
-    Semester semesterDefault,
-    GeneralCallback<CourseData> callback,
+  Future<CourseData?> getCourseTables({
+    required Semester? semester,
+    Semester? semesterDefault,
+    GeneralCallback<CourseData?>? callback,
   }) async {
     try {
-      CourseData data;
+      CourseData? data;
       switch (selector?.course) {
         case MOBILE:
-          final isDefault = semesterDefault.code == semester.code;
+          final isDefault = semesterDefault!.code == semester!.code;
           data = await MobileNkustHelper.instance.getCourseTable(
             year: isDefault ? null : semester.year,
             semester: isDefault ? null : semester.value,
@@ -419,14 +415,14 @@ class Helper {
           break;
         case INKUST:
           data = await InkustHelper.instance.courseTable(
-            semester.year,
+            semester!.year,
             semester.value,
           );
           break;
         case WEBAP:
         default:
           data = await WebApHelper.instance.getCourseTable(
-            year: semester.year,
+            year: semester!.year,
             semester: semester.value,
           );
           break;
@@ -437,7 +433,7 @@ class Helper {
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioError catch (dioError) {
       if (selector?.course == MOBILE && dioError.response?.statusCode == 302) {
-        FirebaseAnalyticsUtils.instance?.logEvent(
+        FirebaseAnalyticsUtils.instance.logEvent(
           'mobile_user_agent_error',
           parameters: {
             'message': MobileNkustHelper.instance.userAgent,
@@ -454,9 +450,9 @@ class Helper {
     return null;
   }
 
-  Future<RewardAndPenaltyData> getRewardAndPenalty({
-    @required Semester semester,
-    GeneralCallback<RewardAndPenaltyData> callback,
+  Future<RewardAndPenaltyData?> getRewardAndPenalty({
+    required Semester semester,
+    GeneralCallback<RewardAndPenaltyData>? callback,
   }) async {
     try {
       var data = await WebApHelper.instance.rewardAndPenalty(
@@ -476,9 +472,9 @@ class Helper {
     return null;
   }
 
-  Future<MidtermAlertsData> getMidtermAlerts({
-    @required Semester semester,
-    GeneralCallback<MidtermAlertsData> callback,
+  Future<MidtermAlertsData?> getMidtermAlerts({
+    required Semester semester,
+    GeneralCallback<MidtermAlertsData>? callback,
   }) async {
     try {
       var data = await WebApHelper.instance.midtermAlerts(
@@ -498,9 +494,9 @@ class Helper {
   }
 
   //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
-  Future<RoomData> getRoomList({
-    @required int campusCode,
-    GeneralCallback<RoomData> callback,
+  Future<RoomData?> getRoomList({
+    required int campusCode,
+    GeneralCallback<RoomData>? callback,
   }) async {
     try {
       var data = await WebApHelper.instance.roomList('$campusCode');
@@ -517,10 +513,10 @@ class Helper {
     return null;
   }
 
-  Future<CourseData> getRoomCourseTables({
-    @required String roomId,
-    @required Semester semester,
-    GeneralCallback<CourseData> callback,
+  Future<CourseData?> getRoomCourseTables({
+    required String? roomId,
+    required Semester semester,
+    GeneralCallback<CourseData>? callback,
   }) async {
     try {
       var data = await WebApHelper.instance.roomCourseTableQuery(
@@ -541,9 +537,9 @@ class Helper {
     return null;
   }
 
-  Future<BusData> getBusTimeTables({
-    @required DateTime dateTime,
-    GeneralCallback<BusData> callback,
+  Future<BusData?> getBusTimeTables({
+    required DateTime dateTime,
+    GeneralCallback<BusData>? callback,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport)
@@ -552,13 +548,13 @@ class Helper {
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
-      if (data.canReserve) {
+      if (data.canReserve!) {
         return (callback == null) ? data : callback.onSuccess(data);
       } else {
-        callback.onError(
+        callback!.onError(
           GeneralResponse(
             statusCode: 403,
-            message: data.description,
+            message: data.description!,
           ),
         );
         return null;
@@ -581,8 +577,8 @@ class Helper {
     return null;
   }
 
-  Future<BusReservationsData> getBusReservations({
-    GeneralCallback<BusReservationsData> callback,
+  Future<BusReservationsData?> getBusReservations({
+    GeneralCallback<BusReservationsData>? callback,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport)
@@ -610,9 +606,9 @@ class Helper {
     return null;
   }
 
-  Future<BookingBusData> bookingBusReservation({
-    String busId,
-    GeneralCallback<BookingBusData> callback,
+  Future<BookingBusData?> bookingBusReservation({
+    String? busId,
+    GeneralCallback<BookingBusData>? callback,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport)
@@ -640,9 +636,9 @@ class Helper {
     return null;
   }
 
-  Future<CancelBusData> cancelBusReservation({
-    String cancelKey,
-    GeneralCallback<CancelBusData> callback,
+  Future<CancelBusData?> cancelBusReservation({
+    String? cancelKey,
+    GeneralCallback<CancelBusData>? callback,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport)
@@ -670,8 +666,8 @@ class Helper {
     return null;
   }
 
-  Future<BusViolationRecordsData> getBusViolationRecords({
-    GeneralCallback<BusViolationRecordsData> callback,
+  Future<BusViolationRecordsData?> getBusViolationRecords({
+    GeneralCallback<BusViolationRecordsData>? callback,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport)
@@ -700,9 +696,9 @@ class Helper {
     return null;
   }
 
-  Future<NotificationsData> getNotifications({
-    @required int page,
-    GeneralCallback<NotificationsData> callback,
+  Future<NotificationsData?> getNotifications({
+    required int page,
+    GeneralCallback<NotificationsData>? callback,
   }) async {
     try {
       NotificationsData data =
@@ -725,9 +721,9 @@ class Helper {
     return null;
   }
 
-  Future<LeaveData> getLeaves({
-    @required Semester semester,
-    GeneralCallback<LeaveData> callback,
+  Future<LeaveData?> getLeaves({
+    required Semester semester,
+    GeneralCallback<LeaveData>? callback,
   }) async {
     try {
       LeaveData data = await LeaveHelper.instance
@@ -751,8 +747,8 @@ class Helper {
     return null;
   }
 
-  Future<LeaveSubmitInfoData> getLeavesSubmitInfo({
-    GeneralCallback<LeaveSubmitInfoData> callback,
+  Future<LeaveSubmitInfoData?> getLeavesSubmitInfo({
+    GeneralCallback<LeaveSubmitInfoData>? callback,
   }) async {
     try {
       LeaveSubmitInfoData data =
@@ -775,15 +771,17 @@ class Helper {
     return null;
   }
 
-  Future<Response> sendLeavesSubmit({
-    @required LeaveSubmitData data,
-    @required PickedFile image,
-    GeneralCallback<Response> callback,
+  Future<Response?> sendLeavesSubmit({
+    required LeaveSubmitData data,
+    required PickedFile? image,
+    GeneralCallback<Response?>? callback,
   }) async {
     try {
-      Response res =
+      Response? res =
           await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
-      return (callback == null) ? data : callback.onSuccess(res);
+      return (callback == null)
+          ? data as Future<Response<dynamic>?>
+          : callback.onSuccess(res);
     } on DioError catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError)
@@ -801,7 +799,7 @@ class Helper {
     return null;
   }
 
-  Future<LibraryInfo> getLibraryInfo() async {
+  Future<LibraryInfo?> getLibraryInfo() async {
     try {
       var response = await dio.get(
         '/leaves/submit/info',
@@ -817,9 +815,9 @@ class Helper {
   }
 
   @deprecated
-  Future<EventInfoResponse> getEventInfo({
-    @required String data,
-    @required GeneralCallback<EventInfoResponse> callback,
+  Future<EventInfoResponse?> getEventInfo({
+    required String data,
+    required GeneralCallback<EventInfoResponse> callback,
   }) async {
     try {
       var response = await dio.post(
@@ -834,16 +832,16 @@ class Helper {
       else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      callback?.onFailure(dioError);
+      callback.onFailure(dioError);
     }
     return null;
   }
 
   @deprecated
-  Future<EventSendResponse> sendEvent({
-    @required String data,
-    @required String busId,
-    @required EventSendCallback<EventSendResponse> callback,
+  Future<EventSendResponse?> sendEvent({
+    required String data,
+    required String busId,
+    required EventSendCallback<EventSendResponse> callback,
   }) async {
     try {
       var response = await dio.post(
@@ -857,18 +855,18 @@ class Helper {
       if (response.statusCode == 200) {
         var generalResponse = GeneralResponse.fromJson(response.data);
         if (generalResponse.statusCode == 401)
-          callback?.onNeedPick(EventInfoResponse.fromJson(response.data));
+          callback.onNeedPick(EventInfoResponse.fromJson(response.data));
         return callback.onSuccess(EventSendResponse.fromJson(response.data));
       } else
         callback.onError(GeneralResponse.fromJson(response.data));
     } on DioError catch (dioError) {
-      callback?.onFailure(dioError);
+      callback.onFailure(dioError);
     }
     return null;
   }
 
   // v3 api Authorization
-  _createBearerTokenAuth(String token) {
+  _createBearerTokenAuth(String? token) {
     return {
       'Authorization': 'Bearer $token',
     };
@@ -900,14 +898,14 @@ extension NewsExtension on Announcement {
 extension DioErrorExtension on DioError {
   bool get hasResponse => type == DioErrorType.response;
 
-  bool get isExpire => response.statusCode == ApStatusCode.API_EXPIRE;
+  bool get isExpire => response!.statusCode == ApStatusCode.API_EXPIRE;
 
   bool get isServerError =>
-      response.statusCode == ApStatusCode.SCHOOL_SERVER_ERROR ||
-      response.statusCode == ApStatusCode.API_SERVER_ERROR;
+      response!.statusCode == ApStatusCode.SCHOOL_SERVER_ERROR ||
+      response!.statusCode == ApStatusCode.API_SERVER_ERROR;
 
   GeneralResponse get serverErrorResponse {
-    switch (response.statusCode) {
+    switch (response!.statusCode) {
       case ApStatusCode.API_SERVER_ERROR:
         return GeneralResponse(
           statusCode: ApStatusCode.API_SERVER_ERROR,
@@ -953,4 +951,8 @@ extension GeneralResponseExtension on GeneralResponse {
     );
     return message;
   }
+}
+
+extension SemesterExtension on Semester {
+  String get cacheSaveTag => '${Helper.username}_$code';
 }

@@ -30,6 +30,7 @@ enum _State {
   offline,
   custom
 }
+
 enum Station { janGong, yanchao, first }
 
 class BusReservePage extends StatefulWidget {
@@ -44,17 +45,17 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations app;
-  ApLocalizations ap;
+  AppLocalizations? app;
+  late ApLocalizations ap;
 
   _State state = _State.finish;
 
-  String customStateHint = '';
+  String? customStateHint = '';
 
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
 
-  BusData busData;
+  BusData? busData;
 
   double top = 0.0;
 
@@ -102,11 +103,13 @@ class BusReservePageState extends State<BusReservePage>
                             showTodayAction: false,
                             showCalendarPickerIcon: true,
                             showChevronsToChangeRange: true,
-                            onDateSelected: (DateTime datetime) {
-                              dateTime = datetime;
-                              _getBusTimeTables();
-                              FirebaseAnalyticsUtils.instance
-                                  .logEvent('date_picker_click');
+                            onDateSelected: (DateTime? datetime) {
+                              if (datetime != null) {
+                                dateTime = datetime;
+                                _getBusTimeTables();
+                                FirebaseAnalyticsUtils.instance
+                                    .logEvent('date_picker_click');
+                              }
                             },
                             initialCalendarDateOverride: dateTime,
                             dayChildAspectRatio:
@@ -139,15 +142,15 @@ class BusReservePageState extends State<BusReservePage>
                       children: {
                         Station.janGong: Container(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app.fromJiangong),
+                          child: Text(app!.fromJiangong),
                         ),
                         Station.yanchao: Container(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app.fromYanchao),
+                          child: Text(app!.fromYanchao),
                         ),
                         Station.first: Container(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app.fromFirst),
+                          child: Text(app!.fromFirst),
                         ),
                       },
                       onValueChanged: (Station text) {
@@ -178,12 +181,12 @@ class BusReservePageState extends State<BusReservePage>
       fontSize: 18.0,
       decorationColor: ApTheme.of(context).greyText);
 
-  String get errorText {
+  String? get errorText {
     switch (state) {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app.busEmpty;
+        return app!.busEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -212,7 +215,7 @@ class BusReservePageState extends State<BusReservePage>
           },
           child: HintContent(
             icon: ApIcon.assignment,
-            content: errorText,
+            content: errorText!,
           ),
         );
       case _State.offline:
@@ -238,7 +241,7 @@ class BusReservePageState extends State<BusReservePage>
   _renderBusTimeWidgets() {
     List<Widget> list = [];
     if (busData != null) {
-      for (var i in busData.timetable) {
+      for (var i in busData!.timetable!) {
         if (selectStartStation == Station.janGong && i.startStation == "建工")
           list.add(_busTimeWidget(i));
         else if (selectStartStation == Station.yanchao &&
@@ -254,20 +257,20 @@ class BusReservePageState extends State<BusReservePage>
   _busTimeWidget(BusTime busTime) => Column(
         children: <Widget>[
           InkWell(
-            onTap: busTime.canReserve() && !busTime.isReserve
+            onTap: busTime.canReserve() && !busTime.isReserve!
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
-                      start = app.fromJiangong;
+                      start = app!.fromJiangong;
                     else if (selectStartStation == Station.yanchao)
-                      start = app.fromYanchao;
+                      start = app!.fromYanchao;
                     else if (selectStartStation == Station.first)
-                      start = app.fromFirst;
+                      start = app!.fromFirst;
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => YesNoDialog(
                         title: '${busTime.getSpecialTrainTitle(app)}'
-                            '${busTime.specialTrain == "0" ? app.reserve : ""}',
+                            '${busTime.specialTrain == "0" ? app!.reserve : ""}',
                         contentWidget: RichText(
                           textAlign: TextAlign.center,
                           text: TextSpan(
@@ -285,16 +288,16 @@ class BusReservePageState extends State<BusReservePage>
                               ),
                               TextSpan(
                                 text:
-                                    '${app.destination}：${busTime.getEnd(app)}\n\n',
+                                    '${app!.destination}：${busTime.getEnd(app)}\n\n',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               if (busTime.description != null &&
-                                  busTime.description.isNotEmpty)
+                                  busTime.description!.isNotEmpty)
                                 TextSpan(
                                   text:
-                                      '${busTime.description.replaceAll('<br />', '\n')}\n\n',
+                                      '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
                                   style: TextStyle(
                                     color: ApTheme.of(context).grey,
                                     height: 1.3,
@@ -302,7 +305,7 @@ class BusReservePageState extends State<BusReservePage>
                                   ),
                                 ),
                               TextSpan(
-                                text: '${app.busReserveConfirmTitle}',
+                                text: '${app!.busReserveConfirmTitle}',
                                 style: TextStyle(
                                   color: ApTheme.of(context).grey,
                                 ),
@@ -311,7 +314,7 @@ class BusReservePageState extends State<BusReservePage>
                           ),
                         ),
                         leftActionText: ap.cancel,
-                        rightActionText: app.reserve,
+                        rightActionText: app!.reserve,
                         leftActionFunction: null,
                         rightActionFunction: () {
                           _bookingBus(busTime);
@@ -319,16 +322,16 @@ class BusReservePageState extends State<BusReservePage>
                       ),
                     );
                   }
-                : busTime.isReserve
+                : busTime.isReserve!
                     ? () {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) => YesNoDialog(
-                            title: app.busCancelReserve,
+                            title: app!.busCancelReserve,
                             contentWidget: Text(
-                              "${app.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                              "${app.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                              "${busTime.getTime()}${app.busCancelReserveConfirmContent3}",
+                              "${app!.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
+                              "${app!.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
+                              "${busTime.getTime()}${app!.busCancelReserveConfirmContent3}",
                               textAlign: TextAlign.center,
                             ),
                             leftActionText: ap.back,
@@ -415,7 +418,7 @@ class BusReservePageState extends State<BusReservePage>
       });
       return;
     }
-    Helper.cancelToken.cancel("");
+    Helper.cancelToken!.cancel("");
     Helper.cancelToken = CancelToken();
     if (mounted) setState(() => state = _State.loading);
     Helper.instance.getBusTimeTables(
@@ -425,7 +428,7 @@ class BusReservePageState extends State<BusReservePage>
           busData = data;
           if (mounted)
             setState(() {
-              if (busData == null || busData.timetable.length == 0)
+              if (busData == null || busData!.timetable!.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
@@ -440,20 +443,20 @@ class BusReservePageState extends State<BusReservePage>
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response.statusCode == 401)
+                  if (e.response!.statusCode == 401)
                     state = _State.userNotSupport;
-                  else if (e.response.statusCode == 403)
+                  else if (e.response!.statusCode == 403)
                     state = _State.campusNotSupport;
                   else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getBusTimeTables', e.response.statusCode,
+                        'getBusTimeTables', e.response!.statusCode!,
                         message: e.message);
                   }
                 });
-                if (e.response.statusCode == 401 ||
-                    e.response.statusCode == 403)
+                if (e.response!.statusCode == 401 ||
+                    e.response!.statusCode == 403)
                   FirebaseAnalyticsUtils.instance.setUserProperty(
                     Constants.CAN_USE_BUS,
                     AnalyticsConstants.no,
@@ -463,7 +466,7 @@ class BusReservePageState extends State<BusReservePage>
                 setState(() {
                   if (e.message.contains("HttpException")) {
                     state = _State.custom;
-                    customStateHint = app.busFailInfinity;
+                    customStateHint = app!.busFailInfinity;
                   } else
                     state = _State.error;
                 });
@@ -496,7 +499,7 @@ class BusReservePageState extends State<BusReservePage>
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-          child: ProgressDialog(app.reserving),
+          child: ProgressDialog(app!.reserving),
           onWillPop: () async {
             return false;
           }),
@@ -512,7 +515,7 @@ class BusReservePageState extends State<BusReservePage>
           showDialog(
             context: context,
             builder: (BuildContext context) => DefaultDialog(
-              title: app.busReserveSuccess,
+              title: app!.busReserveSuccess,
               contentWidget: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
@@ -522,21 +525,21 @@ class BusReservePageState extends State<BusReservePage>
                         fontSize: 16.0),
                     children: [
                       TextSpan(
-                        text: '${app.busReserveDate}：',
+                        text: '${app!.busReserveDate}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
                         text: '${busTime.getDate()}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveLocation}：',
+                        text: '${app!.busReserveLocation}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
-                        text: '${busTime.getStart(app)}${app.campus}\n',
+                        text: '${busTime.getStart(app)}${app!.campus}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveTime}：',
+                        text: '${app!.busReserveTime}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
@@ -552,9 +555,9 @@ class BusReservePageState extends State<BusReservePage>
           );
         },
         onFailure: (DioError e) =>
-            handleDioError(context, e, app.busReserveFailTitle, 'book_bus'),
+            handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
         onError: (GeneralResponse response) =>
-            handleGeneralError(context, response, app.busReserveFailTitle),
+            handleGeneralError(context, response, app!.busReserveFailTitle),
       ),
     );
   }
@@ -563,7 +566,7 @@ class BusReservePageState extends State<BusReservePage>
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-        child: ProgressDialog(app.canceling),
+        child: ProgressDialog(app!.canceling),
         onWillPop: () async {
           return false;
         },
@@ -580,7 +583,7 @@ class BusReservePageState extends State<BusReservePage>
           showDialog(
             context: context,
             builder: (BuildContext context) => DefaultDialog(
-              title: app.busCancelReserveSuccess,
+              title: app!.busCancelReserveSuccess,
               contentWidget: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
@@ -590,21 +593,21 @@ class BusReservePageState extends State<BusReservePage>
                         fontSize: 16.0),
                     children: [
                       TextSpan(
-                        text: '${app.busReserveCancelDate}：',
+                        text: '${app!.busReserveCancelDate}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
                         text: '${busTime.getDate()}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveCancelLocation}：',
+                        text: '${app!.busReserveCancelLocation}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
-                        text: '${busTime.getStart(app)}${app.campus}\n',
+                        text: '${busTime.getStart(app)}${app!.campus}\n',
                       ),
                       TextSpan(
-                        text: '${app.busReserveCancelTime}：',
+                        text: '${app!.busReserveCancelTime}：',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       TextSpan(
@@ -619,9 +622,9 @@ class BusReservePageState extends State<BusReservePage>
           );
         },
         onFailure: (DioError e) =>
-            handleDioError(context, e, app.busCancelReserveFail, 'cancel_bus'),
+            handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
         onError: (GeneralResponse response) =>
-            handleGeneralError(context, response, app.busCancelReserveFail),
+            handleGeneralError(context, response, app!.busCancelReserveFail),
       ),
     );
   }
@@ -646,10 +649,10 @@ class BusReservePageState extends State<BusReservePage>
     String tag,
   ) {
     Navigator.of(context, rootNavigator: true).pop();
-    String message;
+    String? message;
     switch (e.type) {
       case DioErrorType.response:
-        final errorResponse = ErrorResponse.fromJson(e.response.data);
+        final errorResponse = ErrorResponse.fromJson(e.response!.data);
         message = errorResponse.description;
         FirebaseAnalyticsUtils.instance.logEvent(
           tag,

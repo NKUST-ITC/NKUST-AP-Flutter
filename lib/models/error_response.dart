@@ -5,8 +5,8 @@
 import 'dart:convert';
 
 class ErrorResponse {
-  int errorCode;
-  String description;
+  int? errorCode;
+  String? description;
 
   ErrorResponse({
     this.errorCode,

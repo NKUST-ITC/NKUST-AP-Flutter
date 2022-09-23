@@ -1,12 +1,12 @@
 import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
+import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,28 +29,28 @@ class CalculateUnitsPage extends StatefulWidget {
 
 class CalculateUnitsPageState extends State<CalculateUnitsPage>
     with SingleTickerProviderStateMixin {
-  ApLocalizations ap;
+  late ApLocalizations ap;
 
   _State state = _State.ready;
-  String customStateHint = '';
+  String? customStateHint = '';
 
-  int currentSemesterIndex;
+  int currentSemesterIndex = 0;
 
-  SemesterData semesterData;
-  List<Semester> semesterList;
+  SemesterData? semesterData;
+  List<Semester> semesterList = <Semester>[];
 
-  double unitsTotal;
-  double requiredUnitsTotal;
-  double electiveUnitsTotal;
-  double otherUnitsTotal;
+  double unitsTotal = 0.0;
+  double requiredUnitsTotal = 0.0;
+  double electiveUnitsTotal = 0.0;
+  double otherUnitsTotal = 0.0;
 
   int startYear = 0;
   int count = 0;
 
-  List<Score> coreGeneralEducations;
-  List<Score> extendGeneralEducations;
+  List<Score> coreGeneralEducations = <Score>[];
+  List<Score> extendGeneralEducations = <Score>[];
 
-  DateTime start;
+  DateTime start = DateTime.now();
 
   @override
   void initState() {
@@ -94,14 +94,14 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         ),
       ),
       child: Text(
-        text ?? "",
+        text,
         textAlign: TextAlign.center,
         style: _textBlueStyle(),
       ),
     );
   }
 
-  Widget _scoreTextBorder(String text, bool isTitle) {
+  Widget _scoreTextBorder(String? text, bool isTitle) {
     return Container(
       width: double.maxFinite,
       padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
@@ -180,15 +180,15 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       case _State.empty:
       case _State.custom:
         return InkWell(
-                onTap: _calculate,
+          onTap: _calculate,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error ? ap.clickToRetry : customStateHint,
+            content: state == _State.error ? ap.clickToRetry : customStateHint!,
           ),
         );
       case _State.ready:
         return InkWell(
-                onTap: _calculate,
+          onTap: _calculate,
           child: HintContent(
             icon: ApIcon.apps,
             content: ap.beginCalculate,
@@ -302,7 +302,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   _getSemester() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)) {
+    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)!) {
       setState(() {
         state = _State.offline;
       });
@@ -310,7 +310,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     }
     Helper.instance.getSemester(
       callback: GeneralCallback(
-        onSuccess: (SemesterData data) {
+        onSuccess: (SemesterData? data) {
           this.semesterData = data;
         },
         onFailure: _onFailure,
@@ -320,27 +320,28 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   _getSemesterScore() {
-    Helper.cancelToken.cancel("");
+    Helper.cancelToken!.cancel("");
     Helper.cancelToken = CancelToken();
     setState(() {
       state = _State.loading;
     });
-    if (semesterData == null || semesterData.data == null) {
+    if (semesterData == null || semesterData!.data == null) {
       _getSemester();
       return;
     }
     Helper.instance.getScores(
-      semester: semesterData.data[currentSemesterIndex],
+      semester: semesterData!.data[currentSemesterIndex],
       callback: GeneralCallback(
-        onSuccess: (ScoreData data) {
+        onSuccess: (ScoreData? data) {
           if (startYear == -1)
-            startYear = int.parse(semesterData.data[currentSemesterIndex].year);
-          semesterList.add(semesterData.data[currentSemesterIndex]);
+            startYear =
+                int.parse(semesterData!.data[currentSemesterIndex].year);
+          semesterList.add(semesterData!.data[currentSemesterIndex]);
           if (data?.scores != null) {
-            for (var score in data.scores) {
-              if (score.semesterScore == null || score.semesterScore.isEmpty)
+            for (var score in data!.scores) {
+              if (score.semesterScore == null || score.semesterScore!.isEmpty)
                 continue;
-              var semesterScore = double.tryParse(score.semesterScore);
+              var semesterScore = double.tryParse(score.semesterScore!);
               if ((semesterScore != null && semesterScore >= 60.0) ||
                   score.semesterScore == '合格' ||
                   score.semesterScore == '通過') {
@@ -362,8 +363,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             }
           }
           var currentYear =
-              int.parse(semesterData.data[currentSemesterIndex].year);
-          if (currentSemesterIndex < semesterData.data.length - 1 &&
+              int.parse(semesterData!.data[currentSemesterIndex].year);
+          if (currentSemesterIndex < semesterData!.data.length - 1 &&
               ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
             currentSemesterIndex++;
             if (mounted) _getSemesterScore();

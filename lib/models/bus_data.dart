@@ -8,9 +8,9 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 class BusData {
-  bool canReserve;
-  String description;
-  List<BusTime> timetable;
+  bool? canReserve;
+  String? description;
+  List<BusTime>? timetable;
 
   BusData({
     this.canReserve,
@@ -33,7 +33,7 @@ class BusData {
       );
 
   Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(timetable.map((x) => x.toJson())),
+        "data": List<dynamic>.from(timetable!.map((x) => x.toJson())),
         "canReserve": canReserve,
         "description": description,
       };
@@ -46,19 +46,19 @@ class BusData {
 
 class BusTime {
   @deprecated
-  DateTime endEnrollDateTime;
-  DateTime departureTime;
-  String startStation;
-  String endStation;
-  String busId;
-  int reserveCount;
-  int limitCount;
-  bool isReserve;
-  String specialTrain;
-  String description;
-  String cancelKey;
-  bool homeCharteredBus;
-  bool canBook;
+  DateTime? endEnrollDateTime;
+  DateTime? departureTime;
+  String? startStation;
+  String? endStation;
+  String? busId;
+  int? reserveCount;
+  int? limitCount;
+  bool? isReserve;
+  String? specialTrain;
+  String? description;
+  String? cancelKey;
+  bool? homeCharteredBus;
+  bool? canBook;
 
   BusTime({
     this.endEnrollDateTime,
@@ -76,12 +76,12 @@ class BusTime {
     this.canBook,
   });
 
-  String getSpecialTrainTitle(AppLocalizations local) {
+  String getSpecialTrainTitle(AppLocalizations? local) {
     switch (specialTrain) {
       case "1":
-        return local.specialBus;
+        return local!.specialBus;
       case "2":
-        return local.trialBus;
+        return local!.trialBus;
       default:
         return "";
     }
@@ -97,7 +97,7 @@ class BusTime {
 
   static List<BusTime> toList(List<dynamic> jsonArray) {
     List<BusTime> list = [];
-    for (var item in (jsonArray ?? [])) list.add(BusTime.fromJson(item));
+    for (var item in (jsonArray)) list.add(BusTime.fromJson(item));
     return list;
   }
 
@@ -144,42 +144,42 @@ class BusTime {
   String getEndEnrollDateTime() {
     initializeDateFormatting();
     var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
-    return dateFormat.format(this.endEnrollDateTime);
+    return dateFormat.format(this.endEnrollDateTime!);
   }
 
   Color getColorState(BuildContext context) {
-    return isReserve
+    return isReserve!
         ? ApTheme.of(context).blueAccent
         : canReserve()
             ? ApTheme.of(context).grey
             : ApTheme.of(context).disabled;
   }
 
-  String getReserveState(AppLocalizations local) {
-    return isReserve
-        ? local.reserved
+  String getReserveState(AppLocalizations? local) {
+    return isReserve!
+        ? local!.reserved
         : canReserve()
-            ? local.reserve
-            : local.canNotReserve;
+            ? local!.reserve
+            : local!.canNotReserve;
   }
 
   String getDate() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    return formatterTime.format(this.departureTime);
+    return formatterTime.format(this.departureTime!);
   }
 
   String getTime() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('HH:mm', 'zh');
-    return formatterTime.format(this.departureTime);
+    return formatterTime.format(this.departureTime!);
   }
 
-  String getStart(AppLocalizations local) {
+  String? getStart(AppLocalizations? local) {
     return Utils.parserCampus(local, startStation);
   }
 
-  String getEnd(AppLocalizations local) {
+  String? getEnd(AppLocalizations? local) {
     return Utils.parserCampus(local, endStation);
   }
 }

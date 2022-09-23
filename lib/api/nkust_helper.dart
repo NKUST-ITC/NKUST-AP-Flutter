@@ -3,34 +3,33 @@ import 'dart:convert';
 
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/user_info.dart';
+import 'package:dio/dio.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:sprintf/sprintf.dart';
 
 class NKUSTHelper {
-  static NKUSTHelper _instance;
-  static Dio dio;
+  NKUSTHelper();
+
+  static NKUSTHelper get instance {
+    return _instance ??= NKUSTHelper();
+  }
+
+  static NKUSTHelper? _instance;
 
   static int reTryCountsLimit = 3;
   static int reTryCounts = 0;
 
-  static NKUSTHelper get instance {
-    if (_instance == null) {
-      _instance = NKUSTHelper();
-      dio = Dio();
-    }
-    return _instance;
-  }
+  Dio dio = Dio();
 
-  Future<UserInfo> getUsername({
-    String rocId,
-    DateTime birthday,
-    GeneralCallback<UserInfo> callback,
+  Future<UserInfo?> getUsername({
+    String? rocId,
+    required DateTime birthday,
+    GeneralCallback<UserInfo>? callback,
   }) async {
-    String birthdayText = sprintf("%03i%02i%02i", [
+    String? birthdayText = sprintf("%03i%02i%02i", [
       birthday.year - 1911,
       birthday.month,
       birthday.day,
@@ -56,6 +55,8 @@ class NKUSTHelper {
       var userInfo = UserInfo(
         id: elements[4].text.replaceAll(' ', ''),
         name: elements[2].text,
+        className: '',
+        department: '',
       );
       return callback == null ? userInfo : callback.onSuccess(userInfo);
     } else if (elements.length == 1)
@@ -65,7 +66,8 @@ class NKUSTHelper {
           message: elements[0].text,
         ),
       );
-    else return callback?.onError(
+    else
+      return callback?.onError(
         GeneralResponse.unknownError(),
       );
   }

@@ -5,8 +5,8 @@
 import 'dart:convert';
 
 class ServerInfoData {
-  String date;
-  List<ServerInfo> data;
+  String? date;
+  List<ServerInfo>? data;
 
   ServerInfoData({
     this.date,
@@ -27,14 +27,14 @@ class ServerInfoData {
 
   Map<String, dynamic> toJson() => {
         "date": date,
-        "data": new List<dynamic>.from(data.map((x) => x.toJson())),
+        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
       };
 }
 
 class ServerInfo {
-  String service;
-  bool isAlive;
-  String description;
+  String? service;
+  bool? isAlive;
+  String? description;
 
   ServerInfo({
     this.service,
