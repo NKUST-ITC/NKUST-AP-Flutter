@@ -3,9 +3,12 @@ import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/app.dart';
 
 class ShareDataWidget extends InheritedWidget {
-  final MyAppState? data;
+  final MyAppState data;
 
-  ShareDataWidget({this.data, required Widget child}) : super(child: child);
+  ShareDataWidget({
+    required this.data,
+    required Widget child,
+  }) : super(child: child);
 
   static ShareDataWidget? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType();

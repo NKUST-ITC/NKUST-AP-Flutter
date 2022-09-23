@@ -99,17 +99,17 @@ class SettingPageState extends State<SettingPage> {
             ),
             ChangeLanguageItem(
               onChange: (locale) {
-                ShareDataWidget.of(context)!.data!.loadLocale(locale);
+                ShareDataWidget.of(context)!.data.loadLocale(locale);
               },
             ),
             ChangeThemeModeItem(
               onChange: (themeMode) {
-                ShareDataWidget.of(context)!.data!.loadTheme(themeMode);
+                ShareDataWidget.of(context)!.data.loadTheme(themeMode);
               },
             ),
             ChangeIconStyleItem(
               onChange: (String code) {
-                ShareDataWidget.of(context)!.data!.update();
+                ShareDataWidget.of(context)!.data.update();
               },
             ),
             Divider(

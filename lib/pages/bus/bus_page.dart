@@ -118,7 +118,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             icon: Stack(
               children: <Widget>[
                 Icon(ApIcon.monetizationOn),
-                if (ShareDataWidget.of(context)!.data!.hasBusViolationRecords)
+                if (ShareDataWidget.of(context)!.data.hasBusViolationRecords)
                   Positioned(
                     top: -1.0,
                     right: -1.0,
@@ -154,7 +154,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         onSuccess: (BusViolationRecordsData data) {
           if (mounted)
             setState(() {
-              ShareDataWidget.of(context)!.data!.hasBusViolationRecords =
+              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
                   data.hasBusViolationRecords;
             });
           FirebaseAnalyticsUtils.instance.setUserProperty(

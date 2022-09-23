@@ -229,7 +229,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 state = _State.empty;
               else
                 state = _State.finish;
-              ShareDataWidget.of(context)!.data!.hasBusViolationRecords =
+              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
                   (data.hasBusViolationRecords);
             });
           }

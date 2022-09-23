@@ -422,7 +422,7 @@ class HomePageState extends State<HomePage> {
               ),
               onTap: () async {
                 await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
-                ShareDataWidget.of(context)!.data!.logout();
+                ShareDataWidget.of(context)!.data.logout();
                 isLogin = false;
                 userInfo = null;
                 content = null;
@@ -571,7 +571,7 @@ class HomePageState extends State<HomePage> {
       password: password,
       callback: GeneralCallback<LoginResponse?>(
         onSuccess: (LoginResponse? response) {
-          ShareDataWidget.of(context)!.data!.loginResponse = response;
+          ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
           Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
           _getUserInfo();
