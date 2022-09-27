@@ -12,15 +12,15 @@ part 'bus_data.g.dart';
 
 @JsonSerializable()
 class BusData {
-  bool? canReserve;
+  bool canReserve;
   String? description;
   @JsonKey(name: 'data')
-  List<BusTime>? timetable;
+  List<BusTime> timetable;
 
   BusData({
-    this.canReserve,
+    required this.canReserve,
     this.description,
-    this.timetable,
+    required this.timetable,
   });
 
   factory BusData.fromJson(Map<String, dynamic> json) =>
@@ -44,32 +44,32 @@ class BusData {
 class BusTime {
   @deprecated
   DateTime? endEnrollDateTime;
-  DateTime? departureTime;
-  String? startStation;
-  String? endStation;
-  String? busId;
-  int? reserveCount;
-  int? limitCount;
-  bool? isReserve;
+  DateTime departureTime;
+  String startStation;
+  String endStation;
+  String busId;
+  int reserveCount;
+  int limitCount;
+  bool isReserve;
   String? specialTrain;
   String? description;
   String? cancelKey;
-  bool? homeCharteredBus;
+  bool homeCharteredBus;
   bool? canBook;
 
   BusTime({
     this.endEnrollDateTime,
-    this.departureTime,
-    this.startStation,
-    this.endStation,
-    this.busId,
-    this.reserveCount,
-    this.limitCount,
-    this.isReserve,
+    required this.departureTime,
+    required this.startStation,
+    required this.endStation,
+    required this.busId,
+    required this.reserveCount,
+    required this.limitCount,
+    required this.isReserve,
     this.specialTrain,
     this.description,
     this.cancelKey,
-    this.homeCharteredBus,
+    required this.homeCharteredBus,
     this.canBook,
   });
 
@@ -121,7 +121,7 @@ class BusTime {
   }
 
   Color getColorState(BuildContext context) {
-    return isReserve!
+    return isReserve
         ? ApTheme.of(context).blueAccent
         : canReserve()
             ? ApTheme.of(context).grey
@@ -129,7 +129,7 @@ class BusTime {
   }
 
   String getReserveState(AppLocalizations? local) {
-    return isReserve!
+    return isReserve
         ? local!.reserved
         : canReserve()
             ? local!.reserve
@@ -139,13 +139,13 @@ class BusTime {
   String getDate() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    return formatterTime.format(this.departureTime!);
+    return formatterTime.format(this.departureTime);
   }
 
   String getTime() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('HH:mm', 'zh');
-    return formatterTime.format(this.departureTime!);
+    return formatterTime.format(this.departureTime);
   }
 
   String? getStart(AppLocalizations? local) {

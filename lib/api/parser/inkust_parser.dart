@@ -120,8 +120,8 @@ Map<String, dynamic> inkustBusTimeTableParser(
     if (_temp['SpecialTrain'] == "1") {
       _temp['homeCharteredBus'] = true;
     }
-    if (userRecords.reservations!.length > 0) {
-      userRecords.reservations!.forEach((element) {
+    if (userRecords.reservations.length > 0) {
+      userRecords.reservations.forEach((element) {
         if (element.dateTime == _temp['departureTime'] &&
             element.start == _temp['startStation']) {
           _temp["cancelKey"] = element.cancelKey.toString();

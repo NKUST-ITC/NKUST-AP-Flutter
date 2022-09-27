@@ -135,10 +135,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
             return null;
           },
           child: ListView.builder(
-              itemCount: busReservationsData!.reservations!.length,
+              itemCount: busReservationsData!.reservations.length,
               itemBuilder: (context, i) {
                 return _busReservationWidget(
-                    busReservationsData!.reservations![i]);
+                    busReservationsData!.reservations[i]);
               }),
         );
     }
@@ -175,7 +175,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 3,
                   child: Text(
-                    busReservation.dateTime!,
+                    busReservation.dateTime,
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
@@ -238,7 +238,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           isOffline = true;
           if (busReservationsData == null)
             state = _State.offlineEmpty;
-          else if (busReservationsData!.reservations!.length != 0)
+          else if (busReservationsData!.reservations.length != 0)
             state = _State.finish;
           else
             state = _State.empty;
@@ -258,7 +258,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           if (mounted) {
             setState(() {
               if (busReservationsData == null ||
-                  busReservationsData!.reservations!.length == 0)
+                  busReservationsData!.reservations.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
@@ -401,7 +401,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         isOffline = true;
         if (busReservationsData == null)
           state = _State.offlineEmpty;
-        else if (busReservationsData!.reservations!.length != 0)
+        else if (busReservationsData!.reservations.length != 0)
           state = _State.finish;
         else
           state = _State.empty;

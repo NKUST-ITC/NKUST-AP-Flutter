@@ -6,10 +6,10 @@ part 'booking_bus_data.g.dart';
 
 @JsonSerializable()
 class BookingBusData {
-  bool? success;
+  final bool success;
 
   BookingBusData({
-    this.success,
+    required this.success,
   });
 
   factory BookingBusData.fromJson(Map<String, dynamic> json) =>

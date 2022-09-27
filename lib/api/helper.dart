@@ -548,7 +548,7 @@ class Helper {
         fromDateTime: dateTime,
       );
       reLoginCount = 0;
-      if (data.canReserve!) {
+      if (data.canReserve) {
         return (callback == null) ? data : callback.onSuccess(data);
       } else {
         callback!.onError(

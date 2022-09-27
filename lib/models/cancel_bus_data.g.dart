@@ -8,7 +8,7 @@ part of 'cancel_bus_data.dart';
 
 CancelBusData _$CancelBusDataFromJson(Map<String, dynamic> json) =>
     CancelBusData(
-      success: json['success'] as bool?,
+      success: json['success'] as bool,
     );
 
 Map<String, dynamic> _$CancelBusDataToJson(CancelBusData instance) =>

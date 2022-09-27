@@ -241,7 +241,7 @@ class BusReservePageState extends State<BusReservePage>
   _renderBusTimeWidgets() {
     List<Widget> list = [];
     if (busData != null) {
-      for (var i in busData!.timetable!) {
+      for (var i in busData!.timetable) {
         if (selectStartStation == Station.janGong && i.startStation == "建工")
           list.add(_busTimeWidget(i));
         else if (selectStartStation == Station.yanchao &&
@@ -257,7 +257,7 @@ class BusReservePageState extends State<BusReservePage>
   _busTimeWidget(BusTime busTime) => Column(
         children: <Widget>[
           InkWell(
-            onTap: busTime.canReserve() && !busTime.isReserve!
+            onTap: busTime.canReserve() && !busTime.isReserve
                 ? () {
                     String start = "";
                     if (selectStartStation == Station.janGong)
@@ -322,7 +322,7 @@ class BusReservePageState extends State<BusReservePage>
                       ),
                     );
                   }
-                : busTime.isReserve!
+                : busTime.isReserve
                     ? () {
                         showDialog(
                           context: context,
@@ -428,7 +428,7 @@ class BusReservePageState extends State<BusReservePage>
           busData = data;
           if (mounted)
             setState(() {
-              if (busData == null || busData!.timetable!.length == 0)
+              if (busData == null || busData!.timetable.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;

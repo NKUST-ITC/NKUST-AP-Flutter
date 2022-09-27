@@ -8,7 +8,7 @@ part of 'booking_bus_data.dart';
 
 BookingBusData _$BookingBusDataFromJson(Map<String, dynamic> json) =>
     BookingBusData(
-      success: json['success'] as bool?,
+      success: json['success'] as bool,
     );
 
 Map<String, dynamic> _$BookingBusDataToJson(BookingBusData instance) =>

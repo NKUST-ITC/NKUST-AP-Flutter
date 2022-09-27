@@ -110,13 +110,13 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
                 bool isLeft = (index % 2 != 0);
-                final reservations = violationData!.reservations!;
+                final reservations = violationData!.reservations;
                 final isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
-                    (reservations[index].time!.year !=
-                        reservations[index + 1].time!.year) ||
-                    (reservations[index].time!.year !=
-                        reservations[index - 1].time!.year);
+                    (reservations[index].time.year !=
+                        reservations[index + 1].time.year) ||
+                    (reservations[index].time.year !=
+                        reservations[index - 1].time.year);
                 return Row(
                   children: <Widget>[
                     Expanded(
@@ -128,7 +128,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           : Center(
                               child: isShowYear
                                   ? Text(
-                                      '${reservations[index].time!.year}',
+                                      '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
                                         color: ApTheme.of(context).greyText,
@@ -163,7 +163,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           child: Text(
                             '${reservations[index].amountendText}',
                             style: TextStyle(
-                              color: reservations[index].isPayment!
+                              color: reservations[index].isPayment
                                   ? ApTheme.of(context).yellow
                                   : ApTheme.of(context).red,
                             ),
@@ -192,7 +192,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           : Center(
                               child: isShowYear
                                   ? Text(
-                                      '${reservations[index].time!.year}',
+                                      '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
                                         color: ApTheme.of(context).greyText,
@@ -206,7 +206,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   ],
                 );
               },
-              childCount: violationData?.reservations?.length ?? 0,
+              childCount: violationData?.reservations.length ?? 0,
             ),
           )
         ],
@@ -219,13 +219,13 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       callback: GeneralCallback(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
-          violationData!.reservations!.sort(
-            (a, b) => b.time!.compareTo(a.time!),
+          violationData!.reservations.sort(
+            (a, b) => b.time.compareTo(a.time),
           );
           if (mounted) {
             setState(() {
               if (violationData == null ||
-                  violationData!.reservations!.length == 0)
+                  violationData!.reservations.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;
@@ -330,11 +330,11 @@ class ReservationItem extends StatelessWidget {
                   reservation!.startStationText(context),
                 ),
               Tooltip(
-                message: '${reservation!.time!.year}',
+                message: '${reservation!.time.year}',
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 2.0),
                   child: Text(
-                    '${reservation!.time!.month}/${reservation!.time!.day}',
+                    '${reservation!.time.month}/${reservation!.time.day}',
                     style: TextStyle(
                       fontSize: 24.0,
                       color: ApTheme.of(context).greyText,
@@ -362,7 +362,7 @@ class ReservationItem extends StatelessWidget {
               ),
               SizedBox(width: 2.0),
               Text(
-                dateFormat.format(reservation!.time!.add(Duration(hours: 8))),
+                dateFormat.format(reservation!.time.add(Duration(hours: 8))),
                 style: TextStyle(
                   color: ApTheme.of(context).greyText,
                 ),
@@ -376,11 +376,11 @@ class ReservationItem extends StatelessWidget {
               children: <Widget>[
                 Center(
                   child: Text(
-                    reservation!.isPayment!
+                    reservation!.isPayment
                         ? AppLocalizations.of(context).paid
                         : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
-                      color: reservation!.isPayment!
+                      color: reservation!.isPayment
                           ? ApTheme.of(context).green
                           : ApTheme.of(context).red,
                     ),

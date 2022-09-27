@@ -42,8 +42,8 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
     }
     if (busReservations != null) {
       final format = DateFormat('yyyy/MM/dd HH:mm');
-      busReservations.reservations!.forEach((element) {
-        if (format.parse(element.dateTime!) ==
+      busReservations.reservations.forEach((element) {
+        if (format.parse(element.dateTime) ==
                 format.parse(busRealTime(data["data"][i]["runDateTime"])) &&
             element.start == data["data"][i]["startStation"]) {
           _temp["cancelKey"] = element.cancelKey;

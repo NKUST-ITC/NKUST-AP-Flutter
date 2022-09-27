@@ -15,10 +15,10 @@ part 'bus_reservations_data.g.dart';
 @JsonSerializable()
 class BusReservationsData {
   @JsonKey(name: 'data')
-  List<BusReservation>? reservations;
+  List<BusReservation> reservations;
 
   BusReservationsData({
-    this.reservations,
+    required this.reservations,
   });
 
   factory BusReservationsData.fromJson(Map<String, dynamic> json) =>
@@ -60,23 +60,23 @@ class BusReservationsData {
 
 @JsonSerializable()
 class BusReservation {
-  String? dateTime;
+  String dateTime;
   @deprecated
   String? endTime;
-  String? cancelKey;
-  String? start;
-  String? end;
-  String? state;
-  String? travelState;
+  String cancelKey;
+  String start;
+  String end;
+  String state;
+  String travelState;
 
   BusReservation({
-    this.dateTime,
-    this.endTime,
-    this.cancelKey,
-    this.start,
-    this.end,
-    this.state,
-    this.travelState,
+    required this.dateTime,
+    required this.endTime,
+    required this.cancelKey,
+    required this.start,
+    required this.end,
+    required this.state,
+    required this.travelState,
   });
 
   factory BusReservation.fromJson(Map<String, dynamic> json) =>
@@ -104,24 +104,24 @@ class BusReservation {
     initializeDateFormatting();
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = DateFormat('yyyy/MM/dd');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime!));
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   String getTime() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = new DateFormat('HH:mm');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime!));
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   DateTime getDateTime() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    return formatterDateTime.parse(this.dateTime!);
+    return formatterDateTime.parse(this.dateTime);
   }
 
   String getDateTimeStr() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = new DateFormat('yyyy/MM/dd HH:mm');
-    final s = formatterDateTime.parse(this.dateTime!);
+    final s = formatterDateTime.parse(this.dateTime);
     return formatterTime.format(s);
   }
 

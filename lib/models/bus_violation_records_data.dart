@@ -10,26 +10,25 @@ part 'bus_violation_records_data.g.dart';
 @JsonSerializable()
 class BusViolationRecordsData {
   @JsonKey(name: 'reservation')
-  List<Reservation>? reservations;
+  List<Reservation> reservations;
   @JsonKey(ignore: true)
   List<Reservation> notPaymentReservations = [];
 
   int get notPaymentAmountend {
     int sum = 0;
-    notPaymentReservations.forEach((element) => sum += element.amountend!);
+    notPaymentReservations.forEach((element) => sum += element.amountend);
     return sum;
   }
 
   bool get hasBusViolationRecords {
-    for (var item in reservations!) {
-      if (item != null && item.isPayment != null && !item.isPayment!)
-        return true;
+    for (var item in reservations) {
+      if (!item.isPayment) return true;
     }
     return false;
   }
 
   BusViolationRecordsData({
-    this.reservations,
+    required this.reservations,
   }) {
     updateNotPaymentReservations();
   }
@@ -47,38 +46,36 @@ class BusViolationRecordsData {
 
   Map<String, dynamic> toJson() => {
         "reservation":
-            new List<dynamic>.from(reservations!.map((x) => x.toJson())),
+            new List<dynamic>.from(reservations.map((x) => x.toJson())),
       };
 
   void updateNotPaymentReservations() {
     notPaymentReservations.clear();
-    reservations?.forEach((element) {
-      if (element.isPayment != null && !element.isPayment!)
-        notPaymentReservations.add(element);
+    reservations.forEach((element) {
+      if (!element.isPayment) notPaymentReservations.add(element);
     });
   }
 }
 
 @JsonSerializable()
 class Reservation {
-  DateTime? time;
-  String? startStation;
-  String? endStation;
-  bool? homeCharteredBus;
-  int? amountend;
-  bool? isPayment;
+  DateTime time;
+  String startStation;
+  String endStation;
+  bool homeCharteredBus;
+  int amountend;
+  bool isPayment;
 
   Reservation({
-    this.time,
-    this.startStation,
-    this.endStation,
-    this.homeCharteredBus,
-    this.amountend,
-    this.isPayment,
+    required this.time,
+    required this.startStation,
+    required this.endStation,
+    required this.homeCharteredBus,
+    required this.amountend,
+    required this.isPayment,
   });
 
-  String get amountendText =>
-      (amountend == null || amountend == 0) ? '' : '\$$amountend';
+  String get amountendText => (amountend == 0) ? '' : '\$$amountend';
 
   String? startStationText(BuildContext context) {
     return Utils.parserCampus(AppLocalizations.of(context), startStation);
