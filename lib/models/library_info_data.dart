@@ -10,10 +10,10 @@ part 'library_info_data.g.dart';
 
 @JsonSerializable()
 class LibraryInfoData {
-  LibraryInfo? data;
+  final LibraryInfo data;
 
   LibraryInfoData({
-    this.data,
+    required this.data,
   });
 
   factory LibraryInfoData.fromJson(Map<String, dynamic> json) =>
@@ -35,16 +35,16 @@ class LibraryInfoData {
 
 @JsonSerializable()
 class LibraryInfo {
-  String? department;
-  String? libraryId;
-  String? name;
-  Record? record;
+  String department;
+  String libraryId;
+  String name;
+  Record record;
 
   LibraryInfo({
-    this.department,
-    this.libraryId,
-    this.name,
-    this.record,
+    required this.department,
+    required this.libraryId,
+    required this.name,
+    required this.record,
   });
 
   factory LibraryInfo.fromJson(Map<String, dynamic> json) =>
@@ -61,15 +61,15 @@ class LibraryInfo {
 
 @JsonSerializable()
 class Record {
-  int? borrowing;
+  int borrowing;
   @JsonKey(name: 'reserve-rental')
-  int? reserveRental;
-  int? userFine;
+  int reserveRental;
+  int userFine;
 
   Record({
-    this.borrowing,
-    this.reserveRental,
-    this.userFine,
+    required this.borrowing,
+    required this.reserveRental,
+    required this.userFine,
   });
 
   factory Record.fromJson(Map<String, dynamic> json) => _$RecordFromJson(json);

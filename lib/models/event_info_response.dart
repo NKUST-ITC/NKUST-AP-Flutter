@@ -6,16 +6,16 @@ part 'event_info_response.g.dart';
 
 @JsonSerializable()
 class EventInfoResponse {
-  int? code;
-  String? description;
-  String? title;
-  List<EventInfo>? data;
+  int code;
+  String description;
+  String title;
+  List<EventInfo> data;
 
   EventInfoResponse({
-    this.code,
-    this.description,
-    this.title,
-    this.data,
+    required this.code,
+    required this.description,
+    required this.title,
+    required this.data,
   });
 
   factory EventInfoResponse.fromJson(Map<String, dynamic> json) =>
@@ -33,16 +33,16 @@ class EventInfoResponse {
 
 @JsonSerializable()
 class EventSendResponse {
-  int? code;
-  String? description;
-  String? title;
-  EventInfo? data;
+  int code;
+  String description;
+  String title;
+  EventInfo data;
 
   EventSendResponse({
-    this.code,
-    this.description,
-    this.title,
-    this.data,
+    required this.code,
+    required this.description,
+    required this.title,
+    required this.data,
   });
 
   factory EventSendResponse.fromJson(Map<String, dynamic> json) =>
@@ -60,16 +60,16 @@ class EventSendResponse {
 
 @JsonSerializable()
 class EventInfo {
-  String? id;
-  String? start;
-  String? end;
-  String? name;
+  String id;
+  String start;
+  String end;
+  String name;
 
   EventInfo({
-    this.id,
-    this.start,
-    this.end,
-    this.name,
+    required this.id,
+    required this.start,
+    required this.end,
+    required this.name,
   });
 
   factory EventInfo.fromJson(Map<String, dynamic> json) =>

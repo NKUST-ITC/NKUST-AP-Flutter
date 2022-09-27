@@ -9,19 +9,19 @@ part 'crawler_selector.g.dart';
 @JsonSerializable()
 class CrawlerSelector {
   CrawlerSelector({
-    this.login,
-    this.userInfo,
-    this.course,
-    this.score,
-    this.semester,
+    required this.login,
+    required this.userInfo,
+    required this.course,
+    required this.score,
+    required this.semester,
   });
 
-  String? login;
+  final String login;
   @JsonKey(name: 'user_info')
-  String? userInfo;
-  String? course;
-  String? score;
-  String? semester;
+  final String userInfo;
+  final String course;
+  final String score;
+  final String semester;
 
   CrawlerSelector copyWith({
     String? login,

@@ -12,7 +12,7 @@ LoginResponse _$LoginResponseFromJson(Map<String, dynamic> json) =>
           ? null
           : DateTime.parse(json['expireTime'] as String),
       token: json['token'] as String?,
-      isAdmin: json['isAdmin'] as bool?,
+      isAdmin: json['isAdmin'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$LoginResponseToJson(LoginResponse instance) =>

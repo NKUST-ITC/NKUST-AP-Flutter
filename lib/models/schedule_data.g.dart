@@ -7,9 +7,9 @@ part of 'schedule_data.dart';
 // **************************************************************************
 
 ScheduleData _$ScheduleDataFromJson(Map<String, dynamic> json) => ScheduleData(
-      week: json['week'] as String?,
+      week: json['week'] as String,
       events:
-          (json['events'] as List<dynamic>?)?.map((e) => e as String).toList(),
+          (json['events'] as List<dynamic>).map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$ScheduleDataToJson(ScheduleData instance) =>

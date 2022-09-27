@@ -6,12 +6,12 @@ part 'schedule_data.g.dart';
 
 @JsonSerializable()
 class ScheduleData {
-  String? week;
-  List<String>? events;
+  String week;
+  List<String> events;
 
   ScheduleData({
-    this.week,
-    this.events,
+    required this.week,
+    required this.events,
   });
 
   factory ScheduleData.fromJson(Map<String, dynamic> json) =>

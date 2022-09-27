@@ -8,12 +8,12 @@ part 'login_response.g.dart';
 class LoginResponse {
   DateTime? expireTime;
   String? token;
-  bool? isAdmin;
+  bool isAdmin;
 
   LoginResponse({
     this.expireTime,
     this.token,
-    this.isAdmin,
+    this.isAdmin = false,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) =>

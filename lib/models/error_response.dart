@@ -10,12 +10,12 @@ part 'error_response.g.dart';
 
 @JsonSerializable()
 class ErrorResponse {
-  int? errorCode;
-  String? description;
+  final int errorCode;
+  final String description;
 
   ErrorResponse({
-    this.errorCode,
-    this.description,
+    required this.errorCode,
+    required this.description,
   });
 
   factory ErrorResponse.fromJson(Map<String, dynamic> json) =>

@@ -8,23 +8,19 @@ part of 'library_info_data.dart';
 
 LibraryInfoData _$LibraryInfoDataFromJson(Map<String, dynamic> json) =>
     LibraryInfoData(
-      data: json['data'] == null
-          ? null
-          : LibraryInfo.fromJson(json['data'] as Map<String, dynamic>),
+      data: LibraryInfo.fromJson(json['data'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$LibraryInfoDataToJson(LibraryInfoData instance) =>
     <String, dynamic>{
-      'data': instance.data?.toJson(),
+      'data': instance.data.toJson(),
     };
 
 LibraryInfo _$LibraryInfoFromJson(Map<String, dynamic> json) => LibraryInfo(
-      department: json['department'] as String?,
-      libraryId: json['libraryId'] as String?,
-      name: json['name'] as String?,
-      record: json['record'] == null
-          ? null
-          : Record.fromJson(json['record'] as Map<String, dynamic>),
+      department: json['department'] as String,
+      libraryId: json['libraryId'] as String,
+      name: json['name'] as String,
+      record: Record.fromJson(json['record'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$LibraryInfoToJson(LibraryInfo instance) =>
@@ -32,13 +28,13 @@ Map<String, dynamic> _$LibraryInfoToJson(LibraryInfo instance) =>
       'department': instance.department,
       'libraryId': instance.libraryId,
       'name': instance.name,
-      'record': instance.record?.toJson(),
+      'record': instance.record.toJson(),
     };
 
 Record _$RecordFromJson(Map<String, dynamic> json) => Record(
-      borrowing: json['borrowing'] as int?,
-      reserveRental: json['reserve-rental'] as int?,
-      userFine: json['userFine'] as int?,
+      borrowing: json['borrowing'] as int,
+      reserveRental: json['reserve-rental'] as int,
+      userFine: json['userFine'] as int,
     );
 
 Map<String, dynamic> _$RecordToJson(Record instance) => <String, dynamic>{

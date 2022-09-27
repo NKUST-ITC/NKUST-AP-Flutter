@@ -8,11 +8,11 @@ part of 'crawler_selector.dart';
 
 CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) =>
     CrawlerSelector(
-      login: json['login'] as String?,
-      userInfo: json['user_info'] as String?,
-      course: json['course'] as String?,
-      score: json['score'] as String?,
-      semester: json['semester'] as String?,
+      login: json['login'] as String,
+      userInfo: json['user_info'] as String,
+      course: json['course'] as String,
+      score: json['score'] as String,
+      semester: json['semester'] as String,
     );
 
 Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) =>
