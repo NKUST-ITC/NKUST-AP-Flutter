@@ -10,17 +10,17 @@ part 'leave_submit_data.g.dart';
 
 @JsonSerializable()
 class LeaveSubmitData {
-  List<Day>? days;
-  String? leaveTypeId;
-  String? teacherId;
-  String? reasonText;
+  List<Day> days;
+  String leaveTypeId;
+  String teacherId;
+  String reasonText;
   String? delayReasonText;
 
   LeaveSubmitData({
-    this.days,
-    this.leaveTypeId,
-    this.teacherId,
-    this.reasonText,
+    required this.days,
+    required this.leaveTypeId,
+    required this.teacherId,
+    required this.reasonText,
     this.delayReasonText,
   });
 

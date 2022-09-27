@@ -11,13 +11,13 @@ part 'leave_submit_info_data.g.dart';
 @JsonSerializable()
 class LeaveSubmitInfoData {
   Tutor? tutor;
-  List<Type>? type;
-  List<String>? timeCodes;
+  List<Type> type;
+  List<String> timeCodes;
 
   LeaveSubmitInfoData({
-    this.tutor,
-    this.type,
-    this.timeCodes,
+    required this.tutor,
+    required this.type,
+    required this.timeCodes,
   });
 
   factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) =>
@@ -35,12 +35,12 @@ class LeaveSubmitInfoData {
 
 @JsonSerializable()
 class Tutor {
-  String? name;
-  String? id;
+  String name;
+  String id;
 
   Tutor({
-    this.name,
-    this.id,
+    required this.name,
+    required this.id,
   });
 
   factory Tutor.fromJson(Map<String, dynamic> json) => _$TutorFromJson(json);
@@ -56,12 +56,12 @@ class Tutor {
 
 @JsonSerializable()
 class Type {
-  String? title;
-  String? id;
+  String title;
+  String id;
 
   Type({
-    this.title,
-    this.id,
+    required this.title,
+    required this.id,
   });
 
   factory Type.fromJson(Map<String, dynamic> json) => _$TypeFromJson(json);

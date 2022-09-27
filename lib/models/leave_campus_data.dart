@@ -10,10 +10,10 @@ part 'leave_campus_data.g.dart';
 
 @JsonSerializable()
 class LeavesCampusData {
-  List<LeavesCampus>? data;
+  final List<LeavesCampus> data;
 
   LeavesCampusData({
-    this.data,
+    required this.data,
   });
 
   factory LeavesCampusData.fromJson(Map<String, dynamic> json) =>
@@ -30,12 +30,12 @@ class LeavesCampusData {
 
 @JsonSerializable()
 class LeavesCampus {
-  String? campusName;
-  List<LeavesDepartment>? department;
+  String campusName;
+  List<LeavesDepartment> department;
 
   LeavesCampus({
-    this.campusName,
-    this.department,
+    required this.campusName,
+    required this.department,
   });
 
   factory LeavesCampus.fromJson(Map<String, dynamic> json) =>
@@ -52,12 +52,12 @@ class LeavesCampus {
 
 @JsonSerializable()
 class LeavesDepartment {
-  String? departmentName;
-  List<LeavesTeacher>? teacherList;
+  String departmentName;
+  List<LeavesTeacher> teacherList;
 
   LeavesDepartment({
-    this.departmentName,
-    this.teacherList,
+    required this.departmentName,
+    required this.teacherList,
   });
 
   factory LeavesDepartment.fromJson(Map<String, dynamic> json) =>
@@ -75,13 +75,13 @@ class LeavesDepartment {
 @JsonSerializable()
 class LeavesTeacher {
   @JsonKey(name: 'teacherName')
-  String? name;
+  String name;
   @JsonKey(name: 'teacherId')
-  String? id;
+  String id;
 
   LeavesTeacher({
-    this.name,
-    this.id,
+    required this.name,
+    required this.id,
   });
 
   factory LeavesTeacher.fromRawJson(String str) =>

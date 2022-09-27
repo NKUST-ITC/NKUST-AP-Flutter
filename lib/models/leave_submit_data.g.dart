@@ -8,18 +8,18 @@ part of 'leave_submit_data.dart';
 
 LeaveSubmitData _$LeaveSubmitDataFromJson(Map<String, dynamic> json) =>
     LeaveSubmitData(
-      days: (json['days'] as List<dynamic>?)
-          ?.map((e) => Day.fromJson(e as Map<String, dynamic>))
+      days: (json['days'] as List<dynamic>)
+          .map((e) => Day.fromJson(e as Map<String, dynamic>))
           .toList(),
-      leaveTypeId: json['leaveTypeId'] as String?,
-      teacherId: json['teacherId'] as String?,
-      reasonText: json['reasonText'] as String?,
+      leaveTypeId: json['leaveTypeId'] as String,
+      teacherId: json['teacherId'] as String,
+      reasonText: json['reasonText'] as String,
       delayReasonText: json['delayReasonText'] as String?,
     );
 
 Map<String, dynamic> _$LeaveSubmitDataToJson(LeaveSubmitData instance) =>
     <String, dynamic>{
-      'days': instance.days?.map((e) => e.toJson()).toList(),
+      'days': instance.days.map((e) => e.toJson()).toList(),
       'leaveTypeId': instance.leaveTypeId,
       'teacherId': instance.teacherId,
       'reasonText': instance.reasonText,
