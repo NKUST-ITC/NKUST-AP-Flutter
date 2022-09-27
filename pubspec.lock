@@ -306,11 +306,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "9aa5cf72fe2cbfe7368143a022c243ee883911b0"
-      url: "https://github.com/hurshi/dio-http-cache"
+      ref: "84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e"
+      resolved-ref: "84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e"
+      url: "https://github.com/NKUST-ITC/dio-http-cache"
     source: git
-    version: "0.3.0-nullsafety.0"
+    version: "0.3.0"
   encrypt:
     dependency: transitive
     description:

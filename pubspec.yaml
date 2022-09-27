@@ -25,7 +25,8 @@ dependencies:
   dio: ^4.0.0
   dio_http_cache:
     git:
-      url: https://github.com/hurshi/dio-http-cache
+      url: https://github.com/NKUST-ITC/dio-http-cache
+      ref: 84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e
   tuple: ^2.0.0
   sprintf: ^6.0.0
   image: ^3.0.2
