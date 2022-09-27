@@ -4,6 +4,11 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'leave_submit_data.g.dart';
+
+@JsonSerializable()
 class LeaveSubmitData {
   List<Day>? days;
   String? leaveTypeId;
@@ -19,31 +24,22 @@ class LeaveSubmitData {
     this.delayReasonText,
   });
 
-  factory LeaveSubmitData.fromRawJson(String str) =>
-      LeaveSubmitData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory LeaveSubmitData.fromJson(Map<String, dynamic> json) =>
-      new LeaveSubmitData(
-        days: new List<Day>.from(json["days"].map((x) => Day.fromJson(x))),
-        leaveTypeId: json["leaveType"],
-        teacherId: json["teacherId"],
-        reasonText: json["reasonText"],
-        delayReasonText: json["delayReasonText"],
+      _$LeaveSubmitDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LeaveSubmitDataToJson(this);
+
+  factory LeaveSubmitData.fromRawJson(String str) => LeaveSubmitData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "days": new List<dynamic>.from(days!.map((x) => x.toJson())),
-        "leaveType": leaveTypeId,
-        "teacherId": teacherId,
-        "reasonText": reasonText,
-        "delayReasonText": delayReasonText,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class Day {
   String? day;
+  @JsonKey(name: 'class')
   List<String>? dayClass;
 
   Day({
@@ -51,19 +47,15 @@ class Day {
     this.dayClass,
   });
 
-  factory Day.fromRawJson(String str) => Day.fromJson(json.decode(str));
+  factory Day.fromJson(Map<String, dynamic> json) => _$DayFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$DayToJson(this);
 
-  factory Day.fromJson(Map<String, dynamic> json) => new Day(
-        day: json["day"],
-        dayClass: new List<String>.from(json["class"].map((x) => x)),
+  factory Day.fromRawJson(String str) => Day.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "day": day,
-        "class": new List<dynamic>.from(dayClass!.map((x) => x)),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   @override
   String toString() {

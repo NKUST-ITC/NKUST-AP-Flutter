@@ -1,5 +1,10 @@
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'booking_bus_data.g.dart';
+
+@JsonSerializable()
 class BookingBusData {
   bool? success;
 
@@ -7,15 +12,14 @@ class BookingBusData {
     this.success,
   });
 
-  factory BookingBusData.fromRawJson(String str) => BookingBusData.fromJson(json.decode(str));
+  factory BookingBusData.fromJson(Map<String, dynamic> json) =>
+      _$BookingBusDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BookingBusDataToJson(this);
 
-  factory BookingBusData.fromJson(Map<String, dynamic> json) => BookingBusData(
-    success: json["success"] == null ? null : json["success"],
-  );
+  factory BookingBusData.fromRawJson(String str) => BookingBusData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "success": success == null ? null : success,
-  };
+  String toRawJson() => jsonEncode(toJson());
 }

@@ -94,8 +94,9 @@ Map<String, dynamic> inkustBusTimeTableParser(
 
   for (int i = 0; i < data.length; i++) {
     Map<String, dynamic> _temp = {
-      "endEnrollDateTime": DateTime.now(),
-      "departureTime": format.parse("$queryDate ${data[i]['driveTime']}"),
+      "endEnrollDateTime": DateTime.now().toIso8601String(),
+      "departureTime":
+          format.parse("$queryDate ${data[i]['driveTime']}").toIso8601String(),
       "startStation": data[i]['startStation'],
       "endStation": data[i]['endStation'],
       "busId": data[i]['busId'].toString(),

@@ -4,6 +4,11 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'server_info_data.g.dart';
+
+@JsonSerializable()
 class ServerInfoData {
   String? date;
   List<ServerInfo>? data;
@@ -31,6 +36,7 @@ class ServerInfoData {
       };
 }
 
+@JsonSerializable()
 class ServerInfo {
   String? service;
   bool? isAlive;

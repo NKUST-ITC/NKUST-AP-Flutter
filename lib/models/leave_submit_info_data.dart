@@ -4,6 +4,11 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'leave_submit_info_data.g.dart';
+
+@JsonSerializable()
 class LeaveSubmitInfoData {
   Tutor? tutor;
   List<Type>? type;
@@ -15,23 +20,20 @@ class LeaveSubmitInfoData {
     this.timeCodes,
   });
 
-  factory LeaveSubmitInfoData.fromRawJson(String str) => LeaveSubmitInfoData.fromJson(json.decode(str));
+  factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) =>
+      _$LeaveSubmitInfoDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeaveSubmitInfoDataToJson(this);
 
-  factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) => LeaveSubmitInfoData(
-    tutor: json["tutor"] == null ? null : Tutor.fromJson(json["tutor"]),
-    type: json["type"] == null ? null : List<Type>.from(json["type"].map((x) => Type.fromJson(x))),
-    timeCodes: json["timeCodes"] == null ? null : List<String>.from(json["timeCodes"].map((x) => x)),
-  );
+  factory LeaveSubmitInfoData.fromRawJson(String str) =>
+      LeaveSubmitInfoData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "tutor": tutor == null ? null : tutor!.toJson(),
-    "type": type == null ? null : List<dynamic>.from(type!.map((x) => x.toJson())),
-    "timeCodes": timeCodes == null ? null : List<dynamic>.from(timeCodes!.map((x) => x)),
-  };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class Tutor {
   String? name;
   String? id;
@@ -41,21 +43,18 @@ class Tutor {
     this.id,
   });
 
-  factory Tutor.fromRawJson(String str) => Tutor.fromJson(json.decode(str));
+  factory Tutor.fromJson(Map<String, dynamic> json) => _$TutorFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$TutorToJson(this);
 
-  factory Tutor.fromJson(Map<String, dynamic> json) => Tutor(
-    name: json["name"] == null ? null : json["name"],
-    id: json["id"] == null ? null : json["id"],
-  );
+  factory Tutor.fromRawJson(String str) => Tutor.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "name": name == null ? null : name,
-    "id": id == null ? null : id,
-  };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class Type {
   String? title;
   String? id;
@@ -65,17 +64,13 @@ class Type {
     this.id,
   });
 
-  factory Type.fromRawJson(String str) => Type.fromJson(json.decode(str));
+  factory Type.fromJson(Map<String, dynamic> json) => _$TypeFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$TypeToJson(this);
 
-  factory Type.fromJson(Map<String, dynamic> json) => Type(
-    title: json["title"] == null ? null : json["title"],
-    id: json["id"] == null ? null : json["id"],
-  );
+  factory Type.fromRawJson(String str) => Type.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "title": title == null ? null : title,
-    "id": id == null ? null : id,
-  };
+  String toRawJson() => jsonEncode(toJson());
 }

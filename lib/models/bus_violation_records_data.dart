@@ -1,11 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+part 'bus_violation_records_data.g.dart';
+
+@JsonSerializable()
 class BusViolationRecordsData {
+  @JsonKey(name: 'reservation')
   List<Reservation>? reservations;
+  @JsonKey(ignore: true)
   List<Reservation> notPaymentReservations = [];
 
   int get notPaymentAmountend {
@@ -53,6 +59,7 @@ class BusViolationRecordsData {
   }
 }
 
+@JsonSerializable()
 class Reservation {
   DateTime? time;
   String? startStation;
@@ -70,9 +77,6 @@ class Reservation {
     this.isPayment,
   });
 
-  factory Reservation.fromRawJson(String str) =>
-      Reservation.fromJson(json.decode(str));
-
   String get amountendText =>
       (amountend == null || amountend == 0) ? '' : '\$$amountend';
 
@@ -84,23 +88,14 @@ class Reservation {
     return Utils.parserCampus(local, endStation);
   }
 
-  String toRawJson() => json.encode(toJson());
+  factory Reservation.fromJson(Map<String, dynamic> json) =>
+      _$ReservationFromJson(json);
 
-  factory Reservation.fromJson(Map<String, dynamic> json) => new Reservation(
-        time: json["time"],
-        startStation: json["startStation"],
-        endStation: json["endStation"],
-        homeCharteredBus: json["homeCharteredBus"],
-        amountend: json["amountend"],
-        isPayment: json["isPayment"],
+  Map<String, dynamic> toJson() => _$ReservationToJson(this);
+
+  factory Reservation.fromRawJson(String str) => Reservation.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "time": time!.toIso8601String(),
-        "startStation": startStation,
-        "endStation": endStation,
-        "homeCharteredBus": homeCharteredBus,
-        "amountend": amountend,
-        "isPayment": isPayment,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

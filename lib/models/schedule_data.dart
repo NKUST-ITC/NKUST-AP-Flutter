@@ -1,3 +1,10 @@
+import 'dart:convert';
+
+import 'package:json_annotation/json_annotation.dart';
+
+part 'schedule_data.g.dart';
+
+@JsonSerializable()
 class ScheduleData {
   String? week;
   List<String>? events;
@@ -7,17 +14,16 @@ class ScheduleData {
     this.events,
   });
 
-  static ScheduleData fromJson(Map<String, dynamic> json) {
-    return ScheduleData(
-      week: json['week'],
-      events: List<String>.from(json['events']),
-    );
-  }
+  factory ScheduleData.fromJson(Map<String, dynamic> json) =>
+      _$ScheduleDataFromJson(json);
 
-  Map<String, dynamic> toJson() => {
-        'week': week,
-        'events': events,
-      };
+  Map<String, dynamic> toJson() => _$ScheduleDataToJson(this);
+
+  factory ScheduleData.fromRawJson(String str) => ScheduleData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
+
+  String toRawJson() => jsonEncode(toJson());
 
   static List<ScheduleData> toList(List<dynamic>? jsonArray) {
     List<ScheduleData> list = [];

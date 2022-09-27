@@ -4,12 +4,17 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+part 'bus_data.g.dart';
+
+@JsonSerializable()
 class BusData {
   bool? canReserve;
   String? description;
+  @JsonKey(name: 'data')
   List<BusTime>? timetable;
 
   BusData({
@@ -18,25 +23,16 @@ class BusData {
     this.timetable,
   });
 
-  factory BusData.fromRawJson(String str) => BusData.fromJson(json.decode(str));
+  factory BusData.fromJson(Map<String, dynamic> json) =>
+      _$BusDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BusDataToJson(this);
 
-  factory BusData.fromJson(Map<String, dynamic> json) => BusData(
-        timetable: List<BusTime>.from(
-          json["data"].map(
-            (x) => BusTime.fromJson(x),
-          ),
-        ),
-        canReserve: json["canReserve"],
-        description: json["description"],
+  factory BusData.fromRawJson(String str) => BusData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(timetable!.map((x) => x.toJson())),
-        "canReserve": canReserve,
-        "description": description,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static BusData sample() {
     return BusData.fromRawJson(
@@ -44,6 +40,7 @@ class BusData {
   }
 }
 
+@JsonSerializable()
 class BusTime {
   @deprecated
   DateTime? endEnrollDateTime;
@@ -101,40 +98,16 @@ class BusTime {
     return list;
   }
 
-  factory BusTime.fromRawJson(String str) => BusTime.fromJson(json.decode(str));
+  factory BusTime.fromJson(Map<String, dynamic> json) =>
+      _$BusTimeFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BusTimeToJson(this);
 
-  factory BusTime.fromJson(Map<String, dynamic> json) => BusTime(
-        endEnrollDateTime: json["endEnrollDateTime"],
-        departureTime: json["departureTime"],
-        startStation: json["startStation"],
-        endStation: json["endStation"],
-        busId: json["busId"],
-        reserveCount: json["reserveCount"],
-        limitCount: json["limitCount"],
-        isReserve: json["isReserve"],
-        specialTrain: json["specialTrain"],
-        description: json["description"],
-        cancelKey: json["cancelKey"],
-        homeCharteredBus: json["homeCharteredBus"],
-        canBook: json['canBook'],
+  factory BusTime.fromRawJson(String str) => BusTime.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "departureTime": departureTime,
-        "startStation": startStation,
-        "endStation": endStation,
-        "busId": busId,
-        "reserveCount": reserveCount,
-        "limitCount": limitCount,
-        "isReserve": isReserve,
-        "specialTrain": specialTrain,
-        "description": description,
-        "cancelKey": cancelKey,
-        "homeCharteredBus": homeCharteredBus,
-        "canBook": canBook,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   bool canReserve() {
     return canBook ?? true;

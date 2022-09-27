@@ -1,9 +1,14 @@
 import 'dart:convert';
 
 import 'package:ap_common/utils/preferences.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+part 'leave_data.g.dart';
+
+@JsonSerializable()
 class LeaveData {
+  @JsonKey(name: 'data')
   List<Leave>? leaves;
   List<String>? timeCodes;
 
@@ -54,10 +59,12 @@ class LeaveData {
   }
 }
 
+@JsonSerializable()
 class Leave {
   String? leaveSheetId;
   String? date;
   String? instructorsComment;
+  @JsonKey(name: 'sections')
   List<LeaveSections>? leaveSections;
 
   Leave(
@@ -102,6 +109,7 @@ class Leave {
   }
 }
 
+@JsonSerializable()
 class LeaveSections {
   String? section;
   String? reason;

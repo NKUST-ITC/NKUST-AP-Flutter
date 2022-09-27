@@ -4,6 +4,11 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'room_data.g.dart';
+
+@JsonSerializable()
 class RoomData {
   List<Room>? data;
 
@@ -11,22 +16,23 @@ class RoomData {
     this.data,
   });
 
-  factory RoomData.fromRawJson(String str) =>
-      RoomData.fromJson(json.decode(str));
+  factory RoomData.fromJson(Map<String, dynamic> json) =>
+      _$RoomDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$RoomDataToJson(this);
 
-  factory RoomData.fromJson(Map<String, dynamic> json) => new RoomData(
-        data: new List<Room>.from(json["data"].map((x) => Room.fromJson(x))),
+  factory RoomData.fromRawJson(String str) => RoomData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class Room {
+  @JsonKey(name: 'roomName')
   String? name;
+  @JsonKey(name: 'roomId')
   String? id;
 
   Room({
@@ -34,17 +40,13 @@ class Room {
     this.id,
   });
 
-  factory Room.fromRawJson(String str) => Room.fromJson(json.decode(str));
+  factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$RoomToJson(this);
 
-  factory Room.fromJson(Map<String, dynamic> json) => new Room(
-        name: json["roomName"],
-        id: json["roomId"],
+  factory Room.fromRawJson(String str) => Room.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "roomName": name,
-        "roomId": id,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
