@@ -118,7 +118,8 @@ class MobileNkustParser {
   }
 
   static MidtermAlertsData midtermAlerts(rawHtml) {
-    final midtermAlertsData = MidtermAlertsData();
+    //TODO Implement Midterm Alerts Parser for mobile nkust
+    final midtermAlertsData = MidtermAlertsData(courses: []);
     return midtermAlertsData;
   }
 

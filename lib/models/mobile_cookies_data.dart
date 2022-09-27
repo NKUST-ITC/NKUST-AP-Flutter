@@ -9,10 +9,10 @@ part 'mobile_cookies_data.g.dart';
 @JsonSerializable()
 class MobileCookiesData {
   MobileCookiesData({
-    this.cookies,
+    required this.cookies,
   });
 
-  List<MobileCookies>? cookies;
+  final List<MobileCookies> cookies;
 
   MobileCookiesData copyWith({
     List<MobileCookies>? cookies,
@@ -52,16 +52,16 @@ class MobileCookiesData {
 @JsonSerializable()
 class MobileCookies {
   MobileCookies({
-    this.path,
-    this.name,
-    this.value,
-    this.domain,
+    required this.path,
+    required this.name,
+    required this.value,
+    required this.domain,
   });
 
-  String? path;
-  String? name;
-  String? value;
-  String? domain;
+  String path;
+  String name;
+  String value;
+  String domain;
 
   MobileCookies copyWith({
     String? path,

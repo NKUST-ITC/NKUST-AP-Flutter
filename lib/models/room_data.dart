@@ -10,10 +10,10 @@ part 'room_data.g.dart';
 
 @JsonSerializable()
 class RoomData {
-  List<Room>? data;
+  final List<Room> data;
 
   RoomData({
-    this.data,
+    required this.data,
   });
 
   factory RoomData.fromJson(Map<String, dynamic> json) =>
@@ -31,13 +31,13 @@ class RoomData {
 @JsonSerializable()
 class Room {
   @JsonKey(name: 'roomName')
-  String? name;
+  String name;
   @JsonKey(name: 'roomId')
-  String? id;
+  String id;
 
   Room({
-    this.name,
-    this.id,
+    required this.name,
+    required this.id,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) => _$RoomFromJson(json);

@@ -88,11 +88,11 @@ class LeaveHelper {
   void setCookieFromData(MobileCookiesData data) {
     if (data != null) {
       cookiesData = data;
-      data.cookies?.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name!, element.value!);
+      data.cookies.forEach((element) {
+        Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
         cookieJar.saveFromResponse(
-          Uri.parse(element.path!),
+          Uri.parse(element.path),
           [_tempCookie],
         );
       });

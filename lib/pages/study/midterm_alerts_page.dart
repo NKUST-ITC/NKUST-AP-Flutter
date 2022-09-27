@@ -163,9 +163,9 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       case _State.finish:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _midtermAlertsItem(midtermAlertData.courses![index]);
+            return _midtermAlertsItem(midtermAlertData.courses[index]);
           },
-          itemCount: midtermAlertData.courses!.length,
+          itemCount: midtermAlertData.courses.length,
         );
     }
   }
@@ -181,7 +181,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(
-            item.title!,
+            item.title,
             style: TextStyle(fontSize: 18.0),
           ),
           subtitle: Padding(
@@ -217,7 +217,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           if (mounted)
             setState(() {
               midtermAlertData = data;
-              if (data == null || data.courses!.length == 0)
+              if (data == null || data.courses.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;

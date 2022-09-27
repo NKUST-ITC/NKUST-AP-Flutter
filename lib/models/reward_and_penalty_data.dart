@@ -10,10 +10,10 @@ part 'reward_and_penalty_data.g.dart';
 
 @JsonSerializable()
 class RewardAndPenaltyData {
-  List<RewardAndPenalty>? data;
+  final List<RewardAndPenalty> data;
 
   RewardAndPenaltyData({
-    this.data,
+    required this.data,
   });
 
   factory RewardAndPenaltyData.fromJson(Map<String, dynamic> json) =>
@@ -31,16 +31,16 @@ class RewardAndPenaltyData {
 
 @JsonSerializable()
 class RewardAndPenalty {
-  String? date;
-  String? type;
-  String? counts;
-  String? reason;
+  String date;
+  String type;
+  String counts;
+  String reason;
 
   RewardAndPenalty({
-    this.date,
-    this.type,
-    this.counts,
-    this.reason,
+    required this.date,
+    required this.type,
+    required this.counts,
+    required this.reason,
   });
 
   get isReward {

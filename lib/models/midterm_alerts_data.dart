@@ -10,10 +10,10 @@ part 'midterm_alerts_data.g.dart';
 
 @JsonSerializable()
 class MidtermAlertsData {
-  List<MidtermAlerts>? courses;
+  final List<MidtermAlerts> courses;
 
   MidtermAlertsData({
-    this.courses,
+    required this.courses,
   });
 
   factory MidtermAlertsData.fromJson(Map<String, dynamic> json) =>
@@ -31,20 +31,20 @@ class MidtermAlertsData {
 
 @JsonSerializable()
 class MidtermAlerts {
-  String? entry;
-  String? className;
-  String? title;
-  String? group;
-  String? instructors;
+  String entry;
+  String className;
+  String title;
+  String group;
+  String instructors;
   String? reason;
   String? remark;
 
   MidtermAlerts({
-    this.entry,
-    this.className,
-    this.title,
-    this.group,
-    this.instructors,
+    required this.entry,
+    required this.className,
+    required this.title,
+    required this.group,
+    required this.instructors,
     this.reason,
     this.remark,
   });

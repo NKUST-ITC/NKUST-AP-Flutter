@@ -8,23 +8,23 @@ part of 'midterm_alerts_data.dart';
 
 MidtermAlertsData _$MidtermAlertsDataFromJson(Map<String, dynamic> json) =>
     MidtermAlertsData(
-      courses: (json['courses'] as List<dynamic>?)
-          ?.map((e) => MidtermAlerts.fromJson(e as Map<String, dynamic>))
+      courses: (json['courses'] as List<dynamic>)
+          .map((e) => MidtermAlerts.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$MidtermAlertsDataToJson(MidtermAlertsData instance) =>
     <String, dynamic>{
-      'courses': instance.courses?.map((e) => e.toJson()).toList(),
+      'courses': instance.courses.map((e) => e.toJson()).toList(),
     };
 
 MidtermAlerts _$MidtermAlertsFromJson(Map<String, dynamic> json) =>
     MidtermAlerts(
-      entry: json['entry'] as String?,
-      className: json['className'] as String?,
-      title: json['title'] as String?,
-      group: json['group'] as String?,
-      instructors: json['instructors'] as String?,
+      entry: json['entry'] as String,
+      className: json['className'] as String,
+      title: json['title'] as String,
+      group: json['group'] as String,
+      instructors: json['instructors'] as String,
       reason: json['reason'] as String?,
       remark: json['remark'] as String?,
     );
