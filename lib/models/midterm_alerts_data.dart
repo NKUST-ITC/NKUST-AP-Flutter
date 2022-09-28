@@ -4,71 +4,59 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'midterm_alerts_data.g.dart';
+
+@JsonSerializable()
 class MidtermAlertsData {
-  List<MidtermAlerts>? courses;
+  final List<MidtermAlerts> courses;
 
   MidtermAlertsData({
-    this.courses,
+    required this.courses,
   });
 
-  factory MidtermAlertsData.fromRawJson(String str) =>
-      MidtermAlertsData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory MidtermAlertsData.fromJson(Map<String, dynamic> json) =>
-      new MidtermAlertsData(
-        courses: new List<MidtermAlerts>.from(
-            json["courses"].map((x) => MidtermAlerts.fromJson(x))),
+      _$MidtermAlertsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MidtermAlertsDataToJson(this);
+
+  factory MidtermAlertsData.fromRawJson(String str) =>
+      MidtermAlertsData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "courses": new List<dynamic>.from(courses!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class MidtermAlerts {
-  String? entry;
-  String? className;
-  String? title;
-  String? group;
-  String? instructors;
+  String entry;
+  String className;
+  String title;
+  String group;
+  String instructors;
   String? reason;
   String? remark;
 
   MidtermAlerts({
-    this.entry,
-    this.className,
-    this.title,
-    this.group,
-    this.instructors,
+    required this.entry,
+    required this.className,
+    required this.title,
+    required this.group,
+    required this.instructors,
     this.reason,
     this.remark,
   });
 
-  factory MidtermAlerts.fromRawJson(String str) =>
-      MidtermAlerts.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory MidtermAlerts.fromJson(Map<String, dynamic> json) =>
-      new MidtermAlerts(
-        entry: json["entry"],
-        className: json["className"],
-        title: json["title"],
-        group: json["group"],
-        instructors: json["instructors"],
-        reason: json["reason"],
-        remark: json["remark"],
+      _$MidtermAlertsFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MidtermAlertsToJson(this);
+
+  factory MidtermAlerts.fromRawJson(String str) => MidtermAlerts.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "entry": entry,
-        "className": className,
-        "title": title,
-        "group": group,
-        "instructors": instructors,
-        "reason": reason,
-        "remark": remark,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

@@ -16,6 +16,7 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error, empty }
+
 enum _Type { campus, department, teacher }
 
 class PickTutorPage extends StatefulWidget {
@@ -73,9 +74,9 @@ class _PickTutorPageState extends State<PickTutorPage> {
           ),
         );
       default:
-        var campus = leavesCampusData!.data![campusIndex];
-        var department = campus.department![departmentIndex];
-        var teacher = department.teacherList![teacherIndex];
+        var campus = leavesCampusData!.data[campusIndex];
+        var department = campus.department[departmentIndex];
+        var teacher = department.teacherList[teacherIndex];
         return ListView(
           children: <Widget>[
             SizedBox(height: 16.0),
@@ -87,7 +88,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.campus,
                   campusIndex,
-                  leavesCampusData!.data!.map(
+                  leavesCampusData!.data.map(
                     (item) {
                       return item.campusName;
                     },
@@ -109,7 +110,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.department,
                   departmentIndex,
-                  campus.department!.map(
+                  campus.department.map(
                     (item) {
                       return item.departmentName;
                     },
@@ -131,7 +132,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 pickItem(
                   _Type.teacher,
                   teacherIndex,
-                  department.teacherList!.map(
+                  department.teacherList.map(
                     (item) {
                       return item.name;
                     },

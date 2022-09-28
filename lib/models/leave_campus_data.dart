@@ -4,94 +4,98 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'leave_campus_data.g.dart';
+
+@JsonSerializable()
 class LeavesCampusData {
-  List<LeavesCampus>? data;
+  final List<LeavesCampus> data;
 
   LeavesCampusData({
-    this.data,
+    required this.data,
   });
 
-  factory LeavesCampusData.fromRawJson(String str) => LeavesCampusData.fromJson(json.decode(str));
+  factory LeavesCampusData.fromJson(Map<String, dynamic> json) =>
+      _$LeavesCampusDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeavesCampusDataToJson(this);
 
-  factory LeavesCampusData.fromJson(Map<String, dynamic> json) => LeavesCampusData(
-    data: json["data"] == null ? null : List<LeavesCampus>.from(json["data"].map((x) => LeavesCampus.fromJson(x))),
-  );
+  factory LeavesCampusData.fromRawJson(String str) => LeavesCampusData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "data": data == null ? null : List<dynamic>.from(data!.map((x) => x.toJson())),
-  };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class LeavesCampus {
-  String? campusName;
-  List<LeavesDepartment>? department;
+  String campusName;
+  List<LeavesDepartment> department;
 
   LeavesCampus({
-    this.campusName,
-    this.department,
+    required this.campusName,
+    required this.department,
   });
 
-  factory LeavesCampus.fromRawJson(String str) => LeavesCampus.fromJson(json.decode(str));
+  factory LeavesCampus.fromJson(Map<String, dynamic> json) =>
+      _$LeavesCampusFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeavesCampusToJson(this);
 
-  factory LeavesCampus.fromJson(Map<String, dynamic> json) => LeavesCampus(
-    campusName: json["campusName"] == null ? null : json["campusName"],
-    department: json["department"] == null ? null : List<LeavesDepartment>.from(json["department"].map((x) => LeavesDepartment.fromJson(x))),
-  );
+  factory LeavesCampus.fromRawJson(String str) => LeavesCampus.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "campusName": campusName == null ? null : campusName,
-    "department": department == null ? null : List<dynamic>.from(department!.map((x) => x.toJson())),
-  };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class LeavesDepartment {
-  String? departmentName;
-  List<LeavesTeacher>? teacherList;
+  String departmentName;
+  List<LeavesTeacher> teacherList;
 
   LeavesDepartment({
-    this.departmentName,
-    this.teacherList,
+    required this.departmentName,
+    required this.teacherList,
   });
 
-  factory LeavesDepartment.fromRawJson(String str) => LeavesDepartment.fromJson(json.decode(str));
+  factory LeavesDepartment.fromJson(Map<String, dynamic> json) =>
+      _$LeavesDepartmentFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeavesDepartmentToJson(this);
 
-  factory LeavesDepartment.fromJson(Map<String, dynamic> json) => LeavesDepartment(
-    departmentName: json["departmentName"] == null ? null : json["departmentName"],
-    teacherList: json["teacherList"] == null ? null : List<LeavesTeacher>.from(json["teacherList"].map((x) => LeavesTeacher.fromJson(x))),
-  );
+  factory LeavesDepartment.fromRawJson(String str) => LeavesDepartment.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "departmentName": departmentName == null ? null : departmentName,
-    "teacherList": teacherList == null ? null : List<dynamic>.from(teacherList!.map((x) => x.toJson())),
-  };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class LeavesTeacher {
-  String? name;
-  String? id;
+  @JsonKey(name: 'teacherName')
+  String name;
+  @JsonKey(name: 'teacherId')
+  String id;
 
   LeavesTeacher({
-    this.name,
-    this.id,
+    required this.name,
+    required this.id,
   });
 
-  factory LeavesTeacher.fromRawJson(String str) => LeavesTeacher.fromJson(json.decode(str));
+  factory LeavesTeacher.fromRawJson(String str) =>
+      LeavesTeacher.fromJson(json.decode(str));
 
   String toRawJson() => json.encode(toJson());
 
   factory LeavesTeacher.fromJson(Map<String, dynamic> json) => LeavesTeacher(
-    name: json["teacherName"] == null ? null : json["teacherName"],
-    id: json["teacherId"] == null ? null : json["teacherId"],
-  );
+        name: json["teacherName"] == null ? null : json["teacherName"],
+        id: json["teacherId"] == null ? null : json["teacherId"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "teacherName": name == null ? null : name,
-    "teacherId": id == null ? null : id,
-  };
+        "teacherName": name == null ? null : name,
+        "teacherId": id == null ? null : id,
+      };
 }

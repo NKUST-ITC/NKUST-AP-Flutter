@@ -1,34 +1,32 @@
 import 'dart:convert';
 
 import 'package:ap_common/utils/preferences.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+part 'leave_data.g.dart';
+
+@JsonSerializable()
 class LeaveData {
-  List<Leave>? leaves;
-  List<String>? timeCodes;
+  @JsonKey(name: 'data')
+  List<Leave> leaves;
+  List<String> timeCodes;
 
   LeaveData({
-    this.leaves,
-    this.timeCodes,
+    required this.leaves,
+    required this.timeCodes,
   });
 
-  factory LeaveData.fromRawJson(String str) =>
-      LeaveData.fromJson(json.decode(str));
+  factory LeaveData.fromJson(Map<String, dynamic> json) =>
+      _$LeaveDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeaveDataToJson(this);
 
-  factory LeaveData.fromJson(Map<String, dynamic> json) => new LeaveData(
-        leaves:
-            new List<Leave>.from(json["data"].map((x) => Leave.fromJson(x))),
-        timeCodes: json["timeCodes"] == null
-            ? null
-            : new List<String>.from(json["timeCodes"].map((x) => x)),
+  factory LeaveData.fromRawJson(String str) => LeaveData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(leaves!.map((x) => x.toJson())),
-        "timeCodes": new List<dynamic>.from(timeCodes!.map((x) => x)),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static LeaveData sample() {
     return LeaveData.fromRawJson(
@@ -54,69 +52,62 @@ class LeaveData {
   }
 }
 
+@JsonSerializable()
 class Leave {
-  String? leaveSheetId;
-  String? date;
-  String? instructorsComment;
-  List<LeaveSections>? leaveSections;
+  String leaveSheetId;
+  String date;
+  String instructorsComment;
+  @JsonKey(name: 'sections')
+  List<LeaveSections> leaveSections;
 
-  Leave(
-      {this.leaveSheetId,
-      this.date,
-      this.instructorsComment,
-      this.leaveSections});
+  Leave({
+    required this.leaveSheetId,
+    required this.date,
+    required this.instructorsComment,
+    required this.leaveSections,
+  });
 
-  factory Leave.fromRawJson(String str) => Leave.fromJson(json.decode(str));
+  String get dateText => date.length == 7
+      ? "${date.substring(3, 5)}/${date.substring(5, 7)}"
+      : date;
 
-  String get dateText =>
-      (date!.length == 7
-          ? "${date!.substring(3, 5)}/${date!.substring(5, 7)}"
-          : date) ??
-      "";
+  factory Leave.fromJson(Map<String, dynamic> json) => _$LeaveFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeaveToJson(this);
 
-  factory Leave.fromJson(Map<String, dynamic> json) => new Leave(
-        leaveSheetId: json["leaveSheetId"],
-        date: json["date"],
-        instructorsComment: json["instructorsComment"],
-        leaveSections: new List<LeaveSections>.from(
-            json["sections"].map((x) => LeaveSections.fromJson(x))),
+  factory Leave.fromRawJson(String str) => Leave.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "leaveSheetId": leaveSheetId,
-        "date": date,
-        "instructorsComment": instructorsComment,
-        "sections":
-            new List<dynamic>.from(leaveSections!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
-  String? getReason(String timeCode) {
-    if (leaveSections == null) return "";
-    if (leaveSections!.length == 0) return "";
-    for (var leaveSection in leaveSections!) {
+  String getReason(String timeCode) {
+    if (leaveSections.isEmpty) return "";
+    for (var leaveSection in leaveSections) {
       if (leaveSection.section == timeCode) return leaveSection.reason;
     }
     return "";
   }
 }
 
+@JsonSerializable()
 class LeaveSections {
-  String? section;
-  String? reason;
+  String section;
+  String reason;
 
-  LeaveSections({this.section, this.reason});
+  LeaveSections({
+    required this.section,
+    required this.reason,
+  });
 
-  LeaveSections.fromJson(Map<String, dynamic> json) {
-    section = json['section'];
-    reason = json['reason'];
-  }
+  factory LeaveSections.fromJson(Map<String, dynamic> json) =>
+      _$LeaveSectionsFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['section'] = this.section;
-    data['reason'] = this.reason;
-    return data;
-  }
+  Map<String, dynamic> toJson() => _$LeaveSectionsToJson(this);
+
+  factory LeaveSections.fromRawJson(String str) => LeaveSections.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
+
+  String toRawJson() => jsonEncode(toJson());
 }

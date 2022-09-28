@@ -1,14 +1,18 @@
 import 'dart:convert';
 
 import 'package:ap_common/utils/preferences.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+part 'mobile_cookies_data.g.dart';
+
+@JsonSerializable()
 class MobileCookiesData {
   MobileCookiesData({
-    this.cookies,
+    required this.cookies,
   });
 
-  List<MobileCookies>? cookies;
+  final List<MobileCookies> cookies;
 
   MobileCookiesData copyWith({
     List<MobileCookies>? cookies,
@@ -17,24 +21,17 @@ class MobileCookiesData {
         cookies: cookies ?? this.cookies,
       );
 
-  factory MobileCookiesData.fromRawJson(String str) =>
-      MobileCookiesData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory MobileCookiesData.fromJson(Map<String, dynamic> json) =>
-      MobileCookiesData(
-        cookies: json["cookies"] == null
-            ? null
-            : List<MobileCookies>.from(
-                json["cookies"].map((x) => MobileCookies.fromJson(x))),
+      _$MobileCookiesDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MobileCookiesDataToJson(this);
+
+  factory MobileCookiesData.fromRawJson(String str) =>
+      MobileCookiesData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "cookies": cookies == null
-            ? null
-            : List<dynamic>.from(cookies!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   Future<void> save() async {
     await Preferences.setStringSecurity(
@@ -52,18 +49,19 @@ class MobileCookiesData {
   }
 }
 
+@JsonSerializable()
 class MobileCookies {
   MobileCookies({
-    this.path,
-    this.name,
-    this.value,
-    this.domain,
+    required this.path,
+    required this.name,
+    required this.value,
+    required this.domain,
   });
 
-  String? path;
-  String? name;
-  String? value;
-  String? domain;
+  String path;
+  String name;
+  String value;
+  String domain;
 
   MobileCookies copyWith({
     String? path,
@@ -78,22 +76,14 @@ class MobileCookies {
         domain: domain ?? this.domain,
       );
 
-  factory MobileCookies.fromRawJson(String str) =>
-      MobileCookies.fromJson(json.decode(str));
+  factory MobileCookies.fromJson(Map<String, dynamic> json) =>
+      _$MobileCookiesFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$MobileCookiesToJson(this);
 
-  factory MobileCookies.fromJson(Map<String, dynamic> json) => MobileCookies(
-        path: json["path"] == null ? null : json["path"],
-        name: json["name"] == null ? null : json["name"],
-        value: json["value"] == null ? null : json["value"],
-        domain: json["domain"] == null ? null : json["domain"],
+  factory MobileCookies.fromRawJson(String str) => MobileCookies.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "path": path == null ? null : path,
-        "name": name == null ? null : name,
-        "value": value == null ? null : value,
-        "domain": domain == null ? null : domain,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

@@ -156,10 +156,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                             shrinkWrap: true,
                             controller: ScrollController(
                                 initialScrollOffset: typeIndex * 40.0),
-                            itemCount: leaveSubmitInfo.type!.length,
+                            itemCount: leaveSubmitInfo.type.length,
                             itemBuilder: (BuildContext context, int index) {
                               return DialogOption(
-                                text: leaveSubmitInfo.type![index].title!,
+                                text: leaveSubmitInfo.type[index].title,
                                 check: typeIndex == index,
                                 onPressed: () {
                                   setState(() {
@@ -199,7 +199,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     style: TextStyle(fontSize: 20),
                   ),
                   subtitle: Text(
-                    leaveSubmitInfo.type![typeIndex].title ?? '',
+                    leaveSubmitInfo.type[typeIndex].title,
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
@@ -241,7 +241,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                             leaveModels.add(
                               LeaveModel(
                                 dateTime,
-                                leaveSubmitInfo.timeCodes!.length,
+                                leaveSubmitInfo.timeCodes.length,
                               ),
                             );
                           }
@@ -328,7 +328,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                         ),
                                         alignment: Alignment.center,
                                         child: Text(
-                                          '${leaveSubmitInfo.timeCodes![sectionIndex]}',
+                                          '${leaveSubmitInfo.timeCodes[sectionIndex]}',
                                           style: TextStyle(
                                             color: leaveModels[index]
                                                     .selected[sectionIndex]
@@ -348,7 +348,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                       },
                                     );
                                   },
-                                  itemCount: leaveSubmitInfo.timeCodes!.length,
+                                  itemCount: leaveSubmitInfo.timeCodes.length,
                                 ),
                               ),
                             ],
@@ -648,7 +648,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       for (var i = 0; i < leaveModel.selected.length; i++) {
         if (leaveModel.selected[i]) {
           isNotEmpty = true;
-          sections.add(leaveSubmitInfo.timeCodes![i]);
+          sections.add(leaveSubmitInfo.timeCodes[i]);
         }
       }
       if (isNotEmpty) {
@@ -666,7 +666,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ApUtils.showToast(context, ap.pickTeacher);
     } else if (_formKey.currentState!.validate()) {
       //TODO submit summary
-      String? tutorId, tutorName;
+      String tutorId, tutorName;
       if (leaveSubmitInfo.tutor == null) {
         tutorId = teacher!.id;
         tutorName = teacher!.name;
@@ -676,7 +676,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       }
       var data = LeaveSubmitData(
         days: days,
-        leaveTypeId: leaveSubmitInfo.type![typeIndex].id,
+        leaveTypeId: leaveSubmitInfo.type[typeIndex].id,
         teacherId: tutorId,
         reasonText: _reason.text,
         delayReasonText: isDelay ? (_delayReason.text) : '',
@@ -711,8 +711,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         TextSpan(
-                            text:
-                                '${leaveSubmitInfo.type![typeIndex].title}\n'),
+                            text: '${leaveSubmitInfo.type[typeIndex].title}\n'),
                         TextSpan(
                           text: '${ap.tutor}：',
                           style: TextStyle(fontWeight: FontWeight.bold),

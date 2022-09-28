@@ -118,7 +118,8 @@ class MobileNkustParser {
   }
 
   static MidtermAlertsData midtermAlerts(rawHtml) {
-    final midtermAlertsData = MidtermAlertsData();
+    //TODO Implement Midterm Alerts Parser for mobile nkust
+    final midtermAlertsData = MidtermAlertsData(courses: []);
     return midtermAlertsData;
   }
 
@@ -181,7 +182,8 @@ class MobileNkustParser {
 
       var format = DateFormat('yyyy/MM/dd HH:mm');
 
-      _temp['departureTime'] = format.parse('$time ${tdElements[0].text}');
+      _temp['departureTime'] =
+          format.parse('$time ${tdElements[0].text}').toIso8601String();
       _temp['reserveCount'] = int.parse(tdElements[1].text);
       _temp['homeCharteredBus'] = false;
       _temp['specialTrain'] = '';

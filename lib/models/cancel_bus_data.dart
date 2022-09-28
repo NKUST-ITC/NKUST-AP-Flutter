@@ -1,22 +1,25 @@
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'cancel_bus_data.g.dart';
+
+@JsonSerializable()
 class CancelBusData {
-  bool? success;
+  final bool success;
 
   CancelBusData({
-    this.success,
+    required this.success,
   });
 
-  factory CancelBusData.fromRawJson(String str) =>
-      CancelBusData.fromJson(json.decode(str));
+  factory CancelBusData.fromJson(Map<String, dynamic> json) =>
+      _$CancelBusDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$CancelBusDataToJson(this);
 
-  factory CancelBusData.fromJson(Map<String, dynamic> json) => CancelBusData(
-        success: json["success"] == null ? null : json["success"],
+  factory CancelBusData.fromRawJson(String str) => CancelBusData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "success": success == null ? null : success,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

@@ -88,19 +88,19 @@ class _RoomListPageState extends State<RoomListPage> {
         return ListView.builder(
           itemBuilder: (context, index) {
             return ListTile(
-              title: Text(roomData!.data![index].name!),
+              title: Text(roomData!.data[index].name),
               onTap: () {
                 roomIndex = index;
                 ApUtils.pushCupertinoStyle(
                   context,
                   EmptyRoomPage(
-                    room: roomData!.data![roomIndex],
+                    room: roomData!.data[roomIndex],
                   ),
                 );
               },
             );
           },
-          itemCount: roomData!.data!.length,
+          itemCount: roomData!.data.length,
         );
       case _State.custom:
       default:

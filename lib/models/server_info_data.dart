@@ -4,58 +4,52 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'server_info_data.g.dart';
+
+@JsonSerializable()
 class ServerInfoData {
-  String? date;
-  List<ServerInfo>? data;
+  String date;
+  List<ServerInfo> data;
 
   ServerInfoData({
-    this.date,
-    this.data,
+    required this.date,
+    required this.data,
   });
-
-  factory ServerInfoData.fromRawJson(String str) =>
-      ServerInfoData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
 
   factory ServerInfoData.fromJson(Map<String, dynamic> json) =>
-      new ServerInfoData(
-        date: json["date"],
-        data: new List<ServerInfo>.from(
-            json["data"].map((x) => ServerInfo.fromJson(x))),
+      _$ServerInfoDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ServerInfoDataToJson(this);
+
+  factory ServerInfoData.fromRawJson(String str) => ServerInfoData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "date": date,
-        "data": new List<dynamic>.from(data!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class ServerInfo {
-  String? service;
-  bool? isAlive;
-  String? description;
+  String service;
+  bool isAlive;
+  String description;
 
   ServerInfo({
-    this.service,
-    this.isAlive,
-    this.description,
+    required this.service,
+    required this.isAlive,
+    required this.description,
   });
 
-  factory ServerInfo.fromRawJson(String str) =>
-      ServerInfo.fromJson(json.decode(str));
+  factory ServerInfo.fromJson(Map<String, dynamic> json) =>
+      _$ServerInfoFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$ServerInfoToJson(this);
 
-  factory ServerInfo.fromJson(Map<String, dynamic> json) => new ServerInfo(
-        service: json["service"],
-        isAlive: json["isAlive"],
-        description: json["description"],
+  factory ServerInfo.fromRawJson(String str) => ServerInfo.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "service": service,
-        "isAlive": isAlive,
-        "description": description,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

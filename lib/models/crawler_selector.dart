@@ -1,22 +1,27 @@
 import 'dart:convert';
 
 import 'package:ap_common/utils/preferences.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
+part 'crawler_selector.g.dart';
+
+@JsonSerializable()
 class CrawlerSelector {
   CrawlerSelector({
-    this.login,
-    this.userInfo,
-    this.course,
-    this.score,
-    this.semester,
+    required this.login,
+    required this.userInfo,
+    required this.course,
+    required this.score,
+    required this.semester,
   });
 
-  String? login;
-  String? userInfo;
-  String? course;
-  String? score;
-  String? semester;
+  final String login;
+  @JsonKey(name: 'user_info')
+  final String userInfo;
+  final String course;
+  final String score;
+  final String semester;
 
   CrawlerSelector copyWith({
     String? login,
@@ -33,27 +38,16 @@ class CrawlerSelector {
         semester: semester ?? this.semester,
       );
 
-  factory CrawlerSelector.fromRawJson(String str) =>
-      CrawlerSelector.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory CrawlerSelector.fromJson(Map<String, dynamic> json) =>
-      CrawlerSelector(
-        login: json["login"] == null ? null : json["login"],
-        userInfo: json["user_info"] == null ? null : json["user_info"],
-        course: json["course"] == null ? null : json["course"],
-        score: json["score"] == null ? null : json["score"],
-        semester: json["semester"] == null ? null : json["semester"],
+      _$CrawlerSelectorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$CrawlerSelectorToJson(this);
+
+  factory CrawlerSelector.fromRawJson(String str) => CrawlerSelector.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "login": login == null ? null : login,
-        "user_info": userInfo == null ? null : userInfo,
-        "course": course == null ? null : course,
-        "score": score == null ? null : score,
-        "semester": semester == null ? null : semester,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   void save() {
     Preferences.setString(

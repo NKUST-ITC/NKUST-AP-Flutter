@@ -5,31 +5,33 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+part 'bus_reservations_data.g.dart';
+
+@JsonSerializable()
 class BusReservationsData {
-  List<BusReservation>? reservations;
+  @JsonKey(name: 'data')
+  List<BusReservation> reservations;
 
   BusReservationsData({
-    this.reservations,
+    required this.reservations,
   });
 
-  factory BusReservationsData.fromRawJson(String str) =>
-      BusReservationsData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory BusReservationsData.fromJson(Map<String, dynamic> json) =>
-      new BusReservationsData(
-        reservations: new List<BusReservation>.from(
-            json["data"].map((x) => BusReservation.fromJson(x))),
+      _$BusReservationsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BusReservationsDataToJson(this);
+
+  factory BusReservationsData.fromRawJson(String str) =>
+      BusReservationsData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": new List<dynamic>.from(reservations!.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static BusReservationsData sample() {
     return BusReservationsData.fromRawJson(
@@ -56,54 +58,37 @@ class BusReservationsData {
   }
 }
 
+@JsonSerializable()
 class BusReservation {
-  String? dateTime;
+  String dateTime;
   @deprecated
   String? endTime;
-  String? cancelKey;
-  String? start;
-  String? end;
-  String? state;
-  String? travelState;
+  String cancelKey;
+  String start;
+  String end;
+  String state;
+  String travelState;
 
   BusReservation({
-    this.dateTime,
-    this.endTime,
-    this.cancelKey,
-    this.start,
-    this.end,
-    this.state,
-    this.travelState,
+    required this.dateTime,
+    required this.endTime,
+    required this.cancelKey,
+    required this.start,
+    required this.end,
+    required this.state,
+    required this.travelState,
   });
 
-  factory BusReservation.fromRawJson(String str) =>
-      BusReservation.fromJson(json.decode(str));
+  factory BusReservation.fromJson(Map<String, dynamic> json) =>
+      _$BusReservationFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BusReservationToJson(this);
 
-  factory BusReservation.fromJson(Map<String, dynamic> json) {
-    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    return BusReservation(
-      dateTime: json["dateTime"] is DateTime
-          ? formatterDateTime.format(json["dateTime"])
-          : json["dateTime"],
-      endTime: json["endTime"],
-      cancelKey: json["cancelKey"],
-      start: json["start"],
-      end: json["end"],
-      state: json["state"],
-      travelState: json["travelState"],
-    );
-  }
+  factory BusReservation.fromRawJson(String str) => BusReservation.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-        "dateTime": dateTime,
-        "cancelKey": cancelKey,
-        "start": start,
-        "end": end,
-        "state": state,
-        "travelState": travelState,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static List<BusReservation> toList(List<dynamic> jsonArray) {
     List<BusReservation> list = [];
@@ -119,24 +104,24 @@ class BusReservation {
     initializeDateFormatting();
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = DateFormat('yyyy/MM/dd');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime!));
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   String getTime() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = new DateFormat('HH:mm');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime!));
+    return formatterTime.format(formatterDateTime.parse(this.dateTime));
   }
 
   DateTime getDateTime() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    return formatterDateTime.parse(this.dateTime!);
+    return formatterDateTime.parse(this.dateTime);
   }
 
   String getDateTimeStr() {
     final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
     var formatterTime = new DateFormat('yyyy/MM/dd HH:mm');
-    final s = formatterDateTime.parse(this.dateTime!);
+    final s = formatterDateTime.parse(this.dateTime);
     return formatterTime.format(s);
   }
 

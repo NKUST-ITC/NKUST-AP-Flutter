@@ -7,6 +7,7 @@ import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:nkust_ap/api/helper.dart';
 
 class WebApParser {
   static WebApParser? _instance;
@@ -97,6 +98,7 @@ class WebApParser {
     var tdElements = document.getElementsByTagName("td");
     if (tdElements.length < 15) {
       // parse data error.
+      data['id'] = Helper.username;
       return data;
     }
     try {

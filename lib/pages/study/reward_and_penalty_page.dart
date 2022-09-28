@@ -162,9 +162,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       case _State.finish:
         return ListView.builder(
           itemBuilder: (_, index) {
-            return _midtermAlertsItem(rewardAndPenaltyData.data![index]);
+            return _midtermAlertsItem(rewardAndPenaltyData.data[index]);
           },
-          itemCount: rewardAndPenaltyData.data!.length,
+          itemCount: rewardAndPenaltyData.data.length,
         );
     }
   }
@@ -180,7 +180,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
           title: Text(
-            item.reason!,
+            item.reason,
             style: TextStyle(fontSize: 18.0),
           ),
           trailing: Text(
@@ -196,8 +196,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
               sprintf(
                 ap.rewardAndPenaltyContent,
                 [
-                  item.counts ?? '',
-                  item.date ?? '',
+                  item.counts,
+                  item.date,
                 ],
               ),
             ),
@@ -223,7 +223,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
           if (mounted)
             setState(() {
               rewardAndPenaltyData = data;
-              if (data == null || data.data!.length == 0)
+              if (data == null || data.data.length == 0)
                 state = _State.empty;
               else
                 state = _State.finish;

@@ -120,11 +120,11 @@ class MobileNkustHelper {
 
   void setCookieFromData(MobileCookiesData data) {
     cookiesData = data;
-    data.cookies?.forEach((element) {
-      Cookie _tempCookie = Cookie(element.name!, element.value!);
+    data.cookies.forEach((element) {
+      Cookie _tempCookie = Cookie(element.name, element.value);
       _tempCookie.domain = element.domain;
       cookieJar.saveFromResponse(
-        Uri.parse(element.path!),
+        Uri.parse(element.path),
         [_tempCookie],
       );
     });
@@ -403,20 +403,15 @@ class MobileNkustHelper {
     );
 
     Map<String, dynamic>? data;
-    BookingBusData status = BookingBusData();
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data!['success'] && data['title'] == "預約成功") {
-      status.success = true;
-    } else {
-      status.success = false;
-    }
-
-    return status;
+    return BookingBusData(
+      success: data!['success'] && data['title'] == "預約成功",
+    );
   }
 
   Future<CancelBusData> busUnBook({
@@ -431,19 +426,13 @@ class MobileNkustHelper {
     );
 
     Map<String, dynamic>? data;
-    CancelBusData status = CancelBusData();
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
       data = jsonDecode(request.data);
     } else if (request.data is Map<String, dynamic>) {
       data = request.data;
     }
-    if (data!['success'] && data['title'] == "取消成功") {
-      status.success = true;
-    } else {
-      status.success = false;
-    }
-    return status;
+    return CancelBusData(success: data!['success'] && data['title'] == "取消成功");
   }
 
   Future<BusReservationsData> busUserRecord() async {

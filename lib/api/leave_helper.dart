@@ -88,11 +88,11 @@ class LeaveHelper {
   void setCookieFromData(MobileCookiesData data) {
     if (data != null) {
       cookiesData = data;
-      data.cookies?.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name!, element.value!);
+      data.cookies.forEach((element) {
+        Cookie _tempCookie = Cookie(element.name, element.value);
         _tempCookie.domain = element.domain;
         cookieJar.saveFromResponse(
-          Uri.parse(element.path!),
+          Uri.parse(element.path),
           [_tempCookie],
         );
       });
@@ -293,8 +293,8 @@ class LeaveHelper {
 
     requestData = hiddenInputGet(res.data, removeTdElement: true);
     var dateFormate = DateFormat("yyyy/MM/dd");
-    var beginDate = dateFormate.parse(data.days![0].day!);
-    var endDate = dateFormate.parse(data.days![data.days!.length - 1].day!);
+    var beginDate = dateFormate.parse(data.days[0].day!);
+    var endDate = dateFormate.parse(data.days[data.days.length - 1].day!);
 
     requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
         "${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}";
@@ -342,7 +342,7 @@ class LeaveHelper {
     List<String?> _clickList = [];
     for (int i = 1; i < trObj.length; i++) {
       var td = trObj[i].getElementsByTagName("td");
-      var _leaveDays = data.days![i - 1].dayClass!;
+      var _leaveDays = data.days[i - 1].dayClass!;
       for (int l = 0; l < _leaveDays.length; l++) {
         _clickList.add(td[submitData!["timeCodes"].indexOf(_leaveDays[l]) + 3]
             .getElementsByTagName("input")[0]

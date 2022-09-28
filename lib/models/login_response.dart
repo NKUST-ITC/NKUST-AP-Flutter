@@ -1,32 +1,29 @@
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'login_response.g.dart';
+
+@JsonSerializable()
 class LoginResponse {
   DateTime? expireTime;
   String? token;
-  bool? isAdmin;
+  bool isAdmin;
 
   LoginResponse({
     this.expireTime,
     this.token,
-    this.isAdmin,
+    this.isAdmin = false,
   });
 
-  factory LoginResponse.fromRawJson(String str) =>
-      LoginResponse.fromJson(json.decode(str));
+  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
+      _$LoginResponseFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LoginResponseToJson(this);
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) => LoginResponse(
-        expireTime: json["expireTime"] == null
-            ? null
-            : DateTime.parse(json["expireTime"]),
-        token: json["token"] == null ? null : json["token"],
-        isAdmin: json["isAdmin"] == null ? null : json["isAdmin"],
+  factory LoginResponse.fromRawJson(String str) => LoginResponse.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "expireTime": expireTime == null ? null : expireTime!.toIso8601String(),
-        "token": token == null ? null : token,
-        "isAdmin": isAdmin == null ? null : isAdmin,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

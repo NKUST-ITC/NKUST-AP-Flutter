@@ -137,7 +137,7 @@ class SchedulePageState extends State<SchedulePage>
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
     List<Widget> events = [];
-    for (var i in schedule.events!) {
+    for (var i in schedule.events) {
       events.add(
         Container(
           alignment: Alignment.centerLeft,
@@ -163,7 +163,7 @@ class SchedulePageState extends State<SchedulePage>
             alignment: Alignment.centerLeft,
             padding: EdgeInsets.symmetric(horizontal: 12.0),
             child: Text(
-              schedule.week ?? "",
+              schedule.week,
               style: _textBlueStyle,
               textAlign: TextAlign.left,
             ),
@@ -190,7 +190,7 @@ class SchedulePageState extends State<SchedulePage>
                           children: [
                             TextSpan(
                               text: sprintf(ap.addCalendarContent,
-                                  [schedule.events![index]]),
+                                  [schedule.events[index]]),
                             ),
                           ]),
                     ),
@@ -198,9 +198,8 @@ class SchedulePageState extends State<SchedulePage>
                     rightActionText: ap.determine,
                     leftActionFunction: null,
                     rightActionFunction: () {
-                      if (schedule.events != null ||
-                          schedule.events!.length > 0)
-                        _addToCalendar(schedule.events![index]);
+                      if (schedule.events != null || schedule.events.length > 0)
+                        _addToCalendar(schedule.events[index]);
                       FirebaseAnalyticsUtils.instance
                           .logEvent('add_schedule_click');
                     },
@@ -216,14 +215,14 @@ class SchedulePageState extends State<SchedulePage>
                 ),
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  schedule.events![index],
+                  schedule.events[index],
                   style: _textStyle,
                   textAlign: TextAlign.left,
                 ),
               ),
             );
           },
-          childCount: schedule.events!.length,
+          childCount: schedule.events.length,
         ),
       ),
     ];

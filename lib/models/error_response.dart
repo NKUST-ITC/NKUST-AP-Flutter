@@ -4,26 +4,28 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'error_response.g.dart';
+
+@JsonSerializable()
 class ErrorResponse {
-  int? errorCode;
-  String? description;
+  final int errorCode;
+  final String description;
 
   ErrorResponse({
-    this.errorCode,
-    this.description,
+    required this.errorCode,
+    required this.description,
   });
 
-  factory ErrorResponse.fromRawJson(String str) => ErrorResponse.fromJson(json.decode(str));
+  factory ErrorResponse.fromJson(Map<String, dynamic> json) =>
+      _$ErrorResponseFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$ErrorResponseToJson(this);
 
-  factory ErrorResponse.fromJson(Map<String, dynamic> json) => ErrorResponse(
-    errorCode: json["errorCode"] == null ? null : json["errorCode"],
-    description: json["description"] == null ? null : json["description"],
-  );
+  factory ErrorResponse.fromRawJson(String str) => ErrorResponse.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
 
-  Map<String, dynamic> toJson() => {
-    "errorCode": errorCode == null ? null : errorCode,
-    "description": description == null ? null : description,
-  };
+  String toRawJson() => jsonEncode(toJson());
 }

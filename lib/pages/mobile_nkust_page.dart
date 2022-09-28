@@ -125,7 +125,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
     final data = MobileCookiesData(cookies: []);
     cookies.forEach(
       (element) {
-        data.cookies!.add(
+        data.cookies.add(
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,

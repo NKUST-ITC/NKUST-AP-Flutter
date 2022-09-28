@@ -94,8 +94,9 @@ Map<String, dynamic> inkustBusTimeTableParser(
 
   for (int i = 0; i < data.length; i++) {
     Map<String, dynamic> _temp = {
-      "endEnrollDateTime": DateTime.now(),
-      "departureTime": format.parse("$queryDate ${data[i]['driveTime']}"),
+      "endEnrollDateTime": DateTime.now().toIso8601String(),
+      "departureTime":
+          format.parse("$queryDate ${data[i]['driveTime']}").toIso8601String(),
       "startStation": data[i]['startStation'],
       "endStation": data[i]['endStation'],
       "busId": data[i]['busId'].toString(),
@@ -119,8 +120,8 @@ Map<String, dynamic> inkustBusTimeTableParser(
     if (_temp['SpecialTrain'] == "1") {
       _temp['homeCharteredBus'] = true;
     }
-    if (userRecords.reservations!.length > 0) {
-      userRecords.reservations!.forEach((element) {
+    if (userRecords.reservations.length > 0) {
+      userRecords.reservations.forEach((element) {
         if (element.dateTime == _temp['departureTime'] &&
             element.start == _temp['startStation']) {
           _temp["cancelKey"] = element.cancelKey.toString();
@@ -263,10 +264,10 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
   // continuous days check
   List<LeaveSubmitData> submitDataList = [];
   int _tempIndex = 0;
-  for (int i = 0; i < submitDatas.days!.length - 1; i++) {
+  for (int i = 0; i < submitDatas.days.length - 1; i++) {
     var dayDiff = dateFormat
-        .parse(submitDatas.days![i].day!)
-        .difference(dateFormat.parse(submitDatas.days![i + 1].day!));
+        .parse(submitDatas.days[i].day!)
+        .difference(dateFormat.parse(submitDatas.days[i + 1].day!));
     if (dayDiff < Duration(hours: -25)) {
       // Need split leave submit
       Map<String, dynamic> _splitSubmitData = submitDatas.toJson();
@@ -281,7 +282,7 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
     //add last submit data
     Map<String, dynamic> _splitSubmitData = submitDatas.toJson();
     _splitSubmitData['days'] =
-        _splitSubmitData['days'].getRange(_tempIndex, submitDatas.days!.length);
+        _splitSubmitData['days'].getRange(_tempIndex, submitDatas.days.length);
     submitDataList.add(LeaveSubmitData.fromJson(_splitSubmitData));
   }
   //check split days
@@ -296,9 +297,9 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
   List<Map<String, dynamic>> resultDataList = [];
 
   submitDataList.forEach((submitData) {
-    var _startDayParse = dateFormat.parse(submitData.days![0].day!);
+    var _startDayParse = dateFormat.parse(submitData.days[0].day!);
     var _endDayParse =
-        dateFormat.parse(submitData.days![submitData.days!.length - 1].day!);
+        dateFormat.parse(submitData.days[submitData.days.length - 1].day!);
     String startDays =
         "${_startDayParse.year - 1911}${_startDayParse.month.toString().padLeft(2, '0')}${_startDayParse.day.toString().padLeft(2, '0')}";
     String endDays =
@@ -317,7 +318,7 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
       "notifydate": "",
       "notifyperson": "",
       "notifyparentphone": "",
-      "day": submitData.days!.length,
+      "day": submitData.days.length,
       "detail": [],
       "filesubname": "",
       "file": ""
@@ -332,7 +333,7 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
       _tempMap[timeCode[i]] = "d$i";
     }
 
-    submitData.days!.forEach((element) {
+    submitData.days.forEach((element) {
       Map<String?, dynamic> _temp = {};
       _tempMap.forEach((key, value) {
         _temp[value] = "0";

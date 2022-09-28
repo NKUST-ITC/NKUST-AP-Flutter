@@ -173,7 +173,7 @@ class SettingPageState extends State<SettingPage> {
       callback: GeneralCallback(
         onSuccess: (BusReservationsData data) async {
           Navigator.of(context, rootNavigator: true).pop();
-          if (data.reservations!.isEmpty) {
+          if (data.reservations.isEmpty) {
             await Utils.setBusNotify(context, data.reservations);
             ApUtils.showToast(
                 context, AppLocalizations.of(context).busNotifyHint);

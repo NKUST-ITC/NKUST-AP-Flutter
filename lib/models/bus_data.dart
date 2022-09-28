@@ -4,39 +4,35 @@ import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
+part 'bus_data.g.dart';
+
+@JsonSerializable()
 class BusData {
-  bool? canReserve;
+  bool canReserve;
   String? description;
-  List<BusTime>? timetable;
+  @JsonKey(name: 'data')
+  List<BusTime> timetable;
 
   BusData({
-    this.canReserve,
+    required this.canReserve,
     this.description,
-    this.timetable,
+    required this.timetable,
   });
 
-  factory BusData.fromRawJson(String str) => BusData.fromJson(json.decode(str));
+  factory BusData.fromJson(Map<String, dynamic> json) =>
+      _$BusDataFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BusDataToJson(this);
 
-  factory BusData.fromJson(Map<String, dynamic> json) => BusData(
-        timetable: List<BusTime>.from(
-          json["data"].map(
-            (x) => BusTime.fromJson(x),
-          ),
-        ),
-        canReserve: json["canReserve"],
-        description: json["description"],
+  factory BusData.fromRawJson(String str) => BusData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": List<dynamic>.from(timetable!.map((x) => x.toJson())),
-        "canReserve": canReserve,
-        "description": description,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static BusData sample() {
     return BusData.fromRawJson(
@@ -44,35 +40,36 @@ class BusData {
   }
 }
 
+@JsonSerializable()
 class BusTime {
   @deprecated
   DateTime? endEnrollDateTime;
-  DateTime? departureTime;
-  String? startStation;
-  String? endStation;
-  String? busId;
-  int? reserveCount;
-  int? limitCount;
-  bool? isReserve;
+  DateTime departureTime;
+  String startStation;
+  String endStation;
+  String busId;
+  int reserveCount;
+  int limitCount;
+  bool isReserve;
   String? specialTrain;
   String? description;
   String? cancelKey;
-  bool? homeCharteredBus;
+  bool homeCharteredBus;
   bool? canBook;
 
   BusTime({
     this.endEnrollDateTime,
-    this.departureTime,
-    this.startStation,
-    this.endStation,
-    this.busId,
-    this.reserveCount,
-    this.limitCount,
-    this.isReserve,
+    required this.departureTime,
+    required this.startStation,
+    required this.endStation,
+    required this.busId,
+    required this.reserveCount,
+    required this.limitCount,
+    required this.isReserve,
     this.specialTrain,
     this.description,
     this.cancelKey,
-    this.homeCharteredBus,
+    required this.homeCharteredBus,
     this.canBook,
   });
 
@@ -101,40 +98,16 @@ class BusTime {
     return list;
   }
 
-  factory BusTime.fromRawJson(String str) => BusTime.fromJson(json.decode(str));
+  factory BusTime.fromJson(Map<String, dynamic> json) =>
+      _$BusTimeFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$BusTimeToJson(this);
 
-  factory BusTime.fromJson(Map<String, dynamic> json) => BusTime(
-        endEnrollDateTime: json["endEnrollDateTime"],
-        departureTime: json["departureTime"],
-        startStation: json["startStation"],
-        endStation: json["endStation"],
-        busId: json["busId"],
-        reserveCount: json["reserveCount"],
-        limitCount: json["limitCount"],
-        isReserve: json["isReserve"],
-        specialTrain: json["specialTrain"],
-        description: json["description"],
-        cancelKey: json["cancelKey"],
-        homeCharteredBus: json["homeCharteredBus"],
-        canBook: json['canBook'],
+  factory BusTime.fromRawJson(String str) => BusTime.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "departureTime": departureTime,
-        "startStation": startStation,
-        "endStation": endStation,
-        "busId": busId,
-        "reserveCount": reserveCount,
-        "limitCount": limitCount,
-        "isReserve": isReserve,
-        "specialTrain": specialTrain,
-        "description": description,
-        "cancelKey": cancelKey,
-        "homeCharteredBus": homeCharteredBus,
-        "canBook": canBook,
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   bool canReserve() {
     return canBook ?? true;
@@ -148,7 +121,7 @@ class BusTime {
   }
 
   Color getColorState(BuildContext context) {
-    return isReserve!
+    return isReserve
         ? ApTheme.of(context).blueAccent
         : canReserve()
             ? ApTheme.of(context).grey
@@ -156,7 +129,7 @@ class BusTime {
   }
 
   String getReserveState(AppLocalizations? local) {
-    return isReserve!
+    return isReserve
         ? local!.reserved
         : canReserve()
             ? local!.reserve
@@ -166,13 +139,13 @@ class BusTime {
   String getDate() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('yyyy-MM-dd');
-    return formatterTime.format(this.departureTime!);
+    return formatterTime.format(this.departureTime);
   }
 
   String getTime() {
     initializeDateFormatting();
     var formatterTime = new DateFormat('HH:mm', 'zh');
-    return formatterTime.format(this.departureTime!);
+    return formatterTime.format(this.departureTime);
   }
 
   String? getStart(AppLocalizations? local) {

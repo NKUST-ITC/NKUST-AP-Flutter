@@ -4,26 +4,28 @@
 
 import 'dart:convert';
 
+import 'package:json_annotation/json_annotation.dart';
+
+part 'library_info_data.g.dart';
+
+@JsonSerializable()
 class LibraryInfoData {
-  LibraryInfo? data;
+  final LibraryInfo data;
 
   LibraryInfoData({
-    this.data,
+    required this.data,
   });
 
-  factory LibraryInfoData.fromRawJson(String str) =>
-      LibraryInfoData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory LibraryInfoData.fromJson(Map<String, dynamic> json) =>
-      new LibraryInfoData(
-        data: LibraryInfo.fromJson(json["data"]),
+      _$LibraryInfoDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LibraryInfoDataToJson(this);
+
+  factory LibraryInfoData.fromRawJson(String str) => LibraryInfoData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "data": data!.toJson(),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   static LibraryInfoData sample() {
     return LibraryInfoData.fromRawJson(
@@ -31,63 +33,52 @@ class LibraryInfoData {
   }
 }
 
+@JsonSerializable()
 class LibraryInfo {
-  String? department;
-  String? libraryId;
-  String? name;
-  Record? record;
+  String department;
+  String libraryId;
+  String name;
+  Record record;
 
   LibraryInfo({
-    this.department,
-    this.libraryId,
-    this.name,
-    this.record,
+    required this.department,
+    required this.libraryId,
+    required this.name,
+    required this.record,
   });
 
-  factory LibraryInfo.fromRawJson(String str) =>
-      LibraryInfo.fromJson(json.decode(str));
+  factory LibraryInfo.fromJson(Map<String, dynamic> json) =>
+      _$LibraryInfoFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LibraryInfoToJson(this);
 
-  factory LibraryInfo.fromJson(Map<String, dynamic> json) => new LibraryInfo(
-        department: json["department"],
-        libraryId: json["libraryId"],
-        name: json["name"],
-        record: Record.fromJson(json["record"]),
+  factory LibraryInfo.fromRawJson(String str) => LibraryInfo.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "department": department,
-        "libraryId": libraryId,
-        "name": name,
-        "record": record!.toJson(),
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
 
+@JsonSerializable()
 class Record {
-  int? borrowing;
-  int? reserveRental;
-  int? userFine;
+  int borrowing;
+  @JsonKey(name: 'reserve-rental')
+  int reserveRental;
+  int userFine;
 
   Record({
-    this.borrowing,
-    this.reserveRental,
-    this.userFine,
+    required this.borrowing,
+    required this.reserveRental,
+    required this.userFine,
   });
 
-  factory Record.fromRawJson(String str) => Record.fromJson(json.decode(str));
+  factory Record.fromJson(Map<String, dynamic> json) => _$RecordFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$RecordToJson(this);
 
-  factory Record.fromJson(Map<String, dynamic> json) => new Record(
-        borrowing: json["borrowing"],
-        reserveRental: json["reserve-rental"],
-        userFine: json["userFine"],
+  factory Record.fromRawJson(String str) => Record.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "borrowing": borrowing,
-        "reserve-rental": reserveRental,
-        "userFine": userFine,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }
