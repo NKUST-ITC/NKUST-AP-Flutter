@@ -549,13 +549,15 @@ class HomePageState extends State<HomePage> {
 
   _getUserPicture() async {
     try {
-      var response = await Helper.instance.getUserPicture();
-      if (mounted) {
-        setState(() {
-          userInfo!.pictureBytes = response;
-        });
+      if (userInfo != null && userInfo!.pictureUrl != null) {
+        var response = await Helper.instance.getUserPicture();
+        if (mounted) {
+          setState(() {
+            userInfo!.pictureBytes = response;
+          });
+        }
+        // CacheUtils.savePictureData(response);
       }
-      // CacheUtils.savePictureData(response);
     } catch (e) {
       throw e;
     }
