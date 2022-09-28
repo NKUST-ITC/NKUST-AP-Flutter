@@ -1,6 +1,8 @@
 name: nkust_ap
 description: A new Flutter application.
 
+publish_to: none
+
 version: 3.9.4+30904
 
 environment:
