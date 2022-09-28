@@ -1,3 +1,4 @@
-### 基於 Flutter v2.10.5 開發
+### 基於 Flutter v3.0.5 開發
 
-* 修正 SSL 憑證檢查導致無法登入缺曠系統
+* 遷移 `Null Safety`
+* 升級 `Firebase` 至最新版本
