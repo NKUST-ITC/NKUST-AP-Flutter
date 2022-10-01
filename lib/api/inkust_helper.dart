@@ -93,7 +93,7 @@ class InkustHelper {
     cookieJar = CookieJar();
     if (Helper.isSupportCacheData) {
       _manager = DioCacheManager(CacheConfig(baseUrl: "https://$inkustHost"));
-      dio.interceptors.add(_manager.interceptor);
+      dio.interceptors.add(_manager.interceptor as Interceptor);
     }
 
     dio.interceptors.add(PrivateCookieManager(cookieJar));
@@ -112,7 +112,8 @@ class InkustHelper {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
-    Response res = await dio.post("https://$inkustHost/User/DoLogin2",
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
+        "https://$inkustHost/User/DoLogin2",
         data: {
           "apiKey": loginApiKey,
           "userId": username,
@@ -121,10 +122,10 @@ class InkustHelper {
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
 
-    if (res.statusCode == 200 && res.data["success"] == true) {
+    if (res.statusCode == 200 && res.data!["success"] == true) {
       isLogin = true;
-      ueserRequestData['apiKey'] = res.data['data']["userKey"];
-      ueserRequestData['userId'] = res.data['data']["userIdEncrypt"];
+      ueserRequestData['apiKey'] = res.data!['data']["userKey"] as String;
+      ueserRequestData['userId'] = res.data!['data']["userIdEncrypt"] as String;
     }
     return res.data;
   }
@@ -151,12 +152,14 @@ class InkustHelper {
       'academicYear': years,
       'academicSms': semesterValue,
     });
-    Response res = await dio.post("https://$inkustHost/Course/GetStuCourse2",
-        data: requestData, options: _options);
-    if (res.data['success'] == false) {
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
+        "https://$inkustHost/Course/GetStuCourse2",
+        data: requestData,
+        options: _options);
+    if (res.data!['success'] == false) {
       return null;
     }
-    return CourseData.fromJson(inkustCourseTableParser(res.data));
+    return CourseData.fromJson(inkustCourseTableParser(res.data!));
   }
 
   Future<BusData?> inkustBusTimeTableQuery({
@@ -191,17 +194,18 @@ class InkustHelper {
     var _requestData = new Map<String, String>.from(ueserRequestData);
     _requestData.addAll({'driveDate': '$year/$month/$day'});
 
-    var timeQuery = await dio.post(
+    Response<Map<String, dynamic>> timeQuery =
+        await dio.post<Map<String, dynamic>>(
       'https://$inkustHost/Bus/GetTimetableAndReserve',
       options: _options,
       data: _requestData,
     );
-    if (!timeQuery.data['success']) {
+    if (!(timeQuery.data!['success'] as bool)) {
       return null;
     }
     return BusData.fromJson(
-      inkustBusTimeTableParser(
-          '$year/$month/$day', timeQuery.data['data'], await userRecords),
+      inkustBusTimeTableParser('$year/$month/$day',
+          timeQuery.data!['data'] as List<dynamic>, await userRecords),
     );
   }
 
@@ -254,7 +258,7 @@ class InkustHelper {
     var _requestData = new Map<String, String?>.from(ueserRequestData);
 
     _requestData.addAll({"busId": busId});
-    var request = await dio.post(
+    Response<dynamic> request = await dio.post<dynamic>(
       "https://$inkustHost/Bus/CreateUserReserve",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -263,11 +267,11 @@ class InkustHelper {
 
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
-    if (data!['success'] && data['message'] == "預約成功") {
+    if (data!['success'] as bool && data['message'] == "預約成功") {
       if (Helper.isSupportCacheData) _manager.clearAll();
       return BookingBusData(success: true);
     }
@@ -279,7 +283,7 @@ class InkustHelper {
     var _requestData = new Map<String, String?>.from(ueserRequestData);
 
     _requestData.addAll({"resId": busId});
-    var request = await dio.post(
+    Response<dynamic> request = await dio.post<dynamic>(
       "https://$inkustHost/Bus/CancelUserReserve",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -288,11 +292,11 @@ class InkustHelper {
 
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
-    if (data!['success'] && data['message'] == "取消成功") {
+    if ((data!['success'] as bool) && data['message'] == "取消成功") {
       if (Helper.isSupportCacheData) _manager.clearAll();
       return CancelBusData(success: true);
     }
@@ -313,7 +317,7 @@ class InkustHelper {
     }
 
     _requestData.addAll({'paid': 1, 'page': 1, 'start': 0, 'limit': 100});
-    var request = await dio.post(
+    Response<dynamic> request = await dio.post<dynamic>(
       "https://$inkustHost/Bus/GetUserIllegal2",
       data: _requestData,
       options: _options,
@@ -322,9 +326,9 @@ class InkustHelper {
 
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
     return BusViolationRecordsData.fromJson(
       inkustBusViolationRecordsParser(data!),
@@ -340,7 +344,7 @@ class InkustHelper {
       'academicYear': year,
       'academicSms': semester,
     });
-    var request = await dio.post(
+    Response<dynamic> request = await dio.post<dynamic>(
       "https://$inkustHost/Leave/GetStuApply",
       data: _requestData,
       options: Options(contentType: Headers.formUrlEncodedContentType),
@@ -350,9 +354,9 @@ class InkustHelper {
 
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
 
     return LeaveData.fromJson(
@@ -383,7 +387,7 @@ class InkustHelper {
       data: _requestData,
       options: leaveTypeOptions,
     );
-    var totorRequest = await dio.post(
+    Response<dynamic> totorRequest = await dio.post<dynamic>(
       "https://$inkustHost/Leave/GetTeacher2",
       data: _requestData,
       options: totorRecordsOptions,
@@ -396,15 +400,17 @@ class InkustHelper {
         leaveTypeOptionRequest.headers['Content-Type']![0]
                 .indexOf("text/html") >
             -1) {
-      leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data);
+      leaveTypeOptionData = jsonDecode(leaveTypeOptionRequest.data as String)
+          as Map<String, dynamic>;
     } else if (leaveTypeOptionRequest.data is Map<String, dynamic>) {
-      leaveTypeOptionData = leaveTypeOptionRequest.data;
+      leaveTypeOptionData = leaveTypeOptionRequest.data as Map<String, dynamic>;
     }
     if (totorRequest.data is String &&
         totorRequest.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      totorRecordsData = jsonDecode(totorRequest.data);
+      totorRecordsData =
+          jsonDecode(totorRequest.data as String) as Map<String, dynamic>;
     } else if (totorRequest.data is Map<String, dynamic>) {
-      totorRecordsData = totorRequest.data;
+      totorRecordsData = totorRequest.data as Map<String, dynamic>;
     }
 
     return LeaveSubmitInfoData.fromJson(

@@ -113,7 +113,7 @@ class HomePageState extends State<HomePage> {
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
-  static aboutPage(BuildContext context, {String? assetImage}) {
+  static Widget aboutPage(BuildContext context, {String? assetImage}) {
     return AboutUsPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
@@ -637,7 +637,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future openLoginPage() async {
-    var result = await Navigator.of(context).push(
+    var result = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => LoginPage()),
     );
     checkLogin();
@@ -671,7 +671,7 @@ class HomePageState extends State<HomePage> {
 
   void _openPage(
     Widget page, {
-    needLogin = false,
+    bool needLogin = false,
     bool useCupertinoRoute = true,
   }) async {
     if (isMobile) Navigator.of(context).pop();
@@ -731,9 +731,14 @@ class HomePageState extends State<HomePage> {
       );
       await remoteConfig.fetchAndActivate();
       final leaveTimeCode = List<String>.from(
-          jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
-      final mobileNkustUserAgent = List<String>.from(jsonDecode(
-          remoteConfig.getString(Constants.MOBILE_NKUST_USER_AGENT)));
+        jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE))
+            as List<dynamic>,
+      );
+      final mobileNkustUserAgent = List<String>.from(
+        jsonDecode(
+          remoteConfig.getString(Constants.MOBILE_NKUST_USER_AGENT),
+        ) as List<dynamic>,
+      );
       InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
       busEnable = remoteConfig.getBool(Constants.BUS_ENABLE);
       leaveEnable = remoteConfig.getBool(Constants.LEAVE_ENABLE);

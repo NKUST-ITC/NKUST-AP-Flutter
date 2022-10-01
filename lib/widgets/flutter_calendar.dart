@@ -8,7 +8,7 @@ import 'package:nkust_ap/utils/date_utils.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
 import 'package:tuple/tuple.dart';
 
-typedef DayBuilder(BuildContext context, DateTime day);
+typedef Widget DayBuilder(BuildContext context, DateTime day);
 
 class Calendar extends StatefulWidget {
   final ValueChanged<DateTime?>? onDateSelected;
@@ -54,7 +54,8 @@ class _CalendarState extends State<Calendar> {
     if (widget.initialCalendarDateOverride != null)
       _selectedDate = widget.initialCalendarDateOverride;
     selectedMonthsDays = CalendarDateUtils.daysInMonth(_selectedDate!);
-    var firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+    var firstDayOfCurrentWeek =
+        CalendarDateUtils.firstDayOfWeek(_selectedDate!);
     var lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
     selectedWeeksDays = CalendarDateUtils.daysInRange(
             firstDayOfCurrentWeek, lastDayOfCurrentWeek)
@@ -64,10 +65,10 @@ class _CalendarState extends State<Calendar> {
   }
 
   Widget get nameAndIconRow {
-    var leftInnerIcon;
-    var rightInnerIcon;
-    var leftOuterIcon;
-    var rightOuterIcon;
+    Widget leftInnerIcon;
+    Widget rightInnerIcon;
+    Widget leftOuterIcon;
+    Widget rightOuterIcon;
 
     if (widget.showCalendarPickerIcon) {
       rightInnerIcon = new IconButton(
@@ -164,7 +165,7 @@ class _CalendarState extends State<Calendar> {
     bool monthEnded = false;
 
     calendarDays.forEach(
-      (day) {
+      (DateTime day) {
         if (monthStarted && day.day == 01) {
           monthEnded = true;
         }
@@ -196,7 +197,7 @@ class _CalendarState extends State<Calendar> {
     return dayWidgets;
   }
 
-  TextStyle configureDateStyle(monthStarted, monthEnded) {
+  TextStyle configureDateStyle(bool monthStarted, bool monthEnded) {
     TextStyle dateStyles;
     if (isExpanded) {
       dateStyles = monthStarted && !monthEnded
@@ -250,7 +251,8 @@ class _CalendarState extends State<Calendar> {
 
   void resetToToday() {
     _selectedDate = new DateTime.now();
-    var firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+    var firstDayOfCurrentWeek =
+        CalendarDateUtils.firstDayOfWeek(_selectedDate!);
     var lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
 
     setState(() {
@@ -292,7 +294,8 @@ class _CalendarState extends State<Calendar> {
       _selectedDate = CalendarDateUtils.nextWeek(_selectedDate!);
       var firstDayOfCurrentWeek =
           CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-      var lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+      var lastDayOfCurrentWeek =
+          CalendarDateUtils.lastDayOfWeek(_selectedDate!);
       updateSelectedRange(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
       selectedWeeksDays = CalendarDateUtils.daysInRange(
               firstDayOfCurrentWeek, lastDayOfCurrentWeek)
@@ -308,7 +311,8 @@ class _CalendarState extends State<Calendar> {
       _selectedDate = CalendarDateUtils.previousWeek(_selectedDate!);
       var firstDayOfCurrentWeek =
           CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-      var lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+      var lastDayOfCurrentWeek =
+          CalendarDateUtils.lastDayOfWeek(_selectedDate!);
       updateSelectedRange(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
       selectedWeeksDays = CalendarDateUtils.daysInRange(
               firstDayOfCurrentWeek, lastDayOfCurrentWeek)
@@ -353,7 +357,7 @@ class _CalendarState extends State<Calendar> {
     }
   }
 
-  late var gestureStart;
+  late double gestureStart;
   var gestureDirection;
 
   void beginSwipe(DragStartDetails gestureDetails) {

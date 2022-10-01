@@ -70,7 +70,8 @@ class MobileNkustHelper {
 
   static MobileNkustHelper? _instance;
 
-  static get isSupport => (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
+  static bool get isSupport =>
+      (!kIsWeb && (Platform.isAndroid || Platform.isIOS));
 
   late Dio dio;
 
@@ -96,7 +97,7 @@ class MobileNkustHelper {
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
   ];
 
-  String? get userAgent => dio.options.headers['user-agent'];
+  String? get userAgent => dio.options.headers['user-agent'] as String?;
 
   static MobileNkustHelper get instance {
     return _instance ??= MobileNkustHelper();
@@ -152,14 +153,14 @@ class MobileNkustHelper {
     return false;
   }
 
-  Future<Response> generalRequest(
+  Future<Response<dynamic>> generalRequest(
     String url, {
     Map<String, dynamic>? firstRequestHeader,
     String? otherRequestUrl,
     Map<String, dynamic>? otherRequestHeader,
     Map<String, dynamic>? data,
   }) async {
-    Response response = await dio.get(
+    Response<dynamic> response = await dio.get(
       url,
       options: Options(headers: firstRequestHeader),
     );
@@ -173,7 +174,7 @@ class MobileNkustHelper {
       };
       _requestData.addAll(data);
 
-      response = await dio.post(
+      response = await dio.post<dynamic>(
         url,
         data: _requestData,
         options: Options(
@@ -210,7 +211,7 @@ class MobileNkustHelper {
         return LoginResponse();
       }
     }
-    final result = await Navigator.push(
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => MobileNkustPage(
@@ -312,7 +313,7 @@ class MobileNkustHelper {
   Future<Uint8List?> getUserPicture() async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
-    final response = await dio.get(
+    final Response<Uint8List> response = await dio.get<Uint8List>(
       PICTURE,
       options: Options(
         responseType: ResponseType.bytes,
@@ -342,7 +343,7 @@ class MobileNkustHelper {
     }
 
     //get main CSRF
-    Response _request = await dio.get(
+    Response<String> _request = await dio.get<String>(
       BUS_TIMETABLE_PAGE,
       options: Options(headers: {"Referer": HOME}),
     );
@@ -405,12 +406,12 @@ class MobileNkustHelper {
     Map<String, dynamic>? data;
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
     return BookingBusData(
-      success: data!['success'] && data['title'] == "預約成功",
+      success: (data!['success'] as bool) && data['title'] == "預約成功",
     );
   }
 
@@ -428,11 +429,12 @@ class MobileNkustHelper {
     Map<String, dynamic>? data;
     if (request.data is String &&
         request.headers['Content-Type']![0].indexOf("text/html") > -1) {
-      data = jsonDecode(request.data);
+      data = jsonDecode(request.data as String) as Map<String, dynamic>;
     } else if (request.data is Map<String, dynamic>) {
-      data = request.data;
+      data = request.data as Map<String, dynamic>;
     }
-    return CancelBusData(success: data!['success'] && data['title'] == "取消成功");
+    return CancelBusData(
+        success: (data!['success'] as bool) && data['title'] == "取消成功");
   }
 
   Future<BusReservationsData> busUserRecord() async {

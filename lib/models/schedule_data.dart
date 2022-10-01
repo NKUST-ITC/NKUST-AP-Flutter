@@ -25,9 +25,10 @@ class ScheduleData {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static List<ScheduleData> toList(List<dynamic>? jsonArray) {
+  static List<ScheduleData> toList(List<Map<String, dynamic>>? jsonArray) {
     List<ScheduleData> list = [];
-    for (var item in (jsonArray ?? [])) list.add(ScheduleData.fromJson(item));
+    for (Map<String, dynamic> item in (jsonArray ?? []))
+      list.add(ScheduleData.fromJson(item));
     return list;
   }
 }

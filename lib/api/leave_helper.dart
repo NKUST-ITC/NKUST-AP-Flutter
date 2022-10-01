@@ -147,7 +147,7 @@ class LeaveHelper {
     //     return LoginResponse();
     //   }
     // }
-    final result = await Navigator.push(
+    final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (_) => LeaveNkustPage(
@@ -171,7 +171,7 @@ class LeaveHelper {
     }
 
     //Get base hidden data.
-    Response res = await dio.get(
+    Response<String> res = await dio.get<String>(
       "https://leave.nkust.edu.tw/LogOn.aspx",
     );
     var requestData = hiddenInputGet(res.data);
@@ -211,7 +211,7 @@ class LeaveHelper {
       await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
-    Response res = await dio.get(
+    Response<String> res = await dio.get<String>(
       "https://leave.nkust.edu.tw/AK002MainM.aspx",
     );
     var requestData = allInputValueParser(res.data);
@@ -219,7 +219,7 @@ class LeaveHelper {
         "$year-$semester";
     requestData[r"ctl00$ContentPlaceHolder1$Button1	"] = "確定送出";
     requestData.remove(r"ctl00$ButtonLogOut");
-    Response queryRequest = await dio.post(
+    Response<String> queryRequest = await dio.post<String>(
       "https://leave.nkust.edu.tw/AK002MainM.aspx",
       data: requestData,
       options: Options(
@@ -241,7 +241,7 @@ class LeaveHelper {
       await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
-    Response res = await dio.get(
+    Response<String> res = await dio.get<String>(
       "https://leave.nkust.edu.tw/CK001MainM.aspx",
     );
     var requestData = hiddenInputGet(res.data);
@@ -276,7 +276,7 @@ class LeaveHelper {
     //force relogin to aviod error.
     await WebApHelper.instance.loginToLeave();
 
-    Response res = await dio.get(
+    Response<String> res = await dio.get<String>(
       "https://leave.nkust.edu.tw/CK001MainM.aspx",
     );
 
@@ -344,7 +344,9 @@ class LeaveHelper {
       var td = trObj[i].getElementsByTagName("td");
       var _leaveDays = data.days[i - 1].dayClass!;
       for (int l = 0; l < _leaveDays.length; l++) {
-        _clickList.add(td[submitData!["timeCodes"].indexOf(_leaveDays[l]) + 3]
+        _clickList.add(td[(submitData!["timeCodes"] as List<dynamic>)
+                    .indexOf(_leaveDays[l]) +
+                3]
             .getElementsByTagName("input")[0]
             .attributes["name"]);
       }

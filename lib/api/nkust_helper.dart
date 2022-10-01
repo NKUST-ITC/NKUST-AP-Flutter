@@ -24,10 +24,10 @@ class NKUSTHelper {
 
   Dio dio = Dio();
 
-  Future<UserInfo?> getUsername({
+  Future<void> getUsername({
     String? rocId,
     required DateTime birthday,
-    GeneralCallback<UserInfo>? callback,
+    required GeneralCallback<UserInfo> callback,
   }) async {
     String? birthdayText = sprintf("%03i%02i%02i", [
       birthday.year - 1911,
@@ -60,14 +60,14 @@ class NKUSTHelper {
       );
       return callback == null ? userInfo : callback.onSuccess(userInfo);
     } else if (elements.length == 1)
-      return callback?.onError(
+      callback.onError(
         GeneralResponse(
           statusCode: 404,
           message: elements[0].text,
         ),
       );
     else
-      return callback?.onError(
+      callback.onError(
         GeneralResponse.unknownError(),
       );
   }
@@ -78,7 +78,7 @@ class NKUSTHelper {
     if (reTryCounts > reTryCountsLimit) {
       throw NullThrownError;
     }
-    Response res = await dio.post(
+    Response<String> res = await dio.post<String>(
         "https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist",
         data: {
           'Rcg': 232,
@@ -89,9 +89,9 @@ class NKUSTHelper {
           contentType: Headers.formUrlEncodedContentType,
         ));
     List<Map<String, dynamic>> acadData;
-    if (res.statusCode == 200) {
+    if (res.statusCode == 200 && res.data != null) {
       acadData = acadParser(
-        html: json.decode(res.data)["content"],
+        html: json.decode(res.data!)["content"] as String,
         baseIndex: baseIndex,
       );
       reTryCounts = 0;

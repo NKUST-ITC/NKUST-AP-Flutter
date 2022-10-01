@@ -124,7 +124,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,
-            value: element.value,
+            value: element.value.toString(),
             domain: element.domain ??
                 (element.name == 'ASP.NET_SessionId'
                     ? 'leave.nkust.edu.tw'

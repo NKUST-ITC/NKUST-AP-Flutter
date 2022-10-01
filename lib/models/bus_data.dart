@@ -92,7 +92,7 @@ class BusTime {
 //      return "${specialTrainRemark.replaceAll("\n", "").replaceAll("<br />", "\n")}\n";
 //  }
 
-  static List<BusTime> toList(List<dynamic> jsonArray) {
+  static List<BusTime> toList(List<Map<String, dynamic>> jsonArray) {
     List<BusTime> list = [];
     for (var item in (jsonArray)) list.add(BusTime.fromJson(item));
     return list;

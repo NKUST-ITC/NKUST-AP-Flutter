@@ -151,7 +151,7 @@ class BusHelper {
     if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
-      dio.interceptors.add(_manager.interceptor);
+      dio.interceptors.add(_manager.interceptor as Interceptor);
       _manager.clearAll();
     }
 
@@ -168,8 +168,8 @@ class BusHelper {
     // Get global cookie. Only cookies get from the root directory can be used.
     await dio.head(busHost);
     // This function will download encrypt js bus login required.
-    var res = await dio.get("http://bus.kuas.edu.tw/API/Scripts/a1");
-    busEncryptObject = new BusEncrypt(jsCode: res.data);
+    var res = await dio.get<String>("http://bus.kuas.edu.tw/API/Scripts/a1");
+    busEncryptObject = new BusEncrypt(jsCode: res.data!);
   }
 
   Future<Map<String, dynamic>?> busLogin() async {
@@ -194,7 +194,8 @@ class BusHelper {
 
     await loginPrepare();
 
-    Response res = await dio.post("${busHost}API/Users/login",
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
+        "${busHost}API/Users/login",
         data: {
           "account": Helper.username,
           "password": Helper.password,
@@ -202,7 +203,7 @@ class BusHelper {
         },
         options: Options(contentType: Headers.formUrlEncodedContentType));
 
-    if (res.data["code"] == 200 && res.data["success"] == true) {
+    if (res.data!["code"] == 200 && res.data!["success"] == true) {
       isLogin = true;
     }
     return res.data;
@@ -255,14 +256,14 @@ class BusHelper {
         primaryKey: userTimeTableSelectCacheKey,
       );
     }
-    Response res = await dio.post(
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
       "${busHost}API/Frequencys/getAll",
       data: _requestData,
       options: _options,
     );
 
-    if (res.data["code"] == 400 &&
-        res.data["message"].indexOf("未登入或是登入逾") > -1) {
+    if (res.data!["code"] == 400 &&
+        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
       // Remove fail cache.
       if (Helper.isSupportCacheData)
         _manager.delete(userTimeTableSelectCacheKey!);
@@ -272,7 +273,7 @@ class BusHelper {
     }
     reLoginReTryCounts = 0;
     return BusData.fromJson(
-      busTimeTableParser(res.data, busReservations: await userRecord),
+      busTimeTableParser(res.data!, busReservations: await userRecord),
     );
   }
 
@@ -289,20 +290,20 @@ class BusHelper {
       _manager.delete(userTimeTableSelectCacheKey!);
     }
 
-    Response res = await dio.post(
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
       "${busHost}API/Reserves/add",
       data: {
         "busId": int.parse(busId),
       },
     );
 
-    if (res.data["code"] == 400 &&
-        res.data["message"].indexOf("未登入或是登入逾") > -1) {
+    if (res.data!["code"] == 400 &&
+        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
       reLoginReTryCounts += 1;
       await busLogin();
       return busBook(busId: busId);
     }
-    return BookingBusData.fromJson(res.data);
+    return BookingBusData.fromJson(res.data!);
   }
 
   Future<CancelBusData> busUnBook({required String busId}) async {
@@ -313,15 +314,15 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Response res = await dio.post(
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
       "${busHost}API/Reserves/remove",
       data: {
         "reserveId": int.parse(busId),
       },
     );
 
-    if (res.data["code"] == 400 &&
-        res.data["message"].indexOf("未登入或是登入逾") > -1) {
+    if (res.data!["code"] == 400 &&
+        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
       reLoginReTryCounts += 1;
       await busLogin();
       return busUnBook(busId: busId);
@@ -330,7 +331,7 @@ class BusHelper {
     // two page can cencel bus.
     if (Helper.isSupportCacheData) _manager.clearAll();
 
-    return CancelBusData.fromJson(res.data);
+    return CancelBusData.fromJson(res.data!);
   }
 
   Future<BusReservationsData> busReservations() async {
@@ -355,14 +356,14 @@ class BusHelper {
       );
     }
 
-    Response res = await dio.post(
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
       "${busHost}API/Reserves/getOwn",
       data: _requestData,
       options: _options,
     );
 
-    if (res.data["code"] == 400 &&
-        res.data["message"].indexOf("未登入或是登入逾") > -1) {
+    if (res.data!["code"] == 400 &&
+        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
       if (Helper.isSupportCacheData) _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
@@ -370,7 +371,7 @@ class BusHelper {
     }
     reLoginReTryCounts = 0;
     return BusReservationsData.fromJson(
-      busReservationsParser(res.data),
+      busReservationsParser(res.data!),
     );
   }
 
@@ -396,11 +397,13 @@ class BusHelper {
       );
     }
 
-    Response res = await dio.post("${busHost}API/Illegals/getOwn",
-        data: _requestData, options: _options);
+    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
+        "${busHost}API/Illegals/getOwn",
+        data: _requestData,
+        options: _options);
 
-    if (res.data["code"] == 400 &&
-        res.data["message"].indexOf("未登入或是登入逾") > -1) {
+    if (res.data!["code"] == 400 &&
+        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
       if (Helper.isSupportCacheData)
         _manager.delete(userViolationRecordsCacheKey);
       reLoginReTryCounts += 1;
@@ -409,7 +412,7 @@ class BusHelper {
     }
     reLoginReTryCounts = 0;
     return BusViolationRecordsData.fromJson(
-      busViolationRecordsParser(res.data),
+      busViolationRecordsParser(res.data!),
     );
   }
 }

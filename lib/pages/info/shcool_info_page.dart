@@ -211,7 +211,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   void downloadFdf(String url) async {
     try {
       print(url);
-      var response = await Dio().get(
+      var response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );

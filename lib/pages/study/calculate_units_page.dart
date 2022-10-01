@@ -67,15 +67,15 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     super.dispose();
   }
 
-  _textBlueStyle() {
+  TextStyle _textBlueStyle() {
     return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }
 
-  _textStyle() {
+  TextStyle _textStyle() {
     return TextStyle(fontSize: 14.0);
   }
 
-  _scoreTitle() => TableRow(
+  TableRow _scoreTitle() => TableRow(
         children: <Widget>[
           _scoreTextBorder(ap.generalEductionCourse, true),
           _scoreTextBorder(ap.semesterScore, true),
@@ -114,7 +114,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     );
   }
 
-  _generalEducationsBorder(Score score) {
+  TableRow _generalEducationsBorder(Score score) {
     return TableRow(children: <Widget>[
       _scoreTextBorder(score.title, false),
       _scoreTextBorder(score.semesterScore, false),
@@ -286,14 +286,14 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  get _onFailure => (DioError e) {
+  DioErrorCallback get _onFailure => (DioError e) {
         setState(() {
           state = _State.custom;
           customStateHint = e.i18nMessage;
         });
       };
 
-  get _onError => (GeneralResponse response) {
+  GeneralResponseCallback get _onError => (GeneralResponse response) {
         setState(() {
           state = _State.custom;
           customStateHint = response.getGeneralMessage(context);

@@ -129,7 +129,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           MobileCookies(
             path: MobileNkustHelper.HOME,
             name: element.name,
-            value: element.value,
+            value: element.value.toString(),
             domain: element.domain ??
                 (element.name == '.AspNetCore.Cookies'
                     ? 'mobile.nkust.edu.tw'

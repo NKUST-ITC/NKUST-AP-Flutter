@@ -364,7 +364,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   enabled: leaveSubmitInfo.tutor == null,
                   onTap: leaveSubmitInfo.tutor == null
                       ? () async {
-                          var teacher = await Navigator.of(context).push(
+                          var teacher =
+                              await Navigator.of(context).push<LeavesTeacher>(
                             MaterialPageRoute(builder: (BuildContext context) {
                               return PickTutorPage();
                             }),
@@ -801,7 +802,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           switch (e.type) {
             case DioErrorType.response:
               if (e.response!.data is Map<String, dynamic>)
-                text = ErrorResponse.fromJson(e.response!.data).description;
+                text = ErrorResponse.fromJson(
+                        e.response!.data as Map<String, dynamic>)
+                    .description;
               else
                 text = ap.somethingError;
               break;

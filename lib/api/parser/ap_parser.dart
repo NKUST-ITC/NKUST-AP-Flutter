@@ -64,23 +64,24 @@ class WebApParser {
     if (html is Uint8List) {
       html = clearTransEncoding(html);
     }
-
-    if (html.indexOf('onclick="go_change()') > -1) {
-      return 4;
-    }
-    // 驗證碼錯誤
-    if (html.indexOf("驗證碼") > -1) {
-      return -1;
-    }
-    if (html.indexOf("top.location.href='f_index.html'") > -1) {
-      return 0;
-    }
-    if (html.indexOf(";top.location.href='index.html'") > -1) {
-      return 1;
-    }
-    if (html.indexOf("location.href='relogin.jsp'") > -1 ||
-        html.indexOf("top.location.href='../index.html';") > -1) {
-      return 2;
+    if (html is String) {
+      if (html.indexOf('onclick="go_change()') > -1) {
+        return 4;
+      }
+      // 驗證碼錯誤
+      if (html.indexOf("驗證碼") > -1) {
+        return -1;
+      }
+      if (html.indexOf("top.location.href='f_index.html'") > -1) {
+        return 0;
+      }
+      if (html.indexOf(";top.location.href='index.html'") > -1) {
+        return 1;
+      }
+      if (html.indexOf("location.href='relogin.jsp'") > -1 ||
+          html.indexOf("top.location.href='../index.html';") > -1) {
+        return 2;
+      }
     }
     return 3;
   }
@@ -336,7 +337,7 @@ class WebApParser {
           weekdayIndex < weekdays.length;
           weekdayIndex++) {
         for (int rwaTimeCodeIndex = 1;
-            rwaTimeCodeIndex < data['timeCodes'].length + 1;
+            rwaTimeCodeIndex < (data['timeCodes'] as List<dynamic>).length + 1;
             rwaTimeCodeIndex++) {
           final sectionElement =
               table2.getElementsByTagName("tr")[rwaTimeCodeIndex];
@@ -356,9 +357,11 @@ class WebApParser {
                 .replaceAll(";", '');
           }
           courseName = courseName.replaceAll('(1週)', '');
-          for (var i = 0; i < data['courses'].length; i++) {
+          for (var i = 0; i < (data['courses'] as List<dynamic>).length; i++) {
             if (data['courses'][i]['title'] == courseName) {
-              for (var j = 0; j < data['timeCodes'].length; j++) {
+              for (var j = 0;
+                  j < (data['timeCodes'] as List<dynamic>).length;
+                  j++) {
                 if (j == rwaTimeCodeIndex - 1) {
                   data['courses'][i]['sectionTimes'].add(
                     {
@@ -554,7 +557,8 @@ class WebApParser {
     try {
       for (int key = 0; key < keyName.length; key++) {
         for (int eachSession = 1;
-            eachSession < data['coursetable']['timeCodes'].length + 1;
+            eachSession <
+                (data['coursetable']['timeCodes'] as List<dynamic>).length + 1;
             eachSession++) {
           var eachDays = document
               .getElementsByTagName("table")[1]
@@ -639,7 +643,7 @@ class WebApParser {
       data.remove('coursetable');
       data['_temp_time'] = data['_temp_time'].values.toList();
       for (int timeCodeIndex = 0;
-          timeCodeIndex < data['_temp_time'].length;
+          timeCodeIndex < (data['_temp_time'] as List<dynamic>).length;
           timeCodeIndex++) {
         data['timeCodes'].add({
           "title": data['_temp_time'][timeCodeIndex]['section'],

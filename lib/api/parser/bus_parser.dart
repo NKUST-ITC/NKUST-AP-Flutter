@@ -22,16 +22,17 @@ bool intToBool(int a) => a == 0 ? false : true;
 Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
     {BusReservationsData? busReservations}) {
   List<Map<String, dynamic>> temp = [];
-  for (int i = 0; i < data["data"].length; i++) {
+  final list = data["data"] as List<Map<String, dynamic>>;
+  for (int i = 0; i < list.length; i++) {
     Map<String, dynamic> _temp = {
       "endEnrollDateTime": busRealTime(data["data"][i]["EndEnrollDateTime"]),
       "departureTime": busRealTime(data["data"][i]["runDateTime"]),
       "startStation": data["data"][i]["startStation"],
       "endStation": data["data"][i]["endStation"],
       "busId": data["data"][i]["busId"],
-      "reserveCount": int.parse(data["data"][i]["reserveCount"]),
-      "limitCount": int.parse(data["data"][i]["limitCount"]),
-      "isReserve": intToBool(int.parse(data["data"][i]["isReserve"]) + 1),
+      "reserveCount": int.parse(list[i]["reserveCount"] as String),
+      "limitCount": int.parse(list[i]["limitCount"] as String),
+      "isReserve": intToBool(int.parse(list[i]["isReserve"] as String) + 1),
       "specialTrain": data["data"][i]["SpecialTrain"],
       "description": data["data"][i]["SpecialTrainRemark"],
       "homeCharteredBus": false,
@@ -60,7 +61,8 @@ Map<String, dynamic> busTimeTableParser(Map<String, dynamic> data,
 
 Map<String, dynamic> busReservationsParser(Map<String, dynamic> data) {
   List<Map<String, dynamic>> temp = [];
-  for (int i = 0; i < data["data"].length; i++) {
+  final list = data["data"] as List<Map<String, dynamic>>;
+  for (int i = 0; i < list.length; i++) {
     Map<String, dynamic> _temp = {
       "dateTime": busRealTime(data["data"][i]["time"]),
       "endTime": busRealTime(data["data"][i]["endTime"]),
@@ -80,7 +82,8 @@ Map<String, dynamic> busReservationsParser(Map<String, dynamic> data) {
 
 Map<String, dynamic> busViolationRecordsParser(Map<String, dynamic> data) {
   List<Map<String, dynamic>> temp = [];
-  for (int i = 0; i < data["data"].length; i++) {
+  final list = data["data"] as List<Map<String, dynamic>>;
+  for (int i = 0; i < list.length; i++) {
     Map<String, dynamic> _temp = {
       "time": busRealTime(data["data"][i]["runBus"]),
       "startStation": data["data"][i]["start"],

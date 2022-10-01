@@ -33,21 +33,17 @@ class BusViolationRecordsData {
     updateNotPaymentReservations();
   }
 
-  factory BusViolationRecordsData.fromRawJson(String str) =>
-      BusViolationRecordsData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory BusViolationRecordsData.fromJson(Map<String, dynamic> json) =>
-      new BusViolationRecordsData(
-        reservations: new List<Reservation>.from(
-            json["reservation"].map((x) => Reservation.fromJson(x))),
+      _$BusViolationRecordsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BusViolationRecordsDataToJson(this);
+
+  factory BusViolationRecordsData.fromRawJson(String str) =>
+      BusViolationRecordsData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "reservation":
-            new List<dynamic>.from(reservations.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   void updateNotPaymentReservations() {
     notPaymentReservations.clear();

@@ -137,7 +137,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     }
   }
 
-  _body() {
+  Widget _body() {
     switch (state) {
       case _State.loading:
         return Container(

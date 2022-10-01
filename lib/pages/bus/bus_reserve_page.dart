@@ -176,7 +176,7 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  _textStyle(BusTime busTime) => TextStyle(
+  TextStyle _textStyle(BusTime busTime) => TextStyle(
       color: busTime.getColorState(context),
       fontSize: 18.0,
       decorationColor: ApTheme.of(context).greyText);
@@ -238,7 +238,7 @@ class BusReservePageState extends State<BusReservePage>
     }
   }
 
-  _renderBusTimeWidgets() {
+  List<Widget> _renderBusTimeWidgets() {
     List<Widget> list = [];
     if (busData != null) {
       for (var i in busData!.timetable) {
@@ -254,7 +254,7 @@ class BusReservePageState extends State<BusReservePage>
     return list;
   }
 
-  _busTimeWidget(BusTime busTime) => Column(
+  Widget _busTimeWidget(BusTime busTime) => Column(
         children: <Widget>[
           InkWell(
             onTap: busTime.canReserve() && !busTime.isReserve
@@ -652,7 +652,8 @@ class BusReservePageState extends State<BusReservePage>
     String? message;
     switch (e.type) {
       case DioErrorType.response:
-        final errorResponse = ErrorResponse.fromJson(e.response!.data);
+        final errorResponse =
+            ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
         FirebaseAnalyticsUtils.instance.logEvent(
           tag,

@@ -85,7 +85,7 @@ class WebApHelper {
     if (Helper.isSupportCacheData) {
       _manager =
           DioCacheManager(CacheConfig(baseUrl: "https://webap.nkust.edu.tw"));
-      dio.interceptors.add(_manager.interceptor);
+      dio.interceptors.add(_manager.interceptor as Interceptor);
     }
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
@@ -96,7 +96,7 @@ class WebApHelper {
   }
 
   Future<Uint8List?> getValidationImage() async {
-    var response = await dio.get(
+    Response<Uint8List> response = await dio.get<Uint8List>(
       "https://webap.nkust.edu.tw/nkust/validateCode.jsp",
       options: Options(responseType: ResponseType.bytes),
     );
@@ -189,7 +189,7 @@ class WebApHelper {
     await checkLogin();
     await apQuery("ag304_01", null);
 
-    Response res = await dio.post(
+    Response<String> res = await dio.post<String>(
       "https://webap.nkust.edu.tw/nkust/fnc.jsp",
       data: {"fncid": 'CK004'},
       options: Options(contentType: "application/x-www-form-urlencoded"),
@@ -207,7 +207,7 @@ class WebApHelper {
           contentType: "application/x-www-form-urlencoded"),
     );
     if (res.statusCode == 200 &&
-        res.data.indexOf('/Student/Leave/Create') > -1) {
+        res.data!.indexOf('/Student/Leave/Create') > -1) {
       return LoginResponse(
         expireTime: DateTime.now().add(Duration(hours: 1)),
         isAdmin: false,
@@ -226,13 +226,13 @@ class WebApHelper {
     await checkLogin();
     await apQuery("ag304_01", null);
 
-    Response res = await dio.post(
+    Response<String> res = await dio.post(
       "https://webap.nkust.edu.tw/nkust/fnc.jsp",
       data: {"fncid": 'CK004'},
       options: Options(contentType: "application/x-www-form-urlencoded"),
     );
     var _skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
-    res = await dio.get(
+    res = await dio.get<String>(
       "https://leave.nkust.edu.tw/SkyDir.aspx",
       queryParameters: {
         'u': _skyDirectData['uid'],
@@ -245,7 +245,7 @@ class WebApHelper {
           },
           contentType: "application/x-www-form-urlencoded"),
     );
-    if (res.data.indexOf('masterindex.aspx') > -1) {
+    if (res.data!.indexOf('masterindex.aspx') > -1) {
       res = await dio.get(
         "https://leave.nkust.edu.tw/masterindex.aspx",
         options: Options(
@@ -340,7 +340,7 @@ class WebApHelper {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag003", null);
       var data = UserInfo.fromJson(
-        WebApParser.instance.apUserInfoParser(query.data),
+        WebApParser.instance.apUserInfoParser(query.data as String),
       );
       pictureUrl = data.pictureUrl;
       return data;
@@ -352,12 +352,13 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
     );
 
-    var parsedData = WebApParser.instance.apUserInfoParser(query.data);
+    var parsedData =
+        WebApParser.instance.apUserInfoParser(query.data as String);
     if (parsedData["id"] == null) {
       _manager.delete(userInfoCacheKey);
     }
     final data = UserInfo.fromJson(
-      WebApParser.instance.apUserInfoParser(query.data),
+      WebApParser.instance.apUserInfoParser(query.data as String),
     );
     pictureUrl = data.pictureUrl;
     return data;
@@ -366,7 +367,7 @@ class WebApHelper {
   Future<Uint8List?> getUserPicture() async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
-    final response = await dio.get(
+    final response = await dio.get<Uint8List>(
       pictureUrl!,
       options: Options(
         responseType: ResponseType.bytes,
@@ -379,7 +380,7 @@ class WebApHelper {
     if (!Helper.isSupportCacheData) {
       var query = await apQuery("ag304_01", null);
       return SemesterData.fromJson(
-          WebApParser.instance.semestersParser(query.data));
+          WebApParser.instance.semestersParser(query.data as String));
     }
     var query = await apQuery(
       "ag304_01",
@@ -387,8 +388,8 @@ class WebApHelper {
       cacheKey: semesterCacheKey,
       cacheExpiredTime: Duration(hours: 3),
     );
-    var parsedData = WebApParser.instance.semestersParser(query.data);
-    if (parsedData["data"].length < 1) {
+    var parsedData = WebApParser.instance.semestersParser(query.data as String);
+    if ((parsedData["data"] as List<dynamic>).length < 1) {
       //data error delete cache
       _manager.delete(semesterCacheKey);
     }
@@ -404,7 +405,7 @@ class WebApHelper {
         {"arg01": years, "arg02": semesterValue},
       );
       return ScoreData.fromJson(
-        WebApParser.instance.scoresParser(query.data),
+        WebApParser.instance.scoresParser(query.data as String),
       );
     }
     var query = await apQuery(
@@ -414,7 +415,7 @@ class WebApHelper {
       cacheExpiredTime: Duration(hours: 6),
     );
 
-    var parsedData = WebApParser.instance.scoresParser(query.data);
+    var parsedData = WebApParser.instance.scoresParser(query.data as String);
     if (parsedData["scores"].length == 0) {
       _manager.delete("${scoresCacheKey}_${years}_$semesterValue");
     }
@@ -461,7 +462,7 @@ class WebApHelper {
     );
 
     return MidtermAlertsData.fromJson(
-      WebApParser.instance.midtermAlertsParser(query.data),
+      WebApParser.instance.midtermAlertsParser(query.data as String),
     );
   }
 
@@ -473,7 +474,7 @@ class WebApHelper {
     );
 
     return RewardAndPenaltyData.fromJson(
-      WebApParser.instance.rewardAndPenaltyParser(query.data),
+      WebApParser.instance.rewardAndPenaltyParser(query.data as String),
     );
   }
 
@@ -488,7 +489,7 @@ class WebApHelper {
     );
 
     return RoomData.fromJson(
-      WebApParser.instance.roomListParser(query.data),
+      WebApParser.instance.roomListParser(query.data as String),
     );
   }
 

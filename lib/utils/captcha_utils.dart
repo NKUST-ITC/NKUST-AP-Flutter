@@ -50,7 +50,7 @@ class CaptchaUtils {
             // defaults to 0.1
             asynch: true // defaults to true
             );
-        replaceText += recognitions!.first['label'];
+        replaceText += recognitions!.first['label'] as String;
       }
       end = DateTime.now();
       final processTime =

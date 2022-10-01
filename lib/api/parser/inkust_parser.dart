@@ -27,8 +27,8 @@ Map<String, dynamic> inkustCourseTableParser(Map<String, dynamic> data) {
     List<Map<String, dynamic>> times = [];
     element["courseTimeData"].forEach((courseTime) {
       times.add({
-        "weekday": int.parse(courseTime["courseWeek"]),
-        "index": int.parse(courseTime["coursePeriod"]),
+        "weekday": int.parse(courseTime["courseWeek"] as String),
+        "index": int.parse(courseTime["coursePeriod"] as String),
       });
     });
     result["courses"].add({
@@ -54,25 +54,26 @@ Future<Map<String, dynamic>> inkustBusUserRecordsParser(
 
   List<dynamic> dataList = [];
 
-  await Future.forEach(responseList, (dynamic e) async {
+  await Future.forEach(responseList, (Future<Response> e) async {
     var _temp = await e;
     Map<String, dynamic>? data;
     if (_temp.data is String &&
-        _temp.headers['Content-Type'][0].indexOf("text/html") > -1) {
-      data = jsonDecode(_temp.data);
+        (_temp.headers['Content-Type'] as String)[0].indexOf("text/html") >
+            -1) {
+      data = jsonDecode(_temp.data as String) as Map<String, dynamic>;
     } else if (_temp.data is Map<String, dynamic>) {
-      data = _temp.data;
+      data = _temp.data as Map<String, dynamic>;
     }
-    if (data!['success']) {
-      dataList.addAll(data['data']);
+    if (data!['success'] as bool) {
+      dataList.addAll(data['data'] as List<dynamic>);
     }
   });
   DateFormat format = new DateFormat("yyyy/MM/dd HH:mm");
 
   dataList.forEach((element) {
     returnData['data'].add({
-      "dateTime": format.parse(element['driveTime']),
-      "endTime": format.parse(element['resEndTime']),
+      "dateTime": format.parse(element['driveTime'] as String),
+      "endTime": format.parse(element['resEndTime'] as String),
       "cancelKey": element["resId"].toString(),
       "start": element['startStation'],
       "end": element['endStation'],
@@ -142,7 +143,7 @@ Map<String, dynamic> inkustBusViolationRecordsParser(
 
   data['data'].forEach((e) {
     Map<String, dynamic> _temp = {
-      "time": format.parse(e['driveTime']),
+      "time": format.parse(e['driveTime'] as String),
       "startStation": e['startStation'],
       "endStation": e['endStation'],
       "amountend": e['money'],
@@ -160,16 +161,17 @@ Map<String, dynamic> inkustBusViolationRecordsParser(
 Map<String, dynamic> inkustgetAbsentRecordsParser(Map<String, dynamic> data,
     {List? timeCodes}) {
   List<Map<String, dynamic>> result = [];
-  if (data["success"] == false || data['count'] < 1) {
+  if (data["success"] == false || (data['count'] as int) < 1) {
     // return null;
     return {"data": [], "timeCodes": []};
   }
-
+  final List<Map<String, dynamic>> list =
+      data['data'] as List<Map<String, dynamic>>;
   if (timeCodes == null) {
     timeCodes = [];
-    if (((data['data'][0] ?? const {})['Detail'] ?? false) != false &&
-        data['data'][0]['Detail'].length > 0) {
-      data['data'][0]['Detail'][0].forEach((key, value) {
+    if (((list[0] ?? const {})['Detail'] ?? false) != false &&
+        (list[0]['Detail'] as Map<String, dynamic>).length > 0) {
+      list[0]['Detail'][0].forEach((key, value) {
         if (key != 'TranCode' && key != 'leaveday') {
           timeCodes!.add(key);
         }
@@ -181,19 +183,19 @@ Map<String, dynamic> inkustgetAbsentRecordsParser(Map<String, dynamic> data,
     }
   }
 
-  for (int i = 0; i < data['data'].length; i++) {
+  for (int i = 0; i < list.length; i++) {
     for (int dayLeaves = 0;
-        dayLeaves < data['data'][i]['Detail'].length;
+        dayLeaves < (list[i]['Detail'] as Map<String, dynamic>).length;
         dayLeaves++) {
       Map<String, dynamic> _temp = {
-        "leaveSheetId": data['data'][i]['LeaveCode'] ?? "",
+        "leaveSheetId": list[i]['LeaveCode'] ?? "",
         "date": "",
-        "instructorsComment": data['data'][i]["LeaveTeaSuggest"] ?? "",
+        "instructorsComment": list[i]["LeaveTeaSuggest"] ?? "",
         "sections": []
       };
 
       int _index = 0;
-      data['data'][i]['Detail'][dayLeaves].forEach((key, value) {
+      list[i]['Detail'][dayLeaves].forEach((key, String value) {
         if (key == "leaveday") {
           _temp["date"] = value;
         }
@@ -225,14 +227,17 @@ Map<String, dynamic> inkustGetLeaveSubmitInfoParser(
     "timeCodes": [],
   };
 
-  if (!totorRecordsData['success'] || !leaveTypeOptionData!['success']) {
+  if (!(totorRecordsData['success'] as bool) ||
+      !(leaveTypeOptionData!['success'] as bool)) {
     return result;
   }
   if (totorRecordsData['data']['choose'] != "" &&
       totorRecordsData['data']['enable'] == false) {
     result['tutor'] = {"name": "", "id": ""};
     result['tutor']['id'] = totorRecordsData['data']['choose'].toString();
-    for (int i = 0; i < totorRecordsData['data']['teacher'].length; i++) {
+    for (int i = 0;
+        i < (totorRecordsData['data']['teacher'] as List<dynamic>).length;
+        i++) {
       if (totorRecordsData['data']['teacher'][i]['emp_id'] ==
           result['tutor']['id']) {
         result['tutor']['name'] =
@@ -330,7 +335,7 @@ List<Map<String, dynamic>> inkustLeaveDataParser({
     // for key-value convernt
     Map<String, String> _tempMap = {};
     for (int i = 0; i < timeCode.length; i++) {
-      _tempMap[timeCode[i]] = "d$i";
+      _tempMap[timeCode[i] as String] = "d$i";
     }
 
     submitData.days.forEach((element) {

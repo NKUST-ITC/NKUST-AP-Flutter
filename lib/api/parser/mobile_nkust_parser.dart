@@ -101,8 +101,8 @@ class MobileNkustParser {
       };
       final hasMorning = periodTimeJson[0]["PeriodName"] == "M";
       for (var time in course['CourseWeekPeriod']) {
-        final weekday = int.tryParse(time['CourseWeek']) ?? 0;
-        final sectionIndex = int.tryParse(time['CoursePeriod']);
+        final weekday = int.tryParse(time['CourseWeek'] as String) ?? 0;
+        final sectionIndex = int.tryParse(time['CoursePeriod'] as String);
         if (weekday <= 0 || weekday > 7 || sectionIndex == null) continue;
         _temp['sectionTimes'].add(
           {
@@ -265,7 +265,7 @@ class MobileNkustParser {
         .replaceAll(detailDiv.elementAt(0).text, "")
         .replaceAll("\n", "")
         .replaceAll(" ", "");
-    detailData["average"] = double.parse(detailData["average"]);
+    detailData["average"] = double.parse(detailData["average"] as String);
     detailData["conduct"] = detailDiv
         .elementAt(1)
         .parent!
@@ -273,7 +273,7 @@ class MobileNkustParser {
         .replaceAll(detailDiv.elementAt(1).text, "")
         .replaceAll("\n", "")
         .replaceAll(" ", "");
-    detailData["conduct"] = double.parse(detailData["conduct"]);
+    detailData["conduct"] = double.parse(detailData["conduct"] as String);
     detailData["classRank"] = detailDiv
         .elementAt(2)
         .parent!

@@ -90,7 +90,7 @@ class BusReservation {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static List<BusReservation> toList(List<dynamic> jsonArray) {
+  static List<BusReservation> toList(List<Map<String, dynamic>> jsonArray) {
     List<BusReservation> list = [];
     for (var item in (jsonArray)) list.add(BusReservation.fromJson(item));
     return list;

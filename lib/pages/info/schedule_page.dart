@@ -132,7 +132,8 @@ class SchedulePageState extends State<SchedulePage>
       data = await rootBundle.loadString(FileAssets.scheduleData);
     }
     var jsonArray = jsonDecode(data);
-    scheduleDataList = ScheduleData.toList(jsonArray);
+    scheduleDataList =
+        ScheduleData.toList(jsonArray as List<Map<String, dynamic>>);
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
@@ -266,7 +267,7 @@ class SchedulePageState extends State<SchedulePage>
 
   void downloadFdf(String url) async {
     try {
-      var response = await Dio().get(
+      var response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );

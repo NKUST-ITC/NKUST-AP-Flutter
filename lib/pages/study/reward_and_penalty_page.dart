@@ -137,7 +137,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
   }
 
-  _body() {
+  Widget _body() {
     switch (state) {
       case _State.loading:
         return Container(
