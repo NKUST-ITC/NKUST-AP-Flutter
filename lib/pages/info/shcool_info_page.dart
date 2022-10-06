@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -17,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
-  static const String routerName = "/ShcoolInfo";
+  static const String routerName = '/ShcoolInfo';
 
   @override
   SchoolInfoPageState createState() => SchoolInfoPageState();
@@ -25,42 +26,42 @@ class SchoolInfoPage extends StatefulWidget {
 
 class SchoolInfoPageState extends State<SchoolInfoPage>
     with SingleTickerProviderStateMixin {
-  final phoneModelList = [
-    PhoneModel("校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5", "0800-550995"),
-    PhoneModel("建工校區", ''),
-    PhoneModel("校安專線", "0916-507-506"),
-    PhoneModel("事務組", "(07) 381-4526 #2650"),
-    PhoneModel("營繕組", "(07) 381-4526 #2630"),
-    PhoneModel("課外活動組", "(07) 381-4526 #2525"),
-    PhoneModel("諮商輔導中心", "(07) 381-4526 #2541"),
-    PhoneModel("圖書館", "(07) 381-4526 #3100"),
-    PhoneModel("校外賃居服務中心", "(07) 381-4526 #3420"),
-    PhoneModel("燕巢校區", ''),
-    PhoneModel("校安專線", "0925-350-995"),
-    PhoneModel("校外賃居服務中心", "(07) 381-4526 #8615"),
-    PhoneModel("第一校區", ''),
-    PhoneModel("生輔組", "(07)601-1000 #31212"),
-    PhoneModel("總務處 總機", "(07)601-1000 #31316"),
-    PhoneModel("總務處 場地租借", "(07)601-1000 #31312"),
-    PhoneModel("總務處 高科大會館", "(07)601-1000 #31306"),
-    PhoneModel("總務處 學雜費相關(原事務組)", "(07)601-1000 #31340"),
-    PhoneModel("課外活動組", "(07)601-1000 #31211"),
-    PhoneModel("諮輔組", "(07)601-1000 #31241"),
-    PhoneModel("圖書館", "(07)6011000 #1599"),
-    PhoneModel("生輔組", "(07)6011000 #31212"),
-    PhoneModel("楠梓校區", ''),
-    PhoneModel("總機", "07-3617141"),
-    PhoneModel("課外活動組", "07-3617141 #22070"),
-    PhoneModel("旗津校區", ''),
-    PhoneModel("旗津校區", "07-8100888"),
-    PhoneModel("學生事務處", "07-3617141 #2052"),
-    PhoneModel("課外活動組", "07-8100888 #25065"),
-    PhoneModel("生活輔導組", "07-3617141 #23967"),
+  final List<PhoneModel> phoneModelList = <PhoneModel>[
+    PhoneModel('校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5', '0800-550995'),
+    PhoneModel('建工校區', ''),
+    PhoneModel('校安專線', '0916-507-506'),
+    PhoneModel('事務組', '(07) 381-4526 #2650'),
+    PhoneModel('營繕組', '(07) 381-4526 #2630'),
+    PhoneModel('課外活動組', '(07) 381-4526 #2525'),
+    PhoneModel('諮商輔導中心', '(07) 381-4526 #2541'),
+    PhoneModel('圖書館', '(07) 381-4526 #3100'),
+    PhoneModel('校外賃居服務中心', '(07) 381-4526 #3420'),
+    PhoneModel('燕巢校區', ''),
+    PhoneModel('校安專線', '0925-350-995'),
+    PhoneModel('校外賃居服務中心', '(07) 381-4526 #8615'),
+    PhoneModel('第一校區', ''),
+    PhoneModel('生輔組', '(07)601-1000 #31212'),
+    PhoneModel('總務處 總機', '(07)601-1000 #31316'),
+    PhoneModel('總務處 場地租借', '(07)601-1000 #31312'),
+    PhoneModel('總務處 高科大會館', '(07)601-1000 #31306'),
+    PhoneModel('總務處 學雜費相關(原事務組)', '(07)601-1000 #31340'),
+    PhoneModel('課外活動組', '(07)601-1000 #31211'),
+    PhoneModel('諮輔組', '(07)601-1000 #31241'),
+    PhoneModel('圖書館', '(07)6011000 #1599'),
+    PhoneModel('生輔組', '(07)6011000 #31212'),
+    PhoneModel('楠梓校區', ''),
+    PhoneModel('總機', '07-3617141'),
+    PhoneModel('課外活動組', '07-3617141 #22070'),
+    PhoneModel('旗津校區', ''),
+    PhoneModel('旗津校區', '07-8100888'),
+    PhoneModel('學生事務處', '07-3617141 #2052'),
+    PhoneModel('課外活動組', '07-8100888 #25065'),
+    PhoneModel('生活輔導組', '07-3617141 #23967'),
   ];
 
   NotificationState notificationState = NotificationState.loading;
 
-  List<Notifications> notificationList = [];
+  List<Notifications> notificationList = <Notifications>[];
 
   int page = 1;
 
@@ -79,7 +80,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("SchoolInfoPage", "school_info_page.dart");
+        .setCurrentScreen('SchoolInfoPage', 'school_info_page.dart');
     controller = TabController(length: 3, vsync: this);
     _getNotifications();
     _getSchedules();
@@ -101,7 +102,9 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
-        children: [
+        controller: controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: <Widget>[
           NotificationListView(
             state: notificationState,
             notificationList: notificationList,
@@ -128,19 +131,17 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             },
           ),
         ],
-        controller: controller,
-        physics: NeverScrollableScrollPhysics(),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) {
+        onTap: (int index) {
           setState(() {
             _currentIndex = index;
             controller.animateTo(_currentIndex);
           });
         },
         fixedColor: ApTheme.of(context).yellow,
-        items: [
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(ApIcon.fiberNew),
             label: ap.notifications,
@@ -158,34 +159,37 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     );
   }
 
-  _getNotifications() async {
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
+  void _getNotifications() {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
       Helper.instance.getNotifications(
         page: page,
-        callback: GeneralCallback(
+        callback: GeneralCallback<NotificationsData>(
           onSuccess: (NotificationsData data) {
             notificationList.addAll(data.data.notifications);
-            if (mounted)
+            if (mounted) {
               setState(() => notificationState = NotificationState.finish);
+            }
           },
           onFailure: (DioError e) {
             ApUtils.showToast(context, e.i18nMessage);
-            if (mounted && notificationList.length == 0)
+            if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);
+            }
           },
           onError: (GeneralResponse response) {
             ApUtils.showToast(context, ap.somethingError);
-            if (mounted && notificationList.length == 0)
+            if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);
+            }
           },
         ),
       );
     }
   }
 
-  _getSchedules() async {
+  Future<void> _getSchedules() async {
     String pdfUrl =
         'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
@@ -193,12 +197,12 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         final RemoteConfig remoteConfig = RemoteConfig.instance;
         await remoteConfig.setConfigSettings(
           RemoteConfigSettings(
-            fetchTimeout: Duration(seconds: 10),
+            fetchTimeout: const Duration(seconds: 10),
             minimumFetchInterval: const Duration(hours: 1),
           ),
         );
         await remoteConfig.fetchAndActivate();
-        pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
+        pdfUrl = remoteConfig.getString(Constants.schedulePdfUrl);
         downloadFdf(pdfUrl);
       } catch (exception) {
         downloadFdf(pdfUrl);
@@ -208,10 +212,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     }
   }
 
-  void downloadFdf(String url) async {
+  Future<void> downloadFdf(String url) async {
     try {
-      print(url);
-      var response = await Dio().get<Uint8List>(
+      log(url);
+      final Response<Uint8List> response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
@@ -223,7 +227,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
       setState(() {
         pdfState = PdfState.error;
       });
-      throw e;
+      rethrow;
     }
   }
 }

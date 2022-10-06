@@ -1,16 +1,13 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/analytics_constants.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/progress_dialog.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -34,7 +31,7 @@ enum _State {
 enum Station { janGong, yanchao, first }
 
 class BusReservePage extends StatefulWidget {
-  static const String routerName = "/bus/reserve";
+  static const String routerName = '/bus/reserve';
 
   @override
   BusReservePageState createState() => BusReservePageState();
@@ -62,7 +59,7 @@ class BusReservePageState extends State<BusReservePage>
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("BusReservePage", "bus_reserve_page.dart");
+        .setCurrentScreen('BusReservePage', 'bus_reserve_page.dart');
     _getBusTimeTables();
     super.initState();
   }
@@ -79,7 +76,7 @@ class BusReservePageState extends State<BusReservePage>
     ap = ApLocalizations.of(context);
     return Scaffold(
       body: OrientationBuilder(
-        builder: (_, orientation) {
+        builder: (_, Orientation orientation) {
           return NestedScrollView(
             headerSliverBuilder:
                 (BuildContext context, bool innerBoxIsScrolled) {
@@ -96,13 +93,11 @@ class BusReservePageState extends State<BusReservePage>
                       children: <Widget>[
                         Container(
                           color: Colors.transparent,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 0.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                          ),
                           child: Calendar(
-                            isExpandable: false,
                             showTodayAction: false,
-                            showCalendarPickerIcon: true,
-                            showChevronsToChangeRange: true,
                             onDateSelected: (DateTime? datetime) {
                               if (datetime != null) {
                                 dateTime = datetime;
@@ -118,7 +113,7 @@ class BusReservePageState extends State<BusReservePage>
                           ),
                         ),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: Divider(color: ApTheme.of(context).grey),
                         ),
                       ],
@@ -130,26 +125,27 @@ class BusReservePageState extends State<BusReservePage>
             body: Column(
               children: <Widget>[
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(minWidth: double.infinity),
-                    child: CupertinoSegmentedControl(
+                    constraints:
+                        const BoxConstraints(minWidth: double.infinity),
+                    child: CupertinoSegmentedControl<Station>(
                       selectedColor: ApTheme.of(context).blueAccent,
                       borderColor: ApTheme.of(context).blueAccent,
                       unselectedColor:
                           ApTheme.of(context).segmentControlUnSelect,
                       groupValue: selectStartStation,
-                      children: {
+                      children: <Station, Widget>{
                         Station.janGong: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(app!.fromJiangong),
                         ),
                         Station.yanchao: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(app!.fromYanchao),
                         ),
                         Station.first: Container(
-                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(app!.fromFirst),
                         ),
                       },
@@ -177,9 +173,10 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   TextStyle _textStyle(BusTime busTime) => TextStyle(
-      color: busTime.getColorState(context),
-      fontSize: 18.0,
-      decorationColor: ApTheme.of(context).greyText);
+        color: busTime.getColorState(context),
+        fontSize: 18.0,
+        decorationColor: ApTheme.of(context).greyText,
+      );
 
   String? get errorText {
     switch (state) {
@@ -202,7 +199,9 @@ class BusReservePageState extends State<BusReservePage>
     switch (state) {
       case _State.loading:
         return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
       case _State.campusNotSupport:
@@ -228,7 +227,7 @@ class BusReservePageState extends State<BusReservePage>
           onRefresh: () async {
             await _getBusTimeTables();
             FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
-            return null;
+            return;
           },
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
@@ -239,16 +238,18 @@ class BusReservePageState extends State<BusReservePage>
   }
 
   List<Widget> _renderBusTimeWidgets() {
-    List<Widget> list = [];
+    final List<Widget> list = <Widget>[];
     if (busData != null) {
-      for (var i in busData!.timetable) {
-        if (selectStartStation == Station.janGong && i.startStation == "建工")
+      for (final BusTime i in busData!.timetable) {
+        if (selectStartStation == Station.janGong && i.startStation == '建工') {
           list.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.yanchao &&
-            i.startStation == "燕巢")
+        } else if (selectStartStation == Station.yanchao &&
+            i.startStation == '燕巢') {
           list.add(_busTimeWidget(i));
-        else if (selectStartStation == Station.first && i.startStation == "第一")
+        } else if (selectStartStation == Station.first &&
+            i.startStation == '第一') {
           list.add(_busTimeWidget(i));
+        }
       }
     }
     return list;
@@ -258,102 +259,15 @@ class BusReservePageState extends State<BusReservePage>
         children: <Widget>[
           InkWell(
             onTap: busTime.canReserve() && !busTime.isReserve
-                ? () {
-                    String start = "";
-                    if (selectStartStation == Station.janGong)
-                      start = app!.fromJiangong;
-                    else if (selectStartStation == Station.yanchao)
-                      start = app!.fromYanchao;
-                    else if (selectStartStation == Station.first)
-                      start = app!.fromFirst;
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) => YesNoDialog(
-                        title: '${busTime.getSpecialTrainTitle(app)}'
-                            '${busTime.specialTrain == "0" ? app!.reserve : ""}',
-                        contentWidget: RichText(
-                          textAlign: TextAlign.center,
-                          text: TextSpan(
-                            style: TextStyle(
-                              color: ApTheme.of(context).grey,
-                              height: 1.3,
-                              fontSize: 16.0,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: '${busTime.getTime()} $start\n',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              TextSpan(
-                                text:
-                                    '${app!.destination}：${busTime.getEnd(app)}\n\n',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              if (busTime.description != null &&
-                                  busTime.description!.isNotEmpty)
-                                TextSpan(
-                                  text:
-                                      '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
-                                  style: TextStyle(
-                                    color: ApTheme.of(context).grey,
-                                    height: 1.3,
-                                    fontSize: 14.0,
-                                  ),
-                                ),
-                              TextSpan(
-                                text: '${app!.busReserveConfirmTitle}',
-                                style: TextStyle(
-                                  color: ApTheme.of(context).grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        leftActionText: ap.cancel,
-                        rightActionText: app!.reserve,
-                        leftActionFunction: null,
-                        rightActionFunction: () {
-                          _bookingBus(busTime);
-                        },
-                      ),
-                    );
-                  }
-                : busTime.isReserve
-                    ? () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) => YesNoDialog(
-                            title: app!.busCancelReserve,
-                            contentWidget: Text(
-                              "${app!.busCancelReserveConfirmContent1}${busTime.getStart(app)}"
-                              "${app!.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n"
-                              "${busTime.getTime()}${app!.busCancelReserveConfirmContent3}",
-                              textAlign: TextAlign.center,
-                            ),
-                            leftActionText: ap.back,
-                            rightActionText: ap.determine,
-                            rightActionFunction: () {
-                              cancelBusReservation(busTime);
-                              FirebaseAnalyticsUtils.instance
-                                  .logEvent('cancel_bus_click');
-                            },
-                          ),
-                        );
-                        FirebaseAnalyticsUtils.instance
-                            .logEvent('cancel_bus_create');
-                      }
-                    : null,
+                ? () => _showBookingDialog(busTime)
+                : (busTime.isReserve ? () => _showCancelDialog(busTime) : null),
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Expanded(
-                    flex: 1,
                     child: Icon(
                       ApIcon.directionsBus,
                       size: 20.0,
@@ -371,7 +285,7 @@ class BusReservePageState extends State<BusReservePage>
                   Expanded(
                     flex: 2,
                     child: Text(
-                      "${busTime.reserveCount} ${ap.people}",
+                      '${busTime.reserveCount} ${ap.people}',
                       textAlign: TextAlign.center,
                       style: _textStyle(busTime),
                     ),
@@ -405,70 +319,76 @@ class BusReservePageState extends State<BusReservePage>
             ),
           ),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(color: ApTheme.of(context).grey, height: 0.0),
           )
         ],
       );
 
-  _getBusTimeTables() async {
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
+  Future<void> _getBusTimeTables() async {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
       return;
     }
-    Helper.cancelToken!.cancel("");
+    Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     if (mounted) setState(() => state = _State.loading);
     Helper.instance.getBusTimeTables(
       dateTime: dateTime,
-      callback: GeneralCallback(
+      callback: GeneralCallback<BusData>(
         onSuccess: (BusData data) {
           busData = data;
-          if (mounted)
+          if (mounted) {
             setState(() {
-              if (busData == null || busData!.timetable.length == 0)
+              if (busData == null || busData!.timetable.isEmpty) {
                 state = _State.empty;
-              else
+              } else {
                 state = _State.finish;
+              }
             });
+          }
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            Constants.CAN_USE_BUS,
+            Constants.canUseBus,
             AnalyticsConstants.yes,
           );
         },
         onFailure: (DioError e) {
-          if (mounted)
+          if (mounted) {
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response!.statusCode == 401)
+                  if (e.response!.statusCode == 401) {
                     state = _State.userNotSupport;
-                  else if (e.response!.statusCode == 403)
+                  } else if (e.response!.statusCode == 403) {
                     state = _State.campusNotSupport;
-                  else {
+                  } else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getBusTimeTables', e.response!.statusCode!,
-                        message: e.message);
+                      'getBusTimeTables',
+                      e.response!.statusCode!,
+                      message: e.message,
+                    );
                   }
                 });
                 if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403)
+                    e.response!.statusCode == 403) {
                   FirebaseAnalyticsUtils.instance.setUserProperty(
-                    Constants.CAN_USE_BUS,
+                    Constants.canUseBus,
                     AnalyticsConstants.no,
                   );
+                }
                 break;
               case DioErrorType.other:
                 setState(() {
-                  if (e.message.contains("HttpException")) {
+                  if (e.message.contains('HttpException')) {
                     state = _State.custom;
                     customStateHint = app!.busFailInfinity;
-                  } else
+                  } else {
                     state = _State.error;
+                  }
                 });
                 break;
               case DioErrorType.cancel:
@@ -480,6 +400,7 @@ class BusReservePageState extends State<BusReservePage>
                 });
                 break;
             }
+          }
         },
         onError: (GeneralResponse response) {
           setState(() {
@@ -495,19 +416,106 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  _bookingBus(BusTime busTime) {
+  void _showBookingDialog(BusTime busTime) {
+    String start = '';
+    if (selectStartStation == Station.janGong) {
+      start = app!.fromJiangong;
+    } else if (selectStartStation == Station.yanchao) {
+      start = app!.fromYanchao;
+    } else if (selectStartStation == Station.first) {
+      start = app!.fromFirst;
+    }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => YesNoDialog(
+        title: '${busTime.getSpecialTrainTitle(app)}'
+            '${busTime.specialTrain == '0' ? app!.reserve : ''}',
+        contentWidget: RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: TextStyle(
+              color: ApTheme.of(context).grey,
+              height: 1.3,
+              fontSize: 16.0,
+            ),
+            children: <TextSpan>[
+              TextSpan(
+                text: '${busTime.getTime()} $start\n',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextSpan(
+                text: '${app!.destination}：${busTime.getEnd(app)}\n\n',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (busTime.description != null &&
+                  busTime.description!.isNotEmpty)
+                TextSpan(
+                  text:
+                      '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
+                  style: TextStyle(
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 14.0,
+                  ),
+                ),
+              TextSpan(
+                text: app!.busReserveConfirmTitle,
+                style: TextStyle(
+                  color: ApTheme.of(context).grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+        leftActionText: ap.cancel,
+        rightActionText: app!.reserve,
+        rightActionFunction: () {
+          _bookingBus(busTime);
+        },
+      ),
+    );
+  }
+
+  void _showCancelDialog(BusTime busTime) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => YesNoDialog(
+        title: app!.busCancelReserve,
+        contentWidget: Text(
+          '${app!.busCancelReserveConfirmContent1}${busTime.getStart(app)}'
+          '${app!.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n'
+          '${busTime.getTime()}${app!.busCancelReserveConfirmContent3}',
+          textAlign: TextAlign.center,
+        ),
+        leftActionText: ap.back,
+        rightActionText: ap.determine,
+        rightActionFunction: () {
+          cancelBusReservation(busTime);
+          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_click');
+        },
+      ),
+    );
+    FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_create');
+  }
+
+  void _bookingBus(BusTime busTime) {
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
-          child: ProgressDialog(app!.reserving),
-          onWillPop: () async {
-            return false;
-          }),
+        child: ProgressDialog(app!.reserving),
+        onWillPop: () async {
+          return false;
+        },
+      ),
       barrierDismissible: false,
     );
     Helper.instance.bookingBusReservation(
       busId: busTime.busId,
-      callback: GeneralCallback(
+      callback: GeneralCallback<BookingBusData>(
         onSuccess: (BookingBusData data) {
           _getBusTimeTables();
           FirebaseAnalyticsUtils.instance.logEvent('book_bus_success');
@@ -519,33 +527,35 @@ class BusReservePageState extends State<BusReservePage>
               contentWidget: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
-                    style: TextStyle(
-                        color: ApTheme.of(context).grey,
-                        height: 1.3,
-                        fontSize: 16.0),
-                    children: [
-                      TextSpan(
-                        text: '${app!.busReserveDate}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getDate()}\n',
-                      ),
-                      TextSpan(
-                        text: '${app!.busReserveLocation}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getStart(app)}${app!.campus}\n',
-                      ),
-                      TextSpan(
-                        text: '${app!.busReserveTime}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getTime()}',
-                      ),
-                    ]),
+                  style: TextStyle(
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '${app!.busReserveDate}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${busTime.getDate()}\n',
+                    ),
+                    TextSpan(
+                      text: '${app!.busReserveLocation}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${busTime.getStart(app)}${app!.campus}\n',
+                    ),
+                    TextSpan(
+                      text: '${app!.busReserveTime}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: busTime.getTime(),
+                    ),
+                  ],
+                ),
               ),
               actionText: ap.iKnow,
               actionFunction: () {
@@ -562,7 +572,7 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  cancelBusReservation(BusTime busTime) {
+  void cancelBusReservation(BusTime busTime) {
     showDialog(
       context: context,
       builder: (BuildContext context) => WillPopScope(
@@ -574,8 +584,8 @@ class BusReservePageState extends State<BusReservePage>
       barrierDismissible: false,
     );
     Helper.instance.cancelBusReservation(
-      cancelKey: busTime.cancelKey,
-      callback: GeneralCallback(
+      cancelKey: busTime.cancelKey!,
+      callback: GeneralCallback<CancelBusData>(
         onSuccess: (CancelBusData data) {
           _getBusTimeTables();
           FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_success');
@@ -587,33 +597,35 @@ class BusReservePageState extends State<BusReservePage>
               contentWidget: RichText(
                 textAlign: TextAlign.left,
                 text: TextSpan(
-                    style: TextStyle(
-                        color: ApTheme.of(context).grey,
-                        height: 1.3,
-                        fontSize: 16.0),
-                    children: [
-                      TextSpan(
-                        text: '${app!.busReserveCancelDate}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getDate()}\n',
-                      ),
-                      TextSpan(
-                        text: '${app!.busReserveCancelLocation}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getStart(app)}${app!.campus}\n',
-                      ),
-                      TextSpan(
-                        text: '${app!.busReserveCancelTime}：',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      TextSpan(
-                        text: '${busTime.getTime()}',
-                      ),
-                    ]),
+                  style: TextStyle(
+                    color: ApTheme.of(context).grey,
+                    height: 1.3,
+                    fontSize: 16.0,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: '${app!.busReserveCancelDate}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${busTime.getDate()}\n',
+                    ),
+                    TextSpan(
+                      text: '${app!.busReserveCancelLocation}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: '${busTime.getStart(app)}${app!.campus}\n',
+                    ),
+                    TextSpan(
+                      text: '${app!.busReserveCancelTime}：',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    TextSpan(
+                      text: busTime.getTime(),
+                    ),
+                  ],
+                ),
               ),
               actionText: ap.iKnow,
               actionFunction: () =>
@@ -629,7 +641,7 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  static handleGeneralError(
+  static void handleGeneralError(
     BuildContext context,
     GeneralResponse response,
     String title,
@@ -642,7 +654,7 @@ class BusReservePageState extends State<BusReservePage>
     );
   }
 
-  static handleDioError(
+  static void handleDioError(
     BuildContext context,
     DioError e,
     String title,
@@ -652,21 +664,22 @@ class BusReservePageState extends State<BusReservePage>
     String? message;
     switch (e.type) {
       case DioErrorType.response:
-        final errorResponse =
+        final ErrorResponse errorResponse =
             ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
         FirebaseAnalyticsUtils.instance.logEvent(
           tag,
-          parameters: {
+          parameters: <String, String>{
             'message': errorResponse.description,
           },
         );
         break;
       case DioErrorType.other:
-        if (e.message.contains("HttpException"))
+        if (e.message.contains('HttpException')) {
           message = AppLocalizations.of(context).busFailInfinity;
-        else
+        } else {
           message = ApLocalizations.of(context).somethingError;
+        }
         break;
       case DioErrorType.cancel:
         break;
@@ -674,11 +687,12 @@ class BusReservePageState extends State<BusReservePage>
         message = e.i18nMessage;
         break;
     }
-    if (message != null)
+    if (message != null) {
       DialogUtils.showDefault(
         context: context,
         title: title,
         content: message,
       );
+    }
   }
 }

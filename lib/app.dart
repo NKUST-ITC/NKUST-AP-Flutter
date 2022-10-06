@@ -8,18 +8,15 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_utils.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
-
-import 'api/helper.dart';
-import 'models/login_response.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -40,10 +37,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   FirebaseAnalytics? analytics;
 
-  logout() {
+  void logout() {
     setState(() {
-      this.offlineLogin = false;
-      this.loginResponse = null;
+      offlineLogin = false;
+      loginResponse = null;
       Helper.clearSetting();
     });
   }
@@ -52,10 +49,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     analytics = FirebaseUtils.init();
     FirebaseMessagingUtils.instance.init(
-      vapidKey: Constants.FCM_WEB_VAPID_KEY,
+      vapidKey: Constants.fcmWebVapidKey,
     );
-    themeMode = ThemeMode
-        .values[Preferences.getInt(Constants.PREF_THEME_MODE_INDEX, 0)];
+    themeMode =
+        ThemeMode.values[Preferences.getInt(Constants.prefThemeModeIndex, 0)];
     FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
     FirebaseAnalyticsUtils.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
@@ -85,53 +82,55 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         child: MaterialApp(
           localeResolutionCallback:
               (Locale? locale, Iterable<Locale> supportedLocales) {
-            String languageCode = Preferences.getString(
-              Constants.PREF_LANGUAGE_CODE,
+            final String languageCode = Preferences.getString(
+              Constants.prefLanguageCode,
               ApSupportLanguageConstants.system,
             );
-            if (languageCode == ApSupportLanguageConstants.system)
+            if (languageCode == ApSupportLanguageConstants.system) {
               this.locale = ApLocalizations.delegate.isSupported(locale!)
                   ? locale
-                  : Locale('en');
-            else
+                  : const Locale('en');
+            } else {
               this.locale = Locale(
                 languageCode,
                 languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
               );
+            }
             AnnouncementHelper.instance.setLocale(this.locale!);
             return this.locale;
           },
-          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+          onGenerateTitle: (BuildContext context) =>
+              AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
           routes: <String, WidgetBuilder>{
-            Navigator.defaultRouteName: (context) => kIsWeb
-                ? AnnouncementHomePage(
-                    organizationDomain: Constants.MAIL_DOMAIN,
+            Navigator.defaultRouteName: (BuildContext context) => kIsWeb
+                ? const AnnouncementHomePage(
+                    organizationDomain: Constants.mailDomain,
                   )
                 : HomePage(),
             AnnouncementHomePage.routerName: (BuildContext context) =>
-                AnnouncementHomePage(
-                  organizationDomain: Constants.MAIL_DOMAIN,
+                const AnnouncementHomePage(
+                  organizationDomain: Constants.mailDomain,
                 ),
           },
           theme: ApTheme.light,
           darkTheme: ApTheme.dark,
           themeMode: themeMode,
           locale: locale,
-          navigatorObservers: [
+          navigatorObservers: <NavigatorObserver>[
             if (FirebaseAnalyticsUtils.isSupported)
               FirebaseAnalyticsObserver(analytics: analytics!),
           ],
-          localizationsDelegates: [
+          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
             apLocalizationsDelegate,
             appDelegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: [
-            const Locale('en', 'US'), // English
-            const Locale('zh', 'TW'), // Chinese
+          supportedLocales: const <Locale>[
+            Locale('en', 'US'), // English
+            Locale('zh', 'TW'), // Chinese
           ],
         ),
       ),

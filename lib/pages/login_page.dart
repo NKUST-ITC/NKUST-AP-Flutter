@@ -2,7 +2,6 @@ import 'package:ap_common/scaffold/login_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -12,7 +11,7 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class LoginPage extends StatefulWidget {
-  static const String routerName = "/login";
+  static const String routerName = '/login';
 
   @override
   LoginPageState createState() => LoginPageState();
@@ -21,11 +20,11 @@ class LoginPage extends StatefulWidget {
 class LoginPageState extends State<LoginPage> {
   late ApLocalizations ap;
 
-  final _username = TextEditingController();
-  final _password = TextEditingController();
+  final TextEditingController _username = TextEditingController();
+  final TextEditingController _password = TextEditingController();
 
-  final usernameFocusNode = FocusNode();
-  final passwordFocusNode = FocusNode();
+  final FocusNode usernameFocusNode = FocusNode();
+  final FocusNode passwordFocusNode = FocusNode();
 
   bool isRememberPassword = true;
   bool isAutoLogin = false;
@@ -34,8 +33,10 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("LoginPage", "login_page.dart");
+    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+      'LoginPage',
+      'login_page.dart',
+    );
     _getPreference();
     super.initState();
   }
@@ -55,25 +56,24 @@ class LoginPageState extends State<LoginPage> {
         ApTextField(
           controller: _username,
           keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.next,
           focusNode: usernameFocusNode,
           nextFocusNode: passwordFocusNode,
           labelText: ap.studentId,
-          autofillHints: [AutofillHints.username],
+          autofillHints: const <String>[AutofillHints.username],
         ),
         ApTextField(
           obscureText: true,
           textInputAction: TextInputAction.send,
           controller: _password,
           focusNode: passwordFocusNode,
-          onSubmitted: (text) {
+          onSubmitted: (String text) {
             passwordFocusNode.unfocus();
             _login();
           },
           labelText: ap.password,
-          autofillHints: [AutofillHints.password],
+          autofillHints: const <String>[AutofillHints.password],
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -89,7 +89,7 @@ class LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         ApButton(
           text: ap.login,
           onPressed: isLoginIng
@@ -106,16 +106,17 @@ class LoginPageState extends State<LoginPage> {
         ApFlatButton(
           text: ap.searchUsername,
           onPressed: () async {
-            var username = await Navigator.push(
+            final String? username = await Navigator.push<String>(
               context,
-              MaterialPageRoute(
+              MaterialPageRoute<String>(
                 builder: (_) => SearchStudentIdPage(),
               ),
             );
-            if (username != null && username is String) {
+            if (username != null) {
               setState(() {
                 _username.text = username;
               });
+              if (!mounted) return;
               ApUtils.showToast(context, ap.firstLoginHint);
             }
           },
@@ -124,49 +125,53 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  _onRememberPasswordChanged(bool? value) async {
+  void _onRememberPasswordChanged(bool? value) {
     if (value != null) {
       setState(() {
         isRememberPassword = value;
         if (!isRememberPassword) isAutoLogin = false;
-        Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        Preferences.setBool(Constants.prefAutoLogin, isAutoLogin);
         Preferences.setBool(
-            Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+          Constants.prefRememberPassword,
+          isRememberPassword,
+        );
       });
     }
   }
 
-  _onAutoLoginChanged(bool? value) async {
+  void _onAutoLoginChanged(bool? value) {
     if (value != null) {
       setState(() {
         isAutoLogin = value;
         isRememberPassword = isAutoLogin;
-        Preferences.setBool(Constants.PREF_AUTO_LOGIN, isAutoLogin);
+        Preferences.setBool(Constants.prefAutoLogin, isAutoLogin);
         Preferences.setBool(
-            Constants.PREF_REMEMBER_PASSWORD, isRememberPassword);
+          Constants.prefRememberPassword,
+          isRememberPassword,
+        );
       });
     }
   }
 
-  _getPreference() async {
+  Future<void> _getPreference() async {
     isRememberPassword =
-        Preferences.getBool(Constants.PREF_REMEMBER_PASSWORD, true);
-    isAutoLogin = Preferences.getBool(Constants.PREF_AUTO_LOGIN, false);
+        Preferences.getBool(Constants.prefRememberPassword, true);
+    isAutoLogin = Preferences.getBool(Constants.prefAutoLogin, false);
     setState(() {
-      _username.text = Preferences.getString(Constants.PREF_USERNAME, '');
+      _username.text = Preferences.getString(Constants.prefUsername, '');
       _password.text = isRememberPassword
-          ? Preferences.getStringSecurity(Constants.PREF_PASSWORD, '')
+          ? Preferences.getStringSecurity(Constants.prefPassword, '')
           : '';
     });
-    await Future.delayed(Duration(microseconds: 50));
+    await Future<void>.delayed(const Duration(microseconds: 50));
   }
 
-  _login() async {
+  Future<void> _login() async {
     if (_username.text.isEmpty || _password.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
       setState(() => isLoginIng = true);
-      Preferences.setString(Constants.PREF_USERNAME, _username.text);
+      Preferences.setString(Constants.prefUsername, _username.text);
       Helper.instance.login(
         context: context,
         username: _username.text,
@@ -174,12 +179,14 @@ class LoginPageState extends State<LoginPage> {
         clearCache: true,
         callback: GeneralCallback<LoginResponse?>(
           onSuccess: (LoginResponse? response) async {
-            Preferences.setString(Constants.PREF_USERNAME, _username.text);
+            Preferences.setString(Constants.prefUsername, _username.text);
             if (isRememberPassword) {
               Preferences.setStringSecurity(
-                  Constants.PREF_PASSWORD, _password.text);
+                Constants.prefPassword,
+                _password.text,
+              );
             }
-            Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+            Preferences.setBool(Constants.prefIsOfflineLogin, false);
             TextInput.finishAutofillContext();
             Navigator.of(context).pop(true);
           },
@@ -191,16 +198,16 @@ class LoginPageState extends State<LoginPage> {
           onError: (GeneralResponse response) {
             String? message = '';
             switch (response.statusCode) {
-              case ApStatusCode.SCHOOL_SERVER_ERROR:
+              case ApStatusCode.schoolServerError:
                 message = ap.schoolServerError;
                 break;
-              case ApStatusCode.API_SERVER_ERROR:
+              case ApStatusCode.apiServerError:
                 message = ap.apiServerError;
                 break;
-              case ApStatusCode.USER_DATA_ERROR:
+              case ApStatusCode.userDataError:
                 message = ap.loginFail;
                 break;
-              case ApStatusCode.CANCEL:
+              case ApStatusCode.cancel:
                 message = null;
                 break;
               default:
@@ -215,25 +222,25 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  _offlineLogin() async {
-    String username = Preferences.getString(Constants.PREF_USERNAME, '');
-    String password =
-        Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+  Future<void> _offlineLogin() async {
+    final String username = Preferences.getString(Constants.prefUsername, '');
+    final String password =
+        Preferences.getStringSecurity(Constants.prefPassword, '');
     if (username.isEmpty || password.isEmpty) {
       ApUtils.showToast(context, ap.noOfflineLoginData);
     } else {
-      if (username != _username.text || password != _password.text)
+      if (username != _username.text || password != _password.text) {
         ApUtils.showToast(context, ap.offlineLoginPasswordError);
-      else {
-        Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+      } else {
+        Preferences.setBool(Constants.prefIsOfflineLogin, true);
         ApUtils.showToast(context, ap.loadOfflineData);
         Navigator.of(context).pop(true);
       }
     }
   }
 
-  void clearSetting() async {
-    Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+  Future<void> clearSetting() async {
+    Preferences.setBool(Constants.prefAutoLogin, false);
     setState(() {
       isAutoLogin = false;
     });

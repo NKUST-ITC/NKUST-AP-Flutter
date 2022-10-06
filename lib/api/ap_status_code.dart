@@ -1,14 +1,14 @@
 class ApStatusCode {
   //After re-login fail.
-  static const NETWORK_CONNECT_FAIL = 5000;
+  static const int networkConnectFail = 5000;
 
   //LOGIN API
-  static const CANCEL = 100;
-  static const USER_DATA_ERROR = 1401;
-  static const UNKNOWN_ERROR = 1402;
+  static const int cancel = 100;
+  static const int userDataError = 1401;
+  static const int unknownError = 1402;
 
   //Common
-  static const API_EXPIRE = 401;
-  static const API_SERVER_ERROR = 500;
-  static const SCHOOL_SERVER_ERROR = 503;
+  static const int apiExpire = 401;
+  static const int apiServerError = 500;
+  static const int schoolServerError = 503;
 }

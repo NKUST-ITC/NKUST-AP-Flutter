@@ -34,15 +34,17 @@ class BusData {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static BusData sample() {
+  factory BusData.sample() {
     return BusData.fromRawJson(
-        '{ "date": "2019-03-17T16:51:57Z", "data": [ { "endEnrollDateTime": "2019-03-17T16:51:57Z", "departureTime": "2019-03-17T16:51:57Z", "startStation": "建工", "busId": "42705", "reserveCount": 2, "limitCount": 999, "isReserve": true, "specialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false }, { "endEnrollDateTime": "2020-03-17T16:51:57Z", "departureTime": "2020-03-17T16:51:57Z", "startStation": "建工", "busId": "42711", "reserveCount": 11, "limitCount": 999, "isReserve": false, "SpecialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false } ] }');
+      //ignore: lines_longer_than_80_chars
+      '{ "date": "2019-03-17T16:51:57Z", "data": [ { "endEnrollDateTime": "2019-03-17T16:51:57Z", "departureTime": "2019-03-17T16:51:57Z", "startStation": "建工", "busId": "42705", "reserveCount": 2, "limitCount": 999, "isReserve": true, "specialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false }, { "endEnrollDateTime": "2020-03-17T16:51:57Z", "departureTime": "2020-03-17T16:51:57Z", "startStation": "建工", "busId": "42711", "reserveCount": 11, "limitCount": 999, "isReserve": false, "SpecialTrain": "0", "discription": "", "cancelKey": "0", "homeCharteredBus": false } ] }',
+    );
   }
 }
 
 @JsonSerializable()
 class BusTime {
-  @deprecated
+  @Deprecated('legacy config')
   DateTime? endEnrollDateTime;
   DateTime departureTime;
   String startStation;
@@ -58,7 +60,7 @@ class BusTime {
   bool? canBook;
 
   BusTime({
-    this.endEnrollDateTime,
+    @Deprecated('legacy config') this.endEnrollDateTime,
     required this.departureTime,
     required this.startStation,
     required this.endStation,
@@ -75,12 +77,12 @@ class BusTime {
 
   String getSpecialTrainTitle(AppLocalizations? local) {
     switch (specialTrain) {
-      case "1":
+      case '1':
         return local!.specialBus;
-      case "2":
+      case '2':
         return local!.trialBus;
       default:
-        return "";
+        return '';
     }
   }
 
@@ -93,8 +95,10 @@ class BusTime {
 //  }
 
   static List<BusTime> toList(List<Map<String, dynamic>> jsonArray) {
-    List<BusTime> list = [];
-    for (var item in (jsonArray)) list.add(BusTime.fromJson(item));
+    final List<BusTime> list = <BusTime>[];
+    for (final Map<String, dynamic> item in jsonArray) {
+      list.add(BusTime.fromJson(item));
+    }
     return list;
   }
 
@@ -113,11 +117,11 @@ class BusTime {
     return canBook ?? true;
   }
 
-  @deprecated
+  @Deprecated('legacy config')
   String getEndEnrollDateTime() {
     initializeDateFormatting();
-    var dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
-    return dateFormat.format(this.endEnrollDateTime!);
+    final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
+    return dateFormat.format(endEnrollDateTime!);
   }
 
   Color getColorState(BuildContext context) {
@@ -138,14 +142,14 @@ class BusTime {
 
   String getDate() {
     initializeDateFormatting();
-    var formatterTime = new DateFormat('yyyy-MM-dd');
-    return formatterTime.format(this.departureTime);
+    final DateFormat formatterTime = DateFormat('yyyy-MM-dd');
+    return formatterTime.format(departureTime);
   }
 
   String getTime() {
     initializeDateFormatting();
-    var formatterTime = new DateFormat('HH:mm', 'zh');
-    return formatterTime.format(this.departureTime);
+    final DateFormat formatterTime = DateFormat('HH:mm', 'zh');
+    return formatterTime.format(departureTime);
   }
 
   String? getStart(AppLocalizations? local) {

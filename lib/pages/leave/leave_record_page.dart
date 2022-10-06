@@ -1,4 +1,5 @@
-import 'package:ap_common/callback/general_callback.dart';
+import 'dart:developer';
+
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
@@ -6,7 +7,6 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -33,7 +33,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   @override
   bool get wantKeepAlive => true;
 
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -54,7 +54,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   TextStyle get _textBlueStyle =>
       TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
-  TextStyle get _textStyle => TextStyle(fontSize: 15.0);
+  TextStyle get _textStyle => const TextStyle(fontSize: 15.0);
 
   @override
   void initState() {
@@ -74,7 +74,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     ap = ApLocalizations.of(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.search),
+        child: const Icon(Icons.search),
         onPressed: () {
           key.currentState!.pickSemester();
         },
@@ -86,18 +86,22 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             SemesterPicker(
               key: key,
-              onSelect: (semester, index) {
+              onSelect: (Semester semester, int index) {
                 setState(() {
                   selectSemester = semester;
                   state = _State.loading;
                 });
-                if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
+                if (Preferences.getBool(
+                  Constants.prefIsOfflineLogin,
+                  false,
+                )) {
                   _loadOfflineLeaveData();
-                else
+                } else {
                   _getSemesterLeaveRecord();
+                }
               },
             ),
             if (isOffline)
@@ -110,10 +114,10 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                 onRefresh: () async {
                   await _getSemesterLeaveRecord();
                   FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
-                  return null;
+                  return;
                 },
                 child: OrientationBuilder(
-                  builder: (_, orientation) {
+                  builder: (_, Orientation orientation) {
                     return _body(orientation);
                   },
                 ),
@@ -139,7 +143,6 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       case _State.custom:
         return customStateHint;
     }
-    return '';
   }
 
   Widget _body(Orientation orientation) {
@@ -147,17 +150,20 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     switch (state) {
       case _State.loading:
         return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
       case _State.offlineEmpty:
       case _State.custom:
         return InkWell(
           onTap: () {
-            if (state == _State.empty || state == _State.offlineEmpty)
+            if (state == _State.empty || state == _State.offlineEmpty) {
               key.currentState!.pickSemester();
-            else
+            } else {
               _getSemesterLeaveRecord();
+            }
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
@@ -167,20 +173,19 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         );
       default:
         hasNight = _checkHasNight();
-        final leaveTitle = _leaveTitle(leaveData!.timeCodes);
+        final TableRow leaveTitle = _leaveTitle(leaveData!.timeCodes);
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
                 if (hasNight && orientation == Orientation.portrait)
                   Text(ap.leaveNight),
-                SizedBox(height: 16.0),
-                Container(
+                const SizedBox(height: 16.0),
+                DecoratedBox(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
@@ -188,17 +193,17 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Table(
-                    columnWidths: {
+                    columnWidths: const <int, FractionColumnWidth>{
                       0: FractionColumnWidth(0.15),
                     },
                     defaultColumnWidth: FractionColumnWidth(0.85 / count),
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     border: TableBorder.symmetric(
-                      inside: BorderSide(color: Colors.grey),
+                      inside: const BorderSide(color: Colors.grey),
                     ),
-                    children: [
+                    children: <TableRow>[
                       leaveTitle,
-                      for (var leave in leaveData!.leaves)
+                      for (Leave leave in leaveData!.leaves)
                         _leaveBorder(leave, leaveData!.timeCodes)
                     ],
                   ),
@@ -212,9 +217,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   bool _checkHasNight() {
     if (leaveData == null) return false;
-    if (leaveData!.leaves == null) return false;
-    for (var leave in leaveData!.leaves) {
-      for (var section in leave.leaveSections) {
+    for (final Leave leave in leaveData!.leaves) {
+      for (final LeaveSections section in leave.leaveSections) {
         if (section.section.length > 1) return true;
       }
     }
@@ -222,14 +226,18 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   TableRow _leaveTitle(List<String> timeCodes) {
-    List<Widget> widgets = [];
+    final List<Widget> widgets = <Widget>[];
     widgets.add(_textBorder(ap.date, true));
-    for (var timeCode in timeCodes) {
+    for (final String timeCode in timeCodes) {
       if (hasNight) {
-        if (orientation == Orientation.landscape)
+        if (orientation == Orientation.landscape) {
           widgets.add(_textBorder(timeCode, true));
-        else if (timeCode.length < 2) widgets.add(_textBorder(timeCode, true));
-      } else if (timeCode.length < 2) widgets.add(_textBorder(timeCode, true));
+        } else if (timeCode.length < 2) {
+          widgets.add(_textBorder(timeCode, true));
+        }
+      } else if (timeCode.length < 2) {
+        widgets.add(_textBorder(timeCode, true));
+      }
     }
     count = widgets.length.toDouble();
     return TableRow(children: widgets);
@@ -238,7 +246,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   Widget _textBorder(String? text, bool isTitle) {
     return Container(
       width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
       alignment: Alignment.center,
       child: Text(
         text ?? '',
@@ -249,84 +257,91 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   TableRow _leaveBorder(Leave leave, List<String> timeCodes) {
-    List<Widget> widgets = [];
-    widgets.add(InkWell(
-      child: _textBorder(
-        leave.dateText,
-        false,
-      ),
-      onTap: (leave.leaveSheetId.isEmpty && leave.instructorsComment.isEmpty)
-          ? null
-          : () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => DefaultDialog(
-                  title: ap.leaveContent,
-                  actionText: ap.iKnow,
-                  actionFunction: () =>
-                      Navigator.of(context, rootNavigator: true).pop('dialog'),
-                  contentWidget: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
+    final List<Widget> widgets = <Widget>[];
+    widgets.add(
+      InkWell(
+        onTap: (leave.leaveSheetId.isEmpty && leave.instructorsComment.isEmpty)
+            ? null
+            : () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) => DefaultDialog(
+                    title: ap.leaveContent,
+                    actionText: ap.iKnow,
+                    actionFunction: () =>
+                        Navigator.of(context, rootNavigator: true)
+                            .pop('dialog'),
+                    contentWidget: RichText(
+                      text: TextSpan(
+                        style: TextStyle(
                           color: ApTheme.of(context).grey,
                           height: 1.3,
-                          fontSize: 16.0),
-                      children: [
-                        TextSpan(
-                          text: '${ap.leaveSheetId}：',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          fontSize: 16.0,
                         ),
-                        TextSpan(text: '${leave.leaveSheetId}\n'),
-                        TextSpan(
-                          text: '${ap.date}：',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(text: '${leave.date}\n'),
-                        TextSpan(
-                          text: '${ap.instructorsComment}：'
-                              '${leave.instructorsComment.length < 8 ? '' : '\n'}',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        TextSpan(
-                          text:
-                              '${leave.instructorsComment.replaceAll('：', ' ')}',
-                        ),
-                      ],
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: '${ap.leaveSheetId}：',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${leave.leaveSheetId}\n'),
+                          TextSpan(
+                            text: '${ap.date}：',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${leave.date}\n'),
+                          TextSpan(
+                            text: '${ap.instructorsComment}：'
+                                //ignore: lines_longer_than_80_chars
+                                '${leave.instructorsComment.length < 8 ? '' : '\n'}',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(
+                            text: leave.instructorsComment.replaceAll('：', ' '),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-    ));
-    for (var timeCode in timeCodes) {
+                );
+              },
+        child: _textBorder(
+          leave.dateText,
+          false,
+        ),
+      ),
+    );
+    for (final String timeCode in timeCodes) {
       if (hasNight) {
-        if (orientation == Orientation.landscape)
+        if (orientation == Orientation.landscape) {
           widgets.add(_textBorder(leave.getReason(timeCode), false));
-        else if (timeCode.length < 2)
+        } else if (timeCode.length < 2) {
           widgets.add(_textBorder(leave.getReason(timeCode), false));
-      } else if (timeCode.length < 2)
+        }
+      } else if (timeCode.length < 2) {
         widgets.add(_textBorder(leave.getReason(timeCode), false));
+      }
     }
     return TableRow(children: widgets);
   }
 
-  _getSemesterLeaveRecord() async {
+  Future<void> _getSemesterLeaveRecord() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     Helper.instance.getLeaves(
       semester: selectSemester,
-      callback: GeneralCallback(
+      callback: GeneralCallback<LeaveData>(
         onSuccess: (LeaveData data) {
-          if (mounted)
+          if (mounted) {
             setState(() {
               leaveData = data;
-              if (leaveData == null || leaveData!.leaves.length == 0)
+              if (leaveData == null || leaveData!.leaves.isEmpty) {
                 state = _State.empty;
-              else {
+              } else {
                 state = _State.finish;
               }
             });
-          print(state);
+          }
+          log(state.toString());
           leaveData!.save(selectSemester.cacheSaveTag);
         },
         onFailure: (DioError e) {
@@ -334,10 +349,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             state = _State.custom;
             customStateHint = e.i18nMessage;
           });
-          if (e.hasResponse)
+          if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getSemesterLeaveRecord', e.response!.statusCode!,
-                message: e.message);
+              'getSemesterLeaveRecord',
+              e.response!.statusCode!,
+              message: e.message,
+            );
+          }
           _loadOfflineLeaveData();
         },
         onError: (GeneralResponse response) {
@@ -351,12 +369,12 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     );
   }
 
-  void _loadOfflineLeaveData() async {
+  Future<void> _loadOfflineLeaveData() async {
     leaveData = LeaveData.load(selectSemester.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (this.leaveData == null) {
+        if (leaveData == null) {
           state = _State.offlineEmpty;
         } else {
           state = _State.finish;

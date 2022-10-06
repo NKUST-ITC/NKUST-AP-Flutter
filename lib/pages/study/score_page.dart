@@ -1,10 +1,8 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/scaffold/score_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -17,7 +15,7 @@ class ScorePage extends StatefulWidget {
 }
 
 class ScorePageState extends State<ScorePage> {
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -54,18 +52,20 @@ class ScorePageState extends State<ScorePage> {
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'score',
-        onSelect: (semester, index) {
+        onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
             state = ScoreState.loading;
           });
-          if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
+          if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
             _loadOfflineScoreData();
-          else
+          } else {
             _getSemesterScore();
+          }
         },
       ),
       onRefresh: () async {
+        //TODO implement block callback function
         await _getSemesterScore();
         FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
         return null;
@@ -73,7 +73,7 @@ class ScorePageState extends State<ScorePage> {
       onSearchButtonClick: () {
         key.currentState!.pickSemester();
       },
-      details: [
+      details: <String>[
         '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
         '${ap.average}：${scoreData?.detail.average ?? ''}',
         '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
@@ -82,43 +82,55 @@ class ScorePageState extends State<ScorePage> {
     );
   }
 
-  _getSemesterScore() async {
+  Future<void> _getSemesterScore() async {
     Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false))
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       _loadOfflineScoreData();
-    else
+    } else {
       Helper.instance.getScores(
-        semester: selectSemester,
-        callback: GeneralCallback(onSuccess: (ScoreData? data) {
-          if (mounted)
-            setState(() {
-              if (data == null) {
-                state = ScoreState.empty;
-              } else {
-                scoreData = data;
-                state = ScoreState.finish;
-                scoreData!.save(selectSemester!.cacheSaveTag);
-              }
-            });
-        }, onFailure: (DioError e) async {
-          if (await _loadOfflineScoreData() && e.type != DioErrorType.cancel)
-            setState(() {
-              state = ScoreState.custom;
-              customStateHint = e.i18nMessage;
-            });
-          if (e.hasResponse)
-            FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getSemesterScore', e.response!.statusCode!,
-                message: e.message);
-        }, onError: (GeneralResponse generalResponse) async {
-          if (await _loadOfflineScoreData())
-            setState(() {
-              state = ScoreState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
-            });
-        }),
+        semester: selectSemester!,
+        callback: GeneralCallback<ScoreData?>(
+          onSuccess: (ScoreData? data) {
+            if (mounted) {
+              setState(() {
+                if (data == null) {
+                  state = ScoreState.empty;
+                } else {
+                  scoreData = data;
+                  state = ScoreState.finish;
+                  scoreData!.save(selectSemester!.cacheSaveTag);
+                }
+              });
+            }
+          },
+          onFailure: (DioError e) async {
+            if (await _loadOfflineScoreData() &&
+                e.type != DioErrorType.cancel) {
+              setState(() {
+                state = ScoreState.custom;
+                customStateHint = e.i18nMessage;
+              });
+            }
+            if (e.hasResponse) {
+              FirebaseAnalyticsUtils.instance.logApiEvent(
+                'getSemesterScore',
+                e.response!.statusCode!,
+                message: e.message,
+              );
+            }
+          },
+          onError: (GeneralResponse generalResponse) async {
+            if (await _loadOfflineScoreData()) {
+              setState(() {
+                state = ScoreState.custom;
+                customStateHint = generalResponse.getGeneralMessage(context);
+              });
+            }
+          },
+        ),
       );
+    }
   }
 
   Future<bool> _loadOfflineScoreData() async {
@@ -126,9 +138,9 @@ class ScorePageState extends State<ScorePage> {
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (scoreData == null)
+        if (scoreData == null) {
           state = ScoreState.offlineEmpty;
-        else {
+        } else {
           state = ScoreState.finish;
         }
       });

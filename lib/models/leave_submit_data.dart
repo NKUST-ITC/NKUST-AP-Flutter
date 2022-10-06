@@ -59,14 +59,14 @@ class Day {
 
   @override
   String toString() {
-    if (day == null && dayClass == null)
+    if (day == null && dayClass == null) {
       return 'empty';
-    else {
-      String? text = day;
-      dayClass!.forEach((item) {
-        text = '$text ($item)';
-      });
-      return text!;
+    } else {
+      final StringBuffer buffer = StringBuffer(day!);
+      for (final String item in dayClass!) {
+        buffer.write('$buffer ($item)');
+      }
+      return buffer.toString();
     }
   }
 }

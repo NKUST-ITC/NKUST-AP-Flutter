@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
@@ -40,7 +42,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
       appBar: AppBar(
         title: Text(app.loginAuth),
         backgroundColor: ApTheme.of(context).blue,
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
@@ -55,7 +57,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
       ),
       floatingActionButton: kDebugMode
           ? FloatingActionButton(
-              child: Icon(Icons.done_outline),
+              child: const Icon(Icons.done_outline),
               onPressed: () async {
                 // final html = await webViewController.getHtml();
                 // debugPrint(html);
@@ -65,7 +67,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           : null,
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse(MobileNkustHelper.LOGIN),
+          url: Uri.parse(MobileNkustHelper.loginUrl),
         ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -77,37 +79,44 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           this.webViewController = webViewController;
           ApUtils.showToast(context, app.mobileNkustLoginHint);
         },
-        onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
+        onJsPrompt: (
+          InAppWebViewController controller,
+          JsPromptRequest jsPromptRequest,
+        ) async {
           return;
-        } as Future<JsPromptResponse?> Function(
-            InAppWebViewController, JsPromptRequest)?,
-        onPageCommitVisible: (controller, title) async {
-          final uri = await controller.getUrl();
+        },
+        onPageCommitVisible:
+            (InAppWebViewController controller, Uri? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title ${uri.toString()}');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
-          if (uri.toString() == MobileNkustHelper.LOGIN) {
+          if (uri.toString() == MobileNkustHelper.loginUrl) {
             await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Account")[0].value = "${widget.username}";');
+              source: 'document.getElementsByName("Account")[0].value '
+                  '= "${widget.username}";',
+            );
             await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Password")[0].value = "${widget.password}";');
+              source: 'document.getElementsByName("Password")[0].value'
+                  ' = "${widget.password}";',
+            );
             await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("RememberMe")[0].checked = true;');
+              source: 'document.getElementsByName("RememberMe")[0].checked '
+                  '= true;',
+            );
           }
         },
-        onTitleChanged: (controller, title) async {
-          final uri = await controller.getUrl();
+        onTitleChanged:
+            (InAppWebViewController controller, String? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onTitleChanged $title $uri');
-          if (uri.toString() == MobileNkustHelper.HOME) {
+          if (uri.toString() == MobileNkustHelper.homeUrl) {
             _finishLogin();
           }
         },
-        onLoadStop: (controller, title) async {
-          final uri = await controller.getUrl();
+        onLoadStop: (InAppWebViewController controller, Uri? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onLoadStop $title $uri');
         },
       ),
@@ -115,38 +124,42 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
   }
 
   Future<void> _finishLogin() async {
-    if (finish)
+    if (finish) {
       return;
-    else
+    } else {
       finish = true;
-    final cookies = await CookieManager.instance().getCookies(
-      url: Uri.parse(MobileNkustHelper.BASE_URL),
+    }
+    final List<Cookie> cookies = await CookieManager.instance().getCookies(
+      url: Uri.parse(MobileNkustHelper.baseUrl),
     );
-    final data = MobileCookiesData(cookies: []);
-    cookies.forEach(
-      (element) {
-        data.cookies.add(
-          MobileCookies(
-            path: MobileNkustHelper.HOME,
-            name: element.name,
-            value: element.value.toString(),
-            domain: element.domain ??
-                (element.name == '.AspNetCore.Cookies'
-                    ? 'mobile.nkust.edu.tw'
-                    : '.nkust.edu.tw'),
-          ),
+    final MobileCookiesData data =
+        MobileCookiesData(cookies: <MobileCookies>[]);
+    for (final Cookie element in cookies) {
+      data.cookies.add(
+        MobileCookies(
+          path: MobileNkustHelper.homeUrl,
+          name: element.name,
+          value: element.value.toString(),
+          domain: element.domain ??
+              (element.name == '.AspNetCore.Cookies'
+                  ? 'mobile.nkust.edu.tw'
+                  : '.nkust.edu.tw'),
+        ),
+      );
+      if (kDebugMode) {
+        log(
+          'Cookie: ${element.name}: '
+          '${element.value} ${element.domain} ${element.expiresDate} \n',
         );
-        if (kDebugMode)
-          print(
-              "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
-      },
-    );
+      }
+    }
     MobileNkustHelper.instance.setCookieFromData(data);
     data.save();
     Preferences.setInt(
-      Constants.MOBILE_COOKIES_LAST_TIME,
+      Constants.mobileCookiesLastTime,
       DateTime.now().microsecondsSinceEpoch,
     );
+    if (!mounted) return;
     Navigator.pop(context, true);
   }
 }

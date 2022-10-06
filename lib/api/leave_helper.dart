@@ -1,23 +1,20 @@
-//dio
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:ap_common/models/private_cookies_manager.dart';
-//overwrite origin Cookie Manager.
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-//parser
+import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
-//Config
 import 'package:nkust_ap/config/constants.dart';
-//model
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
@@ -25,19 +22,17 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
-import 'ap_status_code.dart';
-import 'helper.dart';
-
 class LeaveHelper {
   LeaveHelper() {
     dioInit();
   }
 
-  static const BASE_PATH = 'https://leave.nkust.edu.tw/';
-  static const HOME = '${BASE_PATH}masterindex.aspx';
+  static const String basePath = 'https://leave.nkust.edu.tw/';
+  static const String home = '${basePath}masterindex.aspx';
 
   static LeaveHelper? _instance;
 
+  //ignore: prefer_constructors_over_static_methods
   static LeaveHelper get instance {
     return _instance ??= LeaveHelper();
   }
@@ -54,10 +49,11 @@ class LeaveHelper {
 
   void setProxy(String proxyIP) {
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      client.findProxy = (uri) {
-        return "PROXY " + proxyIP;
+        (HttpClient client) {
+      client.findProxy = (Uri uri) {
+        return 'PROXY $proxyIP';
       };
+      return client;
     };
   }
 
@@ -69,7 +65,7 @@ class LeaveHelper {
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
 
-    dio.options.headers.addAll({
+    dio.options.headers.addAll(<String, String>{
       'Origin': 'http://leave.nkust.edu.tw',
       'Upgrade-Insecure-Requests': '1',
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -81,21 +77,19 @@ class LeaveHelper {
     });
 
     dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = Constants.TIMEOUT_MS;
-    dio.options.receiveTimeout = Constants.TIMEOUT_MS;
+    dio.options.connectTimeout = Constants.timeoutMs;
+    dio.options.receiveTimeout = Constants.timeoutMs;
   }
 
   void setCookieFromData(MobileCookiesData data) {
-    if (data != null) {
-      cookiesData = data;
-      data.cookies.forEach((element) {
-        Cookie _tempCookie = Cookie(element.name, element.value);
-        _tempCookie.domain = element.domain;
-        cookieJar.saveFromResponse(
-          Uri.parse(element.path),
-          [_tempCookie],
-        );
-      });
+    cookiesData = data;
+    for (final MobileCookies element in data.cookies) {
+      final Cookie tempCookie = Cookie(element.name, element.value);
+      tempCookie.domain = element.domain;
+      cookieJar.saveFromResponse(
+        Uri.parse(element.path),
+        <Cookie>[tempCookie],
+      );
     }
   }
 
@@ -105,20 +99,20 @@ class LeaveHelper {
     required String cookieValue,
     String? cookieDomain,
   }) {
-    Cookie _tempCookie = Cookie(cookieName, cookieValue);
-    _tempCookie.domain = cookieDomain;
+    final Cookie tempCookie = Cookie(cookieName, cookieValue);
+    tempCookie.domain = cookieDomain;
     cookieJar.saveFromResponse(
       Uri.parse(url),
-      [_tempCookie],
+      <Cookie>[tempCookie],
     );
   }
 
   Future<bool> isCookieAlive() async {
     try {
       //TODO check cookies is expire
-      var res = await dio.get('');
+      final Response<dynamic> res = await dio.get('');
       return res.data == 'alive';
-    } catch (e) {}
+    } catch (_) {}
     return false;
   }
 
@@ -149,7 +143,7 @@ class LeaveHelper {
     // }
     final bool? result = await Navigator.push<bool>(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<bool>(
         builder: (_) => LeaveNkustPage(
           username: username,
           password: password,
@@ -157,35 +151,38 @@ class LeaveHelper {
         ),
       ),
     );
-    if (result ?? false)
+    if (result ?? false) {
       return LoginResponse();
-    else
-      throw GeneralResponse(statusCode: ApStatusCode.CANCEL, message: 'cancel');
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    }
   }
 
-  /// Since 2021/07 School add Google re-captcha in leave system crawler login not working
-  @deprecated
+  @Deprecated(
+    'Since 2021/07 School add Google re-captcha in leave system crawler login not working',
+  )
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
       throw NullThrownError;
     }
 
     //Get base hidden data.
-    Response<String> res = await dio.get<String>(
-      "https://leave.nkust.edu.tw/LogOn.aspx",
+    final Response<String> res = await dio.get<String>(
+      'https://leave.nkust.edu.tw/LogOn.aspx',
     );
-    var requestData = hiddenInputGet(res.data);
-    requestData[r"Login1$UserName"] = Helper.username;
-    requestData[r"Login1$Password"] = Helper.password;
-    requestData[r"Login1$LoginButton"] = "登入";
-    requestData[r"HiddenField1"] = "";
+    final Map<String?, dynamic> requestData = hiddenInputGet(res.data);
+    requestData[r'Login1$UserName'] = Helper.username;
+    requestData[r'Login1$Password'] = Helper.password;
+    requestData[r'Login1$LoginButton'] = '登入';
+    requestData['HiddenField1'] = '';
     try {
       await dio.post(
-        "https://leave.nkust.edu.tw/LogOn.aspx",
+        'https://leave.nkust.edu.tw/LogOn.aspx',
         data: requestData,
         options: Options(
-            followRedirects: false,
-            contentType: Headers.formUrlEncodedContentType),
+          followRedirects: false,
+          contentType: Headers.formUrlEncodedContentType,
+        ),
       );
       //login fail
       return false;
@@ -211,20 +208,21 @@ class LeaveHelper {
       await WebApHelper.instance.loginToLeave();
       reLoginReTryCounts++;
     }
-    Response<String> res = await dio.get<String>(
-      "https://leave.nkust.edu.tw/AK002MainM.aspx",
+    final Response<String> res = await dio.get<String>(
+      'https://leave.nkust.edu.tw/AK002MainM.aspx',
     );
-    var requestData = allInputValueParser(res.data);
+    final Map<String?, dynamic> requestData = allInputValueParser(res.data);
     requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] =
-        "$year-$semester";
-    requestData[r"ctl00$ContentPlaceHolder1$Button1	"] = "確定送出";
-    requestData.remove(r"ctl00$ButtonLogOut");
-    Response<String> queryRequest = await dio.post<String>(
-      "https://leave.nkust.edu.tw/AK002MainM.aspx",
+        '$year-$semester';
+    requestData[r'ctl00$ContentPlaceHolder1$Button1	'] = '確定送出';
+    requestData.remove(r'ctl00$ButtonLogOut');
+    final Response<String> queryRequest = await dio.post<String>(
+      'https://leave.nkust.edu.tw/AK002MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
 
     return LeaveData.fromJson(leaveQueryParser(queryRequest.data));
@@ -242,166 +240,182 @@ class LeaveHelper {
       reLoginReTryCounts++;
     }
     Response<String> res = await dio.get<String>(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
     );
-    var requestData = hiddenInputGet(res.data);
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonEnter"] = "進入請假作業";
+    Map<String?, dynamic> requestData = hiddenInputGet(res.data);
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonEnter'] = '進入請假作業';
 
     res = await dio.post(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
-    String fakeDate =
-        "${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}";
+    final String fakeDate =
+        '${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}';
     requestData = hiddenInputGet(res.data, removeTdElement: true);
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] =
         fakeDate;
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] = fakeDate;
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] = fakeDate;
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonCommit'] = '下一步';
     res = await dio.post(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
     return LeaveSubmitInfoData.fromJson(leaveSubmitInfoParser(res.data)!);
   }
 
-  Future<Response?> leavesSubmit(LeaveSubmitData data,
-      {PickedFile? proofImage}) async {
+  Future<Response<dynamic>?> leavesSubmit(
+    LeaveSubmitData data, {
+    PickedFile? proofImage,
+  }) async {
     //force relogin to aviod error.
     await WebApHelper.instance.loginToLeave();
 
     Response<String> res = await dio.get<String>(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
     );
 
-    var requestData = hiddenInputGet(res.data);
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonEnter"] = "進入請假作業";
+    Map<String?, dynamic> requestData = hiddenInputGet(res.data);
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonEnter'] = '進入請假作業';
 
     res = await dio.post(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
 
     requestData = hiddenInputGet(res.data, removeTdElement: true);
-    var dateFormate = DateFormat("yyyy/MM/dd");
-    var beginDate = dateFormate.parse(data.days[0].day!);
-    var endDate = dateFormate.parse(data.days[data.days.length - 1].day!);
+    final DateFormat dateFormate = DateFormat('yyyy/MM/dd');
+    final DateTime beginDate = dateFormate.parse(data.days[0].day!);
+    final DateTime endDate =
+        dateFormate.parse(data.days[data.days.length - 1].day!);
 
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1"] =
-        "${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}";
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] =
+        '${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}';
 
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1"] =
-        "${endDate.year - 1911}/${endDate.month}/${endDate.day}";
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] =
+        '${endDate.year - 1911}/${endDate.month}/${endDate.day}';
 
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonCommit"] = "下一步";
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonCommit'] = '下一步';
     res = await dio.post(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
-    if (res.data.toString().indexOf("alert(") > -1) {
+    if (res.data.toString().contains('alert(')) {
       return null;
     }
-    var submitData = leaveSubmitInfoParser(res.data.toString());
-    print("on submit main page.");
-    print("Change leave type");
-    Map<String, dynamic> globalRequestData = {};
+    final Map<String, dynamic>? submitData =
+        leaveSubmitInfoParser(res.data.toString());
+    log('on submit main page.');
+    log('Change leave type');
+    final Map<String, dynamic> globalRequestData = <String, dynamic>{};
 
-    globalRequestData[r"ctl00$ContentPlaceHolder1$CK001$TextBoxReason"] =
+    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxReason'] =
         data.reasonText;
-    globalRequestData[r"ctl00$ContentPlaceHolder1$CK001$ddlTeach"] =
+    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$ddlTeach'] =
         data.teacherId;
     globalRequestData[
-            r"ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption"] =
+            r'ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] =
         data.leaveTypeId;
-    if (data.delayReasonText != null &&
-        res.data.toString().indexOf("延遲理由") > -1) {
-      globalRequestData[r"ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason"] =
+    if (data.delayReasonText != null && res.data.toString().contains('延遲理由')) {
+      globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] =
           data.delayReasonText;
     }
-    var document = parse(res.data.toString());
+    final html.Document document = parse(res.data.toString());
 
-    print("generate need click button list");
-    var trObj =
-        document.getElementsByClassName("mGrid")[0].getElementsByTagName("tr");
+    log('generate need click button list');
+    final List<html.Element> trObj =
+        document.getElementsByClassName('mGrid')[0].getElementsByTagName('tr');
     if (trObj.length < 2) {
-      print("Error: not found leave days options");
+      log('Error: not found leave days options');
       return null;
     }
-    List<String?> _clickList = [];
+    final List<String?> clickList = <String?>[];
     for (int i = 1; i < trObj.length; i++) {
-      var td = trObj[i].getElementsByTagName("td");
-      var _leaveDays = data.days[i - 1].dayClass!;
-      for (int l = 0; l < _leaveDays.length; l++) {
-        _clickList.add(td[(submitData!["timeCodes"] as List<dynamic>)
-                    .indexOf(_leaveDays[l]) +
-                3]
-            .getElementsByTagName("input")[0]
-            .attributes["name"]);
+      final List<html.Element> td = trObj[i].getElementsByTagName('td');
+      final List<String> leaveDays = data.days[i - 1].dayClass!;
+      for (int l = 0; l < leaveDays.length; l++) {
+        clickList.add(
+          td[(submitData!['timeCodes'] as List<dynamic>).indexOf(leaveDays[l]) +
+                  3]
+              .getElementsByTagName('input')[0]
+              .attributes['name'],
+        );
       }
     }
-    print("click leave class");
+    log('click leave class');
 
-    for (int i = 0; i < _clickList.length; i++) {
-      var requestData = hiddenInputGet(res.data.toString());
+    for (int i = 0; i < clickList.length; i++) {
+      final Map<String?, dynamic> requestData =
+          hiddenInputGet(res.data.toString());
       requestData.addAll(globalRequestData);
 
-      requestData[_clickList[i]] = "";
+      requestData[clickList[i]] = '';
       res = await dio.post(
-        "https://leave.nkust.edu.tw/CK001MainM.aspx",
+        'https://leave.nkust.edu.tw/CK001MainM.aspx',
         data: requestData,
         options: Options(
-            followRedirects: false,
-            contentType: Headers.formUrlEncodedContentType),
+          followRedirects: false,
+          contentType: Headers.formUrlEncodedContentType,
+        ),
       );
       //click covid-19 alert.
 
     }
     requestData = hiddenInputGet(res.data.toString());
     requestData.addAll(globalRequestData);
-    if (res.data.toString().indexOf("ContentPlaceHolder1_CK001_cbFlag") > -1) {
-      requestData[r"ctl00$ContentPlaceHolder1$CK001$cbFlag"] = "on";
+    if (res.data.toString().contains('ContentPlaceHolder1_CK001_cbFlag')) {
+      requestData[r'ctl00$ContentPlaceHolder1$CK001$cbFlag'] = 'on';
     }
     requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonCommit2'] = '下一步';
     res = await dio.post(
-      "https://leave.nkust.edu.tw/CK001MainM.aspx",
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: requestData,
       options: Options(
-          followRedirects: false,
-          contentType: Headers.formUrlEncodedContentType),
+        followRedirects: false,
+        contentType: Headers.formUrlEncodedContentType,
+      ),
     );
 
-    print("End submit page");
-    print("Submit and add leave proof image.");
+    log('End submit page');
+    log('Submit and add leave proof image.');
     requestData = hiddenInputGet(res.data.toString());
-    requestData[r"ctl00$ContentPlaceHolder1$CK001$ButtonSend"] = '存檔';
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonSend'] = '存檔';
     if (proofImage != null) {
-      print("Add proof image");
+      log('Add proof image');
       requestData[r'ctl00$ContentPlaceHolder1$CK001$FileUpload1'] =
-          await MultipartFile.fromFile(proofImage.path,
-              filename: "proof_image.jpg",
-              contentType: MediaType.parse("image/jpeg"));
+          await MultipartFile.fromFile(
+        proofImage.path,
+        filename: 'proof_image.jpg',
+        contentType: MediaType.parse('image/jpeg'),
+      );
     }
 
-    FormData formData = FormData.fromMap(requestData as Map<String, dynamic>);
+    final FormData formData =
+        FormData.fromMap(requestData as Map<String, dynamic>);
 
-    dio.options.headers["Content-Type"] =
-        "multipart/form-data; boundary=${formData.boundary}";
-    res = await dio.post("https://leave.nkust.edu.tw/CK001MainM.aspx",
-        data: formData);
+    dio.options.headers['Content-Type'] =
+        'multipart/form-data; boundary=${formData.boundary}';
+    res = await dio.post(
+      'https://leave.nkust.edu.tw/CK001MainM.aspx',
+      data: formData,
+    );
 
-    if (res.data.toString().indexOf("假單存檔成功") > -1) {
+    if (res.data.toString().contains('假單存檔成功')) {
       return res;
     }
 

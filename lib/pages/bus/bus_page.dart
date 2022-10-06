@@ -1,4 +1,3 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/analytics_constants.dart';
 import 'package:ap_common/l10n/l10n.dart';
 import 'package:ap_common/resources/ap_icon.dart';
@@ -15,10 +14,12 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class BusPage extends StatefulWidget {
-  static const String routerName = "/bus";
+  static const String routerName = '/bus';
   final int initIndex;
 
-  BusPage({this.initIndex = 0});
+  const BusPage({
+    this.initIndex = 0,
+  });
 
   @override
   BusPageState createState() => BusPageState();
@@ -31,7 +32,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   int _currentIndex = 0;
 
-  final List<Widget> _children = [
+  final List<Widget> _children = <Widget>[
     BusReservePage(),
     BusReservationsPage(),
     BusViolationRecordsPage()
@@ -44,7 +45,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     _currentIndex = widget.initIndex;
     controller =
         TabController(length: 3, initialIndex: widget.initIndex, vsync: this);
-    _login = Future.microtask(() => login());
+    _login = Future<bool>.microtask(() => login());
     super.initState();
   }
 
@@ -62,50 +63,52 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         title: Text(app!.bus),
         actions: <Widget>[
           IconButton(
-              icon: Icon(
-                ApIcon.info,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                ApUtils.pushCupertinoStyle(
-                  context,
-                  BusRulePage(),
-                );
-              })
+            icon: Icon(
+              ApIcon.info,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              ApUtils.pushCupertinoStyle(
+                context,
+                const BusRulePage(),
+              );
+            },
+          )
         ],
         elevation: (_currentIndex == 2) ? 0.0 : null,
       ),
       body: FutureBuilder<bool>(
         future: _login,
-        builder: (context, snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data!)
+              snapshot.data!) {
             return TabBarView(
-              children: _children,
               controller: controller,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
+              children: _children,
             );
-          else if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
               child: CircularProgressIndicator(),
             );
-          else
+          } else {
             return InkWell(
               onTap: () {
-                _login = Future.microtask(() => login());
+                _login = Future<bool>.microtask(() => login());
               },
               child: HintContent(
                 content: ApLocalizations.of(context).clickToRetry,
                 icon: ApIcon.error,
               ),
             );
+          }
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
         fixedColor: ApTheme.of(context).yellow,
-        items: [
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(ApIcon.dateRange),
             label: app!.busReserve,
@@ -150,19 +153,20 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   void getBusViolationRecords() {
     Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback(
+      callback: GeneralCallback<BusViolationRecordsData>(
         onSuccess: (BusViolationRecordsData data) {
-          if (mounted)
+          if (mounted) {
             setState(() {
               ShareDataWidget.of(context)!.data.hasBusViolationRecords =
                   data.hasBusViolationRecords;
             });
+          }
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            Constants.CAN_USE_BUS,
+            Constants.canUseBus,
             AnalyticsConstants.yes,
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            Constants.HAS_BUS_VIOLATION,
+            Constants.hasBusViolation,
             (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
@@ -174,7 +178,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
               (e.response!.statusCode == 401 ||
                   e.response!.statusCode == 403)) {
             FirebaseAnalyticsUtils.instance.setUserProperty(
-              Constants.CAN_USE_BUS,
+              Constants.canUseBus,
               AnalyticsConstants.no,
             );
           }

@@ -12,16 +12,18 @@ class BusViolationRecordsData {
   @JsonKey(name: 'reservation')
   List<Reservation> reservations;
   @JsonKey(ignore: true)
-  List<Reservation> notPaymentReservations = [];
+  List<Reservation> notPaymentReservations = <Reservation>[];
 
   int get notPaymentAmountend {
     int sum = 0;
-    notPaymentReservations.forEach((element) => sum += element.amountend);
+    for (final Reservation element in notPaymentReservations) {
+      sum += element.amountend;
+    }
     return sum;
   }
 
   bool get hasBusViolationRecords {
-    for (var item in reservations) {
+    for (final Reservation item in reservations) {
       if (!item.isPayment) return true;
     }
     return false;
@@ -47,9 +49,9 @@ class BusViolationRecordsData {
 
   void updateNotPaymentReservations() {
     notPaymentReservations.clear();
-    reservations.forEach((element) {
+    for (final Reservation element in reservations) {
       if (!element.isPayment) notPaymentReservations.add(element);
-    });
+    }
   }
 }
 

@@ -7,12 +7,11 @@ import 'package:ap_common/widgets/default_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
-  static const String routerName = "/searchUsername";
+  static const String routerName = '/searchUsername';
 
   @override
   SearchStudentIdPageState createState() => SearchStudentIdPageState();
@@ -22,8 +21,8 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   late AppLocalizations app;
   late ApLocalizations ap;
 
-  final _id = TextEditingController();
-  final idFocusNode = FocusNode();
+  final TextEditingController _id = TextEditingController();
+  final FocusNode idFocusNode = FocusNode();
 
   DateTime birthday = DateTime(DateTime.now().year - 18);
 
@@ -33,7 +32,9 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   void initState() {
     super.initState();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-        "SearchUsernamePagePage", "search_student_id_page.dart");
+      'SearchUsernamePagePage',
+      'search_student_id_page.dart',
+    );
   }
 
   @override
@@ -46,7 +47,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       forms: <Widget>[
         InkWell(
           onTap: () async {
-            var date = await showDatePicker(
+            final DateTime? date = await showDatePicker(
               context: context,
               initialDate: birthday,
               firstDate: DateTime(1911),
@@ -56,18 +57,18 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(ap.birthDay),
               Text(
                 sprintf(
-                  "%i-%02i-%02i",
-                  [
+                  '%i-%02i-%02i',
+                  <int>[
                     birthday.year,
                     birthday.month,
                     birthday.day,
                   ],
                 ),
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 17.0,
                 ),
               ),
@@ -81,13 +82,13 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           textInputAction: TextInputAction.send,
           controller: _id,
           focusNode: idFocusNode,
-          onSubmitted: (text) {
+          onSubmitted: (String text) {
             idFocusNode.unfocus();
             _search();
           },
           labelText: ap.id,
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -98,7 +99,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             ),
           ],
         ),
-        SizedBox(height: 8.0),
+        const SizedBox(height: 8.0),
         ApButton(
           text: ap.search,
           onPressed: () {
@@ -110,7 +111,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     );
   }
 
-  _onAutoFillChanged(bool? value) async {
+  void _onAutoFillChanged(bool? value) {
     if (value != null) {
       setState(() {
         isAutoFill = value;
@@ -118,14 +119,14 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     }
   }
 
-  _search() async {
+  Future<void> _search() async {
     if (_id.text.isEmpty) {
       ApUtils.showToast(context, ap.doNotEmpty);
     } else {
       NKUSTHelper.instance.getUsername(
         rocId: _id.text,
         birthday: birthday,
-        callback: GeneralCallback(
+        callback: GeneralCallback<UserInfo>(
           onSuccess: (UserInfo data) {
             if (isAutoFill) {
               Navigator.pop(context, data.id);
@@ -133,7 +134,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               _showResultDialog(
                 sprintf(
                   AppLocalizations.of(context).searchStudentIdFormat,
-                  [
+                  <dynamic>[
                     data.name,
                     data.id,
                   ],
@@ -151,7 +152,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     }
   }
 
-  _showResultDialog(
+  void _showResultDialog(
     String? text, {
     bool showFirstHint = true,
   }) {
@@ -168,10 +169,10 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               height: 1.3,
               fontSize: 16.0,
             ),
-            children: [
+            children: <TextSpan>[
               TextSpan(
                 text: text,
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               if (showFirstHint)
                 TextSpan(

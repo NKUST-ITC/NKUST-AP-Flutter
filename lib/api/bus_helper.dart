@@ -1,24 +1,19 @@
-//dio
 import 'dart:convert';
+import 'dart:io';
 
-//overwrite origin Cookie Manager.
 import 'package:ap_common/models/private_cookies_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/adapter.dart';
-import 'package:dio/dio.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/api_tool.dart';
-//parser
 import 'package:nkust_ap/api/parser/bus_parser.dart';
-//model
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
-
-import 'helper.dart';
 
 String generateMd5(String input) {
   return md5.convert(utf8.encode(input)).toString();
@@ -36,19 +31,21 @@ class BusEncrypt {
 
   void jsEncryptCodeParser(String content) {
     // http://bus.kuas.edu.tw/API/Scripts/a1
-    RegExp seedFromFirstRegex = new RegExp(r"encA2\('((\d|\w){0,32})'");
-    RegExp seedFromLastRegex =
-        new RegExp(r"encA2\(e(\w|\d|\s|\W){0,3}'((\d|\w){0,32})'\)");
+    final RegExp seedFromFirstRegex = RegExp(r"encA2\('((\d|\w){0,32})'");
+    final RegExp seedFromLastRegex =
+        RegExp(r"encA2\(e(\w|\d|\s|\W){0,3}'((\d|\w){0,32})'\)");
 
-    var firstMatches = seedFromFirstRegex.allMatches(content);
-    var lastMatches = seedFromLastRegex.allMatches(content);
+    final Iterable<RegExpMatch> firstMatches =
+        seedFromFirstRegex.allMatches(content);
+    final Iterable<RegExpMatch> lastMatches =
+        seedFromLastRegex.allMatches(content);
     String? seedFromFirst;
     String? seedFromLast;
 
-    if (firstMatches.length > 0) {
+    if (firstMatches.isNotEmpty) {
       seedFromFirst = firstMatches.toList()[firstMatches.length - 1].group(1);
     }
-    if (lastMatches.length > 0) {
+    if (lastMatches.isNotEmpty) {
       seedFromLast = lastMatches.toList()[lastMatches.length - 1].group(2);
     }
     findEndString(content, seedFromFirst);
@@ -64,32 +61,42 @@ class BusEncrypt {
 
   String encA1(String value) {
     if (seedDirection == null || seedValue == null) {
-      throw Exception("Seed get error");
+      throw Exception('Seed get error');
     }
     if (seedDirection == 0) {
-      return generateMd5("$seedValue$value");
+      return generateMd5('$seedValue$value');
     }
-    return generateMd5("$value$seedValue");
+    return generateMd5('$value$seedValue');
   }
 
   String loginEncrypt(String username, String password) {
-    var g = "419191959";
-    var i = "930672927";
-    var j = "1088434686";
-    var k = "260123741";
+    String g = '419191959';
+    String i = '930672927';
+    String j = '1088434686';
+    String k = '260123741';
 
-    g = generateMd5("J$g");
-    i = generateMd5("E$i");
-    j = generateMd5("R$j");
-    k = generateMd5("Y$k");
-    username = generateMd5(username + encA1(g));
-    password = generateMd5(username + password + "JERRY" + encA1(i));
+    g = generateMd5('J$g');
+    i = generateMd5('E$i');
+    j = generateMd5('R$j');
+    k = generateMd5('Y$k');
+    final String usernameMD5 = generateMd5(username + encA1(g));
+    final String passwordMD5 =
+        generateMd5('$username${password}JERRY${encA1(i)}');
 
-    var l = generateMd5(username + password + "KUAS" + encA1(j));
-    l = generateMd5(l + username + encA1("ITALAB") + encA1(k));
-    l = generateMd5(l + password + "MIS" + k);
+    String l = generateMd5('$usernameMD5${passwordMD5}KUAS${encA1(j)}');
+    l = generateMd5(l + usernameMD5 + encA1('ITALAB') + encA1(k));
+    l = generateMd5('$l${password}MIS$k');
 
-    return json.encode({"a": l, "b": g, "c": i, "d": j, "e": k, "f": password});
+    return json.encode(
+      <String, String>{
+        'a': l,
+        'b': g,
+        'c': i,
+        'd': j,
+        'e': k,
+        'f': passwordMD5
+      },
+    );
   }
 
   int findEndString(String content, String? targetString) {
@@ -125,22 +132,24 @@ class BusHelper {
   bool isLogin = false;
 
   static String? userTimeTableSelectCacheKey;
-  static String userRecordsCacheKey = "${Helper.username}_busUserRecords";
+  static String userRecordsCacheKey = '${Helper.username}_busUserRecords';
   static String userViolationRecordsCacheKey =
-      "${Helper.username}_busViolationRecords";
+      '${Helper.username}_busViolationRecords';
   static late BusEncrypt busEncryptObject;
-  static String busHost = "http://bus.kuas.edu.tw/";
+  static String busHost = 'http://bus.kuas.edu.tw/';
 
+  //ignore: prefer_constructors_over_static_methods
   static BusHelper get instance {
     return _instance ??= BusHelper();
   }
 
   void setProxy(String proxyIP) {
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (client) {
-      client.findProxy = (uri) {
-        return "PROXY " + proxyIP;
+        (HttpClient client) {
+      client.findProxy = (Uri uri) {
+        return 'PROXY $proxyIP';
       };
+      return client;
     };
   }
 
@@ -150,7 +159,7 @@ class BusHelper {
     dio = Dio();
     if (Helper.isSupportCacheData) {
       _manager =
-          DioCacheManager(CacheConfig(baseUrl: "http://bus.kuas.edu.tw"));
+          DioCacheManager(CacheConfig(baseUrl: 'http://bus.kuas.edu.tw'));
       dio.interceptors.add(_manager.interceptor as Interceptor);
       _manager.clearAll();
     }
@@ -168,8 +177,9 @@ class BusHelper {
     // Get global cookie. Only cookies get from the root directory can be used.
     await dio.head(busHost);
     // This function will download encrypt js bus login required.
-    var res = await dio.get<String>("http://bus.kuas.edu.tw/API/Scripts/a1");
-    busEncryptObject = new BusEncrypt(jsCode: res.data!);
+    final Response<String> res =
+        await dio.get<String>('http://bus.kuas.edu.tw/API/Scripts/a1');
+    busEncryptObject = BusEncrypt(jsCode: res.data!);
   }
 
   Future<Map<String, dynamic>?> busLogin() async {
@@ -177,11 +187,11 @@ class BusHelper {
     Return type Map<String, dynamic>(from Json)
     response data (from NKUST)
     {
-      "success": true,
-      "code": 200,
-      "message": "User Name",
-      "count": 1,
-      "data": {}
+      'success': true,
+      'code': 200,
+      'message': 'User Name',
+      'count': 1,
+      'data': {}
     }
     Code:
     200: Login success.
@@ -194,26 +204,30 @@ class BusHelper {
 
     await loginPrepare();
 
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-        "${busHost}API/Users/login",
-        data: {
-          "account": Helper.username,
-          "password": Helper.password,
-          "n": busEncryptObject.loginEncrypt(Helper.username!, Helper.password!)
-        },
-        options: Options(contentType: Headers.formUrlEncodedContentType));
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Users/login',
+      data: <String, String?>{
+        'account': Helper.username,
+        'password': Helper.password,
+        'n': busEncryptObject.loginEncrypt(
+          Helper.username!,
+          Helper.password!,
+        )
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
+    );
 
-    if (res.data!["code"] == 200 && res.data!["success"] == true) {
+    if (res.data!['code'] == 200 && res.data!['success'] == true) {
       isLogin = true;
     }
     return res.data;
   }
 
   Future<BusData> timeTableQuery({
-    DateTime? fromDateTime,
-    String? year,
-    String? month,
-    String? day,
+    required String year,
+    required String month,
+    required String day,
   }) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw NullThrownError;
@@ -222,51 +236,59 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    if (fromDateTime != null) {
-      year = fromDateTime.year.toString();
-      month = fromDateTime.month.toString();
-      day = fromDateTime.day.toString();
-    }
-    Future<BusReservationsData> userRecord = busReservations();
+
+    final Future<BusReservationsData> userRecord = busReservations();
 
     userTimeTableSelectCacheKey =
-        "${Helper.username}_busCacheTimTable$year$month$day";
-    Options _options;
-    dynamic _requestData;
+        '${Helper.username}_busCacheTimTable$year$month$day';
+    Options options;
+    dynamic requestData;
     if (!Helper.isSupportCacheData) {
-      _requestData = {
-        "data": json.encode({"y": year, "m": month, "d": day}),
-        'operation': "全部",
+      requestData = <String, dynamic>{
+        'data': json.encode(<String, String?>{
+          'y': year,
+          'm': month,
+          'd': day,
+        }),
+        'operation': '全部',
         'page': 1,
         'start': 0,
         'limit': 90
       };
-      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
-      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-      _requestData = formUrlEncoded({
-        "data": json.encode({"y": year, "m": month, "d": day}),
-        'operation': "全部",
-        'page': 1,
-        'start': 0,
-        'limit': 90
-      });
-      _options = buildCacheOptions(
-        Duration(seconds: 60),
+      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      requestData = formUrlEncoded(
+        <String, dynamic>{
+          'data': json.encode(<String, String?>{
+            'y': year,
+            'm': month,
+            'd': day,
+          }),
+          'operation': '全部',
+          'page': 1,
+          'start': 0,
+          'limit': 90
+        },
+      );
+      options = buildCacheOptions(
+        const Duration(seconds: 60),
         primaryKey: userTimeTableSelectCacheKey,
       );
     }
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-      "${busHost}API/Frequencys/getAll",
-      data: _requestData,
-      options: _options,
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Frequencys/getAll',
+      data: requestData,
+      options: options,
     );
 
-    if (res.data!["code"] == 400 &&
-        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
+    if (res.data!['code'] == 400 &&
+        (res.data!['message'] as String).contains('未登入或是登入逾')) {
       // Remove fail cache.
-      if (Helper.isSupportCacheData)
+      if (Helper.isSupportCacheData) {
         _manager.delete(userTimeTableSelectCacheKey!);
+      }
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -290,15 +312,16 @@ class BusHelper {
       _manager.delete(userTimeTableSelectCacheKey!);
     }
 
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-      "${busHost}API/Reserves/add",
-      data: {
-        "busId": int.parse(busId),
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Reserves/add',
+      data: <String, dynamic>{
+        'busId': int.parse(busId),
       },
     );
 
-    if (res.data!["code"] == 400 &&
-        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
+    if (res.data!['code'] == 400 &&
+        (res.data!['message'] as String).contains('未登入或是登入逾')) {
       reLoginReTryCounts += 1;
       await busLogin();
       return busBook(busId: busId);
@@ -314,15 +337,16 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-      "${busHost}API/Reserves/remove",
-      data: {
-        "reserveId": int.parse(busId),
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Reserves/remove',
+      data: <String, dynamic>{
+        'reserveId': int.parse(busId),
       },
     );
 
-    if (res.data!["code"] == 400 &&
-        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
+    if (res.data!['code'] == 400 &&
+        (res.data!['message'] as String).contains('未登入或是登入逾')) {
       reLoginReTryCounts += 1;
       await busLogin();
       return busUnBook(busId: busId);
@@ -342,28 +366,37 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Options _options;
-    dynamic _requestData;
+    Options options;
+    dynamic requestData;
     if (!Helper.isSupportCacheData) {
-      _requestData = {'page': 1, 'start': 0, 'limit': 90};
-      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      requestData = <String, dynamic>{
+        'page': 1,
+        'start': 0,
+        'limit': 90,
+      };
+      options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
-      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-      _requestData = formUrlEncoded({'page': 1, 'start': 0, 'limit': 90});
-      _options = buildCacheOptions(
-        Duration(seconds: 60),
+      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      requestData = formUrlEncoded(<String, dynamic>{
+        'page': 1,
+        'start': 0,
+        'limit': 90,
+      });
+      options = buildCacheOptions(
+        const Duration(seconds: 60),
         primaryKey: userRecordsCacheKey,
       );
     }
 
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-      "${busHost}API/Reserves/getOwn",
-      data: _requestData,
-      options: _options,
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Reserves/getOwn',
+      data: requestData,
+      options: options,
     );
 
-    if (res.data!["code"] == 400 &&
-        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
+    if (res.data!['code'] == 400 &&
+        (res.data!['message'] as String).contains('未登入或是登入逾')) {
       if (Helper.isSupportCacheData) _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
@@ -383,29 +416,40 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Options _options;
-    dynamic _requestData;
+    Options options;
+    dynamic requestData;
     if (!Helper.isSupportCacheData) {
-      _requestData = {'page': 1, 'start': 0, 'limit': 200};
-      _options = Options(contentType: Headers.formUrlEncodedContentType);
+      requestData = <String, int>{
+        'page': 1,
+        'start': 0,
+        'limit': 200,
+      };
+      options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
-      dio.options.headers["Content-Type"] = "application/x-www-form-urlencoded";
-      _requestData = formUrlEncoded({'page': 1, 'start': 0, 'limit': 200});
-      _options = buildCacheOptions(
-        Duration(seconds: 60),
+      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      requestData = formUrlEncoded(<String, int>{
+        'page': 1,
+        'start': 0,
+        'limit': 200,
+      });
+      options = buildCacheOptions(
+        const Duration(seconds: 60),
         primaryKey: userViolationRecordsCacheKey,
       );
     }
 
-    Response<Map<String, dynamic>> res = await dio.post<Map<String, dynamic>>(
-        "${busHost}API/Illegals/getOwn",
-        data: _requestData,
-        options: _options);
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Illegals/getOwn',
+      data: requestData,
+      options: options,
+    );
 
-    if (res.data!["code"] == 400 &&
-        (res.data!["message"] as String).indexOf("未登入或是登入逾") > -1) {
-      if (Helper.isSupportCacheData)
+    if (res.data!['code'] == 400 &&
+        (res.data!['message'] as String).contains('未登入或是登入逾')) {
+      if (Helper.isSupportCacheData) {
         _manager.delete(userViolationRecordsCacheKey);
+      }
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();

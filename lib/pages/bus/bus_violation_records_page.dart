@@ -5,7 +5,6 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -67,7 +66,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
     ap = ApLocalizations.of(context);
     switch (state) {
       case _State.loading:
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(),
         );
       case _State.error:
@@ -94,7 +93,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
     return RefreshIndicator(
       onRefresh: () async {
         await getBusViolationRecords();
-        return null;
+        return;
       },
       child: CustomScrollView(
         slivers: <Widget>[
@@ -103,15 +102,15 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
               expandedHeight: 140,
               text: '\$${violationData?.notPaymentAmountend ?? 0}',
             ),
-            pinned: false,
           ),
           SliverFixedExtentList(
             itemExtent: 100.0,
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
-                bool isLeft = (index % 2 != 0);
-                final reservations = violationData!.reservations;
-                final isShowYear = (index == 0) ||
+                final bool isLeft = index % 2 != 0;
+                final List<Reservation> reservations =
+                    violationData!.reservations;
+                final bool isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
                     (reservations[index].time.year !=
                         reservations[index + 1].time.year) ||
@@ -151,26 +150,25 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                         Container(
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(
+                            borderRadius: const BorderRadius.all(
                               Radius.circular(40),
                             ),
                             border: Border.all(
                               width: 3,
                               color: ApTheme.of(context).yellow,
-                              style: BorderStyle.solid,
                             ),
                           ),
+                          constraints: const BoxConstraints(
+                            minWidth: 45.0,
+                            minHeight: 45.0,
+                          ),
                           child: Text(
-                            '${reservations[index].amountendText}',
+                            reservations[index].amountendText,
                             style: TextStyle(
                               color: reservations[index].isPayment
                                   ? ApTheme.of(context).yellow
                                   : ApTheme.of(context).red,
                             ),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 45.0,
-                            minHeight: 45.0,
                           ),
                         ),
                         Expanded(
@@ -216,65 +214,70 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
 
   Future<void> getBusViolationRecords() async {
     Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback(
+      callback: GeneralCallback<BusViolationRecordsData>(
         onSuccess: (BusViolationRecordsData data) {
           violationData = data;
           violationData!.reservations.sort(
-            (a, b) => b.time.compareTo(a.time),
+            (Reservation a, Reservation b) => b.time.compareTo(a.time),
           );
           if (mounted) {
             setState(() {
               if (violationData == null ||
-                  violationData!.reservations.length == 0)
+                  violationData!.reservations.isEmpty) {
                 state = _State.empty;
-              else
+              } else {
                 state = _State.finish;
+              }
               ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  (data.hasBusViolationRecords);
+                  data.hasBusViolationRecords;
             });
           }
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            Constants.CAN_USE_BUS,
+            Constants.canUseBus,
             AnalyticsConstants.yes,
           );
           FirebaseAnalyticsUtils.instance.setUserProperty(
-            Constants.HAS_BUS_VIOLATION,
+            Constants.hasBusViolation,
             (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
           );
         },
         onFailure: (DioError e) {
-          if (mounted)
+          if (mounted) {
             switch (e.type) {
               case DioErrorType.response:
                 setState(() {
-                  if (e.response!.statusCode == 401)
+                  if (e.response!.statusCode == 401) {
                     state = _State.userNotSupport;
-                  else if (e.response!.statusCode == 403)
+                  } else if (e.response!.statusCode == 403) {
                     state = _State.campusNotSupport;
-                  else {
+                  } else {
                     state = _State.custom;
                     customStateHint = e.message;
                     FirebaseAnalyticsUtils.instance.logApiEvent(
-                        'getBusViolationRecords', e.response!.statusCode!,
-                        message: e.message);
+                      'getBusViolationRecords',
+                      e.response!.statusCode!,
+                      message: e.message,
+                    );
                   }
                 });
                 if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403)
+                    e.response!.statusCode == 403) {
                   FirebaseAnalyticsUtils.instance.setUserProperty(
-                    Constants.CAN_USE_BUS,
+                    Constants.canUseBus,
                     AnalyticsConstants.no,
                   );
+                }
                 break;
               case DioErrorType.other:
                 setState(() {
-                  if (e.message.contains("HttpException")) {
+                  if (e.message.contains('HttpException')) {
                     state = _State.custom;
                     customStateHint = app.busFailInfinity;
-                  } else
+                  } else {
                     state = _State.error;
+                  }
                 });
                 break;
               case DioErrorType.cancel:
@@ -286,6 +289,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 });
                 break;
             }
+          }
         },
         onError: (GeneralResponse response) {
           setState(() {
@@ -360,9 +364,10 @@ class ReservationItem extends StatelessWidget {
                 size: 12.0,
                 color: ApTheme.of(context).greyText,
               ),
-              SizedBox(width: 2.0),
+              const SizedBox(width: 2.0),
               Text(
-                dateFormat.format(reservation!.time.add(Duration(hours: 8))),
+                dateFormat
+                    .format(reservation!.time.add(const Duration(hours: 8))),
                 style: TextStyle(
                   color: ApTheme.of(context).greyText,
                 ),
@@ -396,12 +401,12 @@ class ReservationItem extends StatelessWidget {
   Widget startStation(BuildContext context, String? station) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(
+        borderRadius: const BorderRadius.all(
           Radius.circular(12),
         ),
         color: ApTheme.of(context).blueAccent,
       ),
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         vertical: 1.0,
         horizontal: 8.0,
       ),
@@ -428,19 +433,22 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return ColoredBox(
       color: ApTheme.of(context).blue,
       child: Stack(
         clipBehavior: Clip.none,
         fit: StackFit.expand,
-        children: [
+        children: <Widget>[
           Opacity(
             opacity: 1 - shrinkOffset / expandedHeight,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
-                SizedBox(height: 32.0),
+                const SizedBox(height: 32.0),
                 Text(
                   text,
                   style: TextStyle(
@@ -448,7 +456,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
                     fontSize: 56.0,
                   ),
                 ),
-                SizedBox(height: 32.0),
+                const SizedBox(height: 32.0),
               ],
             ),
           ),
@@ -456,14 +464,14 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
             top: expandedHeight + 8.0 - shrinkOffset,
             left: MediaQuery.of(context).size.width / 2 - 10.0,
             child: Opacity(
-              opacity: (1 - shrinkOffset / expandedHeight),
+              opacity: 1 - shrinkOffset / expandedHeight,
               child: CustomPaint(
                 painter: TrianglePainter(
                   strokeColor: ApTheme.of(context).blue,
                   strokeWidth: 10,
                   paintingStyle: PaintingStyle.fill,
                 ),
-                child: Container(
+                child: const SizedBox(
                   height: 18,
                   width: 20,
                 ),
@@ -498,7 +506,7 @@ class TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
+    final Paint paint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
       ..style = paintingStyle;

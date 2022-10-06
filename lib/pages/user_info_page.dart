@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class UserInfoPage extends StatefulWidget {
-  static const String routerName = "/userInfo";
+  static const String routerName = '/userInfo';
   final UserInfo userInfo;
 
   const UserInfoPage({
@@ -22,7 +22,7 @@ class UserInfoPageState extends State<UserInfoPage> {
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("UserInfoPage", "user_info_page.dart");
+        .setCurrentScreen('UserInfoPage', 'user_info_page.dart');
     userInfo = widget.userInfo;
     super.initState();
   }
@@ -31,16 +31,17 @@ class UserInfoPageState extends State<UserInfoPage> {
   Widget build(BuildContext context) {
     return UserInfoScaffold(
       userInfo: userInfo,
-      actions: <Widget>[],
+      actions: const <Widget>[],
       enableBarCode: true,
       onRefresh: () async {
-        var userInfo = await Helper.instance.getUsersInfo();
-        if (userInfo != null)
+        final UserInfo? userInfo = await Helper.instance.getUsersInfo();
+        if (userInfo != null) {
           setState(
             () => this.userInfo = userInfo.copyWith(
               pictureBytes: this.userInfo.pictureBytes,
             ),
           );
+        }
         FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
         return null;
       },

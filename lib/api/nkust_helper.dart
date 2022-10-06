@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/user_info.dart';
-import 'package:dio/dio.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:nkust_ap/api/helper.dart';
@@ -13,6 +13,7 @@ import 'package:sprintf/sprintf.dart';
 class NKUSTHelper {
   NKUSTHelper();
 
+  //ignore: prefer_constructors_over_static_methods
   static NKUSTHelper get instance {
     return _instance ??= NKUSTHelper();
   }
@@ -25,73 +26,75 @@ class NKUSTHelper {
   Dio dio = Dio();
 
   Future<void> getUsername({
-    String? rocId,
+    required String rocId,
     required DateTime birthday,
     required GeneralCallback<UserInfo> callback,
   }) async {
-    String? birthdayText = sprintf("%03i%02i%02i", [
+    final String birthdayText = sprintf('%03i%02i%02i', <int>[
       birthday.year - 1911,
       birthday.month,
       birthday.day,
     ]);
-    var response = await http.get(
+    final http.Response response = await http.get(
       Uri(
         scheme: 'https',
         host: 'webap.nkust.edu.tw',
         path: '/nkust/system/getuid_1.jsp',
-        queryParameters: {
+        queryParameters: <String, String>{
           'uid': rocId,
           'bir': birthdayText,
           'kind': '2',
         },
       ),
-      headers: {
+      headers: <String, String>{
         'Connection': 'close',
       },
     );
-    var document = parse(response.body);
-    var elements = document.getElementsByTagName('b');
+    final Document document = parse(response.body);
+    final List<Element> elements = document.getElementsByTagName('b');
     if (elements.length >= 4) {
-      var userInfo = UserInfo(
+      final UserInfo userInfo = UserInfo(
         id: elements[4].text.replaceAll(' ', ''),
         name: elements[2].text,
         className: '',
         department: '',
       );
-      return callback == null ? userInfo : callback.onSuccess(userInfo);
-    } else if (elements.length == 1)
+      callback.onSuccess(userInfo);
+    } else if (elements.length == 1) {
       callback.onError(
         GeneralResponse(
           statusCode: 404,
           message: elements[0].text,
         ),
       );
-    else
+    } else {
       callback.onError(
         GeneralResponse.unknownError(),
       );
+    }
   }
 
   Future<NotificationsData> getNotifications(int page) async {
-    page -= 1;
-    int baseIndex = page * 15;
+    final int baseIndex = (page - 1) * 15;
     if (reTryCounts > reTryCountsLimit) {
       throw NullThrownError;
     }
-    Response<String> res = await dio.post<String>(
-        "https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist",
-        data: {
-          'Rcg': 232,
-          'Op': 'getpartlist',
-          'Page': page,
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-        ));
+    final Response<String> res = await dio.post<String>(
+      'https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist',
+      data: <String, dynamic>{
+        'Rcg': 232,
+        'Op': 'getpartlist',
+        'Page': page - 1,
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+      ),
+    );
     List<Map<String, dynamic>> acadData;
     if (res.statusCode == 200 && res.data != null) {
       acadData = acadParser(
-        html: json.decode(res.data!)["content"] as String,
+        html: (json.decode(res.data!) as Map<String, dynamic>)['content']
+            as String,
         baseIndex: baseIndex,
       );
       reTryCounts = 0;
@@ -99,10 +102,10 @@ class NKUSTHelper {
       reTryCounts++;
       return getNotifications(page);
     }
-    return NotificationsData.fromJson({
-      "data": {
-        "page": page + 1,
-        "notification": acadData,
+    return NotificationsData.fromJson(<String, dynamic>{
+      'data': <String, dynamic>{
+        'page': page + 1,
+        'notification': acadData,
       }
     });
   }

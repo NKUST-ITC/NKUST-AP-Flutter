@@ -1,4 +1,3 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -36,8 +35,8 @@ class _RoomListPageState extends State<RoomListPage> {
   void initState() {
     _getRoomList();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "RoomListPage",
-      "room_list_page.dart",
+      'RoomListPage',
+      'room_list_page.dart',
     );
     super.initState();
   }
@@ -67,7 +66,7 @@ class _RoomListPageState extends State<RoomListPage> {
             child: RefreshIndicator(
               onRefresh: () async {
                 await _getRoomList();
-                return null;
+                return;
               },
               child: body(),
             ),
@@ -80,13 +79,12 @@ class _RoomListPageState extends State<RoomListPage> {
   Widget body() {
     switch (state) {
       case _State.loading:
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(),
         );
-        break;
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (context, index) {
+          itemBuilder: (BuildContext context, int index) {
             return ListTile(
               title: Text(roomData!.data[index].name),
               onTap: () {
@@ -117,31 +115,35 @@ class _RoomListPageState extends State<RoomListPage> {
     }
   }
 
-  _getRoomList() async {
+  Future<void> _getRoomList() async {
     Helper.instance.getRoomList(
       campusCode: campusIndex + 1,
-      callback: GeneralCallback(
+      callback: GeneralCallback<RoomData>(
         onSuccess: (RoomData data) {
           setState(() {
             roomData = data;
-            if (roomData != null)
+            if (roomData != null) {
               state = _State.finish;
-            else {
+            } else {
               state = _State.custom;
               customStateHint = ApLocalizations.of(context).somethingError;
             }
           });
         },
         onFailure: (DioError e) async {
-          if (e.type != DioErrorType.cancel)
+          if (e.type != DioErrorType.cancel) {
             setState(() {
               state = _State.custom;
               customStateHint = e.i18nMessage;
             });
-          if (e.hasResponse)
+          }
+          if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRoomCourseTables', e.response!.statusCode!,
-                message: e.message);
+              'getRoomCourseTables',
+              e.response!.statusCode!,
+              message: e.message,
+            );
+          }
         },
         onError: (GeneralResponse generalResponse) async {
           setState(() {
