@@ -24,8 +24,8 @@ jobs:
           flutter-version: '3.0.x'
           channel: 'stable'
       - run: flutter pub get
-#      - name: Analyze files
-#        run: flutter analyze .
+      - name: Analyze files
+        run: flutter analyze .
       - name: Model test
         run: flutter test test/model_test.dart
 
