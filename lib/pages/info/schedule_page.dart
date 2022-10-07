@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/platform_calendar_util.dart';
 import 'package:ap_common/views/pdf_view.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -112,7 +112,7 @@ class SchedulePageState extends State<SchedulePage>
   Future<void> _getSchedules() async {
     String data = '';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      final RemoteConfig remoteConfig = RemoteConfig.instance;
+      final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
       await remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),
@@ -268,15 +268,16 @@ class SchedulePageState extends State<SchedulePage>
       59,
       59,
     );
-    final Event event = Event(
-      title: message,
-      location: '高雄科技大學',
-      startDate: beginTime,
-      endDate: endTime,
-    );
     try {
-      if (Platform.isIOS || Platform.isAndroid) {
-        Add2Calendar.addEvent2Cal(event);
+      if (PlatformCalendarUtil.isSupported) {
+        PlatformCalendarUtil.instance.addToApp(
+          event: Event(
+            title: message,
+            location: '高雄科技大學',
+            startDate: beginTime,
+            endDate: endTime,
+          ),
+        );
         if (Platform.isIOS) ApUtils.showToast(context, ap.addSuccess);
       } else {
         ApUtils.showToast(context, ap.calendarAppNotFound);

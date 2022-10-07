@@ -194,7 +194,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final RemoteConfig remoteConfig = RemoteConfig.instance;
+        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
         await remoteConfig.setConfigSettings(
           RemoteConfigSettings(
             fetchTimeout: const Duration(seconds: 10),

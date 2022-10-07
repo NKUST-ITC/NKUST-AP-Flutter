@@ -66,7 +66,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   final TextEditingController _delayReason = TextEditingController();
 
-  PickedFile? image;
+  XFile? image;
 
   String? get errorTitle {
     switch (state) {
@@ -408,50 +408,18 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             Divider(color: ApTheme.of(context).grey, height: 1),
             ListTile(
               onTap: () async {
-                if (kIsWeb || Platform.isAndroid || Platform.isIOS) {
-                  imagePicker.getImage(source: ImageSource.gallery).then(
-                    (PickedFile? image) async {
-                      if (image != null) {
+                final XFile? pickedImage = await ApUtils.pickImage(
+                  imageSource: ImageSource.gallery,
+                );
+                if (pickedImage != null) {
 //                            FirebaseAnalyticsUtils.instance
 //                                .logLeavesImageSize(image);
-                        if (kIsWeb) {
-                          final double size =
-                              (await image.readAsBytes()).length.toDouble() /
-                                  1024.0 /
-                                  1024.0;
-                          if (size >= Constants.maxImageSize) {
-                            if (!mounted) return;
-                            ApUtils.showToast(
-                              context,
-                              sprintf(
-                                ap.imageTooBigHint,
-                                <double>[Constants.maxImageSize],
-                              ),
-                            );
-                          } else {
-                            setState(() {
-                              this.image = image;
-                            });
-                          }
-                        } else {
-                          final File file = File(image.path);
-                          log('resize before: ${file.mb}');
-                          if ((file.mb) >= Constants.maxImageSize) {
-                            resizeImage(file);
-                          } else {
-                            setState(() {
-                              this.image = image;
-                            });
-                          }
-                        }
-                      }
-                    },
-                  );
-                } else if (!kIsWeb) {
-                  final XFile? image = await ApUtils.pickImage();
-                  if (image != null) {
-                    final File file = File(image.path);
-                    if ((file.mb) >= Constants.maxImageSize) {
+                  if (kIsWeb) {
+                    final double size =
+                        (await pickedImage.readAsBytes()).length.toDouble() /
+                            1024.0 /
+                            1024.0;
+                    if (size >= Constants.maxImageSize) {
                       if (!mounted) return;
                       ApUtils.showToast(
                         context,
@@ -462,7 +430,17 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       );
                     } else {
                       setState(() {
-                        this.image = PickedFile(file.path);
+                        image = pickedImage;
+                      });
+                    }
+                  } else {
+                    final File file = File(pickedImage.path);
+                    log('resize before: ${file.mb}');
+                    if ((file.mb) >= Constants.maxImageSize) {
+                      resizeImage(file);
+                    } else {
+                      setState(() {
+                        image = pickedImage;
                       });
                     }
                   }
@@ -862,7 +840,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         ),
       );
       setState(() {
-        this.image = PickedFile(result.path);
+        this.image = XFile(result.path);
       });
     } else {
       if (!mounted) return;

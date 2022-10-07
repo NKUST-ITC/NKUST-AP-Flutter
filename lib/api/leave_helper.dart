@@ -2,13 +2,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:ap_common/models/private_cookies_manager.dart';
+import 'package:ap_common/utils/ap_utils.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -273,7 +273,7 @@ class LeaveHelper {
 
   Future<Response<dynamic>?> leavesSubmit(
     LeaveSubmitData data, {
-    PickedFile? proofImage,
+    XFile? proofImage,
   }) async {
     //force relogin to aviod error.
     await WebApHelper.instance.loginToLeave();

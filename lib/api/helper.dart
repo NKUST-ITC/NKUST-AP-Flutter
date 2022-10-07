@@ -800,7 +800,7 @@ class Helper {
 
   Future<void> sendLeavesSubmit({
     required LeaveSubmitData data,
-    required PickedFile? image,
+    required XFile? image,
     required GeneralCallback<Response<dynamic>?> callback,
   }) async {
     try {

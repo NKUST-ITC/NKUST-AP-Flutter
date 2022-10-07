@@ -3,10 +3,10 @@ import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State {
   ready,
@@ -311,8 +311,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       };
 
   Future<void> _getSemester() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.prefIsOfflineLogin)!) {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });

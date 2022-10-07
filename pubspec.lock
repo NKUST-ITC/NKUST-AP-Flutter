@@ -240,7 +240,7 @@ packages:
     source: hosted
     version: "3.0.0"
   cookie_jar:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: cookie_jar
       url: "https://pub.dartlang.org"
@@ -254,12 +254,12 @@ packages:
     source: hosted
     version: "0.3.1+1"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   csslib:
     dependency: transitive
     description:
@@ -296,7 +296,7 @@ packages:
     source: hosted
     version: "4.0.6"
   dio_cookie_manager:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: dio_cookie_manager
       url: "https://pub.dartlang.org"
@@ -312,7 +312,7 @@ packages:
     source: git
     version: "0.3.0"
   encrypt:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: encrypt
       url: "https://pub.dartlang.org"
@@ -957,7 +957,7 @@ packages:
     source: hosted
     version: "1.0.5"
   path:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path
       url: "https://pub.dartlang.org"

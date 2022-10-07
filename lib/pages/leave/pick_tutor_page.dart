@@ -7,7 +7,7 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -176,11 +176,11 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   Future<void> getTeacherData() async {
     final DateTime start = DateTime.now();
-    RemoteConfig? remoteConfig;
+    FirebaseRemoteConfig? remoteConfig;
     String text;
     if (kIsWeb) {
     } else if (Platform.isAndroid || Platform.isIOS) {
-      remoteConfig = RemoteConfig.instance;
+      remoteConfig = FirebaseRemoteConfig.instance;
       await remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),

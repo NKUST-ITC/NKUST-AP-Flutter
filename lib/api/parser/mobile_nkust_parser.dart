@@ -84,10 +84,10 @@ class MobileNkustParser {
         <String, dynamic>{
           'title': "第${periodTime["PeriodName"]}節",
           'startTime':
-              //ignore: avoid_dynamic_calls
+              //ignore: avoid_dynamic_calls, lines_longer_than_80_chars
               "${periodTime["BegTime"].substring(0, 2)}:${periodTime["BegTime"].substring(2, 4)}",
           'endTime':
-              //ignore: avoid_dynamic_calls
+              //ignore: avoid_dynamic_calls, lines_longer_than_80_chars
               "${periodTime["EndTime"].substring(0, 2)}:${periodTime["EndTime"].substring(2, 4)}",
         },
       );

@@ -187,6 +187,7 @@ class MobileNkustHelper {
 
   Future<LoginResponse> login({
     required BuildContext context,
+    required bool mounted,
     required String username,
     required String password,
     bool clearCache = false,
@@ -211,6 +212,7 @@ class MobileNkustHelper {
         return LoginResponse();
       }
     }
+    if (!mounted) return LoginResponse();
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(

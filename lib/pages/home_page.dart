@@ -735,7 +735,7 @@ class HomePageState extends State<HomePage> {
     }
     VersionInfo versionInfo;
     try {
-      final RemoteConfig remoteConfig = RemoteConfig.instance;
+      final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
       await remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),

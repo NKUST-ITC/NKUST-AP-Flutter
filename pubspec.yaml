@@ -29,6 +29,11 @@ dependencies:
     git:
       url: https://github.com/NKUST-ITC/dio-http-cache
       ref: 84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e
+  dio_cookie_manager: ^2.0.0
+  cookie_jar: ^3.0.1
+  crypto: ^3.0.2
+  encrypt: ^5.0.1
+  path: ^1.8.0
   tuple: ^2.0.0
   sprintf: ^6.0.0
   image: ^3.0.2

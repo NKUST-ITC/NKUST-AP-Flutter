@@ -9,14 +9,11 @@ import 'package:image/image.dart' as image_utils;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Utils {
   static Future<void> clearSetting() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(Constants.prefAutoLogin, false);
+    Preferences.setBool(Constants.prefAutoLogin, false);
   }
 
   static Future<void> setBusNotify(
