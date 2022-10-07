@@ -44,6 +44,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     return InkWell(
       onTap: () {
         //TODO check nullable
+        //ignore: unnecessary_null_comparison
         if (semesterData != null) pickSemester();
         if (widget.featureTag != null) {
           AnalyticsUtils.instance
@@ -115,6 +116,7 @@ class SemesterPickerState extends State<SemesterPicker> {
             //TODO check nullable
             final CourseNotifyData notifyData =
                 CourseNotifyData.load(oldSemester);
+            //ignore: unnecessary_null_comparison
             if (notifyData != null && NotificationUtils.isSupport) {
               CourseNotifyData.clearOldVersionNotification(
                 tag: oldSemester,
