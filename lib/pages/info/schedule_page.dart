@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/utils/platform_calendar_util.dart';
 import 'package:ap_common/views/pdf_view.dart';
 import 'package:ap_common/widgets/hint_content.dart';
 import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,10 +22,10 @@ import 'package:sprintf/sprintf.dart';
 enum _State { loading, finish, error, empty, pdf }
 
 class SchedulePage extends StatefulWidget {
-  static const String routerName = "/info/schedule";
+  static const String routerName = '/info/schedule';
 
   @override
-  SchedulePageState createState() => new SchedulePageState();
+  SchedulePageState createState() => SchedulePageState();
 }
 
 class SchedulePageState extends State<SchedulePage>
@@ -35,7 +35,7 @@ class SchedulePageState extends State<SchedulePage>
 
   late ApLocalizations ap;
 
-  List<ScheduleData> scheduleDataList = [];
+  List<ScheduleData> scheduleDataList = <ScheduleData>[];
 
   _State state = _State.loading;
 
@@ -47,7 +47,7 @@ class SchedulePageState extends State<SchedulePage>
         fontWeight: FontWeight.bold,
       );
 
-  TextStyle get _textStyle => TextStyle(
+  TextStyle get _textStyle => const TextStyle(
         fontSize: 16.0,
       );
   PdfState pdfState = PdfState.loading;
@@ -57,7 +57,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance
-        .setCurrentScreen("SchedulePage", "schedule_page.dart");
+        .setCurrentScreen('SchedulePage', 'schedule_page.dart');
     _getSchedules();
     super.initState();
   }
@@ -78,7 +78,9 @@ class SchedulePageState extends State<SchedulePage>
     switch (state) {
       case _State.loading:
         return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
         return InkWell(
@@ -99,49 +101,52 @@ class SchedulePageState extends State<SchedulePage>
       case _State.finish:
       default:
         return CustomScrollView(
-          slivers: [
-            for (var value in scheduleDataList) ..._scheduleItem(value),
+          slivers: <Widget>[
+            for (ScheduleData value in scheduleDataList)
+              ..._scheduleItem(value),
           ],
         );
     }
   }
 
-  _getSchedules() async {
-    var data = '';
+  Future<void> _getSchedules() async {
+    String data = '';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      try {
-        final RemoteConfig remoteConfig = RemoteConfig.instance;
-        await remoteConfig.setConfigSettings(
-          RemoteConfigSettings(
-            fetchTimeout: Duration(seconds: 10),
-            minimumFetchInterval: const Duration(hours: 1),
-          ),
-        );
-        await remoteConfig.fetchAndActivate();
-        final pdfUrl = remoteConfig.getString(Constants.SCHEDULE_PDF_URL);
-        if (pdfUrl != null && pdfUrl.isNotEmpty) {
-          downloadFdf(pdfUrl);
-        } else
-          data = remoteConfig.getString(Constants.SCHEDULE_DATA);
-      } catch (exception) {}
+      final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(hours: 1),
+        ),
+      );
+      await remoteConfig.fetchAndActivate();
+      final String pdfUrl = remoteConfig.getString(Constants.schedulePdfUrl);
+      if (pdfUrl.isNotEmpty) {
+        downloadFdf(pdfUrl);
+      } else {
+        data = remoteConfig.getString(Constants.scheduleData);
+      }
     } else {
       downloadFdf(
-          'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/039ac35f41173f6c2eacfd9cc73052a257e8d68a/cal108-2.pdf');
+        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/039ac35f41173f6c2eacfd9cc73052a257e8d68a/cal108-2.pdf',
+      );
     }
-    if (data == null || data.isEmpty) {
+    if (data.isEmpty) {
       data = await rootBundle.loadString(FileAssets.scheduleData);
     }
-    var jsonArray = jsonDecode(data);
-    scheduleDataList = ScheduleData.toList(jsonArray);
+    final dynamic jsonArray = jsonDecode(data);
+    scheduleDataList = ScheduleData.toList(
+      jsonArray as List<Map<String, dynamic>>,
+    );
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
-    List<Widget> events = [];
-    for (var i in schedule.events) {
+    final List<Widget> events = <Widget>[];
+    for (final String i in schedule.events) {
       events.add(
         Container(
           alignment: Alignment.centerLeft,
-          padding: EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.symmetric(horizontal: 12.0),
           child: Text(
             i,
             style: _textStyle,
@@ -149,11 +154,13 @@ class SchedulePageState extends State<SchedulePage>
           ),
         ),
       );
-      events.add(Divider(
-        color: ApTheme.of(context).grey,
-      ));
+      events.add(
+        Divider(
+          color: ApTheme.of(context).grey,
+        ),
+      );
     }
-    return [
+    return <Widget>[
       SliverPersistentHeader(
         pinned: true,
         delegate: _SliverAppBarDelegate(
@@ -161,7 +168,7 @@ class SchedulePageState extends State<SchedulePage>
           maxHeight: 50.0,
           child: Container(
             alignment: Alignment.centerLeft,
-            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Text(
               schedule.week,
               style: _textBlueStyle,
@@ -183,23 +190,27 @@ class SchedulePageState extends State<SchedulePage>
                     contentWidget: RichText(
                       textAlign: TextAlign.center,
                       text: TextSpan(
-                          style: TextStyle(
-                              color: ApTheme.of(context).grey,
-                              height: 1.3,
-                              fontSize: 16.0),
-                          children: [
-                            TextSpan(
-                              text: sprintf(ap.addCalendarContent,
-                                  [schedule.events[index]]),
+                        style: TextStyle(
+                          color: ApTheme.of(context).grey,
+                          height: 1.3,
+                          fontSize: 16.0,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: sprintf(
+                              ap.addCalendarContent,
+                              <dynamic>[schedule.events[index]],
                             ),
-                          ]),
+                          ),
+                        ],
+                      ),
                     ),
                     leftActionText: ap.cancel,
                     rightActionText: ap.determine,
-                    leftActionFunction: null,
                     rightActionFunction: () {
-                      if (schedule.events != null || schedule.events.length > 0)
+                      if (schedule.events.isNotEmpty) {
                         _addToCalendar(schedule.events[index]);
+                      }
                       FirebaseAnalyticsUtils.instance
                           .logEvent('add_schedule_click');
                     },
@@ -207,8 +218,11 @@ class SchedulePageState extends State<SchedulePage>
                 );
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 16.0,
+                ),
+                decoration: const BoxDecoration(
                   border: Border(
                     bottom: BorderSide(color: Colors.grey, width: 0.5),
                   ),
@@ -229,44 +243,54 @@ class SchedulePageState extends State<SchedulePage>
   }
 
   void _addToCalendar(String msg) {
-    String _time = msg.split(")")[0].substring(1);
-    String _msg = msg.split(")")[1];
-    String _startTime;
-    String _endTime;
-    if (_time.contains("~")) {
-      _startTime = _time.split("~")[0].trim();
-      _endTime = _time.split("~")[1].trim();
+    final String timeText = msg.split(')')[0].substring(1);
+    final String message = msg.split(')')[1];
+    String startTimeText;
+    String endTimeText;
+    if (timeText.contains('~')) {
+      startTimeText = timeText.split('~')[0].trim();
+      endTimeText = timeText.split('~')[1].trim();
     } else {
-      _startTime = _time;
-      _endTime = _time;
+      startTimeText = timeText;
+      endTimeText = timeText;
     }
-    DateTime now = DateTime.now();
-    DateTime beginTime = DateTime(now.year, int.parse(_startTime.split("/")[0]),
-        int.parse(_startTime.split("/")[1]), 0, 0, 0);
-    DateTime endTime = DateTime(now.year, int.parse(_endTime.split("/")[0]),
-        int.parse(_endTime.split("/")[1]), 23, 59, 59);
-    final Event event = Event(
-      title: _msg,
-      description: '',
-      location: '高雄科技大學',
-      startDate: beginTime,
-      endDate: endTime,
+    final DateTime now = DateTime.now();
+    final DateTime beginTime = DateTime(
+      now.year,
+      int.parse(startTimeText.split('/')[0]),
+      int.parse(startTimeText.split('/')[1]),
+    );
+    final DateTime endTime = DateTime(
+      now.year,
+      int.parse(endTimeText.split('/')[0]),
+      int.parse(endTimeText.split('/')[1]),
+      23,
+      59,
+      59,
     );
     try {
-      if (Platform.isIOS || Platform.isAndroid) {
-        Add2Calendar.addEvent2Cal(event);
+      if (PlatformCalendarUtil.isSupported) {
+        PlatformCalendarUtil.instance.addToApp(
+          event: Event(
+            title: message,
+            location: '高雄科技大學',
+            startDate: beginTime,
+            endDate: endTime,
+          ),
+        );
         if (Platform.isIOS) ApUtils.showToast(context, ap.addSuccess);
-      } else
+      } else {
         ApUtils.showToast(context, ap.calendarAppNotFound);
+      }
     } catch (e) {
       ApUtils.showToast(context, ap.calendarAppNotFound);
-      throw e;
+      rethrow;
     }
   }
 
-  void downloadFdf(String url) async {
+  Future<void> downloadFdf(String url) async {
     try {
-      var response = await Dio().get(
+      final Response<Uint8List> response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
@@ -303,7 +327,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox.expand(child: child);
   }
 

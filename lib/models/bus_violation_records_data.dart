@@ -12,16 +12,18 @@ class BusViolationRecordsData {
   @JsonKey(name: 'reservation')
   List<Reservation> reservations;
   @JsonKey(ignore: true)
-  List<Reservation> notPaymentReservations = [];
+  List<Reservation> notPaymentReservations = <Reservation>[];
 
   int get notPaymentAmountend {
     int sum = 0;
-    notPaymentReservations.forEach((element) => sum += element.amountend);
+    for (final Reservation element in notPaymentReservations) {
+      sum += element.amountend;
+    }
     return sum;
   }
 
   bool get hasBusViolationRecords {
-    for (var item in reservations) {
+    for (final Reservation item in reservations) {
       if (!item.isPayment) return true;
     }
     return false;
@@ -33,27 +35,23 @@ class BusViolationRecordsData {
     updateNotPaymentReservations();
   }
 
-  factory BusViolationRecordsData.fromRawJson(String str) =>
-      BusViolationRecordsData.fromJson(json.decode(str));
-
-  String toRawJson() => json.encode(toJson());
-
   factory BusViolationRecordsData.fromJson(Map<String, dynamic> json) =>
-      new BusViolationRecordsData(
-        reservations: new List<Reservation>.from(
-            json["reservation"].map((x) => Reservation.fromJson(x))),
+      _$BusViolationRecordsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BusViolationRecordsDataToJson(this);
+
+  factory BusViolationRecordsData.fromRawJson(String str) =>
+      BusViolationRecordsData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "reservation":
-            new List<dynamic>.from(reservations.map((x) => x.toJson())),
-      };
+  String toRawJson() => jsonEncode(toJson());
 
   void updateNotPaymentReservations() {
     notPaymentReservations.clear();
-    reservations.forEach((element) {
+    for (final Reservation element in reservations) {
       if (!element.isPayment) notPaymentReservations.add(element);
-    });
+    }
   }
 }
 

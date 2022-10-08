@@ -4,6 +4,7 @@ import 'package:ap_common/models/course_data.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 
@@ -12,25 +13,27 @@ class MobileNkustParser {
     String rawHtml, {
     required bool paidStatus,
   }) {
-    final document = html.parse(rawHtml);
-    List<Map<String, dynamic>> result = [];
-    var format = DateFormat('yyyy/MM/dd HH:mm');
+    final Document document = html.parse(rawHtml);
+    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
+    final DateFormat format = DateFormat('yyyy/MM/dd HH:mm');
 
-    for (var trElement in document.getElementsByTagName('tr')) {
-      Map<String, dynamic> _temp = {};
+    for (final Element trElement in document.getElementsByTagName('tr')) {
+      final Map<String, dynamic> temp = <String, dynamic>{};
 
-      var tdElements = trElement.getElementsByTagName('td');
-      var timeElement = tdElements[1].getElementsByTagName('div')[0];
-      _temp['isPayment'] = paidStatus;
-      var startAndGoal = tdElements[3].text.split(" 到 ");
-      _temp['startStation'] = startAndGoal[0];
-      _temp['endStation'] = startAndGoal[1];
-      _temp['amountend'] = int.parse(tdElements[4].text);
-      _temp['homeCharteredBus'] = false;
+      final List<Element> tdElements = trElement.getElementsByTagName('td');
+      final Element timeElement = tdElements[1].getElementsByTagName('div')[0];
+      temp['isPayment'] = paidStatus;
+      final List<String> startAndGoal = tdElements[3].text.split(' 到 ');
+      temp['startStation'] = startAndGoal[0];
+      temp['endStation'] = startAndGoal[1];
+      temp['amountend'] = int.parse(tdElements[4].text);
+      temp['homeCharteredBus'] = false;
 
-      _temp['time'] = format.parse(
-          '${timeElement.text.substring(0, 10)} ${timeElement.text.substring(14)}');
-      result.add(_temp);
+      temp['time'] = format.parse(
+        '${timeElement.text.substring(0, 10)} '
+        '${timeElement.text.substring(14)}',
+      );
+      result.add(temp);
     }
     return result;
   }
@@ -40,267 +43,280 @@ class MobileNkustParser {
     required String startStation,
     required String endStation,
   }) {
-    final document = html.parse(rawHtml);
-    List<Map<String, dynamic>> result = [];
+    final Document document = html.parse(rawHtml);
+    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
 
-    for (var trElement in document.getElementsByTagName('tr')) {
-      Map<String, dynamic> _temp = {};
-      _temp['cancelKey'] =
-          trElement.getElementsByTagName("input")[0].attributes['value'];
-      var tdElements = trElement.getElementsByTagName('td');
+    for (final Element trElement in document.getElementsByTagName('tr')) {
+      final Map<String, dynamic> temp = <String, dynamic>{};
+      temp['cancelKey'] =
+          trElement.getElementsByTagName('input')[0].attributes['value'];
+      final List<Element> tdElements = trElement.getElementsByTagName('td');
 
-      _temp['dateTime'] =
-          '${tdElements[1].text.substring(0, 10)} ${tdElements[1].text.substring(14)}';
-      _temp['state'] = "";
-      _temp['travelState'] = "";
-      _temp['start'] = startStation;
-      _temp['end'] = endStation;
-      result.add(_temp);
+      temp['dateTime'] = '${tdElements[1].text.substring(0, 10)} '
+          '${tdElements[1].text.substring(14)}';
+      temp['state'] = '';
+      temp['travelState'] = '';
+      temp['start'] = startStation;
+      temp['end'] = endStation;
+      result.add(temp);
     }
 
     return result;
   }
 
-  static CourseData courseTable(rawHtml) {
-    final document = html.parse(rawHtml);
+  static CourseData courseTable(dynamic rawHtml) {
+    final Document document = html.parse(rawHtml);
 
-    Map<String, dynamic> result = {
-      "courses": [],
-      'timeCodes': [],
+    final Map<String, dynamic> result = <String, dynamic>{
+      'courses': <Map<String, dynamic>>[],
+      'timeCodes': <Map<String, dynamic>>[],
     };
-    var inputElements = document.getElementsByTagName("input");
-    var coursesJson = jsonDecode(inputElements[0].attributes['value']!);
-    var periodTimeJson = jsonDecode(inputElements[1].attributes['value']!);
+    final List<Element> inputElements = document.getElementsByTagName('input');
+    final List<Map<String, dynamic>> coursesJson =
+        jsonDecode(inputElements[0].attributes['value']!)
+            as List<Map<String, dynamic>>;
+    final List<Map<String, dynamic>> periodTimeJson =
+        jsonDecode(inputElements[1].attributes['value']!)
+            as List<Map<String, dynamic>>;
 
-    periodTimeJson.forEach((periodTime) {
-      result["timeCodes"].add({
-        "title": "第${periodTime["PeriodName"]}節",
-        "startTime":
-            "${periodTime["BegTime"].substring(0, 2)}:${periodTime["BegTime"].substring(2, 4)}",
-        "endTime":
-            "${periodTime["EndTime"].substring(0, 2)}:${periodTime["EndTime"].substring(2, 4)}",
-      });
-    });
+    for (final Map<String, dynamic> periodTime in periodTimeJson) {
+      (result['timeCodes'] as List<Map<String, dynamic>>).add(
+        <String, dynamic>{
+          'title': "第${periodTime["PeriodName"]}節",
+          'startTime':
+              //ignore: avoid_dynamic_calls, lines_longer_than_80_chars
+              "${periodTime["BegTime"].substring(0, 2)}:${periodTime["BegTime"].substring(2, 4)}",
+          'endTime':
+              //ignore: avoid_dynamic_calls, lines_longer_than_80_chars
+              "${periodTime["EndTime"].substring(0, 2)}:${periodTime["EndTime"].substring(2, 4)}",
+        },
+      );
+    }
 
-    coursesJson.forEach((course) {
-      var _temp = {
-        "code": course['SelectCode'].toString(),
-        "title": course['CourseName'].toString(),
-        "className": course['ClassNameAbr'].toString(),
-        "group": course['CourseGroup'].toString(),
-        "units": course['Credit'].toString(),
-        "hours": course['Hour'].toString(),
-        "required": course['OptionName'].toString(),
-        "at": course['Annual'],
-        "sectionTimes": [],
-        "instructors": course['TeacherName'].split(","),
-        "location": {
-          "building": "",
-          "room": course['CourseRoom'] ?? "",
+    for (final Map<String, dynamic> course in coursesJson) {
+      final Map<String, dynamic> temp = <String, dynamic>{
+        'code': course['SelectCode'].toString(),
+        'title': course['CourseName'].toString(),
+        'className': course['ClassNameAbr'].toString(),
+        'group': course['CourseGroup'].toString(),
+        'units': course['Credit'].toString(),
+        'hours': course['Hour'].toString(),
+        'required': course['OptionName'].toString(),
+        'at': course['Annual'],
+        'sectionTimes': <Map<String, dynamic>>[],
+        'instructors': (course['TeacherName'] as String).split(','),
+        'location': <String, dynamic>{
+          'building': '',
+          'room': course['CourseRoom'] ?? '',
         }
       };
-      final hasMorning = periodTimeJson[0]["PeriodName"] == "M";
-      for (var time in course['CourseWeekPeriod']) {
-        final weekday = int.tryParse(time['CourseWeek']) ?? 0;
-        final sectionIndex = int.tryParse(time['CoursePeriod']);
+      final bool hasMorning = periodTimeJson[0]['PeriodName'] == 'M';
+      for (final dynamic time in course['CourseWeekPeriod']) {
+        //ignore: avoid_dynamic_calls
+        final int weekday = int.tryParse(time['CourseWeek'] as String) ?? 0;
+        //ignore: avoid_dynamic_calls
+        final int? sectionIndex = int.tryParse(time['CoursePeriod'] as String);
         if (weekday <= 0 || weekday > 7 || sectionIndex == null) continue;
-        _temp['sectionTimes'].add(
-          {
-            "weekday": weekday,
-            "index": sectionIndex - (hasMorning ? 0 : 1),
+        (temp['sectionTimes'] as List<Map<String, dynamic>>).add(
+          <String, dynamic>{
+            'weekday': weekday,
+            'index': sectionIndex - (hasMorning ? 0 : 1),
           },
         );
       }
-      result["courses"].add(_temp);
-    });
+      (result['courses'] as List<Map<String, dynamic>>).add(temp);
+    }
 
     return CourseData.fromJson(result);
   }
 
-  static MidtermAlertsData midtermAlerts(rawHtml) {
+  static MidtermAlertsData midtermAlerts(dynamic rawHtml) {
     //TODO Implement Midterm Alerts Parser for mobile nkust
-    final midtermAlertsData = MidtermAlertsData(courses: []);
+    final MidtermAlertsData midtermAlertsData = MidtermAlertsData(
+      courses: <MidtermAlerts>[],
+    );
     return midtermAlertsData;
   }
 
   static Map<String, dynamic> busInfo(
     String? rawHtml,
   ) {
-    var document = html.parse(rawHtml);
-    String canNotReserveText =
+    final Document document = html.parse(rawHtml);
+    final String canNotReserveText =
         document.getElementById('BusMemberStop')!.attributes['value']!;
-    bool canReserve = !bool.fromEnvironment(
+    final bool canReserve = !bool.fromEnvironment(
       canNotReserveText,
-      defaultValue: false,
     );
-    var elements =
+    final List<Element> elements =
         document.getElementsByClassName('alert alert-danger alert-dismissible');
     String description = '';
-    if (elements.length > 0) {
+    if (elements.isNotEmpty) {
       description = elements.first.text;
     }
-    return {
+    return <String, dynamic>{
       'canReserve': canReserve,
       'description': description.trim().replaceAll(' ', ''),
     };
   }
 
   static List<Map<String, dynamic>> busTimeTable(
-    rawHtml, {
+    dynamic rawHtml, {
     String? time,
     String? startStation,
     String? endStation,
   }) {
-    var document = html.parse(rawHtml);
+    final Document document = html.parse(rawHtml);
 
-    List<Map<String, dynamic>> result = [];
+    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
 
-    for (var trElement in document.getElementsByTagName('tr').sublist(1)) {
-      Map<String, dynamic> _temp = {};
+    for (final Element trElement
+        in document.getElementsByTagName('tr').sublist(1)) {
+      final Map<String, dynamic> temp = <String, dynamic>{};
 
       // Element can't get ById. so build new parser object.
-      var _inputDocument = html.parse(trElement.outerHtml);
-      _temp['canBook'] = true;
+      final Document inputDocument = html.parse(trElement.outerHtml);
+      temp['canBook'] = true;
 
-      if (_inputDocument.getElementById('ReserveEnable')!.attributes['value'] ==
+      if (inputDocument.getElementById('ReserveEnable')!.attributes['value'] ==
           null) {
         //can't book.
-        _temp['canBook'] = false;
+        temp['canBook'] = false;
       }
-      _temp['busId'] =
-          _inputDocument.getElementById('BusId')!.attributes['value'];
-      _temp['cancelKey'] =
-          _inputDocument.getElementById('ReserveId')!.attributes['value'];
-      _temp['isReserve'] = (_inputDocument
+      temp['busId'] =
+          inputDocument.getElementById('BusId')!.attributes['value'];
+      temp['cancelKey'] =
+          inputDocument.getElementById('ReserveId')!.attributes['value'];
+      temp['isReserve'] = inputDocument
                   .getElementById('ReserveStateCode')!
                   .attributes['value'] ==
               '0' &&
-          _inputDocument.getElementById('ReserveId')!.attributes['value'] !=
-              '0');
+          inputDocument.getElementById('ReserveId')!.attributes['value'] != '0';
 
-      var tdElements = trElement.getElementsByTagName('td').sublist(1);
+      final List<Element> tdElements =
+          trElement.getElementsByTagName('td').sublist(1);
 
-      var format = DateFormat('yyyy/MM/dd HH:mm');
+      final DateFormat format = DateFormat('yyyy/MM/dd HH:mm');
 
-      _temp['departureTime'] =
+      temp['departureTime'] =
           format.parse('$time ${tdElements[0].text}').toIso8601String();
-      _temp['reserveCount'] = int.parse(tdElements[1].text);
-      _temp['homeCharteredBus'] = false;
-      _temp['specialTrain'] = '';
-      _temp['description'] = '';
-      _temp['startStation'] = startStation;
-      _temp['endStation'] = endStation;
-      _temp['limitCount'] = 999;
+      temp['reserveCount'] = int.parse(tdElements[1].text);
+      temp['homeCharteredBus'] = false;
+      temp['specialTrain'] = '';
+      temp['description'] = '';
+      temp['startStation'] = startStation;
+      temp['endStation'] = endStation;
+      temp['limitCount'] = 999;
 
       if (tdElements[2].text != '') {
         if (tdElements[2].getElementsByTagName('button').isNotEmpty) {
-          var _typeString = tdElements[2]
+          final String typeString = tdElements[2]
               .getElementsByTagName('button')[0]
               .text
               .replaceAll(' ', '')
               .replaceAll('\n', '');
-          if (_typeString == '返鄉專車') {
-            _temp['homeCharteredBus'] = true;
+          if (typeString == '返鄉專車') {
+            temp['homeCharteredBus'] = true;
           }
-          if (_typeString == '試辦專車') {
-            _temp['specialTrain'] = '2';
+          if (typeString == '試辦專車') {
+            temp['specialTrain'] = '2';
           }
-          _temp['description'] = tdElements[2]
+          temp['description'] = tdElements[2]
               .getElementsByTagName('button')[0]
               .attributes['data-content'];
         }
       }
-      result.add(_temp);
+      result.add(temp);
     }
     return result;
   }
 
-  static ScoreData scores(rawHtml) {
-    final document = html.parse(rawHtml);
+  static ScoreData scores(dynamic rawHtml) {
+    final Document document = html.parse(rawHtml);
     // generate scores list
-    if (document.getElementById("datatable") == null) {
+    if (document.getElementById('datatable') == null) {
       return ScoreData.empty();
     }
-    List<Map<String, dynamic>> scoresList = [];
+    final List<Map<String, dynamic>> scoresList = <Map<String, dynamic>>[];
     //skip table header
-    var _trElements =
-        document.getElementById("datatable")!.getElementsByTagName('tr');
-    if (_trElements.length <= 1) {
+    final List<Element> trElements =
+        document.getElementById('datatable')!.getElementsByTagName('tr');
+    if (trElements.length <= 1) {
       return ScoreData.empty();
     }
 
-    for (var trElement in _trElements.sublist(1)) {
+    for (final Element trElement in trElements.sublist(1)) {
       // select td element
-      var tdElements = trElement.getElementsByTagName("td");
+      final List<Element> tdElements = trElement.getElementsByTagName('td');
 
       if (tdElements.length < 8) {
         // continue;
         return ScoreData.empty();
       }
-      scoresList.add({
-        "title": tdElements.elementAt(0).text,
-        "units": tdElements.elementAt(1).text,
-        "hours": tdElements.elementAt(2).text,
-        "required": tdElements.elementAt(3).text,
-        "at": tdElements.elementAt(4).text,
-        "middleScore": tdElements.elementAt(5).text,
-        "semesterScore": tdElements.elementAt(6).text,
-        "remark": tdElements.elementAt(7).text,
+      scoresList.add(<String, String>{
+        'title': tdElements.elementAt(0).text,
+        'units': tdElements.elementAt(1).text,
+        'hours': tdElements.elementAt(2).text,
+        'required': tdElements.elementAt(3).text,
+        'at': tdElements.elementAt(4).text,
+        'middleScore': tdElements.elementAt(5).text,
+        'semesterScore': tdElements.elementAt(6).text,
+        'remark': tdElements.elementAt(7).text,
       });
     }
 
     //detail data
-    Map<String, dynamic> detailData = {};
-    var detailDiv = document.getElementsByClassName("text-bold text-info");
-    if (detailDiv == null) {
-      return ScoreData.empty();
-    }
+    final Map<String, dynamic> detailData = <String, dynamic>{};
+    final List<Element> detailDiv =
+        document.getElementsByClassName('text-bold text-info');
+
     if (detailDiv.length < 4) {
       return ScoreData.empty();
     }
-    detailData["average"] = detailDiv
+    detailData['average'] = detailDiv
         .elementAt(0)
         .parent!
         .text
-        .replaceAll(detailDiv.elementAt(0).text, "")
-        .replaceAll("\n", "")
-        .replaceAll(" ", "");
-    detailData["average"] = double.parse(detailData["average"]);
-    detailData["conduct"] = detailDiv
+        .replaceAll(detailDiv.elementAt(0).text, '')
+        .replaceAll('\n', '')
+        .replaceAll(' ', '');
+    detailData['average'] = double.parse(detailData['average'] as String);
+    detailData['conduct'] = detailDiv
         .elementAt(1)
         .parent!
         .text
-        .replaceAll(detailDiv.elementAt(1).text, "")
-        .replaceAll("\n", "")
-        .replaceAll(" ", "");
-    detailData["conduct"] = double.parse(detailData["conduct"]);
-    detailData["classRank"] = detailDiv
+        .replaceAll(detailDiv.elementAt(1).text, '')
+        .replaceAll('\n', '')
+        .replaceAll(' ', '');
+    detailData['conduct'] = double.parse(detailData['conduct'] as String);
+    detailData['classRank'] = detailDiv
         .elementAt(2)
         .parent!
         .text
-        .replaceAll(detailDiv.elementAt(2).text, "")
-        .replaceAll("\n", "")
-        .replaceAll(" ", "");
+        .replaceAll(detailDiv.elementAt(2).text, '')
+        .replaceAll('\n', '')
+        .replaceAll(' ', '');
 
-    detailData["departmentRank"] = detailDiv
+    detailData['departmentRank'] = detailDiv
         .elementAt(3)
         .parent!
         .text
-        .replaceAll(detailDiv.elementAt(3).text, "")
-        .replaceAll("\n", "")
-        .replaceAll(" ", "");
+        .replaceAll(detailDiv.elementAt(3).text, '')
+        .replaceAll('\n', '')
+        .replaceAll(' ', '');
 
-    return ScoreData.fromJson({
-      "scores": scoresList,
-      "detail": detailData,
-    });
+    return ScoreData.fromJson(
+      <String, dynamic>{
+        'scores': scoresList,
+        'detail': detailData,
+      },
+    );
   }
 
-  static UserInfo userInfo(rawHtml) {
-    final document = html.parse(rawHtml);
-    final list = document.getElementsByClassName('user-header');
-    if (list.length > 0) {
-      final p = list[0].getElementsByTagName('p');
+  static UserInfo userInfo(dynamic rawHtml) {
+    final Document document = html.parse(rawHtml);
+    final List<Element> list = document.getElementsByClassName('user-header');
+    if (list.isNotEmpty) {
+      final List<Element> p = list[0].getElementsByTagName('p');
       if (p.length >= 2) {
         return UserInfo(
           id: p[0].text.split(' ').first,
@@ -312,14 +328,14 @@ class MobileNkustParser {
     return UserInfo.empty();
   }
 
-  static String? getCSRF(rawHtml) {
-    final document = html.parse(rawHtml);
-    for (var inputElement in document.getElementsByTagName("input")) {
-      if (((inputElement.attributes)['name'] ?? "") ==
-          "__RequestVerificationToken") {
-        return inputElement.attributes['value'];
+  static String getCSRF(dynamic rawHtml) {
+    final Document document = html.parse(rawHtml);
+    for (final Element inputElement in document.getElementsByTagName('input')) {
+      if (((inputElement.attributes)['name'] ?? '') ==
+          '__RequestVerificationToken') {
+        return inputElement.attributes['value']!;
       }
     }
-    return "";
+    return '';
   }
 }

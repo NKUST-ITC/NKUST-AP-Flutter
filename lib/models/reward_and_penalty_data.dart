@@ -43,7 +43,7 @@ class RewardAndPenalty {
     required this.reason,
   });
 
-  get isReward {
+  bool get isReward {
     switch (type) {
       case '警告':
       case '小過':

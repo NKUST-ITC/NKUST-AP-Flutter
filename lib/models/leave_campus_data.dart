@@ -84,18 +84,14 @@ class LeavesTeacher {
     required this.id,
   });
 
-  factory LeavesTeacher.fromRawJson(String str) =>
-      LeavesTeacher.fromJson(json.decode(str));
+  factory LeavesTeacher.fromJson(Map<String, dynamic> json) =>
+      _$LeavesTeacherFromJson(json);
 
-  String toRawJson() => json.encode(toJson());
+  Map<String, dynamic> toJson() => _$LeavesTeacherToJson(this);
 
-  factory LeavesTeacher.fromJson(Map<String, dynamic> json) => LeavesTeacher(
-        name: json["teacherName"] == null ? null : json["teacherName"],
-        id: json["teacherId"] == null ? null : json["teacherId"],
+  factory LeavesTeacher.fromRawJson(String str) => LeavesTeacher.fromJson(
+        json.decode(str) as Map<String, dynamic>,
       );
 
-  Map<String, dynamic> toJson() => {
-        "teacherName": name == null ? null : name,
-        "teacherId": id == null ? null : id,
-      };
+  String toRawJson() => jsonEncode(toJson());
 }

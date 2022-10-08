@@ -12,43 +12,43 @@ class CalendarTile extends StatelessWidget {
   final TextStyle? dateStyles;
   final Widget? child;
 
-  CalendarTile({
+  const CalendarTile({
     this.onDateSelected,
     this.date,
     this.child,
     this.dateStyles,
     this.dayOfWeek,
     this.dayOfWeekStyles,
-    this.isDayOfWeek: false,
-    this.isSelected: false,
+    this.isDayOfWeek = false,
+    this.isSelected = false,
   });
 
   Widget renderDateOrDayOfWeek(BuildContext context) {
     if (isDayOfWeek) {
-      return new InkWell(
-        child: new Container(
+      return InkWell(
+        child: Container(
           alignment: Alignment.center,
-          child: new Text(
+          child: Text(
             dayOfWeek!,
             style: dayOfWeekStyles,
           ),
         ),
       );
     } else {
-      return new InkWell(
+      return InkWell(
         onTap: onDateSelected,
-        child: new Container(
+        child: Container(
           decoration: isSelected
-              ? new BoxDecoration(
+              ? BoxDecoration(
                   shape: BoxShape.circle,
                   color: ApTheme.of(context).yellow,
                 )
-              : new BoxDecoration(),
+              : const BoxDecoration(),
           alignment: Alignment.center,
-          child: new Text(
-            CalendarDateUtils.formatDay(date!).toString(),
+          child: Text(
+            CalendarDateUtils.formatDay(date!),
             style: isSelected
-                ? new TextStyle(color: ApTheme.of(context).calendarTileSelect)
+                ? TextStyle(color: ApTheme.of(context).calendarTileSelect)
                 : dateStyles,
             textAlign: TextAlign.center,
           ),
@@ -60,13 +60,13 @@ class CalendarTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (child != null) {
-      return new InkWell(
-        child: child,
+      return InkWell(
         onTap: onDateSelected,
+        child: child,
       );
     }
-    return new Container(
-      decoration: new BoxDecoration(),
+    return DecoratedBox(
+      decoration: const BoxDecoration(),
       child: renderDateOrDayOfWeek(context),
     );
   }

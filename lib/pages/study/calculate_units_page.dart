@@ -1,14 +1,12 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 enum _State {
   ready,
@@ -21,10 +19,10 @@ enum _State {
 }
 
 class CalculateUnitsPage extends StatefulWidget {
-  static const String routerName = "/calculateUnits";
+  static const String routerName = '/calculateUnits';
 
   @override
-  CalculateUnitsPageState createState() => new CalculateUnitsPageState();
+  CalculateUnitsPageState createState() => CalculateUnitsPageState();
 }
 
 class CalculateUnitsPageState extends State<CalculateUnitsPage>
@@ -56,8 +54,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   void initState() {
     super.initState();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "CalculateUnitsPage",
-      "calculate_units_page.dart",
+      'CalculateUnitsPage',
+      'calculate_units_page.dart',
     );
     _getSemester();
   }
@@ -67,15 +65,15 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     super.dispose();
   }
 
-  _textBlueStyle() {
+  TextStyle _textBlueStyle() {
     return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }
 
-  _textStyle() {
-    return TextStyle(fontSize: 14.0);
+  TextStyle _textStyle() {
+    return const TextStyle(fontSize: 14.0);
   }
 
-  _scoreTitle() => TableRow(
+  TableRow _scoreTitle() => TableRow(
         children: <Widget>[
           _scoreTextBorder(ap.generalEductionCourse, true),
           _scoreTextBorder(ap.semesterScore, true),
@@ -83,14 +81,14 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       );
 
   Widget _textBorder(String text, bool isTop) {
-    return new Container(
+    return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(2.0),
-      decoration: new BoxDecoration(
-        border: new Border(
+      padding: const EdgeInsets.all(2.0),
+      decoration: BoxDecoration(
+        border: Border(
           top: isTop
               ? BorderSide.none
-              : BorderSide(color: Colors.grey, width: 0.5),
+              : const BorderSide(color: Colors.grey, width: 0.5),
         ),
       ),
       child: Text(
@@ -104,61 +102,62 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   Widget _scoreTextBorder(String? text, bool isTitle) {
     return Container(
       width: double.maxFinite,
-      padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
       alignment: Alignment.center,
       child: Text(
-        text ?? "",
+        text ?? '',
         textAlign: TextAlign.center,
         style: isTitle ? _textBlueStyle() : _textStyle(),
       ),
     );
   }
 
-  _generalEducationsBorder(Score score) {
-    return TableRow(children: <Widget>[
-      _scoreTextBorder(score.title, false),
-      _scoreTextBorder(score.semesterScore, false),
-    ]);
+  TableRow _generalEducationsBorder(Score score) {
+    return TableRow(
+      children: <Widget>[
+        _scoreTextBorder(score.title, false),
+        _scoreTextBorder(score.semesterScore, false),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
-    return new Scaffold(
+    return Scaffold(
       // Appbar
-      appBar: new AppBar(
+      appBar: AppBar(
         // Title
-        title: new Text(ap.calculateCredits),
+        title: Text(ap.calculateCredits),
         backgroundColor: ApTheme.of(context).blue,
       ),
-      body: Container(
-        child: Flex(
-          direction: Axis.vertical,
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            SizedBox(height: 16.0),
-            Expanded(
-              flex: 1,
-              child: Text(
-                ap.calculateUnitsContent,
-                style: TextStyle(
-                    color: ApTheme.of(context).blueText, fontSize: 16.0),
+      body: Flex(
+        direction: Axis.vertical,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          const SizedBox(height: 16.0),
+          Expanded(
+            child: Text(
+              ap.calculateUnitsContent,
+              style: TextStyle(
+                color: ApTheme.of(context).blueText,
+                fontSize: 16.0,
               ),
             ),
-            Expanded(
-              flex: 19,
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
-                  _calculate();
-                  return null;
-                },
-                child: _body(),
-              ),
+          ),
+          Expanded(
+            flex: 19,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+                _calculate();
+                return;
+              },
+              child: _body(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -167,15 +166,16 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     switch (state) {
       case _State.loading:
         return Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                CircularProgressIndicator(),
-                SizedBox(height: 16.0),
-                Text(ap.calculating, style: _textBlueStyle())
-              ],
-            ),
-            alignment: Alignment.center);
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const CircularProgressIndicator(),
+              const SizedBox(height: 16.0),
+              Text(ap.calculating, style: _textBlueStyle())
+            ],
+          ),
+        );
       case _State.error:
       case _State.empty:
       case _State.custom:
@@ -203,49 +203,59 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         return SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Container(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             height: (MediaQuery.of(context).size.height - 66.0) * (19 / 20),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                Container(
-                  decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
                     ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Table(
                     columnWidths: const <int, TableColumnWidth>{
                       0: FlexColumnWidth(3.0),
-                      1: FlexColumnWidth(1.0),
+                      1: FlexColumnWidth(),
                     },
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                     border: TableBorder.symmetric(
-                        inside: BorderSide(color: Colors.grey)),
+                      inside: const BorderSide(color: Colors.grey),
+                    ),
                     children: _renderScoreWidgets(),
                   ),
                 ),
-                SizedBox(height: 20.0),
-                Container(
-                  decoration: new BoxDecoration(
-                    borderRadius: BorderRadius.all(
+                const SizedBox(height: 20.0),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(
                       Radius.circular(
                         10.0,
                       ),
                     ),
-                    border: new Border.all(color: Colors.grey, width: 1.5),
+                    border: Border.all(color: Colors.grey, width: 1.5),
                   ),
                   child: Column(
                     children: <Widget>[
                       _textBorder(
-                          "${ap.requiredCredits}：$requiredUnitsTotal", true),
+                        '${ap.requiredCredits}：$requiredUnitsTotal',
+                        true,
+                      ),
                       _textBorder(
-                          "${ap.electiveCredits}：$electiveUnitsTotal", false),
-                      _textBorder("${ap.otherCredits}：$otherUnitsTotal", false),
-                      _textBorder("${ap.totalCredits}：$unitsTotal", false),
+                        '${ap.electiveCredits}：$electiveUnitsTotal',
+                        false,
+                      ),
+                      _textBorder(
+                        '${ap.otherCredits}：$otherUnitsTotal',
+                        false,
+                      ),
+                      _textBorder(
+                        '${ap.totalCredits}：$unitsTotal',
+                        false,
+                      ),
                     ],
                   ),
                 ),
@@ -257,20 +267,20 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   List<TableRow> _renderScoreWidgets() {
-    List<TableRow> scoreWeightList = [];
+    final List<TableRow> scoreWeightList = <TableRow>[];
     scoreWeightList.add(_scoreTitle());
     /*for (var i = 0; i < scoreDataList.length; i++)
       scoreWeightList.add(_scoreBorder(semesterList[i], scoreDataList[i]));*/
-    for (var i in coreGeneralEducations) {
+    for (final Score i in coreGeneralEducations) {
       scoreWeightList.add(_generalEducationsBorder(i));
     }
-    for (var i in extendGeneralEducations) {
+    for (final Score i in extendGeneralEducations) {
       scoreWeightList.add(_generalEducationsBorder(i));
     }
     return scoreWeightList;
   }
 
-  _calculate() async {
+  Future<void> _calculate() async {
     unitsTotal = 0.0;
     requiredUnitsTotal = 0.0;
     electiveUnitsTotal = 0.0;
@@ -279,39 +289,38 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     startYear = -1;
     count = 0;
     currentSemesterIndex = 0;
-    semesterList = [];
-    coreGeneralEducations = [];
-    extendGeneralEducations = [];
+    semesterList = <Semester>[];
+    coreGeneralEducations = <Score>[];
+    extendGeneralEducations = <Score>[];
     start = DateTime.now();
     _getSemesterScore();
   }
 
-  get _onFailure => (DioError e) {
+  DioErrorCallback get _onFailure => (DioError e) {
         setState(() {
           state = _State.custom;
           customStateHint = e.i18nMessage;
         });
       };
 
-  get _onError => (GeneralResponse response) {
+  GeneralResponseCallback get _onError => (GeneralResponse response) {
         setState(() {
           state = _State.custom;
           customStateHint = response.getGeneralMessage(context);
         });
       };
 
-  _getSemester() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(Constants.PREF_IS_OFFLINE_LOGIN)!) {
+  Future<void> _getSemester() async {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
       return;
     }
     Helper.instance.getSemester(
-      callback: GeneralCallback(
+      callback: GeneralCallback<SemesterData>(
         onSuccess: (SemesterData? data) {
-          this.semesterData = data;
+          semesterData = data;
         },
         onFailure: _onFailure,
         onError: _onError,
@@ -319,58 +328,61 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     );
   }
 
-  _getSemesterScore() {
-    Helper.cancelToken!.cancel("");
+  void _getSemesterScore() {
+    Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     setState(() {
       state = _State.loading;
     });
-    if (semesterData == null || semesterData!.data == null) {
+    if (semesterData == null) {
       _getSemester();
       return;
     }
     Helper.instance.getScores(
       semester: semesterData!.data[currentSemesterIndex],
-      callback: GeneralCallback(
+      callback: GeneralCallback<ScoreData?>(
         onSuccess: (ScoreData? data) {
-          if (startYear == -1)
+          if (startYear == -1) {
             startYear =
                 int.parse(semesterData!.data[currentSemesterIndex].year);
+          }
           semesterList.add(semesterData!.data[currentSemesterIndex]);
           if (data?.scores != null) {
-            for (var score in data!.scores) {
-              if (score.semesterScore == null || score.semesterScore!.isEmpty)
+            for (final Score score in data!.scores) {
+              if (score.semesterScore == null || score.semesterScore!.isEmpty) {
                 continue;
-              var semesterScore = double.tryParse(score.semesterScore!);
+              }
+              final double? semesterScore =
+                  double.tryParse(score.semesterScore!);
               if ((semesterScore != null && semesterScore >= 60.0) ||
                   score.semesterScore == '合格' ||
                   score.semesterScore == '通過') {
-                if (score.required == "【必修】") {
+                if (score.required == '【必修】') {
                   requiredUnitsTotal += double.parse(score.units);
-                } else if (score.required == "【選修】") {
+                } else if (score.required == '【選修】') {
                   electiveUnitsTotal += double.parse(score.units);
                 } else {
                   otherUnitsTotal += double.parse(score.units);
                 }
-                if (score.title.contains("延伸通識") ||
-                    score.title.contains("博雅")) {
+                if (score.title.contains('延伸通識') ||
+                    score.title.contains('博雅')) {
                   extendGeneralEducations.add(score);
-                } else if (score.title.contains("核心通識") ||
-                    score.title.contains("核心")) {
+                } else if (score.title.contains('核心通識') ||
+                    score.title.contains('核心')) {
                   coreGeneralEducations.add(score);
                 }
               }
             }
           }
-          var currentYear =
+          final int currentYear =
               int.parse(semesterData!.data[currentSemesterIndex].year);
           if (currentSemesterIndex < semesterData!.data.length - 1 &&
               ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
             currentSemesterIndex++;
             if (mounted) _getSemesterScore();
           } else {
-            DateTime end = DateTime.now();
-            var second =
+            final DateTime end = DateTime.now();
+            final double second =
                 (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
                     1000;
             FirebaseAnalyticsUtils.instance.logCalculateUnits(second);

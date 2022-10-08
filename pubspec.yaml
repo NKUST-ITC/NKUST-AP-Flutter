@@ -16,7 +16,7 @@ dependencies:
   intl: ^0.17.0
   multiple_localization: ^0.3.0
 
-  ap_common: ^0.22.0-dev.5
+  ap_common: ^0.22.0-dev.6
   ap_common_firebase: ^0.15.0
   ap_common_plugin: ^0.4.0
   #official plugin
@@ -29,6 +29,11 @@ dependencies:
     git:
       url: https://github.com/NKUST-ITC/dio-http-cache
       ref: 84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e
+  dio_cookie_manager: ^2.0.0
+  cookie_jar: ^3.0.1
+  crypto: ^3.0.2
+  encrypt: ^5.0.1
+  path: ^1.8.0
   tuple: ^2.0.0
   sprintf: ^6.0.0
   image: ^3.0.2
@@ -48,6 +53,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  lint: ^1.8.2
   build_runner: ^2.1.11
   json_serializable: ^6.3.0
 

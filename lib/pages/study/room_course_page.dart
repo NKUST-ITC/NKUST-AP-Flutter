@@ -1,4 +1,3 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/scaffold/course_scaffold.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -21,7 +20,7 @@ class EmptyRoomPage extends StatefulWidget {
 }
 
 class _EmptyRoomPageState extends State<EmptyRoomPage> {
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -37,8 +36,8 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "RoomCoursePage",
-      "room_course_page.dart",
+      'RoomCoursePage',
+      'room_course_page.dart',
     );
     super.initState();
   }
@@ -55,7 +54,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'room_coruse',
-        onSelect: (semester, index) {
+        onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
             state = CourseState.loading;
@@ -73,38 +72,45 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
     );
   }
 
-  _getRoomCourseTable() async {
+  Future<void> _getRoomCourseTable() async {
     Helper.instance.getRoomCourseTables(
       roomId: widget.room.id,
       semester: selectSemester,
-      callback: GeneralCallback(
+      callback: GeneralCallback<CourseData>(
         onSuccess: (CourseData data) {
           courseData = data;
-          if (mounted)
+          if (mounted) {
             setState(() {
-              if (courseData.courses.length != 0)
+              if (courseData.courses.isNotEmpty) {
                 state = CourseState.finish;
-              else
+              } else {
                 state = CourseState.empty;
+              }
             });
+          }
         },
         onFailure: (DioError e) async {
-          if (e.type != DioErrorType.cancel && mounted)
+          if (e.type != DioErrorType.cancel && mounted) {
             setState(() {
               state = CourseState.custom;
               customStateHint = e.i18nMessage;
             });
-          if (e.hasResponse)
+          }
+          if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRoomCourseTables', e.response!.statusCode!,
-                message: e.message);
+              'getRoomCourseTables',
+              e.response!.statusCode!,
+              message: e.message,
+            );
+          }
         },
         onError: (GeneralResponse generalResponse) async {
-          if (mounted)
+          if (mounted) {
             setState(() {
               state = CourseState.custom;
               customStateHint = generalResponse.getGeneralMessage(context);
             });
+          }
         },
       ),
     );

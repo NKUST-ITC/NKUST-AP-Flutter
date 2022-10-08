@@ -33,35 +33,37 @@ class BusReservationsData {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static BusReservationsData sample() {
+  factory BusReservationsData.sample() {
     return BusReservationsData.fromRawJson(
-        '{ "data": [ { "dateTime": "2019/03/17T16:51:57Z", "endTime": "2019/03/14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T00:20:00Z", "endTime": "2019/03/17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T08:40:00Z", "endTime": "2019/03/18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }');
+      '{ "data": [ { "dateTime": "2019/03/17T16:51:57Z", "endTime": "2019/03/14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T00:20:00Z", "endTime": "2019/03/17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T08:40:00Z", "endTime": "2019/03/18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }',
+    );
   }
 
   // Waiting setString support Map.
   void save(String? tag) {
     Preferences.setString(
-      '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
-      this.toRawJson(),
+      '${Constants.prefBusReservationsData}_$tag',
+      toRawJson(),
     );
   }
 
   static BusReservationsData? load(String? tag) {
-    String rawString = Preferences.getString(
-      '${Constants.PREF_BUS_RESERVATIONS_DATA}_$tag',
+    final String rawString = Preferences.getString(
+      '${Constants.prefBusReservationsData}_$tag',
       '',
     );
-    if (rawString == '')
+    if (rawString == '') {
       return null;
-    else
+    } else {
       return BusReservationsData.fromRawJson(rawString);
+    }
   }
 }
 
 @JsonSerializable()
 class BusReservation {
   String dateTime;
-  @deprecated
+  @Deprecated('legacy config')
   String? endTime;
   String cancelKey;
   String start;
@@ -71,7 +73,7 @@ class BusReservation {
 
   BusReservation({
     required this.dateTime,
-    required this.endTime,
+    @Deprecated('legacy config') required this.endTime,
     required this.cancelKey,
     required this.start,
     required this.end,
@@ -90,9 +92,11 @@ class BusReservation {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static List<BusReservation> toList(List<dynamic> jsonArray) {
-    List<BusReservation> list = [];
-    for (var item in (jsonArray)) list.add(BusReservation.fromJson(item));
+  static List<BusReservation> toList(List<Map<String, dynamic>> jsonArray) {
+    final List<BusReservation> list = <BusReservation>[];
+    for (final Map<String, dynamic> item in jsonArray) {
+      list.add(BusReservation.fromJson(item));
+    }
     return list;
   }
 
@@ -102,34 +106,34 @@ class BusReservation {
 
   String getDate() {
     initializeDateFormatting();
-    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    var formatterTime = DateFormat('yyyy/MM/dd');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime));
+    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    final DateFormat formatterTime = DateFormat('yyyy/MM/dd');
+    return formatterTime.format(formatterDateTime.parse(dateTime));
   }
 
   String getTime() {
-    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    var formatterTime = new DateFormat('HH:mm');
-    return formatterTime.format(formatterDateTime.parse(this.dateTime));
+    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    final DateFormat formatterTime = DateFormat('HH:mm');
+    return formatterTime.format(formatterDateTime.parse(dateTime));
   }
 
   DateTime getDateTime() {
-    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    return formatterDateTime.parse(this.dateTime);
+    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    return formatterDateTime.parse(dateTime);
   }
 
   String getDateTimeStr() {
-    final formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    var formatterTime = new DateFormat('yyyy/MM/dd HH:mm');
-    final s = formatterDateTime.parse(this.dateTime);
+    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
+    final DateFormat formatterTime = DateFormat('yyyy/MM/dd HH:mm');
+    final DateTime s = formatterDateTime.parse(dateTime);
     return formatterTime.format(s);
   }
 
-  String? getStart(AppLocalizations? local) {
+  String getStart(AppLocalizations? local) {
     return Utils.parserCampus(local, start);
   }
 
-  String? getEnd(AppLocalizations? local) {
+  String getEnd(AppLocalizations? local) {
     return Utils.parserCampus(local, end);
   }
 

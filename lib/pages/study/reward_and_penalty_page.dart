@@ -1,14 +1,10 @@
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -24,14 +20,14 @@ enum _State {
 }
 
 class RewardAndPenaltyPage extends StatefulWidget {
-  static const String routerName = "/user/reward-and-penalty";
+  static const String routerName = '/user/reward-and-penalty';
 
   @override
   _RewardAndPenaltyPageState createState() => _RewardAndPenaltyPageState();
 }
 
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -47,8 +43,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "RewardAndPenaltyPage",
-      "reward_and_penalty_page.dart",
+      'RewardAndPenaltyPage',
+      'reward_and_penalty_page.dart',
     );
     super.initState();
   }
@@ -67,45 +63,44 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.search),
+        child: const Icon(Icons.search),
         onPressed: () {
           key.currentState!.pickSemester();
         },
       ),
-      body: Container(
-        child: Flex(
-          direction: Axis.vertical,
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            SizedBox(height: 8.0),
-            SemesterPicker(
-                key: key,
-                featureTag: 'reward',
-                onSelect: (semester, index) {
-                  setState(() {
-                    selectSemester = semester;
-                    state = _State.loading;
-                  });
-                  _getMidtermAlertsData();
-                }),
-            if (isOffline)
-              Text(
-                ap.offlineScore,
-                style: TextStyle(color: ApTheme.of(context).grey),
-              ),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  await _getMidtermAlertsData();
-                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
-                  return null;
-                },
-                child: _body(),
-              ),
+      body: Flex(
+        direction: Axis.vertical,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          const SizedBox(height: 8.0),
+          SemesterPicker(
+            key: key,
+            featureTag: 'reward',
+            onSelect: (Semester semester, int index) {
+              setState(() {
+                selectSemester = semester;
+                state = _State.loading;
+              });
+              _getMidtermAlertsData();
+            },
+          ),
+          if (isOffline)
+            Text(
+              ap.offlineScore,
+              style: TextStyle(color: ApTheme.of(context).grey),
             ),
-          ],
-        ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await _getMidtermAlertsData();
+                FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+                return;
+              },
+              child: _body(),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -137,21 +132,24 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
   }
 
-  _body() {
+  Widget _body() {
     switch (state) {
       case _State.loading:
         return Container(
-            child: CircularProgressIndicator(), alignment: Alignment.center);
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        );
       case _State.empty:
       case _State.error:
       case _State.offline:
       case _State.custom:
         return InkWell(
           onTap: () {
-            if (state == _State.empty)
+            if (state == _State.empty) {
               key.currentState!.pickSemester();
-            else
+            } else {
               _getMidtermAlertsData();
+            }
             FirebaseAnalyticsUtils.instance.logEvent('retry_click');
           },
           child: HintContent(
@@ -161,7 +159,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, index) {
+          itemBuilder: (_, int index) {
             return _midtermAlertsItem(rewardAndPenaltyData.data[index]);
           },
           itemCount: rewardAndPenaltyData.data.length,
@@ -181,10 +179,10 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         child: ListTile(
           title: Text(
             item.reason,
-            style: TextStyle(fontSize: 18.0),
+            style: const TextStyle(fontSize: 18.0),
           ),
           trailing: Text(
-            '${item.type}',
+            item.type,
             style: TextStyle(
               fontSize: 16.0,
               color: item.isReward ? Colors.green : Colors.red,
@@ -195,7 +193,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             child: Text(
               sprintf(
                 ap.rewardAndPenaltyContent,
-                [
+                <dynamic>[
                   item.counts,
                   item.date,
                 ],
@@ -207,8 +205,8 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     );
   }
 
-  _getMidtermAlertsData() async {
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
+  Future<void> _getMidtermAlertsData() async {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
@@ -218,26 +216,31 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     Helper.cancelToken = CancelToken();
     Helper.instance.getRewardAndPenalty(
       semester: selectSemester,
-      callback: GeneralCallback(
+      callback: GeneralCallback<RewardAndPenaltyData>(
         onSuccess: (RewardAndPenaltyData data) {
-          if (mounted)
+          if (mounted) {
             setState(() {
               rewardAndPenaltyData = data;
-              if (data == null || data.data.length == 0)
+              if (data.data.isEmpty) {
                 state = _State.empty;
-              else
+              } else {
                 state = _State.finish;
+              }
             });
+          }
         },
         onFailure: (DioError e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
           });
-          if (e.hasResponse)
+          if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getRewardAndPenalty', e.response!.statusCode!,
-                message: e.message);
+              'getRewardAndPenalty',
+              e.response!.statusCode!,
+              message: e.message,
+            );
+          }
         },
         onError: (GeneralResponse response) {
           setState(() {

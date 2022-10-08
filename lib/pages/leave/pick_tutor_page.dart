@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:ap_common/resources/ap_icon.dart';
@@ -6,11 +7,10 @@ import 'package:ap_common/utils/ap_localizations.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/dialog_option.dart';
 import 'package:ap_common/widgets/hint_content.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -39,8 +39,8 @@ class _PickTutorPageState extends State<PickTutorPage> {
   void initState() {
     getTeacherData();
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "PickTutorPage",
-      "pick_tutor_page.dart",
+      'PickTutorPage',
+      'pick_tutor_page.dart',
     );
     super.initState();
   }
@@ -60,13 +60,12 @@ class _PickTutorPageState extends State<PickTutorPage> {
     switch (state) {
       case _State.loading:
         return Container(
-          child: CircularProgressIndicator(),
           alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
         );
       case _State.error:
       case _State.empty:
         return InkWell(
-          onTap: null,
           child: HintContent(
             icon: ApIcon.permIdentity,
             content:
@@ -74,22 +73,22 @@ class _PickTutorPageState extends State<PickTutorPage> {
           ),
         );
       default:
-        var campus = leavesCampusData!.data[campusIndex];
-        var department = campus.department[departmentIndex];
-        var teacher = department.teacherList[teacherIndex];
+        final LeavesCampus campus = leavesCampusData!.data[campusIndex];
+        final LeavesDepartment department = campus.department[departmentIndex];
+        final LeavesTeacher teacher = department.teacherList[teacherIndex];
         return ListView(
           children: <Widget>[
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             ListTile(
-              leading: Icon(Icons.account_balance),
+              leading: const Icon(Icons.account_balance),
               title: Text(ap.campus),
-              subtitle: Text('${campus.campusName}'),
+              subtitle: Text(campus.campusName),
               onTap: () {
                 pickItem(
                   _Type.campus,
                   campusIndex,
                   leavesCampusData!.data.map(
-                    (item) {
+                    (LeavesCampus item) {
                       return item.campusName;
                     },
                   ).toList(),
@@ -103,15 +102,15 @@ class _PickTutorPageState extends State<PickTutorPage> {
             ),
             Divider(color: ApTheme.of(context).grey, height: 1),
             ListTile(
-              leading: Icon(Icons.flag),
+              leading: const Icon(Icons.flag),
               title: Text(ap.department),
-              subtitle: Text('${department.departmentName}'),
+              subtitle: Text(department.departmentName),
               onTap: () {
                 pickItem(
                   _Type.department,
                   departmentIndex,
                   campus.department.map(
-                    (item) {
+                    (LeavesDepartment item) {
                       return item.departmentName;
                     },
                   ).toList(),
@@ -125,15 +124,15 @@ class _PickTutorPageState extends State<PickTutorPage> {
             ),
             Divider(color: ApTheme.of(context).grey, height: 1),
             ListTile(
-              leading: Icon(Icons.person),
+              leading: const Icon(Icons.person),
               title: Text(ap.teacher),
-              subtitle: Text('${teacher.name}'),
+              subtitle: Text(teacher.name),
               onTap: () {
                 pickItem(
                   _Type.teacher,
                   teacherIndex,
                   department.teacherList.map(
-                    (item) {
+                    (LeavesTeacher item) {
                       return item.name;
                     },
                   ).toList(),
@@ -145,17 +144,17 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 color: ApTheme.of(context).grey,
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             FractionallySizedBox(
               widthFactor: 0.8,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
+                  shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                       Radius.circular(30.0),
                     ),
                   ),
-                  padding: EdgeInsets.all(14.0),
+                  padding: const EdgeInsets.all(14.0),
                   primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () {
@@ -163,7 +162,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
                 },
                 child: Text(
                   ap.confirm,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18.0,
                   ),
@@ -176,29 +175,30 @@ class _PickTutorPageState extends State<PickTutorPage> {
   }
 
   Future<void> getTeacherData() async {
-    var start = DateTime.now();
-    RemoteConfig? remoteConfig;
+    final DateTime start = DateTime.now();
+    FirebaseRemoteConfig? remoteConfig;
     String text;
     if (kIsWeb) {
     } else if (Platform.isAndroid || Platform.isIOS) {
-      remoteConfig = RemoteConfig.instance;
-      try {
-        await remoteConfig.setConfigSettings(
-          RemoteConfigSettings(
-            fetchTimeout: Duration(seconds: 10),
-            minimumFetchInterval: const Duration(hours: 1),
-          ),
-        );
-        await remoteConfig.fetchAndActivate();
-      } catch (exception) {}
+      remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.setConfigSettings(
+        RemoteConfigSettings(
+          fetchTimeout: const Duration(seconds: 10),
+          minimumFetchInterval: const Duration(hours: 1),
+        ),
+      );
+      await remoteConfig.fetchAndActivate();
     }
     if (remoteConfig != null) {
-      Preferences.setString(Constants.LEAVE_CAMPUS_DATA,
-          remoteConfig.getString(Constants.LEAVE_CAMPUS_DATA));
+      Preferences.setString(
+        Constants.leaveCampusData,
+        remoteConfig.getString(Constants.leaveCampusData),
+      );
     }
-    text = Preferences.getString(Constants.LEAVE_CAMPUS_DATA, '');
-    if (text == '')
+    text = Preferences.getString(Constants.leaveCampusData, '');
+    if (text == '') {
       text = await rootBundle.loadString(FileAssets.leaveCampusData);
+    }
     setState(() {
       leavesCampusData = LeavesCampusData.fromRawJson(text);
       if (leavesCampusData != null) {
@@ -207,8 +207,10 @@ class _PickTutorPageState extends State<PickTutorPage> {
         state = _State.empty;
       }
     });
-    print(
-        'read json time = ${DateTime.now().millisecondsSinceEpoch - start.millisecondsSinceEpoch}ms');
+    log(
+      'read json time = '
+      '${DateTime.now().difference(start).inMilliseconds}ms',
+    );
   }
 
   void pickItem(_Type type, int currentIndex, List<String?> items) {
@@ -229,12 +231,12 @@ class _PickTutorPageState extends State<PickTutorPage> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(
             Radius.circular(8),
           ),
         ),
-        contentPadding: EdgeInsets.all(0.0),
+        contentPadding: EdgeInsets.zero,
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,
           child: ListView.separated(
@@ -252,7 +254,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
               );
             },
             separatorBuilder: (BuildContext context, int index) {
-              return Divider(height: 6.0);
+              return const Divider(height: 6.0);
             },
           ),
         ),

@@ -35,16 +35,18 @@ class MobileCookiesData {
 
   Future<void> save() async {
     await Preferences.setStringSecurity(
-        Constants.MOBILE_COOKIES_DATA, toRawJson());
+      Constants.mobileCookiesData,
+      toRawJson(),
+    );
   }
 
   Future<void> clear() async {
-    await Preferences.remove(Constants.MOBILE_COOKIES_DATA);
+    await Preferences.remove(Constants.mobileCookiesData);
   }
 
   static MobileCookiesData? load() {
-    final str =
-        Preferences.getStringSecurity(Constants.MOBILE_COOKIES_DATA, '');
+    final String str =
+        Preferences.getStringSecurity(Constants.mobileCookiesData, '');
     return str.isEmpty ? null : MobileCookiesData.fromRawJson(str);
   }
 }

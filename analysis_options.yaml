@@ -1,0 +1,28 @@
+include: package:lint/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - lib/generated_plugin_registrant.dart
+    - lib/l10n/intl/*.dart
+    - lib/firebase_options.dart
+    - lib/l10n/*.dart
+    - lib/**/*.g.dart
+
+linter:
+  rules:
+    always_put_required_named_parameters_first: false
+
+    avoid_classes_with_only_static_members: false
+
+    sort_constructors_first: false
+
+    prefer_single_quotes: true
+    prefer_double_quotes: false
+
+    public_member_api_docs: false
+
+    always_specify_types: true
+
+    lines_longer_than_80_chars: true
+
+    sort_pub_dependencies: false

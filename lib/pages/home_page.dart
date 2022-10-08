@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:ap_common/api/announcement_helper.dart';
-import 'package:ap_common/api/imgur_helper.dart';
-import 'package:ap_common/callback/general_callback.dart';
 import 'package:ap_common/config/ap_constants.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
@@ -23,9 +22,6 @@ import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common/widgets/ap_drawer.dart';
 import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_utils.dart';
-import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,16 +32,15 @@ import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/pages/study/midterm_alerts_page.dart';
+import 'package:nkust_ap/pages/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-import 'study/midterm_alerts_page.dart';
-import 'study/reward_and_penalty_page.dart';
-
 class HomePage extends StatefulWidget {
-  static const String routerName = "/home";
+  static const String routerName = '/home';
 
   @override
   HomePageState createState() => HomePageState();
@@ -57,7 +52,7 @@ class HomePageState extends State<HomePage> {
 
   bool get isMobile => MediaQuery.of(context).size.shortestSide < 680;
 
-  var state = HomeState.loading;
+  HomeState state = HomeState.loading;
 
   late AppLocalizations app;
   late ApLocalizations ap;
@@ -66,7 +61,7 @@ class HomePageState extends State<HomePage> {
 
   List<Announcement> announcements = <Announcement>[];
 
-  var isLogin = false;
+  bool isLogin = false;
   bool displayPicture = true;
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
@@ -83,22 +78,23 @@ class HomePageState extends State<HomePage> {
       );
 
   String get sectionImage {
-    final department = userInfo?.department ?? '';
-    bool halfSnapFingerChance = Random().nextInt(2000) % 2 == 0;
-    if (department.contains('建工') || department.contains('燕巢'))
+    final String department = userInfo?.department ?? '';
+    final bool halfSnapFingerChance = Random().nextInt(2000).isEven;
+    if (department.contains('建工') || department.contains('燕巢')) {
       return halfSnapFingerChance
           ? ImageAssets.sectionJiangong
           : ImageAssets.sectionYanchao;
-    else if (department.contains('第一'))
+    } else if (department.contains('第一')) {
       return halfSnapFingerChance
           ? ImageAssets.sectionFirst1
           : ImageAssets.sectionFirst2;
-    else if (department.contains('旗津') || department.contains('楠梓'))
+    } else if (department.contains('旗津') || department.contains('楠梓')) {
       return halfSnapFingerChance
           ? ImageAssets.sectionQijin
           : ImageAssets.sectionNanzi;
-    else
+    } else {
       return ImageAssets.kuasap2;
+    }
   }
 
   String get drawerIcon {
@@ -113,7 +109,7 @@ class HomePageState extends State<HomePage> {
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
-  static aboutPage(BuildContext context, {String? assetImage}) {
+  static Widget aboutPage(BuildContext context, {String? assetImage}) {
     return AboutUsPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
@@ -128,10 +124,10 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     FirebaseAnalyticsUtils.instance.setCurrentScreen(
-      "HomePage",
-      "home_page.dart",
+      'HomePage',
+      'home_page.dart',
     );
-    Future.microtask(() async {
+    Future<void>.microtask(() async {
       SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(
           systemNavigationBarContrastEnforced: true,
@@ -140,7 +136,7 @@ class HomePageState extends State<HomePage> {
       );
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
-      if (Preferences.getBool(Constants.PREF_AUTO_LOGIN, false)) {
+      if (Preferences.getBool(Constants.prefAutoLogin, false)) {
         _login();
       } else {
         checkLogin();
@@ -172,26 +168,27 @@ class HomePageState extends State<HomePage> {
       content: content,
       actions: <Widget>[
         IconButton(
-          icon: Icon(Icons.fiber_new_rounded),
+          icon: const Icon(Icons.fiber_new_rounded),
           tooltip: ap.announcementReviewSystem,
           onPressed: () async {
             ApUtils.pushCupertinoStyle(
               context,
-              AnnouncementHomePage(
-                organizationDomain: Constants.MAIL_DOMAIN,
+              const AnnouncementHomePage(
+                organizationDomain: Constants.mailDomain,
               ),
             );
             if (FirebaseMessagingUtils.isSupported) {
               try {
-                final messaging = FirebaseMessaging.instance;
-                NotificationSettings settings =
+                final FirebaseMessaging messaging = FirebaseMessaging.instance;
+                final NotificationSettings settings =
                     await messaging.getNotificationSettings();
                 if (settings.authorizationStatus ==
                         AuthorizationStatus.authorized ||
                     settings.authorizationStatus ==
                         AuthorizationStatus.provisional) {
-                  String? token = await messaging.getToken(
-                      vapidKey: Constants.FCM_WEB_VAPID_KEY);
+                  final String? token = await messaging.getToken(
+                    vapidKey: Constants.fcmWebVapidKey,
+                  );
                   AnnouncementHelper.instance.fcmToken = token;
                 }
               } catch (_) {}
@@ -201,8 +198,7 @@ class HomePageState extends State<HomePage> {
       ],
       drawer: ApDrawer(
         userInfo: userInfo,
-        displayPicture:
-            Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true),
+        displayPicture: Preferences.getBool(Constants.prefDisplayPicture, true),
         imageAsset: drawerIcon,
         onTapHeader: () {
           if (isLogin) {
@@ -228,7 +224,7 @@ class HomePageState extends State<HomePage> {
             ),
           ExpansionTile(
             initiallyExpanded: isStudyExpanded,
-            onExpansionChanged: (bool) {
+            onExpansionChanged: (bool bool) {
               setState(() {
                 isStudyExpanded = bool;
               });
@@ -294,7 +290,7 @@ class HomePageState extends State<HomePage> {
           if (leaveEnable)
             ExpansionTile(
               initiallyExpanded: isLeaveExpanded,
-              onExpansionChanged: (bool) {
+              onExpansionChanged: (bool bool) {
                 setState(() {
                   isLeaveExpanded = bool;
                 });
@@ -311,7 +307,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.edit,
                   title: ap.leaveApply,
                   onTap: () => _openPage(
-                    LeavePage(initIndex: 0),
+                    const LeavePage(),
                     needLogin: true,
                     useCupertinoRoute: false,
                   ),
@@ -320,7 +316,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.assignment,
                   title: ap.leaveRecords,
                   onTap: () => _openPage(
-                    LeavePage(initIndex: 1),
+                    const LeavePage(initIndex: 1),
                     needLogin: true,
                     useCupertinoRoute: false,
                   ),
@@ -329,7 +325,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.folder,
                   title: app.leaveApplyRecord,
                   onTap: () => _openPage(
-                    LeavePage(initIndex: 2),
+                    const LeavePage(initIndex: 2),
                     needLogin: true,
                     useCupertinoRoute: false,
                   ),
@@ -347,7 +343,7 @@ class HomePageState extends State<HomePage> {
           if (canUseBus)
             ExpansionTile(
               initiallyExpanded: isBusExpanded,
-              onExpansionChanged: (bool) {
+              onExpansionChanged: (bool bool) {
                 setState(() {
                   isBusExpanded = bool;
                 });
@@ -364,7 +360,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.dateRange,
                   title: app.busReserve,
                   onTap: () => _openPage(
-                    BusPage(initIndex: 0),
+                    const BusPage(),
                     needLogin: true,
                   ),
                 ),
@@ -372,7 +368,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.assignment,
                   title: app.busReservations,
                   onTap: () => _openPage(
-                    BusPage(initIndex: 1),
+                    const BusPage(initIndex: 1),
                     needLogin: true,
                   ),
                 ),
@@ -380,7 +376,7 @@ class HomePageState extends State<HomePage> {
                   icon: ApIcon.monetizationOn,
                   title: app.busViolationRecords,
                   onTap: () => _openPage(
-                    BusPage(initIndex: 2),
+                    const BusPage(initIndex: 2),
                     needLogin: true,
                   ),
                 ),
@@ -421,7 +417,8 @@ class HomePageState extends State<HomePage> {
                 color: ApTheme.of(context).grey,
               ),
               onTap: () async {
-                await Preferences.setBool(Constants.PREF_AUTO_LOGIN, false);
+                await Preferences.setBool(Constants.prefAutoLogin, false);
+                if (!mounted) return;
                 ShareDataWidget.of(context)!.data.logout();
                 isLogin = false;
                 userInfo = null;
@@ -440,7 +437,7 @@ class HomePageState extends State<HomePage> {
         );
       },
       onTabTapped: onTabTapped,
-      bottomNavigationBarItems: [
+      bottomNavigationBarItems: <BottomNavigationBarItem>[
         if (canUseBus)
           BottomNavigationBarItem(
             icon: Icon(ApIcon.directionsBus),
@@ -458,15 +455,15 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void onTabTapped(int index) async {
+  void onTabTapped(int index) {
     if (isLogin) {
-      if (!canUseBus) index++;
-      switch (index) {
+      switch (canUseBus ? index : index + 1) {
         case 0:
-          if (canUseBus)
-            ApUtils.pushCupertinoStyle(context, BusPage());
-          else
+          if (canUseBus) {
+            ApUtils.pushCupertinoStyle(context, const BusPage());
+          } else {
             ApUtils.showToast(context, ap.platformError);
+          }
           break;
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
@@ -475,82 +472,93 @@ class HomePageState extends State<HomePage> {
           ApUtils.pushCupertinoStyle(context, ScorePage());
           break;
       }
-    } else
+    } else {
       ApUtils.showToast(context, ap.notLogin);
+    }
   }
 
-  _getAnnouncements() async {
+  void _getAnnouncements() {
     AnnouncementHelper.instance.getAnnouncements(
-      tags: ['nkust'],
-      callback: GeneralCallback(
+      tags: <String>['nkust'],
+      callback: GeneralCallback<List<Announcement>?>(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
         onSuccess: (List<Announcement>? data) {
           announcements = data ?? <Announcement>[];
-          if (mounted)
+          if (mounted) {
             setState(() {
-              if (data == null || data.length == 0)
+              if (data == null || data.isEmpty) {
                 state = HomeState.empty;
-              else
+              } else {
                 state = HomeState.finish;
+              }
             });
+          }
         },
       ),
     );
   }
 
-  _setupBusNotify(BuildContext context) async {
-    if (Preferences.getBool(Constants.PREF_BUS_NOTIFY, false))
+  void _setupBusNotify(BuildContext context) {
+    if (Preferences.getBool(Constants.prefBusNotify, false)) {
       Helper.instance.getBusReservations(
-        callback: GeneralCallback(
+        callback: GeneralCallback<BusReservationsData>(
           onSuccess: (BusReservationsData response) async {
-            if (response != null)
-              await Utils.setBusNotify(context, response.reservations);
+            await Utils.setBusNotify(context, response.reservations);
           },
           onFailure: (DioError e) {
-            if (e.hasResponse)
+            if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
-                  'getBusReservations', e.response!.statusCode!,
-                  message: e.message);
+                'getBusReservations',
+                e.response!.statusCode!,
+                message: e.message,
+              );
+            }
           },
           onError: (GeneralResponse e) => null,
         ),
       );
+    }
   }
 
-  _getUserInfo() async {
-    if (Preferences.getBool(Constants.PREF_IS_OFFLINE_LOGIN, false)) {
+  Future<void> _getUserInfo() async {
+    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
       userInfo = UserInfo.load(Helper.username!);
-    } else
+    } else {
       Helper.instance.getUsersInfo(
-        callback: GeneralCallback(
+        callback: GeneralCallback<UserInfo>(
           onSuccess: (UserInfo data) {
             if (mounted) {
               setState(() {
-                this.userInfo = data;
+                userInfo = data;
               });
               FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
               userInfo!.save(Helper.username!);
               _checkData();
-              if (Preferences.getBool(Constants.PREF_DISPLAY_PICTURE, true))
+              if (Preferences.getBool(Constants.prefDisplayPicture, true)) {
                 _getUserPicture();
+              }
             }
           },
           onFailure: (DioError e) {
-            if (e.hasResponse)
+            if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
-                  'getUserInfo', e.response!.statusCode!,
-                  message: e.message);
+                'getUserInfo',
+                e.response!.statusCode!,
+                message: e.message,
+              );
+            }
           },
           onError: (GeneralResponse e) => null,
         ),
       );
+    }
   }
 
-  _getUserPicture() async {
+  Future<void> _getUserPicture() async {
     try {
       if (userInfo != null && userInfo!.pictureUrl != null) {
-        var response = await Helper.instance.getUserPicture();
+        final Uint8List? response = await Helper.instance.getUserPicture();
         if (mounted) {
           setState(() {
             userInfo!.pictureBytes = response;
@@ -559,14 +567,15 @@ class HomePageState extends State<HomePage> {
         // CacheUtils.savePictureData(response);
       }
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
-  Future _login() async {
-    await Future.delayed(Duration(microseconds: 30));
-    final username = Preferences.getString(Constants.PREF_USERNAME, '');
-    final password = Preferences.getStringSecurity(Constants.PREF_PASSWORD, '');
+  Future<void> _login() async {
+    await Future<void>.delayed(const Duration(microseconds: 30));
+    final String username = Preferences.getString(Constants.prefUsername, '');
+    final String password =
+        Preferences.getStringSecurity(Constants.prefPassword, '');
     Helper.instance.login(
       context: context,
       username: username,
@@ -575,7 +584,7 @@ class HomePageState extends State<HomePage> {
         onSuccess: (LoginResponse? response) {
           ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
-          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+          Preferences.setBool(Constants.prefIsOfflineLogin, false);
           _getUserInfo();
           _setupBusNotify(context);
           if (state != HomeState.finish) {
@@ -584,28 +593,28 @@ class HomePageState extends State<HomePage> {
           _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
         },
         onFailure: (DioError e) {
-          final text = e.i18nMessage!;
+          final String text = e.i18nMessage!;
           _homeKey.currentState!.showSnackBar(
             text: text,
             actionText: ap.retry,
             onSnackBarTapped: _login,
           );
-          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+          Preferences.setBool(Constants.prefIsOfflineLogin, true);
           ApUtils.showToast(context, ap.loadOfflineData);
           isLogin = true;
         },
         onError: (GeneralResponse response) {
           String message = '';
           switch (response.statusCode) {
-            case ApStatusCode.SCHOOL_SERVER_ERROR:
+            case ApStatusCode.schoolServerError:
               message = ap.schoolServerError;
               break;
-            case ApStatusCode.API_SERVER_ERROR:
+            case ApStatusCode.apiServerError:
               message = ap.apiServerError;
               break;
-            case ApStatusCode.UNKNOWN_ERROR:
-            case ApStatusCode.USER_DATA_ERROR:
-            case ApStatusCode.CANCEL:
+            case ApStatusCode.unknownError:
+            case ApStatusCode.userDataError:
+            case ApStatusCode.cancel:
               message = ap.loginFail;
               break;
             default:
@@ -617,7 +626,7 @@ class HomePageState extends State<HomePage> {
             actionText: ap.retry,
             onSnackBarTapped: _login,
           );
-          Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, true);
+          Preferences.setBool(Constants.prefIsOfflineLogin, true);
           ApUtils.showToast(context, ap.loadOfflineData);
           isLogin = true;
         },
@@ -627,7 +636,7 @@ class HomePageState extends State<HomePage> {
 
   void handleLoginSuccess(String? username, String? password) {
     isLogin = true;
-    Preferences.setBool(Constants.PREF_IS_OFFLINE_LOGIN, false);
+    Preferences.setBool(Constants.prefIsOfflineLogin, false);
     _getUserInfo();
     _setupBusNotify(context);
     if (state != HomeState.finish) {
@@ -636,9 +645,9 @@ class HomePageState extends State<HomePage> {
     _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
   }
 
-  Future openLoginPage() async {
-    var result = await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => LoginPage()),
+  Future<void> openLoginPage() async {
+    final bool? result = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(builder: (_) => LoginPage()),
     );
     checkLogin();
     if (result ?? false) {
@@ -649,11 +658,12 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void checkLogin() async {
-    await Future.delayed(Duration(microseconds: 30));
+  Future<void> checkLogin() async {
+    await Future<void>.delayed(const Duration(microseconds: 30));
     if (isLogin) {
       _homeKey.currentState!.hideSnackBar();
     } else {
+      if (!mounted) return;
       _homeKey.currentState!
           .showSnackBar(
             text: ApLocalizations.of(context).notLogin,
@@ -669,90 +679,100 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void _openPage(
+  Future<void> _openPage(
     Widget page, {
-    needLogin = false,
+    bool needLogin = false,
     bool useCupertinoRoute = true,
   }) async {
     if (isMobile) Navigator.of(context).pop();
-    if (needLogin && !isLogin)
+    if (needLogin && !isLogin) {
       ApUtils.showToast(
         context,
         ApLocalizations.of(context).notLoginHint,
       );
-    else {
+    } else {
       if (isMobile) {
-        if (useCupertinoRoute)
+        if (useCupertinoRoute) {
           ApUtils.pushCupertinoStyle(context, page);
-        else
+        } else {
           await Navigator.push(
             context,
-            CupertinoPageRoute(builder: (_) => page),
+            CupertinoPageRoute<void>(builder: (_) => page),
           );
+        }
         checkLogin();
-      } else
+      } else {
         setState(() => content = page);
+      }
     }
   }
 
-  static const PREF_API_KEY = 'inkust_api_key';
+  static const String prefApiKey = 'inkust_api_key';
 
   Future<void> _checkData({bool first = false}) async {
-    final app = AppLocalizations.of(context);
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    final currentVersion =
-        Preferences.getString(Constants.PREF_CURRENT_VERSION, '');
+    final AppLocalizations app = AppLocalizations.of(context);
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String currentVersion =
+        Preferences.getString(Constants.prefCurrentVersion, '');
     AnalyticsUtils.instance?.setUserProperty(
-      Constants.VERSION_CODE,
+      Constants.versionCode,
       packageInfo.buildNumber,
     );
     if (currentVersion != packageInfo.buildNumber && first) {
       final Map<String, dynamic>? rawData = await FileAssets.changelogData;
-      final updateNoteContent = rawData!["${packageInfo.buildNumber}"]
-          [ApLocalizations.current.locale];
+      final String updateNoteContent = (rawData![packageInfo.buildNumber]
+          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+      if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,
-        "v${packageInfo.version}\n"
-        "$updateNoteContent",
+        'v${packageInfo.version}\n'
+        '$updateNoteContent',
       );
       Preferences.setString(
-        Constants.PREF_CURRENT_VERSION,
+        Constants.prefCurrentVersion,
         packageInfo.buildNumber,
       );
     }
     VersionInfo versionInfo;
     try {
-      final RemoteConfig remoteConfig = RemoteConfig.instance;
+      final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
       await remoteConfig.setConfigSettings(
         RemoteConfigSettings(
-          fetchTimeout: Duration(seconds: 10),
+          fetchTimeout: const Duration(seconds: 10),
           minimumFetchInterval: const Duration(seconds: 10),
         ),
       );
       await remoteConfig.fetchAndActivate();
-      final leaveTimeCode = List<String>.from(
-          jsonDecode(remoteConfig.getString(Constants.LEAVES_TIME_CODE)));
-      final mobileNkustUserAgent = List<String>.from(jsonDecode(
-          remoteConfig.getString(Constants.MOBILE_NKUST_USER_AGENT)));
-      InkustHelper.loginApiKey = remoteConfig.getString(PREF_API_KEY);
-      busEnable = remoteConfig.getBool(Constants.BUS_ENABLE);
-      leaveEnable = remoteConfig.getBool(Constants.LEAVE_ENABLE);
-      Preferences.setBool(Constants.BUS_ENABLE, busEnable);
-      Preferences.setBool(Constants.LEAVE_ENABLE, leaveEnable);
+      final List<String> leaveTimeCode = List<String>.from(
+        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
+            as List<dynamic>,
+      );
+      final List<String> mobileNkustUserAgent = List<String>.from(
+        jsonDecode(
+          remoteConfig.getString(Constants.mobileNkustUserAgent),
+        ) as List<dynamic>,
+      );
+      InkustHelper.loginApiKey = remoteConfig.getString(prefApiKey);
+      busEnable = remoteConfig.getBool(Constants.busEnable);
+      leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
+      Preferences.setBool(Constants.busEnable, busEnable);
+      Preferences.setBool(Constants.leaveEnable, leaveEnable);
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         Helper.selector = CrawlerSelector.fromRawJson(
-          remoteConfig.getString(Constants.CRAWLER_SELECTOR),
+          remoteConfig.getString(Constants.crawlerSelector),
         );
         Helper.selector!.save();
       }
-      final semesterData = SemesterData.fromRawJson(
-        remoteConfig.getString(Constants.SEMESTER_DATA),
+      final SemesterData semesterData = SemesterData.fromRawJson(
+        remoteConfig.getString(Constants.semesterData),
       );
       semesterData.save();
-      Preferences.setString(PREF_API_KEY, InkustHelper.loginApiKey);
-      Preferences.setStringList(Constants.LEAVES_TIME_CODE, leaveTimeCode);
+      Preferences.setString(prefApiKey, InkustHelper.loginApiKey);
+      Preferences.setStringList(Constants.leavesTimeCode, leaveTimeCode);
       Preferences.setStringList(
-          Constants.MOBILE_NKUST_USER_AGENT, mobileNkustUserAgent);
+        Constants.mobileNkustUserAgent,
+        mobileNkustUserAgent,
+      );
       InkustHelper.leavesTimeCode = leaveTimeCode;
       MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
@@ -760,7 +780,7 @@ class HomePageState extends State<HomePage> {
         isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),
         content: remoteConfig.getString(ApConstants.newVersionContent),
       );
-      if (first)
+      if (first) {
         DialogUtils.showNewVersionContent(
           context: context,
           appName: app.appName,
@@ -772,15 +792,16 @@ class HomePageState extends State<HomePage> {
           snapStoreId: 'nkust-ap',
           versionInfo: versionInfo,
         );
+      }
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
-      InkustHelper.loginApiKey = Preferences.getString(PREF_API_KEY, '');
+      InkustHelper.loginApiKey = Preferences.getString(prefApiKey, '');
       InkustHelper.leavesTimeCode = Preferences.getStringList(
-        Constants.LEAVES_TIME_CODE,
+        Constants.leavesTimeCode,
         InkustHelper.leavesTimeCode,
       );
-      busEnable = Preferences.getBool(Constants.BUS_ENABLE, true);
-      leaveEnable = Preferences.getBool(Constants.LEAVE_ENABLE, true);
+      busEnable = Preferences.getBool(Constants.busEnable, true);
+      leaveEnable = Preferences.getBool(Constants.leaveEnable, true);
     }
     setState(() {});
   }

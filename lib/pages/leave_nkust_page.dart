@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:ap_common/utils/dialog_utils.dart';
@@ -39,7 +41,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       appBar: AppBar(
         title: Text(app.loginAuth),
         backgroundColor: ApTheme.of(context).blue,
-        actions: [
+        actions: <Widget>[
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
@@ -54,7 +56,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       ),
       floatingActionButton: kDebugMode
           ? FloatingActionButton(
-              child: Icon(Icons.done_outline),
+              child: const Icon(Icons.done_outline),
               onPressed: () async {
                 // final html = await webViewController.getHtml();
                 // debugPrint(html);
@@ -63,7 +65,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           : null,
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse(LeaveHelper.BASE_PATH),
+          url: Uri.parse(LeaveHelper.basePath),
         ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -75,34 +77,40 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           this.webViewController = webViewController;
           ApUtils.showToast(context, app.mobileNkustLoginHint);
         },
-        onJsPrompt: (controller, JsPromptRequest jsPromptRequest) {
+        onJsPrompt: (
+          InAppWebViewController controller,
+          JsPromptRequest jsPromptRequest,
+        ) async {
           return;
-        } as Future<JsPromptResponse?> Function(
-            InAppWebViewController, JsPromptRequest)?,
-        onPageCommitVisible: (controller, title) async {
-          final uri = await controller.getUrl();
+        },
+        onPageCommitVisible:
+            (InAppWebViewController controller, Uri? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $uri');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
         },
-        onTitleChanged: (controller, title) async {
-          final uri = await controller.getUrl();
+        onTitleChanged:
+            (InAppWebViewController controller, String? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onTitleChanged $title $uri');
-          if (uri.toString() == LeaveHelper.HOME) {
+          if (uri.toString() == LeaveHelper.home) {
             _finishLogin();
           }
         },
-        onLoadStop: (controller, title) async {
-          final uri = await controller.getUrl();
+        onLoadStop: (InAppWebViewController controller, Uri? title) async {
+          final Uri? uri = await controller.getUrl();
           debugPrint('onLoadStop $title $uri');
-          if (uri.toString() == LeaveHelper.BASE_PATH) {
+          if (uri.toString() == LeaveHelper.basePath) {
             await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";');
+              source: 'document.getElementsByName("Login1\$UserName")[0].value'
+                  ' = "${widget.username}";',
+            );
             await webViewController.evaluateJavascript(
-                source:
-                    'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";');
+              source: 'document.getElementsByName("Login1\$Password")[0].value'
+                  ' = "${widget.password}";',
+            );
           }
         },
       ),
@@ -110,33 +118,38 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
   }
 
   Future<void> _finishLogin() async {
-    if (finish)
+    if (finish) {
       return;
-    else
+    } else {
       finish = true;
-    final cookies = await CookieManager.instance().getCookies(
-      url: Uri.parse(LeaveHelper.BASE_PATH),
+    }
+    final List<Cookie> cookies = await CookieManager.instance().getCookies(
+      url: Uri.parse(LeaveHelper.basePath),
     );
-    final data = MobileCookiesData(cookies: []);
-    cookies.forEach(
-      (element) {
-        data.cookies.add(
-          MobileCookies(
-            path: MobileNkustHelper.HOME,
-            name: element.name,
-            value: element.value,
-            domain: element.domain ??
-                (element.name == 'ASP.NET_SessionId'
-                    ? 'leave.nkust.edu.tw'
-                    : '.nkust.edu.tw'),
-          ),
+    final MobileCookiesData data = MobileCookiesData(
+      cookies: <MobileCookies>[],
+    );
+    for (final Cookie element in cookies) {
+      data.cookies.add(
+        MobileCookies(
+          path: MobileNkustHelper.homeUrl,
+          name: element.name,
+          value: element.value.toString(),
+          domain: element.domain ??
+              (element.name == 'ASP.NET_SessionId'
+                  ? 'leave.nkust.edu.tw'
+                  : '.nkust.edu.tw'),
+        ),
+      );
+      if (kDebugMode) {
+        log(
+          'Cookie: ${element.name}: '
+          '${element.value} ${element.domain} ${element.expiresDate} \n',
         );
-        if (kDebugMode)
-          print(
-              "Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate} \n");
-      },
-    );
+      }
+    }
     LeaveHelper.instance.setCookieFromData(data);
+    if (!mounted) return;
     Navigator.pop(context, true);
   }
 }

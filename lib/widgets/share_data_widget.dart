@@ -5,7 +5,7 @@ import 'package:nkust_ap/app.dart';
 class ShareDataWidget extends InheritedWidget {
   final MyAppState data;
 
-  ShareDataWidget({
+  const ShareDataWidget({
     required this.data,
     required Widget child,
   }) : super(child: child);

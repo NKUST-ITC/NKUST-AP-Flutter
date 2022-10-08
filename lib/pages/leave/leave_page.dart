@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/ap_localizations.dart';
@@ -5,19 +7,18 @@ import 'package:ap_common/widgets/hint_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/pages/leave/leave_apply_page.dart';
-import 'package:nkust_ap/pages/leave/leave_record_page.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeavePage extends StatefulWidget {
-  static const String routerName = "/leave";
-  final List<Widget> _children = [
-    LeaveApplyPage(),
-    LeaveRecordPage(),
-  ];
+  static const String routerName = '/leave';
+
+  // final List<Widget> _children = <Widget>[
+  //   LeaveApplyPage(),
+  //   LeaveRecordPage(),
+  // ];
   final int initIndex;
 
-  LeavePage({this.initIndex = 0});
+  const LeavePage({this.initIndex = 0});
 
   @override
   LeavePageState createState() => LeavePageState();
@@ -58,7 +59,7 @@ class LeavePageState extends State<LeavePage>
       initialIndex: widget.initIndex,
       vsync: this,
     );
-    _login = Future.microtask(() => login());
+    _login = Future<bool>.microtask(() => login());
   }
 
   @override
@@ -77,8 +78,8 @@ class LeavePageState extends State<LeavePage>
       ),
       body: FutureBuilder<bool>(
         future: _login,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done)
+        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
             return InAppWebView(
               initialUrlRequest: URLRequest(
                 url: Uri.parse(path),
@@ -95,31 +96,32 @@ class LeavePageState extends State<LeavePage>
                   allowsInlineMediaPlayback: true,
                 ),
               ),
-              onWebViewCreated: (controller) {
+              onWebViewCreated: (InAppWebViewController controller) {
                 webViewController = controller;
               },
             );
-          else if (snapshot.connectionState == ConnectionState.waiting)
-            return Center(
+          } else if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
               child: CircularProgressIndicator(),
             );
-          else
+          } else {
             return InkWell(
               onTap: () {
-                _login = Future.microtask(() => login());
+                _login = Future<bool>.microtask(() => login());
               },
               child: HintContent(
                 content: ApLocalizations.of(context).clickToRetry,
                 icon: ApIcon.error,
               ),
             );
+          }
         },
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
         fixedColor: ApTheme.of(context).yellow,
-        items: [
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(ApIcon.edit),
             label: ap.leaveApply,
@@ -152,12 +154,13 @@ class LeavePageState extends State<LeavePage>
   Future<bool> login() async {
     try {
       await WebApHelper.instance.loginToMobile();
-      final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
-        Uri.parse("https://mobile.nkust.edu.tw"),
+      final List<io.Cookie> cookies =
+          await WebApHelper.instance.cookieJar.loadForRequest(
+        Uri.parse('https://mobile.nkust.edu.tw'),
       );
-      for (var cookie in cookies) {
+      for (final io.Cookie cookie in cookies) {
         cookieManager.setCookie(
-          url: Uri.parse("https://mobile.nkust.edu.tw"),
+          url: Uri.parse('https://mobile.nkust.edu.tw'),
           name: cookie.name,
           value: cookie.value,
         );

@@ -27,9 +27,11 @@ class LibraryInfoData {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static LibraryInfoData sample() {
+  factory LibraryInfoData.sample() {
     return LibraryInfoData.fromRawJson(
-        '{ "data": { "department": "智慧商務系QQ", "libraryId": "1106133333", "name": "柯博昌", "record": { "borrowing": 1, "reserve-rental": 2, "userFine": 300 } } }');
+      //ignore: lines_longer_than_80_chars
+      '{ "data": { "department": "智慧商務系QQ", "libraryId": "1106133333", "name": "柯博昌", "record": { "borrowing": 1, "reserve-rental": 2, "userFine": 300 } } }',
+    );
   }
 }
 

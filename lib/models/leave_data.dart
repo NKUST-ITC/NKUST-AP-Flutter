@@ -28,27 +28,30 @@ class LeaveData {
 
   String toRawJson() => jsonEncode(toJson());
 
-  static LeaveData sample() {
+  factory LeaveData.sample() {
     return LeaveData.fromRawJson(
-        '{ "leave": [ { "leaveSheetId": "", "date": "107/11/14", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }');
+      //ignore: lines_longer_than_80_chars
+      '{ "leave": [ { "leaveSheetId": "", "date": "107/11/14", "instructorsComment": "", "sections": [ { "section": "5", "reason": "曠" }, { "section": "6", "reason": "曠" } ] } ], "timeCodes": [ "A", "1", "2", "3", "4", "B", "5", "6", "7", "8", "C", "11", "12", "13", "14" ] }',
+    );
   }
 
   void save(String tag) {
     Preferences.setString(
-      '${Constants.PREF_LEAVE_DATA}_$tag',
-      this.toRawJson(),
+      '${Constants.prefLeaveData}_$tag',
+      toRawJson(),
     );
   }
 
   static LeaveData? load(String tag) {
-    String rawString = Preferences.getString(
-      '${Constants.PREF_LEAVE_DATA}_$tag',
+    final String rawString = Preferences.getString(
+      '${Constants.prefLeaveData}_$tag',
       '',
     );
-    if (rawString == '')
+    if (rawString == '') {
       return null;
-    else
+    } else {
       return LeaveData.fromRawJson(rawString);
+    }
   }
 }
 
@@ -68,7 +71,7 @@ class Leave {
   });
 
   String get dateText => date.length == 7
-      ? "${date.substring(3, 5)}/${date.substring(5, 7)}"
+      ? '${date.substring(3, 5)}/${date.substring(5, 7)}'
       : date;
 
   factory Leave.fromJson(Map<String, dynamic> json) => _$LeaveFromJson(json);
@@ -82,11 +85,11 @@ class Leave {
   String toRawJson() => jsonEncode(toJson());
 
   String getReason(String timeCode) {
-    if (leaveSections.isEmpty) return "";
-    for (var leaveSection in leaveSections) {
+    if (leaveSections.isEmpty) return '';
+    for (final LeaveSections leaveSection in leaveSections) {
       if (leaveSection.section == timeCode) return leaveSection.reason;
     }
-    return "";
+    return '';
   }
 }
 

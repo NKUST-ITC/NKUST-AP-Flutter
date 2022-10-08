@@ -34,12 +34,12 @@ class _AppLocalizationsDelegate
 }
 
 extension AppLocalizationsExtension on AppLocalizations {
-  List<String> get busSegment => [
+  List<String> get busSegment => <String>[
         fromJiangong,
         fromYanchao,
       ];
 
-  List<String> get campuses => [
+  List<String> get campuses => <String>[
         jiangong,
         yanchao,
         first,

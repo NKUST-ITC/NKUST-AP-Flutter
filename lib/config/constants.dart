@@ -1,98 +1,100 @@
 import 'package:encrypt/encrypt.dart';
 
 class Constants {
-  static final key = Key.fromUtf8('l9r1W3wcsnJTayxCXwoFt62w1i4sQ5J9');
-  static final iv = IV.fromUtf8('auc9OV5r0nLwjCAH');
+  static final Key key = Key.fromUtf8('l9r1W3wcsnJTayxCXwoFt62w1i4sQ5J9');
+  static final IV iv = IV.fromUtf8('auc9OV5r0nLwjCAH');
 
-  static const FCM_WEB_VAPID_KEY =
+  static const String fcmWebVapidKey =
+      //ignore: lines_longer_than_80_chars
       'BK0jGtEEyOeBv3H0Q95PtNtYFYNpleRPEKAPP5YLIQIARrNn_X20CFffSrrFarbmsMF3aMVEqjePw5z6GwBWbao';
 
-  static const PREF_FIRST_ENTER_APP = "pref_first_enter_app";
-  static const PREF_CURRENT_VERSION = "pref_current_version";
-  static const PREF_REMEMBER_PASSWORD = "pref_remember_password";
-  static const PREF_AUTO_LOGIN = "pref_auto_login";
-  static const PREF_USERNAME = "pref_username";
-  static const PREF_PASSWORD = "pref_password";
+  static const String prefFirstEnterApp = 'pref_first_enter_app';
+  static const String prefCurrentVersion = 'pref_current_version';
+  static const String prefRememberPassword = 'pref_remember_password';
+  static const String prefAutoLogin = 'pref_auto_login';
+  static const String prefUsername = 'pref_username';
+  static const String prefPassword = 'pref_password';
 
-  static const PREF_COURSE_NOTIFY = "pref_course_notify";
-  static const PREF_BUS_NOTIFY = "pref_bus_notify";
-  static const PREF_COURSE_NOTIFY_DATA = "pref_course_notify_data";
-  static const PREF_BUS_NOTIFY_DATA = "pref_bus_notify_data";
-  static const PREF_COURSE_VIBRATE = "pref_course_vibrate";
-  static const PREF_COURSE_VIBRATE_DATA = "pref_course_vibrate_data";
-  static const PREF_COURSE_VIBRATE_USER_SETTING =
-      "pref_course_vibrate_user_setting";
-  static const PREF_DISPLAY_PICTURE = "pref_display_picture";
-  static const PREF_PICTURE_DATA = "pref_picture_data";
-  static const PREF_SCORE_DATA = "pref_score_data";
-  static const PREF_COURSE_DATA = "pref_course_data";
-  static const PREF_LEAVE_DATA = "pref_leave_data";
-  static const PREF_SEMESTER_DATA = "pref_semester_data";
-  static const PREF_SCHEDULE_DATA = 'pref_schedule_datae';
-  static const PREF_USER_INFO = "pref_user_info";
-  static const PREF_BUS_RESERVATIONS_DATA = "pref_bus_reservevations_data";
+  static const String prefCourseNotify = 'pref_course_notify';
+  static const String prefBusNotify = 'pref_bus_notify';
+  static const String prefCourseNotifyData = 'pref_course_notify_data';
+  static const String prefBusNotifyData = 'pref_bus_notify_data';
+  static const String prefCourseVibrate = 'pref_course_vibrate';
+  static const String prefCourseVibrateData = 'pref_course_vibrate_data';
+  static const String prefCourseVibrateUserSetting =
+      'pref_course_vibrate_user_setting';
+  static const String prefDisplayPicture = 'pref_display_picture';
+  static const String prefPictureData = 'pref_picture_data';
+  static const String prefScoreData = 'pref_score_data';
+  static const String prefCourseData = 'pref_course_data';
+  static const String prefLeaveData = 'pref_leave_data';
+  static const String prefSemesterData = 'pref_semester_data';
+  static const String prefScheduleData = 'pref_schedule_datae';
+  static const String prefUserInfo = 'pref_user_info';
+  static const String prefBusReservationsData = 'pref_bus_reservevations_data';
 
-  static const PREF_LANGUAGE_CODE = 'pref_language_code';
-  static const PREF_THEME_CODE = 'pref_theme_code';
-  static const PREF_ICON_STYLE_CODE = 'pref_icon_style_code';
-  static const PREF_THEME_MODE_INDEX = 'pref_theme_mode_index';
+  static const String prefLanguageCode = 'pref_language_code';
+  static const String prefThemeCode = 'pref_theme_code';
+  static const String prefIconStyleCode = 'pref_icon_style_code';
+  static const String prefThemeModeIndex = 'pref_theme_mode_index';
 
-  static const PREF_AP_ENABLE = "pref_ap_enable";
-  static const PREF_BUS_ENABLE = "pref_bus_enable";
-  static const PREF_LEAVE_ENABLE = "pref_leave_enable";
+  static const String prefApEnable = 'pref_ap_enable';
+  static const String prefBusEnable = 'pref_bus_enable';
+  static const String prefLeaveEnable = 'pref_leave_enable';
 
-  static const NOTIFICATION_BUS_INDEX_OFFSET = "notification_bus_index_offset";
+  static const String notificationBusIndexOffset =
+      'notification_bus_index_offset';
 
-  static const PREF_IS_OFFLINE_LOGIN = "pref_is_offline_login";
+  static const String prefIsOfflineLogin = 'pref_is_offline_login';
 
-  static const MOBILE_COOKIES_DATA = 'mobile_cookies_data';
-  static const MOBILE_COOKIES_LAST_TIME = 'mobile_cookies_last_time';
+  static const String mobileCookiesData = 'mobile_cookies_data';
+  static const String mobileCookiesLastTime = 'mobile_cookies_last_time';
 
-  static const SCHEDULE_DATA = "schedule_data";
-  static const SCHEDULE_PDF_URL = 'schedule_pdf_url';
-  static const ANDROID_APP_VERSION = "android_app_version";
-  static const IOS_APP_VERSION = "ios_app_version";
-  static const APP_VERSION = "app_version";
-  static const NEW_VERSION_CONTENT_ZH = "new_version_content_zh";
-  static const NEW_VERSION_CONTENT_EN = "new_version_content_en";
-  static const API_HOST = 'api_host';
-  static const LEAVE_CAMPUS_DATA = 'leave_campus_data';
-  static const LEAVES_TIME_CODE = 'leaves_time_code';
-  static const CRAWLER_SELECTOR = 'crawler_selector';
-  static const SEMESTER_DATA = 'semester_data';
-  static const MOBILE_NKUST_USER_AGENT = 'mobile_nksut_user_agent';
-  static const VERSION_CODE = "version_code";
+  static const String scheduleData = 'schedule_data';
+  static const String schedulePdfUrl = 'schedule_pdf_url';
+  static const String androidAppVersion = 'android_app_version';
+  static const String iosAppVersion = 'ios_app_version';
+  static const String appVersion = 'app_version';
+  static const String newVersionContentZh = 'new_version_content_zh';
+  static const String newVersionContentEn = 'new_version_content_en';
+  static const String apiHost = 'api_host';
+  static const String leaveCampusData = 'leave_campus_data';
+  static const String leavesTimeCode = 'leaves_time_code';
+  static const String crawlerSelector = 'crawler_selector';
+  static const String semesterData = 'semester_data';
+  static const String mobileNkustUserAgent = 'mobile_nksut_user_agent';
+  static const String versionCode = 'version_code';
 
-  static const TAG_STUDENT_PICTURE = "tag_student_picture";
-  static const TAG_NEWS_PICTURE = "tag_news_picture";
-  static const TAG_NEWS_ICON = "tag_news_icon";
-  static const TAG_NEWS_TITLE = "tag_news_title";
+  static const String tagStudentPicture = 'tag_student_picture';
+  static const String tagNewsPicture = 'tag_news_picture';
+  static const String tagNewsIcon = 'tag_news_icon';
+  static const String tagNewsTitle = 'tag_news_title';
 
-  static const ANDROID_DEFAULT_NOTIFICATION_NAME = '@drawable/ic_stat_name';
+  static const String androidDefaultNotificationName = '@drawable/ic_stat_name';
 
   // Notification ID
-  static const int NOTIFICATION_BUS_ID = 100;
-  static const int NOTIFICATION_COURSE_ID = 101;
-  static const int NOTIFICATION_FCM_ID = 200;
+  static const int notificationBusId = 100;
+  static const int notificationCourseId = 101;
+  static const int notificationFcmId = 200;
 
-  static const FANS_PAGE_ID = '954175941266264';
-  static const PLAY_STORE_URL =
+  static const String fansPageId = '954175941266264';
+  static const String playStoreUrl =
       'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
 
-  static const DONATE_URL =
+  static const String donateUrl =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';
 
-  static const MAX_IMAGE_SIZE = 1.0;
-  static const IMAGE_RESIZE_RATE = 2.5;
+  static const double maxImageSize = 1.0;
+  static const double imageResizeRate = 2.5;
 
   // Crawler config
-  static const TIMEOUT_MS = 5000;
+  static const int timeoutMs = 5000;
 
-  static const CAN_USE_BUS = 'can_use_bus';
-  static const HAS_BUS_VIOLATION = 'has_bus_violation';
+  static const String canUseBus = 'can_use_bus';
+  static const String hasBusViolation = 'has_bus_violation';
 
-  static const MAIL_DOMAIN = '@nkust.edu.tw';
+  static const String mailDomain = '@nkust.edu.tw';
 
-  static const BUS_ENABLE = 'bus_enable';
-  static const LEAVE_ENABLE = 'leave_enable';
+  static const String busEnable = 'bus_enable';
+  static const String leaveEnable = 'leave_enable';
 }

@@ -51,19 +51,20 @@ class CrawlerSelector {
 
   void save() {
     Preferences.setString(
-      Constants.CRAWLER_SELECTOR,
-      this.toRawJson(),
+      Constants.crawlerSelector,
+      toRawJson(),
     );
   }
 
   static CrawlerSelector? load() {
-    String rawString = Preferences.getString(
-      Constants.CRAWLER_SELECTOR,
+    final String rawString = Preferences.getString(
+      Constants.crawlerSelector,
       '',
     );
-    if (rawString == '')
+    if (rawString == '') {
       return null;
-    else
+    } else {
       return CrawlerSelector.fromRawJson(rawString);
+    }
   }
 }
