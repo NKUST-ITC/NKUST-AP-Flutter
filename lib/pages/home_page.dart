@@ -27,7 +27,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -752,7 +751,6 @@ class HomePageState extends State<HomePage> {
           remoteConfig.getString(Constants.mobileNkustUserAgent),
         ) as List<dynamic>,
       );
-      InkustHelper.loginApiKey = remoteConfig.getString(prefApiKey);
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
       Preferences.setBool(Constants.busEnable, busEnable);
@@ -767,13 +765,11 @@ class HomePageState extends State<HomePage> {
         remoteConfig.getString(Constants.semesterData),
       );
       semesterData.save();
-      Preferences.setString(prefApiKey, InkustHelper.loginApiKey);
       Preferences.setStringList(Constants.leavesTimeCode, leaveTimeCode);
       Preferences.setStringList(
         Constants.mobileNkustUserAgent,
         mobileNkustUserAgent,
       );
-      InkustHelper.leavesTimeCode = leaveTimeCode;
       MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
         code: remoteConfig.getInt(ApConstants.appVersion),
@@ -795,11 +791,6 @@ class HomePageState extends State<HomePage> {
       }
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
-      InkustHelper.loginApiKey = Preferences.getString(prefApiKey, '');
-      InkustHelper.leavesTimeCode = Preferences.getStringList(
-        Constants.leavesTimeCode,
-        InkustHelper.leavesTimeCode,
-      );
       busEnable = Preferences.getBool(Constants.busEnable, true);
       leaveEnable = Preferences.getBool(Constants.leaveEnable, true);
     }

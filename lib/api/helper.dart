@@ -16,7 +16,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
-import 'package:nkust_ap/api/inkust_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
@@ -119,12 +118,6 @@ class Helper {
     try {
       LoginResponse? loginResponse;
       switch (selector?.login) {
-        case inkust:
-          await InkustHelper.instance.login(
-            username: username,
-            password: password,
-          );
-          break;
         case mobile:
         case webap:
         default:
@@ -142,7 +135,7 @@ class Helper {
           }
           break;
       }
-      expireTime = loginResponse!.expireTime;
+      expireTime = loginResponse.expireTime;
       callback.onSuccess(loginResponse);
     } on GeneralResponse catch (response) {
       callback.onError(response);
@@ -412,19 +405,13 @@ class Helper {
     required GeneralCallback<CourseData?>? callback,
   }) async {
     try {
-      CourseData? data;
+      CourseData data;
       switch (selector?.course) {
         case mobile:
           final bool isDefault = semesterDefault!.code == semester.code;
           data = await MobileNkustHelper.instance.getCourseTable(
             year: isDefault ? null : semester.year,
             semester: isDefault ? null : semester.value,
-          );
-          break;
-        case inkust:
-          data = await InkustHelper.instance.courseTable(
-            semester.year,
-            semester.value,
           );
           break;
         case webap:
@@ -435,7 +422,7 @@ class Helper {
           );
           break;
       }
-      if (data != null && data.courses.isNotEmpty) {
+      if (data.courses.isNotEmpty) {
         reLoginCount = 0;
       }
       return (callback == null) ? data : callback.onSuccess(data);
