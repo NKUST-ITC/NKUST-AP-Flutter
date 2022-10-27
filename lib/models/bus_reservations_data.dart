@@ -63,8 +63,6 @@ class BusReservationsData {
 @JsonSerializable()
 class BusReservation {
   String dateTime;
-  @Deprecated('legacy config')
-  String? endTime;
   String cancelKey;
   String start;
   String end;
@@ -73,7 +71,6 @@ class BusReservation {
 
   BusReservation({
     required this.dateTime,
-    @Deprecated('legacy config') required this.endTime,
     required this.cancelKey,
     required this.start,
     required this.end,

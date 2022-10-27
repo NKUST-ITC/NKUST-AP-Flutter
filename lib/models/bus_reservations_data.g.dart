@@ -22,7 +22,6 @@ Map<String, dynamic> _$BusReservationsDataToJson(
 BusReservation _$BusReservationFromJson(Map<String, dynamic> json) =>
     BusReservation(
       dateTime: json['dateTime'] as String,
-      endTime: json['endTime'] as String?,
       cancelKey: json['cancelKey'] as String,
       start: json['start'] as String,
       end: json['end'] as String,
@@ -33,7 +32,6 @@ BusReservation _$BusReservationFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$BusReservationToJson(BusReservation instance) =>
     <String, dynamic>{
       'dateTime': instance.dateTime,
-      'endTime': instance.endTime,
       'cancelKey': instance.cancelKey,
       'start': instance.start,
       'end': instance.end,
