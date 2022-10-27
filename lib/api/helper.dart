@@ -23,8 +23,6 @@ import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
-import 'package:nkust_ap/models/event_callback.dart';
-import 'package:nkust_ap/models/event_info_response.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
@@ -826,61 +824,6 @@ class Helper {
       }
     } on DioError {
       rethrow;
-    }
-  }
-
-  @Deprecated('old api')
-  Future<void> getEventInfo({
-    required String data,
-    required GeneralCallback<EventInfoResponse> callback,
-  }) async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.post<Map<String, dynamic>>(
-        '/event/info',
-        data: <String, String>{
-          'data': data,
-        },
-        cancelToken: cancelToken,
-      );
-      if (response.statusCode == 200) {
-        return callback.onSuccess(EventInfoResponse.fromJson(response.data!));
-      } else {
-        callback.onError(GeneralResponse.fromJson(response.data!));
-      }
-    } on DioError catch (dioError) {
-      callback.onFailure(dioError);
-    }
-  }
-
-  @Deprecated('old api')
-  Future<void> sendEvent({
-    required String data,
-    required String busId,
-    required EventSendCallback<EventSendResponse> callback,
-  }) async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.post<Map<String, dynamic>>(
-        '/event/send',
-        data: <String, String>{
-          'data': data,
-          'bus_id': busId,
-        },
-        cancelToken: cancelToken,
-      );
-      if (response.statusCode == 200) {
-        final GeneralResponse generalResponse =
-            GeneralResponse.fromJson(response.data!);
-        if (generalResponse.statusCode == 401) {
-          callback.onNeedPick(EventInfoResponse.fromJson(response.data!));
-        }
-        return callback.onSuccess(EventSendResponse.fromJson(response.data!));
-      } else {
-        callback.onError(GeneralResponse.fromJson(response.data!));
-      }
-    } on DioError catch (dioError) {
-      callback.onFailure(dioError);
     }
   }
 
