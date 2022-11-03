@@ -1,4 +1,10 @@
 {
+  "30906": {
+    "visible": false,
+    "date": "2022/11/03",
+    "zh-TW": "* 修正部分錯誤\n* 穩定性更新",
+    "en-US": "* Fix some error.\nStability update."
+  },
   "30905": {
     "visible": false,
     "date": "2022/09/28",
