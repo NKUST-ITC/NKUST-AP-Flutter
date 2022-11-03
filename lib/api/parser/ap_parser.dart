@@ -63,6 +63,8 @@ class WebApParser {
     1 : Password error or not found user
     2 : Relogin
     3 : Not found login message
+    4 : Not found error message
+    500 : server busy
     */
     String rawHtml;
     if (html is Uint8List) {
@@ -80,7 +82,17 @@ class WebApParser {
         return 0;
       }
       if (rawHtml.contains(";top.location.href='index.html'")) {
-        return 1;
+        final RegExp regex = RegExp(r"alert\('(.*)'\);");
+        // log(rawHtml);
+        final String? match = regex.firstMatch(rawHtml)?.group(1);
+        if (match == null) {
+          return 999;
+        } else if (match.contains('無此帳號或密碼不正確')) {
+          return 1;
+        } else if (match.contains('繁忙')) {
+          return 500;
+        }
+        return 999;
       }
       if (rawHtml.contains("location.href='relogin.jsp'") ||
           rawHtml.contains("top.location.href='../index.html';")) {

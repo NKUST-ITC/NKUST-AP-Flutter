@@ -131,6 +131,7 @@ class WebApHelper {
       );
       Helper.username = username;
       Helper.password = password;
+      final int code = WebApParser.instance.apLoginParser(res.data);
       switch (WebApParser.instance.apLoginParser(res.data)) {
         case -1:
           //Captcha error, go retry.
@@ -145,10 +146,19 @@ class WebApHelper {
             expireTime: DateTime.now().add(const Duration(hours: 6)),
           );
         case 1:
-        default:
           throw GeneralResponse(
             statusCode: ApStatusCode.userDataError,
             message: 'username or password error',
+          );
+        case 500:
+          throw GeneralResponse(
+            statusCode: ApStatusCode.schoolServerError,
+            message: 'school server error',
+          );
+        default:
+          throw GeneralResponse(
+            statusCode: code,
+            message: 'unknown error',
           );
       }
     }
