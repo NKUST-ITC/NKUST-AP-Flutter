@@ -1,4 +1,10 @@
 {
+  "30907": {
+    "visible": true,
+    "date": "2023/04/29",
+    "zh-TW": "* 修正 SSL 憑證檢查導致無法登入系統",
+    "en-US": "* Fix login error for ssl certificate check."
+  },
   "30906": {
     "visible": false,
     "date": "2022/11/03",
