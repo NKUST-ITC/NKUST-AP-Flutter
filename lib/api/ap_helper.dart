@@ -316,6 +316,8 @@ class WebApHelper {
       requestData = queryData;
     } else {
       dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      dio.options.headers['Referer'] =
+          'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
       Options? otherOptions;
       if (bytesResponse != null) {
         otherOptions = Options(responseType: ResponseType.bytes);
