@@ -4,7 +4,7 @@ String? formUrlEncoded(Map<String, dynamic>? data) {
   }
   String temp = '';
   data.forEach((String key, dynamic value) {
-    if (temp.isEmpty) {
+    if (temp.isNotEmpty) {
       temp += '&';
     }
     temp += '$key=$value';
