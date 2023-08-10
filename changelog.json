@@ -1,4 +1,10 @@
 {
+  "31000": {
+    "visible": true,
+    "date": "2023/08/11",
+    "zh-TW": "* 修正無法使用課表與成績系統錯誤",
+    "en-US": "* Fix course and score system error."
+  },
   "30907": {
     "visible": true,
     "date": "2023/04/29",
