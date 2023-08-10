@@ -50,6 +50,10 @@ void main() async {
     );
   }
   Helper.selector = CrawlerSelector.load();
+  if (!kIsWeb && Platform.isAndroid) {
+    HttpOverrides.global = MyHttpOverrides();
+  }
+
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
   if (kDebugMode) {
@@ -68,5 +72,14 @@ void main() async {
     });
   } else {
     runApp(const MyApp());
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
