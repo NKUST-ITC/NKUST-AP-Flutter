@@ -37,7 +37,7 @@ dependencies:
   tuple: ^2.0.0
   sprintf: ^6.0.0
   image: ^3.0.2
-  flutter_inappwebview: ^5.3.2
+  flutter_inappwebview: 5.4.3+8
   google_sign_in_dartio:
     git:
       url: https://github.com/GroovinChip/firebase_dart_sdk
