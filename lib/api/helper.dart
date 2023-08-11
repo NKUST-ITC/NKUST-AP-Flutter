@@ -487,11 +487,19 @@ class Helper {
 
   //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
   Future<void> getRoomList({
+    // required Semester semester,
     required int campusCode,
     required GeneralCallback<RoomData> callback,
   }) async {
     try {
-      final RoomData data = await WebApHelper.instance.roomList('$campusCode');
+      final RoomData data = await WebApHelper.instance.roomList(
+          '$campusCode',
+          // semester.year,
+          // semester.value,
+        '112',
+        '1',
+      );
+
       reLoginCount = 0;
       callback.onSuccess(data);
     } on DioError catch (dioError) {

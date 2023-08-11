@@ -544,11 +544,14 @@ class WebApParser {
         'Sunday': <Map<String, dynamic>>[]
       },
       '_temp_time': <Map<String, dynamic>>{},
-      'timeCodes': <String>[]
+      'timeCodes': <Map<String, dynamic>>[]
     };
 
     final Map<String, dynamic> courseTable =
         data['coursetable'] as Map<String, dynamic>;
+
+    final Map<String, dynamic> courses =
+    data['courses'] as Map<String, dynamic>;
 
     if (document.getElementsByTagName('table').isEmpty) {
       //table not found
@@ -560,7 +563,7 @@ class WebApParser {
           document.getElementsByTagName('table')[0].getElementsByTagName('tr');
       for (int i = 1; i < topTable.length; i++) {
         final List<Element> td = topTable[i].getElementsByTagName('td');
-        (data['courses'] as Map<String, Map<String, dynamic>>).addAll(
+        courses.addAll(
           <String, Map<String, dynamic>>{
             "${td[1].text.replaceAll(specialSpace, '')}"
                     "${td[10].text.replaceAll(specialSpace, '')}":
@@ -581,6 +584,7 @@ class WebApParser {
           },
         );
       }
+      data['courses'] = courses;
     } on Exception catch (_) {}
 
     //the second talbe.
@@ -614,6 +618,7 @@ class WebApParser {
     ];
     String tmpCourseName = '';
     try {
+      final Map<String, dynamic> tempTime = <String, dynamic>{};
       for (int key = 0; key < keyName.length; key++) {
         for (int eachSession = 1;
             eachSession <
@@ -646,7 +651,7 @@ class WebApParser {
           String tempSection =
               courseTime[0].replaceAll(' ', '').replaceAll(specialSpace, '');
           tempSection = tempSection.substring(1, tempSection.length - 1);
-          (data['_temp_time'] as Map<String, dynamic>).addAll(<String, dynamic>{
+          tempTime.addAll(<String, dynamic>{
             tempSection: <String, dynamic>{
               'startTime':
                   //ignore: lines_longer_than_80_chars
@@ -690,6 +695,7 @@ class WebApParser {
           );
         }
       }
+      data['_temp_time'] = tempTime;
       // mix weekday to course.
       for (int weekKeyIndex = 0;
           weekKeyIndex < keyName.length;
