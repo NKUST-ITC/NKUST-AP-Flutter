@@ -29,7 +29,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   late Semester selectSemester;
   SemesterData? semesterData;
 
-  late CourseData courseData;
+  CourseData courseData = CourseData.empty();
 
   String? customStateHint;
 
