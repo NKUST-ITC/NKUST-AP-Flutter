@@ -510,7 +510,7 @@ class WebApParser {
         (data['data'] as List<Map<String, dynamic>>).add(
           <String, dynamic>{
             'roomName': table[i].text,
-            'roomId': table[i].attributes['value']
+            'roomId': table[i].attributes['value'] ?? "0035"
           },
         );
       }
