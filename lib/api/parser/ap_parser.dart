@@ -559,30 +559,34 @@ class WebApParser {
     }
     try {
       //the top table parse
-      final List<Element> topTable =
-          document.getElementsByTagName('table')[0].getElementsByTagName('tr');
-      for (int i = 1; i < topTable.length; i++) {
-        final List<Element> td = topTable[i].getElementsByTagName('td');
-        courses.addAll(
-          <String, Map<String, dynamic>>{
-            "${td[1].text.replaceAll(specialSpace, '')}"
-                    "${td[10].text.replaceAll(specialSpace, '')}":
-                <String, dynamic>{
-              'code': td[0].text.replaceAll(specialSpace, ''),
-              'title': td[1].text.replaceAll(specialSpace, ''),
-              'className': td[2].text.replaceAll(specialSpace, ''),
-              'group': td[3].text.replaceAll(specialSpace, ''),
-              'units': td[4].text.replaceAll(specialSpace, ''),
-              'hours': td[5].text.replaceAll(specialSpace, ''),
-              'required': td[7].text.replaceAll(specialSpace, ''),
-              'at': td[8].text.replaceAll(specialSpace, ''),
-              'times': td[9].text.replaceAll(specialSpace, ''),
-              'sectionTimes': <Map<String, dynamic>>[],
-              'location': null,
-              'instructors': td[10].text.replaceAll(specialSpace, '').split(',')
-            }
-          },
-        );
+      if (document.getElementsByTagName('table').isNotEmpty) {
+        final List<Element> topTable = document
+            .getElementsByTagName('table')[0]
+            .getElementsByTagName('tr');
+        for (int i = 1; i < topTable.length; i++) {
+          final List<Element> td = topTable[i].getElementsByTagName('td');
+          courses.addAll(
+            <String, Map<String, dynamic>>{
+              "${td[1].text.replaceAll(specialSpace, '')}"
+                      "${td[10].text.replaceAll(specialSpace, '')}":
+                  <String, dynamic>{
+                'code': td[0].text.replaceAll(specialSpace, ''),
+                'title': td[1].text.replaceAll(specialSpace, ''),
+                'className': td[2].text.replaceAll(specialSpace, ''),
+                'group': td[3].text.replaceAll(specialSpace, ''),
+                'units': td[4].text.replaceAll(specialSpace, ''),
+                'hours': td[5].text.replaceAll(specialSpace, ''),
+                'required': td[7].text.replaceAll(specialSpace, ''),
+                'at': td[8].text.replaceAll(specialSpace, ''),
+                'times': td[9].text.replaceAll(specialSpace, ''),
+                'sectionTimes': <Map<String, dynamic>>[],
+                'location': null,
+                'instructors':
+                    td[10].text.replaceAll(specialSpace, '').split(',')
+              }
+            },
+          );
+        }
       }
       data['courses'] = courses;
     } on Exception catch (_) {}
