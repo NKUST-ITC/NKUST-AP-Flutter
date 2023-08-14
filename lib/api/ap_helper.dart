@@ -511,14 +511,21 @@ class WebApHelper {
     );
   }
 
-  Future<RoomData> roomList(String cmpAreaId) async {
+  Future<RoomData> roomList(
+    String cmpAreaId,
+    String? years,
+    String? semesterValue,
+  ) async {
     /*
     cmpAreaId
     1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
     */
     final Response<dynamic> query = await apQuery(
       'ag302_01',
-      <String, String>{'cmp_area_id': cmpAreaId},
+      <String, String>{
+        'yms_yms': '$years#$semesterValue',
+        'cmp_area_id': cmpAreaId
+      },
     );
 
     return RoomData.fromJson(

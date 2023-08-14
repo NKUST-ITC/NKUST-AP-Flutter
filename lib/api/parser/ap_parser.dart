@@ -510,7 +510,7 @@ class WebApParser {
         (data['data'] as List<Map<String, dynamic>>).add(
           <String, dynamic>{
             'roomName': table[i].text,
-            'roomId': table[i].attributes['value']
+            'roomId': table[i].attributes['value'] ?? '0035'
           },
         );
       }
@@ -544,11 +544,14 @@ class WebApParser {
         'Sunday': <Map<String, dynamic>>[]
       },
       '_temp_time': <Map<String, dynamic>>{},
-      'timeCodes': <String>[]
+      'timeCodes': <Map<String, dynamic>>[]
     };
 
     final Map<String, dynamic> courseTable =
         data['coursetable'] as Map<String, dynamic>;
+
+    final Map<String, dynamic> courses =
+    data['courses'] as Map<String, dynamic>;
 
     if (document.getElementsByTagName('table').isEmpty) {
       //table not found
@@ -556,31 +559,36 @@ class WebApParser {
     }
     try {
       //the top table parse
-      final List<Element> topTable =
-          document.getElementsByTagName('table')[0].getElementsByTagName('tr');
-      for (int i = 1; i < topTable.length; i++) {
-        final List<Element> td = topTable[i].getElementsByTagName('td');
-        (data['courses'] as Map<String, Map<String, dynamic>>).addAll(
-          <String, Map<String, dynamic>>{
-            "${td[1].text.replaceAll(specialSpace, '')}"
-                    "${td[10].text.replaceAll(specialSpace, '')}":
-                <String, dynamic>{
-              'code': td[0].text.replaceAll(specialSpace, ''),
-              'title': td[1].text.replaceAll(specialSpace, ''),
-              'className': td[2].text.replaceAll(specialSpace, ''),
-              'group': td[3].text.replaceAll(specialSpace, ''),
-              'units': td[4].text.replaceAll(specialSpace, ''),
-              'hours': td[5].text.replaceAll(specialSpace, ''),
-              'required': td[7].text.replaceAll(specialSpace, ''),
-              'at': td[8].text.replaceAll(specialSpace, ''),
-              'times': td[9].text.replaceAll(specialSpace, ''),
-              'sectionTimes': <Map<String, dynamic>>[],
-              'location': null,
-              'instructors': td[10].text.replaceAll(specialSpace, '').split(',')
-            }
-          },
-        );
+      if (document.getElementsByTagName('table').isNotEmpty) {
+        final List<Element> topTable = document
+            .getElementsByTagName('table')[0]
+            .getElementsByTagName('tr');
+        for (int i = 1; i < topTable.length; i++) {
+          final List<Element> td = topTable[i].getElementsByTagName('td');
+          courses.addAll(
+            <String, Map<String, dynamic>>{
+              "${td[1].text.replaceAll(specialSpace, '')}"
+                      "${td[10].text.replaceAll(specialSpace, '')}":
+                  <String, dynamic>{
+                'code': td[0].text.replaceAll(specialSpace, ''),
+                'title': td[1].text.replaceAll(specialSpace, ''),
+                'className': td[2].text.replaceAll(specialSpace, ''),
+                'group': td[3].text.replaceAll(specialSpace, ''),
+                'units': td[4].text.replaceAll(specialSpace, ''),
+                'hours': td[5].text.replaceAll(specialSpace, ''),
+                'required': td[7].text.replaceAll(specialSpace, ''),
+                'at': td[8].text.replaceAll(specialSpace, ''),
+                'times': td[9].text.replaceAll(specialSpace, ''),
+                'sectionTimes': <Map<String, dynamic>>[],
+                'location': null,
+                'instructors':
+                    td[10].text.replaceAll(specialSpace, '').split(',')
+              }
+            },
+          );
+        }
       }
+      data['courses'] = courses;
     } on Exception catch (_) {}
 
     //the second talbe.
@@ -614,6 +622,7 @@ class WebApParser {
     ];
     String tmpCourseName = '';
     try {
+      final Map<String, dynamic> tempTime = <String, dynamic>{};
       for (int key = 0; key < keyName.length; key++) {
         for (int eachSession = 1;
             eachSession <
@@ -646,7 +655,7 @@ class WebApParser {
           String tempSection =
               courseTime[0].replaceAll(' ', '').replaceAll(specialSpace, '');
           tempSection = tempSection.substring(1, tempSection.length - 1);
-          (data['_temp_time'] as Map<String, dynamic>).addAll(<String, dynamic>{
+          tempTime.addAll(<String, dynamic>{
             tempSection: <String, dynamic>{
               'startTime':
                   //ignore: lines_longer_than_80_chars
@@ -690,6 +699,7 @@ class WebApParser {
           );
         }
       }
+      data['_temp_time'] = tempTime;
       // mix weekday to course.
       for (int weekKeyIndex = 0;
           weekKeyIndex < keyName.length;
