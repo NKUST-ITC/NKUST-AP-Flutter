@@ -60,11 +60,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemester();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   TextStyle _textBlueStyle() {
     return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }

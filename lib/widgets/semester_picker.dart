@@ -20,8 +20,7 @@ class SemesterPicker extends StatefulWidget {
   final SemesterCallback? onSelect;
   final String? featureTag;
 
-  const SemesterPicker({Key? key, this.onSelect, this.featureTag})
-      : super(key: key);
+  const SemesterPicker({super.key, this.onSelect, this.featureTag});
 
   @override
   SemesterPickerState createState() => SemesterPickerState();

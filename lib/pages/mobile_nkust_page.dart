@@ -18,11 +18,11 @@ class MobileNkustPage extends StatefulWidget {
   final bool clearCache;
 
   const MobileNkustPage({
-    Key? key,
+    super.key,
     this.username,
     this.password,
     this.clearCache = false,
-  }) : super(key: key);
+  });
 
   @override
   _MobileNkustPageState createState() => _MobileNkustPageState();
@@ -88,7 +88,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         onPageCommitVisible:
             (InAppWebViewController controller, Uri? title) async {
           final Uri? uri = await controller.getUrl();
-          debugPrint('onPageCommitVisible $title ${uri.toString()}');
+          debugPrint('onPageCommitVisible $title $uri');
           // await webViewController.evaluateJavascript(
           //     source:
           //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');

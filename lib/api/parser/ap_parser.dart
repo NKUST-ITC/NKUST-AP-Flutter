@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ap_common/utils/crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
@@ -374,7 +373,7 @@ class WebApParser {
           weekdayIndex < weekdays.length;
           weekdayIndex++) {
         for (int rwaTimeCodeIndex = 1;
-            rwaTimeCodeIndex < (data['timeCodes'])!.length + 1;
+            rwaTimeCodeIndex < data['timeCodes']!.length + 1;
             rwaTimeCodeIndex++) {
           final Element sectionElement =
               table2.getElementsByTagName('tr')[rwaTimeCodeIndex];
@@ -551,7 +550,7 @@ class WebApParser {
         data['coursetable'] as Map<String, dynamic>;
 
     final Map<String, dynamic> courses =
-    data['courses'] as Map<String, dynamic>;
+        data['courses'] as Map<String, dynamic>;
 
     if (document.getElementsByTagName('table').isEmpty) {
       //table not found

@@ -307,10 +307,10 @@ class ReservationItem extends StatelessWidget {
   final bool? isLeft;
 
   const ReservationItem({
-    Key? key,
+    super.key,
     this.reservation,
     this.isLeft,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

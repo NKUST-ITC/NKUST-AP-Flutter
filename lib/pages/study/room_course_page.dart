@@ -11,9 +11,9 @@ class EmptyRoomPage extends StatefulWidget {
   final Room room;
 
   const EmptyRoomPage({
-    Key? key,
+    super.key,
     required this.room,
-  }) : super(key: key);
+  });
 
   @override
   _EmptyRoomPageState createState() => _EmptyRoomPageState();

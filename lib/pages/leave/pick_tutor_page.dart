@@ -154,8 +154,8 @@ class _PickTutorPageState extends State<PickTutorPage> {
                       Radius.circular(30.0),
                     ),
                   ),
+                  backgroundColor: ApTheme.of(context).blueAccent,
                   padding: const EdgeInsets.all(14.0),
-                  primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () {
                   Navigator.pop(context, teacher);

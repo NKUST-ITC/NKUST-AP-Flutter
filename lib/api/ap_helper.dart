@@ -315,7 +315,7 @@ class WebApHelper {
     if (cacheKey == null) {
       options = Options(contentType: 'application/x-www-form-urlencoded');
       dio.options.headers['Referer'] =
-      'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
+          'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
       if (bytesResponse != null) {
         options.responseType = ResponseType.bytes;
       }

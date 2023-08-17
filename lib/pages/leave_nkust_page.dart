@@ -17,11 +17,11 @@ class LeaveNkustPage extends StatefulWidget {
   final bool clearCache;
 
   const LeaveNkustPage({
-    Key? key,
+    super.key,
     required this.username,
     required this.password,
     this.clearCache = false,
-  }) : super(key: key);
+  });
 
   @override
   _LeaveNkustPageState createState() => _LeaveNkustPageState();

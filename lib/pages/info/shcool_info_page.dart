@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/phone_model.dart';

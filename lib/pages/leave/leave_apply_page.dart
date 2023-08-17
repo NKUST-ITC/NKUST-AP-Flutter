@@ -215,8 +215,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       Radius.circular(30.0),
                     ),
                   ),
+                  backgroundColor: ApTheme.of(context).blueAccent,
                   padding: const EdgeInsets.all(4.0),
-                  primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () async {
                   final DateTimeRange? picked = await showDateRangePicker(
@@ -528,8 +528,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       Radius.circular(30.0),
                     ),
                   ),
+                  backgroundColor: ApTheme.of(context).blueAccent,
                   padding: const EdgeInsets.all(14.0),
-                  primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () {
                   _leaveSubmit();
@@ -718,8 +718,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           text: '${ap.leaveDateAndSection}：\n',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        for (Day day in days)
-                          TextSpan(text: '${day.toString()}\n'),
+                        for (Day day in days) TextSpan(text: '$day\n'),
                         TextSpan(
                           text: '${ap.leaveProof}：'
                               '${image == null ? ap.none : ''}\n',
