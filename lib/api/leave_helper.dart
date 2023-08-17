@@ -163,7 +163,7 @@ class LeaveHelper {
   )
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
 
     //Get base hidden data.
@@ -199,10 +199,10 @@ class LeaveHelper {
 
   Future<LeaveData> getLeaves({String? year, String? semester}) async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (!(isLogin ?? false)) {
       await WebApHelper.instance.loginToLeave();
@@ -230,10 +230,10 @@ class LeaveHelper {
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (!(isLogin ?? false)) {
       await WebApHelper.instance.loginToLeave();
