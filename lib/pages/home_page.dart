@@ -505,12 +505,12 @@ class HomePageState extends State<HomePage> {
           onSuccess: (BusReservationsData response) async {
             await Utils.setBusNotify(context, response.reservations);
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getBusReservations',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
           },
@@ -539,12 +539,12 @@ class HomePageState extends State<HomePage> {
               }
             }
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getUserInfo',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
           },
@@ -591,7 +591,7 @@ class HomePageState extends State<HomePage> {
           }
           _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           final String text = e.i18nMessage!;
           _homeKey.currentState!.showSnackBar(
             text: text,

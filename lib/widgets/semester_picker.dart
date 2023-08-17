@@ -135,13 +135,13 @@ class SemesterPickerState extends State<SemesterPicker> {
             });
           }
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           ApUtils.showToast(context, e.i18nMessage);
           if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getSemester',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

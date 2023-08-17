@@ -222,7 +222,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             });
           }
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
@@ -231,7 +231,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getMidtermAlert',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

@@ -243,10 +243,10 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 : AnalyticsConstants.no,
           );
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           if (mounted) {
             switch (e.type) {
-              case DioErrorType.response:
+              case DioExceptionType.badResponse:
                 setState(() {
                   if (e.response!.statusCode == 401) {
                     state = _State.userNotSupport;
@@ -258,7 +258,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     FirebaseAnalyticsUtils.instance.logApiEvent(
                       'getBusViolationRecords',
                       e.response!.statusCode!,
-                      message: e.message,
+                      message: e.message ?? '',
                     );
                   }
                 });
@@ -270,9 +270,9 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   );
                 }
                 break;
-              case DioErrorType.other:
+              case DioExceptionType.unknown:
                 setState(() {
-                  if (e.message.contains('HttpException')) {
+                  if (e.message?.contains('HttpException') ?? false) {
                     state = _State.custom;
                     customStateHint = app.busFailInfinity;
                   } else {
@@ -280,7 +280,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   }
                 });
                 break;
-              case DioErrorType.cancel:
+              case DioExceptionType.cancel:
                 break;
               default:
                 setState(() {

@@ -192,7 +192,7 @@ class SettingPageState extends State<SettingPage> {
           }
           Preferences.setBool(Constants.prefBusNotify, busNotify);
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           Navigator.of(context, rootNavigator: true).pop();
           setState(() => busNotify = false);
           Preferences.setBool(Constants.prefBusNotify, busNotify);
@@ -206,10 +206,10 @@ class SettingPageState extends State<SettingPage> {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getBusReservations',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
-          } else if (e.type == DioErrorType.other) {
+          } else if (e.type == DioExceptionType.unknown) {
             ApUtils.showToast(context, ap.busFailInfinity);
           } else {
             ApUtils.showToast(context, e.i18nMessage);

@@ -131,9 +131,9 @@ class CoursePageState extends State<CoursePage> {
             });
           }
         },
-        onFailure: (DioError e) async {
+        onFailure: (DioException e) async {
           if (await _loadCacheData(selectSemester!.code) &&
-              e.type != DioErrorType.cancel) {
+              e.type != DioExceptionType.cancel) {
             setState(() {
               state = CourseState.custom;
               customStateHint = e.i18nMessage;
@@ -143,7 +143,7 @@ class CoursePageState extends State<CoursePage> {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getCourseTables',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

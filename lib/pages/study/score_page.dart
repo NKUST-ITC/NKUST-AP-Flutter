@@ -104,9 +104,9 @@ class ScorePageState extends State<ScorePage> {
               });
             }
           },
-          onFailure: (DioError e) async {
+          onFailure: (DioException e) async {
             if (await _loadOfflineScoreData() &&
-                e.type != DioErrorType.cancel) {
+                e.type != DioExceptionType.cancel) {
               setState(() {
                 state = ScoreState.custom;
                 customStateHint = e.i18nMessage;
@@ -116,7 +116,7 @@ class ScorePageState extends State<ScorePage> {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getSemesterScore',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
           },

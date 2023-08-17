@@ -130,8 +130,8 @@ class _RoomListPageState extends State<RoomListPage> {
             }
           });
         },
-        onFailure: (DioError e) async {
-          if (e.type != DioErrorType.cancel) {
+        onFailure: (DioException e) async {
+          if (e.type != DioExceptionType.cancel) {
             setState(() {
               state = _State.custom;
               customStateHint = e.i18nMessage;
@@ -141,7 +141,7 @@ class _RoomListPageState extends State<RoomListPage> {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getRoomCourseTables',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

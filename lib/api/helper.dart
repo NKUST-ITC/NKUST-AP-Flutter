@@ -92,8 +92,8 @@ class Helper {
     dio = Dio(
       BaseOptions(
         baseUrl: 'https://$apiHost/$version',
-        connectTimeout: 10000,
-        receiveTimeout: 10000,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
       ),
     );
     cancelToken = CancelToken();
@@ -138,7 +138,7 @@ class Helper {
     } on GeneralResponse catch (response) {
       callback.onError(response);
       rethrow;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       callback.onFailure(e);
       rethrow;
     } catch (e) {
@@ -177,7 +177,7 @@ class Helper {
         '/oauth/token',
       );
       return response;
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -188,7 +188,7 @@ class Helper {
         '/oauth/token/all',
       );
       return response;
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -198,7 +198,7 @@ class Helper {
       final Response<Map<String, dynamic>> response =
           await dio.get<Map<String, dynamic>>('​/server​/info');
       return ServerInfoData.fromJson(response.data!);
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -225,7 +225,7 @@ class Helper {
         });
       }
       return (callback == null) ? data.data : callback.onSuccess(data.data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (callback == null) {
         rethrow;
       } else {
@@ -246,7 +246,7 @@ class Helper {
         data: announcements.toUpdateJson(),
       );
       return response;
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -260,7 +260,7 @@ class Helper {
         data: announcements.toUpdateJson(),
       );
       return response;
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -274,7 +274,7 @@ class Helper {
         data: announcements.toUpdateJson(),
       );
       return response;
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -300,7 +300,7 @@ class Helper {
         );
       }
       return (callback == null) ? data : callback.onSuccess(data) as UserInfo?;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback?.onFailure(dioError);
       if (callback == null) rethrow;
     } catch (e, s) {
@@ -347,7 +347,7 @@ class Helper {
       return (callback == null)
           ? data
           : callback.onSuccess(data!) as SemesterData?;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback?.onFailure(dioError);
       if (callback == null) rethrow;
     } catch (e, s) {
@@ -385,7 +385,7 @@ class Helper {
       }
       if (data != null && data.scores.isEmpty) data = null;
       return (callback == null) ? data : callback.onSuccess(data) as ScoreData?;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback?.onFailure(dioError);
       if (callback == null) rethrow;
     } catch (e, s) {
@@ -424,7 +424,7 @@ class Helper {
         reLoginCount = 0;
       }
       return (callback == null) ? data : callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (selector?.course == mobile && dioError.response?.statusCode == 302) {
         FirebaseAnalyticsUtils.instance.logEvent(
           'mobile_user_agent_error',
@@ -455,7 +455,7 @@ class Helper {
       );
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback.onFailure(dioError);
     } catch (e, s) {
       callback.onError(GeneralResponse.unknownError());
@@ -475,7 +475,7 @@ class Helper {
         semester.value,
       );
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback.onFailure(dioError);
     } catch (e, s) {
       callback.onError(GeneralResponse.unknownError());
@@ -502,7 +502,7 @@ class Helper {
 
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback.onFailure(dioError);
     } catch (e, s) {
       callback.onError(GeneralResponse.unknownError());
@@ -525,7 +525,7 @@ class Helper {
       );
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       callback.onFailure(dioError);
     } catch (e, s) {
       callback.onError(GeneralResponse.unknownError());
@@ -560,7 +560,7 @@ class Helper {
         );
         return;
       }
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
         if (dioError.isServerError) {
@@ -592,7 +592,7 @@ class Helper {
       reLoginCount = 0;
       callback.onSuccess(data);
       return;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
 
@@ -626,7 +626,7 @@ class Helper {
       reLoginCount = 0;
       callback.onSuccess(data);
       return;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
 
@@ -660,7 +660,7 @@ class Helper {
       reLoginCount = 0;
       callback.onSuccess(data);
       return;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
 
@@ -693,7 +693,7 @@ class Helper {
       reLoginCount = 0;
       callback.onSuccess(data);
       return;
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
 
@@ -721,7 +721,7 @@ class Helper {
       final NotificationsData data =
           await NKUSTHelper.instance.getNotifications(page);
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError) {
           callback.onError(dioError.serverErrorResponse);
@@ -748,7 +748,7 @@ class Helper {
           .getLeaves(year: semester.year, semester: semester.value);
 
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError) {
           callback.onError(dioError.serverErrorResponse);
@@ -773,7 +773,7 @@ class Helper {
       final LeaveSubmitInfoData data =
           await LeaveHelper.instance.getLeavesSubmitInfo();
       callback.onSuccess(data);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError) {
           callback.onError(dioError.serverErrorResponse);
@@ -800,7 +800,7 @@ class Helper {
       final Response<dynamic>? res =
           await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
       callback.onSuccess(res);
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         if (dioError.isServerError) {
           callback.onError(dioError.serverErrorResponse);
@@ -830,7 +830,7 @@ class Helper {
       } else {
         return LibraryInfoData.fromJson(response.data!).data;
       }
-    } on DioError {
+    } on DioException {
       rethrow;
     }
   }
@@ -865,8 +865,8 @@ extension NewsExtension on Announcement {
       };
 }
 
-extension DioErrorExtension on DioError {
-  bool get hasResponse => type == DioErrorType.response;
+extension DioErrorExtension on DioException {
+  bool get hasResponse => type == DioExceptionType.badResponse;
 
   bool get isExpire => response!.statusCode == ApStatusCode.apiExpire;
 

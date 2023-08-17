@@ -296,7 +296,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  DioErrorCallback get _onFailure => (DioError e) {
+  DioErrorCallback get _onFailure => (DioException e) {
         setState(() {
           state = _State.custom;
           customStateHint = e.i18nMessage;

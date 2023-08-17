@@ -4,11 +4,12 @@ import 'dart:io';
 import 'package:ap_common/models/private_cookies_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -144,8 +145,8 @@ class BusHelper {
   }
 
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final HttpClient client = HttpClient();
       client.findProxy = (Uri uri) {
         return 'PROXY $proxyIP';
       };
@@ -169,8 +170,12 @@ class BusHelper {
     dio.options.headers['user-agent'] =
         'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = 5000;
-    dio.options.receiveTimeout = 5000;
+    dio.options.connectTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    dio.options.receiveTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
   }
 
   Future<void> loginPrepare() async {

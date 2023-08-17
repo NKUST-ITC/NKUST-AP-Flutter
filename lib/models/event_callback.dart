@@ -5,7 +5,7 @@ class EventSendCallback<T> extends GeneralCallback<T> {
   final Function(EventInfoResponse e) onNeedPick;
 
   EventSendCallback({
-    required Function(DioError e) onFailure,
+    required Function(DioException e) onFailure,
     required Function(GeneralResponse generalResponse) onError,
     required Function(T data) onSuccess,
     required this.onNeedPick,

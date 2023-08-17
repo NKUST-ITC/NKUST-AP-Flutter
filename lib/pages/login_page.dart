@@ -190,10 +190,10 @@ class LoginPageState extends State<LoginPage> {
             TextInput.finishAutofillContext();
             Navigator.of(context).pop(true);
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             ApUtils.showToast(context, e.i18nMessage);
             setState(() => isLoginIng = false);
-            if (e.type != DioErrorType.cancel) _offlineLogin();
+            if (e.type != DioExceptionType.cancel) _offlineLogin();
           },
           onError: (GeneralResponse response) {
             String? message = '';
