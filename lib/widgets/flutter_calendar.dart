@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:ap_common/resources/ap_icon.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:nkust_ap/utils/date_utils.dart';
 import 'package:nkust_ap/widgets/calendar_tile.dart';
 import 'package:tuple/tuple.dart';
@@ -343,7 +342,6 @@ class _CalendarState extends State<Calendar> {
       initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime(1960),
       lastDate: DateTime(2050),
-      locale: Locale(Intl.defaultLocale!),
     );
 
     if (selected != null) {
