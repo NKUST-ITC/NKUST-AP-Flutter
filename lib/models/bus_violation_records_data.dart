@@ -57,6 +57,7 @@ class BusViolationRecordsData {
 
 @JsonSerializable()
 class Reservation {
+  @DateTimeConverter()
   DateTime time;
   String startStation;
   String endStation;
@@ -93,4 +94,15 @@ class Reservation {
       );
 
   String toRawJson() => jsonEncode(toJson());
+}
+
+//TODO String to DateTime
+class DateTimeConverter implements JsonConverter<DateTime, DateTime> {
+  const DateTimeConverter();
+
+  @override
+  DateTime fromJson(DateTime json) => json;
+
+  @override
+  DateTime toJson(DateTime object) => object;
 }
