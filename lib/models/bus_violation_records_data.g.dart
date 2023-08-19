@@ -21,7 +21,7 @@ Map<String, dynamic> _$BusViolationRecordsDataToJson(
     };
 
 Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
-      time: DateTime.parse(json['time'] as String),
+      time: const DateTimeConverter().fromJson(json['time'] as DateTime),
       startStation: json['startStation'] as String,
       endStation: json['endStation'] as String,
       homeCharteredBus: json['homeCharteredBus'] as bool,
@@ -31,7 +31,7 @@ Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
 
 Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
     <String, dynamic>{
-      'time': instance.time.toIso8601String(),
+      'time': const DateTimeConverter().toJson(instance.time),
       'startStation': instance.startStation,
       'endStation': instance.endStation,
       'homeCharteredBus': instance.homeCharteredBus,
