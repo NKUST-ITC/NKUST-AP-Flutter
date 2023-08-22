@@ -1,4 +1,10 @@
 {
+  "31001": {
+    "visible": true,
+    "date": "2023/08/23",
+    "zh-TW": "* 修正校車系統違規查詢錯誤\n* 修正教室查詢錯誤",
+    "en-US": "* Fix bus system violation viewer error.\n* Fix classroom course table error"
+  },
   "31000": {
     "visible": true,
     "date": "2023/08/11",
