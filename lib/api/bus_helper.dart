@@ -6,6 +6,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/io.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
@@ -176,6 +177,9 @@ class BusHelper {
     dio.options.receiveTimeout = const Duration(
       milliseconds: Constants.timeoutMs,
     );
+    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
   }
 
   Future<void> loginPrepare() async {

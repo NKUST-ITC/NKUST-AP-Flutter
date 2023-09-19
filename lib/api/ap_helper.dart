@@ -10,6 +10,7 @@ import 'package:ap_common/models/user_info.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -92,6 +93,9 @@ class WebApHelper {
     dio.options.receiveTimeout = const Duration(
       milliseconds: Constants.timeoutMs,
     );
+    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
   }
 
   Future<Uint8List?> getValidationImage() async {
