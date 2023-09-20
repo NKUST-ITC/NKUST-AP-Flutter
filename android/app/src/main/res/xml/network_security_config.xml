@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">webap.nkust.edu.tw</domain>
+        <trust-anchors>
+            <certificates src="@raw/twca_nkust"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>
