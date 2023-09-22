@@ -14,7 +14,6 @@ import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -43,9 +42,6 @@ class MobileNkustHelper {
         },
       ),
     );
-    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
     initCookiesJar();
   }
 

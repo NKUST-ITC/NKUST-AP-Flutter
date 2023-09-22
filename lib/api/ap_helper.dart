@@ -216,7 +216,11 @@ class WebApHelper {
     final Map<String, dynamic> skyDirectData =
         WebApParser.instance.webapToleaveParser(res.data);
 
-    res = await dio.post(
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
       data: skyDirectData,
       options: Options(
