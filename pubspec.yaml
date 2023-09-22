@@ -30,7 +30,7 @@ dependencies:
       url: https://github.com/NKUST-ITC/dio-http-cache
       ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
   dio_cookie_manager: ^3.0.0
-  native_dio_adapter: ^0.1.0
+  native_dio_adapter: ^1.0.0+2
   cookie_jar: ^4.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
@@ -58,13 +58,14 @@ dev_dependencies:
   json_serializable: ^6.3.0
 
 
-#dependency_overrides:
+dependency_overrides:
 #  ap_common:
 #    path: ../ap_common
 #  ap_common_firebase:
 #    path: ../../GitHub/ap_common_firebase
 #  ap_common_plugin:
 #    path: ../../GitHub/ap_common_plugin
+  http: ^1.0.0
 
 flutter:
 
