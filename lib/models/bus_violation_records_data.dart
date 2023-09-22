@@ -11,7 +11,7 @@ part 'bus_violation_records_data.g.dart';
 class BusViolationRecordsData {
   @JsonKey(name: 'reservation')
   List<Reservation> reservations;
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   List<Reservation> notPaymentReservations = <Reservation>[];
 
   int get notPaymentAmountend {
