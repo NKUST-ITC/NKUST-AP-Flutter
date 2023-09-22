@@ -70,21 +70,21 @@ jobs:
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
-  build_web:
-    name: Build Web App
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.10.x'
-          channel: 'stable'
-      - name: Enable Web
-        run: flutter config --enable-web
-      - run: flutter pub get
-      - name: Build Web
-        run: flutter build web
+#  build_web:
+#    name: Build Web App
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: '3.10.x'
+#          channel: 'stable'
+#      - name: Enable Web
+#        run: flutter config --enable-web
+#      - run: flutter pub get
+#      - name: Build Web
+#        run: flutter build web
 
   #  build_macos:
   #    name: Build macOS App
