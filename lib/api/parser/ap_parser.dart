@@ -703,7 +703,9 @@ class WebApParser {
       for (int weekKeyIndex = 0;
           weekKeyIndex < keyName.length;
           weekKeyIndex++) {
-        for (final dynamic course in courseTable[keyName[weekKeyIndex]]) {
+        final List<dynamic> courses =
+            courseTable[keyName[weekKeyIndex]] as List<dynamic>;
+        for (final dynamic course in courses) {
           final Map<String, dynamic> temp = <String, dynamic>{
             'weekday': weekKeyIndex + 1,
             //ignore: avoid_dynamic_calls
