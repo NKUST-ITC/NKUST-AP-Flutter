@@ -44,10 +44,10 @@ class CaptchaUtils {
       for (int i = 0; i < digitsCount; i++) {
         final img.Image target = img.copyCrop(
           grayscaleImage,
-          (imageWidth ~/ digitsCount) * i,
-          0,
-          w,
-          h,
+          x: (imageWidth ~/ digitsCount) * i,
+          y: 0,
+          width: w,
+          height: h,
         );
         final List<dynamic>? recognitions = await Tflite.runModelOnBinary(
           binary: imageToByteListFloat32(target, w, h, 127.5, 255.0),
@@ -86,8 +86,7 @@ class CaptchaUtils {
     int pixelIndex = 0;
     for (int i = 0; i < h; i++) {
       for (int j = 0; j < w; j++) {
-        final int pixel = image.getPixel(j, i);
-        buffer[pixelIndex] = (img.getRed(pixel)) / std;
+        buffer[pixelIndex] = (image.getPixel(j, i).r) / std;
         pixelIndex++;
       }
     }

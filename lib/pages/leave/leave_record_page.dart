@@ -344,7 +344,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           log(state.toString());
           leaveData!.save(selectSemester.cacheSaveTag);
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
@@ -353,7 +353,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getSemesterLeaveRecord',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
           _loadOfflineLeaveData();

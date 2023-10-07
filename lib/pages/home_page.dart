@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/config/ap_constants.dart';
@@ -142,6 +141,8 @@ class HomePageState extends State<HomePage> {
       }
       if (await AppTrackingUtils.trackingAuthorizationStatus ==
           TrackingStatus.notDetermined) {
+        //ignore: use_build_context_synchronously
+        if (!context.mounted) return;
         AppTrackingUtils.show(context: context);
       }
       await _checkData(first: true);
@@ -479,14 +480,14 @@ class HomePageState extends State<HomePage> {
   void _getAnnouncements() {
     AnnouncementHelper.instance.getAnnouncements(
       tags: <String>['nkust'],
-      callback: GeneralCallback<List<Announcement>?>(
+      callback: GeneralCallback<List<Announcement>>(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (List<Announcement>? data) {
-          announcements = data ?? <Announcement>[];
+        onSuccess: (List<Announcement> data) {
+          announcements = data;
           if (mounted) {
             setState(() {
-              if (data == null || data.isEmpty) {
+              if (data.isEmpty) {
                 state = HomeState.empty;
               } else {
                 state = HomeState.finish;
@@ -505,12 +506,12 @@ class HomePageState extends State<HomePage> {
           onSuccess: (BusReservationsData response) async {
             await Utils.setBusNotify(context, response.reservations);
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getBusReservations',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
           },
@@ -539,12 +540,12 @@ class HomePageState extends State<HomePage> {
               }
             }
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               FirebaseAnalyticsUtils.instance.logApiEvent(
                 'getUserInfo',
                 e.response!.statusCode!,
-                message: e.message,
+                message: e.message ?? '',
               );
             }
           },
@@ -575,6 +576,9 @@ class HomePageState extends State<HomePage> {
     final String username = Preferences.getString(Constants.prefUsername, '');
     final String password =
         Preferences.getStringSecurity(Constants.prefPassword, '');
+
+    //ignore: use_build_context_synchronously
+    if (!context.mounted) return;
     Helper.instance.login(
       context: context,
       username: username,
@@ -591,7 +595,7 @@ class HomePageState extends State<HomePage> {
           }
           _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           final String text = e.i18nMessage!;
           _homeKey.currentState!.showSnackBar(
             text: text,
@@ -777,6 +781,8 @@ class HomePageState extends State<HomePage> {
         content: remoteConfig.getString(ApConstants.newVersionContent),
       );
       if (first) {
+        //ignore: use_build_context_synchronously
+        if (!context.mounted) return;
         DialogUtils.showNewVersionContent(
           context: context,
           appName: app.appName,

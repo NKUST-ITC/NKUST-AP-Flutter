@@ -11,9 +11,9 @@ class EmptyRoomPage extends StatefulWidget {
   final Room room;
 
   const EmptyRoomPage({
-    Key? key,
+    super.key,
     required this.room,
-  }) : super(key: key);
+  });
 
   @override
   _EmptyRoomPageState createState() => _EmptyRoomPageState();
@@ -89,8 +89,8 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             });
           }
         },
-        onFailure: (DioError e) async {
-          if (e.type != DioErrorType.cancel && mounted) {
+        onFailure: (DioException e) async {
+          if (e.type != DioExceptionType.cancel && mounted) {
             setState(() {
               state = CourseState.custom;
               customStateHint = e.i18nMessage;
@@ -100,7 +100,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getRoomCourseTables',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

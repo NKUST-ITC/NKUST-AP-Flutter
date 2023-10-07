@@ -60,11 +60,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemester();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   TextStyle _textBlueStyle() {
     return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
   }
@@ -296,7 +291,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  DioErrorCallback get _onFailure => (DioError e) {
+  DioErrorCallback get _onFailure => (DioException e) {
         setState(() {
           state = _State.custom;
           customStateHint = e.i18nMessage;

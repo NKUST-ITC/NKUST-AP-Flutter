@@ -146,7 +146,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             response.statusCode == 404 ? response.message : ap.unknownError,
             showFirstHint: false,
           ),
-          onFailure: (DioError e) {},
+          onFailure: (DioException e) {},
         ),
       );
     }

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:ap_common/models/private_cookies_manager.dart';
 import 'package:ap_common/utils/ap_utils.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
@@ -48,8 +48,8 @@ class LeaveHelper {
   MobileCookiesData? cookiesData;
 
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final HttpClient client = HttpClient();
       client.findProxy = (Uri uri) {
         return 'PROXY $proxyIP';
       };
@@ -77,8 +77,12 @@ class LeaveHelper {
     });
 
     dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = Constants.timeoutMs;
-    dio.options.receiveTimeout = Constants.timeoutMs;
+    dio.options.connectTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    dio.options.receiveTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
   }
 
   void setCookieFromData(MobileCookiesData data) {
@@ -163,7 +167,7 @@ class LeaveHelper {
   )
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
 
     //Get base hidden data.
@@ -186,8 +190,9 @@ class LeaveHelper {
       );
       //login fail
       return false;
-    } on DioError catch (e) {
-      if (e.type == DioErrorType.response && e.response!.statusCode == 302) {
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.badResponse &&
+          e.response!.statusCode == 302) {
         //Use 302 to mean login success, nice...
         await dio.get('https://leave.nkust.edu.tw/masterindex.aspx');
         isLogin = true;
@@ -199,10 +204,10 @@ class LeaveHelper {
 
   Future<LeaveData> getLeaves({String? year, String? semester}) async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (!(isLogin ?? false)) {
       await WebApHelper.instance.loginToLeave();
@@ -230,10 +235,10 @@ class LeaveHelper {
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (Helper.username == null || Helper.password == null) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     if (!(isLogin ?? false)) {
       await WebApHelper.instance.loginToLeave();
@@ -374,7 +379,6 @@ class LeaveHelper {
         ),
       );
       //click covid-19 alert.
-
     }
     requestData = hiddenInputGet(res.data.toString());
     requestData.addAll(globalRequestData);

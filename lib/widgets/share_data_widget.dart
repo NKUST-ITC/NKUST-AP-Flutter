@@ -7,8 +7,8 @@ class ShareDataWidget extends InheritedWidget {
 
   const ShareDataWidget({
     required this.data,
-    required Widget child,
-  }) : super(child: child);
+    required super.child,
+  });
 
   static ShareDataWidget? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType();

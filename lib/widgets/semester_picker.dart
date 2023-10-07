@@ -20,8 +20,7 @@ class SemesterPicker extends StatefulWidget {
   final SemesterCallback? onSelect;
   final String? featureTag;
 
-  const SemesterPicker({Key? key, this.onSelect, this.featureTag})
-      : super(key: key);
+  const SemesterPicker({super.key, this.onSelect, this.featureTag});
 
   @override
   SemesterPickerState createState() => SemesterPickerState();
@@ -135,13 +134,13 @@ class SemesterPickerState extends State<SemesterPicker> {
             });
           }
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           ApUtils.showToast(context, e.i18nMessage);
           if (e.hasResponse) {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getSemester',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

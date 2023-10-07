@@ -1,5 +1,3 @@
-library utils;
-
 import 'dart:ui';
 
 import 'package:intl/intl.dart';

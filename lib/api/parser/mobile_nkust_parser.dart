@@ -111,7 +111,9 @@ class MobileNkustParser {
         }
       };
       final bool hasMorning = periodTimeJson[0]['PeriodName'] == 'M';
-      for (final dynamic time in course['CourseWeekPeriod']) {
+      final List<dynamic> courseWeekPeriod =
+          course['CourseWeekPeriod'] as List<dynamic>;
+      for (final dynamic time in courseWeekPeriod) {
         //ignore: avoid_dynamic_calls
         final int weekday = int.tryParse(time['CourseWeek'] as String) ?? 0;
         //ignore: avoid_dynamic_calls

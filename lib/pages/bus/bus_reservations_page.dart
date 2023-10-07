@@ -252,10 +252,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
           );
           busReservationsData?.save(Helper.username);
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           if (mounted) {
             switch (e.type) {
-              case DioErrorType.response:
+              case DioExceptionType.badResponse:
                 setState(() {
                   if (e.response!.statusCode == 401) {
                     state = _State.userNotSupport;
@@ -267,7 +267,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                     FirebaseAnalyticsUtils.instance.logApiEvent(
                       'getBusReservations',
                       e.response!.statusCode!,
-                      message: e.message,
+                      message: e.message ?? '',
                     );
                   }
                 });
@@ -279,9 +279,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   );
                 }
                 break;
-              case DioErrorType.other:
+              case DioExceptionType.unknown:
                 setState(() {
-                  if (e.message.contains('HttpException')) {
+                  if (e.message?.contains('HttpException') ?? false) {
                     state = _State.custom;
                     customStateHint = app!.busFailInfinity;
                   } else {
@@ -289,7 +289,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   }
                 });
                 break;
-              case DioErrorType.cancel:
+              case DioExceptionType.cancel:
                 break;
               default:
                 setState(() {
@@ -397,7 +397,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             ),
           );
         },
-        onFailure: (DioError e) => BusReservePageState.handleDioError(
+        onFailure: (DioException e) => BusReservePageState.handleDioError(
           context,
           e,
           app!.busCancelReserveFail,

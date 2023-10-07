@@ -21,7 +21,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.x'
+          flutter-version: '3.10.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Analyze files
@@ -45,7 +45,7 @@ jobs:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.x'
+          flutter-version: '3.10.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -64,27 +64,27 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.x'
+          flutter-version: '3.10.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
-  build_web:
-    name: Build Web App
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.0.x'
-          channel: 'stable'
-      - name: Enable Web
-        run: flutter config --enable-web
-      - run: flutter pub get
-      - name: Build Web
-        run: flutter build web
+#  build_web:
+#    name: Build Web App
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: '3.10.x'
+#          channel: 'stable'
+#      - name: Enable Web
+#        run: flutter config --enable-web
+#      - run: flutter pub get
+#      - name: Build Web
+#        run: flutter build web
 
   #  build_macos:
   #    name: Build macOS App
@@ -95,7 +95,7 @@ jobs:
   #      - name: Run Flutter tasks
   #        uses: subosito/flutter-action@v2
   #        with:
-  #          flutter-version: '3.0.x'
+  #          flutter-version: '3.10.x'
   #          channel: 'stable'
   #      - name: Enable macOS
   #        run: flutter config --enable-macos-desktop
@@ -112,7 +112,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.x'
+          flutter-version: '3.10.x'
           channel: 'stable'
       - name: Intall requird Dependencies
         run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
@@ -132,7 +132,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.x'
+          flutter-version: '3.10.x'
           channel: 'stable'
       - name: Enable windows
         run: flutter config --enable-windows-desktop

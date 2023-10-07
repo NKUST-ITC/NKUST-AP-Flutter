@@ -6,37 +6,38 @@ publish_to: none
 version: 3.10.1+31001
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.17.0
-  multiple_localization: ^0.3.0
+  intl: ">=0.17.0 <1.0.0"
+  multiple_localization: ^0.4.0
 
-  ap_common: ^0.22.0-dev.7
-  ap_common_firebase: ^0.15.0
+  ap_common: ^0.23.0-dev.1
+  ap_common_firebase: ^0.16.0-dev.0
   ap_common_plugin: ^0.4.0
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
   http_parser: ^4.0.0
   #third party plugin
-  dio: ^4.0.0
+  dio: ^5.3.2
   dio_http_cache:
     git:
       url: https://github.com/NKUST-ITC/dio-http-cache
-      ref: 84cbc4250c63351a4e6b3ef78d5a8f4b0bce744e
-  dio_cookie_manager: ^2.0.0
-  cookie_jar: ^3.0.1
+      ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
+  dio_cookie_manager: ^3.0.0
+  native_dio_adapter: ^1.0.0+2
+  cookie_jar: ^4.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
   path: ^1.8.0
   tuple: ^2.0.0
   sprintf: ^6.0.0
-  image: ^3.0.2
+  image: ^4.0.2
   flutter_inappwebview: 5.4.3+8
   google_sign_in_dartio:
     git:
@@ -52,18 +53,19 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lint: ^1.8.2
+  lint: ^2.1.2
   build_runner: ^2.1.11
   json_serializable: ^6.3.0
 
 
-#dependency_overrides:
+dependency_overrides:
 #  ap_common:
 #    path: ../ap_common
 #  ap_common_firebase:
 #    path: ../../GitHub/ap_common_firebase
 #  ap_common_plugin:
 #    path: ../../GitHub/ap_common_plugin
+  http: ^1.0.0
 
 flutter:
 

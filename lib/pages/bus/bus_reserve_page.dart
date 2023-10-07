@@ -354,10 +354,10 @@ class BusReservePageState extends State<BusReservePage>
             AnalyticsConstants.yes,
           );
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           if (mounted) {
             switch (e.type) {
-              case DioErrorType.response:
+              case DioExceptionType.badResponse:
                 setState(() {
                   if (e.response!.statusCode == 401) {
                     state = _State.userNotSupport;
@@ -369,7 +369,7 @@ class BusReservePageState extends State<BusReservePage>
                     FirebaseAnalyticsUtils.instance.logApiEvent(
                       'getBusTimeTables',
                       e.response!.statusCode!,
-                      message: e.message,
+                      message: e.message ?? '',
                     );
                   }
                 });
@@ -381,9 +381,9 @@ class BusReservePageState extends State<BusReservePage>
                   );
                 }
                 break;
-              case DioErrorType.other:
+              case DioExceptionType.unknown:
                 setState(() {
-                  if (e.message.contains('HttpException')) {
+                  if (e.message?.contains('HttpException') ?? false) {
                     state = _State.custom;
                     customStateHint = app!.busFailInfinity;
                   } else {
@@ -391,7 +391,7 @@ class BusReservePageState extends State<BusReservePage>
                   }
                 });
                 break;
-              case DioErrorType.cancel:
+              case DioExceptionType.cancel:
                 break;
               default:
                 setState(() {
@@ -564,7 +564,7 @@ class BusReservePageState extends State<BusReservePage>
             ),
           );
         },
-        onFailure: (DioError e) =>
+        onFailure: (DioException e) =>
             handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
         onError: (GeneralResponse response) =>
             handleGeneralError(context, response, app!.busReserveFailTitle),
@@ -633,7 +633,7 @@ class BusReservePageState extends State<BusReservePage>
             ),
           );
         },
-        onFailure: (DioError e) =>
+        onFailure: (DioException e) =>
             handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
         onError: (GeneralResponse response) =>
             handleGeneralError(context, response, app!.busCancelReserveFail),
@@ -656,14 +656,14 @@ class BusReservePageState extends State<BusReservePage>
 
   static void handleDioError(
     BuildContext context,
-    DioError e,
+    DioException e,
     String title,
     String tag,
   ) {
     Navigator.of(context, rootNavigator: true).pop();
     String? message;
     switch (e.type) {
-      case DioErrorType.response:
+      case DioExceptionType.badResponse:
         final ErrorResponse errorResponse =
             ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
@@ -674,14 +674,14 @@ class BusReservePageState extends State<BusReservePage>
           },
         );
         break;
-      case DioErrorType.other:
-        if (e.message.contains('HttpException')) {
+      case DioExceptionType.unknown:
+        if (e.message?.contains('HttpException') ?? false) {
           message = AppLocalizations.of(context).busFailInfinity;
         } else {
           message = ApLocalizations.of(context).somethingError;
         }
         break;
-      case DioErrorType.cancel:
+      case DioExceptionType.cancel:
         break;
       default:
         message = e.i18nMessage;

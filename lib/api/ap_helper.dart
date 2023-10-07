@@ -8,8 +8,9 @@ import 'package:ap_common/models/score_data.dart';
 import 'package:ap_common/models/semester_data.dart';
 import 'package:ap_common/models/user_info.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -56,8 +57,8 @@ class WebApHelper {
   }
 
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-        (HttpClient client) {
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final HttpClient client = HttpClient();
       client.findProxy = (Uri uri) {
         return 'PROXY $proxyIP';
       };
@@ -86,8 +87,15 @@ class WebApHelper {
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
     dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = Constants.timeoutMs;
-    dio.options.receiveTimeout = Constants.timeoutMs;
+    dio.options.connectTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    dio.options.receiveTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
   }
 
   Future<Uint8List?> getValidationImage() async {
@@ -208,7 +216,11 @@ class WebApHelper {
     final Map<String, dynamic> skyDirectData =
         WebApParser.instance.webapToleaveParser(res.data);
 
-    res = await dio.post(
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
       data: skyDirectData,
       options: Options(
@@ -311,7 +323,7 @@ class WebApHelper {
     if (cacheKey == null) {
       options = Options(contentType: 'application/x-www-form-urlencoded');
       dio.options.headers['Referer'] =
-      'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
+          'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
       if (bytesResponse != null) {
         options.responseType = ResponseType.bytes;
       }

@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ap_common/models/notification_data.dart';
 import 'package:ap_common/models/phone_model.dart';
@@ -172,7 +171,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               setState(() => notificationState = NotificationState.finish);
             }
           },
-          onFailure: (DioError e) {
+          onFailure: (DioException e) {
             ApUtils.showToast(context, e.i18nMessage);
             if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);

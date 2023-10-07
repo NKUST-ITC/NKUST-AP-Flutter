@@ -215,8 +215,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       Radius.circular(30.0),
                     ),
                   ),
+                  backgroundColor: ApTheme.of(context).blueAccent,
                   padding: const EdgeInsets.all(4.0),
-                  primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () async {
                   final DateTimeRange? picked = await showDateRangePicker(
@@ -528,8 +528,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       Radius.circular(30.0),
                     ),
                   ),
+                  backgroundColor: ApTheme.of(context).blueAccent,
                   padding: const EdgeInsets.all(14.0),
-                  primary: ApTheme.of(context).blueAccent,
                 ),
                 onPressed: () {
                   _leaveSubmit();
@@ -561,10 +561,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             state = _State.finish;
           });
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           if (mounted) {
             switch (e.type) {
-              case DioErrorType.response:
+              case DioExceptionType.badResponse:
                 setState(() {
                   if (e.response!.statusCode == 403) {
                     state = _State.userNotSupport;
@@ -574,15 +574,15 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     FirebaseAnalyticsUtils.instance.logApiEvent(
                       'getLeaveSubmitInfo',
                       e.response!.statusCode!,
-                      message: e.message,
+                      message: e.message ?? '',
                     );
                   }
                 });
                 break;
-              case DioErrorType.other:
+              case DioExceptionType.unknown:
                 setState(() => state = _State.error);
                 break;
-              case DioErrorType.cancel:
+              case DioExceptionType.cancel:
                 break;
               default:
                 setState(() {
@@ -718,8 +718,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           text: '${ap.leaveDateAndSection}：\n',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        for (Day day in days)
-                          TextSpan(text: '${day.toString()}\n'),
+                        for (Day day in days) TextSpan(text: '$day\n'),
                         TextSpan(
                           text: '${ap.leaveProof}：'
                               '${image == null ? ap.none : ''}\n',
@@ -779,11 +778,11 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           );
           FirebaseAnalyticsUtils.instance.logEvent('leave_submit_success');
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           Navigator.of(context, rootNavigator: true).pop();
           String? text;
           switch (e.type) {
-            case DioErrorType.response:
+            case DioExceptionType.badResponse:
               if (e.response!.data is Map<String, dynamic>) {
                 text = ErrorResponse.fromJson(
                   e.response!.data as Map<String, dynamic>,
@@ -792,10 +791,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 text = ap.somethingError;
               }
               break;
-            case DioErrorType.other:
+            case DioExceptionType.unknown:
               text = ap.somethingError;
               break;
-            case DioErrorType.cancel:
+            case DioExceptionType.cancel:
               break;
             default:
               text = e.i18nMessage;

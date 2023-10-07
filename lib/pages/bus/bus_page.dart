@@ -173,7 +173,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           );
         },
         onError: (GeneralResponse response) {},
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           if (e.hasResponse &&
               (e.response!.statusCode == 401 ||
                   e.response!.statusCode == 403)) {

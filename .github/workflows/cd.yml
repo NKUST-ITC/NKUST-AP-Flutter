@@ -93,27 +93,27 @@ jobs:
           TEMP_KEYCHAIN_PASSWORD: '${{ secrets.TEMP_KEYCHAIN_PASSWORD }}'
           TEMP_KEYCHAIN_USER: '${{ secrets.TEMP_KEYCHAIN_USER }}'
 
-  deploy_web:
-    name: Web Firebase Hosting
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.0.x'
-          channel: 'stable'
-      - name: Enable Web
-        run: flutter config --enable-web
-      - run: flutter pub get
-      - name: Build Web
-        run: flutter build web
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy --only hosting
-        env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          PROJECT_ID: nkust-ap-flutter
+#  deploy_web:
+#    name: Web Firebase Hosting
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: '3.0.x'
+#          channel: 'stable'
+#      - name: Enable Web
+#        run: flutter config --enable-web
+#      - run: flutter pub get
+#      - name: Build Web
+#        run: flutter build web
+#      - name: Deploy to Firebase
+#        uses: w9jds/firebase-action@master
+#        with:
+#          args: deploy --only hosting
+#        env:
+#          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+#          PROJECT_ID: nkust-ap-flutter
 
   deploy_windows:
     name: Windows App
@@ -142,7 +142,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [deploy_android, deploy_ios, deploy_web, deploy_windows]
+    needs: [deploy_android, deploy_ios, deploy_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

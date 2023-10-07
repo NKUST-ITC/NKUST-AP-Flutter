@@ -229,7 +229,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             });
           }
         },
-        onFailure: (DioError e) {
+        onFailure: (DioException e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
@@ -238,7 +238,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             FirebaseAnalyticsUtils.instance.logApiEvent(
               'getRewardAndPenalty',
               e.response!.statusCode!,
-              message: e.message,
+              message: e.message ?? '',
             );
           }
         },

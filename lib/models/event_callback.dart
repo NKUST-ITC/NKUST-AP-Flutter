@@ -5,9 +5,9 @@ class EventSendCallback<T> extends GeneralCallback<T> {
   final Function(EventInfoResponse e) onNeedPick;
 
   EventSendCallback({
-    required Function(DioError e) onFailure,
-    required Function(GeneralResponse generalResponse) onError,
-    required Function(T data) onSuccess,
+    required super.onFailure,
+    required super.onError,
+    required super.onSuccess,
     required this.onNeedPick,
-  }) : super(onFailure: onFailure, onError: onError, onSuccess: onSuccess);
+  });
 }

@@ -19,7 +19,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   MyAppState createState() => MyAppState();

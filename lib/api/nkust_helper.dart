@@ -77,7 +77,7 @@ class NKUSTHelper {
   Future<NotificationsData> getNotifications(int page) async {
     final int baseIndex = (page - 1) * 15;
     if (reTryCounts > reTryCountsLimit) {
-      throw NullThrownError;
+      throw 'NullThrownError';
     }
     final Response<String> res = await dio.post<String>(
       'https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist',
