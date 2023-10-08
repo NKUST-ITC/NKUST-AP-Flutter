@@ -1,4 +1,10 @@
 {
+  "31002": {
+    "visible": false,
+    "date": "2023/10/08",
+    "zh-TW": "* 穩定性更新",
+    "en-US": "* Stability update."
+  },
   "31001": {
     "visible": true,
     "date": "2023/08/23",
