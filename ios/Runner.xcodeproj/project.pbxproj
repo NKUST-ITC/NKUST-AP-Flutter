@@ -17,25 +17,8 @@
 		A4465982221FF258008B8826 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A4465984221FF258008B8826 /* InfoPlist.strings */; };
 		A45559A0217B2AE100687009 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A455599F217B2AE100687009 /* GoogleService-Info.plist */; };
 		A461B7E4222AE0E20080F604 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A461B7E3222AE0E20080F604 /* AdSupport.framework */; };
-		A4E3F874252644D700343570 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4E3F873252644D700343570 /* WidgetKit.framework */; };
-		A4E3F876252644D700343570 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A4E3F875252644D700343570 /* SwiftUI.framework */; };
-		A4E3F879252644D700343570 /* CourseAppWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F878252644D700343570 /* CourseAppWidget.swift */; };
-		A4E3F87C252644D800343570 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A4E3F87B252644D800343570 /* Assets.xcassets */; };
-		A4E3F87E252644D800343570 /* CourseAppWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F87A252644D700343570 /* CourseAppWidget.intentdefinition */; };
 		A4E3F87F252644D800343570 /* CourseAppWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F87A252644D700343570 /* CourseAppWidget.intentdefinition */; };
-		A4E3F883252644D800343570 /* CourseAppWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A4E3F872252644D700343570 /* CourseAppWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A4E3F91C2526499D00343570 /* CourseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F91B2526499D00343570 /* CourseData.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		A4E3F880252644D800343570 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A4E3F871252644D700343570;
-			remoteInfo = CourseAppWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
@@ -54,7 +37,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				A4E3F883252644D800343570 /* CourseAppWidgetExtension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,7 +67,6 @@
 		A455599F217B2AE100687009 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A45559A5217C871600687009 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		A461B7E3222AE0E20080F604 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
-		A4E3F872252644D700343570 /* CourseAppWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = CourseAppWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A4E3F873252644D700343570 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		A4E3F875252644D700343570 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		A4E3F878252644D700343570 /* CourseAppWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseAppWidget.swift; sourceTree = "<group>"; };
@@ -103,15 +84,6 @@
 			files = (
 				A461B7E4222AE0E20080F604 /* AdSupport.framework in Frameworks */,
 				16830D86CF5AEAFD81C84EBD /* Pods_Runner.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A4E3F86F252644D700343570 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A4E3F876252644D700343570 /* SwiftUI.framework in Frameworks */,
-				A4E3F874252644D700343570 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,7 +138,6 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
-				A4E3F872252644D700343570 /* CourseAppWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -231,29 +202,11 @@
 			buildRules = (
 			);
 			dependencies = (
-				A4E3F881252644D800343570 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
-		};
-		A4E3F871252644D700343570 /* CourseAppWidgetExtension */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A4E3F886252644D800343570 /* Build configuration list for PBXNativeTarget "CourseAppWidgetExtension" */;
-			buildPhases = (
-				A4E3F86E252644D700343570 /* Sources */,
-				A4E3F86F252644D700343570 /* Frameworks */,
-				A4E3F870252644D700343570 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = CourseAppWidgetExtension;
-			productName = CourseAppWidgetExtension;
-			productReference = A4E3F872252644D700343570 /* CourseAppWidgetExtension.appex */;
-			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -276,11 +229,6 @@
 							};
 						};
 					};
-					A4E3F871252644D700343570 = {
-						CreatedOnToolsVersion = 12.0;
-						DevelopmentTeam = 5SP52F6F2C;
-						ProvisioningStyle = Automatic;
-					};
 				};
 			};
 			buildConfigurationList = 97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */;
@@ -299,7 +247,6 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
-				A4E3F871252644D700343570 /* CourseAppWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -315,14 +262,6 @@
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				A45559A0217B2AE100687009 /* GoogleService-Info.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		A4E3F870252644D700343570 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A4E3F87C252644D800343570 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -516,25 +455,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A4E3F86E252644D700343570 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				A4E3F87E252644D800343570 /* CourseAppWidget.intentdefinition in Sources */,
-				A4E3F879252644D700343570 /* CourseAppWidget.swift in Sources */,
-				A4E3F91C2526499D00343570 /* CourseData.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		A4E3F881252644D800343570 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A4E3F871252644D700343570 /* CourseAppWidgetExtension */;
-			targetProxy = A4E3F880252644D800343570 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
@@ -763,79 +684,6 @@
 			};
 			name = Release;
 		};
-		A4E3F884252644D800343570 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = CourseAppWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 30602;
-				DEVELOPMENT_TEAM = 5SP52F6F2C;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = CourseAppWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 3.6.2;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nkust.ap.flutter.CourseAppWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		A4E3F885252644D800343570 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = CourseAppWidgetExtension.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 30602;
-				DEVELOPMENT_TEAM = 5SP52F6F2C;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = CourseAppWidget/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 3.6.2;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nkust.ap.flutter.CourseAppWidget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.nkust.ap.flutter.CourseAppWidget";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -853,15 +701,6 @@
 			buildConfigurations = (
 				97C147061CF9000F007C117D /* Debug */,
 				97C147071CF9000F007C117D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		A4E3F886252644D800343570 /* Build configuration list for PBXNativeTarget "CourseAppWidgetExtension" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A4E3F884252644D800343570 /* Debug */,
-				A4E3F885252644D800343570 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
