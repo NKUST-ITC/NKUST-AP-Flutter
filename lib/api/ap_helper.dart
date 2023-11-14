@@ -101,7 +101,12 @@ class WebApHelper {
   Future<Uint8List?> getValidationImage() async {
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://webap.nkust.edu.tw/nkust/validateCode.jsp',
-      options: Options(responseType: ResponseType.bytes),
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html?1111',
+        },
+      ),
     );
     return response.data;
   }
