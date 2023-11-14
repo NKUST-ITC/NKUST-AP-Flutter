@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<array>
 		<string>en</string>
@@ -28,11 +30,9 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>com.nkust.ap.flutter</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>nkustap</string>
+				<string>com.googleusercontent.apps.141403473068-b9ugkddmql2nefsuggoc9unte0qm23eb</string>
 			</array>
 		</dict>
 	</array>
@@ -52,6 +52,8 @@
 			</dict>
 		</array>
 	</dict>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fb</string>
@@ -59,24 +61,46 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>mobile.nkust.edu.tw</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>webap.nkust.edu.tw</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>We want to improve app usage.</string>
 	<key>NSCalendarsUsageDescription</key>
 	<string>Feature calendar would be add schedule to calendar app</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Feature leaves apply would be select photos to apply leaves</string>
-	<key>NSMicrophoneUsageDescription</key>
 	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>NSContactsUsageDescription</key>
 	<string>We want to improve app usage.</string>
-	<key>NSAppleMusicUsageDescription</key>
-	<string>We want to improve app usage.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>NSMotionUsageDescription</key>
 	<string>We want to improve app usage.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Feature leaves apply would be select photos to apply leaves</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>We want to improve app usage.</string>
 	<key>NSUserTrackingUsageDescription</key>
-    <string>We would like to log your usage to improve user experience, and collect crash report to fix bugs and improve stability.</string>
+	<string>We would like to log your usage to improve user experience, and collect crash report to fix bugs and improve stability.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -96,22 +120,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>CFBundleURLTypes</key>
-    <array>
-    	<dict>
-    		<key>CFBundleTypeRole</key>
-    		<string>Editor</string>
-    		<key>CFBundleURLSchemes</key>
-    		<array>
-    			<string>com.googleusercontent.apps.141403473068-b9ugkddmql2nefsuggoc9unte0qm23eb</string>
-    		</array>
-    	</dict>
-    </array>
-	<key>ITSAppUsesNonExemptEncryption</key>
-    <false/>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 </dict>
 </plist>
