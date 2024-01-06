@@ -119,7 +119,7 @@ struct CourseAppWidgetEntryView: View {
                     .padding([.trailing, .leading], 8)
                     .multilineTextAlignment(.center)
             }
-            .background(getContentBackgroudColor())
+            .widgetBackground(getContentBackgroudColor())
         }
     }
 }
@@ -134,6 +134,7 @@ struct CourseAppWidget: Widget {
         }
         .configurationDisplayName("上課提醒")
         .description("提醒本日下一堂課")
+        .disableContentMarginsIfNeeded()
     }
 }
 
@@ -141,5 +142,27 @@ struct CourseAppWidget_Previews: PreviewProvider {
     static var previews: some View {
         CourseAppWidgetEntryView(entry: SimpleEntry(text: "" , configuration: ConfigurationIntent()))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
+    }
+}
+
+extension View {
+    func widgetBackground(_ backgroundView: some View) -> some View {
+        if #available(iOSApplicationExtension 17.0, *) {
+            return containerBackground(for: .widget) {
+                backgroundView
+            }
+        } else {
+            return background(backgroundView)
+        }
+    }
+}
+
+extension WidgetConfiguration {
+    func disableContentMarginsIfNeeded() -> some WidgetConfiguration {
+        if #available(iOSApplicationExtension 17.0, *) {
+            return self.contentMarginsDisabled()
+        } else {
+            return self
+        }
     }
 }
