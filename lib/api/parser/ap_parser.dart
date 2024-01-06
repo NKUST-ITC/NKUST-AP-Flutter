@@ -83,7 +83,8 @@ class WebApParser {
       if (rawHtml.contains(";top.location.href='index.html'")) {
         final RegExp regex = RegExp(r"alert\('(.*)'\);");
         // log(rawHtml);
-        final String? match = regex.firstMatch(rawHtml)?.group(1);
+        final String? match = regex.allMatches(rawHtml).elementAt(1).group(1);
+        log('match $match');
         if (match == null) {
           return 999;
         } else if (match.contains('無此帳號或密碼不正確')) {
