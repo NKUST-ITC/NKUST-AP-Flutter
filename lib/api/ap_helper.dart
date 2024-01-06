@@ -145,7 +145,7 @@ class WebApHelper {
       Helper.username = username;
       Helper.password = password;
       final int code = WebApParser.instance.apLoginParser(res.data);
-      switch (WebApParser.instance.apLoginParser(res.data)) {
+      switch (code) {
         case -1:
           //Captcha error, go retry.
           break;
