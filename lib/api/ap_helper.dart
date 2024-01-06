@@ -138,14 +138,14 @@ class WebApHelper {
         data: <String, String>{
           'uid': username,
           'pwd': password,
-          'etxt_code': captchaCode
+          'etxt_code': captchaCode,
         },
         options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
       Helper.username = username;
       Helper.password = password;
       final int code = WebApParser.instance.apLoginParser(res.data);
-      switch (WebApParser.instance.apLoginParser(res.data)) {
+      switch (code) {
         case -1:
           //Captcha error, go retry.
           break;
@@ -161,6 +161,11 @@ class WebApHelper {
         case 1:
           throw GeneralResponse(
             statusCode: ApStatusCode.userDataError,
+            message: 'username or password error',
+          );
+        case 5:
+          throw GeneralResponse(
+            statusCode: ApStatusCode.passwordFiveTimesError,
             message: 'username or password error',
           );
         case 500:
@@ -268,7 +273,7 @@ class WebApHelper {
       'https://leave.nkust.edu.tw/SkyDir.aspx',
       queryParameters: <String, dynamic>{
         'u': skyDirectData['uid'],
-        'r': skyDirectData['ls_randnum']
+        'r': skyDirectData['ls_randnum'],
       },
       options: Options(
         followRedirects: false,
@@ -541,7 +546,7 @@ class WebApHelper {
       'ag302_01',
       <String, String>{
         'yms_yms': '$years#$semesterValue',
-        'cmp_area_id': cmpAreaId
+        'cmp_area_id': cmpAreaId,
       },
     );
 

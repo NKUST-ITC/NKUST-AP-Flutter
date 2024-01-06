@@ -196,7 +196,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                         ? null
                         : () => _showCancelDialog(busReservation),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -206,7 +206,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               color: ApTheme.of(context).grey,
               indent: 4.0,
             ),
-          )
+          ),
         ],
       );
 

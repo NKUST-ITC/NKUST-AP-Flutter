@@ -73,7 +73,7 @@ class LeaveHelper {
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
       'Referer': 'https://leave.nkust.edu.tw/LogOn.aspx',
       'Accept-Encoding': 'gzip, deflate',
-      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6'
+      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
     });
 
     dio.options.headers['Connection'] = 'close';

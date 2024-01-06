@@ -203,8 +203,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     ),
                     children: <TableRow>[
                       leaveTitle,
-                      for (Leave leave in leaveData!.leaves)
-                        _leaveBorder(leave, leaveData!.timeCodes)
+                      for (final Leave leave in leaveData!.leaves)
+                        _leaveBorder(leave, leaveData!.timeCodes),
                     ],
                   ),
                 ),

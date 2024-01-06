@@ -245,7 +245,7 @@ class _CalendarState extends State<Calendar> {
           expanded: calendarGridView,
           isExpanded: isExpanded,
         ),
-        expansionButtonRow
+        expansionButtonRow,
       ],
     );
   }

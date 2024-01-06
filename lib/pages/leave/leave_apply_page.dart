@@ -718,7 +718,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           text: '${ap.leaveDateAndSection}：\n',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        for (Day day in days) TextSpan(text: '$day\n'),
+                        for (final Day day in days) TextSpan(text: '$day\n'),
                         TextSpan(
                           text: '${ap.leaveProof}：'
                               '${image == null ? ap.none : ''}\n',

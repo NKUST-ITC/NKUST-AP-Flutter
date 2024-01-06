@@ -16,7 +16,7 @@ dependencies:
   intl: ">=0.17.0 <1.0.0"
   multiple_localization: ^0.4.0
 
-  ap_common: ^0.23.0-dev.2
+  ap_common: ^0.23.1
   ap_common_firebase: ^0.16.0-dev.0
   ap_common_plugin: ^0.4.0
   #official plugin

@@ -42,7 +42,7 @@ class CalendarDateUtils {
     'Wed',
     'Thu',
     'Fri',
-    'Sat'
+    'Sat',
   ];
 
   /// The list of days in a given month

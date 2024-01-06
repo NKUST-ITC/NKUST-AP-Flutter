@@ -606,32 +606,38 @@ class HomePageState extends State<HomePage> {
           ApUtils.showToast(context, ap.loadOfflineData);
           isLogin = true;
         },
-        onError: (GeneralResponse response) {
+        onError: (GeneralResponse response) async {
           String message = '';
-          switch (response.statusCode) {
-            case ApStatusCode.schoolServerError:
-              message = ap.schoolServerError;
-              break;
-            case ApStatusCode.apiServerError:
-              message = ap.apiServerError;
-              break;
-            case ApStatusCode.unknownError:
-            case ApStatusCode.userDataError:
-            case ApStatusCode.cancel:
-              message = ap.loginFail;
-              break;
-            default:
-              message = ap.somethingError;
-              break;
+          if (response.statusCode == ApStatusCode.userDataError ||
+              response.statusCode == ApStatusCode.passwordFiveTimesError) {
+            Toast.show(ap.passwordError, context);
+            await Preferences.setBool(Constants.prefAutoLogin, false);
+            checkLogin();
+          } else {
+            switch (response.statusCode) {
+              case ApStatusCode.schoolServerError:
+                message = ap.schoolServerError;
+                break;
+              case ApStatusCode.apiServerError:
+                message = ap.apiServerError;
+                break;
+              case ApStatusCode.unknownError:
+              case ApStatusCode.cancel:
+                message = ap.loginFail;
+                break;
+              default:
+                message = ap.somethingError;
+                break;
+            }
+            _homeKey.currentState!.showSnackBar(
+              text: message,
+              actionText: ap.retry,
+              onSnackBarTapped: _login,
+            );
+            Preferences.setBool(Constants.prefIsOfflineLogin, true);
+            ApUtils.showToast(context, ap.loadOfflineData);
+            isLogin = true;
           }
-          _homeKey.currentState!.showSnackBar(
-            text: message,
-            actionText: ap.retry,
-            onSnackBarTapped: _login,
-          );
-          Preferences.setBool(Constants.prefIsOfflineLogin, true);
-          ApUtils.showToast(context, ap.loadOfflineData);
-          isLogin = true;
         },
       ),
     );

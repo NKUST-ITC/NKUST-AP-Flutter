@@ -167,7 +167,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             children: <Widget>[
               const CircularProgressIndicator(),
               const SizedBox(height: 16.0),
-              Text(ap.calculating, style: _textBlueStyle())
+              Text(ap.calculating, style: _textBlueStyle()),
             ],
           ),
         );

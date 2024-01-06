@@ -106,7 +106,7 @@ class NKUSTHelper {
       'data': <String, dynamic>{
         'page': page + 1,
         'notification': acadData,
-      }
+      },
     });
   }
 }

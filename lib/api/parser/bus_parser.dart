@@ -41,7 +41,7 @@ Map<String, dynamic> busTimeTableParser(
       'specialTrain': data['data'][i]['SpecialTrain'],
       'description': data['data'][i]['SpecialTrainRemark'],
       'homeCharteredBus': false,
-      'cancelKey': ''
+      'cancelKey': '',
     };
     if (temp['SpecialTrain'] == '1') {
       temp['homeCharteredBus'] = true;

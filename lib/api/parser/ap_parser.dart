@@ -9,6 +9,9 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:nkust_ap/api/helper.dart';
 
+//TODO confirm this rule
+//ignore_for_file: unreachable_from_main
+
 final String specialSpace = String.fromCharCode(160);
 
 class WebApParser {
@@ -83,11 +86,14 @@ class WebApParser {
       if (rawHtml.contains(";top.location.href='index.html'")) {
         final RegExp regex = RegExp(r"alert\('(.*)'\);");
         // log(rawHtml);
-        final String? match = regex.firstMatch(rawHtml)?.group(1);
+        final String? match = regex.allMatches(rawHtml).elementAt(1).group(1);
+        log('match $match');
         if (match == null) {
           return 999;
         } else if (match.contains('無此帳號或密碼不正確')) {
           return 1;
+        } else if (match.contains('您先前已登入')) {
+          return 5;
         } else if (match.contains('繁忙')) {
           return 500;
         }
@@ -108,7 +114,7 @@ class WebApParser {
       'className': null,
       'id': null,
       'name': null,
-      'pictureUrl': null
+      'pictureUrl': null,
     };
     final Document document = parse(html);
     final List<Element> tdElements = document.getElementsByTagName('td');
@@ -162,8 +168,8 @@ class WebApParser {
       'default': <String, dynamic>{
         'year': '108',
         'value': '2',
-        'text': '108學年第二學期(Parse失敗)'
-      }
+        'text': '108學年第二學期(Parse失敗)',
+      },
     };
     final Document document = parse(html);
 
@@ -178,7 +184,7 @@ class WebApParser {
         <String, dynamic>{
           'year': ymsElements[i].attributes['value']!.split('#')[0],
           'value': ymsElements[i].attributes['value']!.split('#')[1],
-          'text': ymsElements[i].text
+          'text': ymsElements[i].text,
         },
       );
       if (ymsElements[i].attributes['selected'] != null) {
@@ -186,7 +192,7 @@ class WebApParser {
         data['default'] = <String, dynamic>{
           'year': ymsElements[i].attributes['value']!.split('#')[0],
           'value': ymsElements[i].attributes['value']!.split('#')[1],
-          'text': ymsElements[i].text
+          'text': ymsElements[i].text,
         };
       }
     }
@@ -202,8 +208,8 @@ class WebApParser {
         'conduct': null,
         'classRank': null,
         'departmentRank': null,
-        'average': null
-      }
+        'average': null,
+      },
     };
     //detail part
     try {
@@ -220,7 +226,7 @@ class WebApParser {
         'departmentRank': matches.elementAt(3).group(1),
         'average': (matches.elementAt(1).group(1) != '')
             ? double.parse(matches.elementAt(1).group(1)!)
-            : 0.0
+            : 0.0,
       };
     } catch (_) {}
     //scores part
@@ -287,7 +293,7 @@ class WebApParser {
             'location': <String, dynamic>{
               'building': '',
               'room': td[10].text,
-            }
+            },
           },
         );
       }
@@ -366,7 +372,7 @@ class WebApParser {
       'Thursday',
       'Friday',
       'Saturday',
-      'Sunday'
+      'Sunday',
     ];
     try {
       for (int weekdayIndex = 0;
@@ -425,7 +431,7 @@ class WebApParser {
 
   Map<String, dynamic> midtermAlertsParser(String? html) {
     final Map<String, dynamic> data = <String, dynamic>{
-      'courses': <Map<String, dynamic>>[]
+      'courses': <Map<String, dynamic>>[],
     };
 
     final Document document = parse(html);
@@ -447,7 +453,7 @@ class WebApParser {
                 'group': tdData[3].text,
                 'instructors': tdData[4].text,
                 'reason': tdData[6].text,
-                'remark': tdData[7].text
+                'remark': tdData[7].text,
               },
             );
           }
@@ -461,7 +467,7 @@ class WebApParser {
 
   Map<String, dynamic> rewardAndPenaltyParser(String? html) {
     final Map<String, dynamic> data = <String, dynamic>{
-      'data': <Map<String, dynamic>>[]
+      'data': <Map<String, dynamic>>[],
     };
 
     final Document document = parse(html);
@@ -486,7 +492,7 @@ class WebApParser {
             'date': tdData[2].text,
             'type': tdData[3].text,
             'counts': tdData[4].text,
-            'reason': tdData[5].text
+            'reason': tdData[5].text,
           },
         );
       }
@@ -498,7 +504,7 @@ class WebApParser {
 
   Map<String, dynamic> roomListParser(String? html) {
     final Map<String, dynamic> data = <String, dynamic>{
-      'data': <Map<String, dynamic>>[]
+      'data': <Map<String, dynamic>>[],
     };
 
     final Document document = parse(html);
@@ -509,7 +515,7 @@ class WebApParser {
         (data['data'] as List<Map<String, dynamic>>).add(
           <String, dynamic>{
             'roomName': table[i].text,
-            'roomId': table[i].attributes['value'] ?? '0035'
+            'roomId': table[i].attributes['value'] ?? '0035',
           },
         );
       }
@@ -540,10 +546,10 @@ class WebApParser {
         'Thursday': <Map<String, dynamic>>[],
         'Friday': <Map<String, dynamic>>[],
         'Saturday': <Map<String, dynamic>>[],
-        'Sunday': <Map<String, dynamic>>[]
+        'Sunday': <Map<String, dynamic>>[],
       },
       '_temp_time': <Map<String, dynamic>>{},
-      'timeCodes': <Map<String, dynamic>>[]
+      'timeCodes': <Map<String, dynamic>>[],
     };
 
     final Map<String, dynamic> courseTable =
@@ -581,8 +587,8 @@ class WebApParser {
                 'sectionTimes': <Map<String, dynamic>>[],
                 'location': null,
                 'instructors':
-                    td[10].text.replaceAll(specialSpace, '').split(',')
-              }
+                    td[10].text.replaceAll(specialSpace, '').split(','),
+              },
             },
           );
         }
@@ -617,7 +623,7 @@ class WebApParser {
       'Thursday',
       'Friday',
       'Saturday',
-      'Sunday'
+      'Sunday',
     ];
     String tmpCourseName = '';
     try {
@@ -662,8 +668,8 @@ class WebApParser {
               'endTime':
                   //ignore: lines_longer_than_80_chars
                   "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
-              'section': tempSection
-            }
+              'section': tempSection,
+            },
           });
 
           if (splitData.length <= 1) {
@@ -688,7 +694,7 @@ class WebApParser {
                 'endTime':
                     //ignore: lines_longer_than_80_chars
                     "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
-                'section': tempSection
+                'section': tempSection,
               },
               'rawInstructors': splitData[1]
                   .replaceAll(specialSpace, '')
@@ -737,7 +743,7 @@ class WebApParser {
           //ignore: avoid_dynamic_calls
           'startTime': data['_temp_time'][timeCodeIndex]['startTime'],
           //ignore: avoid_dynamic_calls
-          'endTime': data['_temp_time'][timeCodeIndex]['endTime']
+          'endTime': data['_temp_time'][timeCodeIndex]['endTime'],
         });
       }
       data.remove('_temp_time');

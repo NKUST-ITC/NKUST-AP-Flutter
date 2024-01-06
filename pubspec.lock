@@ -21,10 +21,10 @@ packages:
     dependency: transitive
     description:
       name: add_2_calendar
-      sha256: "7153285bb68321a0e0733d4cbc86336a808ac25efcddce74f5194eda6c5a4906"
+      sha256: dbcd0bf296fbbe00861a6f101af8cdb3c163a8c3ff5d3c99a4b081c2f37c724f
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.4"
+    version: "2.2.5"
   analyzer:
     dependency: transitive
     description:
@@ -37,10 +37,10 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common
-      sha256: bdb19f11ca8c389efcbf5d54b23d0a6a00dfdc4b56fb95f22fb244e7b768e952
+      sha256: "1a3f04987febc557146b8ee9ae1bc13a3a571fcdc0abd95712d3d2a340dfaa6e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.23.0-dev.2"
+    version: "0.23.1"
   ap_common_firebase:
     dependency: "direct main"
     description:

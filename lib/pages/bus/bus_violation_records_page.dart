@@ -206,7 +206,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
               },
               childCount: violationData?.reservations.length ?? 0,
             ),
-          )
+          ),
         ],
       ),
     );

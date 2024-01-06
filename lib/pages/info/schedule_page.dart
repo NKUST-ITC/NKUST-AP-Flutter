@@ -101,7 +101,7 @@ class SchedulePageState extends State<SchedulePage>
       default:
         return CustomScrollView(
           slivers: <Widget>[
-            for (ScheduleData value in scheduleDataList)
+            for (final ScheduleData value in scheduleDataList)
               ..._scheduleItem(value),
           ],
         );

@@ -91,7 +91,7 @@ class MobileNkustHelper {
     'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1623.0 Safari/537.36',
     'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/44.0.2403.155 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36'
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36',
   ];
 
   String? get userAgent => dio.options.headers['user-agent'] as String?;
@@ -167,7 +167,9 @@ class MobileNkustHelper {
     if (data != null) {
       if (otherRequestUrl != null) {
         final Map<String, dynamic> requestData = <String, dynamic>{
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(response.data)
+          '__RequestVerificationToken': MobileNkustParser.getCSRF(
+            response.data,
+          ),
         };
         requestData.addAll(data);
 
@@ -369,7 +371,7 @@ class MobileNkustHelper {
           'driveDate': '$year/$month/$day',
           'beginStation': requestData[0],
           'endStation': requestData[1],
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data)
+          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data),
         },
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
@@ -469,7 +471,7 @@ class MobileNkustHelper {
           'endStation': requestData[1],
           'pageNum': 1,
           'pageSize': 99,
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data)
+          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data),
         },
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
@@ -514,7 +516,7 @@ class MobileNkustHelper {
         'Referer': homeUrl,
       },
       otherRequestHeader: <String, String>{
-        'Referer': busViolationRecordsPageUrl
+        'Referer': busViolationRecordsPageUrl,
       },
     );
     // not pay request
