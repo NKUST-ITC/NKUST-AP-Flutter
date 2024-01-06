@@ -608,7 +608,8 @@ class HomePageState extends State<HomePage> {
         },
         onError: (GeneralResponse response) async {
           String message = '';
-          if (response.statusCode == ApStatusCode.userDataError) {
+          if (response.statusCode == ApStatusCode.userDataError ||
+              response.statusCode == ApStatusCode.passwordFiveTimesError) {
             Toast.show(ap.passwordError, context);
             await Preferences.setBool(Constants.prefAutoLogin, false);
             checkLogin();

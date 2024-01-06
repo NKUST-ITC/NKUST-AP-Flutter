@@ -89,6 +89,8 @@ class WebApParser {
           return 999;
         } else if (match.contains('無此帳號或密碼不正確')) {
           return 1;
+        } else if (match.contains('您先前已登入')) {
+          return 5;
         } else if (match.contains('繁忙')) {
           return 500;
         }

@@ -163,6 +163,11 @@ class WebApHelper {
             statusCode: ApStatusCode.userDataError,
             message: 'username or password error',
           );
+        case 5:
+          throw GeneralResponse(
+            statusCode: ApStatusCode.passwordFiveTimesError,
+            message: 'username or password error',
+          );
         case 500:
           throw GeneralResponse(
             statusCode: ApStatusCode.schoolServerError,
