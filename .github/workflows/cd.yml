@@ -16,7 +16,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v1
         with:
-          java-version: '11.0'
+          java-version: '17.0'
       - name: Decrypt Android keys
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
@@ -50,8 +50,14 @@ jobs:
 
   deploy_ios:
     name: iOS Deploy TestFlight
-    runs-on: macOS-latest
+    runs-on: macos-13
     steps:
+      # Ensure the xcode version is available
+      - name: List Xcode installations
+        run: sudo ls -1 /Applications | grep "Xcode"
+      # Select your required version
+      - name: Select Xcode 15.0
+        run: sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
       - name: Checkout code
         uses: actions/checkout@v2
         with:
