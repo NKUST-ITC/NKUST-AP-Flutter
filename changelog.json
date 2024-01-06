@@ -1,4 +1,10 @@
 {
+  "31004": {
+    "visible": true,
+    "date": "2024/01/07",
+    "zh-TW": "* 改善密碼錯誤導致無法登出\n* 支援更多校方登入錯誤訊息",
+    "en-US": "* Improve password error lead to can't logout.\n* Support more login error message."
+  },
   "31003": {
     "visible": false,
     "date": "2023/11/14",
