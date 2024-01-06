@@ -106,7 +106,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             FirebaseAnalyticsUtils.instance.logEvent('search_username_click');
             _search();
           },
-        )
+        ),
       ],
     );
   }

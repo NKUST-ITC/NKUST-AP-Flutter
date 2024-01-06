@@ -69,7 +69,7 @@ class SemesterPickerState extends State<SemesterPicker> {
             Icon(
               ApIcon.keyboardArrowDown,
               color: ApTheme.of(context).semesterText,
-            )
+            ),
           ],
         ),
       ),
@@ -156,7 +156,9 @@ class SemesterPickerState extends State<SemesterPicker> {
       context: context,
       builder: (BuildContext context) => SimpleOptionDialog(
         title: ApLocalizations.of(context).pickSemester,
-        items: <String>[for (Semester item in semesterData.data) item.text],
+        items: <String>[
+          for (final Semester item in semesterData.data) item.text,
+        ],
         index: currentIndex,
         onSelected: (int index) {
           currentIndex = index;

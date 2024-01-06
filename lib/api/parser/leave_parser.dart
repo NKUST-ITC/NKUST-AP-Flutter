@@ -52,7 +52,7 @@ Map<String, dynamic> leaveQueryParser(String? html) {
   if (tableDom.isEmpty) {
     return <String, dynamic>{
       'data': <Map<String, dynamic>>[],
-      'timeCodes': <String>[]
+      'timeCodes': <String>[],
     };
   }
   final List<Element> trDom = tableDom[0].getElementsByTagName('tr');
@@ -123,7 +123,7 @@ Map<String, dynamic>? leaveSubmitInfoParser(String? html) {
       '10',
       '11',
       '12',
-      '13'
+      '13',
     ];
   }
   //LeaveType generate part.

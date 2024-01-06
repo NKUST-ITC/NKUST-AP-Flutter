@@ -138,7 +138,7 @@ class WebApHelper {
         data: <String, String>{
           'uid': username,
           'pwd': password,
-          'etxt_code': captchaCode
+          'etxt_code': captchaCode,
         },
         options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
@@ -273,7 +273,7 @@ class WebApHelper {
       'https://leave.nkust.edu.tw/SkyDir.aspx',
       queryParameters: <String, dynamic>{
         'u': skyDirectData['uid'],
-        'r': skyDirectData['ls_randnum']
+        'r': skyDirectData['ls_randnum'],
       },
       options: Options(
         followRedirects: false,
@@ -546,7 +546,7 @@ class WebApHelper {
       'ag302_01',
       <String, String>{
         'yms_yms': '$years#$semesterValue',
-        'cmp_area_id': cmpAreaId
+        'cmp_area_id': cmpAreaId,
       },
     );
 

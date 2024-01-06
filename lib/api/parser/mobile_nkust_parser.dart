@@ -108,7 +108,7 @@ class MobileNkustParser {
         'location': <String, dynamic>{
           'building': '',
           'room': course['CourseRoom'] ?? '',
-        }
+        },
       };
       final bool hasMorning = periodTimeJson[0]['PeriodName'] == 'M';
       final List<dynamic> courseWeekPeriod =

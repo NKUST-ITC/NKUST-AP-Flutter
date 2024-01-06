@@ -120,7 +120,7 @@ class LoginPageState extends State<LoginPage> {
               ApUtils.showToast(context, ap.firstLoginHint);
             }
           },
-        )
+        ),
       ],
     );
   }

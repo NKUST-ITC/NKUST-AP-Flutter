@@ -35,7 +35,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   final List<Widget> _children = <Widget>[
     BusReservePage(),
     BusReservationsPage(),
-    BusViolationRecordsPage()
+    BusViolationRecordsPage(),
   ];
 
   Future<bool>? _login;
@@ -73,7 +73,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 const BusRulePage(),
               );
             },
-          )
+          ),
         ],
         elevation: (_currentIndex == 2) ? 0.0 : null,
       ),

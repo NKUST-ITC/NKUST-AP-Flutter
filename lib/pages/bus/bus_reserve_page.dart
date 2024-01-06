@@ -313,7 +313,7 @@ class BusReservePageState extends State<BusReservePage>
                       textAlign: TextAlign.center,
                       style: _textStyle(busTime),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -321,7 +321,7 @@ class BusReservePageState extends State<BusReservePage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Divider(color: ApTheme.of(context).grey, height: 0.0),
-          )
+          ),
         ],
       );
 

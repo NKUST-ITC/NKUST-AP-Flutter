@@ -96,7 +96,7 @@ class BusEncrypt {
         'c': i,
         'd': j,
         'e': k,
-        'f': passwordMD5
+        'f': passwordMD5,
       },
     );
   }
@@ -222,7 +222,7 @@ class BusHelper {
         'n': busEncryptObject.loginEncrypt(
           Helper.username!,
           Helper.password!,
-        )
+        ),
       },
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
@@ -262,7 +262,7 @@ class BusHelper {
         'operation': '全部',
         'page': 1,
         'start': 0,
-        'limit': 90
+        'limit': 90,
       };
       options = Options(contentType: Headers.formUrlEncodedContentType);
     } else {
@@ -277,7 +277,7 @@ class BusHelper {
           'operation': '全部',
           'page': 1,
           'start': 0,
-          'limit': 90
+          'limit': 90,
         },
       );
       options = buildCacheOptions(
