@@ -392,7 +392,8 @@ class WebApParser {
           if (splitData.length <= 1) {
             continue;
           }
-          String courseName = splitData[0].replaceAll('\n', '');
+          String courseName =
+              splitData[0].replaceAll('\n', '').replaceAll('(18週)', '');
           if (courseName.lastIndexOf('>') > -1) {
             courseName = courseName
                 .substring(courseName.lastIndexOf('>') + 1, courseName.length)
