@@ -11,8 +11,7 @@
 # 支援平台
 
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
-- [X] [iOS](https://itunes.ap
-ple.com/us/app/id1439751462)
+- [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Web](https://nkust-ap-flutter.web.app)
 - [X] [Windows(Beta)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/v3.8.5/nkust_ap_windows.zip)
 - [X] [MacOS](https://itunes.apple.com/us/app/id1439751462)

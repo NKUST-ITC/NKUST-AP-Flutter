@@ -1,4 +1,10 @@
 {
+  "31005": {
+    "visible": true,
+    "date": "2024/03/16",
+    "zh-TW": "* 修正部分課程名稱解析錯誤",
+    "en-US": "* Fix some course name parser error"
+  },
   "31004": {
     "visible": true,
     "date": "2024/01/07",
