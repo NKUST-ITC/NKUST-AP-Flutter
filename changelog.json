@@ -1,4 +1,10 @@
 {
+  "31006": {
+    "visible": true,
+    "date": "2024/04/19",
+    "zh-TW": "* 修正無法登入錯誤",
+    "en-US": "* Fix login error"
+  },
   "31005": {
     "visible": true,
     "date": "2024/03/16",
