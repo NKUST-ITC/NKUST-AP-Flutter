@@ -150,6 +150,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "punch": MessageLookupByLibrary.simpleMessage("拍照打卡"),
         "punchSuccess": MessageLookupByLibrary.simpleMessage("打卡成功"),
         "qijin": MessageLookupByLibrary.simpleMessage("旗津"),
+        "reportNetProblem": MessageLookupByLibrary.simpleMessage("網路問題通報"),
+        "reportNetProblemSubTitle":
+            MessageLookupByLibrary.simpleMessage("通報遇到的網路問題"),
+        "reportProblem": MessageLookupByLibrary.simpleMessage("問題通報"),
         "reserve": MessageLookupByLibrary.simpleMessage("預約"),
         "reserveDeadline": MessageLookupByLibrary.simpleMessage("預約截止時間"),
         "reserved": MessageLookupByLibrary.simpleMessage("已預約"),

@@ -5,6 +5,7 @@ export 'home_page.dart';
 export 'info/shcool_info_page.dart';
 export 'leave/leave_page.dart';
 export 'login_page.dart';
+export 'report_page.dart';
 export 'setting_page.dart';
 export 'study/calculate_units_page.dart';
 export 'study/course_page.dart';

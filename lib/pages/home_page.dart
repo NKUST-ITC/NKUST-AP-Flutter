@@ -406,6 +406,11 @@ class HomePageState extends State<HomePage> {
             ),
           ),
           DrawerItem(
+            icon: ApIcon.report,
+            title: app.reportProblem,
+            onTap: () => _openPage(ReportPage()),
+          ),
+          DrawerItem(
             icon: ApIcon.settings,
             title: ap.settings,
             onTap: () => _openPage(SettingPage()),

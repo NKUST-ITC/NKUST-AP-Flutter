@@ -100,5 +100,8 @@
   "clickShowDescription": "點擊看說明",
   "mobileNkustLoginHint": "等待網頁完成載入\n將自動填寫學號密碼\n完成機器人驗證後點擊登入\n將自動跳轉",
   "mobileNkustLoginDescription": "因應校方關閉原有爬蟲功能，此版本需透過新版手機版校務系統登入。成功登入後會自動跳轉，除非憑證過期，否則極少需要重複驗證，強烈建議將記住我勾選。",
-  "leaveApplyRecord": "請假查詢"
+  "leaveApplyRecord": "請假查詢",
+  "reportNetProblem": "網路問題通報",
+  "reportNetProblemSubTitle": "通報遇到的網路問題",
+  "reportProblem":"問題通報"
 }

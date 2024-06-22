@@ -161,6 +161,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "punch": MessageLookupByLibrary.simpleMessage("Punch"),
         "punchSuccess": MessageLookupByLibrary.simpleMessage("Punch Success"),
         "qijin": MessageLookupByLibrary.simpleMessage("Qijin"),
+        "reportNetProblem":
+            MessageLookupByLibrary.simpleMessage("Report Net Problem"),
+        "reportNetProblemSubTitle": MessageLookupByLibrary.simpleMessage(
+            "Report encountered network problems"),
+        "reportProblem": MessageLookupByLibrary.simpleMessage("Report Problem"),
         "reserve": MessageLookupByLibrary.simpleMessage("Reserve"),
         "reserveDeadline":
             MessageLookupByLibrary.simpleMessage("Reserve Deadline"),
