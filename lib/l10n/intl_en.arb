@@ -97,5 +97,8 @@
   "clickShowDescription": "Description",
   "mobileNkustLoginHint": "Wait for the webpage to finish loading, the student ID and password will be filled in automatically.\nAfter completing the Google reCaptcha and clicking login, it will automatically redirected.",
   "mobileNkustLoginDescription": "Because the school has closed the original crawler function, this version needs to be logged in through the new version of the mobile school system. After successful login, it will be redirected automatically. Unless the certificate expires, repeated verification is rarely required. It is strongly recommended to \"記住我\" to check it.。",
-  "leaveApplyRecord": "Apply Records"
+  "leaveApplyRecord": "Apply Records",
+  "reportNetProblem": "Report Net Problem",
+  "reportNetProblemSubTitle": "Report encountered network problems",
+  "reportProblem":"Report Problem"
 }

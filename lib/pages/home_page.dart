@@ -105,6 +105,16 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  IconData get report {
+    switch (ApIcon.code) {
+      case ApIcon.filled:
+        return Icons.flag_circle;
+      case ApIcon.outlined:
+      default:
+        return Icons.flag_circle_outlined;
+    }
+  }
+
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
@@ -404,6 +414,11 @@ class HomePageState extends State<HomePage> {
                 assetImage: sectionImage,
               ),
             ),
+          ),
+          DrawerItem(
+            icon: report,
+            title: app.reportProblem,
+            onTap: () => _openPage(ReportPage()),
           ),
           DrawerItem(
             icon: ApIcon.settings,

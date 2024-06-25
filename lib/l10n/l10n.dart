@@ -1069,6 +1069,36 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `網路問題通報`
+  String get reportNetProblem {
+    return Intl.message(
+      '網路問題通報',
+      name: 'reportNetProblem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `通報遇到的網路問題`
+  String get reportNetProblemSubTitle {
+    return Intl.message(
+      '通報遇到的網路問題',
+      name: 'reportNetProblemSubTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `問題通報`
+  String get reportProblem {
+    return Intl.message(
+      '問題通報',
+      name: 'reportProblem',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
