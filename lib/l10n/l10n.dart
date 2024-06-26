@@ -1099,6 +1099,15 @@ class AppLocalizations {
       args: [],
     );
   }
+  /// `在學證明`
+  String get enrollmentLetter {
+    return Intl.message(
+      '在學證明',
+      name: 'enrollmentLetter',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -126,6 +126,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "canceling": MessageLookupByLibrary.simpleMessage("取消中..."),
         "clickShowDescription": MessageLookupByLibrary.simpleMessage("點擊看說明"),
         "destination": MessageLookupByLibrary.simpleMessage("目的地"),
+        "enrollmentLetter": MessageLookupByLibrary.simpleMessage("在學證明"),
         "first": MessageLookupByLibrary.simpleMessage("第一"),
         "firstLoginHint":
             MessageLookupByLibrary.simpleMessage("首次登入密碼預設為身分證末四碼"),

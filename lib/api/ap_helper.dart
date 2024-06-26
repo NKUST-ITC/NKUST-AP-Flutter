@@ -442,6 +442,25 @@ class WebApHelper {
     return SemesterData.fromJson(parsedData);
   }
 
+  Future<Response<Uint8List>> getEnrollmentLetter() async {
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://webap.nkust.edu.tw/nkust/ag_pro/ag_print/${Helper.username}print.pdf',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Referer': 'https://webap.nkust.edu.tw/',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
   Future<ScoreData> scores(String? years, String? semesterValue) async {
     await checkLogin();
     if (!Helper.isSupportCacheData) {
