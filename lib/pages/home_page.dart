@@ -115,6 +115,16 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  IconData get enrollmentLetter {
+    switch (ApIcon.code) {
+      case ApIcon.filled:
+        return Icons.description;
+      case ApIcon.outlined:
+      default:
+        return Icons.description_outlined;
+    }
+  }
+
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
@@ -292,6 +302,14 @@ class HomePageState extends State<HomePage> {
                 title: ap.classroomCourseTableSearch,
                 onTap: () => _openPage(
                   RoomListPage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubItem(
+                icon: enrollmentLetter,
+                title: '在學證明',
+                onTap: () => _openPage(
+                  const EnrollmentLetterPage(),
                   needLogin: true,
                 ),
               ),

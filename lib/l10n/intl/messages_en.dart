@@ -134,6 +134,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "clickShowDescription":
             MessageLookupByLibrary.simpleMessage("Description"),
         "destination": MessageLookupByLibrary.simpleMessage("Destination"),
+        "enrollmentLetter":
+            MessageLookupByLibrary.simpleMessage("Enrollment Letter"),
         "first": MessageLookupByLibrary.simpleMessage("first"),
         "firstLoginHint": MessageLookupByLibrary.simpleMessage(
             "For first-time login, please fill in the last four number of your ID as your password"),

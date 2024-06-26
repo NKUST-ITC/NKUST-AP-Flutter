@@ -103,5 +103,6 @@
   "leaveApplyRecord": "請假查詢",
   "reportNetProblem": "網路問題通報",
   "reportNetProblemSubTitle": "通報遇到的網路問題",
-  "reportProblem":"問題通報"
+  "reportProblem":"問題通報",
+  "enrollmentLetter" : "在學證明"
 }
