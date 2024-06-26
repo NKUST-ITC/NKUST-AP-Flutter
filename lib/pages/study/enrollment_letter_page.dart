@@ -27,6 +27,8 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   @override
   void initState() {
     super.initState();
+    FirebaseAnalyticsUtils.instance
+        .setCurrentScreen('EnrollmentLetterPage', 'enrollment_letter_page.dart');
     _getEnrollmentLetter();
   }
 
