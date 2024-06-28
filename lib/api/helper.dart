@@ -538,6 +538,7 @@ class Helper {
   Future<void> getBusTimeTables({
     required DateTime dateTime,
     required GeneralCallback<BusData> callback,
+    int retryCount = 5,
   }) async {
     try {
       if (!MobileNkustHelper.isSupport) {
@@ -563,7 +564,13 @@ class Helper {
     } on DioException catch (dioError) {
       if (dioError.hasResponse) {
         BusHelper.reLoginReTryCounts = 0;
-        if (dioError.isServerError) {
+        if (dioError.response?.statusCode == 400 && retryCount > 0) {
+          await getBusTimeTables(
+            dateTime: dateTime,
+            callback: callback,
+            retryCount: retryCount - 1,
+          );
+        } else if (dioError.isServerError) {
           callback.onError(dioError.serverErrorResponse);
         } else {
           callback.onFailure(dioError);
