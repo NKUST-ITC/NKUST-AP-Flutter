@@ -90,7 +90,7 @@ class LeavePageState extends State<LeavePage>
                   mediaPlaybackRequiresUserGesture: false,
                 ),
                 android: AndroidInAppWebViewOptions(
-                  useHybridComposition: true,
+                  
                 ),
                 ios: IOSInAppWebViewOptions(
                   allowsInlineMediaPlayback: true,

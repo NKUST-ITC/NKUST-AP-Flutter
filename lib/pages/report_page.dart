@@ -1,4 +1,3 @@
-import 'package:ap_common/l10n/l10n.dart';
 import 'package:ap_common/resources/ap_theme.dart';
 import 'package:ap_common/utils/analytics_utils.dart';
 import 'package:ap_common/utils/ap_utils.dart';

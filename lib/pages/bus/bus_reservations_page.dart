@@ -278,7 +278,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
                     AnalyticsConstants.no,
                   );
                 }
-                break;
               case DioExceptionType.unknown:
                 setState(() {
                   if (e.message?.contains('HttpException') ?? false) {
@@ -288,7 +287,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
                     state = _State.error;
                   }
                 });
-                break;
               case DioExceptionType.cancel:
                 break;
               default:

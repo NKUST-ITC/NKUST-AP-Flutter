@@ -198,8 +198,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     },
                     defaultColumnWidth: FractionColumnWidth(0.85 / count),
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    border: TableBorder.symmetric(
-                      inside: const BorderSide(color: Colors.grey),
+                    border: const TableBorder.symmetric(
+                      inside: BorderSide(color: Colors.grey),
                     ),
                     children: <TableRow>[
                       leaveTitle,

@@ -287,7 +287,6 @@ class Helper {
       switch (selector?.userInfo) {
         case mobile:
           data = await MobileNkustHelper.instance.getUserInfo();
-          break;
         case webap:
         default:
           data = await WebApHelper.instance.userInfoCrawler();
@@ -331,7 +330,6 @@ class Helper {
         case remoteConfig:
           data = SemesterData.load();
           await Future<void>.delayed(const Duration(milliseconds: 100));
-          break;
         case inkust:
           //TODO
           break;
@@ -371,7 +369,6 @@ class Helper {
             year: semester.year,
             semester: semester.value,
           );
-          break;
         case inkust:
           //TODO
           break;
@@ -411,7 +408,6 @@ class Helper {
             year: isDefault ? null : semester.year,
             semester: isDefault ? null : semester.value,
           );
-          break;
         case webap:
         default:
           data = await WebApHelper.instance.getCourseTable(
@@ -900,16 +896,12 @@ extension GeneralResponseExtension on GeneralResponse {
     switch (statusCode) {
       case ApStatusCode.schoolServerError:
         message = ap.schoolServerError;
-        break;
       case ApStatusCode.apiServerError:
         message = ap.schoolServerError;
-        break;
       case ApStatusCode.apiExpire:
         message = ap.tokenExpiredContent;
-        break;
       case GeneralResponse.platformNotSupportCode:
         message = ap.platformError;
-        break;
       default:
         message = ap.unknownError;
         break;

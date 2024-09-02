@@ -380,7 +380,6 @@ class BusReservePageState extends State<BusReservePage>
                     AnalyticsConstants.no,
                   );
                 }
-                break;
               case DioExceptionType.unknown:
                 setState(() {
                   if (e.message?.contains('HttpException') ?? false) {
@@ -390,7 +389,6 @@ class BusReservePageState extends State<BusReservePage>
                     state = _State.error;
                   }
                 });
-                break;
               case DioExceptionType.cancel:
                 break;
               default:
@@ -673,14 +671,12 @@ class BusReservePageState extends State<BusReservePage>
             'message': errorResponse.description,
           },
         );
-        break;
       case DioExceptionType.unknown:
         if (e.message?.contains('HttpException') ?? false) {
           message = AppLocalizations.of(context).busFailInfinity;
         } else {
           message = ApLocalizations.of(context).somethingError;
         }
-        break;
       case DioExceptionType.cancel:
         break;
       default:

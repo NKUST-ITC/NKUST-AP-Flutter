@@ -217,8 +217,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                       1: FlexColumnWidth(),
                     },
                     defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                    border: TableBorder.symmetric(
-                      inside: const BorderSide(color: Colors.grey),
+                    border: const TableBorder.symmetric(
+                      inside: BorderSide(color: Colors.grey),
                     ),
                     children: _renderScoreWidgets(),
                   ),

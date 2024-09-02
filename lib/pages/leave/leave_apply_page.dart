@@ -578,10 +578,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                     );
                   }
                 });
-                break;
               case DioExceptionType.unknown:
                 setState(() => state = _State.error);
-                break;
               case DioExceptionType.cancel:
                 break;
               default:
@@ -790,10 +788,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               } else {
                 text = ap.somethingError;
               }
-              break;
             case DioExceptionType.unknown:
               text = ap.somethingError;
-              break;
             case DioExceptionType.cancel:
               break;
             default:
