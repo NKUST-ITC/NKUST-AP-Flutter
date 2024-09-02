@@ -424,6 +424,11 @@ class HomePageState extends State<HomePage> {
             onTap: () => _openPage(SchoolInfoPage()),
           ),
           DrawerItem(
+            icon: report,
+            title: app.reportProblem,
+            onTap: () => _openPage(ReportPage()),
+          ),
+          DrawerItem(
             icon: ApIcon.face,
             title: ap.about,
             onTap: () => _openPage(
@@ -432,11 +437,6 @@ class HomePageState extends State<HomePage> {
                 assetImage: sectionImage,
               ),
             ),
-          ),
-          DrawerItem(
-            icon: report,
-            title: app.reportProblem,
-            onTap: () => _openPage(ReportPage()),
           ),
           DrawerItem(
             icon: ApIcon.settings,
