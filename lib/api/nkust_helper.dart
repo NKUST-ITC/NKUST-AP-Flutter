@@ -13,13 +13,12 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 import 'package:sprintf/sprintf.dart';
-
-import 'package:nkust_ap/api/ap_status_code.dart';
 
 class NKUSTHelper {
   static NKUSTHelper? _instance;

@@ -116,7 +116,7 @@ class LoginPageState extends State<LoginPage> {
               setState(() {
                 _username.text = username;
               });
-              if (!mounted) return;
+              if (!context.mounted) return;
               ApUtils.showToast(context, ap.firstLoginHint);
             }
           },
