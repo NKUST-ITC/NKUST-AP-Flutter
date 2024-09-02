@@ -55,4 +55,5 @@ android/android_keys.zip
 
 .firebase/
 
-.fvm/flutter_sdk
+# FVM Version Cache
+.fvm/
