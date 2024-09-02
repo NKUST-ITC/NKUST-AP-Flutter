@@ -753,11 +753,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   void _leaveUpload(LeaveSubmitData data) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => WillPopScope(
+      builder: (BuildContext context) => PopScope(
+        canPop: false,
         child: ProgressDialog(ap.leaveSubmitUploadHint),
-        onWillPop: () async {
-          return false;
-        },
       ),
       barrierDismissible: false,
     );
