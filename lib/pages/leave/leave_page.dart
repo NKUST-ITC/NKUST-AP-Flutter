@@ -82,7 +82,7 @@ class LeavePageState extends State<LeavePage>
           if (snapshot.connectionState == ConnectionState.done) {
             return InAppWebView(
               initialUrlRequest: URLRequest(
-                url: Uri.parse(path),
+                url: WebUri(path),
               ),
               initialOptions: InAppWebViewGroupOptions(
                 crossPlatform: InAppWebViewOptions(
@@ -146,7 +146,7 @@ class LeavePageState extends State<LeavePage>
     });
     webViewController?.loadUrl(
       urlRequest: URLRequest(
-        url: Uri.parse(path),
+        url: WebUri(path),
       ),
     );
   }
@@ -156,11 +156,11 @@ class LeavePageState extends State<LeavePage>
       await WebApHelper.instance.loginToMobile();
       final List<io.Cookie> cookies =
           await WebApHelper.instance.cookieJar.loadForRequest(
-        Uri.parse('https://mobile.nkust.edu.tw'),
+        WebUri('https://mobile.nkust.edu.tw'),
       );
       for (final io.Cookie cookie in cookies) {
         cookieManager.setCookie(
-          url: Uri.parse('https://mobile.nkust.edu.tw'),
+          url: WebUri('https://mobile.nkust.edu.tw'),
           name: cookie.name,
           value: cookie.value,
         );

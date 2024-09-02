@@ -6,7 +6,7 @@ publish_to: none
 version: 3.10.6+31006
 
 environment:
-  sdk: '>=2.19.0 <3.0.0'
+  sdk: '>=3.1.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -14,11 +14,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
-  multiple_localization: ^0.4.0
+  multiple_localization: ^0.5.0
 
-  ap_common: ^0.23.1
+  ap_common: ^0.25.0-dev.2
   ap_common_firebase: ^0.16.0-dev.0
-  ap_common_plugin: ^0.4.0
+  ap_common_plugin: ^0.4.1
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
@@ -36,14 +36,10 @@ dependencies:
   encrypt: ^5.0.1
   path: ^1.8.0
   tuple: ^2.0.0
-  sprintf: ^6.0.0
+  sprintf: ^7.0.0
   image: ^4.0.2
-  flutter_inappwebview: ^5.8.0
-  google_sign_in_dartio:
-    git:
-      url: https://github.com/GroovinChip/firebase_dart_sdk
-      path: google_sign_in_dart
-      ref: null_safety
+  flutter_inappwebview: ^6.0.0
+  google_sign_in_dartio: ^0.3.0
   tflite:
     git:
       url: https://github.com/TreeHD/flutter_tflite

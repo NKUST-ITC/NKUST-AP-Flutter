@@ -67,7 +67,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
           : null,
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse(MobileNkustHelper.loginUrl),
+          url: WebUri(MobileNkustHelper.loginUrl),
         ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -130,7 +130,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
       finish = true;
     }
     final List<Cookie> cookies = await CookieManager.instance().getCookies(
-      url: Uri.parse(MobileNkustHelper.baseUrl),
+      url: WebUri(MobileNkustHelper.baseUrl),
     );
     final MobileCookiesData data =
         MobileCookiesData(cookies: <MobileCookies>[]);
