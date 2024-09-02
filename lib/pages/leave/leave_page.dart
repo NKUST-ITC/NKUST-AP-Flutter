@@ -84,17 +84,10 @@ class LeavePageState extends State<LeavePage>
               initialUrlRequest: URLRequest(
                 url: WebUri(path),
               ),
-              initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-                  useShouldOverrideUrlLoading: true,
-                  mediaPlaybackRequiresUserGesture: false,
-                ),
-                android: AndroidInAppWebViewOptions(
-                  
-                ),
-                ios: IOSInAppWebViewOptions(
-                  allowsInlineMediaPlayback: true,
-                ),
+              initialSettings: InAppWebViewSettings(
+                useShouldOverrideUrlLoading: true,
+                mediaPlaybackRequiresUserGesture: false,
+                allowsInlineMediaPlayback: true,
               ),
               onWebViewCreated: (InAppWebViewController controller) {
                 webViewController = controller;
