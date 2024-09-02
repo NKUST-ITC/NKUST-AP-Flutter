@@ -21,7 +21,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Analyze files
@@ -45,7 +45,7 @@ jobs:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -70,7 +70,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
       - run: flutter pub get
       - name: Build iOS
@@ -84,7 +84,7 @@ jobs:
 #      - uses: actions/checkout@v2
 #      - uses: subosito/flutter-action@v2
 #        with:
-#          flutter-version: '3.13.x'
+#          flutter-version: '3.24.x'
 #          channel: 'stable'
 #      - name: Enable Web
 #        run: flutter config --enable-web
@@ -101,7 +101,7 @@ jobs:
   #      - name: Run Flutter tasks
   #        uses: subosito/flutter-action@v2
   #        with:
-  #          flutter-version: '3.13.x'
+  #          flutter-version: '3.24.x'
   #          channel: 'stable'
   #      - name: Enable macOS
   #        run: flutter config --enable-macos-desktop
@@ -118,7 +118,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
       - name: Intall requird Dependencies
         run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
@@ -138,7 +138,7 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.x'
+          flutter-version: '3.24.x'
           channel: 'stable'
       - name: Enable windows
         run: flutter config --enable-windows-desktop
