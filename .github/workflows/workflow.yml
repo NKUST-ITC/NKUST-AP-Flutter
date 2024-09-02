@@ -23,6 +23,8 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Analyze files
         run: flutter analyze .
@@ -47,6 +49,8 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release
@@ -72,6 +76,8 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build iOS
         run: flutter build ios --release --no-codesign
@@ -120,6 +126,8 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Intall requird Dependencies
         run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - name: Enable linux
@@ -140,6 +148,8 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Enable windows
         run: flutter config --enable-windows-desktop
       - run: flutter doctor -v
