@@ -1,4 +1,10 @@
 {
+  "31007": {
+    "visible": false,
+    "date": "2024/09/02",
+    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
+    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
+  },
   "31006": {
     "visible": true,
     "date": "2024/04/19",
