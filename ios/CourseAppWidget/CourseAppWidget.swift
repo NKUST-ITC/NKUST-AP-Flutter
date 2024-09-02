@@ -12,11 +12,11 @@ import Intents
 
 struct Provider: IntentTimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(text: "", configuration: ConfigurationIntent())
+        SimpleEntry(text: "", shortText: "", configuration: ConfigurationIntent())
     }
     
     func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(text: "下一堂課是 9:00\n在 EC5012 的 演算法", configuration: configuration)
+        let entry = SimpleEntry(text: "下一堂課是 9:00\n在 EC5012 的 演算法",shortText: "9:00 在 EC5012 的演算法", configuration: configuration)
         completion(entry)
     }
     
@@ -26,6 +26,7 @@ struct Provider: IntentTimelineProvider {
         var myUserDefaults :UserDefaults!
         myUserDefaults = UserDefaults(suiteName: "group.com.nkust.ap")
         var text = "尚無課程資料"
+        var shortText = "尚無課程資料"
         if let json = myUserDefaults.string(forKey: "course_notify"){
             let courseData = try? JSONDecoder().decode(CourseData.self, from: Data(json.utf8))
             let today = Date()
@@ -47,17 +48,20 @@ struct Provider: IntentTimelineProvider {
                     if( diff > 0.0  && diff < minDiff && weekday == sectionTime.weekday){
                         minDiff = diff
                         text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的 \(course.title )"
+                        shortText = "\(timeCode?.startTime ?? "")在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的\(course.title )"
                     }
                 }
             })
             if(todayCount == 0){
                 text = "太好了今天沒有任何課"
+                shortText = "今天沒有任何課"
             } else if (minDiff == today.timeIntervalSince1970){
                 text = "太好了今天已經沒有任何課"
+                shortText = "今天已經沒有任何課"
             }
         }
         
-        let entry = SimpleEntry(text: text, configuration: configuration)
+        let entry = SimpleEntry(text: text, shortText: shortText, configuration: configuration)
         entries.append(entry)
         
         let timeline = Timeline(entries: entries, policy: .atEnd)
@@ -81,6 +85,7 @@ struct Provider: IntentTimelineProvider {
 struct SimpleEntry: TimelineEntry {
     var date = Date()
     let text: String
+    let shortText: String
     let configuration: ConfigurationIntent
 }
 
@@ -124,23 +129,87 @@ struct CourseAppWidgetEntryView: View {
     }
 }
 
+@available(iOSApplicationExtension 16.0, *)
+struct InlineWidgetView: View {
+    var entry: Provider.Entry
+    
+    var body: some View {
+        Text(entry.shortText)
+    }
+}
+
+@available(iOSApplicationExtension 16.0, *)
+struct CourseTextWidgetEntryView: View {
+    var entry: Provider.Entry
+    
+    func getContentBackgroudColor() -> Color {
+        return Color.init(  UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1))
+    }
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                AccessoryWidgetBackground()
+                    .cornerRadius(8)
+                GeometryReader { geometry in
+                        VStack{
+                            Text("\(entry.text)")
+                                .font(.system(.caption, weight: .bold))
+                                .frame(height: geometry.size.height)
+                                .padding([.trailing, .leading], 4)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                }
+            }
+            .widgetBackground(getContentBackgroudColor())
+        }
+    }
+}
+
+struct ViewSizeWidgetView: View {
+
+    let entry: SimpleEntry
+
+    // Obtain the widget family value
+    @Environment(\.widgetFamily)
+    var family
+
+    var body: some View {
+        if #available(iOSApplicationExtension 16.0, *) {
+            switch family {
+            case .accessoryInline:
+                InlineWidgetView(entry: entry)
+            case .accessoryRectangular:
+                CourseTextWidgetEntryView(entry: entry)
+            default:
+                // UI for Home Screen widget
+                CourseAppWidgetEntryView(entry: entry)
+            }
+        } else {
+            CourseAppWidgetEntryView(entry: entry)
+        }
+    }
+}
+
 @main
 struct CourseAppWidget: Widget {
     let kind: String = "CourseAppWidget"
     
     var body: some WidgetConfiguration {
         IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
-            CourseAppWidgetEntryView(entry: entry)
+            ViewSizeWidgetView(entry: entry)
         }
         .configurationDisplayName("上課提醒")
         .description("提醒本日下一堂課")
+        .supportedFamiliesIfNeeded()
         .disableContentMarginsIfNeeded()
     }
 }
 
 struct CourseAppWidget_Previews: PreviewProvider {
     static var previews: some View {
-        CourseAppWidgetEntryView(entry: SimpleEntry(text: "" , configuration: ConfigurationIntent()))
+        ViewSizeWidgetView(entry: SimpleEntry(text: "下一堂課是 9:00\n在 EC5012 的 演算法", shortText: "9:00 在 EC5012 的演算法", configuration: ConfigurationIntent()))
             .previewContext(WidgetPreviewContext(family: .systemSmall))
     }
 }
@@ -161,6 +230,22 @@ extension WidgetConfiguration {
     func disableContentMarginsIfNeeded() -> some WidgetConfiguration {
         if #available(iOSApplicationExtension 17.0, *) {
             return self.contentMarginsDisabled()
+        } else {
+            return self
+        }
+    }
+    
+    func supportedFamiliesIfNeeded() -> some WidgetConfiguration {
+        if #available(iOSApplicationExtension 16, *) {
+            return self.supportedFamilies([
+                .systemSmall,
+                .systemMedium,
+                .systemLarge,
+
+                // Add Support to Lock Screen widgets
+                .accessoryRectangular,
+                .accessoryInline,
+            ])
         } else {
             return self
         }
