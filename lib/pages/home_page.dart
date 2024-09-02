@@ -497,13 +497,10 @@ class HomePageState extends State<HomePage> {
           } else {
             ApUtils.showToast(context, ap.platformError);
           }
-          break;
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
-          break;
         case 2:
           ApUtils.pushCupertinoStyle(context, ScorePage());
-          break;
       }
     } else {
       ApUtils.showToast(context, ap.notLogin);
@@ -650,14 +647,11 @@ class HomePageState extends State<HomePage> {
             switch (response.statusCode) {
               case ApStatusCode.schoolServerError:
                 message = ap.schoolServerError;
-                break;
               case ApStatusCode.apiServerError:
                 message = ap.apiServerError;
-                break;
               case ApStatusCode.unknownError:
               case ApStatusCode.cancel:
                 message = ap.loginFail;
-                break;
               default:
                 message = ap.somethingError;
                 break;

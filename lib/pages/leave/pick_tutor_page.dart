@@ -219,13 +219,10 @@ class _PickTutorPageState extends State<PickTutorPage> {
     switch (type) {
       case _Type.campus:
         title = ApLocalizations.of(context).pickTeacher;
-        break;
       case _Type.department:
         title = ApLocalizations.of(context).pickTeacher;
-        break;
       case _Type.teacher:
         title = ApLocalizations.of(context).pickTeacher;
-        break;
     }
     showDialog<int>(
       context: context,
@@ -268,18 +265,15 @@ class _PickTutorPageState extends State<PickTutorPage> {
               departmentIndex = 0;
               teacherIndex = 0;
             });
-            break;
           case _Type.department:
             setState(() {
               departmentIndex = position;
               teacherIndex = 0;
             });
-            break;
           case _Type.teacher:
             setState(() {
               teacherIndex = position;
             });
-            break;
         }
       }
     });

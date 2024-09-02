@@ -19,7 +19,7 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 import 'package:sprintf/sprintf.dart';
 
-import 'ap_status_code.dart';
+import 'package:nkust_ap/api/ap_status_code.dart';
 
 class NKUSTHelper {
   static NKUSTHelper? _instance;

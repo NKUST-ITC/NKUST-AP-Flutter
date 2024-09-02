@@ -269,7 +269,6 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     AnalyticsConstants.no,
                   );
                 }
-                break;
               case DioExceptionType.unknown:
                 setState(() {
                   if (e.message?.contains('HttpException') ?? false) {
@@ -279,7 +278,6 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     state = _State.error;
                   }
                 });
-                break;
               case DioExceptionType.cancel:
                 break;
               default:
