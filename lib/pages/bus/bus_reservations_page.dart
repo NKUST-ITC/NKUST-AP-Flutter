@@ -337,11 +337,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
   void cancelBusReservation(BusReservation busTime) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => WillPopScope(
+      builder: (BuildContext context) => PopScope(
+        canPop: false,
         child: ProgressDialog(app!.canceling),
-        onWillPop: () async {
-          return false;
-        },
       ),
       barrierDismissible: false,
     );

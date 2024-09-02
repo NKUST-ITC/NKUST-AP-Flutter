@@ -503,11 +503,9 @@ class BusReservePageState extends State<BusReservePage>
   void _bookingBus(BusTime busTime) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => WillPopScope(
+      builder: (BuildContext context) => PopScope(
+        canPop: false,
         child: ProgressDialog(app!.reserving),
-        onWillPop: () async {
-          return false;
-        },
       ),
       barrierDismissible: false,
     );
@@ -573,11 +571,9 @@ class BusReservePageState extends State<BusReservePage>
   void cancelBusReservation(BusTime busTime) {
     showDialog(
       context: context,
-      builder: (BuildContext context) => WillPopScope(
+      builder: (BuildContext context) => PopScope(
+        canPop: false,
         child: ProgressDialog(app!.canceling),
-        onWillPop: () async {
-          return false;
-        },
       ),
       barrierDismissible: false,
     );
