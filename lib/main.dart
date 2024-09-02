@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:ap_common/api/announcement_helper.dart';
 import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/utils/ap_hive_utils.dart';
 import 'package:ap_common/utils/preferences.dart';
 import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
 import 'package:ap_common_firebase/utils/firebase_performance_utils.dart';
@@ -34,7 +33,6 @@ void main() async {
     data.buffer.asUint8List(),
   );
   await Preferences.init(key: Constants.key, iv: Constants.iv);
-  await ApHiveUtils.instance.init();
   MobileNkustHelper.userAgentList = Preferences.getStringList(
     Constants.mobileNkustUserAgent,
     MobileNkustHelper.userAgentList,

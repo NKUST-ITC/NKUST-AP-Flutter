@@ -1099,6 +1099,7 @@ class AppLocalizations {
       args: [],
     );
   }
+
   /// `在學證明`
   String get enrollmentLetter {
     return Intl.message(

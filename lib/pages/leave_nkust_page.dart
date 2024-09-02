@@ -65,7 +65,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
           : null,
       body: InAppWebView(
         initialUrlRequest: URLRequest(
-          url: Uri.parse(LeaveHelper.basePath),
+          url: WebUri(LeaveHelper.basePath),
         ),
         initialOptions: InAppWebViewGroupOptions(
           crossPlatform: InAppWebViewOptions(
@@ -124,7 +124,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       finish = true;
     }
     final List<Cookie> cookies = await CookieManager.instance().getCookies(
-      url: Uri.parse(LeaveHelper.basePath),
+      url: WebUri(LeaveHelper.basePath),
     );
     final MobileCookiesData data = MobileCookiesData(
       cookies: <MobileCookies>[],
