@@ -67,11 +67,9 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         initialUrlRequest: URLRequest(
           url: WebUri(LeaveHelper.basePath),
         ),
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(
-            clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance.userAgent!,
-          ),
+        initialSettings: InAppWebViewSettings(
+          clearCache: widget.clearCache,
+          userAgent: MobileNkustHelper.instance.userAgent,
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;

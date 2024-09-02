@@ -69,11 +69,9 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         initialUrlRequest: URLRequest(
           url: WebUri(MobileNkustHelper.loginUrl),
         ),
-        initialOptions: InAppWebViewGroupOptions(
-          crossPlatform: InAppWebViewOptions(
-            clearCache: widget.clearCache,
-            userAgent: MobileNkustHelper.instance.userAgent!,
-          ),
+        initialSettings: InAppWebViewSettings(
+          clearCache: widget.clearCache,
+          userAgent: MobileNkustHelper.instance.userAgent,
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
