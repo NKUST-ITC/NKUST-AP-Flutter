@@ -162,7 +162,7 @@ class HomePageState extends State<HomePage> {
       if (await AppTrackingUtils.trackingAuthorizationStatus ==
           TrackingStatus.notDetermined) {
         //ignore: use_build_context_synchronously
-        if (!context.mounted) return;
+        if (!mounted) return;
         AppTrackingUtils.show(context: context);
       }
       await _checkData(first: true);
@@ -451,7 +451,7 @@ class HomePageState extends State<HomePage> {
               ),
               onTap: () async {
                 await Preferences.setBool(Constants.prefAutoLogin, false);
-                if (!mounted) return;
+                if (!context.mounted) return;
                 ShareDataWidget.of(context)!.data.logout();
                 isLogin = false;
                 userInfo = null;
@@ -608,7 +608,7 @@ class HomePageState extends State<HomePage> {
         Preferences.getStringSecurity(Constants.prefPassword, '');
 
     //ignore: use_build_context_synchronously
-    if (!context.mounted) return;
+    if (!mounted) return;
     Helper.instance.login(
       context: context,
       username: username,
@@ -814,8 +814,7 @@ class HomePageState extends State<HomePage> {
         content: remoteConfig.getString(ApConstants.newVersionContent),
       );
       if (first) {
-        //ignore: use_build_context_synchronously
-        if (!context.mounted) return;
+        if (!mounted) return;
         DialogUtils.showNewVersionContent(
           context: context,
           appName: app.appName,

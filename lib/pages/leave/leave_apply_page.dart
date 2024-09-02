@@ -828,7 +828,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           ap.imageCompressHint,
           <double>[
             Constants.maxImageSize,
-            (result.mb),
+            result.mb,
           ],
         ),
       );

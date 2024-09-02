@@ -167,7 +167,7 @@ class SettingPageState extends State<SettingPage> {
         ApUtils.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        if (!mounted) return;
+        if (!context.mounted) return;
         ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
       }
       Preferences.setBool(Constants.prefBusNotify, busNotify);
@@ -179,7 +179,7 @@ class SettingPageState extends State<SettingPage> {
           Navigator.of(context, rootNavigator: true).pop();
           if (data.reservations.isEmpty) {
             await Utils.setBusNotify(context, data.reservations);
-            if (!mounted) return;
+            if (!context.mounted) return;
             ApUtils.showToast(
               context,
               AppLocalizations.of(context).busNotifyHint,
