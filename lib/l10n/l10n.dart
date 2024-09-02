@@ -1080,10 +1080,10 @@ class AppLocalizations {
     );
   }
 
-  /// `通報遇到的網路問題`
+  /// `通報遇到的網路問題(需使用校內信箱登入)`
   String get reportNetProblemSubTitle {
     return Intl.message(
-      '通報遇到的網路問題',
+      '通報遇到的網路問題(需使用校內信箱登入)',
       name: 'reportNetProblemSubTitle',
       desc: '',
       args: [],

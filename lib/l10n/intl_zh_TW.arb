@@ -102,7 +102,7 @@
   "mobileNkustLoginDescription": "因應校方關閉原有爬蟲功能，此版本需透過新版手機版校務系統登入。成功登入後會自動跳轉，除非憑證過期，否則極少需要重複驗證，強烈建議將記住我勾選。",
   "leaveApplyRecord": "請假查詢",
   "reportNetProblem": "網路問題通報",
-  "reportNetProblemSubTitle": "通報遇到的網路問題",
+  "reportNetProblemSubTitle": "通報遇到的網路問題(需使用校內信箱登入)",
   "reportProblem":"問題通報",
   "enrollmentLetter" : "在學證明"
 }

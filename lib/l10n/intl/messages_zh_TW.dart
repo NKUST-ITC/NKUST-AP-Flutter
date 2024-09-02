@@ -153,7 +153,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "qijin": MessageLookupByLibrary.simpleMessage("旗津"),
         "reportNetProblem": MessageLookupByLibrary.simpleMessage("網路問題通報"),
         "reportNetProblemSubTitle":
-            MessageLookupByLibrary.simpleMessage("通報遇到的網路問題"),
+            MessageLookupByLibrary.simpleMessage("通報遇到的網路問題(需使用校內信箱登入)"),
         "reportProblem": MessageLookupByLibrary.simpleMessage("問題通報"),
         "reserve": MessageLookupByLibrary.simpleMessage("預約"),
         "reserveDeadline": MessageLookupByLibrary.simpleMessage("預約截止時間"),

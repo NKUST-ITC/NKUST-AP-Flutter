@@ -167,7 +167,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Report Net Problem"),
         "reportNetProblemSubTitle": MessageLookupByLibrary.simpleMessage(
             "Report encountered network problems"),
-        "reportProblem": MessageLookupByLibrary.simpleMessage("Report Problem"),
+        "reportProblem": MessageLookupByLibrary.simpleMessage(
+            "Report Problem (Requires school email login)"),
         "reserve": MessageLookupByLibrary.simpleMessage("Reserve"),
         "reserveDeadline":
             MessageLookupByLibrary.simpleMessage("Reserve Deadline"),

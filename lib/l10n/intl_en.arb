@@ -100,6 +100,6 @@
   "leaveApplyRecord": "Apply Records",
   "reportNetProblem": "Report Net Problem",
   "reportNetProblemSubTitle": "Report encountered network problems",
-  "reportProblem":"Report Problem",
+  "reportProblem":"Report Problem (Requires school email login)",
   "enrollmentLetter": "Enrollment Letter"
 }
