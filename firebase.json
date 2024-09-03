@@ -6,5 +6,44 @@
       "**/.*",
       "**/node_modules/**"
     ]
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "nkust-ap-flutter",
+          "appId": "1:141403473068:android:05ebdd62590fb72e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "nkust-ap-flutter",
+          "appId": "1:141403473068:ios:65aa63de8e144164",
+          "uploadDebugSymbols": true,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "nkust-ap-flutter",
+          "appId": "1:141403473068:ios:568f2386591e74bbf34b09",
+          "uploadDebugSymbols": true,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "nkust-ap-flutter",
+          "configurations": {
+            "android": "1:141403473068:android:05ebdd62590fb72e",
+            "ios": "1:141403473068:ios:65aa63de8e144164",
+            "macos": "1:141403473068:ios:568f2386591e74bbf34b09",
+            "web": "1:141403473068:web:2804dce650446efef34b09",
+            "windows": "1:141403473068:web:d71d06f2e8822143f34b09"
+          }
+        }
+      }
+    }
   }
 }
