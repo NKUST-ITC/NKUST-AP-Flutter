@@ -81,6 +81,8 @@ jobs:
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
           DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
+      - name: Install flutterfire_cli
+        run: dart pub global activate flutterfire_cli
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
       - uses: ruby/setup-ruby@v1

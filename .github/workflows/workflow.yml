@@ -91,6 +91,8 @@ jobs:
         env:
           DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - run: flutter pub get
+      - name: Install flutterfire_cli
+        run: dart pub global activate flutterfire_cli
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
