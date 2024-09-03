@@ -16,6 +16,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_ap/firebase_options.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -53,24 +54,31 @@ void main() async {
   }
 
   AnnouncementHelper.instance.organization = 'nkust';
-  if (FirebaseUtils.isSupportCore) await Firebase.initializeApp();
+  if (FirebaseUtils.isSupportCore) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
   if (kDebugMode) {
     if (FirebaseCrashlyticsUtils.isSupported) {
-      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+      await FirebaseCrashlytics.instance
+          .setCrashlyticsCollectionEnabled(kReleaseMode);
     }
     if (FirebasePerformancesUtils.isSupported) {
-      await FirebasePerformance.instance.setPerformanceCollectionEnabled(false);
+      await FirebasePerformance.instance
+          .setPerformanceCollectionEnabled(kReleaseMode);
     }
   }
   if (!kDebugMode && FirebaseCrashlyticsUtils.isSupported) {
-    runZonedGuarded(() {
-      runApp(const MyApp());
-    }, (Object error, StackTrace stackTrace) {
-      FirebaseCrashlytics.instance.recordError(error, stackTrace);
-    });
-  } else {
-    runApp(const MyApp());
+    FlutterError.onError = (FlutterErrorDetails errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+    PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
   }
+  runApp(const MyApp());
 }
 
 class MyHttpOverrides extends HttpOverrides {
