@@ -16,6 +16,7 @@ pluginManagement {
                 excludeGroupByRegex "com\\.google\\.android\\.gms"
             }
         }
+        gradlePluginPortal()
     }
 }
 
