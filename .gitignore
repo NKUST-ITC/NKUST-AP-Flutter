@@ -50,6 +50,8 @@ google-services.json
 key.jks
 service_account_key.json
 android/android_keys.zip
+dev_configs.zip
+lib/firebase_options.dart
 
 .vscode/
 

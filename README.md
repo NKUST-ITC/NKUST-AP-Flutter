@@ -12,10 +12,10 @@
 
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
 - [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
-- [X] [Web](https://nkust-ap-flutter.web.app)
-- [X] [Windows(Beta)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/v3.8.5/nkust_ap_windows.zip)
-- [X] [MacOS](https://itunes.apple.com/us/app/id1439751462)
-- [X] [Linux(Beta)](https://snapcraft.io/nkust-ap)
+- [ ] [Web](https://nkust-ap-flutter.web.app)
+- [X] [Windows(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/v3.8.5/nkust_ap_windows.zip)
+- [X] [MacOS(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://itunes.apple.com/us/app/id1439751462)
+- [X] [Linux(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://snapcraft.io/nkust-ap)
 
 ### Web 版本自7月起因為學校阻擋高請求IP，改為客戶端爬蟲，因此暫時無法使用
 
@@ -30,7 +30,22 @@
  - [NKUST API](https://github.com/NKUST-ITC/NKUST-AP-API) : 
    高科校務通後端HTTP RESTful API，代為App處理所有爬蟲問題
 
-## 步驟
+## 開發事前需求
+
+### 開發需安裝工具
+
+ - GPG 
+
+### 解密開發所需檔案
+
+`$DEV_CONFIGS_PASSPHRASE` 替換成正確的密碼
+
+```bash
+  gpg --quiet --batch --yes --decrypt --passphrase="$DEV_CONFIGS_PASSPHRASE" \
+    --output dev_configs.zip dev_configs.zip.gpg && sh scripts/unzip_dev_configs.sh
+```
+
+## 如何貢獻
 1. `Fork` 此專案到你的 GitHub 帳號.
 2. 挑選一個你想解決的 [issue](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues).
 3. 創建一個分支(Branch)以該問題命名.
