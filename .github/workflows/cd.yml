@@ -32,6 +32,10 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+      - name: Decrypt dev configs
+        run: sh ./scripts/decrypt_dev_configs.sh
+        env:
+          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - name: Install Flutter dependencies
         run: flutter pub get
       - run: flutter build appbundle --release
@@ -73,6 +77,10 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+      - name: Decrypt dev configs
+        run: sh ./scripts/decrypt_dev_configs.sh
+        env:
+          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - run: flutter pub get
       - run: flutter build ios --release --no-codesign
       - uses: ruby/setup-ruby@v1
@@ -132,6 +140,10 @@ jobs:
         with:
           flutter-version: '3.24.x'
           channel: 'stable'
+      - name: Decrypt dev configs
+        run: sh ./scripts/decrypt_dev_configs.sh
+        env:
+          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - name: Enable windows
         run: flutter config --enable-windows-desktop
       - run: flutter doctor -v
