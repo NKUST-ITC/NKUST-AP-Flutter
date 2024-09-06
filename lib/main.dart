@@ -59,22 +59,20 @@ void main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
   }
-  if (kDebugMode) {
-    if (FirebaseCrashlyticsUtils.isSupported) {
-      await FirebaseCrashlytics.instance
-          .setCrashlyticsCollectionEnabled(kReleaseMode);
-    }
-    if (FirebasePerformancesUtils.isSupported) {
-      await FirebasePerformance.instance
-          .setPerformanceCollectionEnabled(kReleaseMode);
-    }
+  if (FirebaseCrashlyticsUtils.isSupported) {
+    await FirebaseCrashlytics.instance
+        .setCrashlyticsCollectionEnabled(kReleaseMode);
+  }
+  if (FirebasePerformancesUtils.isSupported) {
+    await FirebasePerformance.instance
+        .setPerformanceCollectionEnabled(kReleaseMode);
   }
   if (!kDebugMode && FirebaseCrashlyticsUtils.isSupported) {
     FlutterError.onError = (FlutterErrorDetails errorDetails) {
       FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
     };
     PlatformDispatcher.instance.onError = (Object error, StackTrace stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      FirebaseCrashlytics.instance.recordError(error, stack);
       return true;
     };
   }
