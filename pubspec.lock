@@ -42,10 +42,10 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common
-      sha256: "073a666cbd983c1e97499671be43ad84dc8ea1c0dfdec97c9ce31368a61da495"
+      sha256: "18873f4c2fb6c9a630b8c5bb13aaded2d7c3712e10f2826aeeb09d314e7f72c1"
       url: "https://pub.dev"
     source: hosted
-    version: "0.25.1"
+    version: "0.25.2"
   ap_common_firebase:
     dependency: "direct main"
     description:
