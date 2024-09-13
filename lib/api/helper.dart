@@ -111,7 +111,7 @@ class Helper {
     required GeneralCallback<LoginResponse?> callback,
     bool clearCache = false,
   }) async {
-    Helper.username = username;
+    Helper.username = username.toUpperCase();
     Helper.password = password;
     try {
       LoginResponse? loginResponse;
@@ -121,13 +121,13 @@ class Helper {
         default:
           if (selector != null && (selector!.login == mobile)) {
             loginResponse = await WebApHelper.instance.login(
-              username: username,
+              username: username.toUpperCase(),
               password: password,
             );
             await WebApHelper.instance.loginToMobile();
           } else {
             loginResponse = await WebApHelper.instance.login(
-              username: username,
+              username: username.toUpperCase(),
               password: password,
             );
           }
