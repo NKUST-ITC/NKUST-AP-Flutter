@@ -104,7 +104,7 @@ class WebApHelper {
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
-          'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html?1111',
+          'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
         },
       ),
     );
@@ -443,8 +443,8 @@ class WebApHelper {
   }
 
   Future<Response<Uint8List>> getEnrollmentLetter() async {
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+    final List<Cookie> cookies =
+        await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
@@ -461,6 +461,7 @@ class WebApHelper {
     );
     return response;
   }
+
   Future<ScoreData> scores(String? years, String? semesterValue) async {
     await checkLogin();
     if (!Helper.isSupportCacheData) {
