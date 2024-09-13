@@ -601,13 +601,30 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  void showLoginingSnackBar() {
+    if (isLogin) return;
+    _homeKey.currentState
+        ?.showSnackBar(
+          text: ApLocalizations.of(context).logining,
+          actionText: ApLocalizations.of(context).offlineLogin,
+          onSnackBarTapped: offLineLogin,
+        )
+        ?.closed
+        .then(
+      (SnackBarClosedReason reason) {
+        showLoginingSnackBar();
+      },
+    );
+  }
+
   Future<void> _login() async {
     await Future<void>.delayed(const Duration(microseconds: 30));
+    if (!mounted) return;
+    showLoginingSnackBar();
     final String username = Preferences.getString(Constants.prefUsername, '');
     final String password =
         Preferences.getStringSecurity(Constants.prefPassword, '');
 
-    //ignore: use_build_context_synchronously
     if (!mounted) return;
     Helper.instance.login(
       context: context,
@@ -615,6 +632,7 @@ class HomePageState extends State<HomePage> {
       password: password,
       callback: GeneralCallback<LoginResponse?>(
         onSuccess: (LoginResponse? response) {
+          if (isLogin) return;
           ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
           Preferences.setBool(Constants.prefIsOfflineLogin, false);
@@ -623,20 +641,22 @@ class HomePageState extends State<HomePage> {
           if (state != HomeState.finish) {
             _getAnnouncements();
           }
-          _homeKey.currentState!.showBasicHint(text: ap.loginSuccess);
+          _homeKey.currentState
+            ?..hideSnackBar()
+            ..showBasicHint(text: ap.loginSuccess);
         },
         onFailure: (DioException e) {
+          if (isLogin) return;
           final String text = e.i18nMessage!;
           _homeKey.currentState!.showSnackBar(
             text: text,
             actionText: ap.retry,
             onSnackBarTapped: _login,
           );
-          Preferences.setBool(Constants.prefIsOfflineLogin, true);
-          ApUtils.showToast(context, ap.loadOfflineData);
-          isLogin = true;
+          offLineLogin();
         },
         onError: (GeneralResponse response) async {
+          if (isLogin) return;
           String message = '';
           if (response.statusCode == ApStatusCode.userDataError ||
               response.statusCode == ApStatusCode.passwordFiveTimesError) {
@@ -661,13 +681,19 @@ class HomePageState extends State<HomePage> {
               actionText: ap.retry,
               onSnackBarTapped: _login,
             );
-            Preferences.setBool(Constants.prefIsOfflineLogin, true);
-            ApUtils.showToast(context, ap.loadOfflineData);
-            isLogin = true;
+            offLineLogin();
           }
         },
       ),
     );
+  }
+
+  void offLineLogin() {
+    Preferences.setBool(Constants.prefIsOfflineLogin, true);
+    ApUtils.showToast(context, ap.loadOfflineData);
+    isLogin = true;
+    _getUserInfo();
+    _homeKey.currentState?.hideSnackBar();
   }
 
   void handleLoginSuccess(String? username, String? password) {
