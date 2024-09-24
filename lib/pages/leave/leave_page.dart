@@ -85,7 +85,6 @@ class LeavePageState extends State<LeavePage>
                 url: WebUri(path),
               ),
               initialSettings: InAppWebViewSettings(
-                useShouldOverrideUrlLoading: true,
                 mediaPlaybackRequiresUserGesture: false,
                 allowsInlineMediaPlayback: true,
               ),
