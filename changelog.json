@@ -1,4 +1,10 @@
 {
+  "31102": {
+    "visible": true,
+    "date": "2024/09/25",
+    "zh-TW": "* 修正課表提醒星期設定錯誤(需重新點選才能正常)\n  * 修正請假系統顯示錯誤",
+    "en-US": "* Fixed an issue where the week setting for class schedule reminders was incorrect (requiring a re-click to function properly).\n* Fixed a display error in the leave request system."
+  },
   "31101": {
     "visible": true,
     "date": "2024/09/14",
