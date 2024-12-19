@@ -5,7 +5,46 @@ import 'dart:typed_data';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:tflite/tflite.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
+
+const List<String> labels = <String>[
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+  '0',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+];
 
 class CaptchaUtils {
   CaptchaUtils._();
@@ -29,9 +68,8 @@ class CaptchaUtils {
           img.decodeImage(File(imagePath).readAsBytesSync())!;
       final img.Image grayscaleImage = img.grayscale(source);
       start = DateTime.now();
-      await Tflite.loadModel(
-        model: 'assets/webap_captcha.tflite',
-        labels: 'assets/labels.txt',
+      final Interpreter interpreter = await Interpreter.fromAsset(
+        'assets/webap_captcha.tflite',
       );
       end = DateTime.now();
       final int loadModelTime =
@@ -49,18 +87,20 @@ class CaptchaUtils {
           width: w,
           height: h,
         );
-        final List<dynamic>? recognitions = await Tflite.runModelOnBinary(
-          binary: imageToByteListFloat32(target, w, h, 127.5, 255.0),
-          // required
-          numResults: 1,
-          // defaults to 5
-          threshold: 0.05,
-          // defaults to 0.1
+        final List<dynamic> output =
+            List<dynamic>.filled(1 * labels.length, 0).reshape(<int>[
+          1,
+          labels.length,
+        ]);
+        interpreter.run(
+          imageToByteListFloat32(target, w, h, 127.5, 255.0),
+          output,
         );
-        if (recognitions != null && recognitions.isNotEmpty) {
-          final Map<Object?, Object?> map =
-              recognitions.first as Map<Object?, Object?>;
-          replaceText.write(map['label'] as String?);
+        if (output.first case final List<double> list?) {
+          final List<double> flattedOutputs = list.toList();
+          flattedOutputs.sort();
+          final int maxIndex = list.indexOf(flattedOutputs.last);
+          replaceText.write(labels[maxIndex]);
         }
       }
       end = DateTime.now();
@@ -68,6 +108,7 @@ class CaptchaUtils {
           end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       log('process time = $processTime ms');
       log(replaceText.toString());
+      interpreter.close();
       return replaceText.toString();
     } catch (_) {
       rethrow;
