@@ -665,7 +665,6 @@ class HomePageState extends State<HomePage> {
                 message = ap.loginFail;
               default:
                 message = ap.somethingError;
-                break;
             }
             _homeKey.currentState!.showSnackBar(
               text: message,

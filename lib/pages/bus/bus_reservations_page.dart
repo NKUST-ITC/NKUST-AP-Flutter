@@ -286,7 +286,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   state = _State.custom;
                   customStateHint = e.i18nMessage;
                 });
-                break;
             }
           }
           _loadCache();
