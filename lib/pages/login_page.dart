@@ -215,7 +215,6 @@ class LoginPageState extends State<LoginPage> {
                 message = null;
               default:
                 message = ap.somethingError;
-                break;
             }
             if (message != null) UiUtil.instance.showToast(context, message);
             setState(() => isLoginIng = false);
