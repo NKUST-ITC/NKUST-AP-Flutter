@@ -10,7 +10,7 @@ part 'leave_submit_data.g.dart';
 
 @JsonSerializable()
 class LeaveSubmitData {
-  List<Day> days;
+  List<LeaveDay> days;
   String leaveTypeId;
   String teacherId;
   String reasonText;
@@ -37,21 +37,22 @@ class LeaveSubmitData {
 }
 
 @JsonSerializable()
-class Day {
+class LeaveDay {
   String? day;
   @JsonKey(name: 'class')
   List<String>? dayClass;
 
-  Day({
+  LeaveDay({
     this.day,
     this.dayClass,
   });
 
-  factory Day.fromJson(Map<String, dynamic> json) => _$DayFromJson(json);
+  factory LeaveDay.fromJson(Map<String, dynamic> json) =>
+      _$LeaveDayFromJson(json);
 
-  Map<String, dynamic> toJson() => _$DayToJson(this);
+  Map<String, dynamic> toJson() => _$LeaveDayToJson(this);
 
-  factory Day.fromRawJson(String str) => Day.fromJson(
+  factory LeaveDay.fromRawJson(String str) => LeaveDay.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 

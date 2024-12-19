@@ -1,8 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/views/pdf_view.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
@@ -27,7 +26,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'EnrollmentLetterPage',
       'enrollment_letter_page.dart',
     );

@@ -1,12 +1,6 @@
 import 'dart:developer';
 
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
-import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -58,7 +52,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
     super.initState();
   }
@@ -94,7 +88,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                   selectSemester = semester;
                   state = _State.loading;
                 });
-                if (Preferences.getBool(
+                if (PreferenceUtil.instance.getBool(
                   Constants.prefIsOfflineLogin,
                   false,
                 )) {
@@ -113,7 +107,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
               child: RefreshIndicator(
                 onRefresh: () async {
                   await _getSemesterLeaveRecord();
-                  FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+                  AnalyticsUtil.instance.logEvent('refresh_swipe');
                   return;
                 },
                 child: OrientationBuilder(
@@ -164,7 +158,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             } else {
               _getSemesterLeaveRecord();
             }
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -350,7 +344,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             customStateHint = e.i18nMessage;
           });
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getSemesterLeaveRecord',
               e.response!.statusCode!,
               message: e.message ?? '',

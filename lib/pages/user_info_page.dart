@@ -1,5 +1,4 @@
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/scaffold/user_info_scaffold.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -21,7 +20,7 @@ class UserInfoPageState extends State<UserInfoPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('UserInfoPage', 'user_info_page.dart');
     userInfo = widget.userInfo;
     super.initState();
@@ -41,8 +40,8 @@ class UserInfoPageState extends State<UserInfoPage> {
               pictureBytes: this.userInfo.pictureBytes,
             ),
           );
+          AnalyticsUtil.instance.logUserInfo(userInfo);
         }
-        FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
         return null;
       },
     );

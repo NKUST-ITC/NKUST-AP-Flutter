@@ -1,9 +1,6 @@
 import 'dart:convert';
 
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' as html;
 import 'package:nkust_ap/models/midterm_alerts_data.dart';

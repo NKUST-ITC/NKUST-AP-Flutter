@@ -25,7 +25,7 @@ Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
       startStation: json['startStation'] as String,
       endStation: json['endStation'] as String,
       homeCharteredBus: json['homeCharteredBus'] as bool,
-      amountend: json['amountend'] as int,
+      amountend: (json['amountend'] as num).toInt(),
       isPayment: json['isPayment'] as bool,
     );
 

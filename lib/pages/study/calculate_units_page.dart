@@ -1,10 +1,5 @@
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -53,7 +48,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   @override
   void initState() {
     super.initState();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'CalculateUnitsPage',
       'calculate_units_page.dart',
     );
@@ -145,7 +140,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             flex: 19,
             child: RefreshIndicator(
               onRefresh: () async {
-                FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+                AnalyticsUtil.instance.logEvent('refresh_swipe');
                 _calculate();
                 return;
               },
@@ -306,7 +301,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       };
 
   Future<void> _getSemester() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
@@ -380,7 +375,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             final double second =
                 (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
                     1000;
-            FirebaseAnalyticsUtils.instance.logCalculateUnits(second);
+            (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
+                .logCalculateUnits(second);
             unitsTotal =
                 requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
             if (mounted) {

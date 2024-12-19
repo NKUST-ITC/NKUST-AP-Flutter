@@ -1,10 +1,4 @@
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common/widgets/item_picker.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
@@ -34,7 +28,7 @@ class _RoomListPageState extends State<RoomListPage> {
   @override
   void initState() {
     _getRoomList();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'RoomListPage',
       'room_list_page.dart',
     );
@@ -105,7 +99,7 @@ class _RoomListPageState extends State<RoomListPage> {
         return InkWell(
           onTap: () {
             _getRoomList();
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.classIcon,
@@ -138,7 +132,7 @@ class _RoomListPageState extends State<RoomListPage> {
             });
           }
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getRoomCourseTables',
               e.response!.statusCode!,
               message: e.message ?? '',

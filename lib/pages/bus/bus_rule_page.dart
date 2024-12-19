@@ -1,5 +1,4 @@
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -18,7 +17,7 @@ class BusRulePageState extends State<BusRulePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('BusRulePage', 'bus_rule_page.dart');
     super.initState();
   }
@@ -63,7 +62,8 @@ class BusRulePageState extends State<BusRulePage> {
                   decoration: TextDecoration.underline,
                 ),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => ApUtils.launchUrl('http://bus.kuas.edu.tw/'),
+                  ..onTap = () => PlatformUtil.instance
+                      .launchUrl('http://bus.kuas.edu.tw/'),
               ),
               TextSpan(text: app!.busRuleFourteenDay),
               TextSpan(

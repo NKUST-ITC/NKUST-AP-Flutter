@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
@@ -50,14 +50,14 @@ class CrawlerSelector {
   String toRawJson() => jsonEncode(toJson());
 
   void save() {
-    Preferences.setString(
+    PreferenceUtil.instance.setString(
       Constants.crawlerSelector,
       toRawJson(),
     );
   }
 
   static CrawlerSelector? load() {
-    final String rawString = Preferences.getString(
+    final String rawString = PreferenceUtil.instance.getString(
       Constants.crawlerSelector,
       '',
     );

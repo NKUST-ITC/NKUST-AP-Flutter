@@ -1,17 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/models/notification_data.dart';
-import 'package:ap_common/models/phone_model.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/views/notification_list_view.dart';
-import 'package:ap_common/views/pdf_view.dart';
-import 'package:ap_common/views/phone_list_view.dart';
-import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -78,7 +69,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('SchoolInfoPage', 'school_info_page.dart');
     controller = TabController(length: 3, vsync: this);
     _getNotifications();
@@ -159,7 +150,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   }
 
   void _getNotifications() {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
       Helper.instance.getNotifications(
@@ -172,13 +163,15 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             }
           },
           onFailure: (DioException e) {
-            ApUtils.showToast(context, e.i18nMessage);
+            if (e.i18nMessage != null) {
+              UiUtil.instance.showToast(context, e.i18nMessage!);
+            }
             if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);
             }
           },
           onError: (GeneralResponse response) {
-            ApUtils.showToast(context, ap.somethingError);
+            UiUtil.instance.showToast(context, ap.somethingError);
             if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);
             }

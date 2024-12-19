@@ -2,9 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ap_common/utils/ap_utils.dart';
 import 'package:image/image.dart' as img;
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:tflite/tflite.dart';
 
 class CaptchaUtils {

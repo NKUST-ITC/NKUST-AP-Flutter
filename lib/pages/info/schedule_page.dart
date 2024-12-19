@@ -1,15 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/platform_calendar_util.dart';
-import 'package:ap_common/views/pdf_view.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common/widgets/yes_no_dialog.dart';
-import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +48,7 @@ class SchedulePageState extends State<SchedulePage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('SchedulePage', 'schedule_page.dart');
     _getSchedules();
     super.initState();
@@ -181,7 +174,7 @@ class SchedulePageState extends State<SchedulePage>
           (BuildContext context, int index) {
             return InkWell(
               onTap: () {
-                FirebaseAnalyticsUtils.instance.logEvent('add_schedule_create');
+                AnalyticsUtil.instance.logEvent('add_schedule_create');
                 showDialog(
                   context: context,
                   builder: (BuildContext context) => YesNoDialog(
@@ -210,8 +203,7 @@ class SchedulePageState extends State<SchedulePage>
                       if (schedule.events.isNotEmpty) {
                         _addToCalendar(schedule.events[index]);
                       }
-                      FirebaseAnalyticsUtils.instance
-                          .logEvent('add_schedule_click');
+                      AnalyticsUtil.instance.logEvent('add_schedule_click');
                     },
                   ),
                 );
@@ -268,21 +260,19 @@ class SchedulePageState extends State<SchedulePage>
       59,
     );
     try {
-      if (PlatformCalendarUtil.isSupported) {
+      if (ApPlatformCalendarUtil.isSupported) {
         PlatformCalendarUtil.instance.addToApp(
-          event: Event(
-            title: message,
-            location: '高雄科技大學',
-            startDate: beginTime,
-            endDate: endTime,
-          ),
+          title: message,
+          location: '高雄科技大學',
+          startDate: beginTime,
+          endDate: endTime,
         );
-        if (Platform.isIOS) ApUtils.showToast(context, ap.addSuccess);
+        if (Platform.isIOS) UiUtil.instance.showToast(context, ap.addSuccess);
       } else {
-        ApUtils.showToast(context, ap.calendarAppNotFound);
+        UiUtil.instance.showToast(context, ap.calendarAppNotFound);
       }
     } catch (e) {
-      ApUtils.showToast(context, ap.calendarAppNotFound);
+      UiUtil.instance.showToast(context, ap.calendarAppNotFound);
       rethrow;
     }
   }

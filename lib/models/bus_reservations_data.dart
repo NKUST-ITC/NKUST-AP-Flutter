@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
@@ -41,14 +39,14 @@ class BusReservationsData {
 
   // Waiting setString support Map.
   void save(String? tag) {
-    Preferences.setString(
+    PreferenceUtil.instance.setString(
       '${Constants.prefBusReservationsData}_$tag',
       toRawJson(),
     );
   }
 
   static BusReservationsData? load(String? tag) {
-    final String rawString = Preferences.getString(
+    final String rawString = PreferenceUtil.instance.getString(
       '${Constants.prefBusReservationsData}_$tag',
       '',
     );

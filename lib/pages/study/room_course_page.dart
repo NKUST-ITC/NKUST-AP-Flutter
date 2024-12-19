@@ -1,7 +1,4 @@
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/scaffold/course_scaffold.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
@@ -35,7 +32,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'RoomCoursePage',
       'room_course_page.dart',
     );
@@ -97,7 +94,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             });
           }
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getRoomCourseTables',
               e.response!.statusCode!,
               message: e.message ?? '',

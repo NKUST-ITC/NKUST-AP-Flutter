@@ -1,9 +1,4 @@
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/scaffold/login_scaffold.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/res/assets.dart';
@@ -31,7 +26,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   @override
   void initState() {
     super.initState();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'SearchUsernamePagePage',
       'search_student_id_page.dart',
     );
@@ -103,7 +98,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         ApButton(
           text: ap.search,
           onPressed: () {
-            FirebaseAnalyticsUtils.instance.logEvent('search_username_click');
+            AnalyticsUtil.instance.logEvent('search_username_click');
             _search();
           },
         ),
@@ -121,7 +116,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   Future<void> _search() async {
     if (_id.text.isEmpty) {
-      ApUtils.showToast(context, ap.doNotEmpty);
+      UiUtil.instance.showToast(context, ap.doNotEmpty);
     } else {
       NKUSTHelper.instance.getUsername(
         rocId: _id.text,

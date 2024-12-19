@@ -1,15 +1,4 @@
-import 'package:ap_common/config/ap_constants.dart';
-import 'package:ap_common/models/course_notify_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/analytics_utils.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/notification_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/option_dialog.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -46,8 +35,8 @@ class SemesterPickerState extends State<SemesterPicker> {
         //ignore: unnecessary_null_comparison
         if (semesterData != null) pickSemester();
         if (widget.featureTag != null) {
-          AnalyticsUtils.instance
-              ?.logEvent('${widget.featureTag}_item_picker_click');
+          AnalyticsUtil.instance
+              .logEvent('${widget.featureTag}_item_picker_click');
         }
       },
       child: Padding(
@@ -91,7 +80,7 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   Future<void> _getSemester() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       _loadSemesterData();
       return;
     }
@@ -100,29 +89,29 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           semesterData = data;
           semesterData.save();
-          final String oldSemester = Preferences.getString(
+          final String _ = PreferenceUtil.instance.getString(
             ApConstants.currentSemesterCode,
             ApConstants.semesterLatest,
           );
           final String newSemester =
               '${Helper.username}_${semesterData.defaultSemester.code}';
-          Preferences.setString(
+          PreferenceUtil.instance.setString(
             ApConstants.currentSemesterCode,
             newSemester,
           );
           //TODO clear old course notify, but may be improve
-          if (!oldSemester.contains(semesterData.defaultSemester.code)) {
-            //TODO check nullable
-            final CourseNotifyData notifyData =
-                CourseNotifyData.load(oldSemester);
-            //ignore: unnecessary_null_comparison
-            if (notifyData != null && NotificationUtils.isSupport) {
-              CourseNotifyData.clearOldVersionNotification(
-                tag: oldSemester,
-                newTag: semesterData.defaultSemester.code,
-              );
-            }
-          }
+          // if (!oldSemester.contains(semesterData.defaultSemester.code)) {
+          //   //TODO check nullable
+          //   final CourseNotifyData notifyData =
+          //       CourseNotifyData.load(oldSemester);
+          //   //ignore: unnecessary_null_comparison
+          //   if (notifyData != null && NotificationUtil.instance.isSupport) {
+          //     CourseNotifyData.clearOldVersionNotification(
+          //       tag: oldSemester,
+          //       newTag: semesterData.defaultSemester.code,
+          //     );
+          //   }
+          // }
           if (mounted) {
             currentIndex = semesterData.defaultIndex;
             widget.onSelect?.call(
@@ -135,9 +124,11 @@ class SemesterPickerState extends State<SemesterPicker> {
           }
         },
         onFailure: (DioException e) {
-          ApUtils.showToast(context, e.i18nMessage);
+          if (e.i18nMessage != null) {
+            UiUtil.instance.showToast(context, e.i18nMessage!);
+          }
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getSemester',
               e.response!.statusCode!,
               message: e.message ?? '',
@@ -145,7 +136,8 @@ class SemesterPickerState extends State<SemesterPicker> {
           }
         },
         onError: (GeneralResponse response) {
-          ApUtils.showToast(context, response.getGeneralMessage(context));
+          UiUtil.instance
+              .showToast(context, response.getGeneralMessage(context));
         },
       ),
     );

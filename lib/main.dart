@@ -1,12 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ap_common/api/announcement_helper.dart';
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_performance_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,13 +29,20 @@ void main() async {
   SecurityContext.defaultContext.setTrustedCertificatesBytes(
     data.buffer.asUint8List(),
   );
-  await Preferences.init(key: Constants.key, iv: Constants.iv);
-  MobileNkustHelper.userAgentList = Preferences.getStringList(
+
+  /// Register all ap_common injection util
+  registerOneForAll();
+
+  await (PreferenceUtil.instance as ApPreferenceUtil).init(
+    key: Constants.key,
+    iv: Constants.iv,
+  );
+  MobileNkustHelper.userAgentList = PreferenceUtil.instance.getStringList(
     Constants.mobileNkustUserAgent,
     MobileNkustHelper.userAgentList,
   );
   final String currentVersion =
-      Preferences.getString(Constants.prefCurrentVersion, '0');
+      PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');
   if (int.parse(currentVersion) < 30603) CourseData.migrateFrom0_10();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(

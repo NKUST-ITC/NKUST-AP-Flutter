@@ -1,8 +1,4 @@
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/models/general_response.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/models/user_info.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 
