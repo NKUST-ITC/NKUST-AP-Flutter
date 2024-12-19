@@ -12,7 +12,6 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/firebase_options.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -58,9 +57,7 @@ void main() async {
 
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
   }
   if (FirebaseCrashlyticsUtils.isSupported) {
     await FirebaseCrashlytics.instance

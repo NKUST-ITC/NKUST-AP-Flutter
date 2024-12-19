@@ -84,7 +84,6 @@ class HomePageState extends State<HomePage> {
       case Brightness.light:
         return ImageAssets.drawerIconLight;
       case Brightness.dark:
-      default:
         return ImageAssets.drawerIconDark;
     }
   }
