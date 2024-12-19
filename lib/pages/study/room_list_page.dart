@@ -95,7 +95,6 @@ class _RoomListPageState extends State<RoomListPage> {
           itemCount: roomData!.data.length,
         );
       case _State.custom:
-      default:
         return InkWell(
           onTap: () {
             _getRoomList();
