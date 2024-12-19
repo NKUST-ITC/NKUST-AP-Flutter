@@ -1,19 +1,18 @@
 import 'dart:io';
 
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/notification_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image/image.dart' as image_utils;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sprintf/sprintf.dart';
 
 class Utils {
   static Future<void> clearSetting() async {
-    Preferences.setBool(Constants.prefAutoLogin, false);
+    PreferenceUtil.instance.setBool(Constants.prefAutoLogin, false);
   }
 
   static Future<void> setBusNotify(
@@ -21,18 +20,20 @@ class Utils {
     List<BusReservation>? busReservations,
   ) async {
     final AppLocalizations app = AppLocalizations.of(context);
-    if (NotificationUtils.isSupport) {
+    if (NotificationUtil.instance.isSupport) {
       for (int i = 0;
-          i < Preferences.getInt(Constants.notificationBusIndexOffset, 0);
+          i <
+              PreferenceUtil.instance
+                  .getInt(Constants.notificationBusIndexOffset, 0);
           i++) {
-        await NotificationUtils.cancelCourseNotify(
+        await NotificationUtil.instance.cancelNotify(
           id: Constants.notificationBusId + i,
         );
       }
       final int len = busReservations?.length ?? 0;
-      Preferences.setInt(Constants.notificationBusIndexOffset, len);
+      PreferenceUtil.instance.setInt(Constants.notificationBusIndexOffset, len);
       for (int i = 0; i < len; i++) {
-        await NotificationUtils.schedule(
+        await NotificationUtil.instance.schedule(
           id: Constants.notificationBusId + i,
           androidChannelId: '${Constants.notificationBusId}',
           androidChannelDescription: app.busNotify,

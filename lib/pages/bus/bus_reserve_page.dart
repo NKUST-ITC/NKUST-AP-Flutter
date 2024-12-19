@@ -1,13 +1,4 @@
-import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common/widgets/progress_dialog.dart';
-import 'package:ap_common/widgets/yes_no_dialog.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -58,7 +49,7 @@ class BusReservePageState extends State<BusReservePage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('BusReservePage', 'bus_reserve_page.dart');
     _getBusTimeTables();
     super.initState();
@@ -102,7 +93,7 @@ class BusReservePageState extends State<BusReservePage>
                               if (datetime != null) {
                                 dateTime = datetime;
                                 _getBusTimeTables();
-                                FirebaseAnalyticsUtils.instance
+                                AnalyticsUtil.instance
                                     .logEvent('date_picker_click');
                               }
                             },
@@ -155,8 +146,7 @@ class BusReservePageState extends State<BusReservePage>
                             selectStartStation = text;
                           });
                         }
-                        FirebaseAnalyticsUtils.instance
-                            .logEvent('segment_click');
+                        AnalyticsUtil.instance.logEvent('segment_click');
                       },
                     ),
                   ),
@@ -210,7 +200,7 @@ class BusReservePageState extends State<BusReservePage>
         return InkWell(
           onTap: () {
             _getBusTimeTables();
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -226,7 +216,7 @@ class BusReservePageState extends State<BusReservePage>
         return RefreshIndicator(
           onRefresh: () async {
             await _getBusTimeTables();
-            FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+            AnalyticsUtil.instance.logEvent('refresh_swipe');
             return;
           },
           child: ListView(
@@ -326,7 +316,7 @@ class BusReservePageState extends State<BusReservePage>
       );
 
   Future<void> _getBusTimeTables() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
@@ -349,7 +339,7 @@ class BusReservePageState extends State<BusReservePage>
               }
             });
           }
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.canUseBus,
             AnalyticsConstants.yes,
           );
@@ -366,7 +356,7 @@ class BusReservePageState extends State<BusReservePage>
                   } else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FirebaseAnalyticsUtils.instance.logApiEvent(
+                    AnalyticsUtil.instance.logApiEvent(
                       'getBusTimeTables',
                       e.response!.statusCode!,
                       message: e.message ?? '',
@@ -375,7 +365,7 @@ class BusReservePageState extends State<BusReservePage>
                 });
                 if (e.response!.statusCode == 401 ||
                     e.response!.statusCode == 403) {
-                  FirebaseAnalyticsUtils.instance.setUserProperty(
+                  AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
                   );
@@ -493,11 +483,11 @@ class BusReservePageState extends State<BusReservePage>
         rightActionText: ap.determine,
         rightActionFunction: () {
           cancelBusReservation(busTime);
-          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_click');
+          AnalyticsUtil.instance.logEvent('cancel_bus_click');
         },
       ),
     );
-    FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_create');
+    AnalyticsUtil.instance.logEvent('cancel_bus_create');
   }
 
   void _bookingBus(BusTime busTime) {
@@ -514,7 +504,7 @@ class BusReservePageState extends State<BusReservePage>
       callback: GeneralCallback<BookingBusData>(
         onSuccess: (BookingBusData data) {
           _getBusTimeTables();
-          FirebaseAnalyticsUtils.instance.logEvent('book_bus_success');
+          AnalyticsUtil.instance.logEvent('book_bus_success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,
@@ -582,7 +572,7 @@ class BusReservePageState extends State<BusReservePage>
       callback: GeneralCallback<CancelBusData>(
         onSuccess: (CancelBusData data) {
           _getBusTimeTables();
-          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_success');
+          AnalyticsUtil.instance.logEvent('cancel_bus_success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,
@@ -661,7 +651,7 @@ class BusReservePageState extends State<BusReservePage>
         final ErrorResponse errorResponse =
             ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
-        FirebaseAnalyticsUtils.instance.logEvent(
+        AnalyticsUtil.instance.logEvent(
           tag,
           parameters: <String, String>{
             'message': errorResponse.description,

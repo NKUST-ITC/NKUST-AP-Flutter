@@ -1,8 +1,4 @@
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/scaffold/score_scaffold.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -31,8 +27,7 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
-        .setCurrentScreen('ScorePage', 'score_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
   }
 
@@ -57,7 +52,8 @@ class ScorePageState extends State<ScorePage> {
             selectSemester = semester;
             state = ScoreState.loading;
           });
-          if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+          if (PreferenceUtil.instance
+              .getBool(Constants.prefIsOfflineLogin, false)) {
             _loadOfflineScoreData();
           } else {
             _getSemesterScore();
@@ -67,7 +63,7 @@ class ScorePageState extends State<ScorePage> {
       onRefresh: () async {
         //TODO implement block callback function
         await _getSemesterScore();
-        FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+        AnalyticsUtil.instance.logEvent('refresh_swipe');
         return null;
       },
       onSearchButtonClick: () {
@@ -85,7 +81,7 @@ class ScorePageState extends State<ScorePage> {
   Future<void> _getSemesterScore() async {
     Helper.cancelToken?.cancel('');
     Helper.cancelToken = CancelToken();
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       _loadOfflineScoreData();
     } else {
       Helper.instance.getScores(
@@ -113,7 +109,7 @@ class ScorePageState extends State<ScorePage> {
               });
             }
             if (e.hasResponse) {
-              FirebaseAnalyticsUtils.instance.logApiEvent(
+              AnalyticsUtil.instance.logApiEvent(
                 'getSemesterScore',
                 e.response!.statusCode!,
                 message: e.message ?? '',

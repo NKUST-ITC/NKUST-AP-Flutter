@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/utils/crashlytics_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
@@ -136,7 +136,7 @@ class WebApParser {
       data['pictureUrl'] = 'https://webap.nkust.edu.tw/nkust$imageUrl';
     } catch (e, s) {
       if (FirebaseCrashlyticsUtils.isSupported) {
-        FirebaseCrashlyticsUtils.instance.recordError(
+        CrashlyticsUtil.instance.recordError(
           e,
           s,
           reason: document.outerHtml,
@@ -300,7 +300,7 @@ class WebApParser {
     } catch (e, s) {
       if (kDebugMode) rethrow;
       if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlyticsUtils.instance.recordError(
+        await CrashlyticsUtil.instance.recordError(
           e,
           s,
           reason: 'Section A = '
@@ -357,7 +357,7 @@ class WebApParser {
         for (final Element value in timeCodeElements) {
           htmlStringBuffer.write(value.innerHtml);
         }
-        await FirebaseCrashlyticsUtils.instance.recordError(
+        await CrashlyticsUtil.instance.recordError(
           e,
           s,
           reason: htmlStringBuffer.toString(),
@@ -420,7 +420,7 @@ class WebApParser {
     } catch (e, s) {
       if (kDebugMode) rethrow;
       if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlyticsUtils.instance.recordError(
+        await CrashlyticsUtil.instance.recordError(
           e,
           s,
           reason: 'Section C = ${table2.innerHtml}',
@@ -749,7 +749,7 @@ class WebApParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtils.instance!
+      CrashlyticsUtil.instance
           .recordError(e, s, reason: 'course name = $tmpCourseName');
     }
 

@@ -1,9 +1,4 @@
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -42,7 +37,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'MidtermAlertsPage',
       'midterm_alerts_page.dart',
     );
@@ -94,7 +89,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             child: RefreshIndicator(
               onRefresh: () async {
                 await _getMidtermAlertsData();
-                FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+                AnalyticsUtil.instance.logEvent('refresh_swipe');
                 return;
               },
               child: _body(),
@@ -150,7 +145,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             } else {
               _getMidtermAlertsData();
             }
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: stateIcon,
@@ -199,7 +194,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   }
 
   Future<void> _getMidtermAlertsData() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
@@ -228,7 +223,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             customStateHint = e.i18nMessage;
           });
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getMidtermAlert',
               e.response!.statusCode!,
               message: e.message ?? '',

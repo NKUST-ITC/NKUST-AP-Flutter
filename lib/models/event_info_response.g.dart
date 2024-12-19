@@ -8,7 +8,7 @@ part of 'event_info_response.dart';
 
 EventInfoResponse _$EventInfoResponseFromJson(Map<String, dynamic> json) =>
     EventInfoResponse(
-      code: json['code'] as int,
+      code: (json['code'] as num).toInt(),
       description: json['description'] as String,
       title: json['title'] as String,
       data: (json['data'] as List<dynamic>)
@@ -26,7 +26,7 @@ Map<String, dynamic> _$EventInfoResponseToJson(EventInfoResponse instance) =>
 
 EventSendResponse _$EventSendResponseFromJson(Map<String, dynamic> json) =>
     EventSendResponse(
-      code: json['code'] as int,
+      code: (json['code'] as num).toInt(),
       description: json['description'] as String,
       title: json['title'] as String,
       data: EventInfo.fromJson(json['data'] as Map<String, dynamic>),

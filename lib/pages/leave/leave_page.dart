@@ -1,9 +1,6 @@
 import 'dart:io' as io;
 
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';

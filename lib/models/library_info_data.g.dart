@@ -32,9 +32,9 @@ Map<String, dynamic> _$LibraryInfoToJson(LibraryInfo instance) =>
     };
 
 Record _$RecordFromJson(Map<String, dynamic> json) => Record(
-      borrowing: json['borrowing'] as int,
-      reserveRental: json['reserve-rental'] as int,
-      userFine: json['userFine'] as int,
+      borrowing: (json['borrowing'] as num).toInt(),
+      reserveRental: (json['reserve-rental'] as num).toInt(),
+      userFine: (json['userFine'] as num).toInt(),
     );
 
 Map<String, dynamic> _$RecordToJson(Record instance) => <String, dynamic>{

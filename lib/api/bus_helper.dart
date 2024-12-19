@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:ap_common/models/private_cookies_manager.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/io.dart';

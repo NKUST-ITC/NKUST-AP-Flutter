@@ -2,25 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:ap_common/api/announcement_helper.dart';
-import 'package:ap_common/config/ap_constants.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/pages/about_us_page.dart';
-import 'package:ap_common/pages/announcement/home_page.dart';
-import 'package:ap_common/pages/announcement_content_page.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/scaffold/home_page_scaffold.dart';
-import 'package:ap_common/utils/analytics_utils.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/app_tracking_utils.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/ap_drawer.dart';
-import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +19,7 @@ import 'package:nkust_ap/pages/study/room_list_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class HomePage extends StatefulWidget {
   static const String routerName = '/home';
@@ -141,7 +125,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'HomePage',
       'home_page.dart',
     );
@@ -154,13 +138,13 @@ class HomePageState extends State<HomePage> {
       );
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
-      if (Preferences.getBool(Constants.prefAutoLogin, false)) {
+      if (PreferenceUtil.instance.getBool(Constants.prefAutoLogin, false)) {
         _login();
       } else {
         checkLogin();
       }
-      if (await AppTrackingUtils.trackingAuthorizationStatus ==
-          TrackingStatus.notDetermined) {
+      if (await AppStoreUtil.instance.trackingAuthorizationStatus ==
+          GeneralPermissionStatus.notDetermined) {
         //ignore: use_build_context_synchronously
         if (!mounted) return;
         AppTrackingUtils.show(context: context);
@@ -218,7 +202,8 @@ class HomePageState extends State<HomePage> {
       ],
       drawer: ApDrawer(
         userInfo: userInfo,
-        displayPicture: Preferences.getBool(Constants.prefDisplayPicture, true),
+        displayPicture:
+            PreferenceUtil.instance.getBool(Constants.prefDisplayPicture, true),
         imageAsset: drawerIcon,
         onTapHeader: () {
           if (isLogin) {
@@ -364,7 +349,7 @@ class HomePageState extends State<HomePage> {
             DrawerItem(
               icon: ApIcon.calendarToday,
               title: ap.leave,
-              onTap: () => ApUtils.launchUrl(
+              onTap: () => PlatformUtil.instance.launchUrl(
                 'https://mobile.nkust.edu.tw/Student/Leave',
               ),
             ),
@@ -414,7 +399,7 @@ class HomePageState extends State<HomePage> {
             DrawerItem(
               icon: ApIcon.directionsBus,
               title: ap.bus,
-              onTap: () => ApUtils.launchUrl(
+              onTap: () => PlatformUtil.instance.launchUrl(
                 'https://mobile.nkust.edu.tw/Bus/Timetable',
               ),
             ),
@@ -450,7 +435,8 @@ class HomePageState extends State<HomePage> {
                 color: ApTheme.of(context).grey,
               ),
               onTap: () async {
-                await Preferences.setBool(Constants.prefAutoLogin, false);
+                await PreferenceUtil.instance
+                    .setBool(Constants.prefAutoLogin, false);
                 if (!context.mounted) return;
                 ShareDataWidget.of(context)!.data.logout();
                 isLogin = false;
@@ -495,7 +481,7 @@ class HomePageState extends State<HomePage> {
           if (canUseBus) {
             ApUtils.pushCupertinoStyle(context, const BusPage());
           } else {
-            ApUtils.showToast(context, ap.platformError);
+            UiUtil.instance.showToast(context, ap.platformError);
           }
         case 1:
           ApUtils.pushCupertinoStyle(context, CoursePage());
@@ -503,7 +489,7 @@ class HomePageState extends State<HomePage> {
           ApUtils.pushCupertinoStyle(context, ScorePage());
       }
     } else {
-      ApUtils.showToast(context, ap.notLogin);
+      UiUtil.instance.showToast(context, ap.notLogin);
     }
   }
 
@@ -530,7 +516,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void _setupBusNotify(BuildContext context) {
-    if (Preferences.getBool(Constants.prefBusNotify, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
       Helper.instance.getBusReservations(
         callback: GeneralCallback<BusReservationsData>(
           onSuccess: (BusReservationsData response) async {
@@ -538,7 +524,7 @@ class HomePageState extends State<HomePage> {
           },
           onFailure: (DioException e) {
             if (e.hasResponse) {
-              FirebaseAnalyticsUtils.instance.logApiEvent(
+              AnalyticsUtil.instance.logApiEvent(
                 'getBusReservations',
                 e.response!.statusCode!,
                 message: e.message ?? '',
@@ -552,7 +538,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _getUserInfo() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       userInfo = UserInfo.load(Helper.username!);
     } else {
       Helper.instance.getUsersInfo(
@@ -562,17 +548,20 @@ class HomePageState extends State<HomePage> {
               setState(() {
                 userInfo = data;
               });
-              FirebaseAnalyticsUtils.instance.logUserInfo(userInfo);
-              userInfo!.save(Helper.username!);
+              if (userInfo != null) {
+                AnalyticsUtil.instance.logUserInfo(userInfo!);
+                userInfo!.save(Helper.username!);
+              }
               _checkData();
-              if (Preferences.getBool(Constants.prefDisplayPicture, true)) {
+              if (PreferenceUtil.instance
+                  .getBool(Constants.prefDisplayPicture, true)) {
                 _getUserPicture();
               }
             }
           },
           onFailure: (DioException e) {
             if (e.hasResponse) {
-              FirebaseAnalyticsUtils.instance.logApiEvent(
+              AnalyticsUtil.instance.logApiEvent(
                 'getUserInfo',
                 e.response!.statusCode!,
                 message: e.message ?? '',
@@ -621,9 +610,10 @@ class HomePageState extends State<HomePage> {
     await Future<void>.delayed(const Duration(microseconds: 30));
     if (!mounted) return;
     showLoginingSnackBar();
-    final String username = Preferences.getString(Constants.prefUsername, '');
+    final String username =
+        PreferenceUtil.instance.getString(Constants.prefUsername, '');
     final String password =
-        Preferences.getStringSecurity(Constants.prefPassword, '');
+        PreferenceUtil.instance.getStringSecurity(Constants.prefPassword, '');
 
     if (!mounted) return;
     Helper.instance.login(
@@ -635,7 +625,7 @@ class HomePageState extends State<HomePage> {
           if (isLogin) return;
           ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
-          Preferences.setBool(Constants.prefIsOfflineLogin, false);
+          PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
           _getUserInfo();
           _setupBusNotify(context);
           if (state != HomeState.finish) {
@@ -661,7 +651,8 @@ class HomePageState extends State<HomePage> {
           if (response.statusCode == ApStatusCode.userDataError ||
               response.statusCode == ApStatusCode.passwordFiveTimesError) {
             Toast.show(ap.passwordError, context);
-            await Preferences.setBool(Constants.prefAutoLogin, false);
+            await PreferenceUtil.instance
+                .setBool(Constants.prefAutoLogin, false);
             checkLogin();
           } else {
             switch (response.statusCode) {
@@ -689,8 +680,8 @@ class HomePageState extends State<HomePage> {
   }
 
   void offLineLogin() {
-    Preferences.setBool(Constants.prefIsOfflineLogin, true);
-    ApUtils.showToast(context, ap.loadOfflineData);
+    PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, true);
+    UiUtil.instance.showToast(context, ap.loadOfflineData);
     isLogin = true;
     _getUserInfo();
     _homeKey.currentState?.hideSnackBar();
@@ -698,7 +689,7 @@ class HomePageState extends State<HomePage> {
 
   void handleLoginSuccess(String? username, String? password) {
     isLogin = true;
-    Preferences.setBool(Constants.prefIsOfflineLogin, false);
+    PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
     _getUserInfo();
     _setupBusNotify(context);
     if (state != HomeState.finish) {
@@ -748,7 +739,7 @@ class HomePageState extends State<HomePage> {
   }) async {
     if (isMobile) Navigator.of(context).pop();
     if (needLogin && !isLogin) {
-      ApUtils.showToast(
+      UiUtil.instance.showToast(
         context,
         ApLocalizations.of(context).notLoginHint,
       );
@@ -775,8 +766,8 @@ class HomePageState extends State<HomePage> {
     final AppLocalizations app = AppLocalizations.of(context);
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion =
-        Preferences.getString(Constants.prefCurrentVersion, '');
-    AnalyticsUtils.instance?.setUserProperty(
+        PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '');
+    AnalyticsUtil.instance.setUserProperty(
       Constants.versionCode,
       packageInfo.buildNumber,
     );
@@ -790,7 +781,7 @@ class HomePageState extends State<HomePage> {
         'v${packageInfo.version}\n'
         '$updateNoteContent',
       );
-      Preferences.setString(
+      PreferenceUtil.instance.setString(
         Constants.prefCurrentVersion,
         packageInfo.buildNumber,
       );
@@ -816,8 +807,8 @@ class HomePageState extends State<HomePage> {
       );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
-      Preferences.setBool(Constants.busEnable, busEnable);
-      Preferences.setBool(Constants.leaveEnable, leaveEnable);
+      PreferenceUtil.instance.setBool(Constants.busEnable, busEnable);
+      PreferenceUtil.instance.setBool(Constants.leaveEnable, leaveEnable);
       if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
         Helper.selector = CrawlerSelector.fromRawJson(
           remoteConfig.getString(Constants.crawlerSelector),
@@ -828,8 +819,9 @@ class HomePageState extends State<HomePage> {
         remoteConfig.getString(Constants.semesterData),
       );
       semesterData.save();
-      Preferences.setStringList(Constants.leavesTimeCode, leaveTimeCode);
-      Preferences.setStringList(
+      PreferenceUtil.instance
+          .setStringList(Constants.leavesTimeCode, leaveTimeCode);
+      PreferenceUtil.instance.setStringList(
         Constants.mobileNkustUserAgent,
         mobileNkustUserAgent,
       );
@@ -855,8 +847,9 @@ class HomePageState extends State<HomePage> {
       }
     } catch (e) {
       Helper.selector = CrawlerSelector.load();
-      busEnable = Preferences.getBool(Constants.busEnable, true);
-      leaveEnable = Preferences.getBool(Constants.leaveEnable, true);
+      busEnable = PreferenceUtil.instance.getBool(Constants.busEnable, true);
+      leaveEnable =
+          PreferenceUtil.instance.getBool(Constants.leaveEnable, true);
     }
     setState(() {});
   }

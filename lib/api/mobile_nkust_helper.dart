@@ -2,13 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:ap_common/callback/general_callback.dart';
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/models/private_cookies_manager.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -16,7 +10,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/mobile_nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -199,11 +192,11 @@ class MobileNkustHelper {
           await MobileNkustHelper.instance.isCookieAlive();
       if (isCookieAlive) {
         final DateTime now = DateTime.now();
-        final int lastTime = Preferences.getInt(
+        final int lastTime = PreferenceUtil.instance.getInt(
           Constants.mobileCookiesLastTime,
           now.microsecondsSinceEpoch,
         );
-        FirebaseAnalyticsUtils.instance.logEvent(
+        AnalyticsUtil.instance.logEvent(
           'cookies_persistence_time',
           parameters: <String, dynamic>{
             'time': now.microsecondsSinceEpoch - lastTime,

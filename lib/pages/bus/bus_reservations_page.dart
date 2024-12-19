@@ -1,12 +1,4 @@
-import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/default_dialog.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common/widgets/progress_dialog.dart';
-import 'package:ap_common/widgets/yes_no_dialog.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -48,7 +40,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
+    AnalyticsUtil.instance
         .setCurrentScreen('BusReservationsPage', 'bus_reservations_page.dart');
     _getBusReservations();
     super.initState();
@@ -113,7 +105,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return InkWell(
           onTap: () {
             _getBusReservations();
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -129,7 +121,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
         return RefreshIndicator(
           onRefresh: () async {
             _getBusReservations();
-            FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+            AnalyticsUtil.instance.logEvent('refresh_swipe');
             return;
           },
           child: ListView.builder(
@@ -211,7 +203,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       );
 
   Future<void> _getBusReservations() async {
-    if (Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       busReservationsData = BusReservationsData.load(Helper.username);
       if (mounted) {
         setState(() {
@@ -246,7 +238,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
               }
             });
           }
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.canUseBus,
             AnalyticsConstants.yes,
           );
@@ -264,7 +256,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   } else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FirebaseAnalyticsUtils.instance.logApiEvent(
+                    AnalyticsUtil.instance.logApiEvent(
                       'getBusReservations',
                       e.response!.statusCode!,
                       message: e.message ?? '',
@@ -273,7 +265,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 });
                 if (e.response!.statusCode == 401 ||
                     e.response!.statusCode == 403) {
-                  FirebaseAnalyticsUtils.instance.setUserProperty(
+                  AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
                   );
@@ -327,11 +319,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
         rightActionText: ap.determine,
         rightActionFunction: () {
           cancelBusReservation(reservation);
-          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_click');
+          AnalyticsUtil.instance.logEvent('cancel_bus_click');
         },
       ),
     );
-    FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_create');
+    AnalyticsUtil.instance.logEvent('cancel_bus_create');
   }
 
   void cancelBusReservation(BusReservation busTime) {
@@ -348,7 +340,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       callback: GeneralCallback<CancelBusData>(
         onSuccess: (CancelBusData data) {
           _getBusReservations();
-          FirebaseAnalyticsUtils.instance.logEvent('cancel_bus_success');
+          AnalyticsUtil.instance.logEvent('cancel_bus_success');
           Navigator.of(context, rootNavigator: true).pop();
           showDialog(
             context: context,

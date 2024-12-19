@@ -2,16 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:ap_common/models/announcement_data.dart';
-import 'package:ap_common/models/course_data.dart';
-import 'package:ap_common/models/notification_data.dart';
-import 'package:ap_common/models/score_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/models/user_info.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firebase/utils/firebase_crashlytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -34,8 +26,6 @@ import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:nkust_ap/utils/global.dart';
-
-export 'package:ap_common/callback/general_callback.dart';
 
 class Helper {
   static const String host = 'nkust.taki.dog';
@@ -88,7 +78,8 @@ class Helper {
   }
 
   Helper() {
-    final String apiHost = Preferences.getString(Constants.apiHost, host);
+    final String apiHost =
+        PreferenceUtil.instance.getString(Constants.apiHost, host);
     dio = Dio(
       BaseOptions(
         baseUrl: 'https://$apiHost/$version',
@@ -422,7 +413,7 @@ class Helper {
       return (callback == null) ? data : callback.onSuccess(data);
     } on DioException catch (dioError) {
       if (selector?.course == mobile && dioError.response?.statusCode == 302) {
-        FirebaseAnalyticsUtils.instance.logEvent(
+        AnalyticsUtil.instance.logEvent(
           'mobile_user_agent_error',
           parameters: <String, dynamic>{
             'message': MobileNkustHelper.instance.userAgent,
@@ -906,7 +897,7 @@ extension GeneralResponseExtension on GeneralResponse {
         message = ap.unknownError;
         break;
     }
-    FirebaseAnalyticsUtils.instance.logApiEvent(
+    AnalyticsUtil.instance.logApiEvent(
       'GeneralResponse',
       statusCode,
       message: message,

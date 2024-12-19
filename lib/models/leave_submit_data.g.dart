@@ -9,7 +9,7 @@ part of 'leave_submit_data.dart';
 LeaveSubmitData _$LeaveSubmitDataFromJson(Map<String, dynamic> json) =>
     LeaveSubmitData(
       days: (json['days'] as List<dynamic>)
-          .map((e) => Day.fromJson(e as Map<String, dynamic>))
+          .map((e) => LeaveDay.fromJson(e as Map<String, dynamic>))
           .toList(),
       leaveTypeId: json['leaveTypeId'] as String,
       teacherId: json['teacherId'] as String,
@@ -26,13 +26,13 @@ Map<String, dynamic> _$LeaveSubmitDataToJson(LeaveSubmitData instance) =>
       'delayReasonText': instance.delayReasonText,
     };
 
-Day _$DayFromJson(Map<String, dynamic> json) => Day(
+LeaveDay _$LeaveDayFromJson(Map<String, dynamic> json) => LeaveDay(
       day: json['day'] as String?,
       dayClass:
           (json['class'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
-Map<String, dynamic> _$DayToJson(Day instance) => <String, dynamic>{
+Map<String, dynamic> _$LeaveDayToJson(LeaveDay instance) => <String, dynamic>{
       'day': instance.day,
       'class': instance.dayClass,
     };

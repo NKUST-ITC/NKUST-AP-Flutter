@@ -1,13 +1,5 @@
-import 'package:ap_common/api/announcement_helper.dart';
-import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/pages/announcement/home_page.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_message_utils.dart';
-import 'package:ap_common_firebase/utils/firebase_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -51,10 +43,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     FirebaseMessagingUtils.instance.init(
       vapidKey: Constants.fcmWebVapidKey,
     );
-    themeMode =
-        ThemeMode.values[Preferences.getInt(Constants.prefThemeModeIndex, 0)];
-    FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
-    FirebaseAnalyticsUtils.instance
+    themeMode = ThemeMode.values[
+        PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
+    AnalyticsUtil.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
@@ -69,7 +61,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     setState(() {});
-    FirebaseAnalyticsUtils.instance.logThemeEvent(themeMode);
+    (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
     super.didChangePlatformBrightness();
   }
 
@@ -82,7 +74,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         child: MaterialApp(
           localeResolutionCallback:
               (Locale? locale, Iterable<Locale> supportedLocales) {
-            final String languageCode = Preferences.getString(
+            final String languageCode = PreferenceUtil.instance.getString(
               Constants.prefLanguageCode,
               ApSupportLanguageConstants.system,
             );
@@ -117,10 +109,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           darkTheme: ApTheme.dark,
           themeMode: themeMode,
           locale: locale,
-          navigatorObservers: <NavigatorObserver>[
-            if (FirebaseAnalyticsUtils.isSupported)
-              FirebaseAnalyticsObserver(analytics: analytics!),
-          ],
           localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
             apLocalizationsDelegate,
             appDelegate,

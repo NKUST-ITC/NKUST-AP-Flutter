@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
@@ -36,14 +36,14 @@ class LeaveData {
   }
 
   void save(String tag) {
-    Preferences.setString(
+    PreferenceUtil.instance.setString(
       '${Constants.prefLeaveData}_$tag',
       toRawJson(),
     );
   }
 
   static LeaveData? load(String tag) {
-    final String rawString = Preferences.getString(
+    final String rawString = PreferenceUtil.instance.getString(
       '${Constants.prefLeaveData}_$tag',
       '',
     );

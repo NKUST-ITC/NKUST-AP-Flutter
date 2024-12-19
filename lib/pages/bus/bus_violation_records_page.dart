@@ -1,9 +1,4 @@
-import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common_firebase/utils/firebase_analytics_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -77,7 +72,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
         return InkWell(
           onTap: () {
             getBusViolationRecords();
-            FirebaseAnalyticsUtils.instance.logEvent('retry_click');
+            AnalyticsUtil.instance.logEvent('retry_click');
           },
           child: HintContent(
             icon: ApIcon.assignment,
@@ -232,11 +227,11 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   data.hasBusViolationRecords;
             });
           }
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.canUseBus,
             AnalyticsConstants.yes,
           );
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
             (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
@@ -255,7 +250,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   } else {
                     state = _State.custom;
                     customStateHint = e.message;
-                    FirebaseAnalyticsUtils.instance.logApiEvent(
+                    AnalyticsUtil.instance.logApiEvent(
                       'getBusViolationRecords',
                       e.response!.statusCode!,
                       message: e.message ?? '',
@@ -264,7 +259,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 });
                 if (e.response!.statusCode == 401 ||
                     e.response!.statusCode == 403) {
-                  FirebaseAnalyticsUtils.instance.setUserProperty(
+                  AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
                   );

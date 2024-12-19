@@ -1,4 +1,4 @@
-import 'package:ap_common/utils/ap_localizations.dart';
+import 'package:intl/intl.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 //ignore_for_file: avoid_dynamic_calls
 

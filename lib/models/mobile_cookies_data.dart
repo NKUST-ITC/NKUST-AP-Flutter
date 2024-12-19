@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
 
@@ -34,19 +34,19 @@ class MobileCookiesData {
   String toRawJson() => jsonEncode(toJson());
 
   Future<void> save() async {
-    await Preferences.setStringSecurity(
+    await PreferenceUtil.instance.setStringSecurity(
       Constants.mobileCookiesData,
       toRawJson(),
     );
   }
 
   Future<void> clear() async {
-    await Preferences.remove(Constants.mobileCookiesData);
+    await PreferenceUtil.instance.remove(Constants.mobileCookiesData);
   }
 
   static MobileCookiesData? load() {
-    final String str =
-        Preferences.getStringSecurity(Constants.mobileCookiesData, '');
+    final String str = PreferenceUtil.instance
+        .getStringSecurity(Constants.mobileCookiesData, '');
     return str.isEmpty ? null : MobileCookiesData.fromRawJson(str);
   }
 }

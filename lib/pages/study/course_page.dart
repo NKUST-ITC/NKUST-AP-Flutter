@@ -1,9 +1,4 @@
-import 'package:ap_common/config/ap_constants.dart';
-import 'package:ap_common/models/course_notify_data.dart';
-import 'package:ap_common/models/semester_data.dart';
-import 'package:ap_common/scaffold/course_scaffold.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -32,15 +27,14 @@ class CoursePageState extends State<CoursePage> {
 
   String? customStateHint = '';
 
-  String get courseNotifyCacheKey => Preferences.getString(
+  String get courseNotifyCacheKey => PreferenceUtil.instance.getString(
         ApConstants.currentSemesterCode,
         ApConstants.semesterLatest,
       );
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
-        .setCurrentScreen('CoursePage', 'course_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('CoursePage', 'course_page.dart');
     super.initState();
   }
 
@@ -74,14 +68,15 @@ class CoursePageState extends State<CoursePage> {
           semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           _loadCacheData(semester.code);
-          if (!Preferences.getBool(Constants.prefIsOfflineLogin, false)) {
+          if (!PreferenceUtil.instance
+              .getBool(Constants.prefIsOfflineLogin, false)) {
             _getCourseTables();
           }
         },
       ),
       onRefresh: () async {
         await _getCourseTables();
-        FirebaseAnalyticsUtils.instance.logEvent('refresh_swipe');
+        AnalyticsUtil.instance.logEvent('refresh_swipe');
         return null;
       },
       onSearchButtonClick: () {
@@ -140,7 +135,7 @@ class CoursePageState extends State<CoursePage> {
             });
           }
           if (e.hasResponse) {
-            FirebaseAnalyticsUtils.instance.logApiEvent(
+            AnalyticsUtil.instance.logApiEvent(
               'getCourseTables',
               e.response!.statusCode!,
               message: e.message ?? '',

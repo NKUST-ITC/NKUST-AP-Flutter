@@ -1,13 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/dialog_option.dart';
-import 'package:ap_common/widgets/hint_content.dart';
-import 'package:ap_common_firebase/utils/firebase_remote_config_utils.dart';
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -38,7 +33,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
   @override
   void initState() {
     getTeacherData();
-    FirebaseAnalyticsUtils.instance.setCurrentScreen(
+    AnalyticsUtil.instance.setCurrentScreen(
       'PickTutorPage',
       'pick_tutor_page.dart',
     );
@@ -190,12 +185,12 @@ class _PickTutorPageState extends State<PickTutorPage> {
       await remoteConfig.fetchAndActivate();
     }
     if (remoteConfig != null) {
-      Preferences.setString(
+      PreferenceUtil.instance.setString(
         Constants.leaveCampusData,
         remoteConfig.getString(Constants.leaveCampusData),
       );
     }
-    text = Preferences.getString(Constants.leaveCampusData, '');
+    text = PreferenceUtil.instance.getString(Constants.leaveCampusData, '');
     if (text == '') {
       text = await rootBundle.loadString(FileAssets.leaveCampusData);
     }

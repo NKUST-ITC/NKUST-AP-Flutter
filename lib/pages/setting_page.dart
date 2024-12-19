@@ -1,14 +1,9 @@
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/analytics_utils.dart';
-import 'package:ap_common/utils/ap_localizations.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/preferences.dart';
-import 'package:ap_common/widgets/progress_dialog.dart';
-import 'package:ap_common/widgets/setting_page_widgets.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 class SettingPage extends StatefulWidget {
   static const String routerName = '/setting';
@@ -32,8 +27,7 @@ class SettingPageState extends State<SettingPage> {
 
   @override
   void initState() {
-    FirebaseAnalyticsUtils.instance
-        .setCurrentScreen('SettingPage', 'setting_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('SettingPage', 'setting_page.dart');
     _getPreference();
     if (DateTime.now().millisecondsSinceEpoch % 5 == 0) {
       ApUtils.showAppReviewDialog(context, Constants.playStoreUrl);
@@ -67,7 +61,7 @@ class SettingPageState extends State<SettingPage> {
               subText: AppLocalizations.of(context).busNotifySubTitle,
               value: busNotify,
               onChanged: (bool b) async {
-                FirebaseAnalyticsUtils.instance.logEvent('notify_bus_create');
+                AnalyticsUtil.instance.logEvent('notify_bus_create');
                 setState(() {
                   busNotify = !busNotify;
                 });
@@ -76,8 +70,9 @@ class SettingPageState extends State<SettingPage> {
                 } else {
                   await Utils.cancelBusNotify();
                 }
-                Preferences.setBool(Constants.prefBusNotify, busNotify);
-                FirebaseAnalyticsUtils.instance.logEvent('notify_bus_click');
+                PreferenceUtil.instance
+                    .setBool(Constants.prefBusNotify, busNotify);
+                AnalyticsUtil.instance.logEvent('notify_bus_click');
               },
             ),
             const Divider(
@@ -93,11 +88,11 @@ class SettingPageState extends State<SettingPage> {
                 setState(() {
                   displayPicture = !displayPicture;
                 });
-                Preferences.setBool(
+                PreferenceUtil.instance.setBool(
                   Constants.prefDisplayPicture,
                   displayPicture,
                 );
-                FirebaseAnalyticsUtils.instance.logEvent('head_photo_click');
+                AnalyticsUtil.instance.logEvent('head_photo_click');
               },
             ),
             ChangeLanguageItem(
@@ -125,14 +120,14 @@ class SettingPageState extends State<SettingPage> {
               subText: ap.feedbackViaFacebook,
               onTap: () {
                 ApUtils.launchFbFansPage(context, Constants.fansPageId);
-                AnalyticsUtils.instance?.logEvent('feedback_click');
+                AnalyticsUtil.instance.logEvent('feedback_click');
               },
             ),
             SettingItem(
               text: ap.appVersion,
               subText: 'v$appVersion',
               onTap: () {
-                AnalyticsUtils.instance?.logEvent('app_version_click');
+                AnalyticsUtil.instance.logEvent('app_version_click');
               },
             ),
           ],
@@ -144,11 +139,15 @@ class SettingPageState extends State<SettingPage> {
   Future<void> _getPreference() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      isOffline = Preferences.getBool(Constants.prefIsOfflineLogin, false);
+      isOffline =
+          PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false);
       appVersion = packageInfo.version;
-      courseNotify = Preferences.getBool(Constants.prefCourseNotify, false);
-      displayPicture = Preferences.getBool(Constants.prefDisplayPicture, true);
-      busNotify = Preferences.getBool(Constants.prefBusNotify, false);
+      courseNotify =
+          PreferenceUtil.instance.getBool(Constants.prefCourseNotify, false);
+      displayPicture =
+          PreferenceUtil.instance.getBool(Constants.prefDisplayPicture, true);
+      busNotify =
+          PreferenceUtil.instance.getBool(Constants.prefBusNotify, false);
     });
   }
 
@@ -164,13 +163,14 @@ class SettingPageState extends State<SettingPage> {
       Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() => busNotify = false);
-        ApUtils.showToast(context, ap.noOfflineData);
+        UiUtil.instance.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
         if (!context.mounted) return;
-        ApUtils.showToast(context, AppLocalizations.of(context).busNotifyHint);
+        UiUtil.instance
+            .showToast(context, AppLocalizations.of(context).busNotifyHint);
       }
-      Preferences.setBool(Constants.prefBusNotify, busNotify);
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
     }
     Helper.instance.getBusReservations(
@@ -180,46 +180,51 @@ class SettingPageState extends State<SettingPage> {
           if (data.reservations.isEmpty) {
             await Utils.setBusNotify(context, data.reservations);
             if (!context.mounted) return;
-            ApUtils.showToast(
+            UiUtil.instance.showToast(
               context,
               AppLocalizations.of(context).busNotifyHint,
             );
           } else {
-            ApUtils.showToast(
+            UiUtil.instance.showToast(
               context,
               AppLocalizations.of(context).busReservationEmpty,
             );
           }
-          Preferences.setBool(Constants.prefBusNotify, busNotify);
+          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
         },
         onFailure: (DioException e) {
           Navigator.of(context, rootNavigator: true).pop();
           setState(() => busNotify = false);
-          Preferences.setBool(Constants.prefBusNotify, busNotify);
+          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
           if (e.hasResponse) {
             if (e.response!.statusCode == 401) {
-              ApUtils.showToast(context, ap.userNotSupport);
+              UiUtil.instance.showToast(context, ap.userNotSupport);
             } else if (e.response!.statusCode == 403) {
-              ApUtils.showToast(context, ap.campusNotSupport);
+              UiUtil.instance.showToast(context, ap.campusNotSupport);
             } else {
-              ApUtils.showToast(context, e.message);
-              FirebaseAnalyticsUtils.instance.logApiEvent(
-                'getBusReservations',
-                e.response!.statusCode!,
-                message: e.message ?? '',
-              );
+              if (e.message != null) {
+                UiUtil.instance.showToast(context, e.message!);
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusReservations',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
+              }
             }
           } else if (e.type == DioExceptionType.unknown) {
-            ApUtils.showToast(context, ap.busFailInfinity);
+            UiUtil.instance.showToast(context, ap.busFailInfinity);
           } else {
-            ApUtils.showToast(context, e.i18nMessage);
+            if (e.i18nMessage != null) {
+              UiUtil.instance.showToast(context, e.i18nMessage!);
+            }
           }
         },
         onError: (GeneralResponse response) {
           Navigator.of(context, rootNavigator: true).pop();
           setState(() => busNotify = false);
-          Preferences.setBool(Constants.prefBusNotify, busNotify);
-          ApUtils.showToast(context, response.getGeneralMessage(context));
+          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+          UiUtil.instance
+              .showToast(context, response.getGeneralMessage(context));
         },
       ),
     );

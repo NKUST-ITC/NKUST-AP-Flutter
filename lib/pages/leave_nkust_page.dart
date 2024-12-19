@@ -1,8 +1,6 @@
 import 'dart:developer';
 
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/utils/dialog_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -73,7 +71,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
-          ApUtils.showToast(context, app.mobileNkustLoginHint);
+          UiUtil.instance.showToast(context, app.mobileNkustLoginHint);
         },
         onJsPrompt: (
           InAppWebViewController controller,

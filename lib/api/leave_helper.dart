@@ -1,15 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/models/private_cookies_manager.dart';
-import 'package:ap_common/utils/ap_utils.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
-import 'package:intl/intl.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -132,11 +130,11 @@ class LeaveHelper {
     //   final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
     //   if (isCookieAlive) {
     //     final now = DateTime.now();
-    //     final lastTime = Preferences.getInt(
+    //     final lastTime = PreferenceUtil.instance.getInt(
     //       Constants.MOBILE_COOKIES_LAST_TIME,
     //       now.microsecondsSinceEpoch,
     //     );
-    //     FirebaseAnalyticsUtils.analytics.logEvent(
+    //     AnalyticsUtil.analytics.logEvent(
     //       name: 'cookies_persistence_time',
     //       parameters: {
     //         'time': now.microsecondsSinceEpoch - lastTime,

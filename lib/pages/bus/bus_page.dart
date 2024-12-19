@@ -1,9 +1,4 @@
-import 'package:ap_common/config/analytics_constants.dart';
-import 'package:ap_common/l10n/l10n.dart';
-import 'package:ap_common/resources/ap_icon.dart';
-import 'package:ap_common/resources/ap_theme.dart';
-import 'package:ap_common/utils/ap_utils.dart';
-import 'package:ap_common/widgets/hint_content.dart';
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
@@ -161,11 +156,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                   data.hasBusViolationRecords;
             });
           }
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.canUseBus,
             AnalyticsConstants.yes,
           );
-          FirebaseAnalyticsUtils.instance.setUserProperty(
+          AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
             (data.hasBusViolationRecords)
                 ? AnalyticsConstants.yes
@@ -177,7 +172,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           if (e.hasResponse &&
               (e.response!.statusCode == 401 ||
                   e.response!.statusCode == 403)) {
-            FirebaseAnalyticsUtils.instance.setUserProperty(
+            AnalyticsUtil.instance.setUserProperty(
               Constants.canUseBus,
               AnalyticsConstants.no,
             );
