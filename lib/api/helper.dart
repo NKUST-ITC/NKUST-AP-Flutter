@@ -122,7 +122,6 @@ class Helper {
               password: password,
             );
           }
-          break;
       }
       expireTime = loginResponse.expireTime;
       callback.onSuccess(loginResponse);
@@ -281,7 +280,6 @@ class Helper {
         case webap:
         default:
           data = await WebApHelper.instance.userInfoCrawler();
-          break;
       }
       reLoginCount = 0;
       if (data.id.isEmpty) {
@@ -330,7 +328,6 @@ class Helper {
         case webap:
         default:
           data = await WebApHelper.instance.semesters();
-          break;
       }
       reLoginCount = 0;
       return (callback == null)
@@ -369,7 +366,6 @@ class Helper {
             semester.year,
             semester.value,
           );
-          break;
       }
       if (data != null && data.scores.isEmpty) data = null;
       return (callback == null) ? data : callback.onSuccess(data) as ScoreData?;
@@ -405,7 +401,6 @@ class Helper {
             year: semester.year,
             semester: semester.value,
           );
-          break;
       }
       if (data.courses.isNotEmpty) {
         reLoginCount = 0;
@@ -895,7 +890,6 @@ extension GeneralResponseExtension on GeneralResponse {
         message = ap.platformError;
       default:
         message = ap.unknownError;
-        break;
     }
     AnalyticsUtil.instance.logApiEvent(
       'GeneralResponse',

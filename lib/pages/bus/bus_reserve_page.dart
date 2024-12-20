@@ -386,7 +386,6 @@ class BusReservePageState extends State<BusReservePage>
                   state = _State.custom;
                   customStateHint = e.i18nMessage;
                 });
-                break;
             }
           }
         },
@@ -667,7 +666,6 @@ class BusReservePageState extends State<BusReservePage>
         break;
       default:
         message = e.i18nMessage;
-        break;
     }
     if (message != null) {
       DialogUtils.showDefault(

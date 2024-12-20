@@ -280,7 +280,6 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                   state = _State.custom;
                   customStateHint = e.i18nMessage;
                 });
-                break;
             }
           }
         },
