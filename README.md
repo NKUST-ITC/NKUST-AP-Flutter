@@ -6,7 +6,7 @@
 <a href='https://snapcraft.io/nkust-ap'><img alt='Get it on the App Store' src='screenshots/snap_store.png' height='48px'/></a>
 # 高科校務通(NKUST AP)
 
-高雄科技大學校務系統App，使用由Goolge開發的UI框架[Flutter](https://flutter.dev/)開發
+高雄科技大學校務系統 App，使用由 Google 開發的 UI 框架[Flutter](https://flutter.dev/)開發
 
 # 支援平台
 
@@ -16,6 +16,16 @@
 - [X] [Windows(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/v3.8.5/nkust_ap_windows.zip)
 - [X] [MacOS(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://itunes.apple.com/us/app/id1439751462)
 - [X] [Linux(目前無法使用因為目前 TFLite 套件不支援 桌面版)](https://snapcraft.io/nkust-ap)
+
+# 維護團隊
+
+高科校務通為校務通起源，目的為讓高科學生更方便的存取學校系統。目前為版本三，由 Flutter 做開發。後續衍伸出許多校務通系列，又因套件獨立而產生AP Common，讓校務通開發更加統一與高效。  
+目前由校務通團隊做維護，App 商店託管由 [OCF 財團法人開放文化基金會](https://ocf.tw)管理。
+
+v1 & v2 開發人員：呂紹榕（Louie Lu），姜尚德（JohnThunder），registerAutumn，詹濬鍵（Evans），陳建霖（HearSilent），陳冠蓁，徐羽柔
+v3 開發人員：房志剛（Rainvisitor），林義翔（takidog）林鈺軒（Lin YuHsuan），周鈺禮（Gary）
+
+OCF 由多個台灣開源社群共同發起，在開放源碼、開放資料、開放政府等領域，提供社群支援、組織合作、海外交流、顧問諮詢等服務。期待以法人組織的力量激起開放協作的火花。
 
 ### Web 版本自7月起因為學校阻擋高請求IP，改為客戶端爬蟲，因此暫時無法使用
 
