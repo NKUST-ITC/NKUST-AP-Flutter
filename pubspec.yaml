@@ -18,7 +18,7 @@ dependencies:
 
   ap_common: ^0.26.0-dev.4
   ap_common_firebase: ^0.17.0-dev.3
-  ap_common_plugin: ^0.4.1
+  ap_common_plugin: ^0.5.0-dev.3
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
@@ -64,6 +64,7 @@ dependency_overrides:
   web: ^1.0.0
   # Workaround to fix build android issue
   flutter_inappwebview_android: 1.0.13
+  google_sign_in_android: ^6.1.34
 
 flutter:
 
