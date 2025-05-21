@@ -84,7 +84,6 @@ class HomePageState extends State<HomePage> {
       case Brightness.light:
         return ImageAssets.drawerIconLight;
       case Brightness.dark:
-      default:
         return ImageAssets.drawerIconDark;
     }
   }
@@ -665,7 +664,6 @@ class HomePageState extends State<HomePage> {
                 message = ap.loginFail;
               default:
                 message = ap.somethingError;
-                break;
             }
             _homeKey.currentState!.showSnackBar(
               text: message,

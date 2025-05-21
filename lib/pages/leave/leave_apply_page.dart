@@ -575,7 +575,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   state = _State.custom;
                   customStateHint = e.i18nMessage;
                 });
-                break;
             }
           }
           AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
@@ -598,7 +597,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             DateTime.now().add(
               const Duration(days: 7),
             ),
-          )) isDelay = true;
+          )) {
+        isDelay = true;
+      }
     }
     if (isDelay) {
       UiUtil.instance.showToast(context, ap.leaveDelayHint);
@@ -781,7 +782,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               break;
             default:
               text = e.i18nMessage;
-              break;
           }
           if (text != null) {
             DialogUtils.showDefault(

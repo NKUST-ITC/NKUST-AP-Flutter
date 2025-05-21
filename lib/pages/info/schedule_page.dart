@@ -91,7 +91,6 @@ class SchedulePageState extends State<SchedulePage>
           onRefresh: _getSchedules,
         );
       case _State.finish:
-      default:
         return CustomScrollView(
           slivers: <Widget>[
             for (final ScheduleData value in scheduleDataList)
