@@ -12,7 +12,7 @@ on:
       - master
 
 env:
-  flutter_version: '3.27.x'
+  flutter_version: '3.29.x'
   java_version: '17'
 
 jobs:
