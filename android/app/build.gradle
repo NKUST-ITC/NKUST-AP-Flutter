@@ -10,17 +10,17 @@ plugins {
 android {
     namespace = "com.nkust.ap.flutter"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion "25.1.8937393"
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        // Flag to enable support for the new language APIs `flutter_local_notification` required
+        // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_21
-        targetCompatibility JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_21
+        jvmTarget = JavaVersion.VERSION_1_8
     }
 
     defaultConfig {
