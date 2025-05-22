@@ -18,19 +18,19 @@ dependencies:
 
   ap_common: ^0.26.0-dev.4
   ap_common_firebase: ^0.17.0-dev.3
-  ap_common_plugin: ^0.5.0-dev.3
+  ap_common_plugin: ^0.5.0-dev.4
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
   http_parser: ^4.0.0
   #third party plugin
-  dio: ^5.3.3
+  dio: ^5.8.0+1
   dio_http_cache:
     git:
       url: https://github.com/NKUST-ITC/dio-http-cache
       ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
   dio_cookie_manager: ^3.0.0
-  native_dio_adapter: ^1.0.0+2
+  native_dio_adapter: ^1.4.0
   cookie_jar: ^4.0.0
   crypto: ^3.0.2
   encrypt: ^5.0.1
