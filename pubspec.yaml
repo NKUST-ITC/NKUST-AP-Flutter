@@ -62,9 +62,6 @@ dependency_overrides:
 #    path: ../../GitHub/ap_common_plugin
   http: ^1.0.0
   web: ^1.0.0
-  # Workaround to fix build android issue
-  flutter_inappwebview_android: 1.0.13
-  google_sign_in_android: ^6.1.34
 
 flutter:
 
