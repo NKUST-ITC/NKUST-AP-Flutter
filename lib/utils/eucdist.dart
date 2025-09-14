@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart';
 
 class SegmentationException implements Exception {
@@ -40,8 +43,8 @@ final List<Future<Matrix<int>>> _referenceImages =
 ) async {
   final String char = _characters[index];
   final String path = 'assets/eucdist/$char.bmp';
-  final Matrix<int> img = await readImage(path);
-  return img;
+  final Image img = await readImage(path);
+  return imageToMatrix(img);
 });
 
 /// Calculate the Euclidean distance between two gray-scale images.
@@ -161,16 +164,14 @@ extension MatrixIntExtensions on Matrix<int> {
 /// Read an image from the given path.
 /// Throws [PathNotFoundException] if the file is not found.
 /// Throws [Exception] if there is an error reading the image.
-Future<Matrix<int>> readImage(String path) async {
-  Image? image;
-
-  image = await decodeBmpFile(path);
-
-  if (image == null) {
-    throw Exception('Error reading image from $path');
+Future<Image> readImage(String path) async {
+  final ByteData byteData = await rootBundle.load(path);
+  final Uint8List bytes = byteData.buffer.asUint8List();
+  final Image? img = decodeBmp(bytes);
+  if (img == null) {
+    throw Exception('Failed to decode image: $path');
   }
-
-  return imageToMatrix(image);
+  return img;
 }
 
 Matrix<int> imageToMatrix(Image image) {
