@@ -122,7 +122,7 @@ class WebApHelper {
     */
     //
     for (int i = 0; i < 5; i++) {
-      final String captchaCode = await CaptchaUtils.extractByTfLite(
+      final String captchaCode = await CaptchaUtils.extractByEucDist(
         bodyBytes: (await getValidationImage())!,
       );
 
