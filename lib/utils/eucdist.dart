@@ -293,14 +293,13 @@ List<Matrix<int>?> cropImage(
 ///
 /// Parameters:
 /// - [a]: A 2D binary matrix.
-/// - [structure]: A 2D binary matrix defining the connectivity. defaults to 4-connectivity.
+/// - [structure]: A 2D matrix defining the connectivity. If null, defaults to 4-connectivity.
 /// - [background]: The pixel value representing the background. Defaults to 0.
 ///
 /// Returns:
-/// - A record containing:
-///   - The labeled image as a matrix of integers, where each connected component is assigned a
-///    unique integer label starting from 1. Background pixels are labeled with 0.
-///   - The number of connected components found in the image.
+/// A tuple containing:
+/// - A 2D matrix with labeled connected components.
+/// - The number of connected components found.
 (Matrix<int>, int) label(
   Matrix<int> a, {
   Matrix<int>? structure,
