@@ -25,8 +25,8 @@ Future<String> solveByEucDist(Image image) async {
 
   final StringBuffer results = StringBuffer();
   for (final Matrix<int>? charImg in characters) {
-    results.write(await getCharacter(
-        charImg!)); // null is placeholder, should be non-null
+    // null is never happened because numLabels == 4
+    results.write(await getCharacter(charImg!));
   }
   return results.toString();
 }

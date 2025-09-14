@@ -20,8 +20,7 @@ class CaptchaUtils {
         'tmp.jpg',
       );
       await File(imagePath).writeAsBytes(bodyBytes);
-      DateTime start = DateTime.now();
-      DateTime end = DateTime.now();
+      final DateTime start = DateTime.now();
       final img.Image source =
           img.decodeImage(File(imagePath).readAsBytesSync())!;
       
@@ -29,7 +28,7 @@ class CaptchaUtils {
       final String result = await eucdist.solveByEucDist(source);
 
 
-      end = DateTime.now();
+      final DateTime end = DateTime.now();
       final int processTime =
           end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       log('process time = $processTime ms');
