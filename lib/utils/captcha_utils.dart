@@ -23,10 +23,8 @@ class CaptchaUtils {
       final DateTime start = DateTime.now();
       final img.Image source =
           img.decodeImage(File(imagePath).readAsBytesSync())!;
-      
 
       final String result = await eucdist.solveByEucDist(source);
-
 
       final DateTime end = DateTime.now();
       final int processTime =
