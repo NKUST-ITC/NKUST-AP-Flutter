@@ -9,33 +9,34 @@ class SegmentationException implements Exception {
 }
 
 Future<String> solveByEucDist(Image image) async {
-  final img = imageToMatrix(image);
+  final Matrix<int> img = imageToMatrix(image);
 
-  final binaryImg = binaryThreshold(img, 138);
+  final Matrix<int> binaryImg = binaryThreshold(img, 138);
   final (Matrix<int> labeledImg, int numLabels) = label(binaryImg);
 
   if (numLabels != 4) {
     throw SegmentationException('connected components != 4, found: $numLabels');
   }
 
-  final characters = cropImage(labeledImg, numLabels);
-  
-  String results = '';
-  for (final charImg in characters) {
-    results += await getCharacter(charImg);
+  final List<Matrix<int>?> characters = cropImage(labeledImg, numLabels);
+
+  final StringBuffer results = StringBuffer();
+  for (final Matrix<int>? charImg in characters) {
+    results.write(await getCharacter(charImg!));  // null is placeholder, should be non-null
   }
-  return results;
+  return results.toString();
 }
 
 const String _characters = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /// Load reference images from the assets directory.
-final List<Future<Matrix<int>>> _referenceImages = List<Future<Matrix<int>>>.generate(_characters.length, (
+final List<Future<Matrix<int>>> _referenceImages =
+    List<Future<Matrix<int>>>.generate(_characters.length, (
   int index,
 ) async {
-  String char = _characters[index];
-  String path = 'assets/eucdist/$char.bmp';
-  Matrix<int> img = await readImage(path);
+  final String char = _characters[index];
+  final String path = 'assets/eucdist/$char.bmp';
+  final Matrix<int> img = await readImage(path);
   return img;
 });
 
@@ -48,8 +49,7 @@ num eucDist(Matrix<int> a, Matrix<int> b) {
   num sum = 0;
   for (int y = 0; y < a.height; y++) {
     for (int x = 0; x < a.width; x++) {
-      num diff =
-         a.get(x, y) - b.get(x, y); // Assuming grayscale images
+      final num diff = a.get(x, y) - b.get(x, y); // Assuming grayscale images
       sum += diff * diff;
     }
   }
@@ -61,14 +61,15 @@ num eucDist(Matrix<int> a, Matrix<int> b) {
 /// The image should be a preprocessed, cropped character gray-scale image.
 Future<String> getCharacter(Matrix<int> img) async {
   // Compute distances to reference images
-  List<Future<num>> distances = _referenceImages
+  final List<Future<num>> distances = _referenceImages
       .map((Future<Matrix<int>> ref) async => eucDist(img, await ref))
       .toList();
 
   // Wait for all distances to be computed
-  List<num> resolvedDistances = await Future.wait(distances);
+  final List<num> resolvedDistances = await Future.wait(distances);
   // Find the index of the minimum distance
-  int index = resolvedDistances.indexOf(resolvedDistances.reduce((num a, num b) => a < b ? a : b));
+  final int index = resolvedDistances
+      .indexOf(resolvedDistances.reduce((num a, num b) => a < b ? a : b));
 
   return _characters[index];
 }
@@ -77,7 +78,8 @@ class Matrix<T> {
   final List<List<T>> _data;
 
   Matrix(this._data) {
-    if (_data.isEmpty || _data.any((List<T> row) => row.length != _data[0].length)) {
+    if (_data.isEmpty ||
+        _data.any((List<T> row) => row.length != _data[0].length)) {
       throw ArgumentError(
         'All rows must have the same length and matrix cannot be empty.',
       );
@@ -86,11 +88,15 @@ class Matrix<T> {
 
   // 2D constructor
   Matrix.fromDimensions(int width, int height, T initialValue)
-    : _data = List.generate(height, (_) => List.filled(width, initialValue));
+      : _data = List<List<T>>.generate(
+          height,
+          (_) => List<T>.filled(width, initialValue),
+        );
 
   // Construct from 2D list
   Matrix.fromList(List<List<T>> data) : _data = data {
-    if (data.isEmpty || data.any((List<T> row) => row.length != data[0].length)) {
+    if (data.isEmpty ||
+        data.any((List<T> row) => row.length != data[0].length)) {
       throw ArgumentError(
         'All rows must have the same length and matrix cannot be empty.',
       );
@@ -105,12 +111,13 @@ class Matrix<T> {
     _data[y][x] = value;
   }
 
-  Matrix clone() {
-    return Matrix(_data.map((List<T> row) => List<T>.from(row)).toList());
+  Matrix<T> clone() {
+    return Matrix<T>(_data.map((List<T> row) => List<T>.from(row)).toList());
   }
 
   Matrix<bool> notEqualMask(T value) {
-    Matrix<bool> result = Matrix<bool>.fromDimensions(width, height, false);
+    final Matrix<bool> result =
+        Matrix<bool>.fromDimensions(width, height, false);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         result.set(x, y, _data[y][x] != value);
@@ -128,8 +135,8 @@ class Matrix<T> {
 extension MatrixIntExtensions on Matrix<int> {
   int max() {
     int maxValue = _data[0][0];
-    for (List<int> row in _data) {
-      for (int value in row) {
+    for (final List<int> row in _data) {
+      for (final int value in row) {
         if (value > maxValue) {
           maxValue = value;
         }
@@ -140,20 +147,150 @@ extension MatrixIntExtensions on Matrix<int> {
 
   List<int> unique() {
     final Set<int> values = <int>{};
-    for (List<int> row in _data) {
+    for (final List<int> row in _data) {
       values.addAll(row);
     }
     return values.toList();
   }
 }
 
+/// Read an image from the given path.
+/// Throws [PathNotFoundException] if the file is not found.
+/// Throws [Exception] if there is an error reading the image.
+Future<Matrix<int>> readImage(String path) async {
+  Image? image;
+
+  image = await decodeBmpFile(path);
+
+  if (image == null) {
+    throw Exception('Error reading image from $path');
+  }
+
+  return imageToMatrix(image);
+}
+
+Matrix<int> imageToMatrix(Image image) {
+  final int width = image.width;
+  final int height = image.height;
+
+  return Matrix<int>.fromList(
+    List<List<int>>.generate(
+      height,
+      (int y) => List<int>.generate(
+        width,
+        (int x) => getLuminance(image.getPixel(x, y)).toInt(),
+      ),
+    ),
+  );
+}
+
+Matrix<int> binaryThreshold(Matrix<int> image, int threshold) {
+  final Matrix<int> result =
+      Matrix<int>.fromDimensions(image.width, image.height, 0);
+  for (int y = 0; y < image.height; y++) {
+    for (int x = 0; x < image.width; x++) {
+      result.set(x, y, image.get(x, y) < threshold ? 255 : 0);
+    }
+  }
+  return result;
+}
+
+Matrix<int> _cropAndPad(
+  Matrix<int> labeledImage,
+  int x,
+  int y,
+  int width,
+  int height,
+) {
+  final Matrix<int> result = Matrix<int>.fromDimensions(width, height, 0);
+
+  // Crop the image
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      result.set(i, j, labeledImage.get(x + i, y + j));
+    }
+  }
+
+  /// Add padding to make it square
+  /// The final size is 22x22
+  assert(width > 0 && height > 0 && width <= 22 && height <= 22);
+
+  final Matrix<int> canvas = Matrix<int>.fromDimensions(22, 22, 0);
+  final int offsetX = (22 - width) ~/ 2;
+  final int offsetY = (22 - height) ~/ 2;
+  for (int j = 0; j < height; j++) {
+    for (int i = 0; i < width; i++) {
+      canvas.set(offsetX + i, offsetY + j, result.get(i, j) > 0 ? 255 : 0);
+    }
+  }
+
+  return canvas;
+}
+
+List<Matrix<int>?> cropImage(
+  Matrix<int> labeledImage,
+  int labelCount, {
+  int bgColor = 0,
+}) {
+  final Map<int, (int, int, int, int)> bboxes =
+      <int, (int, int, int, int)>{}; // label -> (minX, minY, maxX, maxY)
+  for (int label = 1; label <= labelCount; label++) {
+    int minX = labeledImage.width;
+    int minY = labeledImage.height;
+    int maxX = 0;
+    int maxY = 0;
+
+    for (int y = 0; y < labeledImage.height; y++) {
+      for (int x = 0; x < labeledImage.width; x++) {
+        if (labeledImage.get(x, y) == label) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+
+    // filter out too small boxes
+    if (maxX - minX < 5 || maxY - minY < 5) continue;
+    bboxes[label] = (minX, minY, maxX, maxY);
+  }
+
+  // Sort bounding boxes by x coordinate
+  final List<MapEntry<int, (int, int, int, int)>> sortedBboxes =
+      bboxes.entries.toList()
+        ..sort(
+          (
+            MapEntry<int, (int, int, int, int)> a,
+            MapEntry<int, (int, int, int, int)> b,
+          ) =>
+              a.value.$1.compareTo(b.value.$1),
+        );
+
+  // Crop characters
+  // Use fixed length list to avoid dynamic resizing, length should be 4
+  final List<Matrix<int>?> result = List<Matrix<int>?>.filled(4, null);
+  int index = 0;
+  for (final MapEntry<int, (int, int, int, int)> bbox in sortedBboxes) {
+    final (int minX, int minY, int maxX, int maxY) = bbox.value;
+    final Matrix<int> cropped = _cropAndPad(
+      labeledImage,
+      minX,
+      minY,
+      maxX - minX + 1,
+      maxY - minY + 1,
+    );
+    result[index++] = cropped;
+  }
+  return result;
+}
 
 /// Connected-component labeling
 /// Labels the connected components of a binary image.
 ///
 /// Parameters:
-/// - [a]: A 2D binary matrix where non-background pixels are considered foreground.
-/// - [structure]: A 2D binary matrix defining the connectivity. If null, defaults to 4-connectivity.
+/// - [a]: A 2D binary matrix.
+/// - [structure]: A 2D binary matrix defining the connectivity. defaults to 4-connectivity.
 /// - [background]: The pixel value representing the background. Defaults to 0.
 ///
 /// Returns:
@@ -163,7 +300,7 @@ extension MatrixIntExtensions on Matrix<int> {
 ///   - The number of connected components found in the image.
 (Matrix<int>, int) label(
   Matrix<int> a, {
-  Matrix? structure,
+  Matrix<int>? structure,
   int? background = 0,
 }) {
   // Validate input image
@@ -175,13 +312,14 @@ extension MatrixIntExtensions on Matrix<int> {
 
   // Construct footprint
   // Default to 4-connectivity
-  structure ??= Matrix.fromList(<List>[
-    <dynamic>[0, 1, 0],
-    <dynamic>[1, 1, 1],
-    <dynamic>[0, 1, 0],
+  structure ??= Matrix<int>.fromList(<List<int>>[
+    <int>[0, 1, 0],
+    <int>[1, 1, 1],
+    <int>[0, 1, 0],
   ]);
 
-  final List<List<int>> neighborOffsets = _computeCausalNeighborOffsets(structure);
+  final List<List<int>> neighborOffsets =
+      _computeCausalNeighborOffsets(structure);
 
   final Matrix<int> labels = Matrix<int>.fromDimensions(a.width, a.height, 0);
 
@@ -202,10 +340,11 @@ extension MatrixIntExtensions on Matrix<int> {
       root = parent[root];
     }
 
-    while (parent[x] != x) {
-      final int next = parent[x];
-      parent[x] = root;
-      x = next;
+    int curr = x;
+    while (parent[curr] != curr) {
+      final int next = parent[curr];
+      parent[curr] = root;
+      curr = next;
     }
     return root;
   }
@@ -251,7 +390,8 @@ extension MatrixIntExtensions on Matrix<int> {
         labels.set(x, y, newLabel);
       } else {
         // Assign the smallest label among neighbors
-        final int minLabel = neighborLabels.reduce((int a, int b) => a < b ? a : b);
+        final int minLabel =
+            neighborLabels.reduce((int a, int b) => a < b ? a : b);
         labels.set(x, y, minLabel);
 
         // Union all neighbor labels
