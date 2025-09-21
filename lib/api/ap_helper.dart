@@ -445,7 +445,7 @@ class WebApHelper {
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
 
-    Response<String> res = await dio.post<String>(
+    final Response<String> res = await dio.post<String>(
       'https://webap.nkust.edu.tw/nkust/fnc.jsp',
       data: <String, String>{'fncid': 'AG225'},
       options: Options(contentType: 'application/x-www-form-urlencoded'),
@@ -454,15 +454,18 @@ class WebApHelper {
     final Map<String, dynamic> requestData =
         WebApParser.instance.enrollmentRequestParser(res.data);
 
-    final action = (requestData['action'] as String).replaceAll('ag_pro/', '').replaceAll('.jsp', '');
-    final params = requestData['params'] as Map<String, String>;
+    final String action = (requestData['action'] as String)
+        .replaceAll('ag_pro/', '')
+        .replaceAll('.jsp', '');
+    final Map<String, String> params =
+        requestData['params'] as Map<String, String>;
 
     final Response<dynamic> query = await apQuery(
       action,
       params,
     );
 
-    final pdfPath =
+    final String? pdfPath =
         WebApParser.instance.enrollmentLetterPathParser(query.data as String);
 
     if (pdfPath == null || pdfPath.isEmpty) {

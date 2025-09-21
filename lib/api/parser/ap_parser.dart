@@ -758,12 +758,12 @@ class WebApParser {
 
   Map<String, dynamic> enrollmentRequestParser(String? html) {
     if (html == null || html.isEmpty) {
-      return {};
+      return <String, dynamic>{};
     }
 
-    final document = parse(html);
+    final Document document = parse(html);
 
-    final form = document.querySelector('form');
+    final Element? form = document.querySelector('form');
     String action = '';
     if (form != null) {
       action = form.attributes['action'] ?? '';
@@ -772,18 +772,19 @@ class WebApParser {
       }
     }
 
-    final inputs = document.querySelectorAll('input[type=hidden]');
-    Map<String, String> params = {};
+    final List<Element> inputs =
+        document.querySelectorAll('input[type=hidden]');
+    final Map<String, String> params = <String, String>{};
 
-    for (var input in inputs) {
-      final name = input.attributes['name'] ?? '';
-      final value = input.attributes['value'] ?? '';
+    for (final Element input in inputs) {
+      final String name = input.attributes['name'] ?? '';
+      final String value = input.attributes['value'] ?? '';
       if (name.isNotEmpty) {
         params[name] = value;
       }
     }
 
-    return {
+    return <String, dynamic>{
       'action': action,
       'params': params,
     };
@@ -792,20 +793,20 @@ class WebApParser {
   String? enrollmentLetterPathParser(String? html) {
     if (html == null || html.isEmpty) return null;
 
-    final document = parse(html);
+    final Document document = parse(html);
 
-    final objectTag = document.querySelector('object#pdf1');
+    final Element? objectTag = document.querySelector('object#pdf1');
     if (objectTag != null) {
-      final data = objectTag.attributes['data'];
+      final String? data = objectTag.attributes['data'];
       if (data != null && data.isNotEmpty) return data;
     }
 
-    final buttonTag = document.querySelector('#download_btn');
+    final Element? buttonTag = document.querySelector('#download_btn');
     if (buttonTag != null) {
-      final onclick = buttonTag.attributes['onclick'];
+      final String? onclick = buttonTag.attributes['onclick'];
       if (onclick != null) {
-        final regex = RegExp("download_file\(['\"](.+?)['\"]\)");
-        final match = regex.firstMatch(onclick);
+        final RegExp regex = RegExp("download_file(['\"](.+?)['\"])");
+        final RegExpMatch? match = regex.firstMatch(onclick);
         if (match != null) {
           return match.group(1);
         }
