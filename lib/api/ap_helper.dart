@@ -465,6 +465,13 @@ class WebApHelper {
     final pdfPath =
         WebApParser.instance.enrollmentLetterPathParser(query.data as String);
 
+    if (pdfPath == null || pdfPath.isEmpty) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.unknownError,
+        message: 'cannot find pdf url',
+      );
+    }
+
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
       options: Options(

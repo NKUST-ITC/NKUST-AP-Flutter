@@ -23,6 +23,8 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
 
   Uint8List? data;
 
+  String? errorMessage;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +51,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       body: PdfView(
         state: pdfState,
         data: data,
+        errorMessage: errorMessage,
         onRefresh: () {
           setState(() => pdfState = PdfState.loading);
           _getEnrollmentLetter();
@@ -68,6 +71,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     } catch (e) {
       setState(() {
         pdfState = PdfState.error;
+        errorMessage = '查無繳費紀錄';
       });
       rethrow;
     }
