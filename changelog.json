@@ -1,4 +1,10 @@
 {
+  "31107": {
+    "visible": true,
+    "date": "2025/09/21",
+    "zh-TW": "* 修正在學證明查詢錯誤(by  ryan940618)\n* 改善驗證碼解析(by yappy2000d)",
+    "en-US": "* Fix enrollment parser error.(by  ryan940618)\n* Improve captcha handle(by yappy2000d)"
+  },
   "31106": {
     "visible": true,
     "date": "2025/05/23",
