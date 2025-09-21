@@ -122,58 +122,63 @@ class WebApHelper {
     */
     //
     for (int i = 0; i < 5; i++) {
-      final String captchaCode = await CaptchaUtils.extractByEucDist(
-        bodyBytes: (await getValidationImage())!,
-      );
+      try {
+        final String captchaCode = await CaptchaUtils.extractByEucDist(
+          bodyBytes: (await getValidationImage())!,
+        );
 
-      log(username);
-      log(password);
-      log(captchaCode);
-      final Response<dynamic> res = await dio.post(
-        'https://webap.nkust.edu.tw/nkust/perchk.jsp',
-        data: <String, String>{
-          'uid': username,
-          'pwd': password,
-          'etxt_code': captchaCode,
-        },
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
-      );
-      Helper.username = username;
-      Helper.password = password;
-      final int code = WebApParser.instance.apLoginParser(res.data);
-      switch (code) {
-        case -1:
-          //Captcha error, go retry.
-          break;
-        case 4:
-          //Stay old password and relogin.
-          await stayOldPwd();
-          return login(username: username, password: password);
-        case 0:
-          isLogin = true;
-          return LoginResponse(
-            expireTime: DateTime.now().add(const Duration(hours: 6)),
-          );
-        case 1:
-          throw GeneralResponse(
-            statusCode: ApStatusCode.userDataError,
-            message: 'username or password error',
-          );
-        case 5:
-          throw GeneralResponse(
-            statusCode: ApStatusCode.passwordFiveTimesError,
-            message: 'username or password error',
-          );
-        case 500:
-          throw GeneralResponse(
-            statusCode: ApStatusCode.schoolServerError,
-            message: 'school server error',
-          );
-        default:
-          throw GeneralResponse(
-            statusCode: code,
-            message: 'unknown error',
-          );
+        log(username);
+        log(password);
+        log(captchaCode);
+        final Response<dynamic> res = await dio.post(
+          'https://webap.nkust.edu.tw/nkust/perchk.jsp',
+          data: <String, String>{
+            'uid': username,
+            'pwd': password,
+            'etxt_code': captchaCode,
+          },
+          options: Options(contentType: 'application/x-www-form-urlencoded'),
+        );
+        Helper.username = username;
+        Helper.password = password;
+        final int code = WebApParser.instance.apLoginParser(res.data);
+        switch (code) {
+          case -1:
+            //Captcha error, go retry.
+            break;
+          case 4:
+            //Stay old password and relogin.
+            await stayOldPwd();
+            return login(username: username, password: password);
+          case 0:
+            isLogin = true;
+            return LoginResponse(
+              expireTime: DateTime.now().add(const Duration(hours: 6)),
+            );
+          case 1:
+            throw GeneralResponse(
+              statusCode: ApStatusCode.userDataError,
+              message: 'username or password error',
+            );
+          case 5:
+            throw GeneralResponse(
+              statusCode: ApStatusCode.passwordFiveTimesError,
+              message: 'username or password error',
+            );
+          case 500:
+            throw GeneralResponse(
+              statusCode: ApStatusCode.schoolServerError,
+              message: 'school server error',
+            );
+          default:
+            throw GeneralResponse(
+              statusCode: code,
+              message: 'unknown error',
+            );
+        }
+      } catch (e, s) {
+        CrashlyticsUtil.instance.recordError(e, s);
+        log(e.toString());
       }
     }
     //
