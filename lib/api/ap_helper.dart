@@ -445,8 +445,28 @@ class WebApHelper {
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
 
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'AG225'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> requestData =
+        WebApParser.instance.enrollmentRequestParser(res.data);
+
+    final action = (requestData['action'] as String).replaceAll('ag_pro/', '').replaceAll('.jsp', '');
+    final params = requestData['params'] as Map<String, String>;
+
+    final Response<dynamic> query = await apQuery(
+      action,
+      params,
+    );
+
+    final pdfPath =
+        WebApParser.instance.enrollmentLetterPathParser(query.data as String);
+
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://webap.nkust.edu.tw/nkust/ag_pro/ag_print/${Helper.username}print.pdf',
+      'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
