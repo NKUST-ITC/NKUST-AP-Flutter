@@ -39,6 +39,7 @@ class MobileNkustHelper {
   }
 
   static const String baseUrl = 'https://mobile.nkust.edu.tw/';
+  static const String busBaseUrl = 'https://vms.nkust.edu.tw/';
 
   static const String loginUrl = baseUrl;
   static const String homeUrl = '${baseUrl}Home/Index';
@@ -46,15 +47,18 @@ class MobileNkustHelper {
   static const String scoreUrl = '${baseUrl}Student/Grades';
   static const String pictureUrl = '${baseUrl}Common/GetStudentPhoto';
   static const String midAlertsUrl = '${baseUrl}Student/Grades/MidWarning';
-  static const String busTimetablePageUrl = '${baseUrl}Bus/Timetable';
-  static const String busTimetableApiUrl = '${baseUrl}Bus/GetTimetableGrid';
-  static const String busBookApiUrl = '${baseUrl}Bus/CreateReserve';
-  static const String busUnbookApiUrl = '${baseUrl}Bus/CancelReserve';
-  static const String busUserRecordPageUrl = '${baseUrl}Bus/Reserve';
-  static const String busUserRecordApiUrl = '${baseUrl}Bus/GetReserveGrid';
-  static const String busViolationRecordsPageUrl = '${baseUrl}Bus/Illegal';
+  static const String busTimetablePageUrl = '${busBaseUrl}Bus/Bus/Timetable';
+  static const String busTimetableApiUrl =
+      '${busBaseUrl}Bus/Bus/GetTimetableGrid';
+  static const String busBookApiUrl = '${busBaseUrl}Bus/Bus/CreateReserve';
+  static const String busUnbookApiUrl = '${busBaseUrl}Bus/Bus/CancelReserve';
+  static const String busUserRecordPageUrl = '${busBaseUrl}Bus/Bus/Reserve';
+  static const String busUserRecordApiUrl =
+      '${busBaseUrl}Bus/Bus/GetReserveGrid';
+  static const String busViolationRecordsPageUrl =
+      '${busBaseUrl}Bus/Bus/Illegal';
   static const String busViolationRecordsApiUrl =
-      '${baseUrl}Bus/GetIllegalGrid';
+      '${busBaseUrl}Bus/Bus/GetIllegalGrid';
 
   static const String checkExpireUrl = '${baseUrl}Account/CheckExpire';
 
@@ -177,6 +181,29 @@ class MobileNkustHelper {
       }
     }
     return response;
+  }
+
+  Future<void> loginVms({
+    required String username,
+    required String password,
+  }) async {
+    try {
+      final Response<dynamic> _ = await generalRequest(
+        busBaseUrl,
+        otherRequestUrl: busBaseUrl,
+        data: <String, dynamic>{
+          'Account': username,
+          'Password': password,
+          'RememberMe': 'true',
+        },
+      );
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 302) {
+        return;
+      } else {
+        rethrow;
+      }
+    }
   }
 
   Future<LoginResponse> login({

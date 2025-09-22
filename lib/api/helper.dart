@@ -115,7 +115,7 @@ class Helper {
               username: username.toUpperCase(),
               password: password,
             );
-            await WebApHelper.instance.loginToMobile();
+            await WebApHelper.instance.loginVms();
           } else {
             loginResponse = await WebApHelper.instance.login(
               username: username.toUpperCase(),
