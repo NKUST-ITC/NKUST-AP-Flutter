@@ -1,6 +1,12 @@
 {
-  "31107": {
+  "31108": {
     "visible": true,
+    "date": "2025/09/22",
+    "zh-TW": "* 修正在學證明查詢錯誤(by  ryan940618)\n* 修正校車系統查詢錯誤(by  abc873693)\n* 修正缺曠系統查詢錯誤(by  ryan940618)\n* 改善驗證碼解析(by yappy2000d)",
+    "en-US": "* Fix enrollment parser error.(by  ryan940618)\n* Fix bus system parser error.(by  abc873693)\n* Fix leave system parser error.(by  ryan940618)\n* Improve captcha handle(by yappy2000d)"
+  },
+  "31107": {
+    "visible": false,
     "date": "2025/09/21",
     "zh-TW": "* 修正在學證明查詢錯誤(by  ryan940618)\n* 改善驗證碼解析(by yappy2000d)",
     "en-US": "* Fix enrollment parser error.(by  ryan940618)\n* Improve captcha handle(by yappy2000d)"
