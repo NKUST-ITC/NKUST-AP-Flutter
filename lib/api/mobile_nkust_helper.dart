@@ -58,7 +58,7 @@ class MobileNkustHelper {
   static const String busViolationRecordsPageUrl =
       '${busBaseUrl}Bus/Bus/Illegal';
   static const String busViolationRecordsApiUrl =
-      '${busBaseUrl}Bus/GetIllegalGrid';
+      '${busBaseUrl}Bus/Bus/GetIllegalGrid';
 
   static const String checkExpireUrl = '${baseUrl}Account/CheckExpire';
 
