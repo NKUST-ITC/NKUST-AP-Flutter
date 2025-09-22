@@ -38,12 +38,12 @@ class LeavePageState extends State<LeavePage>
   String get path {
     switch (_currentIndex) {
       case 0:
-        return 'https://mobile.nkust.edu.tw/Student/Leave/Create';
+        return 'https://oosaf.nkust.edu.tw/Student/Leave/Create';
       case 1:
-        return 'https://mobile.nkust.edu.tw/Student/Absenteeism';
+        return 'https://oosaf.nkust.edu.tw/Student/Absenteeism';
       case 2:
       default:
-        return 'https://mobile.nkust.edu.tw/Student/Leave';
+        return 'https://oosaf.nkust.edu.tw/Student/Leave';
     }
   }
 
@@ -142,14 +142,14 @@ class LeavePageState extends State<LeavePage>
 
   Future<bool> login() async {
     try {
-      await WebApHelper.instance.loginToMobile();
+      await WebApHelper.instance.loginToOosaf();
       final List<io.Cookie> cookies =
           await WebApHelper.instance.cookieJar.loadForRequest(
-        WebUri('https://mobile.nkust.edu.tw'),
+        WebUri('https://oosaf.nkust.edu.tw'),
       );
       for (final io.Cookie cookie in cookies) {
         cookieManager.setCookie(
-          url: WebUri('https://mobile.nkust.edu.tw'),
+          url: WebUri('https://oosaf.nkust.edu.tw'),
           name: cookie.name,
           value: cookie.value,
         );

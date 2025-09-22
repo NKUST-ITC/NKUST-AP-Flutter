@@ -252,6 +252,51 @@ class WebApHelper {
     }
   }
 
+  Future<LoginResponse> loginToOosaf() async {
+    // Login oosaf.nkust from webap.
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.networkConnectFail,
+        message: 'Login exceeded retry limit',
+      );
+    }
+    await checkLogin();
+    await apQuery('ag304_01', null);
+
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'CK004'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
+
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
+      'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
+      data: skyDirectData,
+      options: Options(
+        followRedirects: false,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
+      ),
+    );
+
+    if (res.statusCode == 200 && res.data!.contains('/Student/Leave/Create')) {
+      return LoginResponse(
+        expireTime: DateTime.now().add(const Duration(hours: 1)),
+      );
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    }
+  }
+
   Future<LoginResponse> loginToLeave() async {
     // Login leave.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {

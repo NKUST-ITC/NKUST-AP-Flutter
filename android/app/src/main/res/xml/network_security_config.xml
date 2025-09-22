@@ -3,6 +3,7 @@
     <domain-config>
         <domain includeSubdomains="true">webap.nkust.edu.tw</domain>
         <domain includeSubdomains="true">mobile.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">oosaf.nkust.edu.tw</domain>
         <trust-anchors>
             <certificates src="@raw/twca_nkust"/>
         </trust-anchors>
