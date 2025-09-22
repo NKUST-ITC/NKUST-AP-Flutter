@@ -157,8 +157,6 @@ jobs:
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
           DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
-      - name: Upgrades flutter
-        run: flutter upgrade
       - name: Enable windows
         run: flutter config --enable-windows-desktop
       - run: flutter doctor -v
