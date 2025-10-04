@@ -10,19 +10,16 @@ import 'package:nkust_ap/utils/eucdist.dart' as eucdist;
 class CaptchaUtils {
   CaptchaUtils._();
 
-  static Future<String> extractByEucDist({
-    required Uint8List bodyBytes,
+  static Future<String?> extractByEucDist({
+    required Uint8List? bodyBytes,
   }) async {
     try {
-      // final Directory directory = await getTemporaryDirectory();
-      // final String imagePath = join(
-      //   directory.path,
-      //   'tmp.jpg',
-      // );
-      // await File(imagePath).writeAsBytes(bodyBytes);
+      if (bodyBytes == null) {
+        return null;
+      }
+
       final DateTime start = DateTime.now();
-      // final img.Image source =
-      //     img.decodeImage(File(imagePath).readAsBytesSync())!;
+    
       final img.Image? source = img.decodeJpg(bodyBytes);
 
       if (source == null) {
