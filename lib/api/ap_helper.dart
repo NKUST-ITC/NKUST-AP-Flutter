@@ -298,6 +298,51 @@ class WebApHelper {
     }
   }
 
+  Future<LoginResponse> loginToStdsys() async {
+    // Login stdsys.nkust from webap.
+    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.networkConnectFail,
+        message: 'Login exceeded retry limit',
+      );
+    }
+    await checkLogin();
+    await apQuery('ag304_01', null);
+
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'CK004'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
+
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
+      'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
+      data: skyDirectData,
+      options: Options(
+        followRedirects: false,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
+      ),
+    );
+
+    if (res.statusCode == 200 && res.data!.contains('/Student/Home/Index')) {
+      return LoginResponse(
+        expireTime: DateTime.now().add(const Duration(hours: 1)),
+      );
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    }
+  }
+
   Future<LoginResponse> loginToLeave() async {
     // Login leave.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
@@ -490,48 +535,20 @@ class WebApHelper {
   }
 
   Future<Response<Uint8List>> getEnrollmentLetter() async {
+    await loginToStdsys();
+
     final List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+        await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
 
-    final Response<String> res = await dio.post<String>(
-      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'AG225'},
-      options: Options(contentType: 'application/x-www-form-urlencoded'),
-    );
-
-    final Map<String, dynamic> requestData =
-        WebApParser.instance.enrollmentRequestParser(res.data);
-
-    final String action = (requestData['action'] as String)
-        .replaceAll('ag_pro/', '')
-        .replaceAll('.jsp', '');
-    final Map<String, String> params =
-        requestData['params'] as Map<String, String>;
-
-    final Response<dynamic> query = await apQuery(
-      action,
-      params,
-    );
-
-    final String? pdfPath =
-        WebApParser.instance.enrollmentLetterPathParser(query.data as String);
-
-    if (pdfPath == null || pdfPath.isEmpty) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.unknownError,
-        message: 'cannot find pdf url',
-      );
-    }
-
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
+      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
-          'Referer': 'https://webap.nkust.edu.tw/',
+          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
           'Cookie': cookieHeader,
         },
       ),
