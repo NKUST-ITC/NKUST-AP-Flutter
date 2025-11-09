@@ -118,6 +118,12 @@
 	<string>We want to improve app usage.</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>We would like to log your usage to improve user experience, and collect crash report to fix bugs and improve stability.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_dartobservatory._tcp</string>
+	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>This app requires local network access for development and debugging purposes.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
