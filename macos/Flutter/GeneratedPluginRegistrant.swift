@@ -23,7 +23,7 @@ import printing
 import share_plus
 import shared_preferences_foundation
 import sign_in_with_apple
-import sqflite
+import sqflite_darwin
 import url_launcher_macos
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
