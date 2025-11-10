@@ -11,10 +11,11 @@ on:
       - master
 
 env:
-  flutter_version: "3.35.x"
-  java_version: "21"
+  flutter_version: '3.35.x'
+  java_version: '21'
 
 jobs:
+
   build_android:
     name: Build Android App
     runs-on: ubuntu-latest
@@ -24,8 +25,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: "zulu"
-          java-version: ${{ env.java_version }}
+          distribution: 'zulu'
+          java-version:  ${{ env.java_version }}
       - name: Decrypt Android keys
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
@@ -33,9 +34,9 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
-          channel: "stable"
+          channel: 'stable'
           cache: true
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
@@ -53,14 +54,14 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: "zulu"
-          java-version: ${{ env.java_version }}
+          distribution: 'zulu'
+          java-version:  ${{ env.java_version }}
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
-          channel: "stable"
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          channel: 'stable'
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Flutter Initiaize
         run: |
           flutter doctor -v
@@ -74,21 +75,21 @@ jobs:
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
-  #  build_web:
-  #    name: Build Web App
-  #    runs-on: ubuntu-latest
-  #
-  #    steps:
-  #      - uses: actions/checkout@v3
-  #      - uses: subosito/flutter-action@v2
-  #        with:
-  #          flutter-version: '3.27.x'
-  #          channel: 'stable'
-  #      - name: Enable Web
-  #        run: flutter config --enable-web
-  #      - run: flutter pub get
-  #      - name: Build Web
-  #        run: flutter build web
+#  build_web:
+#    name: Build Web App
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: subosito/flutter-action@v2
+#        with:
+#          flutter-version: '3.27.x'
+#          channel: 'stable'
+#      - name: Enable Web
+#        run: flutter config --enable-web
+#      - run: flutter pub get
+#      - name: Build Web
+#        run: flutter build web
 
   #  build_macos:
   #    name: Build macOS App
@@ -99,7 +100,7 @@ jobs:
   #      - name: Run Flutter tasks
   #        uses: subosito/flutter-action@v2
   #        with:
-  #          flutter-version: ${{ env.flutter_version }}
+  #          flutter-version: '3.29.x'
   #          channel: 'stable'
   #      - name: Decrypt dev configs
   #        run: sh ./scripts/decrypt_dev_configs.sh
@@ -123,9 +124,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
-          channel: "stable"
+          channel: 'stable'
           cache: true
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
@@ -149,9 +150,9 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
-          channel: "stable"
+          channel: 'stable'
           cache: true
-          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
