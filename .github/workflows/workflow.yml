@@ -99,7 +99,7 @@ jobs:
   #      - name: Run Flutter tasks
   #        uses: subosito/flutter-action@v2
   #        with:
-  #          flutter-version: '3.29.x'
+  #          flutter-version: ${{ env.flutter_version }}
   #          channel: 'stable'
   #      - name: Decrypt dev configs
   #        run: sh ./scripts/decrypt_dev_configs.sh

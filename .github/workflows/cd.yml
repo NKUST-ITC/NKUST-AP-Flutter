@@ -6,8 +6,8 @@ on:
       - "v*"
 
 env:
-  flutter_version: '3.29.3'
-  java_version: '17'
+  flutter_version: "3.35.x"
+  java_version: "21"
 
 jobs:
   # CD
@@ -20,7 +20,7 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: ${{ env.java_version }}
       - name: Decrypt Android keys
         run: sh ./.github/scripts/decrypt_android_keys.sh
@@ -36,7 +36,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
-          channel: 'stable'
+          channel: "stable"
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
@@ -47,15 +47,15 @@ jobs:
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.2'
+          ruby-version: "2.7.2"
       - name: Bundle update
         run: bundle update --bundler
         working-directory: ./android
       - name: Run Fastlane
         uses: maierj/fastlane-action@v2.0.1
         with:
-          lane: 'playstore'
-          subdirectory: 'android'
+          lane: "playstore"
+          subdirectory: "android"
 
   deploy_ios:
     name: iOS Deploy TestFlight
@@ -68,15 +68,15 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: "zulu"
           java-version: ${{ env.java_version }}
       - name: Generate changelog
         run: bash ./.github/scripts/generate_ios_changelog.sh
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.flutter_version }}
-          channel: 'stable'
+          flutter-version: ${{ env.flutter_version }}
+          channel: "stable"
       - name: Flutter Initiaize
         run: |
           flutter doctor -v
@@ -97,12 +97,12 @@ jobs:
         run: fastlane ios release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./ios
         env:
-          APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
-          APP_STORE_CONNECT_APPLE_ID: '${{ secrets.APP_STORE_CONNECT_APPLE_ID }}'
-          APP_STORE_CONNECT_BUNDLE_IDENTIFIER: '${{ secrets.APP_STORE_CONNECT_BUNDLE_IDENTIFIER }}'
-          DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
-          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
-          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
+          APP_STORE_CONNECT_TEAM_ID: "${{ secrets.APP_STORE_CONNECT_TEAM_ID }}"
+          APP_STORE_CONNECT_APPLE_ID: "${{ secrets.APP_STORE_CONNECT_APPLE_ID }}"
+          APP_STORE_CONNECT_BUNDLE_IDENTIFIER: "${{ secrets.APP_STORE_CONNECT_BUNDLE_IDENTIFIER }}"
+          DEVELOPER_PORTAL_TEAM_ID: "${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}"
+          KEY_ID: "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
+          ISSUER_ID: "${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}"
 
   #  deploy_macos:
   #    name: macOS Deploy TestFlight
@@ -164,8 +164,8 @@ jobs:
       - name: Run Flutter tasks
         uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.flutter_version }}
-          channel: 'stable'
+          flutter-version: ${{ env.flutter_version }}
+          channel: "stable"
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
@@ -176,7 +176,7 @@ jobs:
       - run: flutter pub get
       - name: Build windows
         run: flutter build windows --release
-      - name: 'Zip files'
+      - name: "Zip files"
         run: powershell Compress-Archive build\windows\x64\runner\Release\ windows.zip
       - name: upload artifacts
         uses: actions/upload-artifact@v2
