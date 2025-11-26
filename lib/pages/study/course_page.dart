@@ -1,6 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/course_scaffold.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
 class CoursePage extends StatefulWidget {
@@ -11,11 +12,11 @@ class CoursePage extends StatefulWidget {
 }
 
 class CoursePageState extends State<CoursePage> {
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
-  CourseState state = CourseState.loading;
+  CustomCourseState state = CustomCourseState.loading;
   Semester? selectSemester;
   SemesterData? semesterData;
   CourseData courseData = CourseData.empty();
@@ -37,24 +38,18 @@ class CoursePageState extends State<CoursePage> {
   @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
-    return CourseScaffold(
+    return CustomCourseScaffold(
       state: state,
       courseData: courseData,
-      notifyData: notifyData,
-      customHint: isOffline ? ap.offlineCourse : '',
+      customHint: isOffline ? ap.offlineCourse : null,
       customStateHint: customStateHint,
-      enableNotifyControl: semesterData != null &&
-          selectSemester!.code == semesterData!.defaultSemester.code,
-      courseNotifySaveKey: courseNotifyCacheKey,
-      androidResourceIcon: Constants.androidDefaultNotificationName,
-      enableCaptureCourseTable: true,
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'course',
-        onSelect: (semester, index) {
+        onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
-            state = CourseState.loading;
+            state = CustomCourseState.loading;
           });
           semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
@@ -67,27 +62,26 @@ class CoursePageState extends State<CoursePage> {
           }
         },
       ),
-      onRefresh: () async {
-        await _getCourseTables();
+      onRefresh: () {
+        _getCourseTables();
         AnalyticsUtil.instance.logEvent('refresh_swipe');
-        return null;
       },
       onSearchButtonClick: () => key.currentState!.pickSemester(),
     );
   }
 
   Future<bool> _loadCacheData(String value) async {
-    final cacheData = CourseData.load(selectSemester!.cacheSaveTag);
+    final CourseData? cacheData = CourseData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
         if (cacheData == null) {
-          state = CourseState.offlineEmpty;
+          state = CustomCourseState.offlineEmpty;
         } else {
           courseData = cacheData;
           state = courseData.courses.isEmpty
-              ? CourseState.empty
-              : CourseState.finish;
+              ? CustomCourseState.empty
+              : CustomCourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
@@ -101,27 +95,29 @@ class CoursePageState extends State<CoursePage> {
     Helper.instance.getCourseTables(
       semester: selectSemester!,
       semesterDefault: semesterData!.defaultSemester,
-      callback: GeneralCallback<CourseData>(
-        onSuccess: (data) {
+      callback: GeneralCallback<CourseData?>(
+        onSuccess: (CourseData? data) {
           if (mounted) {
             setState(() {
-              if (data.courses.isEmpty) {
-                state = CourseState.empty;
+              if (data == null || data.courses.isEmpty) {
+                state = CustomCourseState.empty;
+                key.currentState?.markSemesterEmpty(selectSemester!);
               } else {
                 courseData = data;
                 isOffline = false;
                 courseData.save(selectSemester!.cacheSaveTag);
-                state = CourseState.finish;
+                state = CustomCourseState.finish;
                 notifyData = CourseNotifyData.load(courseNotifyCacheKey);
+                key.currentState?.markSemesterHasData(selectSemester!);
               }
             });
           }
         },
-        onFailure: (e) async {
+        onFailure: (DioException e) async {
           if (await _loadCacheData(selectSemester!.code) &&
               e.type != DioExceptionType.cancel) {
             setState(() {
-              state = CourseState.custom;
+              state = CustomCourseState.custom;
               customStateHint = e.i18nMessage;
             });
           }
@@ -133,10 +129,10 @@ class CoursePageState extends State<CoursePage> {
             );
           }
         },
-        onError: (response) async {
+        onError: (GeneralResponse response) async {
           if (await _loadCacheData(selectSemester!.code)) {
             setState(() {
-              state = CourseState.custom;
+              state = CustomCourseState.custom;
               customStateHint = response.getGeneralMessage(context);
             });
           }

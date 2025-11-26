@@ -312,10 +312,13 @@ class AppTheme {
         circularTrackColor: colorScheme.surfaceContainerHighest,
       ),
       tabBarTheme: TabBarThemeData(
-        labelColor: colorScheme.primary,
-        unselectedLabelColor: colorScheme.onSurfaceVariant,
-        indicatorColor: colorScheme.primary,
-        dividerColor: colorScheme.surfaceContainerHighest,
+        labelColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
+        unselectedLabelColor: isLight
+            ? colorScheme.onPrimary.withAlpha(179)
+            : colorScheme.onSurfaceVariant,
+        indicatorColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
+        indicatorSize: TabBarIndicatorSize.tab,
+        dividerColor: Colors.transparent,
         labelStyle: const TextStyle(
           fontWeight: FontWeight.w600,
           fontSize: 14,

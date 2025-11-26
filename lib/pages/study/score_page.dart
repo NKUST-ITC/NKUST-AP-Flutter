@@ -1,6 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/score_widgets.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 
 class ScorePage extends StatefulWidget {
@@ -11,11 +12,11 @@ class ScorePage extends StatefulWidget {
 }
 
 class ScorePageState extends State<ScorePage> {
-  final key = GlobalKey<SemesterPickerState>();
+  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
-  ScoreState state = ScoreState.loading;
+  CustomScoreState state = CustomScoreState.loading;
   Semester? selectSemester;
   SemesterData? semesterData;
   ScoreData? scoreData;
@@ -31,18 +32,18 @@ class ScorePageState extends State<ScorePage> {
   @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
-    return ScoreScaffold(
+    return CustomScoreScaffold(
       state: state,
       scoreData: scoreData,
-      customHint: isOffline ? ap.offlineScore : '',
+      customHint: isOffline ? ap.offlineScore : null,
       customStateHint: customStateHint,
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'score',
-        onSelect: (semester, index) {
+        onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
-            state = ScoreState.loading;
+            state = CustomScoreState.loading;
           });
           if (PreferenceUtil.instance.getBool(
             Constants.prefIsOfflineLogin,
@@ -54,18 +55,11 @@ class ScorePageState extends State<ScorePage> {
           }
         },
       ),
-      onRefresh: () async {
-        await _getSemesterScore();
+      onRefresh: () {
+        _getSemesterScore();
         AnalyticsUtil.instance.logEvent('refresh_swipe');
-        return null;
       },
       onSearchButtonClick: () => key.currentState!.pickSemester(),
-      details: [
-        '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
-        '${ap.average}：${scoreData?.detail.average ?? ''}',
-        '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
-        '${ap.departmentRank}：${scoreData?.detail.departmentRank ?? ''}',
-      ],
     );
   }
 
@@ -78,24 +72,26 @@ class ScorePageState extends State<ScorePage> {
       Helper.instance.getScores(
         semester: selectSemester!,
         callback: GeneralCallback<ScoreData?>(
-          onSuccess: (data) {
+          onSuccess: (ScoreData? data) {
             if (mounted) {
               setState(() {
                 if (data == null) {
-                  state = ScoreState.empty;
+                  state = CustomScoreState.empty;
+                  key.currentState?.markSemesterEmpty(selectSemester!);
                 } else {
                   scoreData = data;
-                  state = ScoreState.finish;
+                  state = CustomScoreState.finish;
                   scoreData!.save(selectSemester!.cacheSaveTag);
+                  key.currentState?.markSemesterHasData(selectSemester!);
                 }
               });
             }
           },
-          onFailure: (e) async {
+          onFailure: (DioException e) async {
             if (await _loadOfflineScoreData() &&
                 e.type != DioExceptionType.cancel) {
               setState(() {
-                state = ScoreState.custom;
+                state = CustomScoreState.custom;
                 customStateHint = e.i18nMessage;
               });
             }
@@ -107,10 +103,10 @@ class ScorePageState extends State<ScorePage> {
               );
             }
           },
-          onError: (response) async {
+          onError: (GeneralResponse response) async {
             if (await _loadOfflineScoreData()) {
               setState(() {
-                state = ScoreState.custom;
+                state = CustomScoreState.custom;
                 customStateHint = response.getGeneralMessage(context);
               });
             }
@@ -125,7 +121,9 @@ class ScorePageState extends State<ScorePage> {
     if (mounted) {
       setState(() {
         isOffline = true;
-        state = scoreData == null ? ScoreState.offlineEmpty : ScoreState.finish;
+        state = scoreData == null
+            ? CustomScoreState.offlineEmpty
+            : CustomScoreState.finish;
       });
     }
     return scoreData == null;

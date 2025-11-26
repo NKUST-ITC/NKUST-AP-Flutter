@@ -13,6 +13,7 @@ import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
+import 'package:nkust_ap/pages/about_page.dart';
 import 'package:nkust_ap/pages/study/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
@@ -83,7 +84,7 @@ class HomePageState extends State<HomePage> {
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
-    return AboutUsPage(
+    return CustomAboutPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
       email: 'nkust.itc@gmail.com',
