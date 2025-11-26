@@ -2,6 +2,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/setting_widgets.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -13,9 +14,8 @@ class SettingPage extends StatefulWidget {
 }
 
 class SettingPageState extends State<SettingPage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   late ApLocalizations ap;
+  late AppLocalizations app;
 
   String? appVersion;
   bool busNotify = false;
@@ -23,7 +23,9 @@ class SettingPageState extends State<SettingPage> {
   bool displayPicture = true;
   bool isOffline = false;
 
-  bool autoSendEvent = false;
+  ThemeMode _themeMode = ThemeMode.system;
+  String _languageCode = ApSupportLanguageConstants.system;
+  String _iconStyle = ApIcon.filled;
 
   @override
   void initState() {
@@ -36,99 +38,307 @@ class SettingPageState extends State<SettingPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
+    app = AppLocalizations.of(context);
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      key: _scaffoldKey,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(ap.settings),
-        backgroundColor: ApTheme.of(context).blue,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SettingTitle(text: ap.notificationItem),
-            const CheckCourseNotifyItem(),
-            const ClearAllNotifyItem(),
-            SettingSwitch(
-              text: AppLocalizations.of(context).busNotify,
-              subText: AppLocalizations.of(context).busNotifySubTitle,
-              value: busNotify,
-              onChanged: (bool b) async {
-                AnalyticsUtil.instance.logEvent('notify_bus_create');
-                setState(() {
-                  busNotify = !busNotify;
-                });
-                if (busNotify) {
-                  _setupBusNotify(context);
-                } else {
-                  await Utils.cancelBusNotify();
-                }
-                PreferenceUtil.instance
-                    .setBool(Constants.prefBusNotify, busNotify);
-                AnalyticsUtil.instance.logEvent('notify_bus_click');
-              },
+            SettingSectionTitle(
+              title: ap.notificationItem,
+              icon: Icons.notifications_outlined,
             ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
+            SettingCard(
+              children: <Widget>[
+                SettingSwitchTile(
+                  icon: Icons.school_outlined,
+                  title: ap.courseNotify,
+                  subtitle: ap.courseNotifySubTitle,
+                  value: courseNotify,
+                  onChanged: _onCourseNotifyChanged,
+                ),
+                SettingTile(
+                  icon: Icons.notifications_off_outlined,
+                  title: ap.cancelAllNotify,
+                  subtitle: ap.cancelAllNotifySubTitle,
+                  onTap: _cancelAllNotifications,
+                ),
+                SettingSwitchTile(
+                  icon: Icons.directions_bus_outlined,
+                  title: app.busNotify,
+                  subtitle: app.busNotifySubTitle,
+                  value: busNotify,
+                  onChanged: _onBusNotifyChanged,
+                ),
+              ],
             ),
-            SettingTitle(text: ap.otherSettings),
-            SettingSwitch(
-              text: ap.headPhotoSetting,
-              subText: ap.headPhotoSettingSubTitle,
-              value: displayPicture,
-              onChanged: (bool b) {
-                setState(() {
-                  displayPicture = !displayPicture;
-                });
-                PreferenceUtil.instance.setBool(
-                  Constants.prefDisplayPicture,
-                  displayPicture,
-                );
-                AnalyticsUtil.instance.logEvent('head_photo_click');
-              },
+            SettingSectionTitle(
+              title: ap.otherSettings,
+              icon: Icons.tune_outlined,
             ),
-            ChangeLanguageItem(
-              onChange: (Locale locale) {
-                ShareDataWidget.of(context)!.data.loadLocale(locale);
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingSwitchTile(
+                  icon: Icons.person_outline,
+                  title: ap.headPhotoSetting,
+                  subtitle: ap.headPhotoSettingSubTitle,
+                  value: displayPicture,
+                  onChanged: _onDisplayPictureChanged,
+                ),
+                SettingTile(
+                  icon: Icons.language_outlined,
+                  title: ap.language,
+                  subtitle: _getLanguageName(),
+                  onTap: _showLanguageDialog,
+                ),
+                SettingTile(
+                  icon: Icons.dark_mode_outlined,
+                  title: ap.theme,
+                  subtitle: _getThemeModeName(),
+                  onTap: _showThemeModeDialog,
+                ),
+                SettingTile(
+                  icon: Icons.palette_outlined,
+                  title: ap.iconStyle,
+                  subtitle: _getIconStyleName(),
+                  onTap: _showIconStyleDialog,
+                ),
+              ],
             ),
-            ChangeThemeModeItem(
-              onChange: (ThemeMode themeMode) {
-                ShareDataWidget.of(context)!.data.loadTheme(themeMode);
-              },
+            SettingSectionTitle(
+              title: ap.otherInfo,
+              icon: Icons.info_outline,
             ),
-            ChangeIconStyleItem(
-              onChange: (String code) {
-                ShareDataWidget.of(context)!.data.update();
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingTile(
+                  icon: Icons.feedback_outlined,
+                  title: ap.feedback,
+                  subtitle: ap.feedbackViaFacebook,
+                  onTap: () {
+                    ApUtils.launchFbFansPage(context, Constants.fansPageId);
+                    AnalyticsUtil.instance.logEvent('feedback_click');
+                  },
+                ),
+                SettingInfoTile(
+                  icon: Icons.info_outline,
+                  title: ap.appVersion,
+                  value: 'v${appVersion ?? ''}',
+                ),
+              ],
             ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getLanguageName() {
+    switch (_languageCode) {
+      case ApSupportLanguageConstants.en:
+        return 'English';
+      case ApSupportLanguageConstants.zh:
+        return '繁體中文';
+      default:
+        return ap.systemLanguage;
+    }
+  }
+
+  String _getThemeModeName() {
+    switch (_themeMode) {
+      case ThemeMode.light:
+        return ap.light;
+      case ThemeMode.dark:
+        return ap.dark;
+      default:
+        return ap.systemLanguage;
+    }
+  }
+
+  String _getIconStyleName() {
+    switch (_iconStyle) {
+      case ApIcon.outlined:
+        return ap.outlined;
+      default:
+        return ap.filled;
+    }
+  }
+
+  Future<void> _showLanguageDialog() async {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(ap.language),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildDialogOption(
+              title: ap.systemLanguage,
+              value: ApSupportLanguageConstants.system,
+              groupValue: _languageCode,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
             ),
-            SettingTitle(text: ap.otherInfo),
-            SettingItem(
-              text: ap.feedback,
-              subText: ap.feedbackViaFacebook,
-              onTap: () {
-                ApUtils.launchFbFansPage(context, Constants.fansPageId);
-                AnalyticsUtil.instance.logEvent('feedback_click');
-              },
+            _buildDialogOption(
+              title: '繁體中文',
+              value: ApSupportLanguageConstants.zh,
+              groupValue: _languageCode,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
             ),
-            SettingItem(
-              text: ap.appVersion,
-              subText: 'v$appVersion',
-              onTap: () {
-                AnalyticsUtil.instance.logEvent('app_version_click');
-              },
+            _buildDialogOption(
+              title: 'English',
+              value: ApSupportLanguageConstants.en,
+              groupValue: _languageCode,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() => _languageCode = result);
+      PreferenceUtil.instance.setString(Constants.prefLanguageCode, result);
+      final Locale locale = Locale(
+        result == ApSupportLanguageConstants.system ? 'zh' : result,
+        result == ApSupportLanguageConstants.zh ? 'TW' : null,
+      );
+      ShareDataWidget.of(context)!.data.loadLocale(locale);
+      AnalyticsUtil.instance.logEvent('language_change');
+    }
+  }
+
+  Future<void> _showThemeModeDialog() async {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final ThemeMode? result = await showDialog<ThemeMode>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(ap.theme),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildDialogOption<ThemeMode>(
+              title: ap.systemLanguage,
+              value: ThemeMode.system,
+              groupValue: _themeMode,
+              colorScheme: colorScheme,
+              onChanged: (ThemeMode? v) => Navigator.pop(context, v),
+            ),
+            _buildDialogOption<ThemeMode>(
+              title: ap.light,
+              value: ThemeMode.light,
+              groupValue: _themeMode,
+              colorScheme: colorScheme,
+              onChanged: (ThemeMode? v) => Navigator.pop(context, v),
+            ),
+            _buildDialogOption<ThemeMode>(
+              title: ap.dark,
+              value: ThemeMode.dark,
+              groupValue: _themeMode,
+              colorScheme: colorScheme,
+              onChanged: (ThemeMode? v) => Navigator.pop(context, v),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() => _themeMode = result);
+      PreferenceUtil.instance.setInt(
+        Constants.prefThemeModeIndex,
+        result.index,
+      );
+      ShareDataWidget.of(context)!.data.loadTheme(result);
+      AnalyticsUtil.instance.logEvent('theme_change');
+    }
+  }
+
+  Future<void> _showIconStyleDialog() async {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final String? result = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(ap.iconStyle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _buildDialogOption(
+              title: ap.filled,
+              value: ApIcon.filled,
+              groupValue: _iconStyle,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
+            ),
+            _buildDialogOption(
+              title: ap.outlined,
+              value: ApIcon.outlined,
+              groupValue: _iconStyle,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null) {
+      setState(() => _iconStyle = result);
+      ApIcon.code = result;
+      PreferenceUtil.instance.setString(Constants.prefIconStyleCode, result);
+      ShareDataWidget.of(context)!.data.update();
+      AnalyticsUtil.instance.logEvent('icon_style_change');
+    }
+  }
+
+  Widget _buildDialogOption<T>({
+    required String title,
+    required T value,
+    required T groupValue,
+    required ColorScheme colorScheme,
+    required ValueChanged<T?> onChanged,
+  }) {
+    final bool isSelected = value == groupValue;
+
+    return InkWell(
+      onTap: () => onChanged(value),
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        child: Row(
+          children: <Widget>[
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 16),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                color: colorScheme.onSurface,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              ),
             ),
           ],
         ),
@@ -136,27 +346,90 @@ class SettingPageState extends State<SettingPage> {
     );
   }
 
+  void _onCourseNotifyChanged(bool value) {
+    setState(() => courseNotify = value);
+    PreferenceUtil.instance.setBool(Constants.prefCourseNotify, courseNotify);
+    AnalyticsUtil.instance.logEvent('course_notify_click');
+  }
+
+  void _onDisplayPictureChanged(bool value) {
+    setState(() => displayPicture = value);
+    PreferenceUtil.instance.setBool(
+      Constants.prefDisplayPicture,
+      displayPicture,
+    );
+    AnalyticsUtil.instance.logEvent('head_photo_click');
+  }
+
+  void _onBusNotifyChanged(bool value) async {
+    AnalyticsUtil.instance.logEvent('notify_bus_create');
+    setState(() => busNotify = value);
+    if (busNotify) {
+      await _setupBusNotify(context);
+    } else {
+      await Utils.cancelBusNotify();
+    }
+    PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+    AnalyticsUtil.instance.logEvent('notify_bus_click');
+  }
+
+  void _cancelAllNotifications() async {
+    await NotificationUtil.instance.cancelAll();
+    if (!mounted) return;
+    UiUtil.instance.showToast(context, ap.cancelNotifySuccess);
+    AnalyticsUtil.instance.logEvent('cancel_all_notify');
+  }
+
   Future<void> _getPreference() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     setState(() {
-      isOffline =
-          PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false);
+      isOffline = PreferenceUtil.instance.getBool(
+        Constants.prefIsOfflineLogin,
+        false,
+      );
       appVersion = packageInfo.version;
-      courseNotify =
-          PreferenceUtil.instance.getBool(Constants.prefCourseNotify, false);
-      displayPicture =
-          PreferenceUtil.instance.getBool(Constants.prefDisplayPicture, true);
-      busNotify =
-          PreferenceUtil.instance.getBool(Constants.prefBusNotify, false);
+      courseNotify = PreferenceUtil.instance.getBool(
+        Constants.prefCourseNotify,
+        false,
+      );
+      displayPicture = PreferenceUtil.instance.getBool(
+        Constants.prefDisplayPicture,
+        true,
+      );
+      busNotify = PreferenceUtil.instance.getBool(
+        Constants.prefBusNotify,
+        false,
+      );
+      _themeMode = ThemeMode.values[PreferenceUtil.instance.getInt(
+        Constants.prefThemeModeIndex,
+        0,
+      )];
+      _languageCode = PreferenceUtil.instance.getString(
+        Constants.prefLanguageCode,
+        ApSupportLanguageConstants.system,
+      );
+      _iconStyle = PreferenceUtil.instance.getString(
+        Constants.prefIconStyleCode,
+        ApIcon.filled,
+      );
     });
   }
 
   Future<void> _setupBusNotify(BuildContext context) async {
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (BuildContext context) => ProgressDialog(ap.loading),
+      builder: (_) => AlertDialog(
+        content: Row(
+          children: <Widget>[
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Text(ap.loading),
+          ],
+        ),
+      ),
       barrierDismissible: false,
     );
+
     if (isOffline) {
       final BusReservationsData? response =
           BusReservationsData.load(Helper.username);
@@ -166,29 +439,23 @@ class SettingPageState extends State<SettingPage> {
         UiUtil.instance.showToast(context, ap.noOfflineData);
       } else {
         await Utils.setBusNotify(context, response.reservations);
-        if (!context.mounted) return;
-        UiUtil.instance
-            .showToast(context, AppLocalizations.of(context).busNotifyHint);
+        if (!mounted) return;
+        UiUtil.instance.showToast(context, app.busNotifyHint);
       }
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
     }
+
     Helper.instance.getBusReservations(
       callback: GeneralCallback<BusReservationsData>(
         onSuccess: (BusReservationsData data) async {
           Navigator.of(context, rootNavigator: true).pop();
           if (data.reservations.isEmpty) {
             await Utils.setBusNotify(context, data.reservations);
-            if (!context.mounted) return;
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busNotifyHint,
-            );
+            if (!mounted) return;
+            UiUtil.instance.showToast(context, app.busNotifyHint);
           } else {
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busReservationEmpty,
-            );
+            UiUtil.instance.showToast(context, app.busReservationEmpty);
           }
           PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
         },
@@ -196,37 +463,39 @@ class SettingPageState extends State<SettingPage> {
           Navigator.of(context, rootNavigator: true).pop();
           setState(() => busNotify = false);
           PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          if (e.hasResponse) {
-            if (e.response!.statusCode == 401) {
-              UiUtil.instance.showToast(context, ap.userNotSupport);
-            } else if (e.response!.statusCode == 403) {
-              UiUtil.instance.showToast(context, ap.campusNotSupport);
-            } else {
-              if (e.message != null) {
-                UiUtil.instance.showToast(context, e.message!);
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusReservations',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            }
-          } else if (e.type == DioExceptionType.unknown) {
-            UiUtil.instance.showToast(context, ap.busFailInfinity);
-          } else {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-          }
+          _handleBusError(e);
         },
         onError: (GeneralResponse response) {
           Navigator.of(context, rootNavigator: true).pop();
           setState(() => busNotify = false);
           PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          UiUtil.instance
-              .showToast(context, response.getGeneralMessage(context));
+          UiUtil.instance.showToast(
+            context,
+            response.getGeneralMessage(context),
+          );
         },
       ),
     );
+  }
+
+  void _handleBusError(DioException e) {
+    if (e.hasResponse) {
+      if (e.response!.statusCode == 401) {
+        UiUtil.instance.showToast(context, ap.userNotSupport);
+      } else if (e.response!.statusCode == 403) {
+        UiUtil.instance.showToast(context, ap.campusNotSupport);
+      } else if (e.message != null) {
+        UiUtil.instance.showToast(context, e.message!);
+        AnalyticsUtil.instance.logApiEvent(
+          'getBusReservations',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    } else if (e.type == DioExceptionType.unknown) {
+      UiUtil.instance.showToast(context, ap.busFailInfinity);
+    } else if (e.i18nMessage != null) {
+      UiUtil.instance.showToast(context, e.i18nMessage!);
+    }
   }
 }

@@ -7,27 +7,21 @@ import 'package:nkust_ap/widgets/semester_picker.dart';
 class EmptyRoomPage extends StatefulWidget {
   final Room room;
 
-  const EmptyRoomPage({
-    super.key,
-    required this.room,
-  });
+  const EmptyRoomPage({super.key, required this.room});
 
   @override
-  _EmptyRoomPageState createState() => _EmptyRoomPageState();
+  EmptyRoomPageState createState() => EmptyRoomPageState();
 }
 
-class _EmptyRoomPageState extends State<EmptyRoomPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
+class EmptyRoomPageState extends State<EmptyRoomPage> {
+  final key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
-
   late Semester selectSemester;
   SemesterData? semesterData;
-
   CourseData courseData = CourseData.empty();
-
   String? customStateHint;
 
   @override
@@ -51,7 +45,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'room_coruse',
-        onSelect: (Semester semester, int index) {
+        onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;
             state = CourseState.loading;
@@ -60,12 +54,8 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
           _getRoomCourseTable();
         },
       ),
-      onRefresh: () {
-        _getRoomCourseTable();
-      },
-      onSearchButtonClick: () {
-        key.currentState!.pickSemester();
-      },
+      onRefresh: () => _getRoomCourseTable(),
+      onSearchButtonClick: () => key.currentState!.pickSemester(),
     );
   }
 
@@ -74,19 +64,17 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       roomId: widget.room.id,
       semester: selectSemester,
       callback: GeneralCallback<CourseData>(
-        onSuccess: (CourseData data) {
+        onSuccess: (data) {
           courseData = data;
           if (mounted) {
             setState(() {
-              if (courseData.courses.isNotEmpty) {
-                state = CourseState.finish;
-              } else {
-                state = CourseState.empty;
-              }
+              state = courseData.courses.isNotEmpty
+                  ? CourseState.finish
+                  : CourseState.empty;
             });
           }
         },
-        onFailure: (DioException e) async {
+        onFailure: (e) async {
           if (e.type != DioExceptionType.cancel && mounted) {
             setState(() {
               state = CourseState.custom;
@@ -101,11 +89,11 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
             );
           }
         },
-        onError: (GeneralResponse generalResponse) async {
+        onError: (response) async {
           if (mounted) {
             setState(() {
               state = CourseState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
+              customStateHint = response.getGeneralMessage(context);
             });
           }
         },

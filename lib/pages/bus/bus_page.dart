@@ -12,9 +12,7 @@ class BusPage extends StatefulWidget {
   static const String routerName = '/bus';
   final int initIndex;
 
-  const BusPage({
-    this.initIndex = 0,
-  });
+  const BusPage({this.initIndex = 0});
 
   @override
   BusPageState createState() => BusPageState();
@@ -22,59 +20,55 @@ class BusPage extends StatefulWidget {
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   AppLocalizations? app;
-
   TabController? controller;
-
   int _currentIndex = 0;
+  Future<bool>? _login;
 
-  final List<Widget> _children = <Widget>[
+  final _children = <Widget>[
     BusReservePage(),
     BusReservationsPage(),
     BusViolationRecordsPage(),
   ];
 
-  Future<bool>? _login;
-
   @override
   void initState() {
     _currentIndex = widget.initIndex;
-    controller =
-        TabController(length: 3, initialIndex: widget.initIndex, vsync: this);
-    _login = Future<bool>.microtask(() => login());
+    controller = TabController(
+      length: 3,
+      initialIndex: widget.initIndex,
+      vsync: this,
+    );
+    _login = Future.microtask(() => login());
     super.initState();
   }
 
   @override
   void dispose() {
-    super.dispose();
     controller!.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(app!.bus),
-        actions: <Widget>[
+        actions: [
           IconButton(
-            icon: Icon(
-              ApIcon.info,
-              color: Colors.white,
-            ),
+            icon: Icon(ApIcon.info),
             onPressed: () {
-              ApUtils.pushCupertinoStyle(
-                context,
-                const BusRulePage(),
-              );
+              ApUtils.pushCupertinoStyle(context, const BusRulePage());
             },
           ),
         ],
-        elevation: (_currentIndex == 2) ? 0.0 : null,
+        elevation: _currentIndex == 2 ? 0.0 : null,
       ),
       body: FutureBuilder<bool>(
         future: _login,
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done &&
               snapshot.data!) {
             return TabBarView(
@@ -83,14 +77,10 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
               children: _children,
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else {
             return InkWell(
-              onTap: () {
-                _login = Future<bool>.microtask(() => login());
-              },
+              onTap: () => _login = Future.microtask(() => login()),
               child: HintContent(
                 content: ApLocalizations.of(context).clickToRetry,
                 icon: ApIcon.error,
@@ -99,35 +89,30 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: onTabTapped,
+        destinations: [
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: app!.busReserve,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: app!.busReservations,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Stack(
-              children: <Widget>[
+              children: [
                 Icon(ApIcon.monetizationOn),
                 if (ShareDataWidget.of(context)!.data.hasBusViolationRecords)
                   Positioned(
                     top: -1.0,
                     right: -1.0,
-                    child: Stack(
-                      children: <Widget>[
-                        Icon(
-                          Icons.brightness_1,
-                          size: 10.0,
-                          color: ApTheme.of(context).red,
-                        ),
-                      ],
+                    child: Icon(
+                      Icons.brightness_1,
+                      size: 10.0,
+                      color: colorScheme.error,
                     ),
                   ),
               ],
@@ -149,7 +134,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   void getBusViolationRecords() {
     Helper.instance.getBusViolationRecords(
       callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (BusViolationRecordsData data) {
+        onSuccess: (data) {
           if (mounted) {
             setState(() {
               ShareDataWidget.of(context)!.data.hasBusViolationRecords =
@@ -162,13 +147,13 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           );
           AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
-            (data.hasBusViolationRecords)
+            data.hasBusViolationRecords
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
           );
         },
-        onError: (GeneralResponse response) {},
-        onFailure: (DioException e) {
+        onError: (_) {},
+        onFailure: (e) {
           if (e.hasResponse &&
               (e.response!.statusCode == 401 ||
                   e.response!.statusCode == 403)) {

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/config/app_theme.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -19,14 +20,10 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   ThemeMode themeMode = ThemeMode.system;
-
   Locale? locale;
-
   LoginResponse? loginResponse;
-
   bool offlineLogin = false;
   bool hasBusViolationRecords = false;
-
   FirebaseAnalytics? analytics;
 
   void logout() {
@@ -40,11 +37,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     analytics = FirebaseUtils.init();
-    FirebaseMessagingUtils.instance.init(
-      vapidKey: Constants.fcmWebVapidKey,
-    );
-    themeMode = ThemeMode.values[
-        PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    FirebaseMessagingUtils.instance.init(vapidKey: Constants.fcmWebVapidKey);
+    themeMode = ThemeMode
+        .values[PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
     AnalyticsUtil.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
@@ -72,68 +67,61 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       child: ApTheme(
         themeMode,
         child: MaterialApp(
-          localeResolutionCallback:
-              (Locale? locale, Iterable<Locale> supportedLocales) {
-            final String languageCode = PreferenceUtil.instance.getString(
-              Constants.prefLanguageCode,
-              ApSupportLanguageConstants.system,
-            );
-            if (languageCode == ApSupportLanguageConstants.system) {
-              this.locale = ApLocalizations.delegate.isSupported(locale!)
-                  ? locale
-                  : const Locale('en');
-            } else {
-              this.locale = Locale(
-                languageCode,
-                languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
-              );
-            }
-            AnnouncementHelper.instance.setLocale(this.locale!);
-            return this.locale;
-          },
-          onGenerateTitle: (BuildContext context) =>
-              AppLocalizations.of(context).appName,
+          localeResolutionCallback: _resolveLocale,
+          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
           debugShowCheckedModeBanner: false,
-          routes: <String, WidgetBuilder>{
-            Navigator.defaultRouteName: (BuildContext context) => kIsWeb
+          routes: {
+            Navigator.defaultRouteName: (_) => kIsWeb
                 ? const AnnouncementHomePage(
                     organizationDomain: Constants.mailDomain,
                   )
                 : HomePage(),
-            AnnouncementHomePage.routerName: (BuildContext context) =>
-                const AnnouncementHomePage(
+            AnnouncementHomePage.routerName: (_) => const AnnouncementHomePage(
                   organizationDomain: Constants.mailDomain,
                 ),
           },
-          theme: ApTheme.light,
-          darkTheme: ApTheme.dark,
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
           themeMode: themeMode,
           locale: locale,
-          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+          localizationsDelegates: const [
             apLocalizationsDelegate,
             appDelegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          supportedLocales: const <Locale>[
-            Locale('en', 'US'), // English
-            Locale('zh', 'TW'), // Chinese
+          supportedLocales: const [
+            Locale('en', 'US'),
+            Locale('zh', 'TW'),
           ],
         ),
       ),
     );
   }
 
-  void update() {
-    setState(() {});
+  Locale? _resolveLocale(Locale? locale, Iterable<Locale> supportedLocales) {
+    final languageCode = PreferenceUtil.instance.getString(
+      Constants.prefLanguageCode,
+      ApSupportLanguageConstants.system,
+    );
+    if (languageCode == ApSupportLanguageConstants.system) {
+      this.locale = ApLocalizations.delegate.isSupported(locale!)
+          ? locale
+          : const Locale('en');
+    } else {
+      this.locale = Locale(
+        languageCode,
+        languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+      );
+    }
+    AnnouncementHelper.instance.setLocale(this.locale!);
+    return this.locale;
   }
 
-  void loadTheme(ThemeMode mode) {
-    setState(() {
-      themeMode = mode;
-    });
-  }
+  void update() => setState(() {});
+
+  void loadTheme(ThemeMode mode) => setState(() => themeMode = mode);
 
   void loadLocale(Locale locale) {
     this.locale = locale;

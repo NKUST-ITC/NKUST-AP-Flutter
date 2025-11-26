@@ -7,6 +7,7 @@ import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
@@ -29,10 +30,8 @@ import 'package:nkust_ap/utils/global.dart';
 
 class Helper {
   static const String host = 'nkust.taki.dog';
-
   static const String version = 'v3';
 
-  //LOGIN API
   static const int userDataError = 1401;
 
   static const String webap = 'webap';
@@ -43,7 +42,6 @@ class Helper {
   static Helper? _instance;
 
   late Dio dio;
-
   late BaseOptions options;
 
   JsonCodec? jsonCodec;
@@ -55,7 +53,6 @@ class Helper {
 
   static DateTime? expireTime;
 
-  /// From sqflite plugin setting
   static bool isSupportCacheData = false;
 
   static CrawlerSelector? selector;
@@ -65,28 +62,21 @@ class Helper {
   bool get canReLogin => reLoginCount == 0;
 
   bool isExpire() {
-    if (expireTime == null) {
-      return false;
-    } else {
-      return DateTime.now().isAfter(expireTime!.add(const Duration(hours: 8)));
-    }
+    if (expireTime == null) return false;
+    return DateTime.now().isAfter(expireTime!.add(const Duration(hours: 8)));
   }
 
-  //ignore: prefer_constructors_over_static_methods
-  static Helper get instance {
-    return _instance ??= Helper();
-  }
+  static Helper get instance => _instance ??= Helper();
 
   Helper() {
-    final String apiHost =
+    final apiHost =
         PreferenceUtil.instance.getString(Constants.apiHost, host);
-    dio = Dio(
-      BaseOptions(
-        baseUrl: 'https://$apiHost/$version',
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-      ),
+
+    dio = ApiConfig.createDio(
+      baseUrl: 'https://$apiHost/$version',
+      enableGzip: true,
     );
+
     cancelToken = CancelToken();
   }
 
@@ -104,13 +94,15 @@ class Helper {
   }) async {
     Helper.username = username.toUpperCase();
     Helper.password = password;
+
     try {
       LoginResponse? loginResponse;
+
       switch (selector?.login) {
         case mobile:
         case webap:
         default:
-          if (selector != null && (selector!.login == mobile)) {
+          if (selector != null && selector!.login == mobile) {
             loginResponse = await WebApHelper.instance.login(
               username: username.toUpperCase(),
               password: password,
@@ -123,74 +115,48 @@ class Helper {
             );
           }
       }
+
       expireTime = loginResponse.expireTime;
       callback.onSuccess(loginResponse);
     } on GeneralResponse catch (response) {
       callback.onError(response);
-      rethrow;
     } on DioException catch (e) {
       callback.onFailure(e);
-      rethrow;
-    } catch (e) {
-      callback.onError(
-        GeneralResponse.unknownError(),
-      );
-      rethrow;
+    } catch (e, s) {
+      _logError('login', e, s);
+      callback.onError(GeneralResponse.unknownError());
     }
   }
 
   Future<LoginResponse> adminLogin(String username, String password) async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.post<Map<String, dynamic>>(
-        '/oauth/admin/token',
-        data: <String, String>{
-          'username': username,
-          'password': password,
-        },
-      );
-      final LoginResponse loginResponse =
-          LoginResponse.fromJson(response.data!);
-      options.headers = _createBearerTokenAuth(loginResponse.token);
-      expireTime = loginResponse.expireTime;
-      Helper.username = username;
-      Helper.password = password;
-      return loginResponse;
-    } catch (dioError) {
-      rethrow;
-    }
+    final response = await dio.post<Map<String, dynamic>>(
+      '/oauth/admin/token',
+      data: <String, String>{
+        'username': username,
+        'password': password,
+      },
+    );
+
+    final loginResponse = LoginResponse.fromJson(response.data!);
+    options.headers = _createBearerTokenAuth(loginResponse.token);
+    expireTime = loginResponse.expireTime;
+    Helper.username = username;
+    Helper.password = password;
+
+    return loginResponse;
   }
 
   Future<Response<dynamic>> deleteToken() async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/oauth/token',
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+    return dio.delete<dynamic>('/oauth/token');
   }
 
   Future<Response<dynamic>> deleteAllToken() async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/oauth/token/all',
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+    return dio.delete<dynamic>('/oauth/token/all');
   }
 
   Future<ServerInfoData> getServerInfoData() async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.get<Map<String, dynamic>>('​/server​/info');
-      return ServerInfoData.fromJson(response.data!);
-    } on DioException {
-      rethrow;
-    }
+    final response = await dio.get<Map<String, dynamic>>('/server/info');
+    return ServerInfoData.fromJson(response.data!);
   }
 
   Future<void> getAllAnnouncements({
@@ -198,75 +164,50 @@ class Helper {
     GeneralCallback<List<Announcement>?>? callback,
   }) async {
     try {
-      final Response<Map<String, dynamic>> response =
-          await dio.get<Map<String, dynamic>>(
+      final response = await dio.get<Map<String, dynamic>>(
         '/news/announcements/all',
-        queryParameters: <String, String>{
-          'lang': locale ?? '',
-        },
+        queryParameters: <String, String>{'lang': locale ?? ''},
       );
-      AnnouncementData data = AnnouncementData(
-        data: <Announcement>[],
-      );
+
+      var data = AnnouncementData(data: <Announcement>[]);
+
       if (response.statusCode != 204) {
         data = AnnouncementData.fromJson(response.data!);
-        data.data.sort((Announcement a, Announcement b) {
-          return b.weight.compareTo(a.weight);
-        });
+        data.data.sort((a, b) => b.weight.compareTo(a.weight));
       }
-      return (callback == null) ? data.data : callback.onSuccess(data.data);
-    } on DioException catch (dioError) {
-      if (callback == null) {
-        rethrow;
-      } else {
-        callback.onFailure(dioError);
-      }
+
+      callback?.onSuccess(data.data);
+    } on DioException catch (e) {
+      callback?.onFailure(e);
     } catch (e, s) {
+      _logError('getAllAnnouncements', e, s);
       callback?.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
-  Future<Response<dynamic>> addAnnouncement(Announcement announcements) async {
-    try {
-      final Response<dynamic> response = await dio.post(
-        '/news/announcements/add',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+  Future<Response<dynamic>> addAnnouncement(Announcement announcement) async {
+    return dio.post<dynamic>(
+      '/news/announcements/add',
+      data: announcement.toUpdateJson(),
+    );
   }
 
   Future<Response<dynamic>> updateAnnouncement(
-    Announcement announcements,
+    Announcement announcement,
   ) async {
-    try {
-      final Response<dynamic> response = await dio.put(
-        '/news/announcements/update/${announcements.id}',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+    return dio.put<dynamic>(
+      '/news/announcements/update/${announcement.id}',
+      data: announcement.toUpdateJson(),
+    );
   }
 
   Future<Response<dynamic>> deleteAnnouncement(
-    Announcement announcements,
+    Announcement announcement,
   ) async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/news/announcements/remove/${announcements.id}',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
+    return dio.delete<dynamic>(
+      '/news/announcements/remove/${announcement.id}',
+      data: announcement.toUpdateJson(),
+    );
   }
 
   Future<UserInfo?> getUsersInfo({
@@ -274,6 +215,7 @@ class Helper {
   }) async {
     try {
       UserInfo data;
+
       switch (selector?.userInfo) {
         case mobile:
           data = await MobileNkustHelper.instance.getUserInfo();
@@ -281,21 +223,20 @@ class Helper {
         default:
           data = await WebApHelper.instance.userInfoCrawler();
       }
+
       reLoginCount = 0;
+
       if (data.id.isEmpty) {
-        data.copyWith(
-          id: username,
-        );
+        data = data.copyWith(id: username);
       }
-      return (callback == null) ? data : callback.onSuccess(data) as UserInfo?;
-    } on DioException catch (dioError) {
-      callback?.onFailure(dioError);
-      if (callback == null) rethrow;
+
+      callback?.onSuccess(data);
+      return data;
+    } on DioException catch (e) {
+      callback?.onFailure(e);
     } catch (e, s) {
+      _logError('getUsersInfo', e, s);
       callback?.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
     return null;
   }
@@ -315,32 +256,27 @@ class Helper {
   }) async {
     try {
       SemesterData? data;
+
       switch (selector?.semester) {
         case remoteConfig:
           data = SemesterData.load();
           await Future<void>.delayed(const Duration(milliseconds: 100));
         case inkust:
-          //TODO
-          break;
         case mobile:
-          //TODO
           break;
         case webap:
         default:
           data = await WebApHelper.instance.semesters();
       }
+
       reLoginCount = 0;
-      return (callback == null)
-          ? data
-          : callback.onSuccess(data!) as SemesterData?;
-    } on DioException catch (dioError) {
-      callback?.onFailure(dioError);
-      if (callback == null) rethrow;
+      callback?.onSuccess(data!);
+      return data;
+    } on DioException catch (e) {
+      callback?.onFailure(e);
     } catch (e, s) {
+      _logError('getSemester', e, s);
       callback?.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
     return null;
   }
@@ -351,6 +287,7 @@ class Helper {
   }) async {
     try {
       ScoreData? data;
+
       switch (selector?.score) {
         case mobile:
           data = await MobileNkustHelper.instance.getScores(
@@ -358,7 +295,6 @@ class Helper {
             semester: semester.value,
           );
         case inkust:
-          //TODO
           break;
         case webap:
         default:
@@ -367,16 +303,15 @@ class Helper {
             semester.value,
           );
       }
+
       if (data != null && data.scores.isEmpty) data = null;
-      return (callback == null) ? data : callback.onSuccess(data) as ScoreData?;
-    } on DioException catch (dioError) {
-      callback?.onFailure(dioError);
-      if (callback == null) rethrow;
+      callback?.onSuccess(data);
+      return data;
+    } on DioException catch (e) {
+      callback?.onFailure(e);
     } catch (e, s) {
+      _logError('getScores', e, s);
       callback?.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
     return null;
   }
@@ -388,9 +323,10 @@ class Helper {
   }) async {
     try {
       CourseData data;
+
       switch (selector?.course) {
         case mobile:
-          final bool isDefault = semesterDefault!.code == semester.code;
+          final isDefault = semesterDefault!.code == semester.code;
           data = await MobileNkustHelper.instance.getCourseTable(
             year: isDefault ? null : semester.year,
             semester: isDefault ? null : semester.value,
@@ -402,12 +338,11 @@ class Helper {
             semester: semester.value,
           );
       }
-      if (data.courses.isNotEmpty) {
-        reLoginCount = 0;
-      }
-      return (callback == null) ? data : callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      if (selector?.course == mobile && dioError.response?.statusCode == 302) {
+
+      if (data.courses.isNotEmpty) reLoginCount = 0;
+      callback?.onSuccess(data);
+    } on DioException catch (e) {
+      if (selector?.course == mobile && e.response?.statusCode == 302) {
         AnalyticsUtil.instance.logEvent(
           'mobile_user_agent_error',
           parameters: <String, dynamic>{
@@ -415,13 +350,10 @@ class Helper {
           },
         );
       }
-      callback?.onFailure(dioError);
-      if (callback == null) rethrow;
+      callback?.onFailure(e);
     } catch (e, s) {
+      _logError('getCourseTables', e, s);
       callback?.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -430,20 +362,17 @@ class Helper {
     required GeneralCallback<RewardAndPenaltyData> callback,
   }) async {
     try {
-      final RewardAndPenaltyData data =
-          await WebApHelper.instance.rewardAndPenalty(
+      final data = await WebApHelper.instance.rewardAndPenalty(
         semester.year,
         semester.value,
       );
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      callback.onFailure(dioError);
+    } on DioException catch (e) {
+      callback.onFailure(e);
     } catch (e, s) {
+      _logError('getRewardAndPenalty', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -452,45 +381,36 @@ class Helper {
     required GeneralCallback<MidtermAlertsData> callback,
   }) async {
     try {
-      final MidtermAlertsData data = await WebApHelper.instance.midtermAlerts(
+      final data = await WebApHelper.instance.midtermAlerts(
         semester.year,
         semester.value,
       );
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      callback.onFailure(dioError);
+    } on DioException catch (e) {
+      callback.onFailure(e);
     } catch (e, s) {
+      _logError('getMidtermAlerts', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
-  //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
   Future<void> getRoomList({
-    // required Semester semester,
     required int campusCode,
     required GeneralCallback<RoomData> callback,
   }) async {
     try {
-      final RoomData data = await WebApHelper.instance.roomList(
+      final data = await WebApHelper.instance.roomList(
         '$campusCode',
-        // semester.year,
-        // semester.value,
         '112',
         '1',
       );
-
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      callback.onFailure(dioError);
+    } on DioException catch (e) {
+      callback.onFailure(e);
     } catch (e, s) {
+      _logError('getRoomList', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -500,20 +420,18 @@ class Helper {
     required GeneralCallback<CourseData> callback,
   }) async {
     try {
-      final CourseData data = await WebApHelper.instance.roomCourseTableQuery(
+      final data = await WebApHelper.instance.roomCourseTableQuery(
         roomId,
         semester.year,
         semester.value,
       );
       reLoginCount = 0;
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      callback.onFailure(dioError);
+    } on DioException catch (e) {
+      callback.onFailure(e);
     } catch (e, s) {
+      _logError('getRoomCourseTables', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -526,38 +444,25 @@ class Helper {
         callback.onError(GeneralResponse.platformNotSupport());
         return;
       }
-      final BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
+
+      final data = await MobileNkustHelper.instance.busTimeTableQuery(
         fromDateTime: dateTime,
       );
+
       reLoginCount = 0;
+
       if (data.canReserve) {
         callback.onSuccess(data);
-        return;
       } else {
         callback.onError(
-          GeneralResponse(
-            statusCode: 403,
-            message: data.description!,
-          ),
+          GeneralResponse(statusCode: 403, message: data.description!),
         );
-        return;
       }
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        BusHelper.reLoginReTryCounts = 0;
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleBusError(e, callback);
     } catch (e, s) {
+      _logError('getBusTimeTables', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -569,28 +474,15 @@ class Helper {
         callback.onError(GeneralResponse.platformNotSupport());
         return;
       }
-      final BusReservationsData data =
-          await MobileNkustHelper.instance.busUserRecord();
+
+      final data = await MobileNkustHelper.instance.busUserRecord();
       reLoginCount = 0;
       callback.onSuccess(data);
-      return;
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        BusHelper.reLoginReTryCounts = 0;
-
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleBusError(e, callback);
     } catch (e, s) {
+      _logError('getBusReservations', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -603,28 +495,15 @@ class Helper {
         callback.onError(GeneralResponse.platformNotSupport());
         return;
       }
-      final BookingBusData data =
-          await MobileNkustHelper.instance.busBook(busId: busId);
+
+      final data = await MobileNkustHelper.instance.busBook(busId: busId);
       reLoginCount = 0;
       callback.onSuccess(data);
-      return;
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        BusHelper.reLoginReTryCounts = 0;
-
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleBusError(e, callback);
     } catch (e, s) {
+      _logError('bookingBusReservation', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -637,28 +516,15 @@ class Helper {
         callback.onError(GeneralResponse.platformNotSupport());
         return;
       }
-      final CancelBusData data =
-          await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
+
+      final data = await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
       reLoginCount = 0;
       callback.onSuccess(data);
-      return;
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        BusHelper.reLoginReTryCounts = 0;
-
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleBusError(e, callback);
     } catch (e, s) {
+      _logError('cancelBusReservation', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -670,28 +536,15 @@ class Helper {
         callback.onError(GeneralResponse.platformNotSupport());
         return;
       }
-      final BusViolationRecordsData data =
-          await MobileNkustHelper.instance.busViolationRecords();
+
+      final data = await MobileNkustHelper.instance.busViolationRecords();
       reLoginCount = 0;
       callback.onSuccess(data);
-      return;
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        BusHelper.reLoginReTryCounts = 0;
-
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleBusError(e, callback);
     } catch (e, s) {
+      _logError('getBusViolationRecords', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -700,24 +553,13 @@ class Helper {
     required GeneralCallback<NotificationsData> callback,
   }) async {
     try {
-      final NotificationsData data =
-          await NKUSTHelper.instance.getNotifications(page);
+      final data = await NKUSTHelper.instance.getNotifications(page);
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleServerError(e, callback);
     } catch (e, s) {
+      _logError('getNotifications', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -726,25 +568,16 @@ class Helper {
     required GeneralCallback<LeaveData> callback,
   }) async {
     try {
-      final LeaveData data = await LeaveHelper.instance
-          .getLeaves(year: semester.year, semester: semester.value);
-
+      final data = await LeaveHelper.instance.getLeaves(
+        year: semester.year,
+        semester: semester.value,
+      );
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleServerError(e, callback);
     } catch (e, s) {
+      _logError('getLeaves', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -752,24 +585,13 @@ class Helper {
     required GeneralCallback<LeaveSubmitInfoData> callback,
   }) async {
     try {
-      final LeaveSubmitInfoData data =
-          await LeaveHelper.instance.getLeavesSubmitInfo();
+      final data = await LeaveHelper.instance.getLeavesSubmitInfo();
       callback.onSuccess(data);
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleServerError(e, callback);
     } catch (e, s) {
+      _logError('getLeavesSubmitInfo', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
@@ -779,49 +601,66 @@ class Helper {
     required GeneralCallback<Response<dynamic>?> callback,
   }) async {
     try {
-      final Response<dynamic>? res =
-          await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
+      final res = await LeaveHelper.instance.leavesSubmit(
+        data,
+        proofImage: image,
+      );
       callback.onSuccess(res);
-    } on DioException catch (dioError) {
-      if (dioError.hasResponse) {
-        if (dioError.isServerError) {
-          callback.onError(dioError.serverErrorResponse);
-        } else {
-          callback.onFailure(dioError);
-        }
-      } else {
-        callback.onFailure(dioError);
-      }
+    } on DioException catch (e) {
+      _handleServerError(e, callback);
     } catch (e, s) {
+      _logError('sendLeavesSubmit', e, s);
       callback.onError(GeneralResponse.unknownError());
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await FirebaseCrashlytics.instance.recordError(e, s);
-      }
     }
   }
 
   Future<LibraryInfo?> getLibraryInfo() async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.get<Map<String, dynamic>>(
-        '/leaves/submit/info',
-        cancelToken: cancelToken,
-      );
-      if (response.statusCode == 204) {
-        return null;
+    final response = await dio.get<Map<String, dynamic>>(
+      '/leaves/submit/info',
+      cancelToken: cancelToken,
+    );
+
+    if (response.statusCode == 204) return null;
+    return LibraryInfoData.fromJson(response.data!).data;
+  }
+
+  Map<String, dynamic> _createBearerTokenAuth(String? token) {
+    return <String, String>{'Authorization': 'Bearer $token'};
+  }
+
+  void _handleBusError<T>(DioException e, GeneralCallback<T> callback) {
+    if (e.hasResponse) {
+      BusHelper.reLoginReTryCounts = 0;
+      if (e.isServerError) {
+        callback.onError(e.serverErrorResponse);
       } else {
-        return LibraryInfoData.fromJson(response.data!).data;
+        callback.onFailure(e);
       }
-    } on DioException {
-      rethrow;
+    } else {
+      callback.onFailure(e);
     }
   }
 
-  // v3 api Authorization
-  Map<String, dynamic> _createBearerTokenAuth(String? token) {
-    return <String, String>{
-      'Authorization': 'Bearer $token',
-    };
+  void _handleServerError<T>(DioException e, GeneralCallback<T> callback) {
+    if (e.hasResponse) {
+      if (e.isServerError) {
+        callback.onError(e.serverErrorResponse);
+      } else {
+        callback.onFailure(e);
+      }
+    } else {
+      callback.onFailure(e);
+    }
+  }
+
+  Future<void> _logError(String method, Object e, StackTrace s) async {
+    if (FirebaseCrashlyticsUtils.isSupported) {
+      await FirebaseCrashlytics.instance.recordError(
+        e,
+        s,
+        reason: 'Helper.$method error',
+      );
+    }
   }
 
   static void clearSetting() {
@@ -850,35 +689,34 @@ extension NewsExtension on Announcement {
 extension DioErrorExtension on DioException {
   bool get hasResponse => type == DioExceptionType.badResponse;
 
-  bool get isExpire => response!.statusCode == ApStatusCode.apiExpire;
+  bool get isExpire => response?.statusCode == ApStatusCode.apiExpire;
 
   bool get isServerError =>
-      response!.statusCode == ApStatusCode.schoolServerError ||
-      response!.statusCode == ApStatusCode.apiServerError;
+      response?.statusCode == ApStatusCode.schoolServerError ||
+      response?.statusCode == ApStatusCode.apiServerError;
 
   GeneralResponse get serverErrorResponse {
-    switch (response!.statusCode) {
+    switch (response?.statusCode) {
       case ApStatusCode.apiServerError:
         return GeneralResponse(
           statusCode: ApStatusCode.apiServerError,
-          message: 'api server error',
+          message: 'API 伺服器錯誤',
         );
       case ApStatusCode.schoolServerError:
       default:
         return GeneralResponse(
           statusCode: ApStatusCode.schoolServerError,
-          message: 'shool server error',
+          message: '學校伺服器錯誤',
         );
     }
   }
 }
 
 extension GeneralResponseExtension on GeneralResponse {
-  String getGeneralMessage(
-    BuildContext context,
-  ) {
-    final ApLocalizations ap = ApLocalizations.current;
-    String message = '';
+  String getGeneralMessage(BuildContext context) {
+    final ap = ApLocalizations.current;
+    String message;
+
     switch (statusCode) {
       case ApStatusCode.schoolServerError:
         message = ap.schoolServerError;
@@ -891,11 +729,13 @@ extension GeneralResponseExtension on GeneralResponse {
       default:
         message = ap.unknownError;
     }
+
     AnalyticsUtil.instance.logApiEvent(
       'GeneralResponse',
       statusCode,
       message: message,
     );
+
     return message;
   }
 }

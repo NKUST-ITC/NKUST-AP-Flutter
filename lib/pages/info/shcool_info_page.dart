@@ -16,7 +16,7 @@ class SchoolInfoPage extends StatefulWidget {
 
 class SchoolInfoPageState extends State<SchoolInfoPage>
     with SingleTickerProviderStateMixin {
-  final List<PhoneModel> phoneModelList = <PhoneModel>[
+  final phoneModelList = <PhoneModel>[
     PhoneModel('校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5', '0800-550995'),
     PhoneModel('建工校區', ''),
     PhoneModel('校安專線', '0916-507-506'),
@@ -50,27 +50,21 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   ];
 
   NotificationState notificationState = NotificationState.loading;
-
-  List<Notifications> notificationList = <Notifications>[];
-
+  List<Notifications> notificationList = [];
   int page = 1;
-
   PhoneState phoneState = PhoneState.finish;
-
   PdfState pdfState = PdfState.loading;
-
   late ApLocalizations ap;
-
   late TabController controller;
-
   int _currentIndex = 0;
-
   Uint8List? data;
 
   @override
   void initState() {
-    AnalyticsUtil.instance
-        .setCurrentScreen('SchoolInfoPage', 'school_info_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen(
+      'SchoolInfoPage',
+      'school_info_page.dart',
+    );
     controller = TabController(length: 3, vsync: this);
     _getNotifications();
     _getSchedules();
@@ -87,14 +81,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ap.schoolInfo),
-        backgroundColor: ApTheme.of(context).blue,
-      ),
+      appBar: AppBar(title: Text(ap.schoolInfo)),
       body: TabBarView(
         controller: controller,
         physics: const NeverScrollableScrollPhysics(),
-        children: <Widget>[
+        children: [
           NotificationListView(
             state: notificationState,
             notificationList: notificationList,
@@ -108,10 +99,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               _getNotifications();
             },
           ),
-          PhoneListView(
-            state: phoneState,
-            phoneModelList: phoneModelList,
-          ),
+          PhoneListView(state: phoneState, phoneModelList: phoneModelList),
           PdfView(
             state: pdfState,
             data: data,
@@ -122,28 +110,21 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
           setState(() {
             _currentIndex = index;
             controller.animateTo(_currentIndex);
           });
         },
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        destinations: [
+          NavigationDestination(
             icon: Icon(ApIcon.fiberNew),
             label: ap.notifications,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(ApIcon.phone),
-            label: ap.phones,
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(ApIcon.dateRange),
-            label: ap.events,
-          ),
+          NavigationDestination(icon: Icon(ApIcon.phone), label: ap.phones),
+          NavigationDestination(icon: Icon(ApIcon.dateRange), label: ap.events),
         ],
       ),
     );
@@ -156,13 +137,13 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
       Helper.instance.getNotifications(
         page: page,
         callback: GeneralCallback<NotificationsData>(
-          onSuccess: (NotificationsData data) {
+          onSuccess: (data) {
             notificationList.addAll(data.data.notifications);
             if (mounted) {
               setState(() => notificationState = NotificationState.finish);
             }
           },
-          onFailure: (DioException e) {
+          onFailure: (e) {
             if (e.i18nMessage != null) {
               UiUtil.instance.showToast(context, e.i18nMessage!);
             }
@@ -170,7 +151,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
               setState(() => notificationState = NotificationState.error);
             }
           },
-          onError: (GeneralResponse response) {
+          onError: (response) {
             UiUtil.instance.showToast(context, ap.somethingError);
             if (mounted && notificationList.isEmpty) {
               setState(() => notificationState = NotificationState.error);
@@ -186,7 +167,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
+        final remoteConfig = FirebaseRemoteConfig.instance;
         await remoteConfig.setConfigSettings(
           RemoteConfigSettings(
             fetchTimeout: const Duration(seconds: 10),
@@ -196,7 +177,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         await remoteConfig.fetchAndActivate();
         pdfUrl = remoteConfig.getString(Constants.schedulePdfUrl);
         downloadFdf(pdfUrl);
-      } catch (exception) {
+      } catch (_) {
         downloadFdf(pdfUrl);
       }
     } else {
@@ -207,7 +188,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   Future<void> downloadFdf(String url) async {
     try {
       log(url);
-      final Response<Uint8List> response = await Dio().get<Uint8List>(
+      final response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
@@ -215,11 +196,8 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         pdfState = PdfState.finish;
         data = response.data;
       });
-    } catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-      });
-      rethrow;
+    } catch (_) {
+      setState(() => pdfState = PdfState.error);
     }
   }
 }

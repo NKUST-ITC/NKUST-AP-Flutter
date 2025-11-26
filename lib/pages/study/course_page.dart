@@ -11,20 +11,16 @@ class CoursePage extends StatefulWidget {
 }
 
 class CoursePageState extends State<CoursePage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
+  final key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
-
   Semester? selectSemester;
   SemesterData? semesterData;
   CourseData courseData = CourseData.empty();
-
   CourseNotifyData? notifyData;
-
   bool isOffline = false;
-
   String? customStateHint = '';
 
   String get courseNotifyCacheKey => PreferenceUtil.instance.getString(
@@ -36,11 +32,6 @@ class CoursePageState extends State<CoursePage> {
   void initState() {
     AnalyticsUtil.instance.setCurrentScreen('CoursePage', 'course_page.dart');
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -60,7 +51,7 @@ class CoursePageState extends State<CoursePage> {
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'course',
-        onSelect: (Semester semester, int index) {
+        onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;
             state = CourseState.loading;
@@ -68,8 +59,10 @@ class CoursePageState extends State<CoursePage> {
           semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           _loadCacheData(semester.code);
-          if (!PreferenceUtil.instance
-              .getBool(Constants.prefIsOfflineLogin, false)) {
+          if (!PreferenceUtil.instance.getBool(
+            Constants.prefIsOfflineLogin,
+            false,
+          )) {
             _getCourseTables();
           }
         },
@@ -79,14 +72,12 @@ class CoursePageState extends State<CoursePage> {
         AnalyticsUtil.instance.logEvent('refresh_swipe');
         return null;
       },
-      onSearchButtonClick: () {
-        key.currentState!.pickSemester();
-      },
+      onSearchButtonClick: () => key.currentState!.pickSemester(),
     );
   }
 
   Future<bool> _loadCacheData(String value) async {
-    final CourseData? cacheData = CourseData.load(selectSemester!.cacheSaveTag);
+    final cacheData = CourseData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
@@ -111,10 +102,10 @@ class CoursePageState extends State<CoursePage> {
       semester: selectSemester!,
       semesterDefault: semesterData!.defaultSemester,
       callback: GeneralCallback<CourseData>(
-        onSuccess: (CourseData? data) {
+        onSuccess: (data) {
           if (mounted) {
             setState(() {
-              if (data == null || data.courses.isEmpty) {
+              if (data.courses.isEmpty) {
                 state = CourseState.empty;
               } else {
                 courseData = data;
@@ -126,7 +117,7 @@ class CoursePageState extends State<CoursePage> {
             });
           }
         },
-        onFailure: (DioException e) async {
+        onFailure: (e) async {
           if (await _loadCacheData(selectSemester!.code) &&
               e.type != DioExceptionType.cancel) {
             setState(() {
@@ -142,11 +133,11 @@ class CoursePageState extends State<CoursePage> {
             );
           }
         },
-        onError: (GeneralResponse generalResponse) async {
+        onError: (response) async {
           if (await _loadCacheData(selectSemester!.code)) {
             setState(() {
               state = CourseState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
+              customStateHint = response.getGeneralMessage(context);
             });
           }
         },

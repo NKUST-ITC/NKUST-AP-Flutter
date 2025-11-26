@@ -9,29 +9,23 @@ enum _State { loading, finish, custom }
 
 class RoomListPage extends StatefulWidget {
   @override
-  _RoomListPageState createState() => _RoomListPageState();
+  RoomListPageState createState() => RoomListPageState();
 }
 
-class _RoomListPageState extends State<RoomListPage> {
+class RoomListPageState extends State<RoomListPage> {
   late AppLocalizations app;
 
   _State state = _State.loading;
-
   int campusIndex = 0;
   int roomIndex = 0;
-
   RoomData? roomData;
   CourseData? courseData;
-
   String? customStateHint;
 
   @override
   void initState() {
     _getRoomList();
-    AnalyticsUtil.instance.setCurrentScreen(
-      'RoomListPage',
-      'room_list_page.dart',
-    );
+    AnalyticsUtil.instance.setCurrentScreen('RoomListPage', 'room_list_page.dart');
     super.initState();
   }
 
@@ -39,29 +33,24 @@ class _RoomListPageState extends State<RoomListPage> {
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ApLocalizations.of(context).roomList),
-      ),
+      appBar: AppBar(title: Text(ApLocalizations.of(context).roomList)),
       body: Flex(
         direction: Axis.vertical,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
+        children: [
           ItemPicker(
             dialogTitle: app.campus,
             items: app.campuses,
             currentIndex: campusIndex,
-            onSelected: (int index) {
+            onSelected: (index) {
               setState(() => campusIndex = index);
               _getRoomList();
             },
           ),
           Expanded(
             child: RefreshIndicator(
-              onRefresh: () async {
-                await _getRoomList();
-                return;
-              },
+              onRefresh: () async => _getRoomList(),
               child: body(),
             ),
           ),
@@ -73,21 +62,17 @@ class _RoomListPageState extends State<RoomListPage> {
   Widget body() {
     switch (state) {
       case _State.loading:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (BuildContext context, int index) {
+          itemBuilder: (context, index) {
             return ListTile(
               title: Text(roomData!.data[index].name),
               onTap: () {
                 roomIndex = index;
                 ApUtils.pushCupertinoStyle(
                   context,
-                  EmptyRoomPage(
-                    room: roomData!.data[roomIndex],
-                  ),
+                  EmptyRoomPage(room: roomData!.data[roomIndex]),
                 );
               },
             );
@@ -100,10 +85,7 @@ class _RoomListPageState extends State<RoomListPage> {
             _getRoomList();
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(
-            icon: ApIcon.classIcon,
-            content: customStateHint!,
-          ),
+          child: HintContent(icon: ApIcon.classIcon, content: customStateHint!),
         );
     }
   }
@@ -112,7 +94,7 @@ class _RoomListPageState extends State<RoomListPage> {
     Helper.instance.getRoomList(
       campusCode: campusIndex + 1,
       callback: GeneralCallback<RoomData>(
-        onSuccess: (RoomData data) {
+        onSuccess: (data) {
           setState(() {
             roomData = data;
             if (roomData != null) {
@@ -123,7 +105,7 @@ class _RoomListPageState extends State<RoomListPage> {
             }
           });
         },
-        onFailure: (DioException e) async {
+        onFailure: (e) async {
           if (e.type != DioExceptionType.cancel) {
             setState(() {
               state = _State.custom;
@@ -138,10 +120,10 @@ class _RoomListPageState extends State<RoomListPage> {
             );
           }
         },
-        onError: (GeneralResponse generalResponse) async {
+        onError: (response) async {
           setState(() {
             state = _State.custom;
-            customStateHint = generalResponse.getGeneralMessage(context);
+            customStateHint = response.getGeneralMessage(context);
           });
         },
       ),

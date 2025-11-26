@@ -5,24 +5,17 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State {
-  loading,
-  finish,
-  error,
-  empty,
-  offline,
-  custom,
-}
+enum _State { loading, finish, error, empty, offline, custom }
 
 class RewardAndPenaltyPage extends StatefulWidget {
   static const String routerName = '/user/reward-and-penalty';
 
   @override
-  _RewardAndPenaltyPageState createState() => _RewardAndPenaltyPageState();
+  RewardAndPenaltyPageState createState() => RewardAndPenaltyPageState();
 }
 
-class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
+class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
+  final key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -45,52 +38,43 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ap.rewardAndPenalty),
-        backgroundColor: ApTheme.of(context).blue,
-      ),
+      appBar: AppBar(title: Text(ap.rewardAndPenalty)),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
-        onPressed: () {
-          key.currentState!.pickSemester();
-        },
+        onPressed: () => key.currentState!.pickSemester(),
       ),
       body: Flex(
         direction: Axis.vertical,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
+        children: [
           const SizedBox(height: 8.0),
           SemesterPicker(
             key: key,
             featureTag: 'reward',
-            onSelect: (Semester semester, int index) {
+            onSelect: (semester, index) {
               setState(() {
                 selectSemester = semester;
                 state = _State.loading;
               });
-              _getMidtermAlertsData();
+              _getRewardAndPenaltyData();
             },
           ),
           if (isOffline)
             Text(
               ap.offlineScore,
-              style: TextStyle(color: ApTheme.of(context).grey),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
-                await _getMidtermAlertsData();
+                await _getRewardAndPenaltyData();
                 AnalyticsUtil.instance.logEvent('refresh_swipe');
-                return;
               },
               child: _body(),
             ),
@@ -119,9 +103,6 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     switch (state) {
       case _State.offline:
         return ApIcon.offlineBolt;
-      case _State.error:
-      case _State.empty:
-      case _State.custom:
       default:
         return ApIcon.classIcon;
     }
@@ -143,44 +124,35 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             if (state == _State.empty) {
               key.currentState!.pickSemester();
             } else {
-              _getMidtermAlertsData();
+              _getRewardAndPenaltyData();
             }
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(
-            icon: ApIcon.classIcon,
-            content: stateHint!,
-          ),
+          child: HintContent(icon: ApIcon.classIcon, content: stateHint!),
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, int index) {
-            return _midtermAlertsItem(rewardAndPenaltyData.data[index]);
-          },
+          itemBuilder: (_, index) =>
+              _rewardAndPenaltyItem(rewardAndPenaltyData.data[index]),
           itemCount: rewardAndPenaltyData.data.length,
         );
     }
   }
 
-  Widget _midtermAlertsItem(RewardAndPenalty item) {
+  Widget _rewardAndPenaltyItem(RewardAndPenalty item) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text(
-            item.reason,
-            style: const TextStyle(fontSize: 18.0),
-          ),
+          title: Text(item.reason, style: const TextStyle(fontSize: 18.0)),
           trailing: Text(
             item.type,
             style: TextStyle(
               fontSize: 16.0,
-              color: item.isReward ? Colors.green : Colors.red,
+              color: item.isReward ? colorScheme.tertiary : colorScheme.error,
             ),
           ),
           subtitle: Padding(
@@ -188,10 +160,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             child: Text(
               sprintf(
                 ap.rewardAndPenaltyContent,
-                <dynamic>[
-                  item.counts,
-                  item.date,
-                ],
+                [item.counts, item.date],
               ),
             ),
           ),
@@ -200,11 +169,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     );
   }
 
-  Future<void> _getMidtermAlertsData() async {
+  Future<void> _getRewardAndPenaltyData() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      setState(() {
-        state = _State.offline;
-      });
+      setState(() => state = _State.offline);
       return;
     }
     Helper.cancelToken!.cancel('');
@@ -212,19 +179,15 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     Helper.instance.getRewardAndPenalty(
       semester: selectSemester,
       callback: GeneralCallback<RewardAndPenaltyData>(
-        onSuccess: (RewardAndPenaltyData data) {
+        onSuccess: (data) {
           if (mounted) {
             setState(() {
               rewardAndPenaltyData = data;
-              if (data.data.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
+              state = data.data.isEmpty ? _State.empty : _State.finish;
             });
           }
         },
-        onFailure: (DioException e) {
+        onFailure: (e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
@@ -237,7 +200,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
             );
           }
         },
-        onError: (GeneralResponse response) {
+        onError: (response) {
           setState(() {
             state = _State.custom;
             customStateHint = response.getGeneralMessage(context);

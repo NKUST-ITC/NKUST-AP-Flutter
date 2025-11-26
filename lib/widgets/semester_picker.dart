@@ -29,37 +29,46 @@ class SemesterPickerState extends State<SemesterPicker> {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        //TODO check nullable
-        //ignore: unnecessary_null_comparison
-        if (semesterData != null) pickSemester();
-        if (widget.featureTag != null) {
-          AnalyticsUtil.instance
-              .logEvent('${widget.featureTag}_item_picker_click');
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 4.0,
-          horizontal: 16.0,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              selectSemester?.text ?? '',
-              style: TextStyle(
-                color: ApTheme.of(context).semesterText,
-                fontSize: 18.0,
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: colorScheme.primaryContainer.withAlpha(77),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: () {
+          if (selectSemester != null) pickSemester();
+          if (widget.featureTag != null) {
+            AnalyticsUtil.instance
+                .logEvent('${widget.featureTag}_item_picker_click');
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.calendar_month_rounded,
+                size: 20,
+                color: colorScheme.primary,
               ),
-            ),
-            const SizedBox(width: 8.0),
-            Icon(
-              ApIcon.keyboardArrowDown,
-              color: ApTheme.of(context).semesterText,
-            ),
-          ],
+              const SizedBox(width: 8.0),
+              Text(
+                selectSemester?.text ?? '',
+                style: TextStyle(
+                  color: colorScheme.onSurface,
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 4.0),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: colorScheme.primary,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -89,29 +98,12 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           semesterData = data;
           semesterData.save();
-          final String _ = PreferenceUtil.instance.getString(
-            ApConstants.currentSemesterCode,
-            ApConstants.semesterLatest,
-          );
           final String newSemester =
               '${Helper.username}_${semesterData.defaultSemester.code}';
           PreferenceUtil.instance.setString(
             ApConstants.currentSemesterCode,
             newSemester,
           );
-          //TODO clear old course notify, but may be improve
-          // if (!oldSemester.contains(semesterData.defaultSemester.code)) {
-          //   //TODO check nullable
-          //   final CourseNotifyData notifyData =
-          //       CourseNotifyData.load(oldSemester);
-          //   //ignore: unnecessary_null_comparison
-          //   if (notifyData != null && NotificationUtil.instance.isSupport) {
-          //     CourseNotifyData.clearOldVersionNotification(
-          //       tag: oldSemester,
-          //       newTag: semesterData.defaultSemester.code,
-          //     );
-          //   }
-          // }
           if (mounted) {
             currentIndex = semesterData.defaultIndex;
             widget.onSelect?.call(
@@ -144,21 +136,54 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void pickSemester() {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     showDialog<int>(
       context: context,
-      builder: (BuildContext context) => SimpleOptionDialog(
-        title: ApLocalizations.of(context).pickSemester,
-        items: <String>[
-          for (final Semester item in semesterData.data) item.text,
-        ],
-        index: currentIndex,
-        onSelected: (int index) {
-          currentIndex = index;
-          widget.onSelect!(semesterData.data[currentIndex], currentIndex);
-          setState(() {
-            selectSemester = semesterData.data[currentIndex];
-          });
-        },
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(ApLocalizations.of(context).pickSemester),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: semesterData.data.length,
+            itemBuilder: (BuildContext context, int index) {
+              final bool isSelected = index == currentIndex;
+              return ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                selected: isSelected,
+                selectedTileColor: colorScheme.primaryContainer.withAlpha(77),
+                leading: Icon(
+                  isSelected
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  color: isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                title: Text(
+                  semesterData.data[index].text,
+                  style: TextStyle(
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  currentIndex = index;
+                  widget.onSelect!(semesterData.data[currentIndex], currentIndex);
+                  setState(() {
+                    selectSemester = semesterData.data[currentIndex];
+                  });
+                },
+              );
+            },
+          ),
+        ),
       ),
     );
   }

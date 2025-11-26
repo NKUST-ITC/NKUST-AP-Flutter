@@ -5,24 +5,17 @@ import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
 import 'package:sprintf/sprintf.dart';
 
-enum _State {
-  loading,
-  finish,
-  error,
-  empty,
-  offline,
-  custom,
-}
+enum _State { loading, finish, error, empty, offline, custom }
 
 class MidtermAlertsPage extends StatefulWidget {
   static const String routerName = '/user/midtermAlerts';
 
   @override
-  _MidtermAlertsPageState createState() => _MidtermAlertsPageState();
+  MidtermAlertsPageState createState() => MidtermAlertsPageState();
 }
 
-class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
+class MidtermAlertsPageState extends State<MidtermAlertsPage> {
+  final key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -45,34 +38,26 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ap.midtermAlerts),
-        backgroundColor: ApTheme.of(context).blue,
-      ),
+      appBar: AppBar(title: Text(ap.midtermAlerts)),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
-        onPressed: () {
-          key.currentState!.pickSemester();
-        },
+        onPressed: () => key.currentState!.pickSemester(),
       ),
       body: Flex(
         direction: Axis.vertical,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
+        children: [
           const SizedBox(height: 8.0),
           SemesterPicker(
             key: key,
             featureTag: 'midterm_alerts',
-            onSelect: (Semester semester, int index) {
+            onSelect: (semester, index) {
               setState(() {
                 selectSemester = semester;
                 state = _State.loading;
@@ -83,14 +68,13 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           if (isOffline)
             Text(
               ap.offlineScore,
-              style: TextStyle(color: ApTheme.of(context).grey),
+              style: TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
                 await _getMidtermAlertsData();
                 AnalyticsUtil.instance.logEvent('refresh_swipe');
-                return;
               },
               child: _body(),
             ),
@@ -119,9 +103,6 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     switch (state) {
       case _State.offline:
         return ApIcon.offlineBolt;
-      case _State.error:
-      case _State.empty:
-      case _State.custom:
       default:
         return ApIcon.classIcon;
     }
@@ -147,16 +128,12 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             }
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(
-            icon: stateIcon,
-            content: stateHint!,
-          ),
+          child: HintContent(icon: stateIcon, content: stateHint!),
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, int index) {
-            return _midtermAlertsItem(midtermAlertData.courses[index]);
-          },
+          itemBuilder: (_, index) =>
+              _midtermAlertsItem(midtermAlertData.courses[index]),
           itemCount: midtermAlertData.courses.length,
         );
     }
@@ -166,25 +143,16 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text(
-            item.title,
-            style: const TextStyle(fontSize: 18.0),
-          ),
+          title: Text(item.title, style: const TextStyle(fontSize: 18.0)),
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
               sprintf(
                 ap.midtermAlertsContent,
-                <dynamic>[
-                  item.reason ?? '',
-                  item.remark ?? '',
-                ],
+                [item.reason ?? '', item.remark ?? ''],
               ),
             ),
           ),
@@ -195,9 +163,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   Future<void> _getMidtermAlertsData() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      setState(() {
-        state = _State.offline;
-      });
+      setState(() => state = _State.offline);
       return;
     }
     Helper.cancelToken!.cancel('');
@@ -205,19 +171,15 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     Helper.instance.getMidtermAlerts(
       semester: selectSemester,
       callback: GeneralCallback<MidtermAlertsData>(
-        onSuccess: (MidtermAlertsData data) {
+        onSuccess: (data) {
           if (mounted) {
             setState(() {
               midtermAlertData = data;
-              if (data.courses.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
+              state = data.courses.isEmpty ? _State.empty : _State.finish;
             });
           }
         },
-        onFailure: (DioException e) {
+        onFailure: (e) {
           setState(() {
             state = _State.custom;
             customStateHint = e.i18nMessage;
@@ -230,7 +192,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
             );
           }
         },
-        onError: (GeneralResponse response) {
+        onError: (response) {
           setState(() {
             state = _State.custom;
             customStateHint = response.getGeneralMessage(context);

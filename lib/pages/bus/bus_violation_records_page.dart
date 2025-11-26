@@ -18,18 +18,15 @@ enum _State {
 
 class BusViolationRecordsPage extends StatefulWidget {
   @override
-  _BusViolationRecordsPageState createState() =>
-      _BusViolationRecordsPageState();
+  BusViolationRecordsPageState createState() => BusViolationRecordsPageState();
 }
 
-class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
+class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   late AppLocalizations app;
   late ApLocalizations ap;
 
   _State state = _State.loading;
-
   String? customStateHint = '';
-
   BusViolationRecordsData? violationData;
 
   String? get errorText {
@@ -61,9 +58,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
     ap = ApLocalizations.of(context);
     switch (state) {
       case _State.loading:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case _State.error:
       case _State.empty:
       case _State.campusNotSupport:
@@ -74,10 +69,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             getBusViolationRecords();
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(
-            icon: ApIcon.assignment,
-            content: errorText!,
-          ),
+          child: HintContent(icon: ApIcon.assignment, content: errorText!),
         );
       default:
         return _body();
@@ -85,13 +77,11 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Widget _body() {
+    final colorScheme = Theme.of(context).colorScheme;
     return RefreshIndicator(
-      onRefresh: () async {
-        await getBusViolationRecords();
-        return;
-      },
+      onRefresh: () async => getBusViolationRecords(),
       child: CustomScrollView(
-        slivers: <Widget>[
+        slivers: [
           SliverPersistentHeader(
             delegate: MySliverAppBar(
               expandedHeight: 140,
@@ -101,18 +91,17 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           SliverFixedExtentList(
             itemExtent: 100.0,
             delegate: SliverChildBuilderDelegate(
-              (BuildContext context, int index) {
-                final bool isLeft = index % 2 != 0;
-                final List<Reservation> reservations =
-                    violationData!.reservations;
-                final bool isShowYear = (index == 0) ||
+              (context, index) {
+                final isLeft = index % 2 != 0;
+                final reservations = violationData!.reservations;
+                final isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
                     (reservations[index].time.year !=
                         reservations[index + 1].time.year) ||
                     (reservations[index].time.year !=
                         reservations[index - 1].time.year);
                 return Row(
-                  children: <Widget>[
+                  children: [
                     Expanded(
                       child: isLeft
                           ? ReservationItem(
@@ -125,7 +114,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: ApTheme.of(context).greyText,
+                                        color: colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -134,11 +123,12 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             ),
                     ),
                     Column(
-                      children: <Widget>[
+                      children: [
                         Expanded(
                           child: Container(
-                            color:
-                                (index != 0) ? ApTheme.of(context).grey : null,
+                            color: index != 0
+                                ? colorScheme.outlineVariant
+                                : null,
                             width: 1.0,
                           ),
                         ),
@@ -150,7 +140,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             ),
                             border: Border.all(
                               width: 3,
-                              color: ApTheme.of(context).yellow,
+                              color: colorScheme.secondary,
                             ),
                           ),
                           constraints: const BoxConstraints(
@@ -161,15 +151,15 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             reservations[index].amountendText,
                             style: TextStyle(
                               color: reservations[index].isPayment
-                                  ? ApTheme.of(context).yellow
-                                  : ApTheme.of(context).red,
+                                  ? colorScheme.secondary
+                                  : colorScheme.error,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
-                            color: (index != reservations.length - 1)
-                                ? ApTheme.of(context).grey
+                            color: index != reservations.length - 1
+                                ? colorScheme.outlineVariant
                                 : null,
                             width: 1.0,
                           ),
@@ -188,7 +178,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: ApTheme.of(context).greyText,
+                                        color: colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -210,10 +200,10 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   Future<void> getBusViolationRecords() async {
     Helper.instance.getBusViolationRecords(
       callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (BusViolationRecordsData data) {
+        onSuccess: (data) {
           violationData = data;
           violationData!.reservations.sort(
-            (Reservation a, Reservation b) => b.time.compareTo(a.time),
+            (a, b) => b.time.compareTo(a.time),
           );
           if (mounted) {
             setState(() {
@@ -233,12 +223,12 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           );
           AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
-            (data.hasBusViolationRecords)
+            data.hasBusViolationRecords
                 ? AnalyticsConstants.yes
                 : AnalyticsConstants.no,
           );
         },
-        onFailure: (DioException e) {
+        onFailure: (e) {
           if (mounted) {
             switch (e.type) {
               case DioExceptionType.badResponse:
@@ -283,7 +273,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             }
           }
         },
-        onError: (GeneralResponse response) {
+        onError: (response) {
           setState(() {
             state = _State.custom;
             customStateHint = response.getGeneralMessage(context);
@@ -298,33 +288,25 @@ class ReservationItem extends StatelessWidget {
   final Reservation? reservation;
   final bool? isLeft;
 
-  const ReservationItem({
-    super.key,
-    this.reservation,
-    this.isLeft,
-  });
+  const ReservationItem({super.key, this.reservation, this.isLeft});
 
   @override
   Widget build(BuildContext context) {
-    final DateFormat dateFormat =
-        DateFormat('E h:mm a', ApLocalizations.of(context).dateTimeLocale);
+    final colorScheme = Theme.of(context).colorScheme;
+    final dateFormat = DateFormat(
+      'E h:mm a',
+      ApLocalizations.of(context).dateTimeLocale,
+    );
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8.0,
-        vertical: 2.0,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
       alignment: isLeft! ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+        children: [
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              if (isLeft!)
-                startStation(
-                  context,
-                  reservation!.startStationText(context),
-                ),
+            children: [
+              if (isLeft!) startStation(context, reservation!.startStationText(context)),
               Tooltip(
                 message: '${reservation!.time.year}',
                 child: Padding(
@@ -333,36 +315,31 @@ class ReservationItem extends StatelessWidget {
                     '${reservation!.time.month}/${reservation!.time.day}',
                     style: TextStyle(
                       fontSize: 24.0,
-                      color: ApTheme.of(context).greyText,
+                      color: colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                   ),
                 ),
               ),
-              if (!isLeft!)
-                startStation(
-                  context,
-                  reservation!.startStationText(context),
-                ),
+              if (!isLeft!) startStation(context, reservation!.startStationText(context)),
             ],
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+            children: [
               Icon(
                 ApIcon.accessTime,
                 size: 12.0,
-                color: ApTheme.of(context).greyText,
+                color: colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 2.0),
               Text(
-                dateFormat
-                    .format(reservation!.time.add(const Duration(hours: 8))),
-                style: TextStyle(
-                  color: ApTheme.of(context).greyText,
+                dateFormat.format(
+                  reservation!.time.add(const Duration(hours: 8)),
                 ),
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -370,7 +347,7 @@ class ReservationItem extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+              children: [
                 Center(
                   child: Text(
                     reservation!.isPayment
@@ -378,8 +355,8 @@ class ReservationItem extends StatelessWidget {
                         : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
                       color: reservation!.isPayment
-                          ? ApTheme.of(context).green
-                          : ApTheme.of(context).red,
+                          ? colorScheme.tertiary
+                          : colorScheme.error,
                     ),
                   ),
                 ),
@@ -391,23 +368,19 @@ class ReservationItem extends StatelessWidget {
   }
 
   Widget startStation(BuildContext context, String? station) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(12),
-        ),
-        color: ApTheme.of(context).blueAccent,
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        color: colorScheme.primary,
       ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 1.0,
-        horizontal: 8.0,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
       child: Text(
         station ?? AppLocalizations.of(context).unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,
-          color: ApTheme.of(context).courseText,
+          color: colorScheme.onPrimary,
         ),
       ),
     );
@@ -418,33 +391,27 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final String text;
 
-  MySliverAppBar({
-    required this.expandedHeight,
-    required this.text,
-  });
+  MySliverAppBar({required this.expandedHeight, required this.text});
 
   @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ColoredBox(
-      color: ApTheme.of(context).blue,
+      color: colorScheme.primary,
       child: Stack(
         clipBehavior: Clip.none,
         fit: StackFit.expand,
-        children: <Widget>[
+        children: [
           Opacity(
             opacity: 1 - shrinkOffset / expandedHeight,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
+              children: [
                 const SizedBox(height: 32.0),
                 Text(
                   text,
                   style: TextStyle(
-                    color: Colors.grey[100],
+                    color: colorScheme.onPrimary,
                     fontSize: 56.0,
                   ),
                 ),
@@ -459,14 +426,11 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
               opacity: 1 - shrinkOffset / expandedHeight,
               child: CustomPaint(
                 painter: TrianglePainter(
-                  strokeColor: ApTheme.of(context).blue,
+                  strokeColor: colorScheme.primary,
                   strokeWidth: 10,
                   paintingStyle: PaintingStyle.fill,
                 ),
-                child: const SizedBox(
-                  height: 18,
-                  width: 20,
-                ),
+                child: const SizedBox(height: 18, width: 20),
               ),
             ),
           ),
@@ -498,11 +462,10 @@ class TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
+    final paint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
       ..style = paintingStyle;
-
     canvas.drawPath(getTrianglePath(size.width, size.height), paint);
   }
 

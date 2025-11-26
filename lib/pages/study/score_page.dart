@@ -11,29 +11,21 @@ class ScorePage extends StatefulWidget {
 }
 
 class ScorePageState extends State<ScorePage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
+  final key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
   ScoreState state = ScoreState.loading;
-
   Semester? selectSemester;
   SemesterData? semesterData;
   ScoreData? scoreData;
-
   bool isOffline = false;
-
   String? customStateHint = '';
 
   @override
   void initState() {
     AnalyticsUtil.instance.setCurrentScreen('ScorePage', 'score_page.dart');
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -47,13 +39,15 @@ class ScorePageState extends State<ScorePage> {
       itemPicker: SemesterPicker(
         key: key,
         featureTag: 'score',
-        onSelect: (Semester semester, int index) {
+        onSelect: (semester, index) {
           setState(() {
             selectSemester = semester;
             state = ScoreState.loading;
           });
-          if (PreferenceUtil.instance
-              .getBool(Constants.prefIsOfflineLogin, false)) {
+          if (PreferenceUtil.instance.getBool(
+            Constants.prefIsOfflineLogin,
+            false,
+          )) {
             _loadOfflineScoreData();
           } else {
             _getSemesterScore();
@@ -61,15 +55,12 @@ class ScorePageState extends State<ScorePage> {
         },
       ),
       onRefresh: () async {
-        //TODO implement block callback function
         await _getSemesterScore();
         AnalyticsUtil.instance.logEvent('refresh_swipe');
         return null;
       },
-      onSearchButtonClick: () {
-        key.currentState!.pickSemester();
-      },
-      details: <String>[
+      onSearchButtonClick: () => key.currentState!.pickSemester(),
+      details: [
         '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
         '${ap.average}：${scoreData?.detail.average ?? ''}',
         '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
@@ -87,7 +78,7 @@ class ScorePageState extends State<ScorePage> {
       Helper.instance.getScores(
         semester: selectSemester!,
         callback: GeneralCallback<ScoreData?>(
-          onSuccess: (ScoreData? data) {
+          onSuccess: (data) {
             if (mounted) {
               setState(() {
                 if (data == null) {
@@ -100,7 +91,7 @@ class ScorePageState extends State<ScorePage> {
               });
             }
           },
-          onFailure: (DioException e) async {
+          onFailure: (e) async {
             if (await _loadOfflineScoreData() &&
                 e.type != DioExceptionType.cancel) {
               setState(() {
@@ -116,11 +107,11 @@ class ScorePageState extends State<ScorePage> {
               );
             }
           },
-          onError: (GeneralResponse generalResponse) async {
+          onError: (response) async {
             if (await _loadOfflineScoreData()) {
               setState(() {
                 state = ScoreState.custom;
-                customStateHint = generalResponse.getGeneralMessage(context);
+                customStateHint = response.getGeneralMessage(context);
               });
             }
           },
@@ -134,11 +125,7 @@ class ScorePageState extends State<ScorePage> {
     if (mounted) {
       setState(() {
         isOffline = true;
-        if (scoreData == null) {
-          state = ScoreState.offlineEmpty;
-        } else {
-          state = ScoreState.finish;
-        }
+        state = scoreData == null ? ScoreState.offlineEmpty : ScoreState.finish;
       });
     }
     return scoreData == null;
