@@ -227,9 +227,7 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildSectionTitle(colorScheme, ap.aboutAuthorTitle),
-                  const SizedBox(height: 12),
-                  ..._buildVersionCards(colorScheme),
+                  _buildMadeBySection(colorScheme, ap),
                   const SizedBox(height: 24),
                   _buildContentCard(
                     colorScheme: colorScheme,
@@ -278,29 +276,68 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
     );
   }
 
-  Widget _buildSectionTitle(ColorScheme colorScheme, String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 4,
-            height: 24,
+  Widget _buildMadeBySection(ColorScheme colorScheme, ApLocalizations ap) {
+    return Card(
+      elevation: 0,
+      color: colorScheme.surfaceContainerLow,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(51)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: true,
+          tilePadding: const EdgeInsets.fromLTRB(20, 8, 16, 8),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          leading: Container(
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              color: colorScheme.primary,
-              borderRadius: BorderRadius.circular(2),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: <Color>[
+                  colorScheme.primary,
+                  colorScheme.tertiary,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: colorScheme.primary.withAlpha(77),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Icon(
+              Icons.code_rounded,
+              color: Colors.white,
+              size: 24,
             ),
           ),
-          const SizedBox(width: 12),
-          Text(
-            title,
+          title: Text(
+            ap.aboutAuthorTitle,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
             ),
           ),
-        ],
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '${_appVersions.length} 個專案',
+              style: TextStyle(
+                fontSize: 13,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          children: _buildVersionCards(colorScheme),
+        ),
       ),
     );
   }
@@ -382,50 +419,41 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
     required _AppVersion version,
     required Color accentColor,
   }) {
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: colorScheme.outlineVariant.withAlpha(51)),
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withAlpha(128),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: <Color>[
-                  accentColor.withAlpha(26),
+                  accentColor.withAlpha(38),
                   accentColor.withAlpha(13),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
+                top: Radius.circular(16),
               ),
             ),
             child: Row(
               children: <Widget>[
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 40,
+                  height: 40,
                   decoration: BoxDecoration(
                     color: accentColor,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                        color: accentColor.withAlpha(102),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(version.icon, size: 24, color: Colors.white),
+                  child: Icon(version.icon, size: 20, color: Colors.white),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -433,8 +461,8 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
                       Text(
                         version.title,
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
                       ),
@@ -442,7 +470,7 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
                         Text(
                           version.subtitle!,
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
                           ),
                         ),
