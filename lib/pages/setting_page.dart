@@ -401,12 +401,8 @@ class SettingPageState extends State<SettingPage> {
         child: Row(
           children: <Widget>[
             Icon(
-              isSelected
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: isSelected
-                  ? colorScheme.primary
-                  : colorScheme.onSurfaceVariant,
+              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 16),
             Text(
@@ -498,8 +494,7 @@ class SettingPageState extends State<SettingPage> {
         Constants.prefCustomThemeColor,
         0,
       );
-      if (_themeColorIndex == AppTheme.customColorIndex &&
-          customColorValue != 0) {
+      if (_themeColorIndex == AppTheme.customColorIndex && customColorValue != 0) {
         AppTheme.customColor = Color(customColorValue!);
       }
     });
@@ -521,8 +516,7 @@ class SettingPageState extends State<SettingPage> {
     );
 
     if (isOffline) {
-      final BusReservationsData? response =
-          BusReservationsData.load(Helper.username);
+      final BusReservationsData? response = BusReservationsData.load(Helper.username);
       Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() => busNotify = false);

@@ -168,9 +168,7 @@ class SettingTile extends StatelessWidget {
             if (trailing != null) trailing!,
             if (trailing == null && onTap != null)
               Icon(
-                isExternalLink
-                    ? Icons.open_in_new_rounded
-                    : Icons.chevron_right_rounded,
+                isExternalLink ? Icons.open_in_new_rounded : Icons.chevron_right_rounded,
                 color: colorScheme.onSurfaceVariant.withAlpha(128),
                 size: isExternalLink ? 20 : 24,
               ),

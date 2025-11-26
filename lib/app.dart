@@ -38,19 +38,14 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     analytics = FirebaseUtils.init();
     FirebaseMessagingUtils.instance.init(vapidKey: Constants.fcmWebVapidKey);
-    themeMode = ThemeMode.values[
-        PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
-    AppTheme.currentColorIndex =
-        PreferenceUtil.instance.getInt(Constants.prefThemeColorIndex, 0);
-    final int customColorValue =
-        PreferenceUtil.instance.getInt(Constants.prefCustomThemeColor, 0);
-    if (AppTheme.currentColorIndex == AppTheme.customColorIndex &&
-        customColorValue != 0) {
+    themeMode = ThemeMode.values[PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    AppTheme.currentColorIndex = PreferenceUtil.instance.getInt(Constants.prefThemeColorIndex, 0);
+    final int customColorValue = PreferenceUtil.instance.getInt(Constants.prefCustomThemeColor, 0);
+    if (AppTheme.currentColorIndex == AppTheme.customColorIndex && customColorValue != 0) {
       AppTheme.customColor = Color(customColorValue);
     }
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
-    AnalyticsUtil.instance
-        .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
+    AnalyticsUtil.instance.setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
@@ -115,9 +110,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ApSupportLanguageConstants.system,
     );
     if (languageCode == ApSupportLanguageConstants.system) {
-      this.locale = ApLocalizations.delegate.isSupported(locale!)
-          ? locale
-          : const Locale('en');
+      this.locale = ApLocalizations.delegate.isSupported(locale!) ? locale : const Locale('en');
     } else if (languageCode == 'ja') {
       this.locale = const Locale('ja', 'JP');
     } else {
@@ -136,8 +129,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void loadLocale(Locale locale) {
     this.locale = locale;
-    final Locale apLocale =
-        locale.languageCode == 'ja' ? const Locale('en') : locale;
+    final Locale apLocale = locale.languageCode == 'ja' ? const Locale('en') : locale;
     AnnouncementHelper.instance.setLocale(apLocale);
     setState(() {
       appDelegate.load(locale);

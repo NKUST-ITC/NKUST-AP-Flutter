@@ -78,8 +78,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 1,
         backgroundColor: isLight ? colorScheme.primary : colorScheme.surface,
-        foregroundColor:
-            isLight ? colorScheme.onPrimary : colorScheme.onSurface,
+        foregroundColor: isLight ? colorScheme.onPrimary : colorScheme.onSurface,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -183,8 +182,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         hintStyle: TextStyle(
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w400,
@@ -358,9 +356,7 @@ class AppTheme {
       ),
       tabBarTheme: TabBarThemeData(
         labelColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
-        unselectedLabelColor: isLight
-            ? colorScheme.onPrimary.withAlpha(179)
-            : colorScheme.onSurfaceVariant,
+        unselectedLabelColor: isLight ? colorScheme.onPrimary.withAlpha(179) : colorScheme.onSurfaceVariant,
         indicatorColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
@@ -459,9 +455,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
                 child: Text(
                   '#${currentColor.value.toRadixString(16).substring(2).toUpperCase()}',
                   style: TextStyle(
-                    color: _hsvColor.value > 0.5 && _hsvColor.saturation < 0.5
-                        ? Colors.black87
-                        : Colors.white,
+                    color: _hsvColor.value > 0.5 && _hsvColor.saturation < 0.5 ? Colors.black87 : Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
                   ),
@@ -597,8 +591,7 @@ class _ColorPickerDialogState extends State<ColorPickerDialog> {
   }
 
   Widget _buildValueSlider(ColorScheme colorScheme) {
-    final Color endColor =
-        HSVColor.fromAHSV(1, _hsvColor.hue, _hsvColor.saturation, 1).toColor();
+    final Color endColor = HSVColor.fromAHSV(1, _hsvColor.hue, _hsvColor.saturation, 1).toColor();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
