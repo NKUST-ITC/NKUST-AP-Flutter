@@ -111,12 +111,12 @@ class SettingPageState extends State<SettingPage> {
                 SettingTile(
                   icon: Icons.palette_outlined,
                   title: '主題色',
-                  subtitle: AppTheme.themeColors[_themeColorIndex].name,
+                  subtitle: AppTheme.currentColorName,
                   trailing: Container(
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: AppTheme.themeColors[_themeColorIndex].color,
+                      color: AppTheme.seedColor,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: colorScheme.outline,
@@ -291,102 +291,41 @@ class SettingPageState extends State<SettingPage> {
   }
 
   Future<void> _showThemeColorDialog() async {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-
-    final int? result = await showModalBottomSheet<int>(
+    final Color? result = await showDialog<Color>(
       context: context,
-      builder: (BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                '選擇主題色',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 100,
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                scrollDirection: Axis.horizontal,
-                itemCount: AppTheme.themeColors.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 12),
-                itemBuilder: (BuildContext context, int index) {
-                  final ThemeColor themeColor = AppTheme.themeColors[index];
-                  final bool isSelected = index == _themeColorIndex;
-
-                  return GestureDetector(
-                    onTap: () => Navigator.pop(context, index),
-                    child: Column(
-                      children: <Widget>[
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: themeColor.color,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isSelected
-                                  ? colorScheme.onSurface
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
-                            boxShadow: isSelected
-                                ? <BoxShadow>[
-                                    BoxShadow(
-                                      color: themeColor.color.withAlpha(128),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check_rounded,
-                                  color: Colors.white,
-                                  size: 28,
-                                )
-                              : null,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          themeColor.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight:
-                                isSelected ? FontWeight.w600 : FontWeight.w400,
-                            color: isSelected
-                                ? colorScheme.onSurface
-                                : colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
+      builder: (BuildContext context) => ColorPickerDialog(
+        initialColor: AppTheme.seedColor,
       ),
     );
 
-    if (result != null && result != _themeColorIndex) {
-      setState(() => _themeColorIndex = result);
-      AppTheme.currentColorIndex = result;
-      PreferenceUtil.instance.setInt(Constants.prefThemeColorIndex, result);
+    if (result != null) {
+      final int matchedIndex = AppTheme.themeColors.indexWhere(
+        (ThemeColor tc) => tc.color.value == result.value,
+      );
+
+      setState(() {
+        if (matchedIndex >= 0) {
+          _themeColorIndex = matchedIndex;
+          AppTheme.currentColorIndex = matchedIndex;
+          AppTheme.customColor = null;
+        } else {
+          _themeColorIndex = AppTheme.customColorIndex;
+          AppTheme.currentColorIndex = AppTheme.customColorIndex;
+          AppTheme.customColor = result;
+        }
+      });
+
+      PreferenceUtil.instance.setInt(
+        Constants.prefThemeColorIndex,
+        AppTheme.currentColorIndex,
+      );
+      if (AppTheme.customColor != null) {
+        PreferenceUtil.instance.setInt(
+          Constants.prefCustomThemeColor,
+          AppTheme.customColor!.value,
+        );
+      }
+
       ShareDataWidget.of(context)!.data.update();
       AnalyticsUtil.instance.logEvent('theme_color_change');
     }
@@ -540,6 +479,14 @@ class SettingPageState extends State<SettingPage> {
         0,
       );
       AppTheme.currentColorIndex = _themeColorIndex;
+      final int? customColorValue = PreferenceUtil.instance.getInt(
+        Constants.prefCustomThemeColor,
+        0,
+      );
+      if (_themeColorIndex == AppTheme.customColorIndex &&
+          customColorValue != 0) {
+        AppTheme.customColor = Color(customColorValue!);
+      }
     });
   }
 

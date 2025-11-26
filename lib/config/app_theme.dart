@@ -24,9 +24,29 @@ class AppTheme {
     ThemeColor(name: '棕褐', color: Color(0xFF5D4037)),
   ];
 
+  static const int customColorIndex = -1;
   static int currentColorIndex = 0;
+  static Color? customColor;
 
-  static Color get seedColor => themeColors[currentColorIndex].color;
+  static Color get seedColor {
+    if (currentColorIndex == customColorIndex && customColor != null) {
+      return customColor!;
+    }
+    if (currentColorIndex >= 0 && currentColorIndex < themeColors.length) {
+      return themeColors[currentColorIndex].color;
+    }
+    return themeColors[0].color;
+  }
+
+  static String get currentColorName {
+    if (currentColorIndex == customColorIndex && customColor != null) {
+      return '自訂色';
+    }
+    if (currentColorIndex >= 0 && currentColorIndex < themeColors.length) {
+      return themeColors[currentColorIndex].name;
+    }
+    return themeColors[0].name;
+  }
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
@@ -386,4 +406,277 @@ extension ThemeExtensions on BuildContext {
   ColorScheme get colorScheme => theme.colorScheme;
   TextTheme get textTheme => theme.textTheme;
   bool get isDark => theme.brightness == Brightness.dark;
+}
+
+class ColorPickerDialog extends StatefulWidget {
+  final Color initialColor;
+
+  const ColorPickerDialog({
+    super.key,
+    required this.initialColor,
+  });
+
+  @override
+  State<ColorPickerDialog> createState() => _ColorPickerDialogState();
+}
+
+class _ColorPickerDialogState extends State<ColorPickerDialog> {
+  late HSVColor _hsvColor;
+
+  @override
+  void initState() {
+    super.initState();
+    _hsvColor = HSVColor.fromColor(widget.initialColor);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color currentColor = _hsvColor.toColor();
+
+    return AlertDialog(
+      title: const Text('選擇主題色'),
+      content: SizedBox(
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Container(
+              height: 60,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: currentColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                    color: currentColor.withAlpha(128),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Text(
+                  '#${currentColor.value.toRadixString(16).substring(2).toUpperCase()}',
+                  style: TextStyle(
+                    color: _hsvColor.value > 0.5 && _hsvColor.saturation < 0.5
+                        ? Colors.black87
+                        : Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildHueSlider(colorScheme),
+            const SizedBox(height: 16),
+            _buildSaturationSlider(colorScheme),
+            const SizedBox(height: 16),
+            _buildValueSlider(colorScheme),
+            const SizedBox(height: 24),
+            _buildPresetColors(),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('取消'),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, currentColor),
+          child: const Text('確定'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHueSlider(ColorScheme colorScheme) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          '色相',
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          height: 24,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: const LinearGradient(
+              colors: <Color>[
+                Color(0xFFFF0000),
+                Color(0xFFFFFF00),
+                Color(0xFF00FF00),
+                Color(0xFF00FFFF),
+                Color(0xFF0000FF),
+                Color(0xFFFF00FF),
+                Color(0xFFFF0000),
+              ],
+            ),
+          ),
+          child: SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 24,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              thumbColor: Colors.white,
+              overlayColor: Colors.white24,
+              trackShape: const RoundedRectSliderTrackShape(),
+              activeTrackColor: Colors.transparent,
+              inactiveTrackColor: Colors.transparent,
+            ),
+            child: Slider(
+              value: _hsvColor.hue,
+              min: 0,
+              max: 360,
+              onChanged: (double value) {
+                setState(() {
+                  _hsvColor = _hsvColor.withHue(value);
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSaturationSlider(ColorScheme colorScheme) {
+    final Color endColor = HSVColor.fromAHSV(1, _hsvColor.hue, 1, 1).toColor();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          '飽和度',
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          height: 24,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: <Color>[Colors.white, endColor],
+            ),
+          ),
+          child: SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 24,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              thumbColor: Colors.white,
+              overlayColor: Colors.white24,
+              trackShape: const RoundedRectSliderTrackShape(),
+              activeTrackColor: Colors.transparent,
+              inactiveTrackColor: Colors.transparent,
+            ),
+            child: Slider(
+              value: _hsvColor.saturation,
+              min: 0,
+              max: 1,
+              onChanged: (double value) {
+                setState(() {
+                  _hsvColor = _hsvColor.withSaturation(value);
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildValueSlider(ColorScheme colorScheme) {
+    final Color endColor =
+        HSVColor.fromAHSV(1, _hsvColor.hue, _hsvColor.saturation, 1).toColor();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          '亮度',
+          style: TextStyle(
+            fontSize: 12,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          height: 24,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: <Color>[Colors.black, endColor],
+            ),
+          ),
+          child: SliderTheme(
+            data: SliderThemeData(
+              trackHeight: 24,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+              thumbColor: Colors.white,
+              overlayColor: Colors.white24,
+              trackShape: const RoundedRectSliderTrackShape(),
+              activeTrackColor: Colors.transparent,
+              inactiveTrackColor: Colors.transparent,
+            ),
+            child: Slider(
+              value: _hsvColor.value,
+              min: 0,
+              max: 1,
+              onChanged: (double value) {
+                setState(() {
+                  _hsvColor = _hsvColor.withValue(value);
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPresetColors() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: AppTheme.themeColors.map((ThemeColor themeColor) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _hsvColor = HSVColor.fromColor(themeColor.color);
+            });
+          },
+          child: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: themeColor.color,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white,
+                width: 2,
+              ),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: themeColor.color.withAlpha(77),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
 }

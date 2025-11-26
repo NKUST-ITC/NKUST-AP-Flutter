@@ -42,6 +42,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
         PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
     AppTheme.currentColorIndex =
         PreferenceUtil.instance.getInt(Constants.prefThemeColorIndex, 0);
+    final int customColorValue =
+        PreferenceUtil.instance.getInt(Constants.prefCustomThemeColor, 0);
+    if (AppTheme.currentColorIndex == AppTheme.customColorIndex &&
+        customColorValue != 0) {
+      AppTheme.customColor = Color(customColorValue);
+    }
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
     AnalyticsUtil.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
