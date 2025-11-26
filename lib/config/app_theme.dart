@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
 
+class ThemeColor {
+  const ThemeColor({
+    required this.name,
+    required this.color,
+  });
+
+  final String name;
+  final Color color;
+}
+
 class AppTheme {
-  static const Color _seedColor = Color(0xFF0066CC);
+  static const List<ThemeColor> themeColors = <ThemeColor>[
+    ThemeColor(name: '高科藍', color: Color(0xFF0066CC)),
+    ThemeColor(name: '海洋藍', color: Color(0xFF0077B6)),
+    ThemeColor(name: '翠綠', color: Color(0xFF2E7D32)),
+    ThemeColor(name: '珊瑚橙', color: Color(0xFFE64A19)),
+    ThemeColor(name: '典雅紫', color: Color(0xFF7B1FA2)),
+    ThemeColor(name: '玫瑰紅', color: Color(0xFFC2185B)),
+    ThemeColor(name: '青色', color: Color(0xFF00838F)),
+    ThemeColor(name: '琥珀', color: Color(0xFFFF8F00)),
+    ThemeColor(name: '靛藍', color: Color(0xFF303F9F)),
+    ThemeColor(name: '棕褐', color: Color(0xFF5D4037)),
+  ];
+
+  static int currentColorIndex = 0;
+
+  static Color get seedColor => themeColors[currentColorIndex].color;
 
   static ThemeData get light {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: _seedColor,
+      seedColor: seedColor,
       brightness: Brightness.light,
     );
 
@@ -14,7 +39,7 @@ class AppTheme {
 
   static ThemeData get dark {
     final colorScheme = ColorScheme.fromSeed(
-      seedColor: _seedColor,
+      seedColor: seedColor,
       brightness: Brightness.dark,
     );
 
@@ -33,7 +58,8 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 1,
         backgroundColor: isLight ? colorScheme.primary : colorScheme.surface,
-        foregroundColor: isLight ? colorScheme.onPrimary : colorScheme.onSurface,
+        foregroundColor:
+            isLight ? colorScheme.onPrimary : colorScheme.onSurface,
         titleTextStyle: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w600,
@@ -137,7 +163,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colorScheme.error, width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         hintStyle: TextStyle(
           color: colorScheme.onSurfaceVariant,
           fontWeight: FontWeight.w400,
@@ -311,7 +338,9 @@ class AppTheme {
       ),
       tabBarTheme: TabBarThemeData(
         labelColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
-        unselectedLabelColor: isLight ? colorScheme.onPrimary.withAlpha(179) : colorScheme.onSurfaceVariant,
+        unselectedLabelColor: isLight
+            ? colorScheme.onPrimary.withAlpha(179)
+            : colorScheme.onSurfaceVariant,
         indicatorColor: isLight ? colorScheme.onPrimary : colorScheme.primary,
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,

@@ -102,6 +102,7 @@ class SettingTile extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
+  final bool isExternalLink;
 
   const SettingTile({
     super.key,
@@ -110,6 +111,7 @@ class SettingTile extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
+    this.isExternalLink = false,
   });
 
   @override
@@ -166,8 +168,11 @@ class SettingTile extends StatelessWidget {
             if (trailing != null) trailing!,
             if (trailing == null && onTap != null)
               Icon(
-                Icons.chevron_right_rounded,
+                isExternalLink
+                    ? Icons.open_in_new_rounded
+                    : Icons.chevron_right_rounded,
                 color: colorScheme.onSurfaceVariant.withAlpha(128),
+                size: isExternalLink ? 20 : 24,
               ),
           ],
         ),

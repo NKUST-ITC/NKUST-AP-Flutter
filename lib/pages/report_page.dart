@@ -58,7 +58,8 @@ class ReportPageState extends State<ReportPage> {
               title: '回報 App 問題',
               subtitle: '功能異常、閃退等問題',
               onTap: () async {
-                const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/new';
+                const String url =
+                    'https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/new';
                 await PlatformUtil.instance.launchUrl(url);
                 AnalyticsUtil.instance.logEvent('app_bug_click');
               },
@@ -70,7 +71,8 @@ class ReportPageState extends State<ReportPage> {
               title: '功能建議',
               subtitle: '提供新功能或改善建議',
               onTap: () async {
-                const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/discussions/new?category=ideas';
+                const String url =
+                    'https://github.com/NKUST-ITC/NKUST-AP-Flutter/discussions/new?category=ideas';
                 await PlatformUtil.instance.launchUrl(url);
                 AnalyticsUtil.instance.logEvent('feature_request_click');
               },
@@ -195,8 +197,8 @@ class ReportPageState extends State<ReportPage> {
                 ),
               ),
               Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
+                Icons.open_in_new_rounded,
+                size: 18,
                 color: colorScheme.onSurfaceVariant.withAlpha(128),
               ),
             ],

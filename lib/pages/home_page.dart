@@ -31,7 +31,8 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final GlobalKey<HomePageScaffoldState> _homeKey = GlobalKey<HomePageScaffoldState>();
+  final GlobalKey<HomePageScaffoldState> _homeKey =
+      GlobalKey<HomePageScaffoldState>();
 
   bool get isMobile => MediaQuery.of(context).size.shortestSide < 680;
 
@@ -56,20 +57,30 @@ class HomePageState extends State<HomePage> {
     final String department = userInfo?.department ?? '';
     final bool halfSnapFingerChance = Random().nextInt(2000).isEven;
     if (department.contains('建工') || department.contains('燕巢')) {
-      return halfSnapFingerChance ? ImageAssets.sectionJiangong : ImageAssets.sectionYanchao;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionJiangong
+          : ImageAssets.sectionYanchao;
     } else if (department.contains('第一')) {
-      return halfSnapFingerChance ? ImageAssets.sectionFirst1 : ImageAssets.sectionFirst2;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionFirst1
+          : ImageAssets.sectionFirst2;
     } else if (department.contains('旗津') || department.contains('楠梓')) {
-      return halfSnapFingerChance ? ImageAssets.sectionQijin : ImageAssets.sectionNanzi;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionQijin
+          : ImageAssets.sectionNanzi;
     }
     return ImageAssets.kuasap2;
   }
 
   String get drawerIcon => ImageAssets.drawerIconLight;
 
-  IconData get reportIcon => ApIcon.code == ApIcon.filled ? Icons.flag_circle : Icons.flag_circle_outlined;
+  IconData get reportIcon => ApIcon.code == ApIcon.filled
+      ? Icons.flag_circle
+      : Icons.flag_circle_outlined;
 
-  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled ? Icons.description : Icons.description_outlined;
+  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled
+      ? Icons.description
+      : Icons.description_outlined;
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
@@ -102,7 +113,8 @@ class HomePageState extends State<HomePage> {
       } else {
         checkLogin();
       }
-      if (await AppStoreUtil.instance.trackingAuthorizationStatus == GeneralPermissionStatus.notDetermined) {
+      if (await AppStoreUtil.instance.trackingAuthorizationStatus ==
+          GeneralPermissionStatus.notDetermined) {
         if (!mounted) return;
         AppTrackingUtils.show(context: context);
       }
@@ -315,6 +327,7 @@ class HomePageState extends State<HomePage> {
     return DrawerMenuItem(
       icon: ApIcon.calendarToday,
       title: ap.leave,
+      isExternalLink: true,
       onTap: () => PlatformUtil.instance.launchUrl(
         'https://mobile.nkust.edu.tw/Student/Leave',
       ),
@@ -361,6 +374,7 @@ class HomePageState extends State<HomePage> {
     return DrawerMenuItem(
       icon: ApIcon.directionsBus,
       title: ap.bus,
+      isExternalLink: true,
       onTap: () => PlatformUtil.instance.launchUrl(
         'https://mobile.nkust.edu.tw/Bus/Timetable',
       ),
@@ -400,7 +414,8 @@ class HomePageState extends State<HomePage> {
     if (FirebaseMessagingUtils.isSupported) {
       try {
         final FirebaseMessaging messaging = FirebaseMessaging.instance;
-        final NotificationSettings settings = await messaging.getNotificationSettings();
+        final NotificationSettings settings =
+            await messaging.getNotificationSettings();
         if (settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional) {
           final String? token = await messaging.getToken(
@@ -687,8 +702,8 @@ class HomePageState extends State<HomePage> {
     );
     if (currentVersion != packageInfo.buildNumber && first) {
       final Map<String, dynamic>? rawData = await FileAssets.changelogData;
-      final String updateNoteContent =
-          (rawData![packageInfo.buildNumber] as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+      final String updateNoteContent = (rawData![packageInfo.buildNumber]
+          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
       if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,
@@ -709,10 +724,12 @@ class HomePageState extends State<HomePage> {
       );
       await remoteConfig.fetchAndActivate();
       final List<String> leaveTimeCode = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode)) as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
+            as List<dynamic>,
       );
       final List<String> mobileNkustUserAgent = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent)) as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent))
+            as List<dynamic>,
       );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
@@ -750,7 +767,8 @@ class HomePageState extends State<HomePage> {
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-          windowsPath: 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          windowsPath:
+              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',
           versionInfo: versionInfo,
         );

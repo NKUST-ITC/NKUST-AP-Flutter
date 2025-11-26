@@ -21,7 +21,8 @@ class Constants {
   static const String prefBusNotifyData = 'pref_bus_notify_data';
   static const String prefCourseVibrate = 'pref_course_vibrate';
   static const String prefCourseVibrateData = 'pref_course_vibrate_data';
-  static const String prefCourseVibrateUserSetting = 'pref_course_vibrate_user_setting';
+  static const String prefCourseVibrateUserSetting =
+      'pref_course_vibrate_user_setting';
   static const String prefDisplayPicture = 'pref_display_picture';
   static const String prefPictureData = 'pref_picture_data';
   static const String prefScoreData = 'pref_score_data';
@@ -36,12 +37,14 @@ class Constants {
   static const String prefThemeCode = 'pref_theme_code';
   static const String prefIconStyleCode = 'pref_icon_style_code';
   static const String prefThemeModeIndex = 'pref_theme_mode_index';
+  static const String prefThemeColorIndex = 'pref_theme_color_index';
 
   static const String prefApEnable = 'pref_ap_enable';
   static const String prefBusEnable = 'pref_bus_enable';
   static const String prefLeaveEnable = 'pref_leave_enable';
 
-  static const String notificationBusIndexOffset = 'notification_bus_index_offset';
+  static const String notificationBusIndexOffset =
+      'notification_bus_index_offset';
 
   static const String prefIsOfflineLogin = 'pref_is_offline_login';
 
@@ -76,7 +79,8 @@ class Constants {
   static const int notificationFcmId = 200;
 
   static const String fansPageId = '954175941266264';
-  static const String playStoreUrl = 'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
+  static const String playStoreUrl =
+      'https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW';
 
   static const String donateUrl =
       'https://payment.ecpay.com.tw/QuickCollect/PayData?mLM7iy8RpUGk%2fyBotSDMdvI0qGI5ToToqBW%2bOQbOE80%3d';

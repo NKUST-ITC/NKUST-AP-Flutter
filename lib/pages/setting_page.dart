@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/config/app_theme.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/setting_widgets.dart';
@@ -26,6 +27,7 @@ class SettingPageState extends State<SettingPage> {
   ThemeMode _themeMode = ThemeMode.system;
   String _languageCode = ApSupportLanguageConstants.system;
   String _iconStyle = ApIcon.filled;
+  int _themeColorIndex = 0;
 
   @override
   void initState() {
@@ -108,6 +110,24 @@ class SettingPageState extends State<SettingPage> {
                 ),
                 SettingTile(
                   icon: Icons.palette_outlined,
+                  title: '主題色',
+                  subtitle: AppTheme.themeColors[_themeColorIndex].name,
+                  trailing: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: AppTheme.themeColors[_themeColorIndex].color,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: colorScheme.outline,
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  onTap: _showThemeColorDialog,
+                ),
+                SettingTile(
+                  icon: Icons.style_outlined,
                   title: ap.iconStyle,
                   subtitle: _getIconStyleName(),
                   onTap: _showIconStyleDialog,
@@ -124,6 +144,7 @@ class SettingPageState extends State<SettingPage> {
                   icon: Icons.feedback_outlined,
                   title: ap.feedback,
                   subtitle: ap.feedbackViaFacebook,
+                  isExternalLink: true,
                   onTap: () {
                     ApUtils.launchFbFansPage(context, Constants.fansPageId);
                     AnalyticsUtil.instance.logEvent('feedback_click');
@@ -161,7 +182,7 @@ class SettingPageState extends State<SettingPage> {
       case ThemeMode.dark:
         return ap.dark;
       default:
-        return ap.systemLanguage;
+        return '跟隨系統';
     }
   }
 
@@ -233,7 +254,7 @@ class SettingPageState extends State<SettingPage> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             _buildDialogOption<ThemeMode>(
-              title: ap.systemLanguage,
+              title: '跟隨系統',
               value: ThemeMode.system,
               groupValue: _themeMode,
               colorScheme: colorScheme,
@@ -266,6 +287,108 @@ class SettingPageState extends State<SettingPage> {
       );
       ShareDataWidget.of(context)!.data.loadTheme(result);
       AnalyticsUtil.instance.logEvent('theme_change');
+    }
+  }
+
+  Future<void> _showThemeColorDialog() async {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final int? result = await showModalBottomSheet<int>(
+      context: context,
+      builder: (BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                '選擇主題色',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 100,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                scrollDirection: Axis.horizontal,
+                itemCount: AppTheme.themeColors.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (BuildContext context, int index) {
+                  final ThemeColor themeColor = AppTheme.themeColors[index];
+                  final bool isSelected = index == _themeColorIndex;
+
+                  return GestureDetector(
+                    onTap: () => Navigator.pop(context, index),
+                    child: Column(
+                      children: <Widget>[
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: themeColor.color,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected
+                                  ? colorScheme.onSurface
+                                  : Colors.transparent,
+                              width: 3,
+                            ),
+                            boxShadow: isSelected
+                                ? <BoxShadow>[
+                                    BoxShadow(
+                                      color: themeColor.color.withAlpha(128),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check_rounded,
+                                  color: Colors.white,
+                                  size: 28,
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          themeColor.name,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected
+                                ? colorScheme.onSurface
+                                : colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+
+    if (result != null && result != _themeColorIndex) {
+      setState(() => _themeColorIndex = result);
+      AppTheme.currentColorIndex = result;
+      PreferenceUtil.instance.setInt(Constants.prefThemeColorIndex, result);
+      ShareDataWidget.of(context)!.data.update();
+      AnalyticsUtil.instance.logEvent('theme_color_change');
     }
   }
 
@@ -324,8 +447,12 @@ class SettingPageState extends State<SettingPage> {
         child: Row(
           children: <Widget>[
             Icon(
-              isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
-              color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 16),
             Text(
@@ -408,6 +535,11 @@ class SettingPageState extends State<SettingPage> {
         Constants.prefIconStyleCode,
         ApIcon.filled,
       );
+      _themeColorIndex = PreferenceUtil.instance.getInt(
+        Constants.prefThemeColorIndex,
+        0,
+      );
+      AppTheme.currentColorIndex = _themeColorIndex;
     });
   }
 
@@ -427,7 +559,8 @@ class SettingPageState extends State<SettingPage> {
     );
 
     if (isOffline) {
-      final BusReservationsData? response = BusReservationsData.load(Helper.username);
+      final BusReservationsData? response =
+          BusReservationsData.load(Helper.username);
       Navigator.of(context, rootNavigator: true).pop();
       if (response == null) {
         setState(() => busNotify = false);

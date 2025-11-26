@@ -81,13 +81,17 @@ class AppDrawer extends StatelessWidget {
   }
 
   Widget _buildAvatar(ColorScheme colorScheme, bool isDark) {
-    final bool hasImage = displayPicture && userInfo?.pictureBytes != null && userInfo!.pictureBytes!.isNotEmpty;
+    final bool hasImage = displayPicture &&
+        userInfo?.pictureBytes != null &&
+        userInfo!.pictureBytes!.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: isDark ? colorScheme.primary : colorScheme.onPrimary.withAlpha(128),
+          color: isDark
+              ? colorScheme.primary
+              : colorScheme.onPrimary.withAlpha(128),
           width: 3,
         ),
         boxShadow: <BoxShadow>[
@@ -100,7 +104,9 @@ class AppDrawer extends StatelessWidget {
       ),
       child: CircleAvatar(
         radius: 36,
-        backgroundColor: isDark ? colorScheme.primaryContainer : colorScheme.onPrimary.withAlpha(51),
+        backgroundColor: isDark
+            ? colorScheme.primaryContainer
+            : colorScheme.onPrimary.withAlpha(51),
         backgroundImage: hasImage ? MemoryImage(userInfo!.pictureBytes!) : null,
         child: hasImage
             ? null
@@ -114,8 +120,11 @@ class AppDrawer extends StatelessWidget {
   }
 
   Widget _buildUserInfo(ColorScheme colorScheme, bool isDark) {
-    final Color textColor = isDark ? colorScheme.onSurface : colorScheme.onPrimary;
-    final Color subtitleColor = isDark ? colorScheme.onSurfaceVariant : colorScheme.onPrimary.withAlpha(217);
+    final Color textColor =
+        isDark ? colorScheme.onSurface : colorScheme.onPrimary;
+    final Color subtitleColor = isDark
+        ? colorScheme.onSurfaceVariant
+        : colorScheme.onPrimary.withAlpha(217);
 
     if (userInfo == null) {
       return Text(
@@ -129,7 +138,7 @@ class AppDrawer extends StatelessWidget {
     }
 
     final String name = userInfo!.name ?? '';
-    final String id = userInfo!.id ?? '';
+    final String id = userInfo!.id;
     final String department = userInfo!.department ?? '';
 
     return Column(
@@ -176,6 +185,7 @@ class DrawerMenuItem extends StatelessWidget {
   final VoidCallback? onTap;
   final bool selected;
   final bool enabled;
+  final bool isExternalLink;
   final Color? iconColor;
 
   const DrawerMenuItem({
@@ -185,6 +195,7 @@ class DrawerMenuItem extends StatelessWidget {
     this.onTap,
     this.selected = false,
     this.enabled = true,
+    this.isExternalLink = false,
     this.iconColor,
   });
 
@@ -196,7 +207,9 @@ class DrawerMenuItem extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
-        color: selected ? colorScheme.primaryContainer.withAlpha(128) : colorScheme.surface,
+        color: selected
+            ? colorScheme.primaryContainer.withAlpha(128)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
           onTap: enabled ? onTap : null,
@@ -209,7 +222,10 @@ class DrawerMenuItem extends StatelessWidget {
                   icon,
                   size: 24,
                   color: enabled
-                      ? (iconColor ?? (selected ? colorScheme.primary : colorScheme.onSurfaceVariant))
+                      ? (iconColor ??
+                          (selected
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant))
                       : disabledColor,
                 ),
                 const SizedBox(width: 16),
@@ -219,7 +235,11 @@ class DrawerMenuItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                      color: enabled ? (selected ? colorScheme.primary : colorScheme.onSurface) : disabledColor,
+                      color: enabled
+                          ? (selected
+                              ? colorScheme.primary
+                              : colorScheme.onSurface)
+                          : disabledColor,
                     ),
                   ),
                 ),
@@ -228,6 +248,12 @@ class DrawerMenuItem extends StatelessWidget {
                     Icons.lock_outline_rounded,
                     size: 16,
                     color: disabledColor,
+                  )
+                else if (isExternalLink)
+                  Icon(
+                    Icons.open_in_new_rounded,
+                    size: 16,
+                    color: colorScheme.onSurfaceVariant.withAlpha(128),
                   ),
               ],
             ),
@@ -317,14 +343,18 @@ class DrawerMenuSection extends StatelessWidget {
           leading: Icon(
             icon,
             size: 24,
-            color: initiallyExpanded ? colorScheme.primary : colorScheme.onSurfaceVariant,
+            color: initiallyExpanded
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
           ),
           title: Text(
             title,
             style: TextStyle(
               fontSize: 15,
               fontWeight: initiallyExpanded ? FontWeight.w600 : FontWeight.w500,
-              color: initiallyExpanded ? colorScheme.primary : colorScheme.onSurface,
+              color: initiallyExpanded
+                  ? colorScheme.primary
+                  : colorScheme.onSurface,
             ),
           ),
           trailing: AnimatedRotation(
@@ -332,7 +362,9 @@ class DrawerMenuSection extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             child: Icon(
               Icons.keyboard_arrow_down_rounded,
-              color: initiallyExpanded ? colorScheme.primary : colorScheme.onSurfaceVariant,
+              color: initiallyExpanded
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
             ),
           ),
           children: <Widget>[
@@ -400,14 +432,20 @@ class DrawerSubMenuItem extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: enabled ? colorScheme.onSurface.withAlpha(217) : disabledColor,
+                      color: enabled
+                          ? colorScheme.onSurface.withAlpha(217)
+                          : disabledColor,
                     ),
                   ),
                 ),
                 Icon(
-                  enabled ? Icons.chevron_right_rounded : Icons.lock_outline_rounded,
+                  enabled
+                      ? Icons.chevron_right_rounded
+                      : Icons.lock_outline_rounded,
                   size: enabled ? 20 : 16,
-                  color: enabled ? colorScheme.onSurfaceVariant.withAlpha(128) : disabledColor,
+                  color: enabled
+                      ? colorScheme.onSurfaceVariant.withAlpha(128)
+                      : disabledColor,
                 ),
               ],
             ),
