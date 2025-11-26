@@ -36,7 +36,8 @@ class WebApHelper {
   String? pictureUrl;
 
   static String get semesterCacheKey => 'semesterCacheKey';
-  static String get coursetableCacheKey => '${Helper.username}_coursetableCacheKey';
+  static String get coursetableCacheKey =>
+      '${Helper.username}_coursetableCacheKey';
   static String get scoresCacheKey => '${Helper.username}_scoresCacheKey';
   static String get userInfoCacheKey => '${Helper.username}_userInfoCacheKey';
 
@@ -72,7 +73,8 @@ class WebApHelper {
         sendTimeout: ApiConfig.sendTimeout,
         headers: <String, String>{
           'user-agent': ApiConfig.defaultUserAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept':
+              'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, br',
           'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
           'Connection': 'keep-alive',
@@ -283,8 +285,13 @@ class WebApHelper {
 
     var res = await dio.post<String>(
       '/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      data: <String, String>{
+        'fncid': 'AG225',
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: <String, String>{'Referer': '$_baseUrl/'},
+      ),
     );
 
     final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
@@ -301,7 +308,8 @@ class WebApHelper {
       ),
     );
 
-    if (res.statusCode == 200 && res.data!.contains('/Student/Home/Index')) {
+    if (res.statusCode == 302 ||
+        (res.statusCode == 200 && res.data!.contains('/Student/Home/Index'))) {
       return LoginResponse(
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
@@ -383,7 +391,8 @@ class WebApHelper {
     await checkLogin();
 
     final url = '/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
-    final referer = '$_baseUrl/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
+    final referer =
+        '$_baseUrl/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
     Options options;
     dynamic requestData;
@@ -417,9 +426,11 @@ class WebApHelper {
     Response<dynamic> request;
 
     if (bytesResponse == true) {
-      request = await dio.post<List<int>>(url, data: requestData, options: options);
+      request =
+          await dio.post<List<int>>(url, data: requestData, options: options);
     } else {
-      request = await dio.post<dynamic>(url, data: requestData, options: options);
+      request =
+          await dio.post<dynamic>(url, data: requestData, options: options);
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
@@ -452,7 +463,8 @@ class WebApHelper {
       cacheExpiredTime: const Duration(hours: 6),
     );
 
-    final parsedData = WebApParser.instance.apUserInfoParser(query.data as String);
+    final parsedData =
+        WebApParser.instance.apUserInfoParser(query.data as String);
     if (parsedData['id'] == null) {
       _manager.delete(userInfoCacheKey);
     }
@@ -490,7 +502,8 @@ class WebApHelper {
       cacheExpiredTime: const Duration(hours: 3),
     );
 
-    final parsedData = WebApParser.instance.semestersParser(query.data as String);
+    final parsedData =
+        WebApParser.instance.semestersParser(query.data as String);
     if ((parsedData['data'] as List<dynamic>).isEmpty) {
       _manager.delete(semesterCacheKey);
     }
@@ -501,10 +514,14 @@ class WebApHelper {
   Future<Response<Uint8List>> getEnrollmentLetter() async {
     await loginToStdsys();
 
-    final cookies = await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+    final List<Cookie> cookies = await cookieJar.loadForRequest(
+      Uri.parse('https://stdsys.nkust.edu.tw'),
+    );
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
 
-    return dio.get<Uint8List>(
+    final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
       options: Options(
         responseType: ResponseType.bytes,
@@ -514,6 +531,8 @@ class WebApHelper {
         },
       ),
     );
+
+    return response;
   }
 
   Future<ScoreData> scores(String? years, String? semesterValue) async {

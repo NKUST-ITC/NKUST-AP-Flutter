@@ -51,14 +51,46 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final response = await WebApHelper.instance.getEnrollmentLetter();
+      final responseData = response.data;
+      if (responseData == null || responseData.isEmpty) {
+        setState(() {
+          pdfState = PdfState.error;
+          errorMessage = '查無在學證明資料';
+        });
+        return;
+      }
+      final bool isValidPdf = responseData.length >= 4 &&
+          responseData[0] == 0x25 &&
+          responseData[1] == 0x50 &&
+          responseData[2] == 0x44 &&
+          responseData[3] == 0x46;
+      if (!isValidPdf) {
+        final bool isHtml = responseData[0] == 0x3c;
+        setState(() {
+          pdfState = PdfState.error;
+          errorMessage = isHtml ? '尚無在學證明可下載\n請確認是否已申請在學證明' : '無法取得有效的 PDF 文件';
+        });
+        return;
+      }
       setState(() {
         pdfState = PdfState.finish;
-        data = response.data;
+        data = responseData;
       });
-    } catch (_) {
+    } on GeneralResponse catch (e) {
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = '查無繳費紀錄';
+        errorMessage = e.message;
+      });
+    } on DioException catch (e) {
+      setState(() {
+        pdfState = PdfState.error;
+        errorMessage =
+            e.response?.statusCode == 404 ? '查無在學證明資料' : '網路錯誤：${e.message}';
+      });
+    } catch (e) {
+      setState(() {
+        pdfState = PdfState.error;
+        errorMessage = '載入失敗：$e';
       });
     }
   }
