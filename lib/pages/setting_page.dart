@@ -170,6 +170,8 @@ class SettingPageState extends State<SettingPage> {
         return 'English';
       case ApSupportLanguageConstants.zh:
         return '繁體中文';
+      case 'ja':
+        return '日本語';
       default:
         return ap.systemLanguage;
     }
@@ -226,6 +228,13 @@ class SettingPageState extends State<SettingPage> {
               colorScheme: colorScheme,
               onChanged: (String? v) => Navigator.pop(context, v),
             ),
+            _buildDialogOption(
+              title: '日本語',
+              value: 'ja',
+              groupValue: _languageCode,
+              colorScheme: colorScheme,
+              onChanged: (String? v) => Navigator.pop(context, v),
+            ),
           ],
         ),
       ),
@@ -234,10 +243,16 @@ class SettingPageState extends State<SettingPage> {
     if (result != null) {
       setState(() => _languageCode = result);
       PreferenceUtil.instance.setString(Constants.prefLanguageCode, result);
-      final Locale locale = Locale(
-        result == ApSupportLanguageConstants.system ? 'zh' : result,
-        result == ApSupportLanguageConstants.zh ? 'TW' : null,
-      );
+      Locale locale;
+      if (result == ApSupportLanguageConstants.system) {
+        locale = const Locale('zh', 'TW');
+      } else if (result == ApSupportLanguageConstants.zh) {
+        locale = const Locale('zh', 'TW');
+      } else if (result == 'ja') {
+        locale = const Locale('ja', 'JP');
+      } else {
+        locale = Locale(result);
+      }
       ShareDataWidget.of(context)!.data.loadLocale(locale);
       AnalyticsUtil.instance.logEvent('language_change');
     }

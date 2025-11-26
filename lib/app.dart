@@ -93,7 +93,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           themeMode: themeMode,
           locale: locale,
           localizationsDelegates: const [
-            apLocalizationsDelegate,
+            apLocalizationsDelegateWrapper,
             appDelegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
@@ -102,6 +102,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           supportedLocales: const [
             Locale('en', 'US'),
             Locale('zh', 'TW'),
+            Locale('ja', 'JP'),
           ],
         ),
       ),
@@ -117,6 +118,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       this.locale = ApLocalizations.delegate.isSupported(locale!)
           ? locale
           : const Locale('en');
+    } else if (languageCode == 'ja') {
+      this.locale = const Locale('ja', 'JP');
     } else {
       this.locale = Locale(
         languageCode,
@@ -133,10 +136,12 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   void loadLocale(Locale locale) {
     this.locale = locale;
-    AnnouncementHelper.instance.setLocale(this.locale!);
+    final Locale apLocale =
+        locale.languageCode == 'ja' ? const Locale('en') : locale;
+    AnnouncementHelper.instance.setLocale(apLocale);
     setState(() {
       appDelegate.load(locale);
-      ApLocalizations.load(locale);
+      ApLocalizations.load(apLocale);
     });
   }
 }
