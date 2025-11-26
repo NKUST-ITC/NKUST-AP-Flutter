@@ -56,20 +56,30 @@ class HomePageState extends State<HomePage> {
     final department = userInfo?.department ?? '';
     final halfSnapFingerChance = Random().nextInt(2000).isEven;
     if (department.contains('建工') || department.contains('燕巢')) {
-      return halfSnapFingerChance ? ImageAssets.sectionJiangong : ImageAssets.sectionYanchao;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionJiangong
+          : ImageAssets.sectionYanchao;
     } else if (department.contains('第一')) {
-      return halfSnapFingerChance ? ImageAssets.sectionFirst1 : ImageAssets.sectionFirst2;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionFirst1
+          : ImageAssets.sectionFirst2;
     } else if (department.contains('旗津') || department.contains('楠梓')) {
-      return halfSnapFingerChance ? ImageAssets.sectionQijin : ImageAssets.sectionNanzi;
+      return halfSnapFingerChance
+          ? ImageAssets.sectionQijin
+          : ImageAssets.sectionNanzi;
     }
     return ImageAssets.kuasap2;
   }
 
   String get drawerIcon => ImageAssets.drawerIconLight;
 
-  IconData get reportIcon => ApIcon.code == ApIcon.filled ? Icons.flag_circle : Icons.flag_circle_outlined;
+  IconData get reportIcon => ApIcon.code == ApIcon.filled
+      ? Icons.flag_circle
+      : Icons.flag_circle_outlined;
 
-  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled ? Icons.description : Icons.description_outlined;
+  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled
+      ? Icons.description
+      : Icons.description_outlined;
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
@@ -102,7 +112,8 @@ class HomePageState extends State<HomePage> {
       } else {
         checkLogin();
       }
-      if (await AppStoreUtil.instance.trackingAuthorizationStatus == GeneralPermissionStatus.notDetermined) {
+      if (await AppStoreUtil.instance.trackingAuthorizationStatus ==
+          GeneralPermissionStatus.notDetermined) {
         if (!mounted) return;
         AppTrackingUtils.show(context: context);
       }
@@ -123,7 +134,7 @@ class HomePageState extends State<HomePage> {
       announcements: announcements,
       isLogin: isLogin,
       content: content,
-      actions: [
+      actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.fiber_new_rounded),
           tooltip: ap.announcementReviewSystem,
@@ -131,14 +142,14 @@ class HomePageState extends State<HomePage> {
         ),
       ],
       drawer: _buildDrawer(),
-      onImageTapped: (announcement) {
+      onImageTapped: (Announcement announcement) {
         ApUtils.pushCupertinoStyle(
           context,
           AnnouncementContentPage(announcement: announcement),
         );
       },
       onTabTapped: onTabTapped,
-      bottomNavigationBarItems: [
+      bottomNavigationBarItems: <NavigationDestination>[
         if (canUseBus)
           NavigationDestination(
             icon: Icon(ApIcon.directionsBus),
@@ -174,141 +185,9 @@ class HomePageState extends State<HomePage> {
             title: ap.home,
             onTap: () => setState(() => content = null),
           ),
-        DrawerMenuSection(
-          icon: ApIcon.school,
-          title: ap.courseInfo,
-          initiallyExpanded: isStudyExpanded,
-          enabled: isLogin,
-          onExpansionChanged: (v) => setState(() => isStudyExpanded = v),
-          children: <DrawerSubMenuItem>[
-            DrawerSubMenuItem(
-              icon: ApIcon.classIcon,
-              title: ap.course,
-              enabled: isLogin,
-              onTap: () => _openPage(CoursePage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: ApIcon.assignment,
-              title: ap.score,
-              enabled: isLogin,
-              onTap: () => _openPage(ScorePage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: ApIcon.apps,
-              title: ap.calculateCredits,
-              enabled: isLogin,
-              onTap: () => _openPage(CalculateUnitsPage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: ApIcon.warning,
-              title: ap.midtermAlerts,
-              enabled: isLogin,
-              onTap: () => _openPage(MidtermAlertsPage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: ApIcon.folder,
-              title: ap.rewardAndPenalty,
-              enabled: isLogin,
-              onTap: () => _openPage(RewardAndPenaltyPage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: ApIcon.room,
-              title: ap.classroomCourseTableSearch,
-              enabled: isLogin,
-              onTap: () => _openPage(RoomListPage(), needLogin: true),
-            ),
-            DrawerSubMenuItem(
-              icon: enrollmentLetterIcon,
-              title: '在學證明',
-              enabled: isLogin,
-              onTap: () => _openPage(const EnrollmentLetterPage(), needLogin: true),
-            ),
-          ],
-        ),
-        if (leaveEnable)
-          DrawerMenuSection(
-            icon: ApIcon.calendarToday,
-            title: ap.leave,
-            initiallyExpanded: isLeaveExpanded,
-            enabled: isLogin,
-            onExpansionChanged: (v) => setState(() => isLeaveExpanded = v),
-            children: <DrawerSubMenuItem>[
-              DrawerSubMenuItem(
-                icon: ApIcon.edit,
-                title: ap.leaveApply,
-                enabled: isLogin,
-                onTap: () => _openPage(
-                  const LeavePage(),
-                  needLogin: true,
-                  useCupertinoRoute: false,
-                ),
-              ),
-              DrawerSubMenuItem(
-                icon: ApIcon.assignment,
-                title: ap.leaveRecords,
-                enabled: isLogin,
-                onTap: () => _openPage(
-                  const LeavePage(initIndex: 1),
-                  needLogin: true,
-                  useCupertinoRoute: false,
-                ),
-              ),
-              DrawerSubMenuItem(
-                icon: ApIcon.folder,
-                title: app.leaveApplyRecord,
-                enabled: isLogin,
-                onTap: () => _openPage(
-                  const LeavePage(initIndex: 2),
-                  needLogin: true,
-                  useCupertinoRoute: false,
-                ),
-              ),
-            ],
-          )
-        else
-          DrawerMenuItem(
-            icon: ApIcon.calendarToday,
-            title: ap.leave,
-            onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Student/Leave',
-            ),
-          ),
-        if (canUseBus)
-          DrawerMenuSection(
-            icon: ApIcon.directionsBus,
-            title: app.bus,
-            initiallyExpanded: isBusExpanded,
-            enabled: isLogin,
-            onExpansionChanged: (v) => setState(() => isBusExpanded = v),
-            children: <DrawerSubMenuItem>[
-              DrawerSubMenuItem(
-                icon: ApIcon.dateRange,
-                title: app.busReserve,
-                enabled: isLogin,
-                onTap: () => _openPage(const BusPage(), needLogin: true),
-              ),
-              DrawerSubMenuItem(
-                icon: ApIcon.assignment,
-                title: app.busReservations,
-                enabled: isLogin,
-                onTap: () => _openPage(const BusPage(initIndex: 1), needLogin: true),
-              ),
-              DrawerSubMenuItem(
-                icon: ApIcon.monetizationOn,
-                title: app.busViolationRecords,
-                enabled: isLogin,
-                onTap: () => _openPage(const BusPage(initIndex: 2), needLogin: true),
-              ),
-            ],
-          )
-        else
-          DrawerMenuItem(
-            icon: ApIcon.directionsBus,
-            title: ap.bus,
-            onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Bus/Timetable',
-            ),
-          ),
+        _buildStudySection(),
+        if (leaveEnable) _buildLeaveSection() else _buildLeaveMenuItem(),
+        if (canUseBus) _buildBusSection() else _buildBusMenuItem(),
         const DrawerDivider(),
         DrawerMenuItem(
           icon: ApIcon.info,
@@ -336,19 +215,7 @@ class HomePageState extends State<HomePage> {
             icon: ApIcon.powerSettingsNew,
             title: ap.logout,
             iconColor: colorScheme.error,
-            onTap: () async {
-              await PreferenceUtil.instance.setBool(
-                Constants.prefAutoLogin,
-                false,
-              );
-              if (!context.mounted) return;
-              ShareDataWidget.of(context)!.data.logout();
-              isLogin = false;
-              userInfo = null;
-              content = null;
-              if (isMobile) Navigator.of(context).pop();
-              checkLogin();
-            },
+            onTap: _handleLogout,
           ),
         ],
         const SizedBox(height: 16),
@@ -356,10 +223,179 @@ class HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildStudySection() {
+    return DrawerMenuSection(
+      icon: ApIcon.school,
+      title: ap.courseInfo,
+      initiallyExpanded: isStudyExpanded,
+      enabled: isLogin,
+      onExpansionChanged: (bool v) => setState(() => isStudyExpanded = v),
+      children: <DrawerSubMenuItem>[
+        DrawerSubMenuItem(
+          icon: ApIcon.classIcon,
+          title: ap.course,
+          enabled: isLogin,
+          onTap: () => _openPage(CoursePage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.assignment,
+          title: ap.score,
+          enabled: isLogin,
+          onTap: () => _openPage(ScorePage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.apps,
+          title: ap.calculateCredits,
+          enabled: isLogin,
+          onTap: () => _openPage(CalculateUnitsPage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.warning,
+          title: ap.midtermAlerts,
+          enabled: isLogin,
+          onTap: () => _openPage(MidtermAlertsPage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.folder,
+          title: ap.rewardAndPenalty,
+          enabled: isLogin,
+          onTap: () => _openPage(RewardAndPenaltyPage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.room,
+          title: ap.classroomCourseTableSearch,
+          enabled: isLogin,
+          onTap: () => _openPage(RoomListPage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: enrollmentLetterIcon,
+          title: app.enrollmentLetter,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const EnrollmentLetterPage(),
+            needLogin: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeaveSection() {
+    return DrawerMenuSection(
+      icon: ApIcon.calendarToday,
+      title: ap.leave,
+      initiallyExpanded: isLeaveExpanded,
+      enabled: isLogin,
+      onExpansionChanged: (bool v) => setState(() => isLeaveExpanded = v),
+      children: <DrawerSubMenuItem>[
+        DrawerSubMenuItem(
+          icon: ApIcon.edit,
+          title: ap.leaveApply,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const LeavePage(),
+            needLogin: true,
+            useCupertinoRoute: false,
+          ),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.assignment,
+          title: ap.leaveRecords,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const LeavePage(initIndex: 1),
+            needLogin: true,
+            useCupertinoRoute: false,
+          ),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.folder,
+          title: app.leaveApplyRecord,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const LeavePage(initIndex: 2),
+            needLogin: true,
+            useCupertinoRoute: false,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLeaveMenuItem() {
+    return DrawerMenuItem(
+      icon: ApIcon.calendarToday,
+      title: ap.leave,
+      onTap: () => PlatformUtil.instance.launchUrl(
+        'https://mobile.nkust.edu.tw/Student/Leave',
+      ),
+    );
+  }
+
+  Widget _buildBusSection() {
+    return DrawerMenuSection(
+      icon: ApIcon.directionsBus,
+      title: app.bus,
+      initiallyExpanded: isBusExpanded,
+      enabled: isLogin,
+      onExpansionChanged: (bool v) => setState(() => isBusExpanded = v),
+      children: <DrawerSubMenuItem>[
+        DrawerSubMenuItem(
+          icon: ApIcon.dateRange,
+          title: app.busReserve,
+          enabled: isLogin,
+          onTap: () => _openPage(const BusPage(), needLogin: true),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.assignment,
+          title: app.busReservations,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const BusPage(initIndex: 1),
+            needLogin: true,
+          ),
+        ),
+        DrawerSubMenuItem(
+          icon: ApIcon.monetizationOn,
+          title: app.busViolationRecords,
+          enabled: isLogin,
+          onTap: () => _openPage(
+            const BusPage(initIndex: 2),
+            needLogin: true,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBusMenuItem() {
+    return DrawerMenuItem(
+      icon: ApIcon.directionsBus,
+      title: ap.bus,
+      onTap: () => PlatformUtil.instance.launchUrl(
+        'https://mobile.nkust.edu.tw/Bus/Timetable',
+      ),
+    );
+  }
+
+  Future<void> _handleLogout() async {
+    await PreferenceUtil.instance.setBool(Constants.prefAutoLogin, false);
+    if (!context.mounted) return;
+    ShareDataWidget.of(context)!.data.logout();
+    isLogin = false;
+    userInfo = null;
+    content = null;
+    if (isMobile) Navigator.of(context).pop();
+    checkLogin();
+  }
+
   void _onDrawerHeaderTap() {
     if (isLogin) {
       if (userInfo != null) {
-        ApUtils.pushCupertinoStyle(context, UserInfoPage(userInfo: userInfo!));
+        ApUtils.pushCupertinoStyle(
+          context,
+          UserInfoPage(userInfo: userInfo!),
+        );
       }
     } else {
       if (isMobile) Navigator.of(context).pop();
@@ -408,11 +444,11 @@ class HomePageState extends State<HomePage> {
 
   void _getAnnouncements() {
     AnnouncementHelper.instance.getAnnouncements(
-      tags: ['nkust'],
+      tags: <String>['nkust'],
       callback: GeneralCallback<List<Announcement>>(
         onFailure: (_) => setState(() => state = HomeState.error),
         onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (data) {
+        onSuccess: (List<Announcement> data) {
           announcements = data;
           if (mounted) {
             setState(() {
@@ -428,10 +464,10 @@ class HomePageState extends State<HomePage> {
     if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
       Helper.instance.getBusReservations(
         callback: GeneralCallback<BusReservationsData>(
-          onSuccess: (response) async {
+          onSuccess: (BusReservationsData response) async {
             await Utils.setBusNotify(context, response.reservations);
           },
-          onFailure: (e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               AnalyticsUtil.instance.logApiEvent(
                 'getBusReservations',
@@ -452,7 +488,7 @@ class HomePageState extends State<HomePage> {
     } else {
       Helper.instance.getUsersInfo(
         callback: GeneralCallback<UserInfo>(
-          onSuccess: (data) {
+          onSuccess: (UserInfo data) {
             if (mounted) {
               setState(() => userInfo = data);
               if (userInfo != null) {
@@ -468,7 +504,7 @@ class HomePageState extends State<HomePage> {
               }
             }
           },
-          onFailure: (e) {
+          onFailure: (DioException e) {
             if (e.hasResponse) {
               AnalyticsUtil.instance.logApiEvent(
                 'getUserInfo',
@@ -525,7 +561,7 @@ class HomePageState extends State<HomePage> {
       username: username,
       password: password,
       callback: GeneralCallback<LoginResponse?>(
-        onSuccess: (response) {
+        onSuccess: (LoginResponse? response) {
           if (isLogin) return;
           ShareDataWidget.of(context)!.data.loginResponse = response;
           isLogin = true;
@@ -537,7 +573,7 @@ class HomePageState extends State<HomePage> {
             ?..hideSnackBar()
             ..showBasicHint(text: ap.loginSuccess);
         },
-        onFailure: (e) {
+        onFailure: (DioException e) {
           if (isLogin) return;
           _homeKey.currentState!.showSnackBar(
             text: e.i18nMessage!,
@@ -546,7 +582,7 @@ class HomePageState extends State<HomePage> {
           );
           offLineLogin();
         },
-        onError: (response) async {
+        onError: (GeneralResponse response) async {
           if (isLogin) return;
           String message = '';
           if (response.statusCode == ApStatusCode.userDataError ||
@@ -662,8 +698,8 @@ class HomePageState extends State<HomePage> {
     );
     if (currentVersion != packageInfo.buildNumber && first) {
       final rawData = await FileAssets.changelogData;
-      final updateNoteContent =
-          (rawData![packageInfo.buildNumber] as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+      final updateNoteContent = (rawData![packageInfo.buildNumber]
+          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
       if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,
@@ -684,10 +720,12 @@ class HomePageState extends State<HomePage> {
       );
       await remoteConfig.fetchAndActivate();
       final leaveTimeCode = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode)) as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
+            as List<dynamic>,
       );
       final mobileNkustUserAgent = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent)) as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent))
+            as List<dynamic>,
       );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
@@ -725,7 +763,8 @@ class HomePageState extends State<HomePage> {
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-          windowsPath: 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          windowsPath:
+              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',
           versionInfo: versionInfo,
         );
