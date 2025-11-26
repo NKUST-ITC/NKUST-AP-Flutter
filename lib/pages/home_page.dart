@@ -31,7 +31,7 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
-  final _homeKey = GlobalKey<HomePageScaffoldState>();
+  final GlobalKey<HomePageScaffoldState> _homeKey = GlobalKey<HomePageScaffoldState>();
 
   bool get isMobile => MediaQuery.of(context).size.shortestSide < 680;
 
@@ -40,7 +40,7 @@ class HomePageState extends State<HomePage> {
   late ApLocalizations ap;
 
   Widget? content;
-  List<Announcement> announcements = [];
+  List<Announcement> announcements = <Announcement>[];
 
   bool isLogin = false;
   bool displayPicture = true;
@@ -53,33 +53,23 @@ class HomePageState extends State<HomePage> {
   UserInfo? userInfo;
 
   String get sectionImage {
-    final department = userInfo?.department ?? '';
-    final halfSnapFingerChance = Random().nextInt(2000).isEven;
+    final String department = userInfo?.department ?? '';
+    final bool halfSnapFingerChance = Random().nextInt(2000).isEven;
     if (department.contains('建工') || department.contains('燕巢')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionJiangong
-          : ImageAssets.sectionYanchao;
+      return halfSnapFingerChance ? ImageAssets.sectionJiangong : ImageAssets.sectionYanchao;
     } else if (department.contains('第一')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionFirst1
-          : ImageAssets.sectionFirst2;
+      return halfSnapFingerChance ? ImageAssets.sectionFirst1 : ImageAssets.sectionFirst2;
     } else if (department.contains('旗津') || department.contains('楠梓')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionQijin
-          : ImageAssets.sectionNanzi;
+      return halfSnapFingerChance ? ImageAssets.sectionQijin : ImageAssets.sectionNanzi;
     }
     return ImageAssets.kuasap2;
   }
 
   String get drawerIcon => ImageAssets.drawerIconLight;
 
-  IconData get reportIcon => ApIcon.code == ApIcon.filled
-      ? Icons.flag_circle
-      : Icons.flag_circle_outlined;
+  IconData get reportIcon => ApIcon.code == ApIcon.filled ? Icons.flag_circle : Icons.flag_circle_outlined;
 
-  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled
-      ? Icons.description
-      : Icons.description_outlined;
+  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled ? Icons.description : Icons.description_outlined;
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
@@ -112,8 +102,7 @@ class HomePageState extends State<HomePage> {
       } else {
         checkLogin();
       }
-      if (await AppStoreUtil.instance.trackingAuthorizationStatus ==
-          GeneralPermissionStatus.notDetermined) {
+      if (await AppStoreUtil.instance.trackingAuthorizationStatus == GeneralPermissionStatus.notDetermined) {
         if (!mounted) return;
         AppTrackingUtils.show(context: context);
       }
@@ -410,11 +399,11 @@ class HomePageState extends State<HomePage> {
     );
     if (FirebaseMessagingUtils.isSupported) {
       try {
-        final messaging = FirebaseMessaging.instance;
-        final settings = await messaging.getNotificationSettings();
+        final FirebaseMessaging messaging = FirebaseMessaging.instance;
+        final NotificationSettings settings = await messaging.getNotificationSettings();
         if (settings.authorizationStatus == AuthorizationStatus.authorized ||
             settings.authorizationStatus == AuthorizationStatus.provisional) {
-          final token = await messaging.getToken(
+          final String? token = await messaging.getToken(
             vapidKey: Constants.fcmWebVapidKey,
           );
           AnnouncementHelper.instance.fcmToken = token;
@@ -522,7 +511,7 @@ class HomePageState extends State<HomePage> {
   Future<void> _getUserPicture() async {
     try {
       if (userInfo != null && userInfo!.pictureUrl != null) {
-        final response = await Helper.instance.getUserPicture();
+        final Uint8List? response = await Helper.instance.getUserPicture();
         if (mounted) {
           setState(() => userInfo!.pictureBytes = response);
         }
@@ -546,11 +535,11 @@ class HomePageState extends State<HomePage> {
     await Future.delayed(const Duration(microseconds: 30));
     if (!mounted) return;
     showLoginingSnackBar();
-    final username = PreferenceUtil.instance.getString(
+    final String username = PreferenceUtil.instance.getString(
       Constants.prefUsername,
       '',
     );
-    final password = PreferenceUtil.instance.getStringSecurity(
+    final String password = PreferenceUtil.instance.getStringSecurity(
       Constants.prefPassword,
       '',
     );
@@ -635,7 +624,7 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> openLoginPage() async {
-    final result = await Navigator.of(context).push<bool>(
+    final bool? result = await Navigator.of(context).push<bool>(
       MaterialPageRoute<bool>(builder: (_) => LoginPage()),
     );
     checkLogin();
@@ -687,8 +676,8 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _checkData({bool first = false}) async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    final currentVersion = PreferenceUtil.instance.getString(
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String currentVersion = PreferenceUtil.instance.getString(
       Constants.prefCurrentVersion,
       '',
     );
@@ -697,9 +686,9 @@ class HomePageState extends State<HomePage> {
       packageInfo.buildNumber,
     );
     if (currentVersion != packageInfo.buildNumber && first) {
-      final rawData = await FileAssets.changelogData;
-      final updateNoteContent = (rawData![packageInfo.buildNumber]
-          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+      final Map<String, dynamic>? rawData = await FileAssets.changelogData;
+      final String updateNoteContent =
+          (rawData![packageInfo.buildNumber] as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
       if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,
@@ -711,7 +700,7 @@ class HomePageState extends State<HomePage> {
       );
     }
     try {
-      final remoteConfig = FirebaseRemoteConfig.instance;
+      final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
       await remoteConfig.setConfigSettings(
         RemoteConfigSettings(
           fetchTimeout: const Duration(seconds: 10),
@@ -719,13 +708,11 @@ class HomePageState extends State<HomePage> {
         ),
       );
       await remoteConfig.fetchAndActivate();
-      final leaveTimeCode = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
-            as List<dynamic>,
+      final List<String> leaveTimeCode = List<String>.from(
+        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode)) as List<dynamic>,
       );
-      final mobileNkustUserAgent = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent))
-            as List<dynamic>,
+      final List<String> mobileNkustUserAgent = List<String>.from(
+        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent)) as List<dynamic>,
       );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
@@ -737,7 +724,7 @@ class HomePageState extends State<HomePage> {
         );
         Helper.selector!.save();
       }
-      final semesterData = SemesterData.fromRawJson(
+      final SemesterData semesterData = SemesterData.fromRawJson(
         remoteConfig.getString(Constants.semesterData),
       );
       semesterData.save();
@@ -750,7 +737,7 @@ class HomePageState extends State<HomePage> {
         mobileNkustUserAgent,
       );
       MobileNkustHelper.userAgentList = mobileNkustUserAgent;
-      final versionInfo = VersionInfo(
+      final VersionInfo versionInfo = VersionInfo(
         code: remoteConfig.getInt(ApConstants.appVersion),
         isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),
         content: remoteConfig.getString(ApConstants.newVersionContent),
@@ -763,8 +750,7 @@ class HomePageState extends State<HomePage> {
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-          windowsPath:
-              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          windowsPath: 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',
           versionInfo: versionInfo,
         );

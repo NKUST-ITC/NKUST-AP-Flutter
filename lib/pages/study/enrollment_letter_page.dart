@@ -84,8 +84,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     } on DioException catch (e) {
       setState(() {
         pdfState = PdfState.error;
-        errorMessage =
-            e.response?.statusCode == 404 ? '查無在學證明資料' : '網路錯誤：${e.message}';
+        errorMessage = e.response?.statusCode == 404 ? '查無在學證明資料' : '網路錯誤：${e.message}';
       });
     } catch (e) {
       setState(() {
