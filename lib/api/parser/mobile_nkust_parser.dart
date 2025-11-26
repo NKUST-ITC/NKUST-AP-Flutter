@@ -45,8 +45,7 @@ class MobileNkustParser {
 
     for (final Element trElement in document.getElementsByTagName('tr')) {
       final Map<String, dynamic> temp = <String, dynamic>{};
-      temp['cancelKey'] =
-          trElement.getElementsByTagName('input')[0].attributes['value'];
+      temp['cancelKey'] = trElement.getElementsByTagName('input')[0].attributes['value'];
       final List<Element> tdElements = trElement.getElementsByTagName('td');
 
       temp['dateTime'] = '${tdElements[1].text.substring(0, 10)} '
@@ -70,11 +69,9 @@ class MobileNkustParser {
     };
     final List<Element> inputElements = document.getElementsByTagName('input');
     final List<Map<String, dynamic>> coursesJson =
-        jsonDecode(inputElements[0].attributes['value']!)
-            as List<Map<String, dynamic>>;
+        jsonDecode(inputElements[0].attributes['value']!) as List<Map<String, dynamic>>;
     final List<Map<String, dynamic>> periodTimeJson =
-        jsonDecode(inputElements[1].attributes['value']!)
-            as List<Map<String, dynamic>>;
+        jsonDecode(inputElements[1].attributes['value']!) as List<Map<String, dynamic>>;
 
     for (final Map<String, dynamic> periodTime in periodTimeJson) {
       (result['timeCodes'] as List<Map<String, dynamic>>).add(
@@ -108,8 +105,7 @@ class MobileNkustParser {
         },
       };
       final bool hasMorning = periodTimeJson[0]['PeriodName'] == 'M';
-      final List<dynamic> courseWeekPeriod =
-          course['CourseWeekPeriod'] as List<dynamic>;
+      final List<dynamic> courseWeekPeriod = course['CourseWeekPeriod'] as List<dynamic>;
       for (final dynamic time in courseWeekPeriod) {
         //ignore: avoid_dynamic_calls
         final int weekday = int.tryParse(time['CourseWeek'] as String) ?? 0;
@@ -141,13 +137,11 @@ class MobileNkustParser {
     String? rawHtml,
   ) {
     final Document document = html.parse(rawHtml);
-    final String canNotReserveText =
-        document.getElementById('BusMemberStop')!.attributes['value']!;
+    final String canNotReserveText = document.getElementById('BusMemberStop')!.attributes['value']!;
     final bool canReserve = !bool.fromEnvironment(
       canNotReserveText,
     );
-    final List<Element> elements =
-        document.getElementsByClassName('alert alert-danger alert-dismissible');
+    final List<Element> elements = document.getElementsByClassName('alert alert-danger alert-dismissible');
     String description = '';
     if (elements.isNotEmpty) {
       description = elements.first.text;
@@ -168,36 +162,27 @@ class MobileNkustParser {
 
     final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
 
-    for (final Element trElement
-        in document.getElementsByTagName('tr').sublist(1)) {
+    for (final Element trElement in document.getElementsByTagName('tr').sublist(1)) {
       final Map<String, dynamic> temp = <String, dynamic>{};
 
       // Element can't get ById. so build new parser object.
       final Document inputDocument = html.parse(trElement.outerHtml);
       temp['canBook'] = true;
 
-      if (inputDocument.getElementById('ReserveEnable')!.attributes['value'] ==
-          null) {
+      if (inputDocument.getElementById('ReserveEnable')!.attributes['value'] == null) {
         //can't book.
         temp['canBook'] = false;
       }
-      temp['busId'] =
-          inputDocument.getElementById('BusId')!.attributes['value'];
-      temp['cancelKey'] =
-          inputDocument.getElementById('ReserveId')!.attributes['value'];
-      temp['isReserve'] = inputDocument
-                  .getElementById('ReserveStateCode')!
-                  .attributes['value'] ==
-              '0' &&
+      temp['busId'] = inputDocument.getElementById('BusId')!.attributes['value'];
+      temp['cancelKey'] = inputDocument.getElementById('ReserveId')!.attributes['value'];
+      temp['isReserve'] = inputDocument.getElementById('ReserveStateCode')!.attributes['value'] == '0' &&
           inputDocument.getElementById('ReserveId')!.attributes['value'] != '0';
 
-      final List<Element> tdElements =
-          trElement.getElementsByTagName('td').sublist(1);
+      final List<Element> tdElements = trElement.getElementsByTagName('td').sublist(1);
 
       final DateFormat format = DateFormat('yyyy/MM/dd HH:mm');
 
-      temp['departureTime'] =
-          format.parse('$time ${tdElements[0].text}').toIso8601String();
+      temp['departureTime'] = format.parse('$time ${tdElements[0].text}').toIso8601String();
       temp['reserveCount'] = int.parse(tdElements[1].text);
       temp['homeCharteredBus'] = false;
       temp['specialTrain'] = '';
@@ -208,20 +193,15 @@ class MobileNkustParser {
 
       if (tdElements[2].text != '') {
         if (tdElements[2].getElementsByTagName('button').isNotEmpty) {
-          final String typeString = tdElements[2]
-              .getElementsByTagName('button')[0]
-              .text
-              .replaceAll(' ', '')
-              .replaceAll('\n', '');
+          final String typeString =
+              tdElements[2].getElementsByTagName('button')[0].text.replaceAll(' ', '').replaceAll('\n', '');
           if (typeString == '返鄉專車') {
             temp['homeCharteredBus'] = true;
           }
           if (typeString == '試辦專車') {
             temp['specialTrain'] = '2';
           }
-          temp['description'] = tdElements[2]
-              .getElementsByTagName('button')[0]
-              .attributes['data-content'];
+          temp['description'] = tdElements[2].getElementsByTagName('button')[0].attributes['data-content'];
         }
       }
       result.add(temp);
@@ -237,8 +217,7 @@ class MobileNkustParser {
     }
     final List<Map<String, dynamic>> scoresList = <Map<String, dynamic>>[];
     //skip table header
-    final List<Element> trElements =
-        document.getElementById('datatable')!.getElementsByTagName('tr');
+    final List<Element> trElements = document.getElementById('datatable')!.getElementsByTagName('tr');
     if (trElements.length <= 1) {
       return ScoreData.empty();
     }
@@ -265,8 +244,7 @@ class MobileNkustParser {
 
     //detail data
     final Map<String, dynamic> detailData = <String, dynamic>{};
-    final List<Element> detailDiv =
-        document.getElementsByClassName('text-bold text-info');
+    final List<Element> detailDiv = document.getElementsByClassName('text-bold text-info');
 
     if (detailDiv.length < 4) {
       return ScoreData.empty();
@@ -330,8 +308,7 @@ class MobileNkustParser {
   static String getCSRF(dynamic rawHtml) {
     final Document document = html.parse(rawHtml);
     for (final Element inputElement in document.getElementsByTagName('input')) {
-      if ((inputElement.attributes['name'] ?? '') ==
-          '__RequestVerificationToken') {
+      if ((inputElement.attributes['name'] ?? '') == '__RequestVerificationToken') {
         return inputElement.attributes['value']!;
       }
     }

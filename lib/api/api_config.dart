@@ -107,9 +107,7 @@ class RetryInterceptor extends Interceptor {
         err.type == DioExceptionType.sendTimeout ||
         err.type == DioExceptionType.receiveTimeout ||
         err.type == DioExceptionType.connectionError ||
-        (err.response?.statusCode != null &&
-            err.response!.statusCode! >= 500 &&
-            err.response!.statusCode! < 600);
+        (err.response?.statusCode != null && err.response!.statusCode! >= 500 && err.response!.statusCode! < 600);
   }
 }
 
@@ -218,4 +216,3 @@ extension DioExtensions on Dio {
     }
   }
 }
-

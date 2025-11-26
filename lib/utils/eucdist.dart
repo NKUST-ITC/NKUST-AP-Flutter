@@ -37,8 +37,7 @@ Future<String> solveByEucDist(Image image) async {
 const String _characters = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 /// Load reference images from the assets directory.
-final List<Future<Matrix<int>>> _referenceImages =
-    List<Future<Matrix<int>>>.generate(_characters.length, (
+final List<Future<Matrix<int>>> _referenceImages = List<Future<Matrix<int>>>.generate(_characters.length, (
   int index,
 ) async {
   final String char = _characters[index];
@@ -68,15 +67,13 @@ num eucDist(Matrix<int> a, Matrix<int> b) {
 /// The image should be a preprocessed, cropped character gray-scale image.
 Future<String> getCharacter(Matrix<int> img) async {
   // Compute distances to reference images
-  final List<Future<num>> distances = _referenceImages
-      .map((Future<Matrix<int>> ref) async => eucDist(img, await ref))
-      .toList();
+  final List<Future<num>> distances =
+      _referenceImages.map((Future<Matrix<int>> ref) async => eucDist(img, await ref)).toList();
 
   // Wait for all distances to be computed
   final List<num> resolvedDistances = await Future.wait(distances);
   // Find the index of the minimum distance
-  final int index = resolvedDistances
-      .indexOf(resolvedDistances.reduce((num a, num b) => a < b ? a : b));
+  final int index = resolvedDistances.indexOf(resolvedDistances.reduce((num a, num b) => a < b ? a : b));
 
   return _characters[index];
 }
@@ -85,8 +82,7 @@ class Matrix<T> {
   final List<List<T>> _data;
 
   Matrix(this._data) {
-    if (_data.isEmpty ||
-        _data.any((List<T> row) => row.length != _data[0].length)) {
+    if (_data.isEmpty || _data.any((List<T> row) => row.length != _data[0].length)) {
       throw ArgumentError(
         'All rows must have the same length and matrix cannot be empty.',
       );
@@ -102,8 +98,7 @@ class Matrix<T> {
 
   // Construct from 2D list
   Matrix.fromList(List<List<T>> data) : _data = data {
-    if (data.isEmpty ||
-        data.any((List<T> row) => row.length != data[0].length)) {
+    if (data.isEmpty || data.any((List<T> row) => row.length != data[0].length)) {
       throw ArgumentError(
         'All rows must have the same length and matrix cannot be empty.',
       );
@@ -123,8 +118,7 @@ class Matrix<T> {
   }
 
   Matrix<bool> notEqualMask(T value) {
-    final Matrix<bool> result =
-        Matrix<bool>.fromDimensions(width, height, false);
+    final Matrix<bool> result = Matrix<bool>.fromDimensions(width, height, false);
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         result.set(x, y, _data[y][x] != value);
@@ -190,8 +184,7 @@ Matrix<int> imageToMatrix(Image image) {
 }
 
 Matrix<int> binaryThreshold(Matrix<int> image, int threshold) {
-  final Matrix<int> result =
-      Matrix<int>.fromDimensions(image.width, image.height, 0);
+  final Matrix<int> result = Matrix<int>.fromDimensions(image.width, image.height, 0);
   for (int y = 0; y < image.height; y++) {
     for (int x = 0; x < image.width; x++) {
       result.set(x, y, image.get(x, y) < threshold ? 255 : 0);
@@ -237,8 +230,7 @@ List<Matrix<int>?> cropImage(
   int labelCount, {
   int bgColor = 0,
 }) {
-  final Map<int, (int, int, int, int)> bboxes =
-      <int, (int, int, int, int)>{}; // label -> (minX, minY, maxX, maxY)
+  final Map<int, (int, int, int, int)> bboxes = <int, (int, int, int, int)>{}; // label -> (minX, minY, maxX, maxY)
   for (int label = 1; label <= labelCount; label++) {
     int minX = labeledImage.width;
     int minY = labeledImage.height;
@@ -321,8 +313,7 @@ List<Matrix<int>?> cropImage(
     <int>[0, 1, 0],
   ]);
 
-  final List<List<int>> neighborOffsets =
-      _computeCausalNeighborOffsets(structure);
+  final List<List<int>> neighborOffsets = _computeCausalNeighborOffsets(structure);
 
   final Matrix<int> labels = Matrix<int>.fromDimensions(a.width, a.height, 0);
 
@@ -393,8 +384,7 @@ List<Matrix<int>?> cropImage(
         labels.set(x, y, newLabel);
       } else {
         // Assign the smallest label among neighbors
-        final int minLabel =
-            neighborLabels.reduce((int a, int b) => a < b ? a : b);
+        final int minLabel = neighborLabels.reduce((int a, int b) => a < b ? a : b);
         labels.set(x, y, minLabel);
 
         // Union all neighbor labels

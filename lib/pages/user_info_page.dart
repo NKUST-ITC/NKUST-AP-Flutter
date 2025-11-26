@@ -67,9 +67,7 @@ class UserInfoPageState extends State<UserInfoPage> {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: isDark
-                              ? colorScheme.onSurface
-                              : colorScheme.onPrimary,
+                          color: isDark ? colorScheme.onSurface : colorScheme.onPrimary,
                         ),
                       ),
                     ],
@@ -85,9 +83,7 @@ class UserInfoPageState extends State<UserInfoPage> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: isDark
-                              ? colorScheme.onSurface
-                              : colorScheme.onPrimary,
+                          color: isDark ? colorScheme.onSurface : colorScheme.onPrimary,
                         ),
                       )
                     : const Icon(Icons.refresh_rounded),
@@ -113,16 +109,13 @@ class UserInfoPageState extends State<UserInfoPage> {
   }
 
   Widget _buildAvatar(ColorScheme colorScheme, bool isDark) {
-    final bool hasImage =
-        userInfo.pictureBytes != null && userInfo.pictureBytes!.isNotEmpty;
+    final bool hasImage = userInfo.pictureBytes != null && userInfo.pictureBytes!.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(
-          color: isDark
-              ? colorScheme.primary
-              : colorScheme.onPrimary.withAlpha(128),
+          color: isDark ? colorScheme.primary : colorScheme.onPrimary.withAlpha(128),
           width: 4,
         ),
         boxShadow: <BoxShadow>[
@@ -135,11 +128,8 @@ class UserInfoPageState extends State<UserInfoPage> {
       ),
       child: CircleAvatar(
         radius: 48,
-        backgroundColor: isDark
-            ? colorScheme.primaryContainer
-            : colorScheme.onPrimary.withAlpha(51),
-        backgroundImage:
-            hasImage ? MemoryImage(userInfo.pictureBytes!) : null,
+        backgroundColor: isDark ? colorScheme.primaryContainer : colorScheme.onPrimary.withAlpha(51),
+        backgroundImage: hasImage ? MemoryImage(userInfo.pictureBytes!) : null,
         child: hasImage
             ? null
             : Icon(

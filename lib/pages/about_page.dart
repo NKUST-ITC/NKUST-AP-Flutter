@@ -453,4 +453,3 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
     );
   }
 }
-

@@ -56,30 +56,20 @@ class HomePageState extends State<HomePage> {
     final department = userInfo?.department ?? '';
     final halfSnapFingerChance = Random().nextInt(2000).isEven;
     if (department.contains('建工') || department.contains('燕巢')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionJiangong
-          : ImageAssets.sectionYanchao;
+      return halfSnapFingerChance ? ImageAssets.sectionJiangong : ImageAssets.sectionYanchao;
     } else if (department.contains('第一')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionFirst1
-          : ImageAssets.sectionFirst2;
+      return halfSnapFingerChance ? ImageAssets.sectionFirst1 : ImageAssets.sectionFirst2;
     } else if (department.contains('旗津') || department.contains('楠梓')) {
-      return halfSnapFingerChance
-          ? ImageAssets.sectionQijin
-          : ImageAssets.sectionNanzi;
+      return halfSnapFingerChance ? ImageAssets.sectionQijin : ImageAssets.sectionNanzi;
     }
-      return ImageAssets.kuasap2;
+    return ImageAssets.kuasap2;
   }
 
   String get drawerIcon => ImageAssets.drawerIconLight;
 
-  IconData get reportIcon => ApIcon.code == ApIcon.filled
-      ? Icons.flag_circle
-      : Icons.flag_circle_outlined;
+  IconData get reportIcon => ApIcon.code == ApIcon.filled ? Icons.flag_circle : Icons.flag_circle_outlined;
 
-  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled
-      ? Icons.description
-      : Icons.description_outlined;
+  IconData get enrollmentLetterIcon => ApIcon.code == ApIcon.filled ? Icons.description : Icons.description_outlined;
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
@@ -112,8 +102,7 @@ class HomePageState extends State<HomePage> {
       } else {
         checkLogin();
       }
-      if (await AppStoreUtil.instance.trackingAuthorizationStatus ==
-          GeneralPermissionStatus.notDetermined) {
+      if (await AppStoreUtil.instance.trackingAuthorizationStatus == GeneralPermissionStatus.notDetermined) {
         if (!mounted) return;
         AppTrackingUtils.show(context: context);
       }
@@ -143,10 +132,10 @@ class HomePageState extends State<HomePage> {
       ],
       drawer: _buildDrawer(),
       onImageTapped: (announcement) {
-            ApUtils.pushCupertinoStyle(
-              context,
+        ApUtils.pushCupertinoStyle(
+          context,
           AnnouncementContentPage(announcement: announcement),
-            );
+        );
       },
       onTabTapped: onTabTapped,
       bottomNavigationBarItems: [
@@ -232,8 +221,7 @@ class HomePageState extends State<HomePage> {
               icon: enrollmentLetterIcon,
               title: '在學證明',
               enabled: isLogin,
-              onTap: () =>
-                  _openPage(const EnrollmentLetterPage(), needLogin: true),
+              onTap: () => _openPage(const EnrollmentLetterPage(), needLogin: true),
             ),
           ],
         ),
@@ -303,15 +291,13 @@ class HomePageState extends State<HomePage> {
                 icon: ApIcon.assignment,
                 title: app.busReservations,
                 enabled: isLogin,
-                onTap: () =>
-                    _openPage(const BusPage(initIndex: 1), needLogin: true),
+                onTap: () => _openPage(const BusPage(initIndex: 1), needLogin: true),
               ),
               DrawerSubMenuItem(
                 icon: ApIcon.monetizationOn,
                 title: app.busViolationRecords,
                 enabled: isLogin,
-                onTap: () =>
-                    _openPage(const BusPage(initIndex: 2), needLogin: true),
+                onTap: () => _openPage(const BusPage(initIndex: 2), needLogin: true),
               ),
             ],
           )
@@ -363,7 +349,7 @@ class HomePageState extends State<HomePage> {
               if (isMobile) Navigator.of(context).pop();
               checkLogin();
             },
-            ),
+          ),
         ],
         const SizedBox(height: 16),
       ],
@@ -676,8 +662,8 @@ class HomePageState extends State<HomePage> {
     );
     if (currentVersion != packageInfo.buildNumber && first) {
       final rawData = await FileAssets.changelogData;
-      final updateNoteContent = (rawData![packageInfo.buildNumber]
-          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+      final updateNoteContent =
+          (rawData![packageInfo.buildNumber] as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
       if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,
@@ -698,12 +684,10 @@ class HomePageState extends State<HomePage> {
       );
       await remoteConfig.fetchAndActivate();
       final leaveTimeCode = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
-            as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.leavesTimeCode)) as List<dynamic>,
       );
       final mobileNkustUserAgent = List<String>.from(
-        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent))
-            as List<dynamic>,
+        jsonDecode(remoteConfig.getString(Constants.mobileNkustUserAgent)) as List<dynamic>,
       );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
@@ -741,8 +725,7 @@ class HomePageState extends State<HomePage> {
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
-          windowsPath:
-              'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
+          windowsPath: 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',
           versionInfo: versionInfo,
         );

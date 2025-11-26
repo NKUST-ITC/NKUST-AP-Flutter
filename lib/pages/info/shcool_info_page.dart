@@ -14,8 +14,7 @@ class SchoolInfoPage extends StatefulWidget {
   SchoolInfoPageState createState() => SchoolInfoPageState();
 }
 
-class SchoolInfoPageState extends State<SchoolInfoPage>
-    with SingleTickerProviderStateMixin {
+class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProviderStateMixin {
   final phoneModelList = <PhoneModel>[
     PhoneModel('校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5', '0800-550995'),
     PhoneModel('建工校區', ''),
@@ -163,8 +162,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
   }
 
   Future<void> _getSchedules() async {
-    String pdfUrl =
-        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
+    String pdfUrl = 'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
         final remoteConfig = FirebaseRemoteConfig.instance;

@@ -24,8 +24,7 @@ class LeaveSubmitData {
     this.delayReasonText,
   });
 
-  factory LeaveSubmitData.fromJson(Map<String, dynamic> json) =>
-      _$LeaveSubmitDataFromJson(json);
+  factory LeaveSubmitData.fromJson(Map<String, dynamic> json) => _$LeaveSubmitDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeaveSubmitDataToJson(this);
 
@@ -47,8 +46,7 @@ class LeaveDay {
     this.dayClass,
   });
 
-  factory LeaveDay.fromJson(Map<String, dynamic> json) =>
-      _$LeaveDayFromJson(json);
+  factory LeaveDay.fromJson(Map<String, dynamic> json) => _$LeaveDayFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeaveDayToJson(this);
 

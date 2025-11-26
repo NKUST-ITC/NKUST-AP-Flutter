@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
@@ -36,23 +35,18 @@ class MobileNkustHelper {
   static const String pictureUrl = '${baseUrl}Common/GetStudentPhoto';
   static const String midAlertsUrl = '${baseUrl}Student/Grades/MidWarning';
   static const String busTimetablePageUrl = '${busBaseUrl}Bus/Bus/Timetable';
-  static const String busTimetableApiUrl =
-      '${busBaseUrl}Bus/Bus/GetTimetableGrid';
+  static const String busTimetableApiUrl = '${busBaseUrl}Bus/Bus/GetTimetableGrid';
   static const String busBookApiUrl = '${busBaseUrl}Bus/Bus/CreateReserve';
   static const String busUnbookApiUrl = '${busBaseUrl}Bus/Bus/CancelReserve';
   static const String busUserRecordPageUrl = '${busBaseUrl}Bus/Bus/Reserve';
-  static const String busUserRecordApiUrl =
-      '${busBaseUrl}Bus/Bus/GetReserveGrid';
-  static const String busViolationRecordsPageUrl =
-      '${busBaseUrl}Bus/Bus/Illegal';
-  static const String busViolationRecordsApiUrl =
-      '${busBaseUrl}Bus/Bus/GetIllegalGrid';
+  static const String busUserRecordApiUrl = '${busBaseUrl}Bus/Bus/GetReserveGrid';
+  static const String busViolationRecordsPageUrl = '${busBaseUrl}Bus/Bus/Illegal';
+  static const String busViolationRecordsApiUrl = '${busBaseUrl}Bus/Bus/GetIllegalGrid';
   static const String checkExpireUrl = '${baseUrl}Account/CheckExpire';
 
   static MobileNkustHelper? _instance;
 
-  static bool get isSupport =>
-      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+  static bool get isSupport => !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   late Dio dio;
   late CookieJar cookieJar;
@@ -124,8 +118,7 @@ class MobileNkustHelper {
   void setCookieFromData(MobileCookiesData data) {
     cookiesData = data;
     for (final element in data.cookies) {
-      final tempCookie = Cookie(element.name, element.value)
-        ..domain = element.domain;
+      final tempCookie = Cookie(element.name, element.value)..domain = element.domain;
       cookieJar.saveFromResponse(
         Uri.parse(element.path),
         <Cookie>[tempCookie],
@@ -496,8 +489,7 @@ class MobileNkustHelper {
   }
 
   Map<String, dynamic> _parseJsonResponse(Response<dynamic> response) {
-    if (response.data is String &&
-        response.headers['Content-Type']?[0].contains('text/html') == true) {
+    if (response.data is String && response.headers['Content-Type']?[0].contains('text/html') == true) {
       return jsonDecode(response.data as String) as Map<String, dynamic>;
     }
     return response.data as Map<String, dynamic>;

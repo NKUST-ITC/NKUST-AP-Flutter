@@ -69,8 +69,7 @@ class Helper {
   static Helper get instance => _instance ??= Helper();
 
   Helper() {
-    final apiHost =
-        PreferenceUtil.instance.getString(Constants.apiHost, host);
+    final apiHost = PreferenceUtil.instance.getString(Constants.apiHost, host);
 
     dio = ApiConfig.createDio(
       baseUrl: 'https://$apiHost/$version',
@@ -692,8 +691,7 @@ extension DioErrorExtension on DioException {
   bool get isExpire => response?.statusCode == ApStatusCode.apiExpire;
 
   bool get isServerError =>
-      response?.statusCode == ApStatusCode.schoolServerError ||
-      response?.statusCode == ApStatusCode.apiServerError;
+      response?.statusCode == ApStatusCode.schoolServerError || response?.statusCode == ApStatusCode.apiServerError;
 
   GeneralResponse get serverErrorResponse {
     switch (response?.statusCode) {

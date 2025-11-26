@@ -99,8 +99,7 @@ class WebApParser {
         }
         return 999;
       }
-      if (rawHtml.contains("location.href='relogin.jsp'") ||
-          rawHtml.contains("top.location.href='../index.html';")) {
+      if (rawHtml.contains("location.href='relogin.jsp'") || rawHtml.contains("top.location.href='../index.html';")) {
         return 2;
       }
     }
@@ -124,10 +123,7 @@ class WebApParser {
       return data;
     }
     try {
-      final String imageUrl = document
-          .getElementsByTagName('img')[0]
-          .attributes['src']!
-          .substring(2);
+      final String imageUrl = document.getElementsByTagName('img')[0].attributes['src']!.substring(2);
       data['educationSystem'] = tdElements[3].text.replaceAll('學　　制：', '');
       data['department'] = tdElements[4].text.replaceAll('科　　系：', '');
       data['className'] = tdElements[8].text.replaceAll('班　　級：', '');
@@ -173,8 +169,7 @@ class WebApParser {
     };
     final Document document = parse(html);
 
-    final List<Element> ymsElements =
-        document.getElementById('yms_yms')!.getElementsByTagName('option');
+    final List<Element> ymsElements = document.getElementById('yms_yms')!.getElementsByTagName('option');
     if (ymsElements.length < 30) {
       //parse fail.
       return data;
@@ -215,25 +210,19 @@ class WebApParser {
     try {
       final RegExp exp = RegExp('.{0,4}：([0-9./]{0,})');
       final Iterable<RegExpMatch> matches = exp.allMatches(
-        document
-            .getElementsByTagName('caption')[0]
-            .getElementsByTagName('div')[0]
-            .text,
+        document.getElementsByTagName('caption')[0].getElementsByTagName('div')[0].text,
       );
       data['detail'] = <String, dynamic>{
         'conduct': double.parse(matches.elementAt(0).group(1)!),
         'classRank': matches.elementAt(2).group(1),
         'departmentRank': matches.elementAt(3).group(1),
-        'average': (matches.elementAt(1).group(1) != '')
-            ? double.parse(matches.elementAt(1).group(1)!)
-            : 0.0,
+        'average': (matches.elementAt(1).group(1) != '') ? double.parse(matches.elementAt(1).group(1)!) : 0.0,
       };
     } catch (_) {}
     //scores part
 
     try {
-      final List<Element> table =
-          document.getElementsByTagName('table')[1].getElementsByTagName('tr');
+      final List<Element> table = document.getElementsByTagName('table')[1].getElementsByTagName('tr');
       for (int scoresIndex = 1; scoresIndex < table.length; scoresIndex++) {
         final List<Element> td = table[scoresIndex].getElementsByTagName('td');
         (data['scores'] as List<Map<String, dynamic>>).add(
@@ -261,8 +250,7 @@ class WebApParser {
       rawHtml = html;
     }
 
-    final Map<String, List<Map<String, dynamic>>> data =
-        <String, List<Map<String, dynamic>>>{
+    final Map<String, List<Map<String, dynamic>>> data = <String, List<Map<String, dynamic>>>{
       'courses': <Map<String, dynamic>>[],
       'timeCodes': <Map<String, dynamic>>[],
     };
@@ -274,8 +262,7 @@ class WebApParser {
     }
     try {
       //the top table parse
-      final List<Element> topTable =
-          document.getElementsByTagName('table')[0].getElementsByTagName('tr');
+      final List<Element> topTable = document.getElementsByTagName('table')[0].getElementsByTagName('tr');
       for (int i = 1; i < topTable.length; i++) {
         final List<Element> td = topTable[i].getElementsByTagName('td');
         data['courses']?.add(
@@ -331,21 +318,16 @@ class WebApParser {
           );
           continue;
         }
-        final String title = temptext
-            .substring(0, temptext.length - 10)
-            .replaceAll(specialSpace, '')
-            .replaceAll(' ', '');
-        final String courseTimeRange = temptext
-            .substring(temptext.length - 10)
-            .replaceAll(specialSpace, '');
+        final String title =
+            temptext.substring(0, temptext.length - 10).replaceAll(specialSpace, '').replaceAll(' ', '');
+        final String courseTimeRange = temptext.substring(temptext.length - 10).replaceAll(specialSpace, '');
         final List<String> courseTimeSlits = courseTimeRange.split('-');
         final String startTime = courseTimeSlits[0];
         final String endTime = courseTimeSlits[1];
         data['timeCodes']?.add(
           <String, dynamic>{
             'title': title,
-            'startTime':
-                '${startTime.substring(0, 2)}:${startTime.substring(2, 4)}',
+            'startTime': '${startTime.substring(0, 2)}:${startTime.substring(2, 4)}',
             'endTime': '${endTime.substring(0, 2)}:${endTime.substring(2, 4)}',
           },
         );
@@ -375,25 +357,16 @@ class WebApParser {
       'Sunday',
     ];
     try {
-      for (int weekdayIndex = 0;
-          weekdayIndex < weekdays.length;
-          weekdayIndex++) {
-        for (int rwaTimeCodeIndex = 1;
-            rwaTimeCodeIndex < data['timeCodes']!.length + 1;
-            rwaTimeCodeIndex++) {
-          final Element sectionElement =
-              table2.getElementsByTagName('tr')[rwaTimeCodeIndex];
-          final List<Element> sectionTds =
-              sectionElement.getElementsByTagName('td');
+      for (int weekdayIndex = 0; weekdayIndex < weekdays.length; weekdayIndex++) {
+        for (int rwaTimeCodeIndex = 1; rwaTimeCodeIndex < data['timeCodes']!.length + 1; rwaTimeCodeIndex++) {
+          final Element sectionElement = table2.getElementsByTagName('tr')[rwaTimeCodeIndex];
+          final List<Element> sectionTds = sectionElement.getElementsByTagName('td');
           final Element eachDays = sectionTds[weekdayIndex + 1];
-          final List<String> splitData = eachDays.outerHtml
-              .substring(35, eachDays.outerHtml.length - 11)
-              .split('<br>');
+          final List<String> splitData = eachDays.outerHtml.substring(35, eachDays.outerHtml.length - 11).split('<br>');
           if (splitData.length <= 1) {
             continue;
           }
-          String courseName =
-              splitData[0].replaceAll('\n', '').replaceAll('(18週)', '');
+          String courseName = splitData[0].replaceAll('\n', '').replaceAll('(18週)', '');
           if (courseName.lastIndexOf('>') > -1) {
             courseName = courseName
                 .substring(courseName.lastIndexOf('>') + 1, courseName.length)
@@ -475,10 +448,8 @@ class WebApParser {
     if (document.getElementsByTagName('table').length < 2) {
       return data;
     }
-    final List<Element> table = document
-        .getElementsByTagName('table')[1]
-        .getElementsByTagName('tr')[1]
-        .getElementsByTagName('tr');
+    final List<Element> table =
+        document.getElementsByTagName('table')[1].getElementsByTagName('tr')[1].getElementsByTagName('tr');
     try {
       for (int i = 1; i < table.length; i++) {
         final List<Element> tdData = table[i].getElementsByTagName('td');
@@ -509,8 +480,7 @@ class WebApParser {
     };
 
     final Document document = parse(html);
-    final List<Element> table =
-        document.getElementById('room_id')!.getElementsByTagName('option');
+    final List<Element> table = document.getElementById('room_id')!.getElementsByTagName('option');
     try {
       for (int i = 1; i < table.length; i++) {
         (data['data'] as List<Map<String, dynamic>>).add(
@@ -553,11 +523,9 @@ class WebApParser {
       'timeCodes': <Map<String, dynamic>>[],
     };
 
-    final Map<String, dynamic> courseTable =
-        data['coursetable'] as Map<String, dynamic>;
+    final Map<String, dynamic> courseTable = data['coursetable'] as Map<String, dynamic>;
 
-    final Map<String, dynamic> courses =
-        data['courses'] as Map<String, dynamic>;
+    final Map<String, dynamic> courses = data['courses'] as Map<String, dynamic>;
 
     if (document.getElementsByTagName('table').isEmpty) {
       //table not found
@@ -566,16 +534,13 @@ class WebApParser {
     try {
       //the top table parse
       if (document.getElementsByTagName('table').isNotEmpty) {
-        final List<Element> topTable = document
-            .getElementsByTagName('table')[0]
-            .getElementsByTagName('tr');
+        final List<Element> topTable = document.getElementsByTagName('table')[0].getElementsByTagName('tr');
         for (int i = 1; i < topTable.length; i++) {
           final List<Element> td = topTable[i].getElementsByTagName('td');
           courses.addAll(
             <String, Map<String, dynamic>>{
               "${td[1].text.replaceAll(specialSpace, '')}"
-                      "${td[10].text.replaceAll(specialSpace, '')}":
-                  <String, dynamic>{
+                  "${td[10].text.replaceAll(specialSpace, '')}": <String, dynamic>{
                 'code': td[0].text.replaceAll(specialSpace, ''),
                 'title': td[1].text.replaceAll(specialSpace, ''),
                 'className': td[2].text.replaceAll(specialSpace, ''),
@@ -587,8 +552,7 @@ class WebApParser {
                 'times': td[9].text.replaceAll(specialSpace, ''),
                 'sectionTimes': <Map<String, dynamic>>[],
                 'location': null,
-                'instructors':
-                    td[10].text.replaceAll(specialSpace, '').split(','),
+                'instructors': td[10].text.replaceAll(specialSpace, '').split(','),
               },
             },
           );
@@ -606,11 +570,8 @@ class WebApParser {
         final List<Element> td = secondTable[1].getElementsByTagName('tr');
         //remark:Best split is regex but... Chinese have some difficulty Q_Q
         for (int i = 1; i < td.length; i++) {
-          String temptext =
-              td[i].getElementsByTagName('td')[0].text.replaceAll(' ', '');
-          temptext = temptext
-              .substring(0, temptext.length - 10)
-              .replaceAll(specialSpace, '');
+          String temptext = td[i].getElementsByTagName('td')[0].text.replaceAll(' ', '');
+          temptext = temptext.substring(0, temptext.length - 10).replaceAll(specialSpace, '');
           temptext = temptext.substring(1, temptext.length - 1);
           (courseTable['timeCodes'] as List<String>).add(temptext);
         }
@@ -630,10 +591,7 @@ class WebApParser {
     try {
       final Map<String, dynamic> tempTime = <String, dynamic>{};
       for (int key = 0; key < keyName.length; key++) {
-        for (int eachSession = 1;
-            eachSession <
-                (courseTable['timeCodes'] as List<dynamic>).length + 1;
-            eachSession++) {
+        for (int eachSession = 1; eachSession < (courseTable['timeCodes'] as List<dynamic>).length + 1; eachSession++) {
           final Element eachDays = document
               .getElementsByTagName('table')[1]
               .getElementsByTagName('tr')[eachSession]
@@ -658,8 +616,7 @@ class WebApParser {
                 eachDaysDate.indexOf('&nbsp;<br><br><'),
               )
               .split('<br>');
-          String tempSection =
-              courseTime[0].replaceAll(' ', '').replaceAll(specialSpace, '');
+          String tempSection = courseTime[0].replaceAll(' ', '').replaceAll(specialSpace, '');
           tempSection = tempSection.substring(1, tempSection.length - 1);
           tempTime.addAll(<String, dynamic>{
             tempSection: <String, dynamic>{
@@ -679,10 +636,8 @@ class WebApParser {
           String title = splitData[0].replaceAll('\n', '');
 
           if (title.lastIndexOf('>') > -1) {
-            title = title
-                .substring(title.lastIndexOf('>') + 1, title.length)
-                .replaceAll('&nbsp;', '')
-                .replaceAll(';', '');
+            title =
+                title.substring(title.lastIndexOf('>') + 1, title.length).replaceAll('&nbsp;', '').replaceAll(';', '');
           }
 
           (courseTable[keyName[key]] as List<dynamic>).add(
@@ -697,9 +652,7 @@ class WebApParser {
                     "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
                 'section': tempSection,
               },
-              'rawInstructors': splitData[1]
-                  .replaceAll(specialSpace, '')
-                  .replaceAll('&nbsp;', ''),
+              'rawInstructors': splitData[1].replaceAll(specialSpace, '').replaceAll('&nbsp;', ''),
               'instructors': splitData[1].replaceAll('&nbsp;', '').split(','),
             },
           );
@@ -707,11 +660,8 @@ class WebApParser {
       }
       data['_temp_time'] = tempTime;
       // mix weekday to course.
-      for (int weekKeyIndex = 0;
-          weekKeyIndex < keyName.length;
-          weekKeyIndex++) {
-        final List<dynamic> courses =
-            courseTable[keyName[weekKeyIndex]] as List<dynamic>;
+      for (int weekKeyIndex = 0; weekKeyIndex < keyName.length; weekKeyIndex++) {
+        final List<dynamic> courses = courseTable[keyName[weekKeyIndex]] as List<dynamic>;
         for (final dynamic course in courses) {
           final Map<String, dynamic> temp = <String, dynamic>{
             'weekday': weekKeyIndex + 1,
@@ -734,9 +684,7 @@ class WebApParser {
       data.remove('coursetable');
       //ignore: avoid_dynamic_calls
       data['_temp_time'] = data['_temp_time'].values.toList();
-      for (int timeCodeIndex = 0;
-          timeCodeIndex < (data['_temp_time'] as List<dynamic>).length;
-          timeCodeIndex++) {
+      for (int timeCodeIndex = 0; timeCodeIndex < (data['_temp_time'] as List<dynamic>).length; timeCodeIndex++) {
         //ignore: avoid_dynamic_calls
         data['timeCodes'].add(<String, dynamic>{
           //ignore: avoid_dynamic_calls
@@ -749,8 +697,7 @@ class WebApParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtil.instance
-          .recordError(e, s, reason: 'course name = $tmpCourseName');
+      CrashlyticsUtil.instance.recordError(e, s, reason: 'course name = $tmpCourseName');
     }
 
     return data;

@@ -123,9 +123,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark
-            ? colorScheme.primaryContainer
-            : colorScheme.onPrimary.withAlpha(51),
+        color: isDark ? colorScheme.primaryContainer : colorScheme.onPrimary.withAlpha(51),
         borderRadius: BorderRadius.circular(20),
         boxShadow: <BoxShadow>[
           BoxShadow(

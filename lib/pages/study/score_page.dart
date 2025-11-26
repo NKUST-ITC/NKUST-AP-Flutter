@@ -88,8 +88,7 @@ class ScorePageState extends State<ScorePage> {
             }
           },
           onFailure: (DioException e) async {
-            if (await _loadOfflineScoreData() &&
-                e.type != DioExceptionType.cancel) {
+            if (await _loadOfflineScoreData() && e.type != DioExceptionType.cancel) {
               setState(() {
                 state = CustomScoreState.custom;
                 customStateHint = e.i18nMessage;
@@ -121,9 +120,7 @@ class ScorePageState extends State<ScorePage> {
     if (mounted) {
       setState(() {
         isOffline = true;
-        state = scoreData == null
-            ? CustomScoreState.offlineEmpty
-            : CustomScoreState.finish;
+        state = scoreData == null ? CustomScoreState.offlineEmpty : CustomScoreState.finish;
       });
     }
     return scoreData == null;

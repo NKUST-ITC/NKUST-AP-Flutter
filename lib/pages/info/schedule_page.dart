@@ -20,8 +20,7 @@ class SchedulePage extends StatefulWidget {
   SchedulePageState createState() => SchedulePageState();
 }
 
-class SchedulePageState extends State<SchedulePage>
-    with AutomaticKeepAliveClientMixin {
+class SchedulePageState extends State<SchedulePage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -39,8 +38,7 @@ class SchedulePageState extends State<SchedulePage>
 
   @override
   void initState() {
-    AnalyticsUtil.instance
-        .setCurrentScreen('SchedulePage', 'schedule_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('SchedulePage', 'schedule_page.dart');
     _getSchedules();
     super.initState();
   }
@@ -67,9 +65,7 @@ class SchedulePageState extends State<SchedulePage>
           onTap: _getSchedules,
           child: HintContent(
             icon: ApIcon.assignment,
-            content: state == _State.error
-                ? ap.clickToRetry
-                : AppLocalizations.of(context).busEmpty,
+            content: state == _State.error ? ap.clickToRetry : AppLocalizations.of(context).busEmpty,
           ),
         );
       case _State.pdf:
@@ -81,8 +77,7 @@ class SchedulePageState extends State<SchedulePage>
       case _State.finish:
         return CustomScrollView(
           slivers: <Widget>[
-            for (final ScheduleData value in scheduleDataList)
-              ..._scheduleItem(value),
+            for (final ScheduleData value in scheduleDataList) ..._scheduleItem(value),
           ],
         );
     }
@@ -311,8 +306,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return maxHeight != oldDelegate.maxHeight ||
-        minHeight != oldDelegate.minHeight ||
-        child != oldDelegate.child;
+    return maxHeight != oldDelegate.maxHeight || minHeight != oldDelegate.minHeight || child != oldDelegate.child;
   }
 }

@@ -22,8 +22,7 @@ class BusData {
     required this.timetable,
   });
 
-  factory BusData.fromJson(Map<String, dynamic> json) =>
-      _$BusDataFromJson(json);
+  factory BusData.fromJson(Map<String, dynamic> json) => _$BusDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$BusDataToJson(this);
 
@@ -101,8 +100,7 @@ class BusTime {
     return list;
   }
 
-  factory BusTime.fromJson(Map<String, dynamic> json) =>
-      _$BusTimeFromJson(json);
+  factory BusTime.fromJson(Map<String, dynamic> json) => _$BusTimeFromJson(json);
 
   Map<String, dynamic> toJson() => _$BusTimeToJson(this);
 

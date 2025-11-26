@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 
@@ -53,9 +54,7 @@ class _CustomScoreScaffoldState extends State<CustomScoreScaffold> {
           if (widget.state == CustomScoreState.finish)
             IconButton(
               icon: Icon(
-                _isAnalysisView
-                    ? Icons.list_alt_rounded
-                    : Icons.analytics_outlined,
+                _isAnalysisView ? Icons.list_alt_rounded : Icons.analytics_outlined,
               ),
               tooltip: _isAnalysisView ? '科目詳情' : '成績總覽',
               onPressed: () {
@@ -66,8 +65,7 @@ class _CustomScoreScaffoldState extends State<CustomScoreScaffold> {
       ),
       body: Column(
         children: <Widget>[
-          if (widget.customHint != null && widget.customHint!.isNotEmpty)
-            _buildHintBanner(colorScheme),
+          if (widget.customHint != null && widget.customHint!.isNotEmpty) _buildHintBanner(colorScheme),
           Expanded(
             child: _buildContent(context, colorScheme, ap),
           ),

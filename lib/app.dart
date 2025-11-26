@@ -38,11 +38,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     analytics = FirebaseUtils.init();
     FirebaseMessagingUtils.instance.init(vapidKey: Constants.fcmWebVapidKey);
-    themeMode = ThemeMode
-        .values[PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    themeMode = ThemeMode.values[PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
-    AnalyticsUtil.instance
-        .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
+    AnalyticsUtil.instance.setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
@@ -106,9 +104,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       ApSupportLanguageConstants.system,
     );
     if (languageCode == ApSupportLanguageConstants.system) {
-      this.locale = ApLocalizations.delegate.isSupported(locale!)
-          ? locale
-          : const Locale('en');
+      this.locale = ApLocalizations.delegate.isSupported(locale!) ? locale : const Locale('en');
     } else {
       this.locale = Locale(
         languageCode,

@@ -162,8 +162,7 @@ class _CourseTableWidgetState extends State<CourseTableWidget> {
     int timeIndex,
     bool isLast,
   ) {
-    final TimeCode? timeCode =
-        timeIndex < timeCodes.length ? timeCodes[timeIndex] : null;
+    final TimeCode? timeCode = timeIndex < timeCodes.length ? timeCodes[timeIndex] : null;
 
     return Container(
       decoration: BoxDecoration(
@@ -258,9 +257,7 @@ class _CourseTableWidgetState extends State<CourseTableWidget> {
               )
             : null,
       ),
-      child: course != null
-          ? _buildCourseCard(colorScheme, course)
-          : const SizedBox.shrink(),
+      child: course != null ? _buildCourseCard(colorScheme, course) : const SizedBox.shrink(),
     );
   }
 
@@ -638,4 +635,3 @@ class CourseListWidget extends StatelessWidget {
     );
   }
 }
-

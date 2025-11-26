@@ -7,9 +7,7 @@ part of 'room_data.dart';
 // **************************************************************************
 
 RoomData _$RoomDataFromJson(Map<String, dynamic> json) => RoomData(
-      data: (json['data'] as List<dynamic>)
-          .map((e) => Room.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      data: (json['data'] as List<dynamic>).map((e) => Room.fromJson(e as Map<String, dynamic>)).toList(),
     );
 
 Map<String, dynamic> _$RoomDataToJson(RoomData instance) => <String, dynamic>{

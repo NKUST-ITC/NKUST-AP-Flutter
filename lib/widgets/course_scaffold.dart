@@ -213,4 +213,3 @@ class _CustomCourseScaffoldState extends State<CustomCourseScaffold> {
     }
   }
 }
-

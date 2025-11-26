@@ -22,8 +22,7 @@ class LeaveRecordPage extends StatefulWidget {
   LeaveRecordPageState createState() => LeaveRecordPageState();
 }
 
-class LeaveRecordPageState extends State<LeaveRecordPage>
-    with AutomaticKeepAliveClientMixin {
+class LeaveRecordPageState extends State<LeaveRecordPage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -45,15 +44,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   bool hasNight = false;
   bool isOffline = false;
 
-  TextStyle get _textBlueStyle =>
-      TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
+  TextStyle get _textBlueStyle => TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
 
   TextStyle get _textStyle => const TextStyle(fontSize: 15.0);
 
   @override
   void initState() {
-    AnalyticsUtil.instance
-        .setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
     super.initState();
   }
 
@@ -174,8 +171,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
             child: Column(
               children: <Widget>[
-                if (hasNight && orientation == Orientation.portrait)
-                  Text(ap.leaveNight),
+                if (hasNight && orientation == Orientation.portrait) Text(ap.leaveNight),
                 const SizedBox(height: 16.0),
                 DecoratedBox(
                   decoration: BoxDecoration(
@@ -197,8 +193,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                     ),
                     children: <TableRow>[
                       leaveTitle,
-                      for (final Leave leave in leaveData!.leaves)
-                        _leaveBorder(leave, leaveData!.timeCodes),
+                      for (final Leave leave in leaveData!.leaves) _leaveBorder(leave, leaveData!.timeCodes),
                     ],
                   ),
                 ),
@@ -262,9 +257,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
                   builder: (BuildContext context) => DefaultDialog(
                     title: ap.leaveContent,
                     actionText: ap.iKnow,
-                    actionFunction: () =>
-                        Navigator.of(context, rootNavigator: true)
-                            .pop('dialog'),
+                    actionFunction: () => Navigator.of(context, rootNavigator: true).pop('dialog'),
                     contentWidget: RichText(
                       text: TextSpan(
                         style: TextStyle(

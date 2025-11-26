@@ -6,17 +6,12 @@ part of 'bus_violation_records_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-BusViolationRecordsData _$BusViolationRecordsDataFromJson(
-        Map<String, dynamic> json) =>
-    BusViolationRecordsData(
-      reservations: (json['reservation'] as List<dynamic>)
-          .map((e) => Reservation.fromJson(e as Map<String, dynamic>))
-          .toList(),
+BusViolationRecordsData _$BusViolationRecordsDataFromJson(Map<String, dynamic> json) => BusViolationRecordsData(
+      reservations:
+          (json['reservation'] as List<dynamic>).map((e) => Reservation.fromJson(e as Map<String, dynamic>)).toList(),
     );
 
-Map<String, dynamic> _$BusViolationRecordsDataToJson(
-        BusViolationRecordsData instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$BusViolationRecordsDataToJson(BusViolationRecordsData instance) => <String, dynamic>{
       'reservation': instance.reservations.map((e) => e.toJson()).toList(),
     };
 
@@ -29,8 +24,7 @@ Reservation _$ReservationFromJson(Map<String, dynamic> json) => Reservation(
       isPayment: json['isPayment'] as bool,
     );
 
-Map<String, dynamic> _$ReservationToJson(Reservation instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$ReservationToJson(Reservation instance) => <String, dynamic>{
       'time': const DateTimeConverter().toJson(instance.time),
       'startStation': instance.startStation,
       'endStation': instance.endStation,

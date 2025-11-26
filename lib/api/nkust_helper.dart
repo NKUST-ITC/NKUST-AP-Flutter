@@ -102,11 +102,8 @@ class NKUSTHelper {
         bodyBytes: (await getUidValidationImage())!,
       );
 
-      final List<Cookie> cookies = await cookieJar
-          .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
-      final String cookieHeader = cookies
-          .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-          .join('; ');
+      final List<Cookie> cookies = await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+      final String cookieHeader = cookies.map((Cookie cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
       final http.Response response = await http.post(
         Uri(
@@ -182,8 +179,7 @@ class NKUSTHelper {
     List<Map<String, dynamic>> acadData;
     if (res.statusCode == 200 && res.data != null) {
       acadData = acadParser(
-        html: (json.decode(res.data!) as Map<String, dynamic>)['content']
-            as String,
+        html: (json.decode(res.data!) as Map<String, dynamic>)['content'] as String,
         baseIndex: baseIndex,
       );
       reTryCounts = 0;

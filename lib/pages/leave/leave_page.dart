@@ -14,8 +14,7 @@ class LeavePage extends StatefulWidget {
   LeavePageState createState() => LeavePageState();
 }
 
-class LeavePageState extends State<LeavePage>
-    with SingleTickerProviderStateMixin {
+class LeavePageState extends State<LeavePage> with SingleTickerProviderStateMixin {
   late ApLocalizations ap;
   late TabController controller;
 

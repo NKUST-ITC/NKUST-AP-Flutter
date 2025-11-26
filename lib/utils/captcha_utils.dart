@@ -32,8 +32,7 @@ class CaptchaUtils {
       final String result = await eucdist.solveByEucDist(source);
 
       final DateTime end = DateTime.now();
-      final int processTime =
-          end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
+      final int processTime = end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
       log('process time = $processTime ms');
       log(result);
       return result;

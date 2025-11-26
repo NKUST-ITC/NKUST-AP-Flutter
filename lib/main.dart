@@ -38,14 +38,12 @@ void main() async {
     MobileNkustHelper.userAgentList,
   );
 
-  final currentVersion =
-      PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');
+  final currentVersion = PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');
   if (int.parse(currentVersion) < 30603) CourseData.migrateFrom0_10();
 
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(
-      clientId:
-          '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com',
+      clientId: '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com',
     );
   }
 
@@ -62,13 +60,11 @@ void main() async {
   }
 
   if (FirebaseCrashlyticsUtils.isSupported) {
-    await FirebaseCrashlytics.instance
-        .setCrashlyticsCollectionEnabled(kReleaseMode);
+    await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(kReleaseMode);
   }
 
   if (FirebasePerformancesUtils.isSupported) {
-    await FirebasePerformance.instance
-        .setPerformanceCollectionEnabled(kReleaseMode);
+    await FirebasePerformance.instance.setPerformanceCollectionEnabled(kReleaseMode);
   }
 
   if (!kDebugMode && FirebaseCrashlyticsUtils.isSupported) {
@@ -85,7 +81,6 @@ void main() async {
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (cert, host, port) => true;
+    return super.createHttpClient(context)..badCertificateCallback = (cert, host, port) => true;
   }
 }

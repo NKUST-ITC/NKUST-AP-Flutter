@@ -20,13 +20,11 @@ class LeaveSubmitInfoData {
     required this.timeCodes,
   });
 
-  factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) =>
-      _$LeaveSubmitInfoDataFromJson(json);
+  factory LeaveSubmitInfoData.fromJson(Map<String, dynamic> json) => _$LeaveSubmitInfoDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeaveSubmitInfoDataToJson(this);
 
-  factory LeaveSubmitInfoData.fromRawJson(String str) =>
-      LeaveSubmitInfoData.fromJson(
+  factory LeaveSubmitInfoData.fromRawJson(String str) => LeaveSubmitInfoData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 

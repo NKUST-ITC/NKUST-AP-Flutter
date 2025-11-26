@@ -34,9 +34,7 @@ class SemesterPickerState extends State<SemesterPicker> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final String displayText = selectSemester != null
-        ? _getShortSemesterText(selectSemester!)
-        : '';
+    final String displayText = selectSemester != null ? _getShortSemesterText(selectSemester!) : '';
 
     return Material(
       color: colorScheme.primaryContainer,
@@ -45,8 +43,7 @@ class SemesterPickerState extends State<SemesterPicker> {
         onTap: () {
           if (selectSemester != null) pickSemester();
           if (widget.featureTag != null) {
-            AnalyticsUtil.instance
-                .logEvent('${widget.featureTag}_item_picker_click');
+            AnalyticsUtil.instance.logEvent('${widget.featureTag}_item_picker_click');
           }
         },
         borderRadius: BorderRadius.circular(20),
@@ -126,8 +123,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     final SemesterData? cacheData = SemesterData.load();
     if (cacheData != null) {
       semesterData = cacheData;
-      widget.onSelect
-          ?.call(semesterData.defaultSemester, semesterData.defaultIndex);
+      widget.onSelect?.call(semesterData.defaultSemester, semesterData.defaultIndex);
       if (mounted) {
         setState(() {
           selectSemester = semesterData.defaultSemester;
@@ -146,8 +142,7 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           semesterData = data;
           semesterData.save();
-          final String newSemester =
-              '${Helper.username}_${semesterData.defaultSemester.code}';
+          final String newSemester = '${Helper.username}_${semesterData.defaultSemester.code}';
           PreferenceUtil.instance.setString(
             ApConstants.currentSemesterCode,
             newSemester,
@@ -176,8 +171,7 @@ class SemesterPickerState extends State<SemesterPicker> {
           }
         },
         onError: (GeneralResponse response) {
-          UiUtil.instance
-              .showToast(context, response.getGeneralMessage(context));
+          UiUtil.instance.showToast(context, response.getGeneralMessage(context));
         },
       ),
     );
@@ -290,8 +284,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     final ApLocalizations ap = ApLocalizations.of(context);
     final List<MapEntry<int, Semester>> sortedSemesters = _getSortedSemesters();
 
-    final Map<String, List<MapEntry<int, Semester>>> groupedByYear =
-        <String, List<MapEntry<int, Semester>>>{};
+    final Map<String, List<MapEntry<int, Semester>>> groupedByYear = <String, List<MapEntry<int, Semester>>>{};
     for (final MapEntry<int, Semester> entry in sortedSemesters) {
       final String year = entry.value.year;
       groupedByYear.putIfAbsent(year, () => <MapEntry<int, Semester>>[]);
@@ -365,10 +358,8 @@ class SemesterPickerState extends State<SemesterPicker> {
                           ),
                           itemCount: groupedByYear.length,
                           itemBuilder: (BuildContext context, int groupIndex) {
-                            final String year =
-                                groupedByYear.keys.elementAt(groupIndex);
-                            final List<MapEntry<int, Semester>> semesters =
-                                groupedByYear[year]!;
+                            final String year = groupedByYear.keys.elementAt(groupIndex);
+                            final List<MapEntry<int, Semester>> semesters = groupedByYear[year]!;
 
                             return _buildYearGroup(
                               context,
@@ -452,8 +443,7 @@ class SemesterPickerState extends State<SemesterPicker> {
     final bool isLoading = isSemesterLoading(semester);
     final bool isDisabled = isEmpty || isLoading;
     final String semesterName = _getSemesterName(semester.value);
-    final String displayName =
-        semesterName.isNotEmpty ? semesterName : semester.text;
+    final String displayName = semesterName.isNotEmpty ? semesterName : semester.text;
 
     return Opacity(
       opacity: isEmpty ? 0.5 : 1.0,
@@ -517,9 +507,7 @@ class SemesterPickerState extends State<SemesterPicker> {
                             ),
                           )
                         : Icon(
-                            isEmpty
-                                ? Icons.block_rounded
-                                : _getSemesterIcon(semester.value),
+                            isEmpty ? Icons.block_rounded : _getSemesterIcon(semester.value),
                             size: 22,
                             color: isEmpty
                                 ? colorScheme.onSurfaceVariant

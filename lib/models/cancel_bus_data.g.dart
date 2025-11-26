@@ -6,12 +6,10 @@ part of 'cancel_bus_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CancelBusData _$CancelBusDataFromJson(Map<String, dynamic> json) =>
-    CancelBusData(
+CancelBusData _$CancelBusDataFromJson(Map<String, dynamic> json) => CancelBusData(
       success: json['success'] as bool,
     );
 
-Map<String, dynamic> _$CancelBusDataToJson(CancelBusData instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$CancelBusDataToJson(CancelBusData instance) => <String, dynamic>{
       'success': instance.success,
     };

@@ -4,16 +4,7 @@ import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 
-enum _State {
-  loading,
-  finish,
-  error,
-  empty,
-  campusNotSupport,
-  userNotSupport,
-  offlineEmpty,
-  custom
-}
+enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, offlineEmpty, custom }
 
 class BusReservationsPage extends StatefulWidget {
   static const String routerName = '/bus/reservations';
@@ -22,8 +13,7 @@ class BusReservationsPage extends StatefulWidget {
   BusReservationsPageState createState() => BusReservationsPageState();
 }
 
-class BusReservationsPageState extends State<BusReservationsPage>
-    with AutomaticKeepAliveClientMixin {
+class BusReservationsPageState extends State<BusReservationsPage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -166,12 +156,9 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   icon: Icon(
                     ApIcon.cancel,
                     size: 20.0,
-                    color: isOffline
-                        ? colorScheme.onSurfaceVariant
-                        : colorScheme.error,
+                    color: isOffline ? colorScheme.onSurfaceVariant : colorScheme.error,
                   ),
-                  onPressed:
-                      isOffline ? null : () => _showCancelDialog(busReservation),
+                  onPressed: isOffline ? null : () => _showCancelDialog(busReservation),
                 ),
               ),
             ],
@@ -209,8 +196,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           busReservationsData = data;
           if (mounted) {
             setState(() {
-              if (busReservationsData == null ||
-                  busReservationsData!.reservations.isEmpty) {
+              if (busReservationsData == null || busReservationsData!.reservations.isEmpty) {
                 state = _State.empty;
               } else {
                 state = _State.finish;
@@ -242,8 +228,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                     );
                   }
                 });
-                if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403) {
+                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
                   AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
@@ -353,8 +338,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 ),
               ),
               actionText: ap.iKnow,
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop(),
+              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
             ),
           );
         },

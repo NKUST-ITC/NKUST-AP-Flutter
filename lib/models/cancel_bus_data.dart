@@ -12,8 +12,7 @@ class CancelBusData {
     required this.success,
   });
 
-  factory CancelBusData.fromJson(Map<String, dynamic> json) =>
-      _$CancelBusDataFromJson(json);
+  factory CancelBusData.fromJson(Map<String, dynamic> json) => _$CancelBusDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$CancelBusDataToJson(this);
 

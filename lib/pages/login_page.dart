@@ -92,9 +92,7 @@ class LoginPageState extends State<LoginPage> {
           width: 100,
           height: 100,
           decoration: BoxDecoration(
-            color: isDark
-                ? colorScheme.primaryContainer
-                : colorScheme.onPrimary.withAlpha(51),
+            color: isDark ? colorScheme.primaryContainer : colorScheme.onPrimary.withAlpha(51),
             borderRadius: BorderRadius.circular(24),
             boxShadow: <BoxShadow>[
               BoxShadow(
@@ -179,13 +177,10 @@ class LoginPageState extends State<LoginPage> {
                 onSubmitted: (_) => _login(),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscurePassword
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
+                    _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
                     color: colorScheme.onSurfaceVariant,
                   ),
-                  onPressed: () =>
-                      setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                 ),
               ),
               const SizedBox(height: 16),

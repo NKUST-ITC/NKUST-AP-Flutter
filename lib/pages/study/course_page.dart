@@ -79,9 +79,7 @@ class CoursePageState extends State<CoursePage> {
           state = CustomCourseState.offlineEmpty;
         } else {
           courseData = cacheData;
-          state = courseData.courses.isEmpty
-              ? CustomCourseState.empty
-              : CustomCourseState.finish;
+          state = courseData.courses.isEmpty ? CustomCourseState.empty : CustomCourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
@@ -114,8 +112,7 @@ class CoursePageState extends State<CoursePage> {
           }
         },
         onFailure: (DioException e) async {
-          if (await _loadCacheData(selectSemester!.code) &&
-              e.type != DioExceptionType.cancel) {
+          if (await _loadCacheData(selectSemester!.code) && e.type != DioExceptionType.cancel) {
             setState(() {
               state = CustomCourseState.custom;
               customStateHint = e.i18nMessage;

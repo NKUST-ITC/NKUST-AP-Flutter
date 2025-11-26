@@ -31,8 +31,7 @@ class LeaveApplyPage extends StatefulWidget {
   LeaveApplyPageState createState() => LeaveApplyPageState();
 }
 
-class LeaveApplyPageState extends State<LeaveApplyPage>
-    with AutomaticKeepAliveClientMixin {
+class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -77,8 +76,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 
   @override
   void initState() {
-    AnalyticsUtil.instance
-        .setCurrentScreen('LeaveApplyPage', 'leave_apply_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen('LeaveApplyPage', 'leave_apply_page.dart');
     _getLeavesInfo();
     super.initState();
   }
@@ -109,9 +107,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         return InkWell(
           onTap: _getLeavesInfo,
           child: HintContent(
-            icon: state == _State.offline
-                ? ApIcon.offlineBolt
-                : ApIcon.permIdentity,
+            icon: state == _State.offline ? ApIcon.offlineBolt : ApIcon.permIdentity,
             content: errorTitle!,
           ),
         );
@@ -221,8 +217,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   );
                   if (picked != null) {
                     DateTime dateTime = picked.start;
-                    final DateTime end =
-                        picked.end.add(const Duration(days: 1));
+                    final DateTime end = picked.end.add(const Duration(days: 1));
                     while (dateTime.isBefore(end)) {
                       bool hasRepeat = false;
                       for (int i = 0; i < leaveModels.length; i++) {
@@ -299,12 +294,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           width: 200,
                           child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                             ),
-                            itemBuilder:
-                                (BuildContext context, int sectionIndex) {
+                            itemBuilder: (BuildContext context, int sectionIndex) {
                               return InkWell(
                                 child: Container(
                                   margin: const EdgeInsets.all(4.0),
@@ -316,8 +309,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                     border: Border.all(
                                       color: ApTheme.of(context).blueAccent,
                                     ),
-                                    color: leaveModels[index]
-                                            .selected[sectionIndex]
+                                    color: leaveModels[index].selected[sectionIndex]
                                         ? ApTheme.of(context).blueAccent
                                         : null,
                                   ),
@@ -325,8 +317,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                   child: Text(
                                     leaveSubmitInfo.timeCodes[sectionIndex],
                                     style: TextStyle(
-                                      color: leaveModels[index]
-                                              .selected[sectionIndex]
+                                      color: leaveModels[index].selected[sectionIndex]
                                           ? Colors.white
                                           : ApTheme.of(context).blueAccent,
                                     ),
@@ -335,8 +326,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                                 onTap: () {
                                   setState(() {
                                     leaveModels[index].selected[sectionIndex] =
-                                        !leaveModels[index]
-                                            .selected[sectionIndex];
+                                        !leaveModels[index].selected[sectionIndex];
                                   });
                                 },
                               );
@@ -356,8 +346,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
               enabled: leaveSubmitInfo.tutor == null,
               onTap: leaveSubmitInfo.tutor == null
                   ? () async {
-                      final LeavesTeacher? teacher =
-                          await Navigator.of(context).push<LeavesTeacher>(
+                      final LeavesTeacher? teacher = await Navigator.of(context).push<LeavesTeacher>(
                         MaterialPageRoute<LeavesTeacher>(
                           builder: (BuildContext context) {
                             return PickTutorPage();
@@ -390,9 +379,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 style: const TextStyle(fontSize: 20),
               ),
               subtitle: Text(
-                leaveSubmitInfo.tutor == null
-                    ? (teacher?.name ?? ap.pleasePick)
-                    : (leaveSubmitInfo.tutor?.name ?? ''),
+                leaveSubmitInfo.tutor == null ? (teacher?.name ?? ap.pleasePick) : (leaveSubmitInfo.tutor?.name ?? ''),
                 style: const TextStyle(fontSize: 20),
               ),
             ),
@@ -404,10 +391,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
 //                            AnalyticsUtil.instance
 //                                .logLeavesImageSize(image);
                   if (kIsWeb) {
-                    final double size =
-                        (await pickedImage.readAsBytes()).length.toDouble() /
-                            1024.0 /
-                            1024.0;
+                    final double size = (await pickedImage.readAsBytes()).length.toDouble() / 1024.0 / 1024.0;
                     if (size >= Constants.maxImageSize) {
                       if (!mounted) return;
                       UiUtil.instance.showToast(
@@ -657,8 +641,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           title: ap.leaveSubmit,
           contentWidgetPadding: EdgeInsets.zero,
           contentWidget: SizedBox(
-            height: MediaQuery.of(context).size.height *
-                ((image == null) ? 0.3 : 0.5),
+            height: MediaQuery.of(context).size.height * ((image == null) ? 0.3 : 0.5),
             width: MediaQuery.of(context).size.width * 0.7,
             child: ListView(
               children: <Widget>[
@@ -705,8 +688,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                           text: '${ap.leaveDateAndSection}：\n',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        for (final LeaveDay day in days)
-                          TextSpan(text: '$day\n'),
+                        for (final LeaveDay day in days) TextSpan(text: '$day\n'),
                         TextSpan(
                           text: '${ap.leaveProof}：'
                               '${image == null ? ap.none : ''}\n',
@@ -723,9 +705,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       left: 30.0,
                       right: 30.0,
                     ),
-                    child: kIsWeb
-                        ? Image.network(image!.path)
-                        : Image.file(File(image!.path)),
+                    child: kIsWeb ? Image.network(image!.path) : Image.file(File(image!.path)),
                   ),
               ],
             ),
@@ -757,10 +737,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
           Navigator.of(context, rootNavigator: true).pop();
           DialogUtils.showDefault(
             context: context,
-            title:
-                data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
-            content:
-                data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
+            title: data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
+            content: data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
           );
           AnalyticsUtil.instance.logEvent('leave_submit_success');
         },
@@ -808,8 +786,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   Future<void> resizeImage(File image) async {
     final File result = await Utils.resizeImageByNative(image);
     log('resize after: ${result.mb}');
-    (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
-        .logLeavesImageCompressSize(image, result);
+    (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logLeavesImageCompressSize(image, result);
     if ((result.mb) <= Constants.maxImageSize) {
       if (!mounted) return;
       UiUtil.instance.showToast(

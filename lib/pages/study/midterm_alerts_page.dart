@@ -132,8 +132,7 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, index) =>
-              _midtermAlertsItem(midtermAlertData.courses[index]),
+          itemBuilder: (_, index) => _midtermAlertsItem(midtermAlertData.courses[index]),
           itemCount: midtermAlertData.courses.length,
         );
     }

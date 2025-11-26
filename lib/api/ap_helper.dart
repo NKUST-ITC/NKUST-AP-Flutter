@@ -1,10 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:flutter/foundation.dart';
@@ -38,8 +36,7 @@ class WebApHelper {
   String? pictureUrl;
 
   static String get semesterCacheKey => 'semesterCacheKey';
-  static String get coursetableCacheKey =>
-      '${Helper.username}_coursetableCacheKey';
+  static String get coursetableCacheKey => '${Helper.username}_coursetableCacheKey';
   static String get scoresCacheKey => '${Helper.username}_scoresCacheKey';
   static String get userInfoCacheKey => '${Helper.username}_userInfoCacheKey';
 
@@ -75,8 +72,7 @@ class WebApHelper {
         sendTimeout: ApiConfig.sendTimeout,
         headers: <String, String>{
           'user-agent': ApiConfig.defaultUserAgent,
-          'Accept':
-              'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Encoding': 'gzip, deflate, br',
           'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
           'Connection': 'keep-alive',
@@ -213,8 +209,7 @@ class WebApHelper {
 
     final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()
-      ..interceptors.add(PrivateCookieManager(cookieJar));
+    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
 
     res = await tempDio.post<String>(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -254,8 +249,7 @@ class WebApHelper {
 
     final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()
-      ..interceptors.add(PrivateCookieManager(cookieJar));
+    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
 
     res = await tempDio.post<String>(
       'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -295,8 +289,7 @@ class WebApHelper {
 
     final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()
-      ..interceptors.add(PrivateCookieManager(cookieJar));
+    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
 
     res = await tempDio.post<String>(
       'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
@@ -390,8 +383,7 @@ class WebApHelper {
     await checkLogin();
 
     final url = '/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
-    final referer =
-        '$_baseUrl/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
+    final referer = '$_baseUrl/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
     Options options;
     dynamic requestData;
@@ -460,8 +452,7 @@ class WebApHelper {
       cacheExpiredTime: const Duration(hours: 6),
     );
 
-    final parsedData =
-        WebApParser.instance.apUserInfoParser(query.data as String);
+    final parsedData = WebApParser.instance.apUserInfoParser(query.data as String);
     if (parsedData['id'] == null) {
       _manager.delete(userInfoCacheKey);
     }
@@ -499,8 +490,7 @@ class WebApHelper {
       cacheExpiredTime: const Duration(hours: 3),
     );
 
-    final parsedData =
-        WebApParser.instance.semestersParser(query.data as String);
+    final parsedData = WebApParser.instance.semestersParser(query.data as String);
     if ((parsedData['data'] as List<dynamic>).isEmpty) {
       _manager.delete(semesterCacheKey);
     }
@@ -511,10 +501,8 @@ class WebApHelper {
   Future<Response<Uint8List>> getEnrollmentLetter() async {
     await loginToStdsys();
 
-    final cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final cookieHeader =
-        cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
+    final cookies = await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final cookieHeader = cookies.map((cookie) => '${cookie.name}=${cookie.value}').join('; ');
 
     return dio.get<Uint8List>(
       'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
@@ -549,8 +537,7 @@ class WebApHelper {
       cacheExpiredTime: const Duration(hours: 6),
     );
 
-    final parsedData =
-        WebApParser.instance.scoresParser(query.data as String);
+    final parsedData = WebApParser.instance.scoresParser(query.data as String);
     if ((parsedData['scores'] as List<dynamic>).isEmpty) {
       _manager.delete(cacheKey);
     }

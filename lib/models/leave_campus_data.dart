@@ -16,8 +16,7 @@ class LeavesCampusData {
     required this.data,
   });
 
-  factory LeavesCampusData.fromJson(Map<String, dynamic> json) =>
-      _$LeavesCampusDataFromJson(json);
+  factory LeavesCampusData.fromJson(Map<String, dynamic> json) => _$LeavesCampusDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeavesCampusDataToJson(this);
 
@@ -38,8 +37,7 @@ class LeavesCampus {
     required this.department,
   });
 
-  factory LeavesCampus.fromJson(Map<String, dynamic> json) =>
-      _$LeavesCampusFromJson(json);
+  factory LeavesCampus.fromJson(Map<String, dynamic> json) => _$LeavesCampusFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeavesCampusToJson(this);
 
@@ -60,8 +58,7 @@ class LeavesDepartment {
     required this.teacherList,
   });
 
-  factory LeavesDepartment.fromJson(Map<String, dynamic> json) =>
-      _$LeavesDepartmentFromJson(json);
+  factory LeavesDepartment.fromJson(Map<String, dynamic> json) => _$LeavesDepartmentFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeavesDepartmentToJson(this);
 
@@ -84,8 +81,7 @@ class LeavesTeacher {
     required this.id,
   });
 
-  factory LeavesTeacher.fromJson(Map<String, dynamic> json) =>
-      _$LeavesTeacherFromJson(json);
+  factory LeavesTeacher.fromJson(Map<String, dynamic> json) => _$LeavesTeacherFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeavesTeacherToJson(this);
 

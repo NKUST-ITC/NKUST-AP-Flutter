@@ -18,13 +18,11 @@ class EventInfoResponse {
     required this.data,
   });
 
-  factory EventInfoResponse.fromJson(Map<String, dynamic> json) =>
-      _$EventInfoResponseFromJson(json);
+  factory EventInfoResponse.fromJson(Map<String, dynamic> json) => _$EventInfoResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$EventInfoResponseToJson(this);
 
-  factory EventInfoResponse.fromRawJson(String str) =>
-      EventInfoResponse.fromJson(
+  factory EventInfoResponse.fromRawJson(String str) => EventInfoResponse.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -45,13 +43,11 @@ class EventSendResponse {
     required this.data,
   });
 
-  factory EventSendResponse.fromJson(Map<String, dynamic> json) =>
-      _$EventSendResponseFromJson(json);
+  factory EventSendResponse.fromJson(Map<String, dynamic> json) => _$EventSendResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$EventSendResponseToJson(this);
 
-  factory EventSendResponse.fromRawJson(String str) =>
-      EventSendResponse.fromJson(
+  factory EventSendResponse.fromRawJson(String str) => EventSendResponse.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -72,8 +68,7 @@ class EventInfo {
     required this.name,
   });
 
-  factory EventInfo.fromJson(Map<String, dynamic> json) =>
-      _$EventInfoFromJson(json);
+  factory EventInfo.fromJson(Map<String, dynamic> json) => _$EventInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$EventInfoToJson(this);
 

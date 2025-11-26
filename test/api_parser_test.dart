@@ -8,15 +8,13 @@ import 'package:nkust_ap/api/parser/ap_parser.dart';
 void main() {
   testWidgets('Login Error Response Parser', (WidgetTester t) async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    final String rawHtml =
-        File('assets_test/login/server_busy.html').readAsStringSync();
+    final String rawHtml = File('assets_test/login/server_busy.html').readAsStringSync();
     final int result = WebApParser.instance.apLoginParser(rawHtml);
     expect(result, 500);
   });
   testWidgets('Login Password Error Response Parser', (WidgetTester t) async {
     TestWidgetsFlutterBinding.ensureInitialized();
-    final String rawHtml =
-        File('assets_test/login/password_error.html').readAsStringSync();
+    final String rawHtml = File('assets_test/login/password_error.html').readAsStringSync();
     final int result = WebApParser.instance.apLoginParser(rawHtml);
     expect(result, 1);
   });

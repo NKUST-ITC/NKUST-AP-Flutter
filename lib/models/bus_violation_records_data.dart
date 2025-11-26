@@ -35,13 +35,11 @@ class BusViolationRecordsData {
     updateNotPaymentReservations();
   }
 
-  factory BusViolationRecordsData.fromJson(Map<String, dynamic> json) =>
-      _$BusViolationRecordsDataFromJson(json);
+  factory BusViolationRecordsData.fromJson(Map<String, dynamic> json) => _$BusViolationRecordsDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$BusViolationRecordsDataToJson(this);
 
-  factory BusViolationRecordsData.fromRawJson(String str) =>
-      BusViolationRecordsData.fromJson(
+  factory BusViolationRecordsData.fromRawJson(String str) => BusViolationRecordsData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -84,8 +82,7 @@ class Reservation {
     return Utils.parserCampus(local, endStation);
   }
 
-  factory Reservation.fromJson(Map<String, dynamic> json) =>
-      _$ReservationFromJson(json);
+  factory Reservation.fromJson(Map<String, dynamic> json) => _$ReservationFromJson(json);
 
   Map<String, dynamic> toJson() => _$ReservationToJson(this);
 

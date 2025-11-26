@@ -8,16 +8,7 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 
-enum _State {
-  loading,
-  finish,
-  error,
-  empty,
-  campusNotSupport,
-  userNotSupport,
-  offline,
-  custom
-}
+enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, offline, custom }
 
 enum Station { janGong, yanchao, first }
 
@@ -28,8 +19,7 @@ class BusReservePage extends StatefulWidget {
   BusReservePageState createState() => BusReservePageState();
 }
 
-class BusReservePageState extends State<BusReservePage>
-    with AutomaticKeepAliveClientMixin {
+class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -91,8 +81,7 @@ class BusReservePageState extends State<BusReservePage>
                               }
                             },
                             initialCalendarDateOverride: dateTime,
-                            dayChildAspectRatio:
-                                orientation == Orientation.portrait ? 1.5 : 3,
+                            dayChildAspectRatio: orientation == Orientation.portrait ? 1.5 : 3,
                             weekdays: ap.weekdays,
                           ),
                         ),
@@ -214,11 +203,9 @@ class BusReservePageState extends State<BusReservePage>
       for (final i in busData!.timetable) {
         if (selectStartStation == Station.janGong && i.startStation == '建工') {
           list.add(_busTimeWidget(i));
-        } else if (selectStartStation == Station.yanchao &&
-            i.startStation == '燕巢') {
+        } else if (selectStartStation == Station.yanchao && i.startStation == '燕巢') {
           list.add(_busTimeWidget(i));
-        } else if (selectStartStation == Station.first &&
-            i.startStation == '第一') {
+        } else if (selectStartStation == Station.first && i.startStation == '第一') {
           list.add(_busTimeWidget(i));
         }
       }
@@ -344,8 +331,7 @@ class BusReservePageState extends State<BusReservePage>
                     );
                   }
                 });
-                if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403) {
+                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
                   AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
@@ -373,9 +359,7 @@ class BusReservePageState extends State<BusReservePage>
         onError: (response) {
           setState(() {
             state = _State.custom;
-            customStateHint = response.statusCode == 403
-                ? response.message
-                : response.getGeneralMessage(context);
+            customStateHint = response.statusCode == 403 ? response.message : response.getGeneralMessage(context);
           });
         },
       ),
@@ -508,15 +492,12 @@ class BusReservePageState extends State<BusReservePage>
                 ),
               ),
               actionText: ap.iKnow,
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop(),
+              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
             ),
           );
         },
-        onFailure: (e) =>
-            handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
-        onError: (response) =>
-            handleGeneralError(context, response, app!.busReserveFailTitle),
+        onFailure: (e) => handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
+        onError: (response) => handleGeneralError(context, response, app!.busReserveFailTitle),
       ),
     );
   }
@@ -570,15 +551,12 @@ class BusReservePageState extends State<BusReservePage>
                 ),
               ),
               actionText: ap.iKnow,
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop(),
+              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
             ),
           );
         },
-        onFailure: (e) =>
-            handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
-        onError: (response) =>
-            handleGeneralError(context, response, app!.busCancelReserveFail),
+        onFailure: (e) => handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
+        onError: (response) => handleGeneralError(context, response, app!.busCancelReserveFail),
       ),
     );
   }
@@ -606,8 +584,7 @@ class BusReservePageState extends State<BusReservePage>
     String? message;
     switch (e.type) {
       case DioExceptionType.badResponse:
-        final errorResponse =
-            ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
+        final errorResponse = ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
         AnalyticsUtil.instance.logEvent(
           tag,

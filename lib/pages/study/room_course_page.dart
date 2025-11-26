@@ -68,9 +68,7 @@ class EmptyRoomPageState extends State<EmptyRoomPage> {
           courseData = data;
           if (mounted) {
             setState(() {
-              state = courseData.courses.isNotEmpty
-                  ? CustomCourseState.finish
-                  : CustomCourseState.empty;
+              state = courseData.courses.isNotEmpty ? CustomCourseState.finish : CustomCourseState.empty;
             });
           }
         },

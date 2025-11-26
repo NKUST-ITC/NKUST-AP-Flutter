@@ -6,20 +6,16 @@ part of 'midterm_alerts_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-MidtermAlertsData _$MidtermAlertsDataFromJson(Map<String, dynamic> json) =>
-    MidtermAlertsData(
-      courses: (json['courses'] as List<dynamic>)
-          .map((e) => MidtermAlerts.fromJson(e as Map<String, dynamic>))
-          .toList(),
+MidtermAlertsData _$MidtermAlertsDataFromJson(Map<String, dynamic> json) => MidtermAlertsData(
+      courses:
+          (json['courses'] as List<dynamic>).map((e) => MidtermAlerts.fromJson(e as Map<String, dynamic>)).toList(),
     );
 
-Map<String, dynamic> _$MidtermAlertsDataToJson(MidtermAlertsData instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$MidtermAlertsDataToJson(MidtermAlertsData instance) => <String, dynamic>{
       'courses': instance.courses.map((e) => e.toJson()).toList(),
     };
 
-MidtermAlerts _$MidtermAlertsFromJson(Map<String, dynamic> json) =>
-    MidtermAlerts(
+MidtermAlerts _$MidtermAlertsFromJson(Map<String, dynamic> json) => MidtermAlerts(
       entry: json['entry'] as String,
       className: json['className'] as String,
       title: json['title'] as String,
@@ -29,8 +25,7 @@ MidtermAlerts _$MidtermAlertsFromJson(Map<String, dynamic> json) =>
       remark: json['remark'] as String?,
     );
 
-Map<String, dynamic> _$MidtermAlertsToJson(MidtermAlerts instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$MidtermAlertsToJson(MidtermAlerts instance) => <String, dynamic>{
       'entry': instance.entry,
       'className': instance.className,
       'title': instance.title,

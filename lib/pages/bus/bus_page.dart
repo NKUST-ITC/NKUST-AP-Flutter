@@ -69,8 +69,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       body: FutureBuilder<bool>(
         future: _login,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data!) {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data!) {
             return TabBarView(
               controller: controller,
               physics: const NeverScrollableScrollPhysics(),
@@ -137,8 +136,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         onSuccess: (data) {
           if (mounted) {
             setState(() {
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  data.hasBusViolationRecords;
+              ShareDataWidget.of(context)!.data.hasBusViolationRecords = data.hasBusViolationRecords;
             });
           }
           AnalyticsUtil.instance.setUserProperty(
@@ -147,16 +145,12 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           );
           AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
-            data.hasBusViolationRecords
-                ? AnalyticsConstants.yes
-                : AnalyticsConstants.no,
+            data.hasBusViolationRecords ? AnalyticsConstants.yes : AnalyticsConstants.no,
           );
         },
         onError: (_) {},
         onFailure: (e) {
-          if (e.hasResponse &&
-              (e.response!.statusCode == 401 ||
-                  e.response!.statusCode == 403)) {
+          if (e.hasResponse && (e.response!.statusCode == 401 || e.response!.statusCode == 403)) {
             AnalyticsUtil.instance.setUserProperty(
               Constants.canUseBus,
               AnalyticsConstants.no,

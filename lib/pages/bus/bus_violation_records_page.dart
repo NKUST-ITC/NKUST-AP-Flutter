@@ -6,15 +6,7 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-enum _State {
-  loading,
-  finish,
-  error,
-  empty,
-  campusNotSupport,
-  userNotSupport,
-  custom
-}
+enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, custom }
 
 class BusViolationRecordsPage extends StatefulWidget {
   @override
@@ -96,10 +88,8 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                 final reservations = violationData!.reservations;
                 final isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
-                    (reservations[index].time.year !=
-                        reservations[index + 1].time.year) ||
-                    (reservations[index].time.year !=
-                        reservations[index - 1].time.year);
+                    (reservations[index].time.year != reservations[index + 1].time.year) ||
+                    (reservations[index].time.year != reservations[index - 1].time.year);
                 return Row(
                   children: [
                     Expanded(
@@ -126,9 +116,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                       children: [
                         Expanded(
                           child: Container(
-                            color: index != 0
-                                ? colorScheme.outlineVariant
-                                : null,
+                            color: index != 0 ? colorScheme.outlineVariant : null,
                             width: 1.0,
                           ),
                         ),
@@ -150,17 +138,13 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           child: Text(
                             reservations[index].amountendText,
                             style: TextStyle(
-                              color: reservations[index].isPayment
-                                  ? colorScheme.secondary
-                                  : colorScheme.error,
+                              color: reservations[index].isPayment ? colorScheme.secondary : colorScheme.error,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
-                            color: index != reservations.length - 1
-                                ? colorScheme.outlineVariant
-                                : null,
+                            color: index != reservations.length - 1 ? colorScheme.outlineVariant : null,
                             width: 1.0,
                           ),
                         ),
@@ -207,14 +191,12 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           );
           if (mounted) {
             setState(() {
-              if (violationData == null ||
-                  violationData!.reservations.isEmpty) {
+              if (violationData == null || violationData!.reservations.isEmpty) {
                 state = _State.empty;
               } else {
                 state = _State.finish;
               }
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  data.hasBusViolationRecords;
+              ShareDataWidget.of(context)!.data.hasBusViolationRecords = data.hasBusViolationRecords;
             });
           }
           AnalyticsUtil.instance.setUserProperty(
@@ -223,9 +205,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           );
           AnalyticsUtil.instance.setUserProperty(
             Constants.hasBusViolation,
-            data.hasBusViolationRecords
-                ? AnalyticsConstants.yes
-                : AnalyticsConstants.no,
+            data.hasBusViolationRecords ? AnalyticsConstants.yes : AnalyticsConstants.no,
           );
         },
         onFailure: (e) {
@@ -247,8 +227,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                     );
                   }
                 });
-                if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403) {
+                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
                   AnalyticsUtil.instance.setUserProperty(
                     Constants.canUseBus,
                     AnalyticsConstants.no,
@@ -350,13 +329,9 @@ class ReservationItem extends StatelessWidget {
               children: [
                 Center(
                   child: Text(
-                    reservation!.isPayment
-                        ? AppLocalizations.of(context).paid
-                        : AppLocalizations.of(context).unpaid,
+                    reservation!.isPayment ? AppLocalizations.of(context).paid : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
-                      color: reservation!.isPayment
-                          ? colorScheme.tertiary
-                          : colorScheme.error,
+                      color: reservation!.isPayment ? colorScheme.tertiary : colorScheme.error,
                     ),
                   ),
                 ),

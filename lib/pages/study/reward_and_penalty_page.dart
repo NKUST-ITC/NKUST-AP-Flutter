@@ -132,8 +132,7 @@ class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, index) =>
-              _rewardAndPenaltyItem(rewardAndPenaltyData.data[index]),
+          itemBuilder: (_, index) => _rewardAndPenaltyItem(rewardAndPenaltyData.data[index]),
           itemCount: rewardAndPenaltyData.data.length,
         );
     }

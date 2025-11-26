@@ -30,7 +30,6 @@ class FileAssets {
   static const String changelog = 'changelog.json';
 
   static Future<Map<String, dynamic>?> get changelogData async {
-    return jsonDecode(await rootBundle.loadString(changelog))
-        as Map<String, dynamic>?;
+    return jsonDecode(await rootBundle.loadString(changelog)) as Map<String, dynamic>?;
   }
 }

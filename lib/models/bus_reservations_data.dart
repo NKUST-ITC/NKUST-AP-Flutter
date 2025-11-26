@@ -19,13 +19,11 @@ class BusReservationsData {
     required this.reservations,
   });
 
-  factory BusReservationsData.fromJson(Map<String, dynamic> json) =>
-      _$BusReservationsDataFromJson(json);
+  factory BusReservationsData.fromJson(Map<String, dynamic> json) => _$BusReservationsDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$BusReservationsDataToJson(this);
 
-  factory BusReservationsData.fromRawJson(String str) =>
-      BusReservationsData.fromJson(
+  factory BusReservationsData.fromRawJson(String str) => BusReservationsData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -76,8 +74,7 @@ class BusReservation {
     required this.travelState,
   });
 
-  factory BusReservation.fromJson(Map<String, dynamic> json) =>
-      _$BusReservationFromJson(json);
+  factory BusReservation.fromJson(Map<String, dynamic> json) => _$BusReservationFromJson(json);
 
   Map<String, dynamic> toJson() => _$BusReservationToJson(this);
 

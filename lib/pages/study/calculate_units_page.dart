@@ -12,8 +12,7 @@ class CalculateUnitsPage extends StatefulWidget {
   CalculateUnitsPageState createState() => CalculateUnitsPageState();
 }
 
-class CalculateUnitsPageState extends State<CalculateUnitsPage>
-    with SingleTickerProviderStateMixin {
+class CalculateUnitsPageState extends State<CalculateUnitsPage> with SingleTickerProviderStateMixin {
   late ApLocalizations ap;
 
   _State state = _State.ready;
@@ -103,9 +102,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       padding: const EdgeInsets.all(2.0),
       decoration: BoxDecoration(
         border: Border(
-          top: isTop
-              ? BorderSide.none
-              : BorderSide(color: colorScheme.outlineVariant, width: 0.5),
+          top: isTop ? BorderSide.none : BorderSide(color: colorScheme.outlineVariant, width: 0.5),
         ),
       ),
       child: Text(text, textAlign: TextAlign.center, style: _textBlueStyle()),
@@ -307,11 +304,9 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
                 } else {
                   otherUnitsTotal += double.parse(score.units);
                 }
-                if (score.title.contains('延伸通識') ||
-                    score.title.contains('博雅')) {
+                if (score.title.contains('延伸通識') || score.title.contains('博雅')) {
                   extendGeneralEducations.add(score);
-                } else if (score.title.contains('核心通識') ||
-                    score.title.contains('核心')) {
+                } else if (score.title.contains('核心通識') || score.title.contains('核心')) {
                   coreGeneralEducations.add(score);
                 }
               }
@@ -326,13 +321,9 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             if (mounted) _getSemesterScore();
           } else {
             final end = DateTime.now();
-            final second =
-                (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
-                    1000;
-            (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
-                .logCalculateUnits(second);
-            unitsTotal =
-                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+            final second = (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) / 1000;
+            (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logCalculateUnits(second);
+            unitsTotal = requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
             if (mounted) setState(() => state = _State.finish);
           }
         },

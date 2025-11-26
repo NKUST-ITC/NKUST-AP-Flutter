@@ -284,4 +284,3 @@ class SettingInfoTile extends StatelessWidget {
     );
   }
 }
-

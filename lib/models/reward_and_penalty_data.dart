@@ -16,13 +16,11 @@ class RewardAndPenaltyData {
     required this.data,
   });
 
-  factory RewardAndPenaltyData.fromJson(Map<String, dynamic> json) =>
-      _$RewardAndPenaltyDataFromJson(json);
+  factory RewardAndPenaltyData.fromJson(Map<String, dynamic> json) => _$RewardAndPenaltyDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$RewardAndPenaltyDataToJson(this);
 
-  factory RewardAndPenaltyData.fromRawJson(String str) =>
-      RewardAndPenaltyData.fromJson(
+  factory RewardAndPenaltyData.fromRawJson(String str) => RewardAndPenaltyData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -58,8 +56,7 @@ class RewardAndPenalty {
     }
   }
 
-  factory RewardAndPenalty.fromJson(Map<String, dynamic> json) =>
-      _$RewardAndPenaltyFromJson(json);
+  factory RewardAndPenalty.fromJson(Map<String, dynamic> json) => _$RewardAndPenaltyFromJson(json);
 
   Map<String, dynamic> toJson() => _$RewardAndPenaltyToJson(this);
 
