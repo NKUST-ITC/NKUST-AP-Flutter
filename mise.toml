@@ -1,4 +1,4 @@
 [tools]
 flutter = "3.35.7"
-java = "zulu-21"
+java = "zulu-25.30.17.0"
 ruby = "3.4.7"
