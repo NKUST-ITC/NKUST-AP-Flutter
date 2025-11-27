@@ -2,15 +2,18 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:multiple_localization/multiple_localization.dart';
-import 'package:nkust_ap/l10n/intl/messages_all.dart';
+import 'package:nkust_ap/l10n/intl/messages_all_locales.dart'
+    show initializeMessages;
 import 'package:nkust_ap/l10n/l10n.dart';
 
 export 'package:nkust_ap/l10n/l10n.dart';
 
 const _AppLocalizationsDelegate appDelegate = _AppLocalizationsDelegate();
-const ApLocalizationsDelegateWrapper apLocalizationsDelegateWrapper = ApLocalizationsDelegateWrapper();
+const ApLocalizationsDelegateWrapper apLocalizationsDelegateWrapper =
+    ApLocalizationsDelegateWrapper();
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -34,7 +37,8 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 }
 
-class ApLocalizationsDelegateWrapper extends LocalizationsDelegate<ApLocalizations> {
+class ApLocalizationsDelegateWrapper
+    extends LocalizationsDelegate<ApLocalizations> {
   const ApLocalizationsDelegateWrapper();
 
   @override
@@ -44,7 +48,9 @@ class ApLocalizationsDelegateWrapper extends LocalizationsDelegate<ApLocalizatio
 
   @override
   Future<ApLocalizations> load(Locale locale) {
-    final Locale fallbackLocale = ApLocalizations.delegate.isSupported(locale) ? locale : const Locale('en');
+    final Locale fallbackLocale = ApLocalizations.delegate.isSupported(locale)
+        ? locale
+        : const Locale('en');
     return ApLocalizations.delegate.load(fallbackLocale);
   }
 

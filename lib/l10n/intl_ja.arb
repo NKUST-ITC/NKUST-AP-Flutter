@@ -182,7 +182,7 @@
   "academicYear": "%s年度",
   "loading": "読み込み中",
   "noData": "データなし",
-  "current": "現在",
+  "currentSemester": "現在",
   
   "noEnrollmentData": "在学証明書のデータがありません",
   "noEnrollmentAvailable": "在学証明書がダウンロードできません",

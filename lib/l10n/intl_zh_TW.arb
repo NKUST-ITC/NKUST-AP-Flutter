@@ -194,7 +194,7 @@
   "academicYear": "%s 學年度",
   "loading": "載入中",
   "noData": "無資料",
-  "current": "目前",
+  "currentSemester": "目前",
   "noEnrollmentData": "查無在學證明資料",
   "noEnrollmentAvailable": "尚無在學證明可下載\n請確認是否已申請在學證明",
   "invalidPdfFormat": "無法取得有效的 PDF 文件",

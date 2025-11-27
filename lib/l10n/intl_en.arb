@@ -200,7 +200,7 @@
   "academicYear": "Year %s",
   "loading": "Loading",
   "noData": "No Data",
-  "current": "Current",
+  "currentSemester": "Current",
   
   "noEnrollmentData": "No enrollment data found",
   "noEnrollmentAvailable": "Enrollment letter not available\nPlease check if you have applied",

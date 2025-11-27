@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'intl/messages_all.dart';
+import 'intl/messages_all_locales.dart' show initializeMessages;
 
 // **************************************************************************
 // Generator: Flutter Intl IDE plugin
@@ -27,7 +27,9 @@ class AppLocalizations {
   static const AppLocalizationDelegate delegate = AppLocalizationDelegate();
 
   static Future<AppLocalizations> load(Locale locale) {
-    final name = (locale.countryCode?.isEmpty ?? false) ? locale.languageCode : locale.toString();
+    final name = (locale.countryCode?.isEmpty ?? false)
+        ? locale.languageCode
+        : locale.toString();
     final localeName = Intl.canonicalizedLocale(name);
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
@@ -1108,6 +1110,996 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `主題色`
+  String get themeColor {
+    return Intl.message(
+      '主題色',
+      name: 'themeColor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `繁體中文`
+  String get traditionalChinese {
+    return Intl.message(
+      '繁體中文',
+      name: 'traditionalChinese',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `跟隨系統`
+  String get followSystem {
+    return Intl.message(
+      '跟隨系統',
+      name: 'followSystem',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `回報選項`
+  String get reportOptions {
+    return Intl.message(
+      '回報選項',
+      name: 'reportOptions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `回報 App 問題`
+  String get reportAppBug {
+    return Intl.message(
+      '回報 App 問題',
+      name: 'reportAppBug',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `功能異常、閃退等問題`
+  String get reportAppBugSubtitle {
+    return Intl.message(
+      '功能異常、閃退等問題',
+      name: 'reportAppBugSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `功能建議`
+  String get featureSuggestion {
+    return Intl.message(
+      '功能建議',
+      name: 'featureSuggestion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `提供新功能或改善建議`
+  String get featureSuggestionSubtitle {
+    return Intl.message(
+      '提供新功能或改善建議',
+      name: 'featureSuggestionSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `需要幫助嗎？`
+  String get needHelp {
+    return Intl.message(
+      '需要幫助嗎？',
+      name: 'needHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `選擇下方選項來回報問題或提供建議`
+  String get selectReportOption {
+    return Intl.message(
+      '選擇下方選項來回報問題或提供建議',
+      name: 'selectReportOption',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `查詢學號`
+  String get searchStudentId {
+    return Intl.message(
+      '查詢學號',
+      name: 'searchStudentId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `學生證條碼`
+  String get studentIdBarcode {
+    return Intl.message(
+      '學生證條碼',
+      name: 'studentIdBarcode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `請於圖書館使用此學號`
+  String get useStudentIdInLibrary {
+    return Intl.message(
+      '請於圖書館使用此學號',
+      name: 'useStudentIdInLibrary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `點擊登入`
+  String get tapToLogin {
+    return Intl.message(
+      '點擊登入',
+      name: 'tapToLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `高科藍`
+  String get nkustBlue {
+    return Intl.message(
+      '高科藍',
+      name: 'nkustBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `海洋藍`
+  String get oceanBlue {
+    return Intl.message(
+      '海洋藍',
+      name: 'oceanBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `翠綠`
+  String get emeraldGreen {
+    return Intl.message(
+      '翠綠',
+      name: 'emeraldGreen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `珊瑚橙`
+  String get coralOrange {
+    return Intl.message(
+      '珊瑚橙',
+      name: 'coralOrange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `典雅紫`
+  String get elegantPurple {
+    return Intl.message(
+      '典雅紫',
+      name: 'elegantPurple',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `玫瑰紅`
+  String get roseRed {
+    return Intl.message(
+      '玫瑰紅',
+      name: 'roseRed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `青色`
+  String get cyan {
+    return Intl.message(
+      '青色',
+      name: 'cyan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `琥珀`
+  String get amber {
+    return Intl.message(
+      '琥珀',
+      name: 'amber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `靛藍`
+  String get indigoBlue {
+    return Intl.message(
+      '靛藍',
+      name: 'indigoBlue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `棕褐`
+  String get brownTan {
+    return Intl.message(
+      '棕褐',
+      name: 'brownTan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `自訂色`
+  String get customColor {
+    return Intl.message(
+      '自訂色',
+      name: 'customColor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `選擇主題色`
+  String get selectThemeColor {
+    return Intl.message(
+      '選擇主題色',
+      name: 'selectThemeColor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `取消`
+  String get cancel {
+    return Intl.message(
+      '取消',
+      name: 'cancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `確定`
+  String get confirm {
+    return Intl.message(
+      '確定',
+      name: 'confirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `色相`
+  String get hue {
+    return Intl.message(
+      '色相',
+      name: 'hue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `飽和度`
+  String get saturation {
+    return Intl.message(
+      '飽和度',
+      name: 'saturation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `亮度`
+  String get brightness {
+    return Intl.message(
+      '亮度',
+      name: 'brightness',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `一`
+  String get monday {
+    return Intl.message(
+      '一',
+      name: 'monday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `二`
+  String get tuesday {
+    return Intl.message(
+      '二',
+      name: 'tuesday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `三`
+  String get wednesday {
+    return Intl.message(
+      '三',
+      name: 'wednesday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `四`
+  String get thursday {
+    return Intl.message(
+      '四',
+      name: 'thursday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `五`
+  String get friday {
+    return Intl.message(
+      '五',
+      name: 'friday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `六`
+  String get saturday {
+    return Intl.message(
+      '六',
+      name: 'saturday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `日`
+  String get sunday {
+    return Intl.message(
+      '日',
+      name: 'sunday',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `節`
+  String get period {
+    return Intl.message(
+      '節',
+      name: 'period',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `授課教師`
+  String get instructor {
+    return Intl.message(
+      '授課教師',
+      name: 'instructor',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `上課地點`
+  String get classLocation {
+    return Intl.message(
+      '上課地點',
+      name: 'classLocation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `學分數`
+  String get credits {
+    return Intl.message(
+      '學分數',
+      name: 'credits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `學分`
+  String get creditsUnit {
+    return Intl.message(
+      '學分',
+      name: 'creditsUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `上課時間`
+  String get classTime {
+    return Intl.message(
+      '上課時間',
+      name: 'classTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `班級`
+  String get className {
+    return Intl.message(
+      '班級',
+      name: 'className',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `關閉`
+  String get close {
+    return Intl.message(
+      '關閉',
+      name: 'close',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `週`
+  String get weekDay {
+    return Intl.message(
+      '週',
+      name: 'weekDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `第%s節`
+  String get periodNumber {
+    return Intl.message(
+      '第%s節',
+      name: 'periodNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `列表模式`
+  String get listMode {
+    return Intl.message(
+      '列表模式',
+      name: 'listMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `表格模式`
+  String get tableMode {
+    return Intl.message(
+      '表格模式',
+      name: 'tableMode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `載入課表中...`
+  String get loadingCourse {
+    return Intl.message(
+      '載入課表中...',
+      name: 'loadingCourse',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `點擊重試`
+  String get tapToRetry {
+    return Intl.message(
+      '點擊重試',
+      name: 'tapToRetry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `科目詳情`
+  String get courseDetails {
+    return Intl.message(
+      '科目詳情',
+      name: 'courseDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `成績總覽`
+  String get scoreOverview {
+    return Intl.message(
+      '成績總覽',
+      name: 'scoreOverview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `載入成績中...`
+  String get loadingScore {
+    return Intl.message(
+      '載入成績中...',
+      name: 'loadingScore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `估計 PR 值`
+  String get estimatedPR {
+    return Intl.message(
+      '估計 PR 值',
+      name: 'estimatedPR',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `※ PR 值為根據平均成績估算，僅供參考`
+  String get prDisclaimer {
+    return Intl.message(
+      '※ PR 值為根據平均成績估算，僅供參考',
+      name: 'prDisclaimer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `成績統計`
+  String get scoreStatistics {
+    return Intl.message(
+      '成績統計',
+      name: 'scoreStatistics',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `最高分`
+  String get highestScore {
+    return Intl.message(
+      '最高分',
+      name: 'highestScore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `最低分`
+  String get lowestScore {
+    return Intl.message(
+      '最低分',
+      name: 'lowestScore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `標準差`
+  String get standardDeviation {
+    return Intl.message(
+      '標準差',
+      name: 'standardDeviation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `科目數`
+  String get subjectCount {
+    return Intl.message(
+      '科目數',
+      name: 'subjectCount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `成績分佈`
+  String get scoreDistribution {
+    return Intl.message(
+      '成績分佈',
+      name: 'scoreDistribution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `優秀`
+  String get excellent {
+    return Intl.message(
+      '優秀',
+      name: 'excellent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `良好`
+  String get good {
+    return Intl.message(
+      '良好',
+      name: 'good',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `普通`
+  String get average {
+    return Intl.message(
+      '普通',
+      name: 'average',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `及格`
+  String get pass {
+    return Intl.message(
+      '及格',
+      name: 'pass',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `不及格`
+  String get fail {
+    return Intl.message(
+      '不及格',
+      name: 'fail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `%s 科`
+  String get subjectCountUnit {
+    return Intl.message(
+      '%s 科',
+      name: 'subjectCountUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `學分統計`
+  String get creditStatistics {
+    return Intl.message(
+      '學分統計',
+      name: 'creditStatistics',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `修習學分`
+  String get enrolledCredits {
+    return Intl.message(
+      '修習學分',
+      name: 'enrolledCredits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `及格學分`
+  String get passedCredits {
+    return Intl.message(
+      '及格學分',
+      name: 'passedCredits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `不及格學分`
+  String get failedCredits {
+    return Intl.message(
+      '不及格學分',
+      name: 'failedCredits',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `期中: %s`
+  String get midtermScore {
+    return Intl.message(
+      '期中: %s',
+      name: 'midtermScore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `頂尖`
+  String get prTop {
+    return Intl.message(
+      '頂尖',
+      name: 'prTop',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `優秀`
+  String get prExcellent {
+    return Intl.message(
+      '優秀',
+      name: 'prExcellent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `中等`
+  String get prAverage {
+    return Intl.message(
+      '中等',
+      name: 'prAverage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `待加強`
+  String get prNeedsImprovement {
+    return Intl.message(
+      '待加強',
+      name: 'prNeedsImprovement',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `需努力`
+  String get prNeedsEffort {
+    return Intl.message(
+      '需努力',
+      name: 'prNeedsEffort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `上學期`
+  String get firstSemester {
+    return Intl.message(
+      '上學期',
+      name: 'firstSemester',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `下學期`
+  String get secondSemester {
+    return Intl.message(
+      '下學期',
+      name: 'secondSemester',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `寒修`
+  String get winterSession {
+    return Intl.message(
+      '寒修',
+      name: 'winterSession',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `暑修`
+  String get summerSession {
+    return Intl.message(
+      '暑修',
+      name: 'summerSession',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `先修`
+  String get preSemester {
+    return Intl.message(
+      '先修',
+      name: 'preSemester',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `暑修(一)`
+  String get summerSessionOne {
+    return Intl.message(
+      '暑修(一)',
+      name: 'summerSessionOne',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `暑修(特)`
+  String get summerSessionSpecial {
+    return Intl.message(
+      '暑修(特)',
+      name: 'summerSessionSpecial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `%s 學年度`
+  String get academicYear {
+    return Intl.message(
+      '%s 學年度',
+      name: 'academicYear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `載入中`
+  String get loading {
+    return Intl.message(
+      '載入中',
+      name: 'loading',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `無資料`
+  String get noData {
+    return Intl.message(
+      '無資料',
+      name: 'noData',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `目前`
+  String get currentSemester {
+    return Intl.message(
+      '目前',
+      name: 'currentSemester',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `查無在學證明資料`
+  String get noEnrollmentData {
+    return Intl.message(
+      '查無在學證明資料',
+      name: 'noEnrollmentData',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `尚無在學證明可下載\n請確認是否已申請在學證明`
+  String get noEnrollmentAvailable {
+    return Intl.message(
+      '尚無在學證明可下載\n請確認是否已申請在學證明',
+      name: 'noEnrollmentAvailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `無法取得有效的 PDF 文件`
+  String get invalidPdfFormat {
+    return Intl.message(
+      '無法取得有效的 PDF 文件',
+      name: 'invalidPdfFormat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `網路錯誤：%s`
+  String get networkError {
+    return Intl.message(
+      '網路錯誤：%s',
+      name: 'networkError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `載入失敗：%s`
+  String get loadFailed {
+    return Intl.message(
+      '載入失敗：%s',
+      name: 'loadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!`
+  String get loginFailedFiveTimes {
+    return Intl.message(
+      '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!',
+      name: 'loginFailedFiveTimes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `%s 個專案`
+  String get projectCount {
+    return Intl.message(
+      '%s 個專案',
+      name: 'projectCount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `開源授權`
+  String get openSourceLicense {
+    return Intl.message(
+      '開源授權',
+      name: 'openSourceLicense',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `高雄科技大學`
+  String get nkustLocation {
+    return Intl.message(
+      '高雄科技大學',
+      name: 'nkustLocation',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -1117,6 +2109,7 @@ class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'zh', countryCode: 'TW'),
       Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'ja'),
     ];
   }
 
