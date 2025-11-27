@@ -14,7 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
-  multiple_localization: ^0.5.0
+  multiple_localization: ^0.6.0
 
   ap_common: ^0.26.0+2
   ap_common_firebase: ^0.17.0
@@ -29,7 +29,7 @@ dependencies:
     git:
       url: https://github.com/NKUST-ITC/dio-http-cache
       ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
-  dio_cookie_manager: ^3.0.0
+  dio_cookie_manager: ^3.1.1
   native_dio_adapter: ^1.4.0
   cookie_jar: ^4.0.0
   crypto: ^3.0.2
@@ -62,6 +62,10 @@ dependency_overrides:
 #    path: ../../GitHub/ap_common_plugin
   http: ^1.0.0
   web: ^1.0.0
+  # Downgrade google_sign_in_ios to version compatible with Firebase SDK 10.25.0
+  google_sign_in_ios: 5.7.6
+  # Downgrade dio_cookie_manager to version compatible with ap_common_core
+  dio_cookie_manager: 3.1.1
 
 flutter:
 

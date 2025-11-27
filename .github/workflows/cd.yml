@@ -6,8 +6,8 @@ on:
       - "v*"
 
 env:
-  flutter_version: '3.29.3'
-  java_version: '17'
+  flutter_version: '3.35.x'
+  java_version: '21'
 
 jobs:
   # CD

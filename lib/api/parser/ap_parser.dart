@@ -755,66 +755,6 @@ class WebApParser {
 
     return data;
   }
-
-  Map<String, dynamic> enrollmentRequestParser(String? html) {
-    if (html == null || html.isEmpty) {
-      return <String, dynamic>{};
-    }
-
-    final Document document = parse(html);
-
-    final Element? form = document.querySelector('form');
-    String action = '';
-    if (form != null) {
-      action = form.attributes['action'] ?? '';
-      if (action.endsWith('?')) {
-        action = action.substring(0, action.length - 1);
-      }
-    }
-
-    final List<Element> inputs =
-        document.querySelectorAll('input[type=hidden]');
-    final Map<String, String> params = <String, String>{};
-
-    for (final Element input in inputs) {
-      final String name = input.attributes['name'] ?? '';
-      final String value = input.attributes['value'] ?? '';
-      if (name.isNotEmpty) {
-        params[name] = value;
-      }
-    }
-
-    return <String, dynamic>{
-      'action': action,
-      'params': params,
-    };
-  }
-
-  String? enrollmentLetterPathParser(String? html) {
-    if (html == null || html.isEmpty) return null;
-
-    final Document document = parse(html);
-
-    final Element? objectTag = document.querySelector('object#pdf1');
-    if (objectTag != null) {
-      final String? data = objectTag.attributes['data'];
-      if (data != null && data.isNotEmpty) return data;
-    }
-
-    final Element? buttonTag = document.querySelector('#download_btn');
-    if (buttonTag != null) {
-      final String? onclick = buttonTag.attributes['onclick'];
-      if (onclick != null) {
-        final RegExp regex = RegExp("download_file(['\"](.+?)['\"])");
-        final RegExpMatch? match = regex.firstMatch(onclick);
-        if (match != null) {
-          return match.group(1);
-        }
-      }
-    }
-
-    return null;
-  }
 }
 
 void main() {
