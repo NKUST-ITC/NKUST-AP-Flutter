@@ -5,6 +5,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,6 +17,7 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageState extends State<LoginPage> {
   late ApLocalizations ap;
+  late AppLocalizations app;
 
   final _username = TextEditingController();
   final _password = TextEditingController();
@@ -46,6 +48,7 @@ class LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
+    app = AppLocalizations.of(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -112,7 +115,7 @@ class LoginPageState extends State<LoginPage> {
         ),
         const SizedBox(height: 16),
         Text(
-          '高科校務通',
+          app.appName,
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,

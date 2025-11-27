@@ -70,6 +70,7 @@
   "busRule": "校車搭乘規則",
   "firstLoginHint": "首次登入密碼預設為身分證末四碼",
   "searchStudentIdFormat": "姓名：%s\n學號：%s\n",
+  "noExpiration": "無期限",
   "punch": "拍照打卡",
   "punchSuccess": "打卡成功",
   "nonCourseTime": "非上課時間",

@@ -55,7 +55,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       if (responseData == null || responseData.isEmpty) {
         setState(() {
           pdfState = PdfState.error;
-          errorMessage = '查無在學證明資料';
+          errorMessage = app.noEnrollmentData;
         });
         return;
       }
@@ -84,7 +84,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     } on DioException catch (e) {
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = e.response?.statusCode == 404 ? '查無在學證明資料' : '網路錯誤：${e.message}';
+        errorMessage = e.response?.statusCode == 404 ? app.noEnrollmentData : app.networkError.replaceAll('%s', e.message ?? '');
       });
     } catch (e) {
       setState(() {

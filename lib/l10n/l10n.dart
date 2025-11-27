@@ -761,6 +761,16 @@ class AppLocalizations {
     );
   }
 
+  /// `無期限`
+  String get noExpiration {
+    return Intl.message(
+      '無期限',
+      name: 'noExpiration',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `拍照打卡`
   String get punch {
     return Intl.message(

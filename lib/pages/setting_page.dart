@@ -110,7 +110,7 @@ class SettingPageState extends State<SettingPage> {
                 ),
                 SettingTile(
                   icon: Icons.palette_outlined,
-                  title: '主題色',
+                  title: app.themeColor,
                   subtitle: AppTheme.currentColorName,
                   trailing: Container(
                     width: 24,
@@ -169,7 +169,7 @@ class SettingPageState extends State<SettingPage> {
       case ApSupportLanguageConstants.en:
         return 'English';
       case ApSupportLanguageConstants.zh:
-        return '繁體中文';
+        return app.traditionalChinese;
       case 'ja':
         return '日本語';
       default:
@@ -184,7 +184,7 @@ class SettingPageState extends State<SettingPage> {
       case ThemeMode.dark:
         return ap.dark;
       default:
-        return '跟隨系統';
+        return app.followSystem;
     }
   }
 
@@ -215,7 +215,7 @@ class SettingPageState extends State<SettingPage> {
               onChanged: (String? v) => Navigator.pop(context, v),
             ),
             _buildDialogOption(
-              title: '繁體中文',
+              title: app.traditionalChinese,
               value: ApSupportLanguageConstants.zh,
               groupValue: _languageCode,
               colorScheme: colorScheme,

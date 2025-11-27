@@ -161,6 +161,7 @@ class MessageLookup extends MessageLookupByLibrary {
     'noData': MessageLookupByLibrary.simpleMessage('無資料'),
     'noEnrollmentAvailable': MessageLookupByLibrary.simpleMessage('尚無在學證明可下載\n請確認是否已申請在學證明'),
     'noEnrollmentData': MessageLookupByLibrary.simpleMessage('查無在學證明資料'),
+    'noExpiration': MessageLookupByLibrary.simpleMessage('無期限'),
     'nonCourseTime': MessageLookupByLibrary.simpleMessage('非上課時間'),
     'oceanBlue': MessageLookupByLibrary.simpleMessage('海洋藍'),
     'offlineBusReservations': MessageLookupByLibrary.simpleMessage('離線校車紀錄'),

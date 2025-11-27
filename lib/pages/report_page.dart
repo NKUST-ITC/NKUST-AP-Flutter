@@ -31,7 +31,7 @@ class ReportPageState extends State<ReportPage> {
             _buildHeaderCard(colorScheme),
             const SizedBox(height: 24),
             Text(
-              '回報選項',
+              app.reportOptions,
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -55,8 +55,8 @@ class ReportPageState extends State<ReportPage> {
             _buildReportCard(
               colorScheme: colorScheme,
               icon: Icons.bug_report_outlined,
-              title: '回報 App 問題',
-              subtitle: '功能異常、閃退等問題',
+              title: app.reportAppBug,
+              subtitle: app.reportAppBugSubtitle,
               onTap: () async {
                 const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/new';
                 await PlatformUtil.instance.launchUrl(url);
@@ -67,8 +67,8 @@ class ReportPageState extends State<ReportPage> {
             _buildReportCard(
               colorScheme: colorScheme,
               icon: Icons.lightbulb_outline_rounded,
-              title: '功能建議',
-              subtitle: '提供新功能或改善建議',
+              title: app.featureSuggestion,
+              subtitle: app.featureSuggestionSubtitle,
               onTap: () async {
                 const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/discussions/new?category=ideas';
                 await PlatformUtil.instance.launchUrl(url);
@@ -113,7 +113,7 @@ class ReportPageState extends State<ReportPage> {
           ),
           const SizedBox(height: 16),
           Text(
-            '需要幫助嗎？',
+            app.needHelp,
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -122,7 +122,7 @@ class ReportPageState extends State<ReportPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '選擇下方選項來回報問題或提供建議',
+            app.selectReportOption,
             style: TextStyle(
               fontSize: 14,
               color: colorScheme.onPrimaryContainer.withAlpha(179),

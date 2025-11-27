@@ -161,6 +161,7 @@ class MessageLookup extends MessageLookupByLibrary {
     'noData': MessageLookupByLibrary.simpleMessage('No Data'),
     'noEnrollmentAvailable': MessageLookupByLibrary.simpleMessage('Enrollment letter not available\nPlease check if you have applied'),
     'noEnrollmentData': MessageLookupByLibrary.simpleMessage('No enrollment data found'),
+    'noExpiration': MessageLookupByLibrary.simpleMessage('No Expiration'),
     'nonCourseTime': MessageLookupByLibrary.simpleMessage('Non Course Time'),
     'oceanBlue': MessageLookupByLibrary.simpleMessage('Ocean Blue'),
     'offlineBusReservations': MessageLookupByLibrary.simpleMessage('Offline Bus Reservations'),

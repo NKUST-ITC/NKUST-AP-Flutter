@@ -163,7 +163,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              '查詢學號',
+              app.searchStudentId,
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,

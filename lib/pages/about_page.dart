@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 
 class _Contributor {
   const _Contributor({
@@ -211,12 +212,13 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final ApLocalizations ap = ApLocalizations.of(context);
+    final AppLocalizations app = AppLocalizations.of(context);
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: CustomScrollView(
         slivers: <Widget>[
-          _buildSliverAppBar(context, colorScheme, ap),
+          _buildSliverAppBar(context, colorScheme, ap, app),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -342,6 +344,7 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
     BuildContext context,
     ColorScheme colorScheme,
     ApLocalizations ap,
+    AppLocalizations app,
   ) {
     return SliverAppBar(
       expandedHeight: 220,
@@ -350,7 +353,7 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
       actions: <Widget>[
         IconButton(
           icon: Icon(ApIcon.codeIcon),
-          tooltip: '開源授權',
+          tooltip: app.openSourceLicense,
           onPressed: () {
             Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const LicensePage()),

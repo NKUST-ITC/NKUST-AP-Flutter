@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class UserInfoPage extends StatefulWidget {
@@ -31,6 +32,7 @@ class UserInfoPageState extends State<UserInfoPage> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final ApLocalizations ap = ApLocalizations.of(context);
+    final AppLocalizations app = AppLocalizations.of(context);
 
     return Scaffold(
       body: CustomScrollView(
@@ -98,7 +100,7 @@ class UserInfoPageState extends State<UserInfoPage> {
                 children: <Widget>[
                   _buildInfoCard(colorScheme, ap),
                   const SizedBox(height: 16),
-                  _buildBarcodeCard(colorScheme, ap),
+                  _buildBarcodeCard(colorScheme, ap, app),
                 ],
               ),
             ),
@@ -237,7 +239,7 @@ class UserInfoPageState extends State<UserInfoPage> {
     );
   }
 
-  Widget _buildBarcodeCard(ColorScheme colorScheme, ApLocalizations ap) {
+  Widget _buildBarcodeCard(ColorScheme colorScheme, ApLocalizations ap, AppLocalizations app) {
     final String studentId = userInfo.id ?? '';
 
     if (studentId.isEmpty) {
@@ -263,7 +265,7 @@ class UserInfoPageState extends State<UserInfoPage> {
               ),
               const SizedBox(width: 8),
               Text(
-                '學生證條碼',
+                app.studentIdBarcode,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -294,7 +296,7 @@ class UserInfoPageState extends State<UserInfoPage> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '請於圖書館使用此學號',
+                  app.useStudentIdInLibrary,
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
