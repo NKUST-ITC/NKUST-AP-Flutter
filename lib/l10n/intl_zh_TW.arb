@@ -204,5 +204,6 @@
   "loginFailedFiveTimes": "您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!",
   "projectCount": "%s 個專案",
   "openSourceLicense": "開源授權",
-  "nkustLocation": "高雄科技大學"
+  "nkustLocation": "高雄科技大學",
+  "otherBuilding": "其他"
 }

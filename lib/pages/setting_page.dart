@@ -93,7 +93,7 @@ class SettingPageState extends State<SettingPage> {
                   icon: Icons.person_outline,
                   title: ap.headPhotoSetting,
                   subtitle: ap.headPhotoSettingSubTitle,
-                  value: displayPicture,
+              value: displayPicture,
                   onChanged: _onDisplayPictureChanged,
                 ),
                 SettingTile(
@@ -123,7 +123,7 @@ class SettingPageState extends State<SettingPage> {
                         width: 1,
                       ),
                     ),
-                  ),
+            ),
                   onTap: _showThemeColorDialog,
                 ),
                 SettingTile(
@@ -145,11 +145,11 @@ class SettingPageState extends State<SettingPage> {
                   title: ap.feedback,
                   subtitle: ap.feedbackViaFacebook,
                   isExternalLink: true,
-                  onTap: () {
-                    ApUtils.launchFbFansPage(context, Constants.fansPageId);
-                    AnalyticsUtil.instance.logEvent('feedback_click');
-                  },
-                ),
+              onTap: () {
+                ApUtils.launchFbFansPage(context, Constants.fansPageId);
+                AnalyticsUtil.instance.logEvent('feedback_click');
+              },
+            ),
                 SettingInfoTile(
                   icon: Icons.info_outline,
                   title: ap.appVersion,
@@ -563,23 +563,23 @@ class SettingPageState extends State<SettingPage> {
   }
 
   void _handleBusError(DioException e) {
-    if (e.hasResponse) {
-      if (e.response!.statusCode == 401) {
-        UiUtil.instance.showToast(context, ap.userNotSupport);
-      } else if (e.response!.statusCode == 403) {
-        UiUtil.instance.showToast(context, ap.campusNotSupport);
+          if (e.hasResponse) {
+            if (e.response!.statusCode == 401) {
+              UiUtil.instance.showToast(context, ap.userNotSupport);
+            } else if (e.response!.statusCode == 403) {
+              UiUtil.instance.showToast(context, ap.campusNotSupport);
       } else if (e.message != null) {
-        UiUtil.instance.showToast(context, e.message!);
-        AnalyticsUtil.instance.logApiEvent(
-          'getBusReservations',
-          e.response!.statusCode!,
-          message: e.message ?? '',
-        );
-      }
-    } else if (e.type == DioExceptionType.unknown) {
-      UiUtil.instance.showToast(context, ap.busFailInfinity);
+                UiUtil.instance.showToast(context, e.message!);
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusReservations',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
+            }
+          } else if (e.type == DioExceptionType.unknown) {
+            UiUtil.instance.showToast(context, ap.busFailInfinity);
     } else if (e.i18nMessage != null) {
-      UiUtil.instance.showToast(context, e.i18nMessage!);
-    }
+              UiUtil.instance.showToast(context, e.i18nMessage!);
+            }
   }
 }

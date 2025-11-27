@@ -168,6 +168,7 @@ class MessageLookup extends MessageLookupByLibrary {
     'offlineLeaveData': MessageLookupByLibrary.simpleMessage('オフライン欠席データ'),
     'offlineScore': MessageLookupByLibrary.simpleMessage('オフライン成績'),
     'openSourceLicense': MessageLookupByLibrary.simpleMessage('オープンソースライセンス'),
+    'otherBuilding': MessageLookupByLibrary.simpleMessage('その他'),
     'paid': MessageLookupByLibrary.simpleMessage('支払済み'),
     'pass': MessageLookupByLibrary.simpleMessage('合格'),
     'passedCredits': MessageLookupByLibrary.simpleMessage('合格単位'),

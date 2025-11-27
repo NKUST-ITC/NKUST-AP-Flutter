@@ -213,5 +213,6 @@
   "projectCount": "%s projects",
   "openSourceLicense": "Open Source License",
   
-  "nkustLocation": "NKUST"
+  "nkustLocation": "NKUST",
+  "otherBuilding": "Other"
 }

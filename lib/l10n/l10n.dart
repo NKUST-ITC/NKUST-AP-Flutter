@@ -2110,6 +2110,16 @@ class AppLocalizations {
       args: [],
     );
   }
+
+  /// `其他`
+  String get otherBuilding {
+    return Intl.message(
+      '其他',
+      name: 'otherBuilding',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

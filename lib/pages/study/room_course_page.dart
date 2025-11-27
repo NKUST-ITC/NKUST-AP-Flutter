@@ -37,8 +37,24 @@ class EmptyRoomPageState extends State<EmptyRoomPage> {
   @override
   Widget build(BuildContext context) {
     ap = ApLocalizations.of(context);
+    String roomDisplayName = widget.room.name;
+    if (widget.room.name.startsWith('(')) {
+      int depth = 0;
+      for (int i = 0; i < widget.room.name.length; i++) {
+        if (widget.room.name[i] == '(') {
+          depth++;
+        } else if (widget.room.name[i] == ')') {
+          depth--;
+          if (depth == 0) {
+            roomDisplayName = widget.room.name.substring(i + 1).trim();
+            break;
+          }
+        }
+      }
+    }
+
     return CustomCourseScaffold(
-      title: '${ap.classroomCourseTableSearch} - ${widget.room.name}',
+      title: roomDisplayName,
       state: state,
       courseData: courseData,
       customStateHint: customStateHint,
@@ -68,8 +84,15 @@ class EmptyRoomPageState extends State<EmptyRoomPage> {
           courseData = data;
           if (mounted) {
             setState(() {
-              state = courseData.courses.isNotEmpty ? CustomCourseState.finish : CustomCourseState.empty;
+              state = courseData.courses.isNotEmpty
+                  ? CustomCourseState.finish
+                  : CustomCourseState.empty;
             });
+            if (courseData.courses.isNotEmpty) {
+              key.currentState?.markSemesterHasData(selectSemester);
+            } else {
+              key.currentState?.markSemesterEmpty(selectSemester);
+            }
           }
         },
         onFailure: (DioException e) async {
@@ -78,6 +101,7 @@ class EmptyRoomPageState extends State<EmptyRoomPage> {
               state = CustomCourseState.custom;
               customStateHint = e.i18nMessage;
             });
+            key.currentState?.markSemesterEmpty(selectSemester);
           }
           if (e.hasResponse) {
             AnalyticsUtil.instance.logApiEvent(
@@ -93,6 +117,7 @@ class EmptyRoomPageState extends State<EmptyRoomPage> {
               state = CustomCourseState.custom;
               customStateHint = response.getGeneralMessage(context);
             });
+            key.currentState?.markSemesterEmpty(selectSemester);
           }
         },
       ),

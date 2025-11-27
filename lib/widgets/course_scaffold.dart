@@ -44,9 +44,14 @@ class _CustomCourseScaffoldState extends State<CustomCourseScaffold> {
         titleSpacing: 0,
         title: Row(
           children: <Widget>[
-            Text(widget.title ?? ap.course),
+            Flexible(
+              child: Text(
+                widget.title ?? ap.course,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             if (widget.itemPicker != null) ...<Widget>[
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
               widget.itemPicker!,
             ],
           ],
@@ -112,11 +117,14 @@ class _CustomCourseScaffoldState extends State<CustomCourseScaffold> {
       case CustomCourseState.loading:
         return _buildLoadingState(colorScheme);
       case CustomCourseState.error:
-        return _buildErrorState(colorScheme, ap.clickToRetry, Icons.error_outline_rounded);
+        return _buildErrorState(
+            colorScheme, ap.clickToRetry, Icons.error_outline_rounded);
       case CustomCourseState.empty:
-        return _buildErrorState(colorScheme, ap.courseEmpty, Icons.event_busy_rounded);
+        return _buildErrorState(
+            colorScheme, ap.courseEmpty, Icons.event_busy_rounded);
       case CustomCourseState.offlineEmpty:
-        return _buildErrorState(colorScheme, ap.noOfflineData, Icons.cloud_off_rounded);
+        return _buildErrorState(
+            colorScheme, ap.noOfflineData, Icons.cloud_off_rounded);
       case CustomCourseState.custom:
         return _buildErrorState(
           colorScheme,
@@ -154,7 +162,8 @@ class _CustomCourseScaffoldState extends State<CustomCourseScaffold> {
     );
   }
 
-  Widget _buildErrorState(ColorScheme colorScheme, String message, IconData icon) {
+  Widget _buildErrorState(
+      ColorScheme colorScheme, String message, IconData icon) {
     return InkWell(
       onTap: widget.onRefresh,
       child: Center(

@@ -168,6 +168,7 @@ class MessageLookup extends MessageLookupByLibrary {
     'offlineLeaveData': MessageLookupByLibrary.simpleMessage('Offline Absent Report'),
     'offlineScore': MessageLookupByLibrary.simpleMessage('Offline Score'),
     'openSourceLicense': MessageLookupByLibrary.simpleMessage('Open Source License'),
+    'otherBuilding': MessageLookupByLibrary.simpleMessage('Other'),
     'paid': MessageLookupByLibrary.simpleMessage('Paid'),
     'pass': MessageLookupByLibrary.simpleMessage('Pass'),
     'passedCredits': MessageLookupByLibrary.simpleMessage('Passed'),
