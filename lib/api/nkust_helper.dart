@@ -177,6 +177,9 @@ class NKUSTHelper {
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
+        headers: {
+          'Referer': 'https://acad.nkust.edu.tw/p/403-1004-232-1.php?Lang=zh-tw'
+        }
       ),
     );
     List<Map<String, dynamic>> acadData;
