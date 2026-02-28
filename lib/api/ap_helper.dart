@@ -17,7 +17,6 @@ import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
-import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 
 class WebApHelper {
@@ -534,28 +533,6 @@ class WebApHelper {
     return SemesterData.fromJson(parsedData);
   }
 
-  Future<Response<Uint8List>> getEnrollmentLetter() async {
-    await loginToStdsys();
-
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final String cookieHeader = cookies
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
-      options: Options(
-        responseType: ResponseType.bytes,
-        headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
-          'Cookie': cookieHeader,
-        },
-      ),
-    );
-    return response;
-  }
-
   Future<ScoreData> scores(String? years, String? semesterValue) async {
     await checkLogin();
     if (!Helper.isSupportCacheData) {
@@ -644,89 +621,6 @@ class WebApHelper {
 
     return RewardAndPenaltyData.fromJson(
       WebApParser.instance.rewardAndPenaltyParser(query.data as String),
-    );
-  }
-
-  Future<RoomData> roomList(
-    //已屬stdsys範疇
-    String campusId,
-    String? schoolYear,
-    String? semester,
-  ) async {
-    /*
-    campusId
-    1=建工/2=燕巢/3=第一/4=楠梓/5=旗津/6=東方
-    */
-
-    await loginToStdsys();
-
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final String cookieHeader = cookies
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    final Response<String> response = await dio.get<String>(
-      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetRoomList/',
-      queryParameters: {
-        'fgShowAll': 'False',
-        'fgEnable': 'True',
-        'fgShowCode': 'False',
-        'fgFilterByRole': 'True',
-        'fgSchoolAllQuery': 'False',
-        'sort': '',
-        'group': '',
-        'filter': "Value~eq~'1'",
-        'schoolYear': schoolYear,
-        'semester': semester,
-        'campusId': campusId,
-      },
-      options: Options(
-        responseType: ResponseType.plain,
-        headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
-          'Cookie': cookieHeader,
-        },
-      ),
-    );
-
-    final String rawJson = response.data!;
-
-    return RoomData.fromJson(
-      WebApParser.instance.roomListParser(rawJson),
-    );
-  }
-
-  Future<CourseData> roomCourseTableQuery(
-    //已屬stdsys範疇
-    String? roomId,
-    String? years,
-    String? semesterValue,
-  ) async {
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final String cookieHeader = cookies
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    final Response<String> response = await dio.get<String>(
-      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetScheduleByRoom',
-      queryParameters: {
-        'id': '$years;$semesterValue;$roomId',
-      },
-      options: Options(
-        responseType: ResponseType.plain,
-        headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
-          'Cookie': cookieHeader,
-        },
-      ),
-    );
-
-    return CourseData.fromJson(
-      WebApParser.instance.roomCourseTableQueryParser(response.data),
     );
   }
 

@@ -11,6 +11,7 @@ import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
+import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
@@ -474,11 +475,8 @@ class Helper {
     required GeneralCallback<RoomData> callback,
   }) async {
     try {
-      final RoomData data = await WebApHelper.instance.roomList(
-        '$campusCode',
-        semester.year,
-        semester.value
-      );
+      final RoomData data = await StdsysHelper.instance
+          .roomList('$campusCode', semester.year, semester.value);
 
       reLoginCount = 0;
       callback.onSuccess(data);
@@ -498,7 +496,7 @@ class Helper {
     required GeneralCallback<CourseData> callback,
   }) async {
     try {
-      final CourseData data = await WebApHelper.instance.roomCourseTableQuery(
+      final CourseData data = await StdsysHelper.instance.roomCourseTableQuery(
         roomId,
         semester.year,
         semester.value,
