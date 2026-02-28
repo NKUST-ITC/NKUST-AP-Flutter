@@ -537,8 +537,8 @@ class WebApHelper {
   Future<Response<Uint8List>> getEnrollmentLetter() async {
     await loginToStdsys();
 
-    final List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
@@ -647,7 +647,8 @@ class WebApHelper {
     );
   }
 
-  Future<RoomData> roomList( //已屬stdsys範疇
+  Future<RoomData> roomList(
+    //已屬stdsys範疇
     String campusId,
     String? schoolYear,
     String? semester,
@@ -659,8 +660,8 @@ class WebApHelper {
 
     await loginToStdsys();
 
-    final List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
@@ -683,26 +684,28 @@ class WebApHelper {
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
           'Cookie': cookieHeader,
         },
       ),
     );
 
     final String rawJson = response.data!;
-   
+
     return RoomData.fromJson(
       WebApParser.instance.roomListParser(rawJson),
     );
   }
 
-  Future<CourseData> roomCourseTableQuery( //已屬stdsys範疇
+  Future<CourseData> roomCourseTableQuery(
+    //已屬stdsys範疇
     String? roomId,
     String? years,
     String? semesterValue,
   ) async {
-    final List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
@@ -715,7 +718,8 @@ class WebApHelper {
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
           'Cookie': cookieHeader,
         },
       ),

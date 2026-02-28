@@ -600,16 +600,16 @@ class WebApParser {
     //the second talbe.
 
     //make each day.
-        final List<String> keyName = <String>[
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ];
-    
+    final List<String> keyName = <String>[
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
     //make timetable
     final List<Element> tables = document.getElementsByTagName('table');
     if (tables.length >= 2) {
@@ -625,21 +625,23 @@ class WebApParser {
           //節次與時間
           final Element timeCell = tds[0];
           //節次名稱
-          final String section = timeCell.querySelector('span')?.text.trim() ?? "";
-          
+          final String section =
+              timeCell.querySelector('span')?.text.trim() ?? "";
+
           //處理時間內容
-          final String fullTimeText = timeCell.text.replaceAll(section, "").trim();
+          final String fullTimeText =
+              timeCell.text.replaceAll(section, "").trim();
           final List<String> times = fullTimeText
               .split(RegExp(r'[\s|]+'))
               .where((s) => s.isNotEmpty)
               .toList();
-          
+
           final String startTime = times.isNotEmpty ? times[0] : "";
           final String endTime = times.length > 1 ? times[1] : "";
 
           if (section.isNotEmpty) {
             (courseTable['timeCodes'] as List<String>).add(section);
-            
+
             tempTime[section] = <String, dynamic>{
               'startTime': startTime,
               'endTime': endTime,
@@ -650,20 +652,23 @@ class WebApParser {
           //週一至週日課程
           for (int key = 0; key < keyName.length; key++) {
             final Element dayCell = tds[key + 1];
-            
+
             if (dayCell.text.trim().isEmpty) continue;
 
             //依照<br>割細節(1代碼 2名稱 3老師 4班級)
             final List<String> splitData = dayCell.innerHtml
                 .split(RegExp(r'<br\s*/?>'))
-                .map((s) => s.replaceAll(RegExp(r'<[^>]*>'), '').replaceAll('&nbsp;', '').trim())
+                .map((s) => s
+                    .replaceAll(RegExp(r'<[^>]*>'), '')
+                    .replaceAll('&nbsp;', '')
+                    .trim())
                 .where((s) => s.isNotEmpty)
                 .toList();
 
             if (splitData.length >= 2) {
               final String title = splitData[1]; //課程名稱
-              final String rawInstructors = splitData.length > 2 
-                  ? splitData[2].replaceAll('老師', '').trim() 
+              final String rawInstructors = splitData.length > 2
+                  ? splitData[2].replaceAll('老師', '').trim()
                   : "";
 
               (courseTable[keyName[key]] as List<dynamic>).add(
@@ -681,9 +686,8 @@ class WebApParser {
             }
           }
         }
-        
-        data['_temp_time'] = tempTime;
 
+        data['_temp_time'] = tempTime;
       } catch (e, s) {
         CrashlyticsUtil.instance.recordError(e, s, reason: 'Parse grid failed');
       }
@@ -691,12 +695,16 @@ class WebApParser {
 
     String tmpCourseName = '';
     try {
-      for (int weekKeyIndex = 0; weekKeyIndex < keyName.length; weekKeyIndex++) {
-        final List<dynamic> dayCourses = courseTable[keyName[weekKeyIndex]] as List<dynamic>;
+      for (int weekKeyIndex = 0;
+          weekKeyIndex < keyName.length;
+          weekKeyIndex++) {
+        final List<dynamic> dayCourses =
+            courseTable[keyName[weekKeyIndex]] as List<dynamic>;
         for (final dynamic course in dayCourses) {
           final String sectionKey = course['date']['section'] as String;
-          final Map<String, dynamic>? targetTime = data['_temp_time'][sectionKey] as Map<String, dynamic>;
-          
+          final Map<String, dynamic>? targetTime =
+              data['_temp_time'][sectionKey] as Map<String, dynamic>;
+
           if (targetTime == null) continue;
 
           final Map<String, dynamic> temp = <String, dynamic>{
@@ -705,13 +713,13 @@ class WebApParser {
           };
 
           tmpCourseName = "${course['title']}${course['rawInstructors']}";
-          
+
           if (data['courses'][tmpCourseName] != null) {
             data['courses'][tmpCourseName]['sectionTimes'].add(temp);
           }
         }
       }
-      
+
       data['courses'] = data['courses'].values.toList();
       data.remove('coursetable');
       data['_temp_time'] = data['_temp_time'].values.toList();
@@ -724,7 +732,8 @@ class WebApParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtil.instance.recordError(e, s, reason: 'Final merge error: $tmpCourseName');
+      CrashlyticsUtil.instance
+          .recordError(e, s, reason: 'Final merge error: $tmpCourseName');
     }
 
     return data;
