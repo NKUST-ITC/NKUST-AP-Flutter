@@ -467,19 +467,17 @@ class Helper {
     }
   }
 
-  //1=建工 /2=燕巢/3=第一/4=楠梓/5=旗津
+  //1=建工/2=燕巢/3=第一/4=楠梓/5=旗津/6=東方
   Future<void> getRoomList({
-    // required Semester semester,
+    required Semester semester,
     required int campusCode,
     required GeneralCallback<RoomData> callback,
   }) async {
     try {
       final RoomData data = await WebApHelper.instance.roomList(
         '$campusCode',
-        // semester.year,
-        // semester.value,
-        '112',
-        '1',
+        semester.year,
+        semester.value
       );
 
       reLoginCount = 0;

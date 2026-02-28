@@ -22,7 +22,7 @@ class _RoomListPageState extends State<RoomListPage> {
 
   RoomData? roomData;
   CourseData? courseData;
-
+  SemesterData? semesterData;
   String? customStateHint;
 
   @override
@@ -109,7 +109,9 @@ class _RoomListPageState extends State<RoomListPage> {
   }
 
   Future<void> _getRoomList() async {
+    semesterData = await Helper.instance.getSemester();
     Helper.instance.getRoomList(
+      semester: semesterData!.defaultSemester,
       campusCode: campusIndex + 1,
       callback: GeneralCallback<RoomData>(
         onSuccess: (RoomData data) {
