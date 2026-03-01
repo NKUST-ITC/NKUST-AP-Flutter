@@ -39,6 +39,7 @@ class Helper {
   static const String webap = 'webap';
   static const String inkust = 'inkust';
   static const String mobile = 'mobile';
+  static const String stdsys = 'stdsys';
   static const String remoteConfig = 'config';
 
   static Helper? _instance;
@@ -397,8 +398,13 @@ class Helper {
             semester: isDefault ? null : semester.value,
           );
         case webap:
-        default:
           data = await WebApHelper.instance.getCourseTable(
+            year: semester.year,
+            semester: semester.value,
+          );
+        case stdsys:
+        default:
+          data = await StdsysHelper.instance.getCourseTable(
             year: semester.year,
             semester: semester.value,
           );

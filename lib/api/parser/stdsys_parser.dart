@@ -76,6 +76,169 @@ class StdsysParser {
     return data;
   }
 
+  Map<String, dynamic> studentCourseTableParser(dynamic html) {
+    dynamic rawHtml;
+
+    if (html is Uint8List) {
+      rawHtml = clearTransEncoding(html);
+    } else {
+      rawHtml = html;
+    }
+
+    final Document document = parse(rawHtml);
+
+    // Result structure
+    final Map<String, dynamic> courses = <String, dynamic>{};
+    final Map<String, dynamic> tempTime = <String, dynamic>{};
+    final List<Map<String, dynamic>> timeCodes = <Map<String, dynamic>>[];
+
+    // stdsys 個人課表只有 1 個 timetable（不像 roomCourseTableQuery 有 2 個）
+    // 欄位：td[0]=節次時間, td[1]=週一, td[2]=週二, ... td[7]=週日
+    final List<Element> tables = document.getElementsByTagName('table');
+    if (tables.isEmpty) {
+      log('[stdsys] no table found');
+      return <String, dynamic>{'courses': <dynamic>[], 'timeCodes': timeCodes};
+    }
+
+    final Element timetable = tables[0];
+    final List<Element> rows = timetable.getElementsByTagName('tr');
+    log('[stdsys] timetable rows: ${rows.length}');
+
+    final List<String> dayKeys = <String>[
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    // 節次索引追蹤（依插入順序）
+    final List<String> sectionOrder = <String>[];
+
+    // 正規表達式：時間格式 HH:MM
+    final RegExp timeRegex = RegExp(r'^\d{2}:\d{2}$');
+
+    try {
+      for (int rowIdx = 1; rowIdx < rows.length; rowIdx++) {
+        final List<Element> tds = rows[rowIdx].getElementsByTagName('td');
+        if (tds.length < 2) continue;
+
+        // ── 解析 td[0]：節次 + 時間 ──────────────────────────────────
+        // 格式（text）："M\n07:10\n|\n\n08:00" 或 "1\n08:10\n|\n\n09:00"
+        final List<String> timeParts = tds[0]
+            .text
+            .split(RegExp(r'[\s\r\n|]+'))
+            .map((String s) => s.trim())
+            .where((String s) => s.isNotEmpty)
+            .toList();
+
+        String section = '';
+        String startTime = '';
+        String endTime = '';
+
+        for (final String part in timeParts) {
+          if (timeRegex.hasMatch(part)) {
+            if (startTime.isEmpty) {
+              startTime = part;
+            } else {
+              endTime = part;
+            }
+          } else if (section.isEmpty) {
+            section = part;
+          }
+        }
+
+        if (section.isEmpty) continue;
+
+        // 記錄節次（去重）
+        if (!tempTime.containsKey(section)) {
+          tempTime[section] = <String, dynamic>{
+            'startTime': startTime,
+            'endTime': endTime,
+            'section': section,
+          };
+          sectionOrder.add(section);
+          timeCodes.add(<String, dynamic>{
+            'title': section,
+            'startTime': startTime,
+            'endTime': endTime,
+          });
+        }
+        final int sectionIndex = sectionOrder.indexOf(section);
+
+        // ── 解析 td[1..7]：各天課程 ─────────────────────────────────
+        for (int dayIdx = 0; dayIdx < dayKeys.length; dayIdx++) {
+          final int tdIdx = dayIdx + 1;
+          if (tdIdx >= tds.length) break;
+
+          final Element dayCell = tds[tdIdx];
+          if (dayCell.text.trim().isEmpty) continue;
+
+          // 以 <br> 切割：課名 / 老師 / 教室 / 校區
+          final List<String> parts = dayCell.innerHtml
+              .split(RegExp(r'<br\s*/?>'))
+              .map((String s) => s
+                  .replaceAll(RegExp(r'<[^>]*>'), '')
+                  .replaceAll('&nbsp;', '')
+                  .replaceAll(String.fromCharCode(160), '')
+                  .trim())
+              .where((String s) => s.isNotEmpty)
+              .toList();
+
+          if (parts.isEmpty) continue;
+
+          final String title = parts[0];
+          final String rawInstructors =
+              parts.length > 1 ? parts[1].replaceAll('老師', '').trim() : '';
+          final String room = parts.length > 2 ? parts[2].trim() : '';
+          //TODO: 處理校區
+
+          // 以「課名＋老師」作為 key 合併同一門課的多節
+          final String courseKey = '$title$rawInstructors';
+
+          if (!courses.containsKey(courseKey)) {
+            courses[courseKey] = <String, dynamic>{
+              'code': '',
+              'title': title,
+              'className': '',
+              'group': '',
+              'units': '',
+              'hours': '',
+              'required': '',
+              'at': '',
+              'sectionTimes': <Map<String, dynamic>>[],
+              'location': room.isNotEmpty
+                  ? <String, dynamic>{'building': '', 'room': room}
+                  : null,
+              'instructors': rawInstructors.isNotEmpty
+                  ? <String>[rawInstructors]
+                  : <String>[],
+            };
+          }
+
+          (courses[courseKey]['sectionTimes'] as List<dynamic>).add(
+            <String, dynamic>{
+              'weekday': dayIdx + 1,
+              'index': sectionIndex,
+            },
+          );
+        }
+      }
+    } catch (e, s) {
+      CrashlyticsUtil.instance
+          .recordError(e, s, reason: 'studentCourseTableParser failed');
+    }
+
+    log('[stdsys] parsed courses: ${courses.length}, timeCodes: ${timeCodes.length}');
+
+    return <String, dynamic>{
+      'courses': courses.values.toList(),
+      'timeCodes': timeCodes,
+    };
+  }
+
   Map<String, dynamic> roomCourseTableQueryParser(dynamic html) {
     dynamic rawHtml;
 

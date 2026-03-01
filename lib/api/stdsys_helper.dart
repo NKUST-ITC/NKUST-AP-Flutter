@@ -111,4 +111,39 @@ class StdsysHelper {
       StdsysParser.instance.roomCourseTableQueryParser(response.data),
     );
   }
+
+  Future<CourseData> getCourseTable({
+    String? year,
+    String? semester,
+  }) async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    // schoolYearSms 格式：學年-學期，例如 "114-2"
+    final String schoolYearSms = '$year-$semester';
+
+    final Response<String> response = await dio.post<String>(
+      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery/Query',
+      data: 'schoolYearSms=$schoolYearSms',
+      options: Options(
+        responseType: ResponseType.plain,
+        contentType: 'application/x-www-form-urlencoded',
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery',
+          'Cookie': cookieHeader,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      ),
+    );
+
+    return CourseData.fromJson(
+      StdsysParser.instance.studentCourseTableParser(response.data),
+    );
+  }
 }
