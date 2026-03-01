@@ -1,4 +1,10 @@
 {
+  "31200": {
+    "visible": true,
+    "date": "2026/03/02",
+    "zh-TW": "* 修正課表查詢錯誤(by rainvisitor)\n* 修正教室課表查詢錯誤(by ryan940618)",
+    "en-US": "* Fix course table parser error.(by rainvisitor)\n* Fix classroom course table parser error.(by ryan940618)"
+  },
   "31108": {
     "visible": true,
     "date": "2025/09/22",
