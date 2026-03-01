@@ -534,21 +534,50 @@ class WebApHelper {
     return SemesterData.fromJson(parsedData);
   }
 
+  @Deprecated('use StdsysHelper.getEnrollmentLetter instead')
   Future<Response<Uint8List>> getEnrollmentLetter() async {
-    await loginToStdsys();
-
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final List<Cookie> cookies =
+        await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
 
+    final Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'AG225'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> requestData =
+        WebApParser.instance.enrollmentRequestParser(res.data);
+
+    final String action = (requestData['action'] as String)
+        .replaceAll('ag_pro/', '')
+        .replaceAll('.jsp', '');
+    final Map<String, String> params =
+        requestData['params'] as Map<String, String>;
+
+    final Response<dynamic> query = await apQuery(
+      action,
+      params,
+    );
+
+    final String? pdfPath =
+        WebApParser.instance.enrollmentLetterPathParser(query.data as String);
+
+    if (pdfPath == null || pdfPath.isEmpty) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.unknownError,
+        message: 'cannot find pdf url',
+      );
+    }
+
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
+          'Referer': 'https://webap.nkust.edu.tw/',
           'Cookie': cookieHeader,
         },
       ),
@@ -647,86 +676,42 @@ class WebApHelper {
     );
   }
 
+  @Deprecated('use StdsysHelper.roomList instead')
   Future<RoomData> roomList(
-    //已屬stdsys範疇
-    String campusId,
-    String? schoolYear,
-    String? semester,
+    String cmpAreaId,
+    String? years,
+    String? semesterValue,
   ) async {
     /*
-    campusId
-    1=建工/2=燕巢/3=第一/4=楠梓/5=旗津/6=東方
+    cmpAreaId
+    1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
     */
-
-    await loginToStdsys();
-
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final String cookieHeader = cookies
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    final Response<String> response = await dio.get<String>(
-      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetRoomList/',
-      queryParameters: {
-        'fgShowAll': 'False',
-        'fgEnable': 'True',
-        'fgShowCode': 'False',
-        'fgFilterByRole': 'True',
-        'fgSchoolAllQuery': 'False',
-        'sort': '',
-        'group': '',
-        'filter': "Value~eq~'1'",
-        'schoolYear': schoolYear,
-        'semester': semester,
-        'campusId': campusId,
+    final Response<dynamic> query = await apQuery(
+      'ag302_01',
+      <String, String>{
+        'yms_yms': '$years#$semesterValue',
+        'cmp_area_id': cmpAreaId,
       },
-      options: Options(
-        responseType: ResponseType.plain,
-        headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
-          'Cookie': cookieHeader,
-        },
-      ),
     );
 
-    final String rawJson = response.data!;
-
     return RoomData.fromJson(
-      WebApParser.instance.roomListParser(rawJson),
+      WebApParser.instance.roomListParser(query.data as String),
     );
   }
 
   Future<CourseData> roomCourseTableQuery(
-    //已屬stdsys範疇
     String? roomId,
     String? years,
     String? semesterValue,
   ) async {
-    final List<Cookie> cookies = await cookieJar
-        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
-    final String cookieHeader = cookies
-        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-        .join('; ');
-
-    final Response<String> response = await dio.get<String>(
-      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetScheduleByRoom',
-      queryParameters: {
-        'id': '$years;$semesterValue;$roomId',
-      },
-      options: Options(
-        responseType: ResponseType.plain,
-        headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
-          'Cookie': cookieHeader,
-        },
-      ),
+    final Response<dynamic> query = await apQuery(
+      'ag302_02',
+      <String, String?>{'room_id': roomId, 'yms_yms': '$years#$semesterValue'},
+      bytesResponse: true,
     );
 
     return CourseData.fromJson(
-      WebApParser.instance.roomCourseTableQueryParser(response.data),
+      WebApParser.instance.roomCourseTableQueryParser(query.data),
     );
   }
 

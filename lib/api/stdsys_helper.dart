@@ -1,0 +1,114 @@
+import 'dart:typed_data';
+import 'package:ap_common/ap_common.dart';
+import 'package:cookie_jar/cookie_jar.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/parser/stdsys_parser.dart';
+import 'package:nkust_ap/models/room_data.dart';
+
+class StdsysHelper {
+  static StdsysHelper? _instance;
+
+  // ignore: prefer_constructors_over_static_methods
+  static StdsysHelper get instance {
+    return _instance ??= StdsysHelper();
+  }
+
+  Dio get dio => WebApHelper.instance.dio;
+  CookieJar get cookieJar => WebApHelper.instance.cookieJar;
+
+  Future<Response<Uint8List>> getEnrollmentLetter() async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
+
+  Future<RoomData> roomList(
+    String campusId,
+    String? schoolYear,
+    String? semester,
+  ) async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> response = await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetRoomList/',
+      queryParameters: {
+        'fgShowAll': 'False',
+        'fgEnable': 'True',
+        'fgShowCode': 'False',
+        'fgFilterByRole': 'True',
+        'fgSchoolAllQuery': 'False',
+        'sort': '',
+        'group': '',
+        'filter': "Value~eq~'1'",
+        'schoolYear': schoolYear,
+        'semester': semester,
+        'campusId': campusId,
+      },
+      options: Options(
+        responseType: ResponseType.plain,
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+
+    return RoomData.fromJson(
+      StdsysParser.instance.roomListParser(response.data),
+    );
+  }
+
+  Future<CourseData> roomCourseTableQuery(
+    String? roomId,
+    String? years,
+    String? semesterValue,
+  ) async {
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> response = await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetScheduleByRoom',
+      queryParameters: {
+        'id': '$years;$semesterValue;$roomId',
+      },
+      options: Options(
+        responseType: ResponseType.plain,
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+
+    return CourseData.fromJson(
+      StdsysParser.instance.roomCourseTableQueryParser(response.data),
+    );
+  }
+}

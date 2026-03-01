@@ -503,30 +503,26 @@ class WebApParser {
     return data;
   }
 
-  Map<String, dynamic> roomListParser(String? jsonString) {
+  Map<String, dynamic> roomListParser(String? html) {
     final Map<String, dynamic> data = <String, dynamic>{
       'data': <Map<String, dynamic>>[],
     };
 
-    if (jsonString == null || jsonString.isEmpty) {
-      return data;
-    }
-
+    final Document document = parse(html);
+    final List<Element> table =
+        document.getElementById('room_id')!.getElementsByTagName('option');
     try {
-      final List<dynamic> jsonList = jsonDecode(jsonString) as List<dynamic>;
-
-      for (final item in jsonList) {
+      for (int i = 1; i < table.length; i++) {
         (data['data'] as List<Map<String, dynamic>>).add(
           <String, dynamic>{
-            'roomName': item['text'],
-            'roomId': item['value'] ?? '0035',
+            'roomName': table[i].text,
+            'roomId': table[i].attributes['value'] ?? '0035',
           },
         );
       }
     } on Exception catch (e) {
       log(e.toString());
     }
-
     return data;
   }
 
@@ -563,6 +559,10 @@ class WebApParser {
     final Map<String, dynamic> courses =
         data['courses'] as Map<String, dynamic>;
 
+    if (document.getElementsByTagName('table').isEmpty) {
+      //table not found
+      // return data;
+    }
     try {
       //the top table parse
       if (document.getElementsByTagName('table').isNotEmpty) {
@@ -599,6 +599,23 @@ class WebApParser {
 
     //the second talbe.
 
+    //make timetable
+    final List<Element> secondTable = document.getElementsByTagName('table');
+    if (secondTable.isNotEmpty) {
+      try {
+        final List<Element> td = secondTable[1].getElementsByTagName('tr');
+        //remark:Best split is regex but... Chinese have some difficulty Q_Q
+        for (int i = 1; i < td.length; i++) {
+          String temptext =
+              td[i].getElementsByTagName('td')[0].text.replaceAll(' ', '');
+          temptext = temptext
+              .substring(0, temptext.length - 10)
+              .replaceAll(specialSpace, '');
+          temptext = temptext.substring(1, temptext.length - 1);
+          (courseTable['timeCodes'] as List<String>).add(temptext);
+        }
+      } on Exception catch (_) {}
+    }
     //make each day.
     final List<String> keyName = <String>[
       'Monday',
@@ -609,134 +626,194 @@ class WebApParser {
       'Saturday',
       'Sunday',
     ];
-
-    //make timetable
-    final List<Element> tables = document.getElementsByTagName('table');
-    if (tables.length >= 2) {
-      final Element timetable = tables[1];
-      final List<Element> rows = timetable.querySelectorAll('tbody > tr');
-      final Map<String, dynamic> tempTime = <String, dynamic>{};
-
-      try {
-        for (var tr in rows) {
-          final List<Element> tds = tr.getElementsByTagName('td');
-          if (tds.isEmpty) continue;
-
-          //節次與時間
-          final Element timeCell = tds[0];
-          //節次名稱
-          final String section =
-              timeCell.querySelector('span')?.text.trim() ?? "";
-
-          //處理時間內容
-          final String fullTimeText =
-              timeCell.text.replaceAll(section, "").trim();
-          final List<String> times = fullTimeText
-              .split(RegExp(r'[\s|]+'))
-              .where((s) => s.isNotEmpty)
-              .toList();
-
-          final String startTime = times.isNotEmpty ? times[0] : "";
-          final String endTime = times.length > 1 ? times[1] : "";
-
-          if (section.isNotEmpty) {
-            (courseTable['timeCodes'] as List<String>).add(section);
-
-            tempTime[section] = <String, dynamic>{
-              'startTime': startTime,
-              'endTime': endTime,
-              'section': section,
-            };
-          }
-
-          //週一至週日課程
-          for (int key = 0; key < keyName.length; key++) {
-            final Element dayCell = tds[key + 1];
-
-            if (dayCell.text.trim().isEmpty) continue;
-
-            //依照<br>割細節(1代碼 2名稱 3老師 4班級)
-            final List<String> splitData = dayCell.innerHtml
-                .split(RegExp(r'<br\s*/?>'))
-                .map((s) => s
-                    .replaceAll(RegExp(r'<[^>]*>'), '')
-                    .replaceAll('&nbsp;', '')
-                    .trim())
-                .where((s) => s.isNotEmpty)
-                .toList();
-
-            if (splitData.length >= 2) {
-              final String title = splitData[1]; //課程名稱
-              final String rawInstructors = splitData.length > 2
-                  ? splitData[2].replaceAll('老師', '').trim()
-                  : "";
-
-              (courseTable[keyName[key]] as List<dynamic>).add(
-                <String, dynamic>{
-                  'title': title,
-                  'date': <String, dynamic>{
-                    'startTime': startTime,
-                    'endTime': endTime,
-                    'section': section,
-                  },
-                  'rawInstructors': rawInstructors,
-                  'instructors': rawInstructors.split(','),
-                },
-              );
-            }
-          }
-        }
-
-        data['_temp_time'] = tempTime;
-      } catch (e, s) {
-        CrashlyticsUtil.instance.recordError(e, s, reason: 'Parse grid failed');
-      }
-    }
-
     String tmpCourseName = '';
     try {
+      final Map<String, dynamic> tempTime = <String, dynamic>{};
+      for (int key = 0; key < keyName.length; key++) {
+        for (int eachSession = 1;
+            eachSession <
+                (courseTable['timeCodes'] as List<dynamic>).length + 1;
+            eachSession++) {
+          final Element eachDays = document
+              .getElementsByTagName('table')[1]
+              .getElementsByTagName('tr')[eachSession]
+              .getElementsByTagName('td')[key + 1];
+
+          final List<String> splitData = eachDays.outerHtml
+              .substring(
+                eachDays.outerHtml.indexOf('; font-family: 細明體') + 20,
+                eachDays.outerHtml.indexOf(';</font>'),
+              )
+              .split('<br>');
+
+          final String eachDaysDate = document
+              .getElementsByTagName('table')[1]
+              .getElementsByTagName('tr')[eachSession]
+              .getElementsByTagName('td')[0]
+              .outerHtml;
+
+          final List<String> courseTime = eachDaysDate
+              .substring(
+                eachDaysDate.indexOf('&nbsp;<br>') + 10,
+                eachDaysDate.indexOf('&nbsp;<br><br><'),
+              )
+              .split('<br>');
+          String tempSection =
+              courseTime[0].replaceAll(' ', '').replaceAll(specialSpace, '');
+          tempSection = tempSection.substring(1, tempSection.length - 1);
+          tempTime.addAll(<String, dynamic>{
+            tempSection: <String, dynamic>{
+              'startTime':
+                  //ignore: lines_longer_than_80_chars
+                  "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
+              'endTime':
+                  //ignore: lines_longer_than_80_chars
+                  "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
+              'section': tempSection,
+            },
+          });
+
+          if (splitData.length <= 1) {
+            continue;
+          }
+          String title = splitData[0].replaceAll('\n', '');
+
+          if (title.lastIndexOf('>') > -1) {
+            title = title
+                .substring(title.lastIndexOf('>') + 1, title.length)
+                .replaceAll('&nbsp;', '')
+                .replaceAll(';', '');
+          }
+
+          (courseTable[keyName[key]] as List<dynamic>).add(
+            <String, dynamic>{
+              'title': title.replaceAll('&nbsp;', ''),
+              'date': <String, dynamic>{
+                'startTime':
+                    //ignore: lines_longer_than_80_chars
+                    "${courseTime[1].split('-')[0].substring(0, 2)}:${courseTime[1].split('-')[0].substring(2, 4)}",
+                'endTime':
+                    //ignore: lines_longer_than_80_chars
+                    "${courseTime[1].split('-')[1].substring(0, 2)}:${courseTime[1].split('-')[1].substring(2, 4)}",
+                'section': tempSection,
+              },
+              'rawInstructors': splitData[1]
+                  .replaceAll(specialSpace, '')
+                  .replaceAll('&nbsp;', ''),
+              'instructors': splitData[1].replaceAll('&nbsp;', '').split(','),
+            },
+          );
+        }
+      }
+      data['_temp_time'] = tempTime;
+      // mix weekday to course.
       for (int weekKeyIndex = 0;
           weekKeyIndex < keyName.length;
           weekKeyIndex++) {
-        final List<dynamic> dayCourses =
+        final List<dynamic> courses =
             courseTable[keyName[weekKeyIndex]] as List<dynamic>;
-        for (final dynamic course in dayCourses) {
-          final String sectionKey = course['date']['section'] as String;
-          final Map<String, dynamic>? targetTime =
-              data['_temp_time'][sectionKey] as Map<String, dynamic>;
-
-          if (targetTime == null) continue;
-
+        for (final dynamic course in courses) {
           final Map<String, dynamic> temp = <String, dynamic>{
             'weekday': weekKeyIndex + 1,
-            'index': data['_temp_time'].values.toList().indexOf(targetTime),
+            //ignore: avoid_dynamic_calls
+            'index': data['_temp_time']
+                .values
+                .toList()
+                //ignore: avoid_dynamic_calls
+                .indexOf(data['_temp_time'][course['date']['section']]),
           };
-
+          //ignore: avoid_dynamic_calls
           tmpCourseName = "${course['title']}${course['rawInstructors']}";
-
-          if (data['courses'][tmpCourseName] != null) {
-            data['courses'][tmpCourseName]['sectionTimes'].add(temp);
-          }
+          //ignore: avoid_dynamic_calls
+          data['courses'][tmpCourseName]['sectionTimes'].add(temp);
         }
       }
-
+      // courses to list
+      //ignore: avoid_dynamic_calls
       data['courses'] = data['courses'].values.toList();
       data.remove('coursetable');
+      //ignore: avoid_dynamic_calls
       data['_temp_time'] = data['_temp_time'].values.toList();
-      for (int i = 0; i < (data['_temp_time'] as List<dynamic>).length; i++) {
+      for (int timeCodeIndex = 0;
+          timeCodeIndex < (data['_temp_time'] as List<dynamic>).length;
+          timeCodeIndex++) {
+        //ignore: avoid_dynamic_calls
         data['timeCodes'].add(<String, dynamic>{
-          'title': data['_temp_time'][i]['section'],
-          'startTime': data['_temp_time'][i]['startTime'],
-          'endTime': data['_temp_time'][i]['endTime'],
+          //ignore: avoid_dynamic_calls
+          'title': data['_temp_time'][timeCodeIndex]['section'],
+          //ignore: avoid_dynamic_calls
+          'startTime': data['_temp_time'][timeCodeIndex]['startTime'],
+          //ignore: avoid_dynamic_calls
+          'endTime': data['_temp_time'][timeCodeIndex]['endTime'],
         });
       }
       data.remove('_temp_time');
     } catch (e, s) {
       CrashlyticsUtil.instance
-          .recordError(e, s, reason: 'Final merge error: $tmpCourseName');
+          .recordError(e, s, reason: 'course name = $tmpCourseName');
     }
 
     return data;
+  }
+
+  Map<String, dynamic> enrollmentRequestParser(String? html) {
+    if (html == null || html.isEmpty) {
+      return <String, dynamic>{};
+    }
+
+    final Document document = parse(html);
+
+    final Element? form = document.querySelector('form');
+    String action = '';
+    if (form != null) {
+      action = form.attributes['action'] ?? '';
+      if (action.endsWith('?')) {
+        action = action.substring(0, action.length - 1);
+      }
+    }
+
+    final List<Element> inputs =
+        document.querySelectorAll('input[type=hidden]');
+    final Map<String, String> params = <String, String>{};
+
+    for (final Element input in inputs) {
+      final String name = input.attributes['name'] ?? '';
+      final String value = input.attributes['value'] ?? '';
+      if (name.isNotEmpty) {
+        params[name] = value;
+      }
+    }
+
+    return <String, dynamic>{
+      'action': action,
+      'params': params,
+    };
+  }
+
+  String? enrollmentLetterPathParser(String? html) {
+    if (html == null || html.isEmpty) return null;
+
+    final Document document = parse(html);
+
+    final Element? objectTag = document.querySelector('object#pdf1');
+    if (objectTag != null) {
+      final String? data = objectTag.attributes['data'];
+      if (data != null && data.isNotEmpty) return data;
+    }
+
+    final Element? buttonTag = document.querySelector('#download_btn');
+    if (buttonTag != null) {
+      final String? onclick = buttonTag.attributes['onclick'];
+      if (onclick != null) {
+        final RegExp regex = RegExp("download_file(['\"](.+?)['\"])");
+        final RegExpMatch? match = regex.firstMatch(onclick);
+        if (match != null) {
+          return match.group(1);
+        }
+      }
+    }
+
+    return null;
   }
 }
 
