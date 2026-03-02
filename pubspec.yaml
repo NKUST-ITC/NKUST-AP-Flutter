@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 3.12.1+31201
+version: 3.12.2+31202
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
@@ -23,6 +23,7 @@ dependencies:
   http: ^0.13.3
   html: ^0.15.0
   http_parser: ^4.0.0
+  image_picker: ^1.2.1
   #third party plugin
   dio: ^5.8.0+1
   dio_http_cache:
