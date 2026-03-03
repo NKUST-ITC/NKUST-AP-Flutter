@@ -111,6 +111,7 @@ class WebApHelper {
   Future<LoginResponse> login({
     required String username,
     required String password,
+    int retryCounts = 5,
   }) async {
     //
     /*
@@ -122,15 +123,21 @@ class WebApHelper {
     3 : Not found login message
     */
     //
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < retryCounts; i++) {
       try {
-        final String captchaCode = await CaptchaUtils.extractByEucDist(
-          bodyBytes: (await getValidationImage())!,
+        final String? captchaCode = await CaptchaUtils.extractByEucDist(
+          bodyBytes: await getValidationImage(),
         );
 
         log(username);
         log(password);
         log(captchaCode);
+
+        if (captchaCode == null || captchaCode.length != 4) {
+          //Captcha error, go retry.
+          continue;
+        }
+
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{
@@ -146,7 +153,7 @@ class WebApHelper {
         switch (code) {
           case -1:
             //Captcha error, go retry.
-            break;
+            break;  //break switch
           case 4:
             //Stay old password and relogin.
             await stayOldPwd();
