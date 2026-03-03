@@ -68,11 +68,14 @@ class WebApParser {
     4 : Not found error message
     500 : server busy
     */
-    String rawHtml;
+    String? rawHtml;
     if (html is Uint8List) {
       rawHtml = clearTransEncoding(html);
-    } else if (html is String) {
+    }
+    if (html is String) {
       rawHtml = html;
+    }
+    if (rawHtml != null) {
       if (rawHtml.contains('onclick="go_change()')) {
         return 4;
       }
