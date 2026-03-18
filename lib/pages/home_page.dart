@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -54,10 +55,6 @@ class HomePageState extends State<HomePage> {
 
   UserInfo? userInfo;
 
-  TextStyle get _defaultStyle => TextStyle(
-        color: ApTheme.of(context).grey,
-        fontSize: 16.0,
-      );
 
   String get sectionImage {
     final String department = userInfo?.department ?? '';
@@ -199,255 +196,7 @@ class HomePageState extends State<HomePage> {
           },
         ),
       ],
-      drawer: ApDrawer(
-        userInfo: userInfo,
-        displayPicture:
-            PreferenceUtil.instance.getBool(Constants.prefDisplayPicture, true),
-        imageAsset: drawerIcon,
-        onTapHeader: () {
-          if (isLogin) {
-            if (userInfo != null && isLogin) {
-              ApUtils.pushCupertinoStyle(
-                context,
-                UserInfoPage(userInfo: userInfo!),
-              );
-            }
-          } else {
-            if (isMobile) Navigator.of(context).pop();
-            openLoginPage();
-          }
-        },
-        widgets: <Widget>[
-          if (!isMobile)
-            DrawerItem(
-              icon: ApIcon.home,
-              title: ap.home,
-              onTap: () {
-                setState(() => content = null);
-              },
-            ),
-          ExpansionTile(
-            initiallyExpanded: isStudyExpanded,
-            onExpansionChanged: (bool bool) {
-              setState(() {
-                isStudyExpanded = bool;
-              });
-            },
-            leading: Icon(
-              ApIcon.school,
-              color: isStudyExpanded
-                  ? ApTheme.of(context).blueAccent
-                  : ApTheme.of(context).grey,
-            ),
-            title: Text(ap.courseInfo, style: _defaultStyle),
-            children: <Widget>[
-              DrawerSubItem(
-                icon: ApIcon.classIcon,
-                title: ap.course,
-                onTap: () => _openPage(
-                  CoursePage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.assignment,
-                title: ap.score,
-                onTap: () => _openPage(
-                  ScorePage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.apps,
-                title: ap.calculateCredits,
-                onTap: () => _openPage(
-                  CalculateUnitsPage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.warning,
-                title: ap.midtermAlerts,
-                onTap: () => _openPage(
-                  MidtermAlertsPage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.folder,
-                title: ap.rewardAndPenalty,
-                onTap: () => _openPage(
-                  RewardAndPenaltyPage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: ApIcon.room,
-                title: ap.classroomCourseTableSearch,
-                onTap: () => _openPage(
-                  RoomListPage(),
-                  needLogin: true,
-                ),
-              ),
-              DrawerSubItem(
-                icon: enrollmentLetter,
-                title: '在學證明',
-                onTap: () => _openPage(
-                  const EnrollmentLetterPage(),
-                  needLogin: true,
-                ),
-              ),
-            ],
-          ),
-          if (leaveEnable)
-            ExpansionTile(
-              initiallyExpanded: isLeaveExpanded,
-              onExpansionChanged: (bool bool) {
-                setState(() {
-                  isLeaveExpanded = bool;
-                });
-              },
-              leading: Icon(
-                ApIcon.calendarToday,
-                color: isLeaveExpanded
-                    ? ApTheme.of(context).blueAccent
-                    : ApTheme.of(context).grey,
-              ),
-              title: Text(ap.leave, style: _defaultStyle),
-              children: <Widget>[
-                DrawerSubItem(
-                  icon: ApIcon.edit,
-                  title: ap.leaveApply,
-                  onTap: () => _openPage(
-                    const LeavePage(),
-                    needLogin: true,
-                    useCupertinoRoute: false,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.assignment,
-                  title: ap.leaveRecords,
-                  onTap: () => _openPage(
-                    const LeavePage(initIndex: 1),
-                    needLogin: true,
-                    useCupertinoRoute: false,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.folder,
-                  title: app.leaveApplyRecord,
-                  onTap: () => _openPage(
-                    const LeavePage(initIndex: 2),
-                    needLogin: true,
-                    useCupertinoRoute: false,
-                  ),
-                ),
-              ],
-            )
-          else
-            DrawerItem(
-              icon: ApIcon.calendarToday,
-              title: ap.leave,
-              onTap: () => PlatformUtil.instance.launchUrl(
-                'https://mobile.nkust.edu.tw/Student/Leave',
-              ),
-            ),
-          if (canUseBus)
-            ExpansionTile(
-              initiallyExpanded: isBusExpanded,
-              onExpansionChanged: (bool bool) {
-                setState(() {
-                  isBusExpanded = bool;
-                });
-              },
-              leading: Icon(
-                ApIcon.directionsBus,
-                color: isBusExpanded
-                    ? ApTheme.of(context).blueAccent
-                    : ApTheme.of(context).grey,
-              ),
-              title: Text(app.bus, style: _defaultStyle),
-              children: <Widget>[
-                DrawerSubItem(
-                  icon: ApIcon.dateRange,
-                  title: app.busReserve,
-                  onTap: () => _openPage(
-                    const BusPage(),
-                    needLogin: true,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.assignment,
-                  title: app.busReservations,
-                  onTap: () => _openPage(
-                    const BusPage(initIndex: 1),
-                    needLogin: true,
-                  ),
-                ),
-                DrawerSubItem(
-                  icon: ApIcon.monetizationOn,
-                  title: app.busViolationRecords,
-                  onTap: () => _openPage(
-                    const BusPage(initIndex: 2),
-                    needLogin: true,
-                  ),
-                ),
-              ],
-            )
-          else
-            DrawerItem(
-              icon: ApIcon.directionsBus,
-              title: ap.bus,
-              onTap: () => PlatformUtil.instance.launchUrl(
-                'https://mobile.nkust.edu.tw/Bus/Timetable',
-              ),
-            ),
-          DrawerItem(
-            icon: ApIcon.info,
-            title: ap.schoolInfo,
-            onTap: () => _openPage(SchoolInfoPage()),
-          ),
-          DrawerItem(
-            icon: report,
-            title: app.reportProblem,
-            onTap: () => _openPage(ReportPage()),
-          ),
-          DrawerItem(
-            icon: ApIcon.face,
-            title: ap.about,
-            onTap: () => _openPage(
-              aboutPage(
-                context,
-                assetImage: sectionImage,
-              ),
-            ),
-          ),
-          DrawerItem(
-            icon: ApIcon.settings,
-            title: ap.settings,
-            onTap: () => _openPage(SettingPage()),
-          ),
-          if (isLogin)
-            ListTile(
-              leading: Icon(
-                ApIcon.powerSettingsNew,
-                color: ApTheme.of(context).grey,
-              ),
-              onTap: () async {
-                await PreferenceUtil.instance
-                    .setBool(Constants.prefAutoLogin, false);
-                if (!context.mounted) return;
-                ShareDataWidget.of(context)!.data.logout();
-                isLogin = false;
-                userInfo = null;
-                content = null;
-                if (isMobile) Navigator.of(context).pop();
-                checkLogin();
-              },
-              title: Text(ap.logout, style: _defaultStyle),
-            ),
-        ],
-      ),
+      drawer: _buildDrawer(),
       onImageTapped: (Announcement announcement) {
         ApUtils.pushCupertinoStyle(
           context,
@@ -455,7 +204,7 @@ class HomePageState extends State<HomePage> {
         );
       },
       onTabTapped: onTabTapped,
-      bottomNavigationBarItems: <Widget>[
+      bottomNavigationBarItems: <NavigationDestination>[
         if (canUseBus)
           NavigationDestination(
             icon: Icon(ApIcon.directionsBus),
@@ -469,6 +218,242 @@ class HomePageState extends State<HomePage> {
           icon: Icon(ApIcon.assignment),
           label: ap.score,
         ),
+      ],
+    );
+  }
+
+  Widget _buildDrawer() {
+    return ApDrawer(
+      userInfo: userInfo,
+      displayPicture:
+          PreferenceUtil.instance.getBool(Constants.prefDisplayPicture, true),
+      imageAsset: drawerIcon,
+      onTapHeader: () {
+        if (isLogin) {
+          if (userInfo != null && isLogin) {
+            ApUtils.pushCupertinoStyle(
+              context,
+              UserInfoPage(userInfo: userInfo!),
+            );
+          }
+        } else {
+          if (isMobile) Navigator.of(context).pop();
+          openLoginPage();
+        }
+      },
+      widgets: <Widget>[
+        if (!isMobile)
+          DrawerMenuItem(
+            icon: ApIcon.home,
+            title: ap.home,
+            onTap: () {
+              setState(() => content = null);
+            },
+          ),
+        DrawerMenuSection(
+          initiallyExpanded: isStudyExpanded,
+          onExpansionChanged: (bool bool) {
+            setState(() {
+              isStudyExpanded = bool;
+            });
+          },
+          icon: ApIcon.school,
+          title: ap.courseInfo,
+          children: <DrawerSubMenuItem>[
+            DrawerSubMenuItem(
+              icon: ApIcon.classIcon,
+              title: ap.course,
+              onTap: () => _openPage(
+                CoursePage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.assignment,
+              title: ap.score,
+              onTap: () => _openPage(
+                ScorePage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.apps,
+              title: ap.calculateCredits,
+              onTap: () => _openPage(
+                CalculateUnitsPage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.warning,
+              title: ap.midtermAlerts,
+              onTap: () => _openPage(
+                MidtermAlertsPage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.folder,
+              title: ap.rewardAndPenalty,
+              onTap: () => _openPage(
+                RewardAndPenaltyPage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.room,
+              title: ap.classroomCourseTableSearch,
+              onTap: () => _openPage(
+                RoomListPage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: enrollmentLetter,
+              title: '在學證明',
+              onTap: () => _openPage(
+                const EnrollmentLetterPage(),
+                needLogin: true,
+              ),
+            ),
+          ],
+        ),
+        if (leaveEnable)
+        DrawerMenuSection(
+            initiallyExpanded: isLeaveExpanded,
+            onExpansionChanged: (bool bool) {
+              setState(() {
+                isLeaveExpanded = bool;
+              });
+            },
+            icon: ApIcon.calendarToday,
+            title: ap.leave,
+            children: <DrawerSubMenuItem>[
+              DrawerSubMenuItem(
+                icon: ApIcon.edit,
+                title: ap.leaveApply,
+                onTap: () => _openPage(
+                  const LeavePage(),
+                  needLogin: true,
+                  useCupertinoRoute: false,
+                ),
+              ),
+              DrawerSubMenuItem(
+                icon: ApIcon.assignment,
+                title: ap.leaveRecords,
+                onTap: () => _openPage(
+                  const LeavePage(initIndex: 1),
+                  needLogin: true,
+                  useCupertinoRoute: false,
+                ),
+              ),
+              DrawerSubMenuItem(
+                icon: ApIcon.folder,
+                title: app.leaveApplyRecord,
+                onTap: () => _openPage(
+                  const LeavePage(initIndex: 2),
+                  needLogin: true,
+                  useCupertinoRoute: false,
+                ),
+              ),
+            ],
+          )
+        else
+        DrawerMenuItem(
+            icon: ApIcon.calendarToday,
+            title: ap.leave,
+            onTap: () => PlatformUtil.instance.launchUrl(
+              'https://mobile.nkust.edu.tw/Student/Leave',
+            ),
+          ),
+        if (canUseBus)
+        DrawerMenuSection(
+            initiallyExpanded: isBusExpanded,
+            onExpansionChanged: (bool bool) {
+              setState(() {
+                isBusExpanded = bool;
+              });
+            },
+            icon: ApIcon.directionsBus,
+            title: app.bus,
+            children: <DrawerSubMenuItem>[
+              DrawerSubMenuItem(
+                icon: ApIcon.dateRange,
+                title: app.busReserve,
+                onTap: () => _openPage(
+                  const BusPage(),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubMenuItem(
+                icon: ApIcon.assignment,
+                title: app.busReservations,
+                onTap: () => _openPage(
+                  const BusPage(initIndex: 1),
+                  needLogin: true,
+                ),
+              ),
+              DrawerSubMenuItem(
+                icon: ApIcon.monetizationOn,
+                title: app.busViolationRecords,
+                onTap: () => _openPage(
+                  const BusPage(initIndex: 2),
+                  needLogin: true,
+                ),
+              ),
+            ],
+          )
+        else
+        DrawerMenuItem(
+            icon: ApIcon.directionsBus,
+            title: ap.bus,
+            onTap: () => PlatformUtil.instance.launchUrl(
+              'https://mobile.nkust.edu.tw/Bus/Timetable',
+            ),
+          ),
+        DrawerMenuItem(
+          icon: ApIcon.info,
+          title: ap.schoolInfo,
+          onTap: () => _openPage(SchoolInfoPage()),
+        ),
+        DrawerMenuItem(
+          icon: report,
+          title: app.reportProblem,
+          onTap: () => _openPage(ReportPage()),
+        ),
+        DrawerMenuItem(
+          icon: ApIcon.face,
+          title: ap.about,
+          onTap: () => _openPage(
+            aboutPage(
+              context,
+              assetImage: sectionImage,
+            ),
+          ),
+        ),
+        DrawerMenuItem(
+          icon: ApIcon.settings,
+          title: ap.settings,
+          onTap: () => _openPage(SettingPage()),
+        ),
+        if (isLogin) ...<Widget>[
+          const DrawerDivider(),
+        DrawerMenuItem(
+            icon: ApIcon.powerSettingsNew,
+            title: ap.logout,
+            onTap: () async {
+              await PreferenceUtil.instance
+                  .setBool(Constants.prefAutoLogin, false);
+              if (!mounted) return;
+              ShareDataWidget.of(context)!.data.logout();
+              isLogin = false;
+              userInfo = null;
+              content = null;
+              if (isMobile) Navigator.of(context).pop();
+              checkLogin();
+            },
+          ),
+        ],
       ],
     );
   }
@@ -579,7 +564,7 @@ class HomePageState extends State<HomePage> {
         final Uint8List? response = await Helper.instance.getUserPicture();
         if (mounted) {
           setState(() {
-            userInfo!.pictureBytes = response;
+            userInfo = userInfo!.copyWith(pictureBytes: response);
           });
         }
         // CacheUtils.savePictureData(response);

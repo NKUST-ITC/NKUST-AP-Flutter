@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -11,8 +12,6 @@ class CoursePage extends StatefulWidget {
 }
 
 class CoursePageState extends State<CoursePage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
-
   late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
@@ -57,15 +56,31 @@ class CoursePageState extends State<CoursePage> {
       courseNotifySaveKey: courseNotifyCacheKey,
       androidResourceIcon: Constants.androidDefaultNotificationName,
       enableCaptureCourseTable: true,
+      semesterData: semesterData,
+      onSelect: (int index) {
+        setState(() {
+          selectSemester = semesterData!.data[index];
+          semesterData = semesterData?.copyWith(currentIndex: index);
+          state = CourseState.loading;
+        });
+        notifyData = CourseNotifyData.load(courseNotifyCacheKey);
+        _loadCacheData(selectSemester!.code);
+        if (!PreferenceUtil.instance
+            .getBool(Constants.prefIsOfflineLogin, false)) {
+          _getCourseTables();
+        }
+      },
       itemPicker: SemesterPicker(
-        key: key,
         featureTag: 'course',
+        selectSemester: selectSemester,
+        currentIndex: semesterData?.currentIndex ?? 0,
+        onDataLoaded: (SemesterData data) => semesterData = data,
         onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
+            semesterData = semesterData?.copyWith(currentIndex: index);
             state = CourseState.loading;
           });
-          semesterData = key.currentState!.semesterData;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           _loadCacheData(semester.code);
           if (!PreferenceUtil.instance
@@ -80,7 +95,26 @@ class CoursePageState extends State<CoursePage> {
         return null;
       },
       onSearchButtonClick: () {
-        key.currentState!.pickSemester();
+        if (semesterData != null) {
+          ap_ui.SemesterPicker.show(
+            context: context,
+            semesterData: semesterData!,
+            currentIndex: semesterData!.currentIndex,
+            onSelect: (Semester semester, int index) {
+              setState(() {
+                selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
+                state = CourseState.loading;
+              });
+              notifyData = CourseNotifyData.load(courseNotifyCacheKey);
+              _loadCacheData(semester.code);
+              if (!PreferenceUtil.instance
+                  .getBool(Constants.prefIsOfflineLogin, false)) {
+                _getCourseTables();
+              }
+            },
+          );
+        }
       },
     );
   }

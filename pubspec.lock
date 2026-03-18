@@ -37,66 +37,66 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common
-      sha256: bd6fb5cb83fb683eedfd46bddf7f85e5b5c2d47eb63cacc9a96b3dafa0c0c15d
+      sha256: "45493cf054d64287f100c4280ba4e9e0b1ec37a39abc80ab05e498c8f3770335"
       url: "https://pub.dev"
     source: hosted
-    version: "0.26.0+3"
+    version: "1.0.1-dev.0"
   ap_common_announcement_ui:
     dependency: transitive
     description:
       name: ap_common_announcement_ui
-      sha256: eae98f43d0bbf106377b20fc4105995c79b832ab5bff6881bdb5867cc5546aff
+      sha256: "2a2b213c4e3e51ece631dcbcf0b1a12502f7ca0464b1a73bca121e9e4360b44c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "1.0.1-dev.0"
   ap_common_core:
     dependency: transitive
     description:
       name: ap_common_core
-      sha256: aad900da3a6c464c71abba436530d10df08401247a959a01c27165cdda91823a
+      sha256: "7b740f25d64a33d3ead7bbf764526ccd89dbf4ed963b3827156af84a4c0b38fe"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "1.0.0"
   ap_common_firebase:
     dependency: "direct main"
     description:
       name: ap_common_firebase
-      sha256: "0217c410cf55354b48699076090524f82d6810a70bcf183cc74df3ad1f74f061"
+      sha256: "157aa91d1a4ac0ab1acf12721d93f5fa5c41f486fa779a9fc04ff2cc3a25992b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0+1"
+    version: "1.0.0"
   ap_common_flutter_core:
     dependency: transitive
     description:
       name: ap_common_flutter_core
-      sha256: "98038884267ac2374925f1d943d2d05cf9324298df20722d0f471bd3a46b0614"
+      sha256: c473c502882b073e72ad3f87d7b382dbbdfefe8225307f9fca59d27ed5afd544
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.4"
+    version: "1.1.0-dev.0"
   ap_common_flutter_platform:
     dependency: transitive
     description:
       name: ap_common_flutter_platform
-      sha256: "38cee1e0d564b26f2cd7c4b01e180454dbb3df00479c9393b25d699013069459"
+      sha256: "0d1e4df840f48350c28bd5ac04430060a6ead1ec84e395499d4c5bebb77a77dd"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.5"
+    version: "1.0.1-dev.0"
   ap_common_flutter_ui:
     dependency: transitive
     description:
       name: ap_common_flutter_ui
-      sha256: "19883ff09734453994d6341033f3386dc4a86418f3b64ec8578b04a7436e5d36"
+      sha256: e1c365d31bc392398e5ec3f08c1da0f0ff5bd7c6cffe5480b5cf4a1a13c4bd57
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.6"
+    version: "1.1.0-dev.0"
   ap_common_plugin:
     dependency: "direct main"
     description:
       name: ap_common_plugin
-      sha256: "2f1ef528716ab1c99e17f90021b10f92d588f8fd5c306c44a8b507d960b43c9d"
+      sha256: "47340db91539582d987d41010befce1799ba0b51e07733ac7cf39882f99a2eb0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.1"
+    version: "1.0.0"
   app_tracking_transparency:
     dependency: transitive
     description:
@@ -798,6 +798,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   glob:
     dependency: transitive
     description:
@@ -1402,18 +1410,18 @@ packages:
     dependency: transitive
     description:
       name: share_plus
-      sha256: b2961506569e28948d75ec346c28775bb111986bb69dc6a20754a457e3d97fa0
+      sha256: fce43200aa03ea87b91ce4c3ac79f0cecd52e2a7a56c7a4185023c271fbfa6da
       url: "https://pub.dev"
     source: hosted
-    version: "11.0.0"
+    version: "10.1.4"
   share_plus_platform_interface:
     dependency: transitive
     description:
       name: share_plus_platform_interface
-      sha256: "88023e53a13429bd65d8e85e11a9b484f49d4c190abbd96c7932b74d6927cc9a"
+      sha256: cc012a23fc2d479854e6c80150696c4a5f5bb62cb89af4de1c505cf78d0a5d0b
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "5.0.2"
   shared_preferences:
     dependency: transitive
     description:
