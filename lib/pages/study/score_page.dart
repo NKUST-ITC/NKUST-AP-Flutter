@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -11,8 +12,6 @@ class ScorePage extends StatefulWidget {
 }
 
 class ScorePageState extends State<ScorePage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
-
   late ApLocalizations ap;
 
   ScoreState state = ScoreState.loading;
@@ -44,12 +43,29 @@ class ScorePageState extends State<ScorePage> {
       scoreData: scoreData,
       customHint: isOffline ? ap.offlineScore : '',
       customStateHint: customStateHint,
+      semesterData: semesterData,
+      onSelect: (int index) {
+        setState(() {
+          selectSemester = semesterData!.data[index];
+          semesterData = semesterData?.copyWith(currentIndex: index);
+          state = ScoreState.loading;
+        });
+        if (PreferenceUtil.instance
+            .getBool(Constants.prefIsOfflineLogin, false)) {
+          _loadOfflineScoreData();
+        } else {
+          _getSemesterScore();
+        }
+      },
       itemPicker: SemesterPicker(
-        key: key,
         featureTag: 'score',
+        selectSemester: selectSemester,
+        currentIndex: semesterData?.currentIndex ?? 0,
+        onDataLoaded: (SemesterData data) => semesterData = data,
         onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
+            semesterData = semesterData?.copyWith(currentIndex: index);
             state = ScoreState.loading;
           });
           if (PreferenceUtil.instance
@@ -67,14 +83,27 @@ class ScorePageState extends State<ScorePage> {
         return null;
       },
       onSearchButtonClick: () {
-        key.currentState!.pickSemester();
+        if (semesterData != null) {
+          ap_ui.SemesterPicker.show(
+            context: context,
+            semesterData: semesterData!,
+            currentIndex: semesterData!.currentIndex,
+            onSelect: (Semester semester, int index) {
+              setState(() {
+                selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
+                state = ScoreState.loading;
+              });
+              if (PreferenceUtil.instance
+                  .getBool(Constants.prefIsOfflineLogin, false)) {
+                _loadOfflineScoreData();
+              } else {
+                _getSemesterScore();
+              }
+            },
+          );
+        }
       },
-      details: <String>[
-        '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
-        '${ap.average}：${scoreData?.detail.average ?? ''}',
-        '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
-        '${ap.departmentRank}：${scoreData?.detail.departmentRank ?? ''}',
-      ],
     );
   }
 

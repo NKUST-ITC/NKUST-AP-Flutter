@@ -1,6 +1,7 @@
 import 'dart:developer';
 
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -26,8 +27,6 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
-
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -70,7 +69,28 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
         onPressed: () {
-          key.currentState!.pickSemester();
+          if (semesterData != null) {
+            ap_ui.SemesterPicker.show(
+              context: context,
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                if (PreferenceUtil.instance.getBool(
+                  Constants.prefIsOfflineLogin,
+                  false,
+                )) {
+                  _loadOfflineLeaveData();
+                } else {
+                  _getSemesterLeaveRecord();
+                }
+              },
+            );
+          }
         },
       ),
       body: SizedBox(
@@ -82,10 +102,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           children: <Widget>[
             const SizedBox(height: 8.0),
             SemesterPicker(
-              key: key,
+              selectSemester: selectSemester,
+              currentIndex: semesterData?.currentIndex ?? 0,
+              onDataLoaded: (SemesterData data) => semesterData = data,
               onSelect: (Semester semester, int index) {
                 setState(() {
                   selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
                   state = _State.loading;
                 });
                 if (PreferenceUtil.instance.getBool(
@@ -154,7 +177,28 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
         return InkWell(
           onTap: () {
             if (state == _State.empty || state == _State.offlineEmpty) {
-              key.currentState!.pickSemester();
+              if (semesterData != null) {
+                ap_ui.SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData = semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    if (PreferenceUtil.instance.getBool(
+                      Constants.prefIsOfflineLogin,
+                      false,
+                    )) {
+                      _loadOfflineLeaveData();
+                    } else {
+                      _getSemesterLeaveRecord();
+                    }
+                  },
+                );
+              }
             } else {
               _getSemesterLeaveRecord();
             }

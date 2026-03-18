@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -22,7 +23,6 @@ class RewardAndPenaltyPage extends StatefulWidget {
 }
 
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -60,7 +60,21 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
         onPressed: () {
-          key.currentState!.pickSemester();
+          if (semesterData != null) {
+            ap_ui.SemesterPicker.show(
+              context: context,
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                _getMidtermAlertsData();
+              },
+            );
+          }
         },
       ),
       body: Flex(
@@ -70,11 +84,14 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         children: <Widget>[
           const SizedBox(height: 8.0),
           SemesterPicker(
-            key: key,
+            selectSemester: selectSemester,
+            currentIndex: semesterData?.currentIndex ?? 0,
+            onDataLoaded: (SemesterData data) => semesterData = data,
             featureTag: 'reward',
             onSelect: (Semester semester, int index) {
               setState(() {
                 selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
                 state = _State.loading;
               });
               _getMidtermAlertsData();
@@ -141,7 +158,21 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         return InkWell(
           onTap: () {
             if (state == _State.empty) {
-              key.currentState!.pickSemester();
+              if (semesterData != null) {
+                ap_ui.SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData = semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getMidtermAlertsData();
+                  },
+                );
+              }
             } else {
               _getMidtermAlertsData();
             }

@@ -1,4 +1,5 @@
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -7,9 +8,19 @@ typedef SemesterCallback = void Function(Semester semester, int index);
 
 class SemesterPicker extends StatefulWidget {
   final SemesterCallback? onSelect;
+  final Function(SemesterData data)? onDataLoaded;
   final String? featureTag;
+  final Semester? selectSemester;
+  final int currentIndex;
 
-  const SemesterPicker({super.key, this.onSelect, this.featureTag});
+  const SemesterPicker({
+    super.key,
+    this.onSelect,
+    this.onDataLoaded,
+    this.featureTag,
+    this.selectSemester,
+    this.currentIndex = 0,
+  });
 
   @override
   SemesterPickerState createState() => SemesterPickerState();
@@ -23,43 +34,71 @@ class SemesterPickerState extends State<SemesterPicker> {
 
   @override
   void initState() {
+    selectSemester = widget.selectSemester;
+    currentIndex = widget.currentIndex;
     _getSemester();
     super.initState();
   }
 
   @override
+  void didUpdateWidget(covariant SemesterPicker oldWidget) {
+    if (widget.selectSemester != null &&
+        widget.selectSemester != oldWidget.selectSemester) {
+      setState(() {
+        selectSemester = widget.selectSemester;
+      });
+    }
+    if (widget.currentIndex != oldWidget.currentIndex) {
+      setState(() {
+        currentIndex = widget.currentIndex;
+      });
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        //TODO check nullable
-        //ignore: unnecessary_null_comparison
-        if (semesterData != null) pickSemester();
-        if (widget.featureTag != null) {
-          AnalyticsUtil.instance
-              .logEvent('${widget.featureTag}_item_picker_click');
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          vertical: 4.0,
-          horizontal: 16.0,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              selectSemester?.text ?? '',
-              style: TextStyle(
-                color: ApTheme.of(context).semesterText,
-                fontSize: 18.0,
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: colorScheme.primaryContainer,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: () {
+          //ignore: unnecessary_null_comparison
+          if (semesterData != null) pickSemester();
+          if (widget.featureTag != null) {
+            AnalyticsUtil.instance
+                .logEvent('${widget.featureTag}_item_picker_click');
+          }
+        },
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(
+                Icons.calendar_month_rounded,
+                size: 16,
+                color: colorScheme.onPrimaryContainer,
               ),
-            ),
-            const SizedBox(width: 8.0),
-            Icon(
-              ApIcon.keyboardArrowDown,
-              color: ApTheme.of(context).semesterText,
-            ),
-          ],
+              const SizedBox(width: 6),
+              Text(
+                selectSemester?.text ?? '',
+                style: TextStyle(
+                  color: colorScheme.onPrimaryContainer,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 2),
+              Icon(
+                Icons.arrow_drop_down_rounded,
+                size: 20,
+                color: colorScheme.onPrimaryContainer,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -69,12 +108,16 @@ class SemesterPickerState extends State<SemesterPicker> {
     final SemesterData? cacheData = SemesterData.load();
     if (cacheData != null) {
       semesterData = cacheData;
-      widget.onSelect
-          ?.call(semesterData.defaultSemester, semesterData.defaultIndex);
-      if (mounted) {
-        setState(() {
-          selectSemester = semesterData.defaultSemester;
-        });
+      widget.onDataLoaded?.call(semesterData);
+      if (selectSemester == null) {
+        widget.onSelect
+            ?.call(semesterData.defaultSemester, semesterData.defaultIndex);
+        if (mounted) {
+          setState(() {
+            selectSemester = semesterData.defaultSemester;
+            currentIndex = semesterData.defaultIndex;
+          });
+        }
       }
     }
   }
@@ -89,6 +132,7 @@ class SemesterPickerState extends State<SemesterPicker> {
         onSuccess: (SemesterData data) {
           semesterData = data;
           semesterData.save();
+          widget.onDataLoaded?.call(semesterData);
           final String _ = PreferenceUtil.instance.getString(
             ApConstants.currentSemesterCode,
             ApConstants.semesterLatest,
@@ -99,20 +143,7 @@ class SemesterPickerState extends State<SemesterPicker> {
             ApConstants.currentSemesterCode,
             newSemester,
           );
-          //TODO clear old course notify, but may be improve
-          // if (!oldSemester.contains(semesterData.defaultSemester.code)) {
-          //   //TODO check nullable
-          //   final CourseNotifyData notifyData =
-          //       CourseNotifyData.load(oldSemester);
-          //   //ignore: unnecessary_null_comparison
-          //   if (notifyData != null && NotificationUtil.instance.isSupport) {
-          //     CourseNotifyData.clearOldVersionNotification(
-          //       tag: oldSemester,
-          //       newTag: semesterData.defaultSemester.code,
-          //     );
-          //   }
-          // }
-          if (mounted) {
+          if (mounted && selectSemester == null) {
             currentIndex = semesterData.defaultIndex;
             widget.onSelect?.call(
               semesterData.defaultSemester,
@@ -144,22 +175,18 @@ class SemesterPickerState extends State<SemesterPicker> {
   }
 
   void pickSemester() {
-    showDialog<int>(
+    ap_ui.SemesterPicker.show(
       context: context,
-      builder: (BuildContext context) => SimpleOptionDialog(
-        title: ApLocalizations.of(context).pickSemester,
-        items: <String>[
-          for (final Semester item in semesterData.data) item.text,
-        ],
-        index: currentIndex,
-        onSelected: (int index) {
-          currentIndex = index;
-          widget.onSelect!(semesterData.data[currentIndex], currentIndex);
-          setState(() {
-            selectSemester = semesterData.data[currentIndex];
-          });
-        },
-      ),
+      semesterData: semesterData,
+      currentIndex: currentIndex,
+      onSelect: (Semester semester, int index) {
+        currentIndex = index;
+        widget.onSelect!(semesterData.data[currentIndex], currentIndex);
+        setState(() {
+          selectSemester = semesterData.data[currentIndex];
+        });
+      },
+      featureTag: widget.featureTag,
     );
   }
 }

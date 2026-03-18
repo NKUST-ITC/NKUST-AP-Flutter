@@ -285,8 +285,8 @@ class Helper {
       }
       reLoginCount = 0;
       if (data.id.isEmpty) {
-        data.copyWith(
-          id: username,
+        data = data.copyWith(
+          id: username!,
         );
       }
       return (callback == null) ? data : callback.onSuccess(data) as UserInfo?;

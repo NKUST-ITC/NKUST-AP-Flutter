@@ -1,4 +1,5 @@
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -47,88 +48,104 @@ class SettingPageState extends State<SettingPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(ap.settings),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SettingTitle(text: ap.notificationItem),
-            const CheckCourseNotifyItem(),
-            const ClearAllNotifyItem(),
-            SettingSwitch(
-              text: AppLocalizations.of(context).busNotify,
-              subText: AppLocalizations.of(context).busNotifySubTitle,
-              value: busNotify,
-              onChanged: (bool b) async {
-                AnalyticsUtil.instance.logEvent('notify_bus_create');
-                setState(() {
-                  busNotify = !busNotify;
-                });
-                if (busNotify) {
-                  _setupBusNotify(context);
-                } else {
-                  await Utils.cancelBusNotify();
-                }
-                PreferenceUtil.instance
-                    .setBool(Constants.prefBusNotify, busNotify);
-                AnalyticsUtil.instance.logEvent('notify_bus_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                const CheckCourseNotifyItem(),
+                const ClearAllNotifyItem(),
+                SettingSwitch(
+                  text: AppLocalizations.of(context).busNotify,
+                  subText: AppLocalizations.of(context).busNotifySubTitle,
+                  value: busNotify,
+                  onChanged: (bool b) async {
+                    AnalyticsUtil.instance.logEvent('notify_bus_create');
+                    setState(() {
+                      busNotify = !busNotify;
+                    });
+                    if (busNotify) {
+                      _setupBusNotify(context);
+                    } else {
+                      await Utils.cancelBusNotify();
+                    }
+                    PreferenceUtil.instance
+                        .setBool(Constants.prefBusNotify, busNotify);
+                    AnalyticsUtil.instance.logEvent('notify_bus_click');
+                  },
+                ),
+              ],
             ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
-            ),
+            const SizedBox(height: 16),
             SettingTitle(text: ap.otherSettings),
-            SettingSwitch(
-              text: ap.headPhotoSetting,
-              subText: ap.headPhotoSettingSubTitle,
-              value: displayPicture,
-              onChanged: (bool b) {
-                setState(() {
-                  displayPicture = !displayPicture;
-                });
-                PreferenceUtil.instance.setBool(
-                  Constants.prefDisplayPicture,
-                  displayPicture,
-                );
-                AnalyticsUtil.instance.logEvent('head_photo_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingSwitch(
+                  text: ap.headPhotoSetting,
+                  subText: ap.headPhotoSettingSubTitle,
+                  value: displayPicture,
+                  onChanged: (bool b) {
+                    setState(() {
+                      displayPicture = !displayPicture;
+                    });
+                    PreferenceUtil.instance.setBool(
+                      Constants.prefDisplayPicture,
+                      displayPicture,
+                    );
+                    AnalyticsUtil.instance.logEvent('head_photo_click');
+                  },
+                ),
+                ChangeLanguageItem(
+                  onChange: (Locale locale) {
+                    ShareDataWidget.of(context)!.data.loadLocale(locale);
+                  },
+                ),
+                ChangeThemeModeItem(
+                  onChange: (ThemeMode themeMode) {
+                    ShareDataWidget.of(context)!.data.loadTheme(themeMode);
+                  },
+                ),
+                ChangeThemeColorItem(
+                  onChanged: (Color color) {
+                    final int index = ApTheme.themeColors.indexWhere(
+                      (ThemeColor themeColor) => themeColor.color == color,
+                    );
+                    ShareDataWidget.of(context)!
+                        .data
+                        .loadThemeColor(index, color);
+                  },
+                ),
+                ChangeIconStyleItem(
+                  onChange: (String code) {
+                    ShareDataWidget.of(context)!.data.update();
+                  },
+                ),
+              ],
             ),
-            ChangeLanguageItem(
-              onChange: (Locale locale) {
-                ShareDataWidget.of(context)!.data.loadLocale(locale);
-              },
-            ),
-            ChangeThemeModeItem(
-              onChange: (ThemeMode themeMode) {
-                ShareDataWidget.of(context)!.data.loadTheme(themeMode);
-              },
-            ),
-            ChangeIconStyleItem(
-              onChange: (String code) {
-                ShareDataWidget.of(context)!.data.update();
-              },
-            ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
-            ),
+            const SizedBox(height: 16),
             SettingTitle(text: ap.otherInfo),
-            SettingItem(
-              text: ap.feedback,
-              subText: ap.feedbackViaFacebook,
-              onTap: () {
-                ApUtils.launchFbFansPage(context, Constants.fansPageId);
-                AnalyticsUtil.instance.logEvent('feedback_click');
-              },
-            ),
-            SettingItem(
-              text: ap.appVersion,
-              subText: 'v$appVersion',
-              onTap: () {
-                AnalyticsUtil.instance.logEvent('app_version_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingItem(
+                  text: ap.feedback,
+                  subText: ap.feedbackViaFacebook,
+                  onTap: () {
+                    ApUtils.launchFbFansPage(context, Constants.fansPageId);
+                    AnalyticsUtil.instance.logEvent('feedback_click');
+                  },
+                ),
+                SettingItem(
+                  text: ap.appVersion,
+                  subText: 'v$appVersion',
+                  onTap: () {
+                    AnalyticsUtil.instance.logEvent('app_version_click');
+                  },
+                ),
+              ],
             ),
           ],
         ),
