@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-    tags-ignore:
-      - v*
+      - develop
   pull_request:
     branches:
       - master
+      - develop
 
 env:
   flutter_version: '3.35.x'

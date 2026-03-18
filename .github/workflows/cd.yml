@@ -2,17 +2,31 @@ name: Store CD
 
 on:
   push:
-    tags:
-      - "v*"
+    branches:
+      - master
+      - develop
 
 env:
   flutter_version: '3.35.x'
   java_version: '21'
 
 jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get version from pubspec.yaml
+        id: get_version
+        run: |
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
   # CD
   deploy_android:
     name: Android Play Store
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -54,11 +68,12 @@ jobs:
       - name: Run Fastlane
         uses: maierj/fastlane-action@v2.0.1
         with:
-          lane: 'playstore'
+          lane: ${{ github.ref == 'refs/heads/master' && 'playstore' || 'beta' }}
           subdirectory: 'android'
 
   deploy_ios:
     name: iOS Deploy TestFlight
+    needs: prepare
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -157,6 +172,7 @@ jobs:
 
   deploy_windows:
     name: Windows App
+    needs: prepare
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -186,7 +202,7 @@ jobs:
 
   github_release:
     name: Create GitHub Release
-    needs: [deploy_android, deploy_ios, deploy_windows]
+    needs: [prepare, deploy_android, deploy_ios, deploy_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -197,11 +213,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: v${{ needs.prepare.outputs.version }}
+          release_name: v${{ needs.prepare.outputs.version }}
           body_path: RELEASE_NOTE.md
           draft: false
-          prerelease: false
+          prerelease: ${{ github.ref != 'refs/heads/master' }}
       - name: Use Download Artifact v2
         uses: actions/download-artifact@v2
         with:
