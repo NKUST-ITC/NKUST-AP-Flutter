@@ -280,8 +280,10 @@ class Helper {
         case mobile:
           data = await MobileNkustHelper.instance.getUserInfo();
         case webap:
-        default:
           data = await WebApHelper.instance.userInfoCrawler();
+        case stdsys:
+        default:
+          data = await StdsysHelper.instance.getUserInfo();
       }
       reLoginCount = 0;
       if (data.id.isEmpty) {
@@ -307,8 +309,10 @@ class Helper {
       case mobile:
         return MobileNkustHelper.instance.getUserPicture();
       case webap:
-      default:
         return WebApHelper.instance.getUserPicture();
+      case stdsys:
+      default:
+        return StdsysHelper.instance.getUserPicture();
     }
   }
 
