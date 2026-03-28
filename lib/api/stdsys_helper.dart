@@ -7,7 +7,6 @@ import 'package:nkust_ap/models/room_data.dart';
 
 class StdsysHelper {
   static StdsysHelper? _instance;
-  String? pictureUrl;
   // ignore: prefer_constructors_over_static_methods
   static StdsysHelper get instance {
     return _instance ??= StdsysHelper();
@@ -170,16 +169,14 @@ class StdsysHelper {
     );
 
     final UserInfo data = StdsysParser.userInfoParser(response.data);
-    pictureUrl = data.pictureUrl;
-    
     return data;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      pictureUrl!,
+      pictureUrl,
       options: Options(
         responseType: ResponseType.bytes,
       ),

@@ -304,15 +304,15 @@ class Helper {
     return null;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     switch (selector?.userInfo) {
       case mobile:
         return MobileNkustHelper.instance.getUserPicture();
       case webap:
-        return WebApHelper.instance.getUserPicture();
+        return WebApHelper.instance.getUserPicture(pictureUrl);
       case stdsys:
       default:
-        return StdsysHelper.instance.getUserPicture();
+        return StdsysHelper.instance.getUserPicture(pictureUrl);
     }
   }
 
