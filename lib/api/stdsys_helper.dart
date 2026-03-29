@@ -128,16 +128,15 @@ class StdsysHelper {
     final String schoolYearSms = '$year-$semester';
 
     final Response<String> response = await dio.post<String>(
-      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery/Query',
+      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList/Query',
       data: 'schoolYearSms=$schoolYearSms',
       options: Options(
         responseType: ResponseType.plain,
         contentType: 'application/x-www-form-urlencoded',
         headers: <String, dynamic>{
           'Referer':
-              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery',
+              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
           'Cookie': cookieHeader,
-          'X-Requested-With': 'XMLHttpRequest',
         },
       ),
     );
