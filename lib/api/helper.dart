@@ -280,8 +280,10 @@ class Helper {
         case mobile:
           data = await MobileNkustHelper.instance.getUserInfo();
         case webap:
-        default:
           data = await WebApHelper.instance.userInfoCrawler();
+        case stdsys:
+        default:
+          data = await StdsysHelper.instance.getUserInfo();
       }
       reLoginCount = 0;
       if (data.id.isEmpty) {
@@ -302,13 +304,15 @@ class Helper {
     return null;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     switch (selector?.userInfo) {
       case mobile:
         return MobileNkustHelper.instance.getUserPicture();
       case webap:
+        return WebApHelper.instance.getUserPicture(pictureUrl);
+      case stdsys:
       default:
-        return WebApHelper.instance.getUserPicture();
+        return StdsysHelper.instance.getUserPicture(pictureUrl);
     }
   }
 
