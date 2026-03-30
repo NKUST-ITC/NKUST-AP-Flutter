@@ -466,4 +466,33 @@ class StdsysParser {
       pictureUrl: pictureUrl,
     );
   }
+
+  Map<String, dynamic> semesterParser(String? rawJson){
+    final Map<String, dynamic> apiData = json.decode(rawJson!) as Map<String, dynamic>;
+    final List<dynamic> result = (apiData['result'] as List<dynamic>?) ?? [];
+    
+     final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
+      final String text = item['text'].toString();
+      final String value = item['value'].toString();
+      final List<String> parts = value.split('-');
+      final String year = parts[0];
+      final String val = parts[1];
+
+      return {
+        'year': year,
+        'value': val,
+        'text': text,
+      };
+    }).toList();
+
+    final Map<String, dynamic>? defaultSemester = semesters.isNotEmpty ? semesters.first : null;
+
+    final Map<String, dynamic> semesterDataJson = {
+      'data': semesters,
+      'default': defaultSemester,
+      'currentIndex': 0,
+    };
+
+    return semesterDataJson;
+  }
 }
