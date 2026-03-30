@@ -4,6 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/room_data.dart';
+import 'package:nkust_ap/api/helper.dart';
 
 class StdsysHelper {
   static StdsysHelper? _instance;
@@ -181,5 +182,33 @@ class StdsysHelper {
       ),
     );
     return response.data;
+  }
+
+  Future<SemesterData?> getSemesters() async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> response = await dio.post<String>(
+      'https://stdsys.nkust.edu.tw/student/WebCode/GetSchoolYearSmsCodes',
+      queryParameters: {
+        'stdId': Helper.username,
+      },
+      options: Options(
+        responseType: ResponseType.plain,
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+
+    final Map<String, dynamic> json = StdsysParser.instance.semesterParser(response.data);
+    return SemesterData.fromJson(json);
   }
 }
