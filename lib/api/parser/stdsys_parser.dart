@@ -416,4 +416,54 @@ class StdsysParser {
 
     return data;
   }
+
+  static UserInfo userInfoParser(dynamic rawHtml) {
+    final Document document = parse(rawHtml);
+
+    final List<Element> divs = document.querySelectorAll('div.col-6');
+
+    String? name;
+    String? educationSystem;
+    String? department;
+    String? className;
+    String? id;
+
+    for (final Element div in divs) {
+      final String? label = div.querySelector('label')?.text.trim();
+      final String? value = div.querySelector('.fielddata')?.text.trim();
+
+      if (label == null) continue;
+
+      if (label.contains('姓　　名')) {
+        name = value;
+      } else if (label.contains('學　　制')) {
+        educationSystem = value;
+      } else if (label.contains('科　　系')) {
+        department = value;
+      } else if (label.contains('班　　級')) {
+        className = value;
+      } else if (label.contains('學　　號')) {
+        id = value;
+      }
+    }
+
+    final Element? img = document.querySelector('img.photo');
+    String? pictureUrl;
+
+    if (img != null) {
+      final String? src = img.attributes['src'];
+      if (src != null) {
+        pictureUrl = 'https://stdsys.nkust.edu.tw$src';
+      }
+    }
+
+    return UserInfo(
+      name: name ?? '',
+      department: department ?? '',
+      id: id ?? '',
+      educationSystem: educationSystem,
+      className: className,
+      pictureUrl: pictureUrl,
+    );
+  }
 }

@@ -7,7 +7,6 @@ import 'package:nkust_ap/models/room_data.dart';
 
 class StdsysHelper {
   static StdsysHelper? _instance;
-
   // ignore: prefer_constructors_over_static_methods
   static StdsysHelper get instance {
     return _instance ??= StdsysHelper();
@@ -152,5 +151,43 @@ class StdsysHelper {
       }
       rethrow;
     }
+  }
+
+  Future<UserInfo> getUserInfo() async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> response = await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/Student/Register/StudentDataQuery',
+      options: Options(
+        responseType: ResponseType.plain,
+        contentType: 'application/x-www-form-urlencoded',
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+
+    final UserInfo data = StdsysParser.userInfoParser(response.data);
+    return data;
+  }
+
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
+    dio.options.headers['Accept'] =
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      pictureUrl,
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+    return response.data;
   }
 }
