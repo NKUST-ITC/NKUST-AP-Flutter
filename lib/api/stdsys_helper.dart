@@ -126,31 +126,23 @@ class StdsysHelper {
     // schoolYearSms 格式：學年-學期，例如 "114-2"
     final String schoolYearSms = '$year-$semester';
 
-    try {
-      final Response<String> response = await dio.post<String>(
-        'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList/Query',
-        data: 'schoolYearSms=$schoolYearSms',
-        options: Options(
-          responseType: ResponseType.plain,
-          contentType: 'application/x-www-form-urlencoded',
-          headers: <String, dynamic>{
-            'Referer':
-                'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
-            'Cookie': cookieHeader,
-          },
-        ),
-      );
+    final Response<String> response = await dio.post<String>(
+      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList/Query',
+      data: 'schoolYearSms=$schoolYearSms',
+      options: Options(
+        responseType: ResponseType.plain,
+        contentType: 'application/x-www-form-urlencoded',
+        headers: <String, dynamic>{
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
 
-      return CourseData.fromJson(
-        StdsysParser.instance.studentCourseTableParser(response.data),
-      );
-    } on DioException catch (e) {
-      // 當傳入無課程的學期時，會回傳 500
-      if (e.response?.statusCode == 500) {
-        return CourseData.empty();
-      }
-      rethrow;
-    }
+    return CourseData.fromJson(
+      StdsysParser.instance.studentCourseTableParser(response.data),
+    );
   }
 
   Future<UserInfo> getUserInfo() async {
