@@ -84,7 +84,7 @@ jobs:
       - run: flutter pub get
       - name: Disable Crashlytics dSYM upload for CI
         run: |
-          sed -i '' 's/flutterfire upload-crashlytics-symbols/echo "Skipping crashlytics symbols upload in CI"/' ios/Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/flutterfire upload-crashlytics-symbols/echo skip/' ios/Runner.xcodeproj/project.pbxproj
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
