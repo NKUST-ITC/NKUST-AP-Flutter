@@ -51,7 +51,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.rewardAndPenalty),
@@ -217,12 +217,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              sprintf(
-                ap.rewardAndPenaltyContent,
-                <dynamic>[
-                  item.counts,
-                  item.date,
-                ],
+              ap.rewardAndPenaltyContent(
+                arg1: item.counts,
+                arg2: item.date,
               ),
             ),
           ),

@@ -40,7 +40,7 @@ class _RoomListPageState extends State<RoomListPage> {
     app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(ApLocalizations.of(context).roomList),
+        title: Text(context.ap.roomList),
       ),
       body: Flex(
         direction: Axis.vertical,

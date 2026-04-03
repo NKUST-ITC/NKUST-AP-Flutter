@@ -44,7 +44,7 @@ class CoursePageState extends State<CoursePage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return CourseScaffold(
       state: state,
       courseData: courseData,

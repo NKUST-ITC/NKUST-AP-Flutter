@@ -44,7 +44,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,

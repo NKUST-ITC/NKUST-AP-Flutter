@@ -35,7 +35,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
@@ -118,32 +118,31 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     if (_id.text.isEmpty) {
       UiUtil.instance.showToast(context, ap.doNotEmpty);
     } else {
-      NKUSTHelper.instance.getUsername(
-        rocId: _id.text,
-        birthday: birthday,
-        callback: GeneralCallback<UserInfo>(
-          onSuccess: (UserInfo data) {
-            if (isAutoFill) {
-              Navigator.pop(context, data.id);
-            } else {
-              _showResultDialog(
-                sprintf(
-                  AppLocalizations.of(context).searchStudentIdFormat,
-                  <dynamic>[
-                    data.name,
-                    data.id,
-                  ],
-                ),
-              );
-            }
-          },
-          onError: (GeneralResponse response) => _showResultDialog(
-            response.statusCode == 404 ? response.message : ap.unknownError,
-            showFirstHint: false,
-          ),
-          onFailure: (DioException e) {},
-        ),
-      );
+      try {
+        final UserInfo data = await NKUSTHelper.instance.getUsername(
+          rocId: _id.text,
+          birthday: birthday,
+        );
+        if (isAutoFill) {
+          Navigator.pop(context, data.id);
+        } else {
+          _showResultDialog(
+            sprintf(
+              AppLocalizations.of(context).searchStudentIdFormat,
+              <dynamic>[
+                data.name,
+                data.id,
+              ],
+            ),
+          );
+        }
+      } on GeneralResponse catch (response) {
+        _showResultDialog(
+          response.statusCode == 404 ? response.message : ap.unknownError,
+          showFirstHint: false,
+        );
+      } on DioException catch (_) {}
+
     }
   }
 

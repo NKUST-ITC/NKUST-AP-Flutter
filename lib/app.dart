@@ -46,6 +46,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     FirebaseMessagingUtils.instance.init(
       vapidKey: Constants.fcmWebVapidKey,
     );
+    _initLocale();
     themeMode = ThemeMode.values[
         PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
     currentColorIndex =
@@ -63,6 +64,22 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
   }
 
+  Future<void> _initLocale() async {
+    final String languageCode = PreferenceUtil.instance.getString(
+      Constants.prefLanguageCode,
+      ApSupportLanguageConstants.system,
+    );
+    if (languageCode == ApSupportLanguageConstants.system) {
+      await useApDeviceLocale();
+    } else {
+      final Locale locale = Locale(
+        languageCode,
+        languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+      );
+      await setApLocaleFromFlutter(locale);
+    }
+  }
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -78,9 +95,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ShareDataWidget(
-      data: this,
-      child: ApTheme(
+    return TranslationProvider(
+      child: ShareDataWidget(
+        data: this,
+        child: ApTheme(
         themeMode: themeMode,
         currentColorIndex: currentColorIndex,
         customColor: customColor,
@@ -89,25 +107,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           builder: (BuildContext context) {
             final Color seedColor = ApTheme.of(context).seedColor;
             return MaterialApp(
-              localeResolutionCallback:
-                  (Locale? locale, Iterable<Locale> supportedLocales) {
-                final String languageCode = PreferenceUtil.instance.getString(
-                  Constants.prefLanguageCode,
-                  ApSupportLanguageConstants.system,
-                );
-                if (languageCode == ApSupportLanguageConstants.system) {
-                  this.locale = ApLocalizations.delegate.isSupported(locale!)
-                      ? locale
-                      : const Locale('en');
-                } else {
-                  this.locale = Locale(
-                    languageCode,
-                    languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
-                  );
-                }
-                AnnouncementHelper.instance.setLocale(this.locale!);
-                return this.locale;
-              },
               onGenerateTitle: (BuildContext context) =>
                   AppLocalizations.of(context).appName,
               debugShowCheckedModeBanner: false,
@@ -125,9 +124,8 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               theme: ApTheme.light(seedColor),
               darkTheme: ApTheme.dark(seedColor),
               themeMode: themeMode,
-              locale: locale,
+              locale: TranslationProvider.of(context).flutterLocale,
               localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-                apLocalizationsDelegate,
                 appDelegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
@@ -141,6 +139,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
         ),
       ),
+    ),
     );
   }
 
@@ -164,9 +163,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void loadLocale(Locale locale) {
     this.locale = locale;
     AnnouncementHelper.instance.setLocale(this.locale!);
-    setState(() {
-      appDelegate.load(locale);
-      ApLocalizations.load(locale);
-    });
+    appDelegate.load(locale);
+    setApLocaleFromFlutter(locale);
   }
 }

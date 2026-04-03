@@ -64,7 +64,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),

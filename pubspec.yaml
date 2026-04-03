@@ -14,9 +14,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
-  multiple_localization: ^0.6.0
 
-  ap_common: ^1.0.1-dev.0
+  ap_common: ^1.0.1-dev.3
   ap_common_firebase: ^1.0.0-dev.0
   ap_common_plugin: ^1.0.0-dev.0
   #official plugin

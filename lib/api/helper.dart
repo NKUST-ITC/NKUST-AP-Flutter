@@ -558,7 +558,6 @@ extension GeneralResponseExtension on GeneralResponse {
   String getGeneralMessage(
     BuildContext context,
   ) {
-    final ApLocalizations ap = ApLocalizations.current;
     String message = '';
     switch (statusCode) {
       case ApStatusCode.schoolServerError:

@@ -91,7 +91,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return _body()!;
   }
 
@@ -412,9 +412,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       if (!mounted) return;
                       UiUtil.instance.showToast(
                         context,
-                        sprintf(
-                          ap.imageTooBigHint,
-                          <double>[Constants.maxImageSize],
+                        ap.imageTooBigHint(
+                          arg1MB: Constants.maxImageSize,
                         ),
                       );
                     } else {
@@ -806,12 +805,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (!mounted) return;
       UiUtil.instance.showToast(
         context,
-        sprintf(
-          ap.imageCompressHint,
-          <double>[
-            Constants.maxImageSize,
-            result.mb,
-          ],
+        ap.imageCompressHint(
+          arg1MB: Constants.maxImageSize,
+          arg2: result.mb,
         ),
       );
       setState(() {
@@ -819,7 +815,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       });
     } else {
       if (!mounted) return;
-      UiUtil.instance.showToast(context, ap.imageTooBigHint);
+      UiUtil.instance.showToast(
+        context,
+        ap.imageTooBigHint(arg1MB: Constants.maxImageSize),
+      );
       AnalyticsUtil.instance.logEvent('leave_pick_fail');
     }
   }
