@@ -191,12 +191,19 @@ jobs:
       - run: flutter pub get
       - name: Build Windows
         run: flutter build windows --release --build-number=${{ needs.prepare.outputs.version_code }}
-      - name: Zip files
+      - name: Build Inno Setup installer
+        run: iscc /DMyAppVersion="${{ needs.prepare.outputs.version }}" windows\installer.iss
+      - name: Zip portable
         run: powershell Compress-Archive build\windows\x64\runner\Release\ windows.zip
-      - name: Upload artifact
+      - name: Upload installer artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-artifact
+          name: windows-installer-artifact
+          path: build/windows/installer/nkust_ap_installer.exe
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable-artifact
           path: windows.zip
 
   deploy_linux:
@@ -239,17 +246,22 @@ jobs:
         uses: actions/checkout@v4
       - name: Generate release notes
         run: bash ./.github/scripts/generate_changelog.sh ${{ needs.prepare.outputs.version_code }} github
-      - name: Download Windows artifact
+      - name: Download Windows installer
         uses: actions/download-artifact@v4
         with:
-          name: windows-artifact
+          name: windows-installer-artifact
+      - name: Download Windows portable
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-portable-artifact
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
         with:
           name: linux-artifact
       - name: Rename artifacts
         run: |
-          mv windows.zip nkust_ap_windows.zip
+          mv nkust_ap_installer.exe nkust_ap_windows_setup.exe
+          mv windows.zip nkust_ap_windows_portable.zip
           mv linux.tar.gz nkust_ap_linux.tar.gz
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -260,7 +272,8 @@ jobs:
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/master' }}
           files: |
-            nkust_ap_windows.zip
+            nkust_ap_windows_setup.exe
+            nkust_ap_windows_portable.zip
             nkust_ap_linux.tar.gz
 
   finalize:
