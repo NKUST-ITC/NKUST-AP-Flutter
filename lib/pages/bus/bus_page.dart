@@ -175,7 +175,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           AnalyticsConstants.no,
         );
       }
-    } catch (_) {}
+    } catch (e, s) {
+      CrashlyticsUtil.instance.recordError(e, s);
+    }
   }
 
   Future<bool> login() async {

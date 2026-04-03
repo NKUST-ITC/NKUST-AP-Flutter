@@ -513,7 +513,9 @@ class HomePageState extends State<HomePage> {
             message: e.message ?? '',
           );
         }
-      } catch (_) {}
+      } catch (e, s) {
+        CrashlyticsUtil.instance.recordError(e, s);
+      }
     }
   }
 
@@ -545,7 +547,9 @@ class HomePageState extends State<HomePage> {
             message: e.message ?? '',
           );
         }
-      } catch (_) {}
+      } catch (e, s) {
+        CrashlyticsUtil.instance.recordError(e, s);
+      }
     }
   }
 

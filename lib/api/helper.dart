@@ -121,7 +121,9 @@ class Helper {
           );
         }
     }
-    expireTime = loginResponse.expireTime;
+    if (loginResponse != null) {
+      expireTime = loginResponse.expireTime;
+    }
     return loginResponse;
   }
 
@@ -286,7 +288,10 @@ class Helper {
         data = await WebApHelper.instance.semesters();
     }
     reLoginCount = 0;
-    return data!;
+    if (data == null) {
+      throw GeneralResponse.unknownError();
+    }
+    return data;
   }
 
   Future<ScoreData?> getScores({
