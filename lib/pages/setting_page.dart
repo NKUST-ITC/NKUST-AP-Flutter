@@ -190,60 +190,56 @@ class SettingPageState extends State<SettingPage> {
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
     }
-    Helper.instance.getBusReservations(
-      callback: GeneralCallback<BusReservationsData>(
-        onSuccess: (BusReservationsData data) async {
-          Navigator.of(context, rootNavigator: true).pop();
-          if (data.reservations.isEmpty) {
-            await Utils.setBusNotify(context, data.reservations);
-            if (!context.mounted) return;
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busNotifyHint,
-            );
-          } else {
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busReservationEmpty,
+    try {
+      final BusReservationsData data =
+          await Helper.instance.getBusReservations();
+      Navigator.of(context, rootNavigator: true).pop();
+      if (data.reservations.isEmpty) {
+        await Utils.setBusNotify(context, data.reservations);
+        if (!context.mounted) return;
+        UiUtil.instance.showToast(
+          context,
+          AppLocalizations.of(context).busNotifyHint,
+        );
+      } else {
+        UiUtil.instance.showToast(
+          context,
+          AppLocalizations.of(context).busReservationEmpty,
+        );
+      }
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+    } on GeneralResponse catch (response) {
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() => busNotify = false);
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+      UiUtil.instance
+          .showToast(context, response.getGeneralMessage(context));
+    } on DioException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() => busNotify = false);
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+      if (e.hasResponse) {
+        if (e.response!.statusCode == 401) {
+          UiUtil.instance.showToast(context, ap.userNotSupport);
+        } else if (e.response!.statusCode == 403) {
+          UiUtil.instance.showToast(context, ap.campusNotSupport);
+        } else {
+          if (e.message != null) {
+            UiUtil.instance.showToast(context, e.message!);
+            AnalyticsUtil.instance.logApiEvent(
+              'getBusReservations',
+              e.response!.statusCode!,
+              message: e.message ?? '',
             );
           }
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-        },
-        onFailure: (DioException e) {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => busNotify = false);
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          if (e.hasResponse) {
-            if (e.response!.statusCode == 401) {
-              UiUtil.instance.showToast(context, ap.userNotSupport);
-            } else if (e.response!.statusCode == 403) {
-              UiUtil.instance.showToast(context, ap.campusNotSupport);
-            } else {
-              if (e.message != null) {
-                UiUtil.instance.showToast(context, e.message!);
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusReservations',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            }
-          } else if (e.type == DioExceptionType.unknown) {
-            UiUtil.instance.showToast(context, ap.busFailInfinity);
-          } else {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-          }
-        },
-        onError: (GeneralResponse response) {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => busNotify = false);
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          UiUtil.instance
-              .showToast(context, response.getGeneralMessage(context));
-        },
-      ),
-    );
+        }
+      } else if (e.type == DioExceptionType.unknown) {
+        UiUtil.instance.showToast(context, ap.busFailInfinity);
+      } else {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+      }
+    }
   }
 }

@@ -113,48 +113,44 @@ class ScorePageState extends State<ScorePage> {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       _loadOfflineScoreData();
     } else {
-      Helper.instance.getScores(
-        semester: selectSemester!,
-        callback: GeneralCallback<ScoreData?>(
-          onSuccess: (ScoreData? data) {
-            if (mounted) {
-              setState(() {
-                if (data == null) {
-                  state = ScoreState.empty;
-                } else {
-                  scoreData = data;
-                  state = ScoreState.finish;
-                  scoreData!.save(selectSemester!.cacheSaveTag);
-                }
-              });
+      try {
+        final ScoreData? data = await Helper.instance.getScores(
+          semester: selectSemester!,
+        );
+        if (mounted) {
+          setState(() {
+            if (data == null) {
+              state = ScoreState.empty;
+            } else {
+              scoreData = data;
+              state = ScoreState.finish;
+              scoreData!.save(selectSemester!.cacheSaveTag);
             }
-          },
-          onFailure: (DioException e) async {
-            if (await _loadOfflineScoreData() &&
-                e.type != DioExceptionType.cancel) {
-              setState(() {
-                state = ScoreState.custom;
-                customStateHint = e.i18nMessage;
-              });
-            }
-            if (e.hasResponse) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getSemesterScore',
-                e.response!.statusCode!,
-                message: e.message ?? '',
-              );
-            }
-          },
-          onError: (GeneralResponse generalResponse) async {
-            if (await _loadOfflineScoreData()) {
-              setState(() {
-                state = ScoreState.custom;
-                customStateHint = generalResponse.getGeneralMessage(context);
-              });
-            }
-          },
-        ),
-      );
+          });
+        }
+      } on GeneralResponse catch (generalResponse) {
+        if (await _loadOfflineScoreData()) {
+          setState(() {
+            state = ScoreState.custom;
+            customStateHint = generalResponse.getGeneralMessage(context);
+          });
+        }
+      } on DioException catch (e) {
+        if (await _loadOfflineScoreData() &&
+            e.type != DioExceptionType.cancel) {
+          setState(() {
+            state = ScoreState.custom;
+            customStateHint = e.i18nMessage;
+          });
+        }
+        if (e.hasResponse) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getSemesterScore',
+            e.response!.statusCode!,
+            message: e.message ?? '',
+          );
+        }
+      }
     }
   }
 

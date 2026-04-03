@@ -127,51 +127,41 @@ class SemesterPickerState extends State<SemesterPicker> {
       _loadSemesterData();
       return;
     }
-    Helper.instance.getSemester(
-      callback: GeneralCallback<SemesterData>(
-        onSuccess: (SemesterData data) {
-          semesterData = data;
-          semesterData.save();
-          widget.onDataLoaded?.call(semesterData);
-          final String _ = PreferenceUtil.instance.getString(
-            ApConstants.currentSemesterCode,
-            ApConstants.semesterLatest,
-          );
-          final String newSemester =
-              '${Helper.username}_${semesterData.defaultSemester.code}';
-          PreferenceUtil.instance.setString(
-            ApConstants.currentSemesterCode,
-            newSemester,
-          );
-          if (mounted && selectSemester == null) {
-            currentIndex = semesterData.defaultIndex;
-            widget.onSelect?.call(
-              semesterData.defaultSemester,
-              semesterData.defaultIndex,
-            );
-            setState(() {
-              selectSemester = semesterData.defaultSemester;
-            });
-          }
-        },
-        onFailure: (DioException e) {
-          if (e.i18nMessage != null) {
-            UiUtil.instance.showToast(context, e.i18nMessage!);
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getSemester',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse response) {
-          UiUtil.instance
-              .showToast(context, response.getGeneralMessage(context));
-        },
-      ),
-    );
+    try {
+      semesterData = await Helper.instance.getSemester();
+      semesterData.save();
+      widget.onDataLoaded?.call(semesterData);
+      final String newSemester =
+          '${Helper.username}_${semesterData.defaultSemester.code}';
+      PreferenceUtil.instance.setString(
+        ApConstants.currentSemesterCode,
+        newSemester,
+      );
+      if (mounted && selectSemester == null) {
+        currentIndex = semesterData.defaultIndex;
+        widget.onSelect?.call(
+          semesterData.defaultSemester,
+          semesterData.defaultIndex,
+        );
+        setState(() {
+          selectSemester = semesterData.defaultSemester;
+        });
+      }
+    } on GeneralResponse catch (response) {
+      UiUtil.instance
+          .showToast(context, response.getGeneralMessage(context));
+    } on DioException catch (e) {
+      if (e.i18nMessage != null) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 
   void pickSemester() {

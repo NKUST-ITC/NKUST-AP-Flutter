@@ -499,25 +499,21 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void _setupBusNotify(BuildContext context) {
+  Future<void> _setupBusNotify(BuildContext context) async {
     if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
-      Helper.instance.getBusReservations(
-        callback: GeneralCallback<BusReservationsData>(
-          onSuccess: (BusReservationsData response) async {
-            await Utils.setBusNotify(context, response.reservations);
-          },
-          onFailure: (DioException e) {
-            if (e.hasResponse) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getBusReservations',
-                e.response!.statusCode!,
-                message: e.message ?? '',
-              );
-            }
-          },
-          onError: (GeneralResponse e) => null,
-        ),
-      );
+      try {
+        final BusReservationsData response =
+            await Helper.instance.getBusReservations();
+        await Utils.setBusNotify(context, response.reservations);
+      } on DioException catch (e) {
+        if (e.hasResponse) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getBusReservations',
+            e.response!.statusCode!,
+            message: e.message ?? '',
+          );
+        }
+      } catch (_) {}
     }
   }
 
@@ -525,36 +521,31 @@ class HomePageState extends State<HomePage> {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       userInfo = UserInfo.load(Helper.username!);
     } else {
-      Helper.instance.getUsersInfo(
-        callback: GeneralCallback<UserInfo>(
-          onSuccess: (UserInfo data) {
-            if (mounted) {
-              setState(() {
-                userInfo = data;
-              });
-              if (userInfo != null) {
-                AnalyticsUtil.instance.logUserInfo(userInfo!);
-                userInfo!.save(Helper.username!);
-              }
-              _checkData();
-              if (PreferenceUtil.instance
-                  .getBool(Constants.prefDisplayPicture, true)) {
-                _getUserPicture();
-              }
-            }
-          },
-          onFailure: (DioException e) {
-            if (e.hasResponse) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getUserInfo',
-                e.response!.statusCode!,
-                message: e.message ?? '',
-              );
-            }
-          },
-          onError: (GeneralResponse e) => null,
-        ),
-      );
+      try {
+        final UserInfo data = await Helper.instance.getUsersInfo();
+        if (mounted) {
+          setState(() {
+            userInfo = data;
+          });
+          if (userInfo != null) {
+            AnalyticsUtil.instance.logUserInfo(userInfo!);
+            userInfo!.save(Helper.username!);
+          }
+          _checkData();
+          if (PreferenceUtil.instance
+              .getBool(Constants.prefDisplayPicture, true)) {
+            _getUserPicture();
+          }
+        }
+      } on DioException catch (e) {
+        if (e.hasResponse) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getUserInfo',
+            e.response!.statusCode!,
+            message: e.message ?? '',
+          );
+        }
+      } catch (_) {}
     }
   }
 
@@ -600,66 +591,61 @@ class HomePageState extends State<HomePage> {
         PreferenceUtil.instance.getStringSecurity(Constants.prefPassword, '');
 
     if (!mounted) return;
-    Helper.instance.login(
-      context: context,
-      username: username,
-      password: password,
-      callback: GeneralCallback<LoginResponse?>(
-        onSuccess: (LoginResponse? response) {
-          if (isLogin) return;
-          ShareDataWidget.of(context)!.data.loginResponse = response;
-          isLogin = true;
-          PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
-          _getUserInfo();
-          _setupBusNotify(context);
-          if (state != HomeState.finish) {
-            _getAnnouncements();
-          }
-          _homeKey.currentState
-            ?..hideSnackBar()
-            ..showBasicHint(text: ap.loginSuccess);
-        },
-        onFailure: (DioException e) {
-          if (isLogin) return;
-          final String text = e.i18nMessage!;
-          _homeKey.currentState!.showSnackBar(
-            text: text,
-            actionText: ap.retry,
-            onSnackBarTapped: _login,
-          );
-          offLineLogin();
-        },
-        onError: (GeneralResponse response) async {
-          if (isLogin) return;
-          String message = '';
-          if (response.statusCode == ApStatusCode.userDataError ||
-              response.statusCode == ApStatusCode.passwordFiveTimesError) {
-            Toast.show(ap.passwordError, context);
-            await PreferenceUtil.instance
-                .setBool(Constants.prefAutoLogin, false);
-            checkLogin();
-          } else {
-            switch (response.statusCode) {
-              case ApStatusCode.schoolServerError:
-                message = ap.schoolServerError;
-              case ApStatusCode.apiServerError:
-                message = ap.apiServerError;
-              case ApStatusCode.unknownError:
-              case ApStatusCode.cancel:
-                message = ap.loginFail;
-              default:
-                message = ap.somethingError;
-            }
-            _homeKey.currentState!.showSnackBar(
-              text: message,
-              actionText: ap.retry,
-              onSnackBarTapped: _login,
-            );
-            offLineLogin();
-          }
-        },
-      ),
-    );
+    try {
+      final LoginResponse? response = await Helper.instance.login(
+        username: username,
+        password: password,
+      );
+      if (isLogin) return;
+      ShareDataWidget.of(context)!.data.loginResponse = response;
+      isLogin = true;
+      PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
+      _getUserInfo();
+      _setupBusNotify(context);
+      if (state != HomeState.finish) {
+        _getAnnouncements();
+      }
+      _homeKey.currentState
+        ?..hideSnackBar()
+        ..showBasicHint(text: ap.loginSuccess);
+    } on GeneralResponse catch (response) {
+      if (isLogin) return;
+      String message = '';
+      if (response.statusCode == ApStatusCode.userDataError ||
+          response.statusCode == ApStatusCode.passwordFiveTimesError) {
+        Toast.show(ap.passwordError, context);
+        await PreferenceUtil.instance
+            .setBool(Constants.prefAutoLogin, false);
+        checkLogin();
+      } else {
+        switch (response.statusCode) {
+          case ApStatusCode.schoolServerError:
+            message = ap.schoolServerError;
+          case ApStatusCode.apiServerError:
+            message = ap.apiServerError;
+          case ApStatusCode.unknownError:
+          case ApStatusCode.cancel:
+            message = ap.loginFail;
+          default:
+            message = ap.somethingError;
+        }
+        _homeKey.currentState!.showSnackBar(
+          text: message,
+          actionText: ap.retry,
+          onSnackBarTapped: _login,
+        );
+        offLineLogin();
+      }
+    } on DioException catch (e) {
+      if (isLogin) return;
+      final String text = e.i18nMessage!;
+      _homeKey.currentState!.showSnackBar(
+        text: text,
+        actionText: ap.retry,
+        onSnackBarTapped: _login,
+      );
+      offLineLogin();
+    }
   }
 
   void offLineLogin() {

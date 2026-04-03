@@ -146,40 +146,36 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  void getBusViolationRecords() {
-    Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (BusViolationRecordsData data) {
-          if (mounted) {
-            setState(() {
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  data.hasBusViolationRecords;
-            });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.hasBusViolation,
-            (data.hasBusViolationRecords)
-                ? AnalyticsConstants.yes
-                : AnalyticsConstants.no,
-          );
-        },
-        onError: (GeneralResponse response) {},
-        onFailure: (DioException e) {
-          if (e.hasResponse &&
-              (e.response!.statusCode == 401 ||
-                  e.response!.statusCode == 403)) {
-            AnalyticsUtil.instance.setUserProperty(
-              Constants.canUseBus,
-              AnalyticsConstants.no,
-            );
-          }
-        },
-      ),
-    );
+  Future<void> getBusViolationRecords() async {
+    try {
+      final BusViolationRecordsData data =
+          await Helper.instance.getBusViolationRecords();
+      if (mounted) {
+        setState(() {
+          ShareDataWidget.of(context)!.data.hasBusViolationRecords =
+              data.hasBusViolationRecords;
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.hasBusViolation,
+        (data.hasBusViolationRecords)
+            ? AnalyticsConstants.yes
+            : AnalyticsConstants.no,
+      );
+    } on DioException catch (e) {
+      if (e.hasResponse &&
+          (e.response!.statusCode == 401 ||
+              e.response!.statusCode == 403)) {
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      }
+    } catch (_) {}
   }
 
   Future<bool> login() async {

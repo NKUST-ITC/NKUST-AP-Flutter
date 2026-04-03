@@ -240,41 +240,38 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getRewardAndPenalty(
-      semester: selectSemester,
-      callback: GeneralCallback<RewardAndPenaltyData>(
-        onSuccess: (RewardAndPenaltyData data) {
-          if (mounted) {
-            setState(() {
-              rewardAndPenaltyData = data;
-              if (data.data.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
-            });
+    try {
+      final RewardAndPenaltyData data =
+          await Helper.instance.getRewardAndPenalty(
+        semester: selectSemester,
+      );
+      if (mounted) {
+        setState(() {
+          rewardAndPenaltyData = data;
+          if (data.data.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
           }
-        },
-        onFailure: (DioException e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRewardAndPenalty',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRewardAndPenalty',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }
