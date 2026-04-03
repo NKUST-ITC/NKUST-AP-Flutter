@@ -141,50 +141,46 @@ class CoursePageState extends State<CoursePage> {
   Future<void> _getCourseTables() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getCourseTables(
-      semester: selectSemester!,
-      semesterDefault: semesterData!.defaultSemester,
-      callback: GeneralCallback<CourseData>(
-        onSuccess: (CourseData? data) {
-          if (mounted) {
-            setState(() {
-              if (data == null || data.courses.isEmpty) {
-                state = CourseState.empty;
-              } else {
-                courseData = data;
-                isOffline = false;
-                courseData.save(selectSemester!.cacheSaveTag);
-                state = CourseState.finish;
-                notifyData = CourseNotifyData.load(courseNotifyCacheKey);
-              }
-            });
+    try {
+      final CourseData data = await Helper.instance.getCourseTables(
+        semester: selectSemester!,
+        semesterDefault: semesterData!.defaultSemester,
+      );
+      if (mounted) {
+        setState(() {
+          if (data.courses.isEmpty) {
+            state = CourseState.empty;
+          } else {
+            courseData = data;
+            isOffline = false;
+            courseData.save(selectSemester!.cacheSaveTag);
+            state = CourseState.finish;
+            notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           }
-        },
-        onFailure: (DioException e) async {
-          if (await _loadCacheData(selectSemester!.code) &&
-              e.type != DioExceptionType.cancel) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = e.i18nMessage;
-            });
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getCourseTables',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse generalResponse) async {
-          if (await _loadCacheData(selectSemester!.code)) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
-            });
-          }
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (generalResponse) {
+      if (await _loadCacheData(selectSemester!.code)) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = generalResponse.getGeneralMessage(context);
+        });
+      }
+    } on DioException catch (e) {
+      if (await _loadCacheData(selectSemester!.code) &&
+          e.type != DioExceptionType.cancel) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = e.i18nMessage;
+        });
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getCourseTables',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

@@ -233,41 +233,37 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getMidtermAlerts(
-      semester: selectSemester!,
-      callback: GeneralCallback<MidtermAlertsData>(
-        onSuccess: (MidtermAlertsData data) {
-          if (mounted) {
-            setState(() {
-              midtermAlertData = data;
-              if (data.courses.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
-            });
+    try {
+      final MidtermAlertsData data = await Helper.instance.getMidtermAlerts(
+        semester: selectSemester!,
+      );
+      if (mounted) {
+        setState(() {
+          midtermAlertData = data;
+          if (data.courses.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
           }
-        },
-        onFailure: (DioException e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getMidtermAlert',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getMidtermAlert',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

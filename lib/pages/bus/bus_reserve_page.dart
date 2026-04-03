@@ -1,8 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -325,82 +323,78 @@ class BusReservePageState extends State<BusReservePage>
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     if (mounted) setState(() => state = _State.loading);
-    Helper.instance.getBusTimeTables(
-      dateTime: dateTime,
-      callback: GeneralCallback<BusData>(
-        onSuccess: (BusData data) {
-          busData = data;
-          if (mounted) {
+    try {
+      final BusData data = await Helper.instance.getBusTimeTables(
+        dateTime: dateTime,
+      );
+      busData = data;
+      if (mounted) {
+        setState(() {
+          if (busData == null || busData!.timetable.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
+          }
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        if (response.statusCode == 403) {
+          customStateHint = response.message;
+        } else {
+          customStateHint = response.getGeneralMessage(context);
+        }
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
             setState(() {
-              if (busData == null || busData!.timetable.isEmpty) {
-                state = _State.empty;
+              if (e.response!.statusCode == 401) {
+                state = _State.userNotSupport;
+              } else if (e.response!.statusCode == 403) {
+                state = _State.campusNotSupport;
               } else {
-                state = _State.finish;
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusTimeTables',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
               }
             });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-        },
-        onFailure: (DioException e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 401) {
-                    state = _State.userNotSupport;
-                  } else if (e.response!.statusCode == 403) {
-                    state = _State.campusNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getBusTimeTables',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-                if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403) {
-                  AnalyticsUtil.instance.setUserProperty(
-                    Constants.canUseBus,
-                    AnalyticsConstants.no,
-                  );
-                }
-              case DioExceptionType.unknown:
-                setState(() {
-                  if (e.message?.contains('HttpException') ?? false) {
-                    state = _State.custom;
-                    customStateHint = app!.busFailInfinity;
-                  } else {
-                    state = _State.error;
-                  }
-                });
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
+            if (e.response!.statusCode == 401 ||
+                e.response!.statusCode == 403) {
+              AnalyticsUtil.instance.setUserProperty(
+                Constants.canUseBus,
+                AnalyticsConstants.no,
+              );
             }
-          }
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            if (response.statusCode == 403) {
-              customStateHint = response.message;
-            } else {
-              customStateHint = response.getGeneralMessage(context);
-            }
-          });
-        },
-      ),
-    );
+          case DioExceptionType.unknown:
+            setState(() {
+              if (e.message?.contains('HttpException') ?? false) {
+                state = _State.custom;
+                customStateHint = app!.busFailInfinity;
+              } else {
+                state = _State.error;
+              }
+            });
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+    }
   }
 
   void _showBookingDialog(BusTime busTime) {
@@ -489,7 +483,7 @@ class BusReservePageState extends State<BusReservePage>
     AnalyticsUtil.instance.logEvent('cancel_bus_create');
   }
 
-  void _bookingBus(BusTime busTime) {
+  Future<void> _bookingBus(BusTime busTime) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => PopScope(
@@ -498,66 +492,64 @@ class BusReservePageState extends State<BusReservePage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.bookingBusReservation(
-      busId: busTime.busId,
-      callback: GeneralCallback<BookingBusData>(
-        onSuccess: (BookingBusData data) {
-          _getBusTimeTables();
-          AnalyticsUtil.instance.logEvent('book_bus_success');
-          Navigator.of(context, rootNavigator: true).pop();
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => DefaultDialog(
-              title: app!.busReserveSuccess,
-              contentWidget: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '${app!.busReserveDate}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: '${busTime.getDate()}\n',
-                    ),
-                    TextSpan(
-                      text: '${app!.busReserveLocation}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: '${busTime.getStart(app)}${app!.campus}\n',
-                    ),
-                    TextSpan(
-                      text: '${app!.busReserveTime}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: busTime.getTime(),
-                    ),
-                  ],
-                ),
+    try {
+      await Helper.instance.bookingBusReservation(
+        busId: busTime.busId,
+      );
+      _getBusTimeTables();
+      AnalyticsUtil.instance.logEvent('book_bus_success');
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app!.busReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                color: ApTheme.of(context).grey,
+                height: 1.3,
+                fontSize: 16.0,
               ),
-              actionText: ap.iKnow,
-              actionFunction: () {
-                Navigator.of(context, rootNavigator: true).pop();
-              },
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${app!.busReserveDate}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveLocation}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveTime}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: busTime.getTime(),
+                ),
+              ],
             ),
-          );
-        },
-        onFailure: (DioException e) =>
-            handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
-        onError: (GeneralResponse response) =>
-            handleGeneralError(context, response, app!.busReserveFailTitle),
-      ),
-    );
+          ),
+          actionText: ap.iKnow,
+          actionFunction: () {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        ),
+      );
+    } on GeneralResponse catch (response) {
+      handleGeneralError(context, response, app!.busReserveFailTitle);
+    } on DioException catch (e) {
+      handleDioError(context, e, app!.busReserveFailTitle, 'book_bus');
+    }
   }
 
-  void cancelBusReservation(BusTime busTime) {
+  Future<void> cancelBusReservation(BusTime busTime) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => PopScope(
@@ -566,62 +558,60 @@ class BusReservePageState extends State<BusReservePage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(
-      cancelKey: busTime.cancelKey!,
-      callback: GeneralCallback<CancelBusData>(
-        onSuccess: (CancelBusData data) {
-          _getBusTimeTables();
-          AnalyticsUtil.instance.logEvent('cancel_bus_success');
-          Navigator.of(context, rootNavigator: true).pop();
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => DefaultDialog(
-              title: app!.busCancelReserveSuccess,
-              contentWidget: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: ApTheme.of(context).grey,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: '${app!.busReserveCancelDate}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: '${busTime.getDate()}\n',
-                    ),
-                    TextSpan(
-                      text: '${app!.busReserveCancelLocation}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: '${busTime.getStart(app)}${app!.campus}\n',
-                    ),
-                    TextSpan(
-                      text: '${app!.busReserveCancelTime}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(
-                      text: busTime.getTime(),
-                    ),
-                  ],
-                ),
+    try {
+      await Helper.instance.cancelBusReservation(
+        cancelKey: busTime.cancelKey!,
+      );
+      _getBusTimeTables();
+      AnalyticsUtil.instance.logEvent('cancel_bus_success');
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app!.busCancelReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                color: ApTheme.of(context).grey,
+                height: 1.3,
+                fontSize: 16.0,
               ),
-              actionText: ap.iKnow,
-              actionFunction: () =>
-                  Navigator.of(context, rootNavigator: true).pop(),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${app!.busReserveCancelDate}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelLocation}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelTime}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: busTime.getTime(),
+                ),
+              ],
             ),
-          );
-        },
-        onFailure: (DioException e) =>
-            handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
-        onError: (GeneralResponse response) =>
-            handleGeneralError(context, response, app!.busCancelReserveFail),
-      ),
-    );
+          ),
+          actionText: ap.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop(),
+        ),
+      );
+    } on GeneralResponse catch (response) {
+      handleGeneralError(context, response, app!.busCancelReserveFail);
+    } on DioException catch (e) {
+      handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus');
+    }
   }
 
   static void handleGeneralError(

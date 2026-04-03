@@ -365,46 +365,42 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   Future<void> _getSemesterLeaveRecord() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getLeaves(
-      semester: selectSemester,
-      callback: GeneralCallback<LeaveData>(
-        onSuccess: (LeaveData data) {
-          if (mounted) {
-            setState(() {
-              leaveData = data;
-              if (leaveData == null || leaveData!.leaves.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
-            });
+    try {
+      final LeaveData data = await Helper.instance.getLeaves(
+        semester: selectSemester,
+      );
+      if (mounted) {
+        setState(() {
+          leaveData = data;
+          if (leaveData == null || leaveData!.leaves.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
           }
-          log(state.toString());
-          leaveData!.save(selectSemester.cacheSaveTag);
-        },
-        onFailure: (DioException e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getSemesterLeaveRecord',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-          _loadOfflineLeaveData();
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-          _loadOfflineLeaveData();
-        },
-      ),
-    );
+        });
+      }
+      log(state.toString());
+      leaveData!.save(selectSemester.cacheSaveTag);
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+      _loadOfflineLeaveData();
+    } on DioException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemesterLeaveRecord',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+      _loadOfflineLeaveData();
+    }
   }
 
   Future<void> _loadOfflineLeaveData() async {

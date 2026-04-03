@@ -94,46 +94,42 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   }
 
   Future<void> _getRoomCourseTable() async {
-    Helper.instance.getRoomCourseTables(
-      roomId: widget.room.id,
-      semester: selectSemester!,
-      callback: GeneralCallback<CourseData>(
-        onSuccess: (CourseData data) {
-          courseData = data;
-          if (mounted) {
-            setState(() {
-              if (courseData.courses.isNotEmpty) {
-                state = CourseState.finish;
-              } else {
-                state = CourseState.empty;
-              }
-            });
+    try {
+      final CourseData data = await Helper.instance.getRoomCourseTables(
+        roomId: widget.room.id,
+        semester: selectSemester!,
+      );
+      courseData = data;
+      if (mounted) {
+        setState(() {
+          if (courseData.courses.isNotEmpty) {
+            state = CourseState.finish;
+          } else {
+            state = CourseState.empty;
           }
-        },
-        onFailure: (DioException e) async {
-          if (e.type != DioExceptionType.cancel && mounted) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = e.i18nMessage;
-            });
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRoomCourseTables',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse generalResponse) async {
-          if (mounted) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
-            });
-          }
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (generalResponse) {
+      if (mounted) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = generalResponse.getGeneralMessage(context);
+        });
+      }
+    } on DioException catch (e) {
+      if (e.type != DioExceptionType.cancel && mounted) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = e.i18nMessage;
+        });
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRoomCourseTables',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

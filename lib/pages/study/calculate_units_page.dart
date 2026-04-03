@@ -307,18 +307,16 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       });
       return;
     }
-    Helper.instance.getSemester(
-      callback: GeneralCallback<SemesterData>(
-        onSuccess: (SemesterData? data) {
-          semesterData = data;
-        },
-        onFailure: _onFailure,
-        onError: _onError,
-      ),
-    );
+    try {
+      semesterData = await Helper.instance.getSemester();
+    } on GeneralResponse catch (response) {
+      _onError(response);
+    } on DioException catch (e) {
+      _onFailure(e);
+    }
   }
 
-  void _getSemesterScore() {
+  Future<void> _getSemesterScore() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     setState(() {
@@ -328,67 +326,67 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       _getSemester();
       return;
     }
-    Helper.instance.getScores(
-      semester: semesterData!.data[currentSemesterIndex],
-      callback: GeneralCallback<ScoreData?>(
-        onSuccess: (ScoreData? data) {
-          if (startYear == -1) {
-            startYear =
-                int.parse(semesterData!.data[currentSemesterIndex].year);
+    try {
+      final ScoreData? data = await Helper.instance.getScores(
+        semester: semesterData!.data[currentSemesterIndex],
+      );
+      if (startYear == -1) {
+        startYear =
+            int.parse(semesterData!.data[currentSemesterIndex].year);
+      }
+      semesterList.add(semesterData!.data[currentSemesterIndex]);
+      if (data?.scores != null) {
+        for (final Score score in data!.scores) {
+          if (score.semesterScore == null || score.semesterScore!.isEmpty) {
+            continue;
           }
-          semesterList.add(semesterData!.data[currentSemesterIndex]);
-          if (data?.scores != null) {
-            for (final Score score in data!.scores) {
-              if (score.semesterScore == null || score.semesterScore!.isEmpty) {
-                continue;
-              }
-              final double? semesterScore =
-                  double.tryParse(score.semesterScore!);
-              if ((semesterScore != null && semesterScore >= 60.0) ||
-                  score.semesterScore == '合格' ||
-                  score.semesterScore == '通過') {
-                if (score.required == '【必修】') {
-                  requiredUnitsTotal += double.parse(score.units);
-                } else if (score.required == '【選修】') {
-                  electiveUnitsTotal += double.parse(score.units);
-                } else {
-                  otherUnitsTotal += double.parse(score.units);
-                }
-                if (score.title.contains('延伸通識') ||
-                    score.title.contains('博雅')) {
-                  extendGeneralEducations.add(score);
-                } else if (score.title.contains('核心通識') ||
-                    score.title.contains('核心')) {
-                  coreGeneralEducations.add(score);
-                }
-              }
+          final double? semesterScore =
+              double.tryParse(score.semesterScore!);
+          if ((semesterScore != null && semesterScore >= 60.0) ||
+              score.semesterScore == '合格' ||
+              score.semesterScore == '通過') {
+            if (score.required == '【必修】') {
+              requiredUnitsTotal += double.parse(score.units);
+            } else if (score.required == '【選修】') {
+              electiveUnitsTotal += double.parse(score.units);
+            } else {
+              otherUnitsTotal += double.parse(score.units);
+            }
+            if (score.title.contains('延伸通識') ||
+                score.title.contains('博雅')) {
+              extendGeneralEducations.add(score);
+            } else if (score.title.contains('核心通識') ||
+                score.title.contains('核心')) {
+              coreGeneralEducations.add(score);
             }
           }
-          final int currentYear =
-              int.parse(semesterData!.data[currentSemesterIndex].year);
-          if (currentSemesterIndex < semesterData!.data.length - 1 &&
-              ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
-            currentSemesterIndex++;
-            if (mounted) _getSemesterScore();
-          } else {
-            final DateTime end = DateTime.now();
-            final double second =
-                (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
-                    1000;
-            (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
-                .logCalculateUnits(second);
-            unitsTotal =
-                requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
-            if (mounted) {
-              setState(() {
-                state = _State.finish;
-              });
-            }
-          }
-        },
-        onFailure: _onFailure,
-        onError: _onError,
-      ),
-    );
+        }
+      }
+      final int currentYear =
+          int.parse(semesterData!.data[currentSemesterIndex].year);
+      if (currentSemesterIndex < semesterData!.data.length - 1 &&
+          ((startYear - currentYear).abs() <= 6 || startYear == -1)) {
+        currentSemesterIndex++;
+        if (mounted) _getSemesterScore();
+      } else {
+        final DateTime end = DateTime.now();
+        final double second =
+            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
+                1000;
+        (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
+            .logCalculateUnits(second);
+        unitsTotal =
+            requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+        if (mounted) {
+          setState(() {
+            state = _State.finish;
+          });
+        }
+      }
+    } on GeneralResponse catch (response) {
+      _onError(response);
+    } on DioException catch (e) {
+      _onFailure(e);
+    }
   }
 }
