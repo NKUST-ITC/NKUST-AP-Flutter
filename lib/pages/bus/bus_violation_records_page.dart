@@ -58,7 +58,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     switch (state) {
       case _State.loading:
         return const Center(
@@ -303,7 +303,7 @@ class ReservationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateFormat dateFormat =
-        DateFormat('E h:mm a', ApLocalizations.of(context).dateTimeLocale);
+        DateFormat('E h:mm a', context.ap.dateTimeLocale);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,

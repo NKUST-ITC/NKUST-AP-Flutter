@@ -50,7 +50,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.midtermAlerts),
@@ -210,12 +210,9 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              sprintf(
-                ap.midtermAlertsContent,
-                <dynamic>[
-                  item.reason ?? '',
-                  item.remark ?? '',
-                ],
+              ap.midtermAlertsContent(
+                arg1: item.reason ?? '',
+                arg2: item.remark ?? '',
               ),
             ),
           ),

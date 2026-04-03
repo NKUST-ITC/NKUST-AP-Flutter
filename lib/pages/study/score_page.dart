@@ -37,7 +37,7 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return ScoreScaffold(
       state: state,
       scoreData: scoreData,

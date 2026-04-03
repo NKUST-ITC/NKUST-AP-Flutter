@@ -92,7 +92,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 _login = Future<bool>.microtask(() => login());
               },
               child: HintContent(
-                content: ApLocalizations.of(context).clickToRetry,
+                content: context.ap.clickToRetry,
                 icon: ApIcon.error,
               ),
             );

@@ -40,7 +40,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return CourseScaffold(
       title: '${ap.classroomCourseTableSearch} - ${widget.room.name}',
       state: state,

@@ -158,7 +158,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return HomePageScaffold(
       title: app.appName,
       key: _homeKey,
@@ -477,26 +477,26 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  void _getAnnouncements() {
-    AnnouncementHelper.instance.getAnnouncements(
+  Future<void> _getAnnouncements() async {
+    final result = await AnnouncementHelper.instance.getAnnouncements(
       tags: <String>['nkust'],
-      callback: GeneralCallback<List<Announcement>>(
-        onFailure: (_) => setState(() => state = HomeState.error),
-        onError: (_) => setState(() => state = HomeState.error),
-        onSuccess: (List<Announcement> data) {
-          announcements = data;
-          if (mounted) {
-            setState(() {
-              if (data.isEmpty) {
-                state = HomeState.empty;
-              } else {
-                state = HomeState.finish;
-              }
-            });
-          }
-        },
-      ),
     );
+    switch (result) {
+      case ApiSuccess<List<Announcement>>(:final data):
+        announcements = data;
+        if (mounted) {
+          setState(() {
+            if (data.isEmpty) {
+              state = HomeState.empty;
+            } else {
+              state = HomeState.finish;
+            }
+          });
+        }
+      case ApiFailure<List<Announcement>>():
+      case ApiError<List<Announcement>>():
+        setState(() => state = HomeState.error);
+    }
   }
 
   Future<void> _setupBusNotify(BuildContext context) async {
@@ -573,8 +573,8 @@ class HomePageState extends State<HomePage> {
     if (isLogin) return;
     _homeKey.currentState
         ?.showSnackBar(
-          text: ApLocalizations.of(context).logining,
-          actionText: ApLocalizations.of(context).offlineLogin,
+          text: context.ap.logining,
+          actionText: context.ap.offlineLogin,
           onSnackBarTapped: offLineLogin,
         )
         ?.closed
@@ -692,8 +692,8 @@ class HomePageState extends State<HomePage> {
       if (!mounted) return;
       _homeKey.currentState!
           .showSnackBar(
-            text: ApLocalizations.of(context).notLogin,
-            actionText: ApLocalizations.of(context).login,
+            text: context.ap.notLogin,
+            actionText: context.ap.login,
             onSnackBarTapped: openLoginPage,
           )!
           .closed
@@ -714,7 +714,7 @@ class HomePageState extends State<HomePage> {
     if (needLogin && !isLogin) {
       UiUtil.instance.showToast(
         context,
-        ApLocalizations.of(context).notLoginHint,
+        context.ap.notLoginHint,
       );
     } else {
       if (isMobile) {
@@ -747,7 +747,7 @@ class HomePageState extends State<HomePage> {
     if (currentVersion != packageInfo.buildNumber && first) {
       final Map<String, dynamic>? rawData = await FileAssets.changelogData;
       final String updateNoteContent = (rawData![packageInfo.buildNumber]
-          as Map<String, dynamic>)[ApLocalizations.current.locale] as String;
+          as Map<String, dynamic>)[ap.locale] as String;
       if (!mounted) return;
       DialogUtils.showUpdateContent(
         context,

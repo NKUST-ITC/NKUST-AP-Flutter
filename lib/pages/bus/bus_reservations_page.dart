@@ -54,7 +54,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Column(
       children: <Widget>[
         Container(

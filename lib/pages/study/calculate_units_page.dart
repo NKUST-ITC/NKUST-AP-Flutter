@@ -113,7 +113,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       // Appbar
       appBar: AppBar(
@@ -286,19 +286,19 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  DioExceptionCallback get _onFailure => (DioException e) {
-        setState(() {
-          state = _State.custom;
-          customStateHint = e.i18nMessage;
-        });
-      };
+  void _onFailure(DioException e) {
+    setState(() {
+      state = _State.custom;
+      customStateHint = e.i18nMessage;
+    });
+  }
 
-  GeneralResponseCallback get _onError => (GeneralResponse response) {
-        setState(() {
-          state = _State.custom;
-          customStateHint = response.getGeneralMessage(context);
-        });
-      };
+  void _onError(GeneralResponse response) {
+    setState(() {
+      state = _State.custom;
+      customStateHint = response.getGeneralMessage(context);
+    });
+  }
 
   Future<void> _getSemester() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {

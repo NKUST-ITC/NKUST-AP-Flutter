@@ -86,10 +86,9 @@ class NKUSTHelper {
     return response.data;
   }
 
-  Future<void> getUsername({
+  Future<UserInfo> getUsername({
     required String rocId,
     required DateTime birthday,
-    required GeneralCallback<UserInfo> callback,
   }) async {
     final String birthdayText = sprintf('%03i%02i%02i', <int>[
       birthday.year - 1911,
@@ -139,21 +138,15 @@ class NKUSTHelper {
             className: '',
             department: '',
           );
-          callback.onSuccess(userInfo);
+          return userInfo;
         } else if (elements.length == 1) {
-          callback.onError(
-            GeneralResponse(
-              statusCode: 404,
-              message: elements[0].text,
-            ),
+          throw GeneralResponse(
+            statusCode: 404,
+            message: elements[0].text,
           );
         } else {
-          callback.onError(
-            GeneralResponse.unknownError(),
-          );
+          throw GeneralResponse.unknownError();
         }
-
-        return;
       }
     }
 

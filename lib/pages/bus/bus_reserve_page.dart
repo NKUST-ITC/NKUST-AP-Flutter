@@ -62,7 +62,7 @@ class BusReservePageState extends State<BusReservePage>
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       body: OrientationBuilder(
         builder: (_, Orientation orientation) {
@@ -650,7 +650,7 @@ class BusReservePageState extends State<BusReservePage>
         if (e.message?.contains('HttpException') ?? false) {
           message = AppLocalizations.of(context).busFailInfinity;
         } else {
-          message = ApLocalizations.of(context).somethingError;
+          message = context.ap.somethingError;
         }
       case DioExceptionType.cancel:
         break;

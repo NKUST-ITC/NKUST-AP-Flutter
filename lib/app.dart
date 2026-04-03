@@ -78,9 +78,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ShareDataWidget(
-      data: this,
-      child: ApTheme(
+    return TranslationProvider(
+      child: ShareDataWidget(
+        data: this,
+        child: ApTheme(
         themeMode: themeMode,
         currentColorIndex: currentColorIndex,
         customColor: customColor,
@@ -96,9 +97,10 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   ApSupportLanguageConstants.system,
                 );
                 if (languageCode == ApSupportLanguageConstants.system) {
-                  this.locale = ApLocalizations.delegate.isSupported(locale!)
-                      ? locale
-                      : const Locale('en');
+                  this.locale =
+                      AppLocaleUtils.supportedLocales.contains(locale)
+                          ? locale
+                          : const Locale('en');
                 } else {
                   this.locale = Locale(
                     languageCode,
@@ -127,7 +129,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
               themeMode: themeMode,
               locale: locale,
               localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-                apLocalizationsDelegate,
                 appDelegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
@@ -141,6 +142,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
         ),
       ),
+    ),
     );
   }
 
@@ -166,7 +168,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     AnnouncementHelper.instance.setLocale(this.locale!);
     setState(() {
       appDelegate.load(locale);
-      ApLocalizations.load(locale);
+      setApLocaleFromFlutter(locale);
     });
   }
 }
