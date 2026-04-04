@@ -219,11 +219,29 @@ jobs:
         run: flutter build linux --release --build-number=${{ needs.prepare.outputs.version_code }}
       - name: Zip files
         run: tar -czf linux.tar.gz -C build/linux/x64/release/bundle .
-      - name: Upload artifact
+      - name: Install Snapcraft
+        uses: samber/setup-snapcraft@v2
+      - name: Build Snap
+        run: snapcraft --destructive-mode
+      - name: Upload to Snap Store
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: |
+          if [ -n "$SNAPCRAFT_STORE_CREDENTIALS" ]; then
+            snapcraft upload --release=edge *.snap
+          else
+            echo "SNAPCRAFT_STORE_CREDENTIALS not set, skipping Snap Store upload"
+          fi
+      - name: Upload portable artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-artifact
           path: linux.tar.gz
+      - name: Upload snap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-snap-artifact
+          path: "*.snap"
 
   github_release:
     name: Create GitHub Release
@@ -247,11 +265,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-artifact
+      - name: Download Linux snap artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-snap-artifact
       - name: Rename artifacts
         run: |
           mv nkust_ap_installer.exe nkust_ap_windows_setup.exe
           mv windows.zip nkust_ap_windows_portable.zip
           mv linux.tar.gz nkust_ap_linux.tar.gz
+          mv *.snap nkust_ap_linux.snap || true
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -264,6 +287,7 @@ jobs:
             nkust_ap_windows_setup.exe
             nkust_ap_windows_portable.zip
             nkust_ap_linux.tar.gz
+            nkust_ap_linux.snap
 
   finalize:
     name: Increment Version Code
