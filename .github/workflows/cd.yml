@@ -10,6 +10,7 @@ on:
 env:
   flutter_version: '3.35.x'
   java_version: '21'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: write
@@ -177,10 +178,6 @@ jobs:
           channel: 'stable'
           cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-      - name: Decrypt dev configs
-        run: sh ./scripts/decrypt_dev_configs.sh
-        env:
-          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - run: flutter doctor -v
       - run: flutter pub get
       - name: Build Windows
