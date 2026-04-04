@@ -220,7 +220,9 @@ jobs:
       - name: Zip files
         run: tar -czf linux.tar.gz -C build/linux/x64/release/bundle .
       - name: Install Snapcraft
-        run: sudo snap install snapcraft --classic
+        run: |
+          sudo snap refresh snapd
+          sudo snap install snapcraft --classic
       - name: Build Snap
         run: snapcraft --destructive-mode
       - name: Upload to Snap Store
@@ -263,10 +265,12 @@ jobs:
           name: windows-portable-artifact
       - name: Download Linux artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: linux-artifact
       - name: Download Linux snap artifact
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: linux-snap-artifact
       - name: Rename artifacts
