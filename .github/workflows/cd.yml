@@ -10,6 +10,7 @@ on:
 env:
   flutter_version: '3.35.x'
   java_version: '21'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: write
@@ -69,13 +70,14 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
-          bundler-cache: true
-          working-directory: ./android
+      - name: Install Fastlane
+        run: |
+          gem install bundler
+          bundle install
+        working-directory: ./android
       - name: Run Fastlane
-        uses: maierj/fastlane-action@v3.1.0
-        with:
-          lane: ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
-          subdirectory: 'android'
+        run: bundle exec fastlane ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
+        working-directory: ./android
 
   deploy_ios:
     name: iOS Deploy TestFlight
@@ -176,10 +178,6 @@ jobs:
           channel: 'stable'
           cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
-      - name: Decrypt dev configs
-        run: sh ./scripts/decrypt_dev_configs.sh
-        env:
-          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
       - run: flutter doctor -v
       - run: flutter pub get
       - name: Build Windows
@@ -233,6 +231,7 @@ jobs:
   github_release:
     name: Create GitHub Release
     needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux]
+    if: always() && needs.prepare.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -272,6 +271,7 @@ jobs:
   finalize:
     name: Increment Version Code
     needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux, github_release]
+    if: always() && needs.github_release.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Increment VERSION_CODE
