@@ -66,6 +66,10 @@ jobs:
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
       - name: Install Fastlane
         run: gem install fastlane fastlane-plugin-flutter_version
       - name: Run Fastlane
