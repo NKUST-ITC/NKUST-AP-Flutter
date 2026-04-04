@@ -73,6 +73,7 @@ jobs:
       - name: Install Fastlane
         run: |
           gem install bundler
+          bundle update --bundler
           bundle install
         working-directory: ./android
       - name: Run Fastlane
@@ -280,7 +281,5 @@ jobs:
         run: |
           CURRENT=${{ needs.prepare.outputs.version_code }}
           NEXT=$((CURRENT + 1))
-          gh api --method PATCH "repos/${{ github.repository }}/actions/variables/VERSION_CODE" \
-            -f name="VERSION_CODE" \
-            -f value="$NEXT"
+          gh variable set VERSION_CODE --body "$NEXT" --repo "${{ github.repository }}"
           echo "Version code incremented: $CURRENT -> $NEXT"
