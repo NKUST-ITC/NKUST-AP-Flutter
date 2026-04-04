@@ -10,6 +10,10 @@ env:
   flutter_version: '3.35.x'
   java_version: '21'
 
+permissions:
+  contents: write
+  actions: write
+
 jobs:
   prepare:
     name: Prepare
@@ -27,12 +31,9 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Get version code from variable
         id: get_version_code
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VERSION_CODE=$(gh api "repos/${{ github.repository }}/actions/variables/VERSION_CODE" --jq '.value')
-          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
-          echo "Using version code: $VERSION_CODE"
+          echo "version_code=${{ vars.VERSION_CODE }}" >> $GITHUB_OUTPUT
+          echo "Using version code: ${{ vars.VERSION_CODE }}"
 
   deploy_android:
     name: Android Play Store
