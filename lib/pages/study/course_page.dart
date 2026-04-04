@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart' hide SemesterPicker;
 import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -154,6 +155,7 @@ class CoursePageState extends State<CoursePage> {
             courseData = data;
             isOffline = false;
             courseData.save(selectSemester!.cacheSaveTag);
+            ApCommonPlugin.updateCourseWidget(courseData);
             state = CourseState.finish;
             notifyData = CourseNotifyData.load(courseNotifyCacheKey);
           }

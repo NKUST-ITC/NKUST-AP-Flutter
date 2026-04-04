@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -509,6 +511,7 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
+    ApCommonPlugin.clearCourseWidget();
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;

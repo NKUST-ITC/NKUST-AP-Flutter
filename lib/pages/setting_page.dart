@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -126,6 +128,38 @@ class SettingPageState extends State<SettingPage> {
                 ),
               ],
             ),
+            if (kDebugMode) ...<Widget>[
+              const SizedBox(height: 16),
+              const SettingTitle(text: 'Debug'),
+              SettingCard(
+                children: <Widget>[
+                  SettingItem(
+                    text: '設定測試課表 Widget',
+                    subText: '注入 30 分鐘後的假課程資料',
+                    onTap: () async {
+                      await ApCommonPlugin.setFakeCourseWidget();
+                      if (!context.mounted) return;
+                      UiUtil.instance.showToast(
+                        context,
+                        '已設定測試課表 Widget',
+                      );
+                    },
+                  ),
+                  SettingItem(
+                    text: '清除課表 Widget',
+                    subText: '移除 Widget 中的課程資料',
+                    onTap: () async {
+                      await ApCommonPlugin.clearCourseWidget();
+                      if (!context.mounted) return;
+                      UiUtil.instance.showToast(
+                        context,
+                        '已清除課表 Widget',
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 16),
             SettingTitle(text: ap.otherInfo),
             SettingCard(
