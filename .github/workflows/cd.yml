@@ -278,8 +278,8 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.prepare.outputs.version }}+${{ needs.prepare.outputs.version_code }}
-          name: v${{ needs.prepare.outputs.version }}
+          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/master' }}
