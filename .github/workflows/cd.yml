@@ -81,6 +81,7 @@ jobs:
     name: iOS Deploy TestFlight
     needs: prepare
     runs-on: self-hosted
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -126,6 +127,7 @@ jobs:
     name: macOS Deploy TestFlight
     needs: prepare
     runs-on: self-hosted
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
