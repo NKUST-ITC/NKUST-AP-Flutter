@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,10 @@ void main() async {
   Helper.selector = CrawlerSelector.load();
   if (!kIsWeb && Platform.isAndroid) {
     HttpOverrides.global = MyHttpOverrides();
+  }
+
+  if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
+    await ApCommonPlugin.configure(appGroupId: 'group.com.nkust.ap');
   }
 
   AnnouncementHelper.instance.organization = 'nkust';
