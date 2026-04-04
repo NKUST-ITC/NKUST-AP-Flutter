@@ -36,58 +36,66 @@ packages:
   ap_common:
     dependency: "direct main"
     description:
-      path: "../ap_common/packages/ap_common"
-      relative: true
-    source: path
+      name: ap_common
+      sha256: "396f63a0af32c6ff6e247183026c86838a0118fc4a4ed00bfa02a06139aef288"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.5"
   ap_common_announcement_ui:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../ap_common/packages/ap_common_announcement_ui"
-      relative: true
-    source: path
+      name: ap_common_announcement_ui
+      sha256: "29c349c6d5d76e6e80692dda0bfe299bdfeb6e24b5eae2174305eedaac9c6e7f"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.6"
   ap_common_core:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../ap_common/packages/ap_common_core"
-      relative: true
-    source: path
+      name: ap_common_core
+      sha256: c12e68628dccdc6b59398e6b84e5c6422a2fe70d9b6359032866c05410a72fa4
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.3"
   ap_common_firebase:
     dependency: "direct main"
     description:
-      path: "../ap_common/packages/ap_common_firebase"
-      relative: true
-    source: path
+      name: ap_common_firebase
+      sha256: "560aad180e3c92e31e46c9e2686f4bec392f06f2865c844b4831d40e8bb2facc"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.6"
   ap_common_flutter_core:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../ap_common/packages/ap_common_flutter_core"
-      relative: true
-    source: path
+      name: ap_common_flutter_core
+      sha256: "5bfd3d14d0de49a71053c053da6a3b4c021009a717240fcc2d7d98236ebe366e"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.1.0-dev.6"
   ap_common_flutter_platform:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../ap_common/packages/ap_common_flutter_platform"
-      relative: true
-    source: path
+      name: ap_common_flutter_platform
+      sha256: "71563a8d55dfd9ca472017b0848e02324343c124a76bece4cabf18474eab1800"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.6"
   ap_common_flutter_ui:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../ap_common/packages/ap_common_flutter_ui"
-      relative: true
-    source: path
+      name: ap_common_flutter_ui
+      sha256: "88d8d6ca7989f7a0084f2aa7222725b5dbf232416975a1e1ba76510eb6993e24"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.1.0-dev.6"
   ap_common_plugin:
     dependency: "direct main"
     description:
-      path: "../ap_common/packages/ap_common_plugin"
-      relative: true
-    source: path
+      name: ap_common_plugin
+      sha256: "2e867daf0bbdfbf86d36f6e88ef3d2950e4d1e31ee2ae1342aedcb0730b94d0e"
+      url: "https://pub.dev"
+    source: hosted
     version: "1.0.1-dev.5"
   app_tracking_transparency:
     dependency: transitive
