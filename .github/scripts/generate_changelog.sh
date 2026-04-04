@@ -4,7 +4,8 @@ set -euo pipefail
 VERSION_CODE="$1"
 TARGET="$2" # android, ios, or github
 
-CHANGELOG_FILE="changelog.json"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CHANGELOG_FILE="$SCRIPT_DIR/../../changelog.json"
 
 # Validate version code exists in changelog.json
 if ! jq -e ".\"${VERSION_CODE}\"" "$CHANGELOG_FILE" > /dev/null 2>&1; then
