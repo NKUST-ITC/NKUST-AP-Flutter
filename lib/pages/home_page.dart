@@ -746,14 +746,19 @@ class HomePageState extends State<HomePage> {
     );
     if (currentVersion != packageInfo.buildNumber && first) {
       final Map<String, dynamic>? rawData = await FileAssets.changelogData;
-      final String updateNoteContent = (rawData![packageInfo.buildNumber]
-          as Map<String, dynamic>)[ap.locale] as String;
-      if (!mounted) return;
-      DialogUtils.showUpdateContent(
-        context,
-        'v${packageInfo.version}\n'
-        '$updateNoteContent',
-      );
+      final Map<String, dynamic>? entry =
+          rawData?[packageInfo.buildNumber] as Map<String, dynamic>?;
+      if (entry != null && mounted) {
+        final List<dynamic>? items = entry[ap.locale] as List<dynamic>?;
+        if (items != null && items.isNotEmpty) {
+          final String updateNoteContent =
+              items.map((dynamic e) => '\u2022 $e').join('\n');
+          DialogUtils.showUpdateContent(
+            context,
+            'v${packageInfo.version}\n$updateNoteContent',
+          );
+        }
+      }
       PreferenceUtil.instance.setString(
         Constants.prefCurrentVersion,
         packageInfo.buildNumber,

@@ -1,8 +1,8 @@
-default_platform(:ios)
+default_platform(:mac)
 
-APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_BUNDLE_IDENTIFIER"]
+APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER"] || "com.nkust.ap.flutter"
 
-platform :ios do
+platform :mac do
   lane :release do |options|
     key_id = options[:key_id]
     issuer_id = options[:issuer_id]
@@ -18,28 +18,16 @@ platform :ios do
         in_house: false
     )
 
-    ipa_path = Dir["../build/ios/ipa/*.ipa"].first
-    raise "No IPA file found in build/ios/ipa/" if ipa_path.nil?
-
-    localized_info = {
-      "default": {
-        whats_new: changelog,
-      },
-    }
-
-    en_file = "./en-US.txt"
-    if File.exist?(en_file)
-      localized_info["en-US"] = { whats_new: File.read(en_file) }
-    end
+    pkg_path = Dir["../build/macos/Build/Products/Release/*.app"].first
+    raise "No .app found in build/macos/Build/Products/Release/" if pkg_path.nil?
 
     upload_to_testflight(
-      app_identifier: "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}",
+      app_identifier: APP_STORE_CONNECT_BUNDLE_IDENTIFIER,
       api_key: api_key,
-      ipa: ipa_path,
+      pkg: pkg_path,
       skip_submission: true,
       notify_external_testers: true,
       changelog: changelog,
-      localized_build_info: localized_info,
     )
   end
 end

@@ -16,14 +16,24 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      version_code: ${{ steps.get_version_code.outputs.version_code }}
+      is_production: ${{ github.ref == 'refs/heads/master' }}
     steps:
       - uses: actions/checkout@v4
       - name: Get version from pubspec.yaml
         id: get_version
         run: |
-          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //')
+          VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-  # CD
+      - name: Get version code from variable
+        id: get_version_code
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION_CODE=$(gh api "repos/${{ github.repository }}/actions/variables/VERSION_CODE" --jq '.value')
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "Using version code: $VERSION_CODE"
+
   deploy_android:
     name: Android Play Store
     needs: prepare
@@ -40,35 +50,30 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
-      - name: Use JD
-        uses: r26d/jq-action@master
-        with:
-          cmd: jq -n env
       - name: Generate changelog
-        run: bash ./.github/scripts/generate_android_changelog.sh
+        run: bash ./.github/scripts/generate_changelog.sh ${{ needs.prepare.outputs.version_code }} android
+        working-directory: ./android/fastlane
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-      - name: Decrypt dev configs
-        run: sh ./scripts/decrypt_dev_configs.sh
-        env:
-          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
-      - name: Install Flutter dependencies
-        run: flutter pub get
-      - run: flutter build appbundle --release
-      - name: Setup ruby
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+      - run: flutter pub get
+      - name: Build Android app bundle
+        run: flutter build appbundle --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '2.7.2'
-      - name: Bundle update
-        run: bundle update --bundler
+          ruby-version: '3.3'
+      - name: Bundle install
+        run: bundle install
         working-directory: ./android
       - name: Run Fastlane
-        uses: maierj/fastlane-action@v2.0.1
+        uses: maierj/fastlane-action@v3.1.0
         with:
-          lane: ${{ github.ref == 'refs/heads/master' && 'playstore' || 'beta' }}
+          lane: ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
           subdirectory: 'android'
 
   deploy_ios:
@@ -86,29 +91,26 @@ jobs:
           distribution: 'zulu'
           java-version: ${{ env.java_version }}
       - name: Generate changelog
-        run: bash ./.github/scripts/generate_ios_changelog.sh
-      - name: Run Flutter tasks
+        run: bash ./.github/scripts/generate_changelog.sh ${{ needs.prepare.outputs.version_code }} ios
+        working-directory: ./ios/fastlane
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.flutter_version }}
+          flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-      - name: Flutter Initiaize
-        run: |
-          flutter doctor -v
-          flutter clean
-          dart pub global activate flutterfire_cli 1.1.0
-      - name: Decrypt dev configs
-        run: sh ./scripts/decrypt_dev_configs.sh
-        env:
-          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
-      - run: flutter build ipa --release
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Flutter Initialize
+        run: flutter doctor -v
+      - run: flutter pub get
+      - name: Build iOS
+        run: flutter build ipa --release --build-number=${{ needs.prepare.outputs.version_code }}
       - name: Zip dSYM
         run: zip Runner.app.dSYM.zip -r ../archive/Runner.xcarchive/dSYMs/
         working-directory: ./build/ios/ipa
-      - name: Decode Keystore
+      - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ios/AuthKey.p8
-      - name: Deploy iOS Beta to TestFlight via Fastlane
+      - name: Deploy iOS to TestFlight via Fastlane
         run: fastlane ios release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./ios
         env:
@@ -119,56 +121,41 @@ jobs:
           KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
           ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
 
-  #  deploy_macos:
-  #    name: macOS Deploy TestFlight
-  #    runs-on: macOS-latest
-  #    steps:
-  #      - name: Checkout code
-  #        uses: actions/checkout@v3
-  #        with:
-  #          ref: ${{ github.ref }}
-  #      - name: Decrypt macOS keys
-  #        run: sh ./.github/scripts/decrypt_macos_keys.sh
-  #        env:
-  #          KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
-  #      - name: Run Flutter tasks
-  #        uses: subosito/flutter-action@v2
-  #        with:
-  #          channel: 'dev'
-  #      - name: Decrypt dev configs
-  #        run: sh ./scripts/decrypt_dev_configs.sh
-  #        env:
-  #          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
-  #      - name: Upgrades flutter
-  #        run: flutter upgrade
-  #      - name: Enable macOS
-  #        run: flutter config --enable-macos-desktop
-  #      - run: flutter pub get
-  #      - run: cd ./macos && pod install
-  ##      - run: flutter build macos --release
-  #      - uses: ruby/setup-ruby@v1
-  #        with:
-  #          ruby-version: '2.7.2'
-  #      - name: Bundle update
-  #        run: bundle update --bundler
-  #        working-directory: ./ios
-  #      - name: Deploy macOS Beta to TestFlight via Fastlane
-  #        uses: maierj/fastlane-action@v2.0.1
-  #        with:
-  #          lane: 'release'
-  #          subdirectory: 'macos'
-  #        env:
-  #          APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
-  #          DEVELOPER_APP_ID: '${{ secrets.DEVELOPER_APP_ID }}'
-  #          DEVELOPER_APP_IDENTIFIER: '${{ secrets.DEVELOPER_APP_IDENTIFIER }}'
-  #          DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
-  #          FASTLANE_APPLE_ID: '${{ secrets.FASTLANE_APPLE_ID }}'
-  #          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: '${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}'
-  #          MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
-  #          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
-  #          PROVISIONING_PROFILE_SPECIFIER: '${{ secrets.PROVISIONING_PROFILE_SPECIFIER }}'
-  #          TEMP_KEYCHAIN_PASSWORD: '${{ secrets.TEMP_KEYCHAIN_PASSWORD }}'
-  #          TEMP_KEYCHAIN_USER: '${{ secrets.TEMP_KEYCHAIN_USER }}'
+  deploy_macos:
+    name: macOS Deploy TestFlight
+    needs: prepare
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter_version }}
+          channel: 'stable'
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Flutter Initialize
+        run: flutter doctor -v
+      - run: flutter pub get
+      - name: Generate changelog
+        run: bash ./.github/scripts/generate_changelog.sh ${{ needs.prepare.outputs.version_code }} ios
+        working-directory: ./macos/fastlane
+      - name: Build macOS
+        run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Decode API Key
+        run: |
+          echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
+      - name: Deploy macOS to TestFlight via Fastlane
+        run: fastlane mac release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
+        working-directory: ./macos
+        env:
+          APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
+          APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER: 'com.nkust.ap.flutter'
+          DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
+          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
+          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
 
   deploy_windows:
     name: Windows App
@@ -177,58 +164,118 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Run Flutter tasks
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version:  ${{ env.flutter_version }}
+          flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Decrypt dev configs
         run: sh ./scripts/decrypt_dev_configs.sh
         env:
           DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
-      - name: Enable windows
-        run: flutter config --enable-windows-desktop
       - run: flutter doctor -v
       - run: flutter pub get
-      - name: Build windows
-        run: flutter build windows --release
-      - name: 'Zip files'
+      - name: Build Windows
+        run: flutter build windows --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Build Inno Setup installer
+        run: iscc /DMyAppVersion="${{ needs.prepare.outputs.version }}" windows\installer.iss
+      - name: Zip portable
         run: powershell Compress-Archive build\windows\x64\runner\Release\ windows.zip
-      - name: upload artifacts
-        uses: actions/upload-artifact@v2
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
         with:
-          name: windows-artifact
+          name: windows-installer-artifact
+          path: build/windows/installer/nkust_ap_installer.exe
+      - name: Upload portable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-portable-artifact
           path: windows.zip
 
-  github_release:
-    name: Create GitHub Release
-    needs: [prepare, deploy_android, deploy_ios, deploy_windows]
+  deploy_linux:
+    name: Linux App
+    needs: prepare
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
-          tag_name: v${{ needs.prepare.outputs.version }}
-          release_name: v${{ needs.prepare.outputs.version }}
-          body_path: RELEASE_NOTE.md
+          flutter-version: ${{ env.flutter_version }}
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+      - name: Decrypt dev configs
+        run: sh ./scripts/decrypt_dev_configs.sh
+        env:
+          DEV_CONFIGS_PASSPHRASE: ${{ secrets.DEV_CONFIGS_PASSPHRASE }}
+      - name: Install required dependencies
+        run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - run: flutter pub get
+      - name: Build Linux
+        run: flutter build linux --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Zip files
+        run: tar -czf linux.tar.gz -C build/linux/x64/release/bundle .
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifact
+          path: linux.tar.gz
+
+  github_release:
+    name: Create GitHub Release
+    needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Generate release notes
+        run: bash ./.github/scripts/generate_changelog.sh ${{ needs.prepare.outputs.version_code }} github
+      - name: Download Windows installer
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-installer-artifact
+      - name: Download Windows portable
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-portable-artifact
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifact
+      - name: Rename artifacts
+        run: |
+          mv nkust_ap_installer.exe nkust_ap_windows_setup.exe
+          mv windows.zip nkust_ap_windows_portable.zip
+          mv linux.tar.gz nkust_ap_linux.tar.gz
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.prepare.outputs.version }}+${{ needs.prepare.outputs.version_code }}
+          name: v${{ needs.prepare.outputs.version }}
+          body_path: RELEASE_NOTES_GENERATED.md
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/master' }}
-      - name: Use Download Artifact v2
-        uses: actions/download-artifact@v2
-        with:
-          name: windows-artifact
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
+          files: |
+            nkust_ap_windows_setup.exe
+            nkust_ap_windows_portable.zip
+            nkust_ap_linux.tar.gz
+
+  finalize:
+    name: Increment Version Code
+    needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux, github_release]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Increment VERSION_CODE
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./windows.zip
-          asset_name: nkust_ap_windows.zip
-          asset_content_type: application/zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          CURRENT=${{ needs.prepare.outputs.version_code }}
+          NEXT=$((CURRENT + 1))
+          gh api --method PATCH "repos/${{ github.repository }}/actions/variables/VERSION_CODE" \
+            -f name="VERSION_CODE" \
+            -f value="$NEXT"
+          echo "Version code incremented: $CURRENT -> $NEXT"
