@@ -32,8 +32,6 @@ class WebApHelper {
 
   bool isLogin = false;
 
-  String? pictureUrl;
-
   //cache key name
   static String get semesterCacheKey => 'semesterCacheKey';
 
@@ -477,7 +475,6 @@ class WebApHelper {
       final UserInfo data = UserInfo.fromJson(
         WebApParser.instance.apUserInfoParser(query.data as String),
       );
-      pictureUrl = data.pictureUrl;
       return data;
     }
     final Response<dynamic> query = await apQuery(
@@ -495,15 +492,14 @@ class WebApHelper {
     final UserInfo data = UserInfo.fromJson(
       WebApParser.instance.apUserInfoParser(query.data as String),
     );
-    pictureUrl = data.pictureUrl;
     return data;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      pictureUrl!,
+      pictureUrl,
       options: Options(
         responseType: ResponseType.bytes,
       ),

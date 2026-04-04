@@ -556,7 +556,8 @@ class HomePageState extends State<HomePage> {
   Future<void> _getUserPicture() async {
     try {
       if (userInfo != null && userInfo!.pictureUrl != null) {
-        final Uint8List? response = await Helper.instance.getUserPicture();
+        final Uint8List? response =
+            await Helper.instance.getUserPicture(userInfo!.pictureUrl!);
         if (mounted) {
           setState(() {
             userInfo = userInfo!.copyWith(pictureBytes: response);
