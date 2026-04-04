@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - develop
+  workflow_dispatch:
 
 env:
   flutter_version: '3.35.x'
