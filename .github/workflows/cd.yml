@@ -72,6 +72,7 @@ jobs:
           ruby-version: '3.3'
       - name: Install Fastlane
         run: |
+          gem uninstall bundler -v 1.17.2 --force || true
           gem install bundler -v '~> 2.0'
           bundle install
         working-directory: ./android
