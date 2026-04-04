@@ -66,18 +66,10 @@ jobs:
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release --build-number=${{ needs.prepare.outputs.version_code }}
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
       - name: Install Fastlane
-        run: |
-          gem uninstall bundler -v 1.17.2 --force || true
-          gem install bundler -v '~> 2.0'
-          bundle install
-        working-directory: ./android
+        run: gem install fastlane fastlane-plugin-flutter_version
       - name: Run Fastlane
-        run: bundle exec fastlane ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
+        run: fastlane ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
         working-directory: ./android
 
   deploy_ios:
