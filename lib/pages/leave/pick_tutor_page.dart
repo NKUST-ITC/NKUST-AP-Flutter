@@ -42,7 +42,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.pickTeacher),
@@ -213,11 +213,11 @@ class _PickTutorPageState extends State<PickTutorPage> {
     String title = '';
     switch (type) {
       case _Type.campus:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
       case _Type.department:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
       case _Type.teacher:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
     }
     showDialog<int>(
       context: context,

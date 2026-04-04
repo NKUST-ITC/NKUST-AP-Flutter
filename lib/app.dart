@@ -21,8 +21,11 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   ThemeMode themeMode = ThemeMode.system;
 
   Locale? locale;
-
   LoginResponse? loginResponse;
+  Uint8List? pictureBytes;
+
+  int currentColorIndex = 0;
+  Color? customColor;
 
   bool offlineLogin = false;
   bool hasBusViolationRecords = false;
@@ -43,13 +46,38 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     FirebaseMessagingUtils.instance.init(
       vapidKey: Constants.fcmWebVapidKey,
     );
+    _initLocale();
     themeMode = ThemeMode.values[
         PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    currentColorIndex =
+        PreferenceUtil.instance.getInt(ApTheme.PREF_COLOR_INDEX, 0);
+    final int customColorValue =
+        PreferenceUtil.instance.getInt(ApTheme.PREF_CUSTOM_COLOR, 0);
+    if (currentColorIndex == ApTheme.customColorIndex &&
+        customColorValue != 0) {
+      customColor = Color(customColorValue);
+    }
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
     AnalyticsUtil.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
+
+  Future<void> _initLocale() async {
+    final String languageCode = PreferenceUtil.instance.getString(
+      Constants.prefLanguageCode,
+      ApSupportLanguageConstants.system,
+    );
+    if (languageCode == ApSupportLanguageConstants.system) {
+      await useApDeviceLocale();
+    } else {
+      final Locale locale = Locale(
+        languageCode,
+        languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+      );
+      await setApLocaleFromFlutter(locale);
+    }
   }
 
   @override
@@ -67,61 +95,51 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ShareDataWidget(
-      data: this,
-      child: ApTheme(
-        themeMode,
-        child: MaterialApp(
-          localeResolutionCallback:
-              (Locale? locale, Iterable<Locale> supportedLocales) {
-            final String languageCode = PreferenceUtil.instance.getString(
-              Constants.prefLanguageCode,
-              ApSupportLanguageConstants.system,
+    return TranslationProvider(
+      child: ShareDataWidget(
+        data: this,
+        child: ApTheme(
+        themeMode: themeMode,
+        currentColorIndex: currentColorIndex,
+        customColor: customColor,
+        preferences: PreferenceUtil.instance as ApPreferenceUtil,
+        child: Builder(
+          builder: (BuildContext context) {
+            final Color seedColor = ApTheme.of(context).seedColor;
+            return MaterialApp(
+              onGenerateTitle: (BuildContext context) =>
+                  AppLocalizations.of(context).appName,
+              debugShowCheckedModeBanner: false,
+              routes: <String, WidgetBuilder>{
+                Navigator.defaultRouteName: (BuildContext context) => kIsWeb
+                    ? const AnnouncementHomePage(
+                        organizationDomain: Constants.mailDomain,
+                      )
+                    : HomePage(),
+                AnnouncementHomePage.routerName: (BuildContext context) =>
+                    const AnnouncementHomePage(
+                      organizationDomain: Constants.mailDomain,
+                    ),
+              },
+              theme: ApTheme.light(seedColor),
+              darkTheme: ApTheme.dark(seedColor),
+              themeMode: themeMode,
+              locale: TranslationProvider.of(context).flutterLocale,
+              localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+                appDelegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const <Locale>[
+                Locale('en', 'US'), // English
+                Locale('zh', 'TW'), // Traditional Chinese TW
+              ],
             );
-            if (languageCode == ApSupportLanguageConstants.system) {
-              this.locale = ApLocalizations.delegate.isSupported(locale!)
-                  ? locale
-                  : const Locale('en');
-            } else {
-              this.locale = Locale(
-                languageCode,
-                languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
-              );
-            }
-            AnnouncementHelper.instance.setLocale(this.locale!);
-            return this.locale;
           },
-          onGenerateTitle: (BuildContext context) =>
-              AppLocalizations.of(context).appName,
-          debugShowCheckedModeBanner: false,
-          routes: <String, WidgetBuilder>{
-            Navigator.defaultRouteName: (BuildContext context) => kIsWeb
-                ? const AnnouncementHomePage(
-                    organizationDomain: Constants.mailDomain,
-                  )
-                : HomePage(),
-            AnnouncementHomePage.routerName: (BuildContext context) =>
-                const AnnouncementHomePage(
-                  organizationDomain: Constants.mailDomain,
-                ),
-          },
-          theme: ApTheme.light,
-          darkTheme: ApTheme.dark,
-          themeMode: themeMode,
-          locale: locale,
-          localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-            apLocalizationsDelegate,
-            appDelegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const <Locale>[
-            Locale('en', 'US'), // English
-            Locale('zh', 'TW'), // Chinese
-          ],
         ),
       ),
+    ),
     );
   }
 
@@ -135,12 +153,17 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
   }
 
+  void loadThemeColor(int index, Color? custom) {
+    setState(() {
+      currentColorIndex = index;
+      customColor = custom;
+    });
+  }
+
   void loadLocale(Locale locale) {
     this.locale = locale;
     AnnouncementHelper.instance.setLocale(this.locale!);
-    setState(() {
-      appDelegate.load(locale);
-      ApLocalizations.load(locale);
-    });
+    appDelegate.load(locale);
+    setApLocaleFromFlutter(locale);
   }
 }

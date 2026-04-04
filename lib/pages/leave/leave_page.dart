@@ -67,7 +67,7 @@ class LeavePageState extends State<LeavePage>
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.leave),
@@ -99,7 +99,7 @@ class LeavePageState extends State<LeavePage>
                 _login = Future<bool>.microtask(() => login());
               },
               child: HintContent(
-                content: ApLocalizations.of(context).clickToRetry,
+                content: context.ap.clickToRetry,
                 icon: ApIcon.error,
               ),
             );
