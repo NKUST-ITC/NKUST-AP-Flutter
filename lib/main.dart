@@ -56,7 +56,7 @@ void main() async {
     HttpOverrides.global = MyHttpOverrides();
   }
 
-  if (!kIsWeb && (Platform.isIOS || Platform.isMacOS)) {
+  if (!kIsWeb && (Platform.isIOS)) {
     await ApCommonPlugin.configure(appGroupId: 'group.com.nkust.ap');
   }
 
