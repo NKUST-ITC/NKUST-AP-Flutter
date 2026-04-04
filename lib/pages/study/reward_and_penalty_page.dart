@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -22,7 +23,6 @@ class RewardAndPenaltyPage extends StatefulWidget {
 }
 
 class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
 
   late ApLocalizations ap;
 
@@ -51,7 +51,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.rewardAndPenalty),
@@ -60,7 +60,21 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.search),
         onPressed: () {
-          key.currentState!.pickSemester();
+          if (semesterData != null) {
+            ap_ui.SemesterPicker.show(
+              context: context,
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                _getMidtermAlertsData();
+              },
+            );
+          }
         },
       ),
       body: Flex(
@@ -70,11 +84,14 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         children: <Widget>[
           const SizedBox(height: 8.0),
           SemesterPicker(
-            key: key,
+            selectSemester: selectSemester,
+            currentIndex: semesterData?.currentIndex ?? 0,
+            onDataLoaded: (SemesterData data) => semesterData = data,
             featureTag: 'reward',
             onSelect: (Semester semester, int index) {
               setState(() {
                 selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
                 state = _State.loading;
               });
               _getMidtermAlertsData();
@@ -141,7 +158,21 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         return InkWell(
           onTap: () {
             if (state == _State.empty) {
-              key.currentState!.pickSemester();
+              if (semesterData != null) {
+                ap_ui.SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData = semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getMidtermAlertsData();
+                  },
+                );
+              }
             } else {
               _getMidtermAlertsData();
             }
@@ -186,12 +217,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              sprintf(
-                ap.rewardAndPenaltyContent,
-                <dynamic>[
-                  item.counts,
-                  item.date,
-                ],
+              ap.rewardAndPenaltyContent(
+                arg1: item.counts,
+                arg2: item.date,
               ),
             ),
           ),
@@ -209,41 +237,38 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getRewardAndPenalty(
-      semester: selectSemester,
-      callback: GeneralCallback<RewardAndPenaltyData>(
-        onSuccess: (RewardAndPenaltyData data) {
-          if (mounted) {
-            setState(() {
-              rewardAndPenaltyData = data;
-              if (data.data.isEmpty) {
-                state = _State.empty;
-              } else {
-                state = _State.finish;
-              }
-            });
+    try {
+      final RewardAndPenaltyData data =
+          await Helper.instance.getRewardAndPenalty(
+        semester: selectSemester,
+      );
+      if (mounted) {
+        setState(() {
+          rewardAndPenaltyData = data;
+          if (data.data.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
           }
-        },
-        onFailure: (DioException e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRewardAndPenalty',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRewardAndPenalty',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

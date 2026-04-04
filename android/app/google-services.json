@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "141403473068",
+    "firebase_url": "https://nkust-ap-flutter.firebaseio.com",
+    "project_id": "nkust-ap-flutter",
+    "storage_bucket": "nkust-ap-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:141403473068:android:05ebdd62590fb72e",
+        "android_client_info": {
+          "package_name": "com.kuas.ap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "141403473068-46ao3s54s6jio6nndl70sq26k0bpki6g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kuas.ap",
+            "certificate_hash": "655a7229330730a0955b0f238852fb850c795048"
+          }
+        },
+        {
+          "client_id": "141403473068-bjruq2pv4jiubd0ssjsiq6gnssaapeft.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kuas.ap",
+            "certificate_hash": "20eb3f900c2eeb218019a63cc2d8f6e6ff984c05"
+          }
+        },
+        {
+          "client_id": "141403473068-op6fkpvdssu2farccu6nknqko9ng9tkg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kuas.ap",
+            "certificate_hash": "05869b7ed228e014df61e8eab8e44bf59f2037fb"
+          }
+        },
+        {
+          "client_id": "141403473068-v71akg1vi0v2ohdtqog3tln8ot678qo8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBIKkKaOfI4nDmj_SN738yB_IUVEOZiAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "141403473068-l2sjt73nbe94bkd7655q3f97mrj3jn8o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "141403473068-b9ugkddmql2nefsuggoc9unte0qm23eb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nkust.ap.flutter"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

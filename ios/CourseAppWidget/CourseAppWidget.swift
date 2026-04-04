@@ -47,8 +47,8 @@ struct Provider: IntentTimelineProvider {
                     }
                     if( diff > 0.0  && diff < minDiff && weekday == sectionTime.weekday){
                         minDiff = diff
-                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的 \(course.title )"
-                        shortText = "\(timeCode?.startTime ?? "")在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的\(course.title )"
+                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location?.building ?? "" )\(course.location?.room  ?? "") 的 \(course.title )"
+                        shortText = "\(timeCode?.startTime ?? "")在 \(course.location?.building ?? "" )\(course.location?.room  ?? "") 的\(course.title )"
                     }
                 }
             })

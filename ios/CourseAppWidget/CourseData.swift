@@ -18,32 +18,21 @@ class CourseData: Codable {
 
 // MARK: - Course
 class Course: Codable {
-    let code, title, className: String
+    let code: String
+    let title: String
+    let className: String?
     let group: String?
     let units: String?
     let hours: String?
-    let courseRequired: String?
+    let required: String?
     let sectionTimes: [SectionTime]
-    let location: Location
+    let location: Location?
     let instructors: [String]
 
     enum CodingKeys: String, CodingKey {
         case code, title, className, group, units, hours
-        case courseRequired
+        case required
         case sectionTimes, location, instructors
-    }
-
-    init(code: String, title: String, className: String, group: String?, units: String, hours: String?, courseRequired: String, sectionTimes: [SectionTime], location: Location, instructors: [String]) {
-        self.code = code
-        self.title = title
-        self.className = className
-        self.group = group
-        self.units = units
-        self.hours = hours
-        self.courseRequired = courseRequired
-        self.sectionTimes = sectionTimes
-        self.location = location
-        self.instructors = instructors
     }
 }
 
