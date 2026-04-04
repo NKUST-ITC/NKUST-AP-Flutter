@@ -83,6 +83,8 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Update CocoaPods specs
+        run: pod repo update
       - name: Disable Crashlytics dSYM upload for CI
         run: |
           perl -i -pe 's/flutterfire upload-crashlytics-symbols/echo skip/' ios/Runner.xcodeproj/project.pbxproj
@@ -105,6 +107,8 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Update CocoaPods specs
+        run: pod repo update
       - name: Build macOS
         run: flutter build macos --release
 
