@@ -220,7 +220,7 @@ jobs:
       - name: Zip files
         run: tar -czf linux.tar.gz -C build/linux/x64/release/bundle .
       - name: Install Snapcraft
-        uses: samber/setup-snapcraft@v2
+        run: sudo snap install snapcraft --classic
       - name: Build Snap
         run: snapcraft --destructive-mode
       - name: Upload to Snap Store
