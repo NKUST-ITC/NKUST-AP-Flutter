@@ -277,7 +277,7 @@ jobs:
     steps:
       - name: Increment VERSION_CODE
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           CURRENT=${{ needs.prepare.outputs.version_code }}
           NEXT=$((CURRENT + 1))
