@@ -38,12 +38,29 @@ jobs:
           flutter test test/crawler_monitor_test.dart --tags integration 2>&1 | tee test_output.txt
           echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
-      - name: Prepare failure message
+      - name: Classify failures
         if: steps.test.outputs.exit_code != '0'
         id: msg
         run: |
-          FAILED=$(grep -E '\[E\]' test_output.txt | head -20 || true)
+          # Extract failed test names
+          FAILED=$(grep -E '\[E\]' test_output.txt | sed 's/.*+[0-9]* -[0-9]*: //' | sed 's/ \[E\]//' | head -20 || true)
+
+          # Classify: health check failures vs parser/structure failures
+          HEALTH_FAIL=$(echo "$FAILED" | grep -i 'Health Check' || true)
+          CRAWLER_FAIL=$(echo "$FAILED" | grep -iv 'Health Check' || true)
+
+          # Build category label
+          if [ -n "$HEALTH_FAIL" ] && [ -n "$CRAWLER_FAIL" ]; then
+            CATEGORY="🔴 網站連線異常 + 爬蟲結構異常"
+          elif [ -n "$HEALTH_FAIL" ]; then
+            CATEGORY="🔴 網站連線異常（可能掛掉）"
+          else
+            CATEGORY="🟡 爬蟲結構異常（網站正常但 HTML/JSON 結構可能已變更）"
+          fi
+
+          # Output
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "category=$CATEGORY" >> "$GITHUB_OUTPUT"
           echo "failures<<$EOF" >> "$GITHUB_OUTPUT"
           echo "$FAILED" >> "$GITHUB_OUTPUT"
           echo "$EOF" >> "$GITHUB_OUTPUT"
@@ -56,7 +73,7 @@ jobs:
             -d parse_mode="Markdown" \
             -d text="🚨 *NKUST 爬蟲監控異常*
 
-          學校網頁 HTML/JSON 結構可能已變更，請盡速確認。
+          ${{ steps.msg.outputs.category }}
 
           *失敗項目：*
           \`\`\`
@@ -71,7 +88,7 @@ jobs:
           jq -n \
             --arg content "🚨 **NKUST 爬蟲監控異常**
 
-          學校網頁 HTML/JSON 結構可能已變更，請盡速確認。
+          ${{ steps.msg.outputs.category }}
 
           **失敗項目：**
           \`\`\`

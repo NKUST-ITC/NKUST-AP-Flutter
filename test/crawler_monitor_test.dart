@@ -13,7 +13,7 @@ import 'package:nkust_ap/api/stdsys_helper.dart';
 /// Crawler monitor integration tests.
 ///
 /// These tests make real HTTP requests to school servers to validate
-/// that HTML/JSON structures haven't changed.
+/// that endpoints are reachable and HTML/JSON structures haven't changed.
 ///
 /// Required environment variables:
 ///   NKUST_USERNAME — student ID
@@ -24,6 +24,16 @@ import 'package:nkust_ap/api/stdsys_helper.dart';
 ///
 /// These tests are NOT run during normal CI — only via the scheduled
 /// crawler-monitor workflow.
+
+/// Endpoints to health-check (no auth required).
+const Map<String, String> _healthCheckEndpoints = <String, String>{
+  'WebAP': 'https://webap.nkust.edu.tw/nkust/index.html',
+  'Stdsys': 'https://stdsys.nkust.edu.tw/',
+  'Leave': 'https://leave.nkust.edu.tw/',
+  'Mobile': 'https://mobile.nkust.edu.tw/',
+  'Bus (VMS)': 'https://vms.nkust.edu.tw/',
+  '校務公告': 'https://acad.nkust.edu.tw/',
+};
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +51,33 @@ void main() {
     Helper.username = username;
     Helper.password = password;
     Helper.isSupportCacheData = false;
+  });
+
+  // ─── Health Check（不需帳密，純偵測網站是否存活）──────────────────────
+  group('Health Check', () {
+    final Dio healthDio = Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        followRedirects: true,
+        validateStatus: (int? status) => status != null && status < 500,
+      ),
+    );
+
+    for (final MapEntry<String, String> entry
+        in _healthCheckEndpoints.entries) {
+      test('${entry.key} is reachable', () async {
+        final Response<dynamic> response = await healthDio.get<dynamic>(
+          entry.value,
+        );
+        expect(
+          response.statusCode,
+          lessThan(500),
+          reason: '${entry.key} returned HTTP ${response.statusCode}',
+        );
+        print('  ✓ ${entry.key}: HTTP ${response.statusCode}');
+      });
+    }
   });
 
   // ─── WebAP ─────────────────────────────────────────────────────────────
@@ -75,7 +112,6 @@ void main() {
         semester.year,
         semester.value,
       );
-      // Scores might be empty if no data for the semester, but structure should be valid
       expect(scores, isNotNull);
       print('  ✓ scores: ${scores.scores.length} courses');
     });
