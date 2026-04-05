@@ -1,10 +1,7 @@
-import 'package:ap_common/ap_common.dart' hide SemesterPicker;
-import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/semester_picker.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State {
   loading,
@@ -34,17 +31,21 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   bool isOffline = false;
 
+  final SemesterPickerController _pickerController = SemesterPickerController();
+
   @override
   void initState() {
     AnalyticsUtil.instance.setCurrentScreen(
       'MidtermAlertsPage',
       'midterm_alerts_page.dart',
     );
+    _getSemester();
     super.initState();
   }
 
   @override
   void dispose() {
+    _pickerController.dispose();
     super.dispose();
   }
 
@@ -56,14 +57,40 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         title: Text(ap.midtermAlerts),
         backgroundColor: ApTheme.of(context).blue,
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: () {
-          if (semesterData != null) {
-            ap_ui.SemesterPicker.show(
-              context: context,
+      floatingActionButton: semesterData == null
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.search),
+              onPressed: () {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getMidtermAlertsData();
+                  },
+                );
+              },
+            ),
+      body: Flex(
+        direction: Axis.vertical,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          const SizedBox(height: 8.0),
+          if (semesterData != null)
+            SemesterPicker(
               semesterData: semesterData!,
               currentIndex: semesterData!.currentIndex,
+              featureTag: 'midterm_alerts',
+              controller: _pickerController,
               onSelect: (Semester semester, int index) {
                 setState(() {
                   selectSemester = semester;
@@ -72,30 +99,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
                 });
                 _getMidtermAlertsData();
               },
-            );
-          }
-        },
-      ),
-      body: Flex(
-        direction: Axis.vertical,
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          const SizedBox(height: 8.0),
-          SemesterPicker(
-            selectSemester: selectSemester,
-            currentIndex: semesterData?.currentIndex ?? 0,
-            onDataLoaded: (SemesterData data) => semesterData = data,
-            featureTag: 'midterm_alerts',
-            onSelect: (Semester semester, int index) {
-              setState(() {
-                selectSemester = semester;
-                semesterData = semesterData?.copyWith(currentIndex: index);
-                state = _State.loading;
-              });
-              _getMidtermAlertsData();
-            },
-          ),
+            ),
           if (isOffline)
             Text(
               ap.offlineScore,
@@ -158,10 +162,11 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           onTap: () {
             if (state == _State.empty) {
               if (semesterData != null) {
-                ap_ui.SemesterPicker.show(
+                SemesterPicker.show(
                   context: context,
                   semesterData: semesterData!,
                   currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
                   onSelect: (Semester semester, int index) {
                     setState(() {
                       selectSemester = semester;
@@ -221,6 +226,46 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     );
   }
 
+  Future<void> _getSemester() async {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      final SemesterData? cacheData = SemesterData.load();
+      if (cacheData != null && mounted) {
+        setState(() {
+          semesterData = cacheData;
+          selectSemester = semesterData!.defaultSemester;
+        });
+      }
+      return;
+    }
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      data.save();
+      if (mounted) {
+        setState(() {
+          semesterData = data;
+          selectSemester = data.defaultSemester;
+        });
+        _getMidtermAlertsData();
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        UiUtil.instance
+            .showToast(context, response.getGeneralMessage(context));
+      }
+    } on DioException catch (e) {
+      if (e.i18nMessage != null && mounted) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
+  }
+
   Future<void> _getMidtermAlertsData() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
@@ -239,17 +284,25 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           midtermAlertData = data;
           if (data.courses.isEmpty) {
             state = _State.empty;
+            _pickerController.markSemesterEmpty(selectSemester!);
           } else {
             state = _State.finish;
+            _pickerController.markSemesterHasData(selectSemester!);
           }
         });
       }
     } on GeneralResponse catch (response) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
       setState(() {
         state = _State.custom;
         customStateHint = response.getGeneralMessage(context);
       });
     } on DioException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
       setState(() {
         state = _State.custom;
         customStateHint = e.i18nMessage;
