@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -532,6 +533,7 @@ class HomePageState extends State<HomePage> {
           if (userInfo != null) {
             AnalyticsUtil.instance.logUserInfo(userInfo!);
             userInfo!.save(Helper.username!);
+            ApCommonPlugin.updateUserInfoWidget(userInfo!);
           }
           _checkData();
           if (PreferenceUtil.instance
