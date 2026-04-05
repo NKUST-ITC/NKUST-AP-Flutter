@@ -113,12 +113,26 @@ void main() {
   // ─── WebAP ─────────────────────────────────────────────────────────────
   group('WebAP', () {
     test('login succeeds', () async {
-      final loginResponse = await WebApHelper.instance.login(
-        username: username,
-        password: password,
-      );
-      expect(loginResponse.expireTime, isNotNull);
-      expect(WebApHelper.instance.isLogin, isTrue);
+      // Captcha recognition may fail — retry up to 3 rounds
+      // (each round tries 5 captcha attempts internally).
+      const int maxRounds = 3;
+      for (int round = 1; round <= maxRounds; round++) {
+        try {
+          final loginResponse = await WebApHelper.instance.login(
+            username: username,
+            password: password,
+          );
+          expect(loginResponse.expireTime, isNotNull);
+          expect(WebApHelper.instance.isLogin, isTrue);
+          print('  ✓ login OK (round $round)');
+          return;
+        } catch (e) {
+          if (round == maxRounds) rethrow;
+          print('  ⚠ login round $round failed, retrying...');
+          // Reset state for next attempt
+          WebApHelper.instance.isLogin = false;
+        }
+      }
     });
 
     test('user info has expected fields', () async {
