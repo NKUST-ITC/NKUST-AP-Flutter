@@ -1,0 +1,87 @@
+name: Crawler Monitor
+
+on:
+  schedule:
+    # Run daily at 00:00 UTC (08:00 Taiwan time)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+env:
+  flutter_version: '3.35.x'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  crawler_monitor:
+    name: Crawler Structure Monitor
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.flutter_version }}
+          channel: 'stable'
+          cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+
+      - run: flutter pub get
+
+      - name: Run crawler monitor tests
+        id: test
+        env:
+          NKUST_USERNAME: ${{ secrets.NKUST_USERNAME }}
+          NKUST_PASSWORD: ${{ secrets.NKUST_PASSWORD }}
+        run: |
+          flutter test test/crawler_monitor_test.dart --tags integration 2>&1 | tee test_output.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare failure message
+        if: steps.test.outputs.exit_code != '0'
+        id: msg
+        run: |
+          FAILED=$(grep -E '\[E\]' test_output.txt | head -20 || true)
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "failures<<$EOF" >> "$GITHUB_OUTPUT"
+          echo "$FAILED" >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Notify Telegram
+        if: steps.test.outputs.exit_code != '0'
+        run: |
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode="Markdown" \
+            -d text="🚨 *NKUST Crawler Monitor Failed*
+
+          School HTML/JSON structure may have changed.
+
+          \`\`\`
+          ${{ steps.msg.outputs.failures }}
+          \`\`\`
+
+          [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+
+      - name: Notify Discord
+        if: steps.test.outputs.exit_code != '0'
+        run: |
+          jq -n \
+            --arg content "🚨 **NKUST Crawler Monitor Failed**
+
+          School HTML/JSON structure may have changed.
+
+          \`\`\`
+          ${{ steps.msg.outputs.failures }}
+          \`\`\`
+
+          [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            '{content: $content}' | \
+          curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d @-
+
+      - name: Fail workflow on test failure
+        if: steps.test.outputs.exit_code != '0'
+        run: exit 1
