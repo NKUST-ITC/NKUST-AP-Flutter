@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
@@ -162,11 +163,17 @@ extension MatrixIntExtensions on Matrix<int> {
 }
 
 /// Read an image from the given path.
-/// Throws [PathNotFoundException] if the file is not found.
-/// Throws [Exception] if there is an error reading the image.
+/// Tries [rootBundle] first (works in production), then falls back to
+/// direct file read (works in test / CLI environments).
 Future<Image> readImage(String path) async {
-  final ByteData byteData = await rootBundle.load(path);
-  final Uint8List bytes = byteData.buffer.asUint8List();
+  Uint8List bytes;
+  try {
+    final ByteData byteData = await rootBundle.load(path);
+    bytes = byteData.buffer.asUint8List();
+  } catch (_) {
+    // rootBundle may not work in test environments — read from file.
+    bytes = await File(path).readAsBytes();
+  }
   final Image? img = decodeBmp(bytes);
   if (img == null) {
     throw Exception('Failed to decode image: $path');
