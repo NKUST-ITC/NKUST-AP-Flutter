@@ -55,6 +55,7 @@ class HomePageState extends State<HomePage> {
   bool busEnable = true;
 
   UserInfo? userInfo;
+  CourseData? courseData;
 
 
   String get sectionImage {
@@ -135,6 +136,7 @@ class HomePageState extends State<HomePage> {
       );
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
+      _loadCourseData();
       if (PreferenceUtil.instance.getBool(Constants.prefAutoLogin, false)) {
         _login();
       } else {
@@ -167,6 +169,7 @@ class HomePageState extends State<HomePage> {
       announcements: announcements,
       isLogin: isLogin,
       content: content,
+      dashboardWidgets: _buildDashboardWidgets(),
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.fiber_new_rounded),
@@ -442,6 +445,7 @@ class HomePageState extends State<HomePage> {
         DrawerMenuItem(
             icon: ApIcon.powerSettingsNew,
             title: ap.logout,
+            iconColor: Theme.of(context).colorScheme.error,
             onTap: () async {
               await PreferenceUtil.instance
                   .setBool(Constants.prefAutoLogin, false);
@@ -459,7 +463,7 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void onTabTapped(int index) {
+  Future<void> onTabTapped(int index) async {
     if (isLogin) {
       switch (canUseBus ? index : index + 1) {
         case 0:
@@ -475,6 +479,30 @@ class HomePageState extends State<HomePage> {
       }
     } else {
       UiUtil.instance.showToast(context, ap.notLogin);
+    }
+  }
+
+  List<Widget>? _buildDashboardWidgets() {
+    if (courseData == null) return null;
+    return <Widget>[
+      TodayScheduleCard(
+        courseData: courseData!,
+        onTap: () {
+          ApUtils.pushCupertinoStyle(context, CoursePage());
+        },
+      ),
+    ];
+  }
+
+  Future<void> _loadCourseData() async {
+    final SemesterData? semesterData = SemesterData.load();
+    if (semesterData == null || Helper.username == null) return;
+    final String tag = semesterData.defaultSemester.cacheSaveTag;
+    final CourseData? data = CourseData.load(tag);
+    if (data != null && mounted) {
+      setState(() {
+        courseData = data;
+      });
     }
   }
 
@@ -608,6 +636,7 @@ class HomePageState extends State<HomePage> {
       isLogin = true;
       PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
       _getUserInfo();
+      _loadCourseData();
       _setupBusNotify(context);
       if (state != HomeState.finish) {
         _getAnnouncements();
@@ -667,6 +696,7 @@ class HomePageState extends State<HomePage> {
     isLogin = true;
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
     _getUserInfo();
+    _loadCourseData();
     _setupBusNotify(context);
     if (state != HomeState.finish) {
       _getAnnouncements();
