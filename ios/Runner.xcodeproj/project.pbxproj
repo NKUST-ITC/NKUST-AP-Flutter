@@ -25,6 +25,10 @@
 		A4E3F87F252644D800343570 /* CourseAppWidget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F87A252644D700343570 /* CourseAppWidget.intentdefinition */; };
 		A4E3F883252644D800343570 /* CourseAppWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A4E3F872252644D700343570 /* CourseAppWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A4E3F91C2526499D00343570 /* CourseData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E3F91B2526499D00343570 /* CourseData.swift */; };
+		B1A00001202604060000001A /* TodayScheduleWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A00001202604060000001B /* TodayScheduleWidget.swift */; };
+		B1A00002202604060000002A /* CourseTableWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A00002202604060000002B /* CourseTableWidget.swift */; };
+		B1A00003202604060000003A /* CountdownWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A00003202604060000003B /* CountdownWidget.swift */; };
+		B1A00004202604060000004A /* StudentIdWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1A00004202604060000004B /* StudentIdWidget.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +98,10 @@
 		A4E3F87D252644D800343570 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4E3F888252645C900343570 /* CourseAppWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CourseAppWidgetExtension.entitlements; sourceTree = "<group>"; };
 		A4E3F91B2526499D00343570 /* CourseData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseData.swift; sourceTree = "<group>"; };
+		B1A00001202604060000001B /* TodayScheduleWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayScheduleWidget.swift; sourceTree = "<group>"; };
+		B1A00002202604060000002B /* CourseTableWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseTableWidget.swift; sourceTree = "<group>"; };
+		B1A00003202604060000003B /* CountdownWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownWidget.swift; sourceTree = "<group>"; };
+		B1A00004202604060000004B /* StudentIdWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StudentIdWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,6 +209,10 @@
 			isa = PBXGroup;
 			children = (
 				A4E3F878252644D700343570 /* CourseAppWidget.swift */,
+				B1A00001202604060000001B /* TodayScheduleWidget.swift */,
+				B1A00002202604060000002B /* CourseTableWidget.swift */,
+				B1A00003202604060000003B /* CountdownWidget.swift */,
+				B1A00004202604060000004B /* StudentIdWidget.swift */,
 				A4E3F87A252644D700343570 /* CourseAppWidget.intentdefinition */,
 				A4E3F87B252644D800343570 /* Assets.xcassets */,
 				A4E3F87D252644D800343570 /* Info.plist */,
@@ -550,6 +562,10 @@
 				A4E3F87E252644D800343570 /* CourseAppWidget.intentdefinition in Sources */,
 				A4E3F879252644D700343570 /* CourseAppWidget.swift in Sources */,
 				A4E3F91C2526499D00343570 /* CourseData.swift in Sources */,
+				B1A00001202604060000001A /* TodayScheduleWidget.swift in Sources */,
+				B1A00002202604060000002A /* CourseTableWidget.swift in Sources */,
+				B1A00003202604060000003A /* CountdownWidget.swift in Sources */,
+				B1A00004202604060000004A /* StudentIdWidget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
