@@ -302,23 +302,44 @@ void main() {
       final List<dynamic> courses = result['courses'] as List<dynamic>;
       final List<dynamic> timeCodes = result['timeCodes'] as List<dynamic>;
 
-      expect(timeCodes.length, 4); // M, 1, 2, 3
+      expect(timeCodes.length, 15); // M, 1-13
       expect(timeCodes[0]['title'], 'M');
       expect(timeCodes[0]['startTime'], '07:10');
       expect(timeCodes[0]['endTime'], '08:00');
 
-      expect(courses.length, 2); // 程式設計, 資料結構
+      expect(courses.length, 4);
+
+      // 全民國防教育軍事訓練課程-國防科技: (三)3-4
       final Map<String, dynamic> course1 = courses.firstWhere(
-        (dynamic c) => c['title'] == '程式設計',
+        (dynamic c) => (c['title'] as String).contains('全民國防'),
       ) as Map<String, dynamic>;
-      expect(course1['instructors'], contains('王教授'));
-      expect(course1['location']['room'], 'E201');
-      final List<dynamic> sectionTimes =
+      expect(course1['code'], '4587');
+      expect(course1['required'], '選修');
+      expect(course1['units'], '0');
+      expect(course1['instructors'], contains('林昭君'));
+      expect(course1['location']['room'], 'MA319');
+      final List<dynamic> sectionTimes1 =
           course1['sectionTimes'] as List<dynamic>;
-      // 程式設計: Mon sections 1, 2, 3
-      expect(sectionTimes.length, 3);
+      expect(sectionTimes1.length, 2); // 3-4
       expect(
-        sectionTimes.every((dynamic st) => st['weekday'] == 1),
+        sectionTimes1.every((dynamic st) => st['weekday'] == 3),
+        isTrue,
+      );
+
+      // 人工智慧: (一)2-4
+      final Map<String, dynamic> course4 = courses.firstWhere(
+        (dynamic c) => c['title'] == '人工智慧',
+      ) as Map<String, dynamic>;
+      expect(course4['code'], '2074');
+      expect(course4['required'], '選修');
+      expect(course4['units'], '3');
+      expect(course4['instructors'], contains('吳明泰'));
+      expect(course4['location']['room'], 'C120');
+      final List<dynamic> sectionTimes4 =
+          course4['sectionTimes'] as List<dynamic>;
+      expect(sectionTimes4.length, 3); // 2-4
+      expect(
+        sectionTimes4.every((dynamic st) => st['weekday'] == 1),
         isTrue,
       );
     });

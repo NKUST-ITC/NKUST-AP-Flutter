@@ -290,8 +290,10 @@ class Helper {
         //TODO
         break;
       case webap:
-      default:
         data = await WebApHelper.instance.semesters();
+      case stdsys:
+      default:
+        data = await StdsysHelper.instance.getSemesters();
     }
     reLoginCount = 0;
     if (data == null) {
