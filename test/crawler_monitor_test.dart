@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_core/injector.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -9,6 +10,30 @@ import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 
 //ignore_for_file: lines_longer_than_80_chars, avoid_print
+
+/// No-op implementation of [CrashlyticsUtil] for test environments
+/// where Firebase is not initialized.
+class _NoopCrashlyticsUtil extends CrashlyticsUtil {
+  const _NoopCrashlyticsUtil();
+
+  @override
+  Future<void> recordError(
+    dynamic exception,
+    StackTrace stack, {
+    dynamic reason,
+    Iterable<Object>? information,
+    bool? printDetails,
+  }) async {}
+
+  @override
+  Future<void> setCrashlyticsCollectionEnabled(bool enabled) async {}
+
+  @override
+  Future<void> log(String message) async {}
+
+  @override
+  Future<void> setCustomKey(String key, Object value) async {}
+}
 
 /// Crawler monitor integration tests.
 ///
@@ -48,6 +73,11 @@ void main() {
 
   // ─── Setup ─────────────────────────────────────────────────────────────
   setUpAll(() {
+    // Register no-op CrashlyticsUtil so helpers don't crash
+    // when Firebase is not initialized.
+    injector.registerSingleton<CrashlyticsUtil>(
+      () => const _NoopCrashlyticsUtil(),
+    );
     Helper.username = username;
     Helper.password = password;
     Helper.isSupportCacheData = false;
