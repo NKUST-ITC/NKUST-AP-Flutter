@@ -292,8 +292,8 @@ class Helper {
       case webap:
         data = await WebApHelper.instance.semesters();
       case stdsys:
-        default:
-          data = await StdsysHelper.instance.getSemesters();
+      default:
+        data = await StdsysHelper.instance.getSemesters();
     }
     reLoginCount = 0;
     if (data == null) {
