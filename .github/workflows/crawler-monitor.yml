@@ -54,29 +54,31 @@ jobs:
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
             -d parse_mode="Markdown" \
-            -d text="🚨 *NKUST Crawler Monitor Failed*
+            -d text="🚨 *NKUST 爬蟲監控異常*
 
-          School HTML/JSON structure may have changed.
+          學校網頁 HTML/JSON 結構可能已變更，請盡速確認。
 
+          *失敗項目：*
           \`\`\`
           ${{ steps.msg.outputs.failures }}
           \`\`\`
 
-          [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          [查看執行紀錄](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
       - name: Notify Discord
         if: steps.test.outputs.exit_code != '0'
         run: |
           jq -n \
-            --arg content "🚨 **NKUST Crawler Monitor Failed**
+            --arg content "🚨 **NKUST 爬蟲監控異常**
 
-          School HTML/JSON structure may have changed.
+          學校網頁 HTML/JSON 結構可能已變更，請盡速確認。
 
+          **失敗項目：**
           \`\`\`
           ${{ steps.msg.outputs.failures }}
           \`\`\`
 
-          [View Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+          [查看執行紀錄](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
             '{content: $content}' | \
           curl -s -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
             -H "Content-Type: application/json" \
