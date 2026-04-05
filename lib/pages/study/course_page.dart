@@ -17,6 +17,11 @@ class CoursePageState extends State<CoursePage> {
   SemesterData? semesterData;
   CourseData courseData = CourseData.empty();
 
+  /// API-fetched course data (before merging custom courses).
+  CourseData? _apiCourseData;
+
+  CustomCourseData _customCourseData = CustomCourseData();
+
   CourseNotifyData? notifyData;
 
   bool isOffline = false;
@@ -56,6 +61,9 @@ class CoursePageState extends State<CoursePage> {
       courseNotifySaveKey: courseNotifyCacheKey,
       androidResourceIcon: Constants.androidDefaultNotificationName,
       enableCaptureCourseTable: true,
+      enableCustomCourse: true,
+      customCourseData: _customCourseData,
+      onCustomCourseChanged: _onCustomCourseChanged,
       semesterData: semesterData,
       semesterPickerController: _pickerController,
       onSelect: (int index) {
@@ -136,7 +144,9 @@ class CoursePageState extends State<CoursePage> {
         if (cacheData == null) {
           state = CourseState.offlineEmpty;
         } else {
-          courseData = cacheData;
+          _apiCourseData = cacheData;
+          _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
+          courseData = cacheData.mergeCustom(_customCourseData.courses);
           state = courseData.courses.isEmpty
               ? CourseState.empty
               : CourseState.finish;
@@ -156,20 +166,24 @@ class CoursePageState extends State<CoursePage> {
         semesterDefault: semesterData!.defaultSemester,
       );
       if (mounted) {
+        _apiCourseData = data;
+        data.save(selectSemester!.cacheSaveTag);
+        _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
+        courseData = data.mergeCustom(_customCourseData.courses);
         setState(() {
-          if (data.courses.isEmpty) {
+          if (courseData.courses.isEmpty) {
             state = CourseState.empty;
             _pickerController.markSemesterEmpty(selectSemester!);
           } else {
-            courseData = data;
             isOffline = false;
-            courseData.save(selectSemester!.cacheSaveTag);
-            ApCommonPlugin.updateCourseWidget(courseData);
             state = CourseState.finish;
             notifyData = CourseNotifyData.load(courseNotifyCacheKey);
             _pickerController.markSemesterHasData(selectSemester!);
           }
         });
+        if (courseData.courses.isNotEmpty) {
+          await ApCommonPlugin.updateCourseWidget(courseData);
+        }
       }
     } on GeneralResponse catch (generalResponse) {
       if (mounted) {
@@ -199,6 +213,24 @@ class CoursePageState extends State<CoursePage> {
           message: e.message ?? '',
         );
       }
+    }
+  }
+
+  void _onCustomCourseChanged(CustomCourseData updated) {
+    _customCourseData = CustomCourseData(
+      courses: updated.courses,
+      tag: courseNotifyCacheKey,
+    );
+    _customCourseData.save();
+    if (_apiCourseData != null && mounted) {
+      setState(() {
+        courseData = _apiCourseData!.mergeCustom(_customCourseData.courses);
+        if (courseData.courses.isEmpty) {
+          state = CourseState.empty;
+        } else {
+          state = CourseState.finish;
+        }
+      });
     }
   }
 }
