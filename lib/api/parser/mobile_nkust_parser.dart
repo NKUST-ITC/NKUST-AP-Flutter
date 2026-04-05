@@ -70,11 +70,11 @@ class MobileNkustParser {
     };
     final List<Element> inputElements = document.getElementsByTagName('input');
     final List<Map<String, dynamic>> coursesJson =
-        jsonDecode(inputElements[0].attributes['value']!)
-            as List<Map<String, dynamic>>;
+        (jsonDecode(inputElements[0].attributes['value']!) as List<dynamic>)
+            .cast<Map<String, dynamic>>();
     final List<Map<String, dynamic>> periodTimeJson =
-        jsonDecode(inputElements[1].attributes['value']!)
-            as List<Map<String, dynamic>>;
+        (jsonDecode(inputElements[1].attributes['value']!) as List<dynamic>)
+            .cast<Map<String, dynamic>>();
 
     for (final Map<String, dynamic> periodTime in periodTimeJson) {
       (result['timeCodes'] as List<Map<String, dynamic>>).add(
