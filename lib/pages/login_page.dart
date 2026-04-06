@@ -2,7 +2,6 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -45,7 +44,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
@@ -58,6 +57,7 @@ class LoginPageState extends State<LoginPage> {
           labelText: ap.studentId,
           autofillHints: const <String>[AutofillHints.username],
         ),
+        const SizedBox(height: 12.0),
         ApTextField(
           obscureText: true,
           textInputAction: TextInputAction.send,
@@ -70,7 +70,7 @@ class LoginPageState extends State<LoginPage> {
           labelText: ap.password,
           autofillHints: const <String>[AutofillHints.password],
         ),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 12.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -79,6 +79,7 @@ class LoginPageState extends State<LoginPage> {
               value: isAutoLogin,
               onChanged: _onAutoLoginChanged,
             ),
+            const SizedBox(width: 8.0),
             TextCheckBox(
               text: ap.rememberPassword,
               value: isRememberPassword,
@@ -86,7 +87,7 @@ class LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 16.0),
         ApButton(
           text: ap.login,
           onPressed: isLoginIng
@@ -172,55 +173,49 @@ class LoginPageState extends State<LoginPage> {
     } else {
       setState(() => isLoginIng = true);
       PreferenceUtil.instance.setString(Constants.prefUsername, _username.text);
-      Helper.instance.login(
-        context: context,
-        username: _username.text,
-        password: _password.text,
-        clearCache: true,
-        callback: GeneralCallback<LoginResponse?>(
-          onSuccess: (LoginResponse? response) async {
-            PreferenceUtil.instance
-                .setString(Constants.prefUsername, _username.text);
-            if (isRememberPassword) {
-              PreferenceUtil.instance.setStringSecurity(
-                Constants.prefPassword,
-                _password.text,
-              );
-            }
-            PreferenceUtil.instance
-                .setBool(Constants.prefIsOfflineLogin, false);
-            TextInput.finishAutofillContext();
-            Navigator.of(context).pop(true);
-          },
-          onFailure: (DioException e) {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-            setState(() => isLoginIng = false);
-            if (e.type != DioExceptionType.cancel) _offlineLogin();
-          },
-          onError: (GeneralResponse response) {
-            String? message = '';
-            switch (response.statusCode) {
-              case ApStatusCode.schoolServerError:
-                message = ap.schoolServerError;
-              case ApStatusCode.apiServerError:
-                message = ap.apiServerError;
-              case ApStatusCode.userDataError:
-                message = ap.loginFail;
-              case ApStatusCode.passwordFiveTimesError:
-                //TODO i18n
-                message = '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!';
-              case ApStatusCode.cancel:
-                message = null;
-              default:
-                message = ap.somethingError;
-            }
-            if (message != null) UiUtil.instance.showToast(context, message);
-            setState(() => isLoginIng = false);
-          },
-        ),
-      );
+      try {
+        await Helper.instance.login(
+          username: _username.text,
+          password: _password.text,
+          clearCache: true,
+        );
+        PreferenceUtil.instance
+            .setString(Constants.prefUsername, _username.text);
+        if (isRememberPassword) {
+          PreferenceUtil.instance.setStringSecurity(
+            Constants.prefPassword,
+            _password.text,
+          );
+        }
+        PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
+        TextInput.finishAutofillContext();
+        Navigator.of(context).pop(true);
+      } on GeneralResponse catch (response) {
+        String? message = '';
+        switch (response.statusCode) {
+          case ApStatusCode.schoolServerError:
+            message = ap.schoolServerError;
+          case ApStatusCode.apiServerError:
+            message = ap.apiServerError;
+          case ApStatusCode.userDataError:
+            message = ap.loginFail;
+          case ApStatusCode.passwordFiveTimesError:
+            //TODO i18n
+            message = '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!';
+          case ApStatusCode.cancel:
+            message = null;
+          default:
+            message = ap.somethingError;
+        }
+        if (message != null) UiUtil.instance.showToast(context, message);
+        setState(() => isLoginIng = false);
+      } on DioException catch (e) {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+        setState(() => isLoginIng = false);
+        if (e.type != DioExceptionType.cancel) _offlineLogin();
+      }
     }
   }
 

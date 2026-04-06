@@ -92,45 +92,30 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                 _login = Future<bool>.microtask(() => login());
               },
               child: HintContent(
-                content: ApLocalizations.of(context).clickToRetry,
+                content: context.ap.clickToRetry,
                 icon: ApIcon.error,
               ),
             );
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: onTabTapped,
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: app!.busReserve,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: app!.busReservations,
           ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: <Widget>[
-                Icon(ApIcon.monetizationOn),
-                if (ShareDataWidget.of(context)!.data.hasBusViolationRecords)
-                  Positioned(
-                    top: -1.0,
-                    right: -1.0,
-                    child: Stack(
-                      children: <Widget>[
-                        Icon(
-                          Icons.brightness_1,
-                          size: 10.0,
-                          color: ApTheme.of(context).red,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible:
+                  ShareDataWidget.of(context)!.data.hasBusViolationRecords,
+              child: Icon(ApIcon.monetizationOn),
             ),
             label: app!.busViolationRecords,
           ),
@@ -146,40 +131,38 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     });
   }
 
-  void getBusViolationRecords() {
-    Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (BusViolationRecordsData data) {
-          if (mounted) {
-            setState(() {
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  data.hasBusViolationRecords;
-            });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.hasBusViolation,
-            (data.hasBusViolationRecords)
-                ? AnalyticsConstants.yes
-                : AnalyticsConstants.no,
-          );
-        },
-        onError: (GeneralResponse response) {},
-        onFailure: (DioException e) {
-          if (e.hasResponse &&
-              (e.response!.statusCode == 401 ||
-                  e.response!.statusCode == 403)) {
-            AnalyticsUtil.instance.setUserProperty(
-              Constants.canUseBus,
-              AnalyticsConstants.no,
-            );
-          }
-        },
-      ),
-    );
+  Future<void> getBusViolationRecords() async {
+    try {
+      final BusViolationRecordsData data =
+          await Helper.instance.getBusViolationRecords();
+      if (mounted) {
+        setState(() {
+          ShareDataWidget.of(context)!.data.hasBusViolationRecords =
+              data.hasBusViolationRecords;
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.hasBusViolation,
+        (data.hasBusViolationRecords)
+            ? AnalyticsConstants.yes
+            : AnalyticsConstants.no,
+      );
+    } on DioException catch (e) {
+      if (e.hasResponse &&
+          (e.response!.statusCode == 401 ||
+              e.response!.statusCode == 403)) {
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      }
+    } catch (e, s) {
+      CrashlyticsUtil.instance.recordError(e, s);
+    }
   }
 
   Future<bool> login() async {

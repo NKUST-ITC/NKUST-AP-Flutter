@@ -38,7 +38,6 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.loginAuth),
-        backgroundColor: ApTheme.of(context).blue,
         actions: <Widget>[
           TextButton(
             onPressed: () {

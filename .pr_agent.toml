@@ -1,0 +1,21 @@
+[config]
+response_language = "zh-TW"
+
+[pr_update_changelog]
+push_changelog_changes = true
+
+[github_app]
+handle_pr_actions = ['opened', 'reopened', 'ready_for_review']
+handle_issue_actions = ['opened']
+pr_commands = [
+  "/describe --pr_description.use_description_markers=true",
+  "/review",
+  "/update_changelog",
+  "/similar_issue",
+  "/help_docs"
+]
+handle_push_trigger = true
+push_commands = [
+    "/describe",
+    "/review",
+]

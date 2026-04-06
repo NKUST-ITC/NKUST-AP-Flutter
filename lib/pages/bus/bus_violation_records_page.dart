@@ -58,7 +58,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     switch (state) {
       case _State.loading:
         return const Center(
@@ -208,89 +208,85 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Future<void> getBusViolationRecords() async {
-    Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (BusViolationRecordsData data) {
-          violationData = data;
-          violationData!.reservations.sort(
-            (Reservation a, Reservation b) => b.time.compareTo(a.time),
-          );
-          if (mounted) {
+    try {
+      final BusViolationRecordsData data =
+          await Helper.instance.getBusViolationRecords();
+      violationData = data;
+      violationData!.reservations.sort(
+        (Reservation a, Reservation b) => b.time.compareTo(a.time),
+      );
+      if (mounted) {
+        setState(() {
+          if (violationData == null ||
+              violationData!.reservations.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
+          }
+          ShareDataWidget.of(context)!.data.hasBusViolationRecords =
+              data.hasBusViolationRecords;
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.hasBusViolation,
+        (data.hasBusViolationRecords)
+            ? AnalyticsConstants.yes
+            : AnalyticsConstants.no,
+      );
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
             setState(() {
-              if (violationData == null ||
-                  violationData!.reservations.isEmpty) {
-                state = _State.empty;
+              if (e.response!.statusCode == 401) {
+                state = _State.userNotSupport;
+              } else if (e.response!.statusCode == 403) {
+                state = _State.campusNotSupport;
               } else {
-                state = _State.finish;
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusViolationRecords',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
               }
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords =
-                  data.hasBusViolationRecords;
             });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.hasBusViolation,
-            (data.hasBusViolationRecords)
-                ? AnalyticsConstants.yes
-                : AnalyticsConstants.no,
-          );
-        },
-        onFailure: (DioException e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 401) {
-                    state = _State.userNotSupport;
-                  } else if (e.response!.statusCode == 403) {
-                    state = _State.campusNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getBusViolationRecords',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-                if (e.response!.statusCode == 401 ||
-                    e.response!.statusCode == 403) {
-                  AnalyticsUtil.instance.setUserProperty(
-                    Constants.canUseBus,
-                    AnalyticsConstants.no,
-                  );
-                }
-              case DioExceptionType.unknown:
-                setState(() {
-                  if (e.message?.contains('HttpException') ?? false) {
-                    state = _State.custom;
-                    customStateHint = app.busFailInfinity;
-                  } else {
-                    state = _State.error;
-                  }
-                });
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
+            if (e.response!.statusCode == 401 ||
+                e.response!.statusCode == 403) {
+              AnalyticsUtil.instance.setUserProperty(
+                Constants.canUseBus,
+                AnalyticsConstants.no,
+              );
             }
-          }
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+          case DioExceptionType.unknown:
+            setState(() {
+              if (e.message?.contains('HttpException') ?? false) {
+                state = _State.custom;
+                customStateHint = app.busFailInfinity;
+              } else {
+                state = _State.error;
+              }
+            });
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+    }
   }
 }
 
@@ -307,7 +303,7 @@ class ReservationItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final DateFormat dateFormat =
-        DateFormat('E h:mm a', ApLocalizations.of(context).dateTimeLocale);
+        DateFormat('E h:mm a', context.ap.dateTimeLocale);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: 8.0,

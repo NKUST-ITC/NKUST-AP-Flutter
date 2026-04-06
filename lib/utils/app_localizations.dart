@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:multiple_localization/multiple_localization.dart';
 import 'package:nkust_ap/l10n/intl/messages_all.dart';
 import 'package:nkust_ap/l10n/l10n.dart';
 
@@ -18,13 +17,9 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  Future<AppLocalizations> load(Locale locale) {
-    return MultipleLocalizations.load(
-      initializeMessages,
-      locale,
-      (String l) => AppLocalizations.load(locale),
-      setDefaultLocale: true,
-    );
+  Future<AppLocalizations> load(Locale locale) async {
+    await initializeMessages(locale.toString());
+    return AppLocalizations.load(locale);
   }
 
   @override

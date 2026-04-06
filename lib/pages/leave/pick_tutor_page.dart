@@ -42,7 +42,7 @@ class _PickTutorPageState extends State<PickTutorPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.pickTeacher),
@@ -142,26 +142,11 @@ class _PickTutorPageState extends State<PickTutorPage> {
             const SizedBox(height: 16.0),
             FractionallySizedBox(
               widthFactor: 0.8,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(14.0),
-                ),
+              child: FilledButton(
                 onPressed: () {
                   Navigator.pop(context, teacher);
                 },
-                child: Text(
-                  ap.confirm,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text(ap.confirm),
               ),
             ),
           ],
@@ -213,21 +198,16 @@ class _PickTutorPageState extends State<PickTutorPage> {
     String title = '';
     switch (type) {
       case _Type.campus:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
       case _Type.department:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
       case _Type.teacher:
-        title = ApLocalizations.of(context).pickTeacher;
+        title = context.ap.pickTeacher;
     }
     showDialog<int>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(8),
-          ),
-        ),
         contentPadding: EdgeInsets.zero,
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,

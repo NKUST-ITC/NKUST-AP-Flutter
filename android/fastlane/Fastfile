@@ -1,48 +1,29 @@
 default_platform(:android)
 
-sh("chmod", "a+x", "../../.github/scripts/generate_android_changelog.sh")
-
-sh("../../.github/scripts/generate_android_changelog.sh", flutter_version()["version_code"])
-
 platform :android do
   lane :beta do
-    begin
-      desc "Deploy to beta track"
-      gradle(task: "clean")
-      gradle(
-        task: "bundle",
-        build_type: 'Release'
-      )
-
-      upload_to_play_store(
-        track: 'beta',
-        aab: '../build/app/outputs/bundle/release/app-release.aab',
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true,
-        release_status: "draft",
-        version_code: flutter_version()["version_code"],
-      )
-    end
+    desc "Deploy to beta track"
+    upload_to_play_store(
+      track: 'beta',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: "draft",
+      version_code: flutter_version()["version_code"],
+    )
   end
-  lane :playstore do
-    begin
-    desc "Deploy to production track"
-      gradle(task: "clean")
-      gradle(
-        task: "bundle",
-        build_type: 'Release'
-      )
 
-      upload_to_play_store(
-        track: 'production',
-        aab: '../build/app/outputs/bundle/release/app-release.aab',
-        skip_upload_metadata: true,
-        skip_upload_images: true,
-        skip_upload_screenshots: true,
-        release_status: "draft",
-        version_code: flutter_version()["version_code"],
-      )
-    end
+  lane :playstore do
+    desc "Deploy to production track"
+    upload_to_play_store(
+      track: 'production',
+      aab: '../build/app/outputs/bundle/release/app-release.aab',
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      release_status: "draft",
+      version_code: flutter_version()["version_code"],
+    )
   end
 end

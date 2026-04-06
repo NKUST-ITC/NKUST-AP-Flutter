@@ -22,7 +22,7 @@ class _RoomListPageState extends State<RoomListPage> {
 
   RoomData? roomData;
   CourseData? courseData;
-
+  SemesterData? semesterData;
   String? customStateHint;
 
   @override
@@ -40,7 +40,7 @@ class _RoomListPageState extends State<RoomListPage> {
     app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(ApLocalizations.of(context).roomList),
+        title: Text(context.ap.roomList),
       ),
       body: Flex(
         direction: Axis.vertical,
@@ -109,42 +109,35 @@ class _RoomListPageState extends State<RoomListPage> {
   }
 
   Future<void> _getRoomList() async {
-    Helper.instance.getRoomList(
-      campusCode: campusIndex + 1,
-      callback: GeneralCallback<RoomData>(
-        onSuccess: (RoomData data) {
-          setState(() {
-            roomData = data;
-            if (roomData != null) {
-              state = _State.finish;
-            } else {
-              state = _State.custom;
-              customStateHint = ApLocalizations.of(context).somethingError;
-            }
-          });
-        },
-        onFailure: (DioException e) async {
-          if (e.type != DioExceptionType.cancel) {
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.i18nMessage;
-            });
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRoomCourseTables',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse generalResponse) async {
-          setState(() {
-            state = _State.custom;
-            customStateHint = generalResponse.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+    try {
+      semesterData = await Helper.instance.getSemester();
+      final RoomData data = await Helper.instance.getRoomList(
+        semester: semesterData!.defaultSemester,
+        campusCode: campusIndex + 1,
+      );
+      setState(() {
+        roomData = data;
+        state = _State.finish;
+      });
+    } on GeneralResponse catch (generalResponse) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = generalResponse.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      if (e.type != DioExceptionType.cancel) {
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.i18nMessage;
+        });
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRoomCourseTables',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

@@ -85,11 +85,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.schoolInfo),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
         controller: controller,
@@ -100,6 +99,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             notificationList: notificationList,
             onRefresh: () async {
               setState(() => notificationList.clear());
+              page = 1;
               _getNotifications();
             },
             onLoadingMore: () async {
@@ -122,25 +122,24 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (int index) {
           setState(() {
             _currentIndex = index;
             controller.animateTo(_currentIndex);
           });
         },
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.fiberNew),
             label: ap.notifications,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.phone),
             label: ap.phones,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: ap.events,
           ),
@@ -149,35 +148,32 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     );
   }
 
-  void _getNotifications() {
+  Future<void> _getNotifications() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
-      Helper.instance.getNotifications(
-        page: page,
-        callback: GeneralCallback<NotificationsData>(
-          onSuccess: (NotificationsData data) {
-            notificationList.addAll(data.data.notifications);
-            if (mounted) {
-              setState(() => notificationState = NotificationState.finish);
-            }
-          },
-          onFailure: (DioException e) {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-            if (mounted && notificationList.isEmpty) {
-              setState(() => notificationState = NotificationState.error);
-            }
-          },
-          onError: (GeneralResponse response) {
-            UiUtil.instance.showToast(context, ap.somethingError);
-            if (mounted && notificationList.isEmpty) {
-              setState(() => notificationState = NotificationState.error);
-            }
-          },
-        ),
-      );
+      try {
+        final NotificationsData data = await Helper.instance.getNotifications(
+          page: page,
+        );
+        notificationList.addAll(data.data.notifications);
+        if (mounted) {
+          setState(() => notificationState = NotificationState.finish);
+        }
+      } on GeneralResponse {
+        UiUtil.instance.showToast(context, ap.somethingError);
+        if (mounted && notificationList.isEmpty) {
+          setState(() => notificationState = NotificationState.error);
+        }
+      } on DioException catch (e) {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+        if (mounted && notificationList.isEmpty) {
+          setState(() => notificationState = NotificationState.error);
+        }
+        rethrow;
+      }
     }
   }
 

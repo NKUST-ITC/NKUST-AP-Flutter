@@ -1,4 +1,7 @@
 import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -42,93 +45,150 @@ class SettingPageState extends State<SettingPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(ap.settings),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SettingTitle(text: ap.notificationItem),
-            const CheckCourseNotifyItem(),
-            const ClearAllNotifyItem(),
-            SettingSwitch(
-              text: AppLocalizations.of(context).busNotify,
-              subText: AppLocalizations.of(context).busNotifySubTitle,
-              value: busNotify,
-              onChanged: (bool b) async {
-                AnalyticsUtil.instance.logEvent('notify_bus_create');
-                setState(() {
-                  busNotify = !busNotify;
-                });
-                if (busNotify) {
-                  _setupBusNotify(context);
-                } else {
-                  await Utils.cancelBusNotify();
-                }
-                PreferenceUtil.instance
-                    .setBool(Constants.prefBusNotify, busNotify);
-                AnalyticsUtil.instance.logEvent('notify_bus_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                const CheckCourseNotifyItem(),
+                const ClearAllNotifyItem(),
+                SettingSwitch(
+                  text: AppLocalizations.of(context).busNotify,
+                  subText: AppLocalizations.of(context).busNotifySubTitle,
+                  value: busNotify,
+                  onChanged: (bool b) async {
+                    AnalyticsUtil.instance.logEvent('notify_bus_create');
+                    setState(() {
+                      busNotify = !busNotify;
+                    });
+                    if (busNotify) {
+                      _setupBusNotify(context);
+                    } else {
+                      await Utils.cancelBusNotify();
+                    }
+                    PreferenceUtil.instance
+                        .setBool(Constants.prefBusNotify, busNotify);
+                    AnalyticsUtil.instance.logEvent('notify_bus_click');
+                  },
+                ),
+              ],
             ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
-            ),
+            const SizedBox(height: 16),
             SettingTitle(text: ap.otherSettings),
-            SettingSwitch(
-              text: ap.headPhotoSetting,
-              subText: ap.headPhotoSettingSubTitle,
-              value: displayPicture,
-              onChanged: (bool b) {
-                setState(() {
-                  displayPicture = !displayPicture;
-                });
-                PreferenceUtil.instance.setBool(
-                  Constants.prefDisplayPicture,
-                  displayPicture,
-                );
-                AnalyticsUtil.instance.logEvent('head_photo_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingSwitch(
+                  text: ap.headPhotoSetting,
+                  subText: ap.headPhotoSettingSubTitle,
+                  value: displayPicture,
+                  onChanged: (bool b) {
+                    setState(() {
+                      displayPicture = !displayPicture;
+                    });
+                    PreferenceUtil.instance.setBool(
+                      Constants.prefDisplayPicture,
+                      displayPicture,
+                    );
+                    AnalyticsUtil.instance.logEvent('head_photo_click');
+                  },
+                ),
+                ChangeLanguageItem(
+                  onChange: (Locale locale) {
+                    ShareDataWidget.of(context)!.data.loadLocale(locale);
+                  },
+                ),
+                ChangeThemeModeItem(
+                  onChange: (ThemeMode themeMode) {
+                    ShareDataWidget.of(context)!.data.loadTheme(themeMode);
+                  },
+                ),
+                ChangeThemeColorItem(
+                  onChanged: (Color color) {
+                    final int index = ApTheme.themeColors.indexWhere(
+                      (ThemeColor tc) =>
+                          tc.color.toARGB32() == color.toARGB32(),
+                    );
+                    final int newIndex =
+                        (index != -1) ? index : ApTheme.customColorIndex;
+                    final Color? newCustomColor =
+                        (index != -1) ? null : color;
+                    ShareDataWidget.of(context)!
+                        .data
+                        .loadThemeColor(newIndex, newCustomColor);
+                    ApTheme.of(context).saveSettings(
+                      index: newIndex,
+                      customColor: newCustomColor,
+                    );
+                  },
+                ),
+                ChangeIconStyleItem(
+                  onChange: (String code) {
+                    ShareDataWidget.of(context)!.data.update();
+                  },
+                ),
+              ],
             ),
-            ChangeLanguageItem(
-              onChange: (Locale locale) {
-                ShareDataWidget.of(context)!.data.loadLocale(locale);
-              },
-            ),
-            ChangeThemeModeItem(
-              onChange: (ThemeMode themeMode) {
-                ShareDataWidget.of(context)!.data.loadTheme(themeMode);
-              },
-            ),
-            ChangeIconStyleItem(
-              onChange: (String code) {
-                ShareDataWidget.of(context)!.data.update();
-              },
-            ),
-            const Divider(
-              color: Colors.grey,
-              height: 0.5,
-            ),
+            if (kDebugMode) ...<Widget>[
+              const SizedBox(height: 16),
+              const SettingTitle(text: 'Debug'),
+              SettingCard(
+                children: <Widget>[
+                  SettingItem(
+                    text: '設定測試課表 Widget',
+                    subText: '注入 30 分鐘後的假課程資料',
+                    onTap: () async {
+                      await ApCommonPlugin.setFakeCourseWidget();
+                      if (!context.mounted) return;
+                      UiUtil.instance.showToast(
+                        context,
+                        '已設定測試課表 Widget',
+                      );
+                    },
+                  ),
+                  SettingItem(
+                    text: '清除課表 Widget',
+                    subText: '移除 Widget 中的課程資料',
+                    onTap: () async {
+                      await ApCommonPlugin.clearCourseWidget();
+                      if (!context.mounted) return;
+                      UiUtil.instance.showToast(
+                        context,
+                        '已清除課表 Widget',
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 16),
             SettingTitle(text: ap.otherInfo),
-            SettingItem(
-              text: ap.feedback,
-              subText: ap.feedbackViaFacebook,
-              onTap: () {
-                ApUtils.launchFbFansPage(context, Constants.fansPageId);
-                AnalyticsUtil.instance.logEvent('feedback_click');
-              },
-            ),
-            SettingItem(
-              text: ap.appVersion,
-              subText: 'v$appVersion',
-              onTap: () {
-                AnalyticsUtil.instance.logEvent('app_version_click');
-              },
+            SettingCard(
+              children: <Widget>[
+                SettingItem(
+                  text: ap.feedback,
+                  subText: ap.feedbackViaFacebook,
+                  onTap: () {
+                    ApUtils.launchFbFansPage(context, Constants.fansPageId);
+                    AnalyticsUtil.instance.logEvent('feedback_click');
+                  },
+                ),
+                SettingItem(
+                  text: ap.appVersion,
+                  subText: 'v$appVersion',
+                  onTap: () {
+                    AnalyticsUtil.instance.logEvent('app_version_click');
+                  },
+                ),
+              ],
             ),
           ],
         ),
@@ -173,60 +233,56 @@ class SettingPageState extends State<SettingPage> {
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
     }
-    Helper.instance.getBusReservations(
-      callback: GeneralCallback<BusReservationsData>(
-        onSuccess: (BusReservationsData data) async {
-          Navigator.of(context, rootNavigator: true).pop();
-          if (data.reservations.isEmpty) {
-            await Utils.setBusNotify(context, data.reservations);
-            if (!context.mounted) return;
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busNotifyHint,
-            );
-          } else {
-            UiUtil.instance.showToast(
-              context,
-              AppLocalizations.of(context).busReservationEmpty,
+    try {
+      final BusReservationsData data =
+          await Helper.instance.getBusReservations();
+      Navigator.of(context, rootNavigator: true).pop();
+      if (data.reservations.isEmpty) {
+        await Utils.setBusNotify(context, data.reservations);
+        if (!context.mounted) return;
+        UiUtil.instance.showToast(
+          context,
+          AppLocalizations.of(context).busNotifyHint,
+        );
+      } else {
+        UiUtil.instance.showToast(
+          context,
+          AppLocalizations.of(context).busReservationEmpty,
+        );
+      }
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+    } on GeneralResponse catch (response) {
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() => busNotify = false);
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+      UiUtil.instance
+          .showToast(context, response.getGeneralMessage(context));
+    } on DioException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      setState(() => busNotify = false);
+      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
+      if (e.hasResponse) {
+        if (e.response!.statusCode == 401) {
+          UiUtil.instance.showToast(context, ap.userNotSupport);
+        } else if (e.response!.statusCode == 403) {
+          UiUtil.instance.showToast(context, ap.campusNotSupport);
+        } else {
+          if (e.message != null) {
+            UiUtil.instance.showToast(context, e.message!);
+            AnalyticsUtil.instance.logApiEvent(
+              'getBusReservations',
+              e.response!.statusCode!,
+              message: e.message ?? '',
             );
           }
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-        },
-        onFailure: (DioException e) {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => busNotify = false);
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          if (e.hasResponse) {
-            if (e.response!.statusCode == 401) {
-              UiUtil.instance.showToast(context, ap.userNotSupport);
-            } else if (e.response!.statusCode == 403) {
-              UiUtil.instance.showToast(context, ap.campusNotSupport);
-            } else {
-              if (e.message != null) {
-                UiUtil.instance.showToast(context, e.message!);
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusReservations',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            }
-          } else if (e.type == DioExceptionType.unknown) {
-            UiUtil.instance.showToast(context, ap.busFailInfinity);
-          } else {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-          }
-        },
-        onError: (GeneralResponse response) {
-          Navigator.of(context, rootNavigator: true).pop();
-          setState(() => busNotify = false);
-          PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-          UiUtil.instance
-              .showToast(context, response.getGeneralMessage(context));
-        },
-      ),
-    );
+        }
+      } else if (e.type == DioExceptionType.unknown) {
+        UiUtil.instance.showToast(context, ap.busFailInfinity);
+      } else {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+      }
+    }
   }
 }

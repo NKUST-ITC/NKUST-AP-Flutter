@@ -5,10 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/io.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/parser/api_tool.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -124,7 +122,6 @@ class BusHelper {
   }
 
   late Dio dio;
-  late DioCacheManager _manager;
   static BusHelper? _instance;
   late CookieJar cookieJar;
 
@@ -133,10 +130,6 @@ class BusHelper {
 
   bool isLogin = false;
 
-  static String? userTimeTableSelectCacheKey;
-  static String userRecordsCacheKey = '${Helper.username}_busUserRecords';
-  static String userViolationRecordsCacheKey =
-      '${Helper.username}_busViolationRecords';
   static late BusEncrypt busEncryptObject;
   static String busHost = 'http://bus.kuas.edu.tw/';
 
@@ -159,13 +152,6 @@ class BusHelper {
     // Use PrivateCookieManager to overwrite origin CookieManager, because
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
-    if (Helper.isSupportCacheData) {
-      _manager =
-          DioCacheManager(CacheConfig(baseUrl: 'http://bus.kuas.edu.tw'));
-      dio.interceptors.add(_manager.interceptor as Interceptor);
-      _manager.clearAll();
-    }
-
     cookieJar = CookieJar();
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
@@ -248,12 +234,10 @@ class BusHelper {
 
     final Future<BusReservationsData> userRecord = busReservations();
 
-    userTimeTableSelectCacheKey =
-        '${Helper.username}_busCacheTimTable$year$month$day';
-    Options options;
-    dynamic requestData;
-    if (!Helper.isSupportCacheData) {
-      requestData = <String, dynamic>{
+    final Response<Map<String, dynamic>> res =
+        await dio.post<Map<String, dynamic>>(
+      '${busHost}API/Frequencys/getAll',
+      data: <String, dynamic>{
         'data': json.encode(<String, String?>{
           'y': year,
           'm': month,
@@ -263,41 +247,12 @@ class BusHelper {
         'page': 1,
         'start': 0,
         'limit': 90,
-      };
-      options = Options(contentType: Headers.formUrlEncodedContentType);
-    } else {
-      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      requestData = formUrlEncoded(
-        <String, dynamic>{
-          'data': json.encode(<String, String?>{
-            'y': year,
-            'm': month,
-            'd': day,
-          }),
-          'operation': '全部',
-          'page': 1,
-          'start': 0,
-          'limit': 90,
-        },
-      );
-      options = buildCacheOptions(
-        const Duration(seconds: 60),
-        primaryKey: userTimeTableSelectCacheKey,
-      );
-    }
-    final Response<Map<String, dynamic>> res =
-        await dio.post<Map<String, dynamic>>(
-      '${busHost}API/Frequencys/getAll',
-      data: requestData,
-      options: options,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
     if (res.data!['code'] == 400 &&
         (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      // Remove fail cache.
-      if (Helper.isSupportCacheData) {
-        _manager.delete(userTimeTableSelectCacheKey!);
-      }
       reLoginReTryCounts += 1;
       await busLogin();
       return timeTableQuery(year: year, month: month, day: day);
@@ -315,10 +270,6 @@ class BusHelper {
 
     if (!isLogin) {
       await busLogin();
-    }
-    if (Helper.isSupportCacheData) {
-      _manager.delete(userRecordsCacheKey);
-      _manager.delete(userTimeTableSelectCacheKey!);
     }
 
     final Response<Map<String, dynamic>> res =
@@ -360,10 +311,6 @@ class BusHelper {
       await busLogin();
       return busUnBook(busId: busId);
     }
-    // Clear all cookie, because we can't sure user on which page.
-    // two page can cencel bus.
-    if (Helper.isSupportCacheData) _manager.clearAll();
-
     return CancelBusData.fromJson(res.data!);
   }
 
@@ -375,38 +322,20 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Options options;
-    dynamic requestData;
-    if (!Helper.isSupportCacheData) {
-      requestData = <String, dynamic>{
-        'page': 1,
-        'start': 0,
-        'limit': 90,
-      };
-      options = Options(contentType: Headers.formUrlEncodedContentType);
-    } else {
-      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      requestData = formUrlEncoded(<String, dynamic>{
-        'page': 1,
-        'start': 0,
-        'limit': 90,
-      });
-      options = buildCacheOptions(
-        const Duration(seconds: 60),
-        primaryKey: userRecordsCacheKey,
-      );
-    }
 
     final Response<Map<String, dynamic>> res =
         await dio.post<Map<String, dynamic>>(
       '${busHost}API/Reserves/getOwn',
-      data: requestData,
-      options: options,
+      data: <String, dynamic>{
+        'page': 1,
+        'start': 0,
+        'limit': 90,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
     if (res.data!['code'] == 400 &&
         (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      if (Helper.isSupportCacheData) _manager.delete(userRecordsCacheKey);
       reLoginReTryCounts += 1;
       await busLogin();
       return busReservations();
@@ -425,40 +354,20 @@ class BusHelper {
     if (!isLogin) {
       await busLogin();
     }
-    Options options;
-    dynamic requestData;
-    if (!Helper.isSupportCacheData) {
-      requestData = <String, int>{
-        'page': 1,
-        'start': 0,
-        'limit': 200,
-      };
-      options = Options(contentType: Headers.formUrlEncodedContentType);
-    } else {
-      dio.options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      requestData = formUrlEncoded(<String, int>{
-        'page': 1,
-        'start': 0,
-        'limit': 200,
-      });
-      options = buildCacheOptions(
-        const Duration(seconds: 60),
-        primaryKey: userViolationRecordsCacheKey,
-      );
-    }
 
     final Response<Map<String, dynamic>> res =
         await dio.post<Map<String, dynamic>>(
       '${busHost}API/Illegals/getOwn',
-      data: requestData,
-      options: options,
+      data: <String, int>{
+        'page': 1,
+        'start': 0,
+        'limit': 200,
+      },
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
     if (res.data!['code'] == 400 &&
         (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      if (Helper.isSupportCacheData) {
-        _manager.delete(userViolationRecordsCacheKey);
-      }
       reLoginReTryCounts += 1;
       await busLogin();
       return busViolationRecords();
