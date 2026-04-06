@@ -123,7 +123,7 @@ class WebApHelper {
     //
     for (int i = 0; i < retryCounts; i++) {
       try {
-        final Uint8List? imageBytes = await getUidValidationImage();
+        final Uint8List? imageBytes = await getValidationImage();
 
         if (imageBytes == null) {
           continue;
