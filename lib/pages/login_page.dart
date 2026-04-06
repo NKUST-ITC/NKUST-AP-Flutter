@@ -57,6 +57,7 @@ class LoginPageState extends State<LoginPage> {
           labelText: ap.studentId,
           autofillHints: const <String>[AutofillHints.username],
         ),
+        const SizedBox(height: 12.0),
         ApTextField(
           obscureText: true,
           textInputAction: TextInputAction.send,
@@ -69,7 +70,7 @@ class LoginPageState extends State<LoginPage> {
           labelText: ap.password,
           autofillHints: const <String>[AutofillHints.password],
         ),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 12.0),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -78,6 +79,7 @@ class LoginPageState extends State<LoginPage> {
               value: isAutoLogin,
               onChanged: _onAutoLoginChanged,
             ),
+            const SizedBox(width: 8.0),
             TextCheckBox(
               text: ap.rememberPassword,
               value: isRememberPassword,
@@ -85,7 +87,7 @@ class LoginPageState extends State<LoginPage> {
             ),
           ],
         ),
-        const SizedBox(height: 8.0),
+        const SizedBox(height: 16.0),
         ApButton(
           text: ap.login,
           onPressed: isLoginIng
