@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 3.13.0+31300
+version: 3.13.0+40016
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -25,10 +25,6 @@ dependencies:
   image_picker: ^1.2.1
   #third party plugin
   dio: ^5.8.0+1
-  dio_http_cache:
-    git:
-      url: https://github.com/NKUST-ITC/dio-http-cache
-      ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
   dio_cookie_manager: ^3.1.1
   native_dio_adapter: ^1.4.0
   cookie_jar: ^4.0.0

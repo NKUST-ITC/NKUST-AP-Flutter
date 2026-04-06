@@ -6,13 +6,11 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
@@ -22,7 +20,6 @@ class NKUSTHelper {
   static NKUSTHelper? _instance;
 
   late Dio dio;
-  late DioCacheManager _manager;
   late CookieJar cookieJar;
 
   static int reTryCountsLimit = 3;
@@ -52,12 +49,6 @@ class NKUSTHelper {
     // Cookie name of the NKUST ap system not follow the RFC6265. :(
     dio = Dio();
     cookieJar = CookieJar();
-    if (Helper.isSupportCacheData) {
-      _manager = DioCacheManager(
-        CacheConfig(baseUrl: 'https://webap.nkust.edu.tw'),
-      );
-      dio.interceptors.add(_manager.interceptor as Interceptor);
-    }
     dio.interceptors.add(PrivateCookieManager(cookieJar));
     dio.options.headers['user-agent'] =
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';

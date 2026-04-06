@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
@@ -57,9 +58,6 @@ class Helper {
   static String? password;
 
   static DateTime? expireTime;
-
-  /// From sqflite plugin setting
-  static bool isSupportCacheData = false;
 
   static CrawlerSelector? selector;
 
@@ -279,6 +277,7 @@ class Helper {
 
   Future<SemesterData> getSemester() async {
     SemesterData? data;
+    log(selector?.semester.toString() ?? '');
     switch (selector?.semester) {
       case remoteConfig:
         data = SemesterData.load();
@@ -331,6 +330,8 @@ class Helper {
     Semester? semesterDefault,
   }) async {
     CourseData data;
+    log('Fetch(CourseTable) ${selector?.course} '
+        '${semester.year} ${semester.code}');
     switch (selector?.course) {
       case mobile:
         final bool isDefault = semesterDefault!.code == semester.code;
