@@ -3,12 +3,12 @@ name: Store CD
 on:
   push:
     branches:
-      - master
+      - production
       - develop
   workflow_dispatch:
 
 env:
-  flutter_version: '3.35.x'
+  flutter_version: '3.38.x'
   java_version: '21'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -23,7 +23,7 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       version_code: ${{ steps.get_version_code.outputs.version_code }}
-      is_production: ${{ github.ref == 'refs/heads/master' }}
+      is_production: ${{ github.ref == 'refs/heads/production' }}
     steps:
       - uses: actions/checkout@v4
       - name: Get version from pubspec.yaml
@@ -142,15 +142,13 @@ jobs:
         run: flutter doctor -v
       - run: flutter pub get
       - name: Generate changelog
-        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} ios
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
       - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
-      - name: Install Fastlane
-        run: gem install fastlane
       - name: Deploy macOS to TestFlight via Fastlane
         run: fastlane mac release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./macos
@@ -282,11 +280,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
-          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
-          prerelease: ${{ github.ref != 'refs/heads/master' }}
+          prerelease: ${{ github.ref != 'refs/heads/production' }}
           files: |
             nkust_ap_windows_setup.exe
             nkust_ap_windows_portable.zip

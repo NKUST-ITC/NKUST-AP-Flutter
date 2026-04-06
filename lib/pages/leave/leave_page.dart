@@ -71,7 +71,6 @@ class LeavePageState extends State<LeavePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.leave),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: FutureBuilder<bool>(
         future: _login,
@@ -106,20 +105,19 @@ class LeavePageState extends State<LeavePage>
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: onTabTapped,
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.edit),
             label: ap.leaveApply,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: ap.leaveRecords,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.folder),
             label: AppLocalizations.of(context).leaveApplyRecord,
           ),

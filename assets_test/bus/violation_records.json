@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "runBus": "637800036000000000",
+      "start": "建工",
+      "end": "燕巢",
+      "costMoney": 100,
+      "receipt": false
+    },
+    {
+      "runBus": "637800108000000000",
+      "start": "燕巢",
+      "end": "建工",
+      "costMoney": 100,
+      "receipt": true
+    }
+  ]
+}

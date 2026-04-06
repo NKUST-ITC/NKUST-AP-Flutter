@@ -38,7 +38,6 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.loginAuth),
-        backgroundColor: ApTheme.of(context).blue,
         actions: <Widget>[
           TextButton(
             onPressed: () {

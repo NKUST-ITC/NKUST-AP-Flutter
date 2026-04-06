@@ -142,26 +142,11 @@ class _PickTutorPageState extends State<PickTutorPage> {
             const SizedBox(height: 16.0),
             FractionallySizedBox(
               widthFactor: 0.8,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(14.0),
-                ),
+              child: FilledButton(
                 onPressed: () {
                   Navigator.pop(context, teacher);
                 },
-                child: Text(
-                  ap.confirm,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text(ap.confirm),
               ),
             ),
           ],
@@ -223,11 +208,6 @@ class _PickTutorPageState extends State<PickTutorPage> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: Text(title),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(8),
-          ),
-        ),
         contentPadding: EdgeInsets.zero,
         content: SizedBox(
           width: MediaQuery.of(context).size.width * 0.7,

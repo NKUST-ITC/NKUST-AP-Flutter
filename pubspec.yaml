@@ -3,10 +3,10 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 3.13.0+31300
+version: 3.13.0
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
+  sdk: '>=3.6.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -15,9 +15,9 @@ dependencies:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
 
-  ap_common: ^1.0.1-dev.5
-  ap_common_firebase: ^1.0.1-dev.6
-  ap_common_plugin: ^1.0.1-dev.5
+  ap_common: ^1.0.1-dev.8
+  ap_common_firebase: ^1.0.1-dev.9
+  ap_common_plugin: ^1.0.1-dev.8
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
@@ -25,10 +25,6 @@ dependencies:
   image_picker: ^1.2.1
   #third party plugin
   dio: ^5.8.0+1
-  dio_http_cache:
-    git:
-      url: https://github.com/NKUST-ITC/dio-http-cache
-      ref: 18f981fbd6a22a497d0897f09ec7db1e312c5e03
   dio_cookie_manager: ^3.1.1
   native_dio_adapter: ^1.4.0
   cookie_jar: ^4.0.0
@@ -54,22 +50,22 @@ dev_dependencies:
 
 
 dependency_overrides:
-#  ap_common:
-#    path: ../ap_common/packages/ap_common
-#  ap_common_core:
-#    path: ../ap_common/packages/ap_common_core
-#  ap_common_flutter_core:
-#    path: ../ap_common/packages/ap_common_flutter_core
-#  ap_common_flutter_platform:
-#    path: ../ap_common/packages/ap_common_flutter_platform
-#  ap_common_flutter_ui:
-#    path: ../ap_common/packages/ap_common_flutter_ui
-#  ap_common_announcement_ui:
-#    path: ../ap_common/packages/ap_common_announcement_ui
-#  ap_common_firebase:
-#    path: ../ap_common/packages/ap_common_firebase
-#  ap_common_plugin:
-#    path: ../ap_common/packages/ap_common_plugin
+  # ap_common:
+  #   path: ../ap_common/packages/ap_common
+  # ap_common_core:
+  #   path: ../ap_common/packages/ap_common_core
+  # ap_common_flutter_core:
+  #   path: ../ap_common/packages/ap_common_flutter_core
+  # ap_common_flutter_platform:
+  #   path: ../ap_common/packages/ap_common_flutter_platform
+  # ap_common_flutter_ui:
+  #   path: ../ap_common/packages/ap_common_flutter_ui
+  # ap_common_announcement_ui:
+  #   path: ../ap_common/packages/ap_common_announcement_ui
+  # ap_common_firebase:
+  #   path: ../ap_common/packages/ap_common_firebase
+  # ap_common_plugin:
+  #   path: ../ap_common/packages/ap_common_plugin
   http: ^1.0.0
   web: ^1.0.0
   # Downgrade google_sign_in_ios to version compatible with Firebase SDK 10.25.0
