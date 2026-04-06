@@ -20,7 +20,6 @@ class _ReportPageState extends State<ReportPage> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(app!.reportProblem),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: ListView.builder(
         itemCount: 1,

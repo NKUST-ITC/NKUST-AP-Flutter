@@ -99,38 +99,23 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: onTabTapped,
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: app!.busReserve,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: app!.busReservations,
           ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: <Widget>[
-                Icon(ApIcon.monetizationOn),
-                if (ShareDataWidget.of(context)!.data.hasBusViolationRecords)
-                  Positioned(
-                    top: -1.0,
-                    right: -1.0,
-                    child: Stack(
-                      children: <Widget>[
-                        Icon(
-                          Icons.brightness_1,
-                          size: 10.0,
-                          color: ApTheme.of(context).red,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible:
+                  ShareDataWidget.of(context)!.data.hasBusViolationRecords,
+              child: Icon(ApIcon.monetizationOn),
             ),
             label: app!.busViolationRecords,
           ),
