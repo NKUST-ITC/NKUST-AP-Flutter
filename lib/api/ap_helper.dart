@@ -109,6 +109,7 @@ class WebApHelper {
   Future<LoginResponse> login({
     required String username,
     required String password,
+    int retryCounts = 5,
   }) async {
     //
     /*
@@ -120,15 +121,23 @@ class WebApHelper {
     3 : Not found login message
     */
     //
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < retryCounts; i++) {
       try {
+        final Uint8List? imageBytes = await getUidValidationImage();
+
+        if (imageBytes == null) {
+          continue;
+        }
+
+        // extractByEucDist 不會回傳 null，失敗會丟出 exception
         final String captchaCode = await CaptchaUtils.extractByEucDist(
-          bodyBytes: (await getValidationImage())!,
+          bodyBytes: imageBytes,
         );
 
         log(username);
         log(password);
         log(captchaCode);
+
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{

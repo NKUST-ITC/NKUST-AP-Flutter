@@ -89,6 +89,7 @@ class NKUSTHelper {
   Future<UserInfo> getUsername({
     required String rocId,
     required DateTime birthday,
+    int retryCounts = 5,
   }) async {
     final String birthdayText = sprintf('%03i%02i%02i', <int>[
       birthday.year - 1911,
@@ -96,9 +97,15 @@ class NKUSTHelper {
       birthday.day,
     ]);
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < retryCounts; i++) {
+      final Uint8List? imageBytes = await getUidValidationImage();
+
+      if (imageBytes == null) {
+        continue;
+      }
+
       final String captchaCode = await CaptchaUtils.extractByEucDist(
-        bodyBytes: (await getUidValidationImage())!,
+        bodyBytes: imageBytes,
       );
 
       final List<Cookie> cookies = await cookieJar
