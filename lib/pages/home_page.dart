@@ -446,9 +446,11 @@ class HomePageState extends State<HomePage> {
                   .setBool(Constants.prefAutoLogin, false);
               if (!mounted) return;
               ShareDataWidget.of(context)!.data.logout();
-              isLogin = false;
-              userInfo = null;
-              content = null;
+              setState(() {
+                isLogin = false;
+                userInfo = null;
+                content = null;
+              });
               if (isMobile) Navigator.of(context).pop();
               checkLogin();
             },
@@ -601,9 +603,12 @@ class HomePageState extends State<HomePage> {
         username: username,
         password: password,
       );
+      if (!mounted) return;
       if (isLogin) return;
       ShareDataWidget.of(context)!.data.loginResponse = response;
-      isLogin = true;
+      setState(() {
+        isLogin = true;
+      });
       PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
       _getUserInfo();
       _setupBusNotify(context);
@@ -656,13 +661,17 @@ class HomePageState extends State<HomePage> {
   void offLineLogin() {
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, true);
     UiUtil.instance.showToast(context, ap.loadOfflineData);
-    isLogin = true;
+    setState(() {
+      isLogin = true;
+    });
     _getUserInfo();
     _homeKey.currentState?.hideSnackBar();
   }
 
   void handleLoginSuccess(String? username, String? password) {
-    isLogin = true;
+    setState(() {
+      isLogin = true;
+    });
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
     _getUserInfo();
     _setupBusNotify(context);

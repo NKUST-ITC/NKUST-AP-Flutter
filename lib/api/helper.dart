@@ -519,6 +519,7 @@ class Helper {
     password = null;
     ApCommonPlugin.clearCourseWidget();
     WebApHelper.instance.logout();
+    WebApHelper.reLoginReTryCounts = 0;
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
