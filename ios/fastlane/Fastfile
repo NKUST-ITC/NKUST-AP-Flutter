@@ -18,8 +18,12 @@ platform :ios do
         in_house: false
     )
 
-    ipa_path = Dir["../build/ios/ipa/*.ipa"].first
-    raise "No IPA file found in build/ios/ipa/" if ipa_path.nil?
+    ipa_dir = File.expand_path("../../build/ios/ipa", __dir__)
+    ipa_files = Dir["#{ipa_dir}/*.ipa"]
+    UI.message("Looking for IPA in: #{ipa_dir}")
+    UI.message("Found files: #{Dir["#{ipa_dir}/*"].join(', ')}")
+    raise "No IPA file found in #{ipa_dir}" if ipa_files.empty?
+    ipa_path = ipa_files.first
 
     localized_info = {
       "default": {

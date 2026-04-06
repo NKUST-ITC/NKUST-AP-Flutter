@@ -33,7 +33,6 @@ class BusRulePageState extends State<BusRulePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app!.busRule),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

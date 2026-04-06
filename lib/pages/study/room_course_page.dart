@@ -74,7 +74,9 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
         _getRoomCourseTable();
@@ -86,7 +88,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getRoomCourseTable();

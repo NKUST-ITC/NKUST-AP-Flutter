@@ -55,7 +55,6 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.midtermAlerts),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: semesterData == null
           ? null
@@ -200,11 +199,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   Widget _midtermAlertsItem(MidtermAlerts item) {
     return Card(
-      elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
@@ -231,7 +226,9 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
       }
@@ -242,7 +239,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getMidtermAlertsData();

@@ -70,7 +70,9 @@ class ScorePageState extends State<ScorePage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
         _loadOfflineScoreData();
@@ -88,7 +90,7 @@ class ScorePageState extends State<ScorePage> {
       );
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getSemesterScore();

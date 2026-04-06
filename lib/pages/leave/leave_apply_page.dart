@@ -136,11 +136,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
                     title: Text(ap.leaveType),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                    ),
                     contentPadding: EdgeInsets.zero,
                     content: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.7,
@@ -199,16 +194,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             const SizedBox(height: 16),
             FractionallySizedBox(
               widthFactor: 0.3,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(4.0),
-                ),
+              child: FilledButton(
                 onPressed: () async {
                   final DateTimeRange? picked = await showDateRangePicker(
                     context: context,
@@ -261,9 +247,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   margin: const EdgeInsets.symmetric(
                     vertical: 8.0,
                     horizontal: 8.0,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
@@ -472,10 +455,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                 },
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  fillColor: ApTheme.of(context).blueAccent,
-                  labelStyle: TextStyle(
-                    color: ApTheme.of(context).grey,
-                  ),
                   labelText: ap.reason,
                 ),
               ),
@@ -497,10 +476,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                   controller: _delayReason,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    fillColor: ApTheme.of(context).blueAccent,
-                    labelStyle: TextStyle(
-                      color: ApTheme.of(context).grey,
-                    ),
                     labelText: ap.delayReason,
                   ),
                 ),
@@ -509,27 +484,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             const SizedBox(height: 36),
             FractionallySizedBox(
               widthFactor: 0.8,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(14.0),
-                ),
+              child: FilledButton(
                 onPressed: () {
                   _leaveSubmit();
                   AnalyticsUtil.instance.logEvent('leave_submit_click');
                 },
-                child: Text(
-                  ap.confirm,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text(ap.confirm),
               ),
             ),
             const SizedBox(height: 24),

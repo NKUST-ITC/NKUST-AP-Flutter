@@ -899,10 +899,17 @@ class HomePageState extends State<HomePage> {
       final Map<String, dynamic>? entry =
           rawData?[packageInfo.buildNumber] as Map<String, dynamic>?;
       if (entry != null && mounted) {
-        final List<dynamic>? items = entry[ap.locale] as List<dynamic>?;
-        if (items != null && items.isNotEmpty) {
-          final String updateNoteContent =
-              items.map((dynamic e) => '\u2022 $e').join('\n');
+        final dynamic localeValue = entry[ap.locale];
+        String? updateNoteContent;
+        if (localeValue is List) {
+          if (localeValue.isNotEmpty) {
+            updateNoteContent =
+                localeValue.map((dynamic e) => '\u2022 $e').join('\n');
+          }
+        } else if (localeValue is String && localeValue.isNotEmpty) {
+          updateNoteContent = localeValue;
+        }
+        if (updateNoteContent != null) {
           DialogUtils.showUpdateContent(
             context,
             'v${packageInfo.version}\n$updateNoteContent',
@@ -961,12 +968,35 @@ class HomePageState extends State<HomePage> {
       );
       if (first) {
         if (!mounted) return;
+        try {
+          final Response<dynamic> changelogResponse = await Dio().get(
+            'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/changelog.json',
+            options: Options(responseType: ResponseType.plain),
+          );
+          final Map<String, dynamic> changelogJson =
+              jsonDecode(changelogResponse.data as String)
+                  as Map<String, dynamic>;
+          final Map<String, dynamic>? versionMap =
+              changelogJson['${versionInfo.code}'] as Map<String, dynamic>?;
+          if (versionMap != null) {
+            final dynamic localeValue = versionMap[ap.locale];
+            String? content;
+            if (localeValue is List) {
+              content = localeValue.map((dynamic e) => '\u2022 $e').join('\n');
+            } else if (localeValue is String) {
+              content = localeValue;
+            }
+            if (content != null) {
+              versionInfo = versionInfo.copyWith(content: content);
+            }
+          }
+        } catch (_) {}
+        if (!mounted) return;
         DialogUtils.showNewVersionContent(
           context: context,
           appName: app.appName,
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-          githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
           windowsPath:
               'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',

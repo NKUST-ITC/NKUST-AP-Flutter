@@ -149,8 +149,6 @@ jobs:
       - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
-      - name: Install Fastlane
-        run: gem install fastlane
       - name: Deploy macOS to TestFlight via Fastlane
         run: fastlane mac release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./macos

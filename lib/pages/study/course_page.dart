@@ -92,7 +92,9 @@ class CoursePageState extends State<CoursePage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
         _loadCacheData(selectSemester!.code);
@@ -110,7 +112,7 @@ class CoursePageState extends State<CoursePage> {
       );
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         notifyData = CourseNotifyData.load(courseNotifyCacheKey);

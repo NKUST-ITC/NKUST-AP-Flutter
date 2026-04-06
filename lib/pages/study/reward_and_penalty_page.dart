@@ -55,7 +55,6 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.rewardAndPenalty),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       floatingActionButton: semesterData == null
           ? null
@@ -200,11 +199,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
 
   Widget _rewardAndPenaltyItem(RewardAndPenalty item) {
     return Card(
-      elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
-      ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
@@ -238,7 +233,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
       }
@@ -249,7 +246,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getRewardAndPenaltyData();
