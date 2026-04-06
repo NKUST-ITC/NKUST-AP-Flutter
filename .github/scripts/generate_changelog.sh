@@ -2,7 +2,7 @@
 set -euo pipefail
 
 VERSION_CODE="$1"
-TARGET="$2" # android, ios, or github
+TARGET="$2" # android, ios, macos, or github
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHANGELOG_FILE="$SCRIPT_DIR/../../changelog.json"
@@ -22,12 +22,12 @@ case "$TARGET" in
     done
     echo "Generated Android changelog for version code ${VERSION_CODE}"
     ;;
-  ios)
+  ios|macos)
     for locale in "en-US" "zh-TW"; do
       jq -r ".\"${VERSION_CODE}\".\"${locale}\" | map(\"* \" + .) | join(\"\n\")" "$CHANGELOG_FILE" \
         > "${locale}.txt"
     done
-    echo "Generated iOS changelog for version code ${VERSION_CODE}"
+    echo "Generated ${TARGET} changelog for version code ${VERSION_CODE}"
     ;;
   github)
     VERSION=$(jq -r ".\"${VERSION_CODE}\".version" "$CHANGELOG_FILE")
@@ -43,7 +43,7 @@ case "$TARGET" in
     echo "Generated GitHub release notes for version code ${VERSION_CODE}"
     ;;
   *)
-    echo "ERROR: Unknown target '${TARGET}'. Use: android, ios, or github"
+    echo "ERROR: Unknown target '${TARGET}'. Use: android, ios, macos, or github"
     exit 1
     ;;
 esac
