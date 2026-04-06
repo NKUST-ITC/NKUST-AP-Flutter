@@ -56,6 +56,7 @@ class HomePageState extends State<HomePage> {
 
   UserInfo? userInfo;
   CourseData? courseData;
+  BusReservationsData? busReservationsData;
 
 
   String get sectionImage {
@@ -468,41 +469,151 @@ class HomePageState extends State<HomePage> {
       switch (canUseBus ? index : index + 1) {
         case 0:
           if (canUseBus) {
-            ApUtils.pushCupertinoStyle(context, const BusPage());
+            await _pushAndReload(const BusPage());
           } else {
             UiUtil.instance.showToast(context, ap.platformError);
           }
         case 1:
-          ApUtils.pushCupertinoStyle(context, CoursePage());
+          await _pushAndReload(CoursePage());
         case 2:
-          ApUtils.pushCupertinoStyle(context, ScorePage());
+          await _pushAndReload(ScorePage());
       }
     } else {
       UiUtil.instance.showToast(context, ap.notLogin);
     }
   }
 
+  Future<void> _pushAndReload(Widget page) async {
+    await Navigator.push(
+      context,
+      CupertinoPageRoute<void>(builder: (_) => page),
+    );
+    _loadCourseData();
+  }
+
+  BusReservation? get _nextBusReservation {
+    if (busReservationsData == null) return null;
+    final DateTime now = DateTime.now();
+    final List<BusReservation> future = busReservationsData!.reservations
+        .where((BusReservation r) => r.getDateTime().isAfter(now))
+        .toList()
+      ..sort(
+        (BusReservation a, BusReservation b) =>
+            a.getDateTime().compareTo(b.getDateTime()),
+      );
+    return future.isEmpty ? null : future.first;
+  }
+
   List<Widget>? _buildDashboardWidgets() {
-    if (courseData == null) return null;
+    if (courseData == null && !canUseBus) return null;
     return <Widget>[
-      TodayScheduleCard(
-        courseData: courseData!,
-        onTap: () {
-          ApUtils.pushCupertinoStyle(context, CoursePage());
-        },
-      ),
+      if (canUseBus)
+        QuickInfoRow(
+          items: <QuickInfoItem>[
+            if (_nextBusReservation != null)
+              QuickInfoItem(
+                icon: ApIcon.directionsBus,
+                label: app.busReserve,
+                subtitle:
+                    '${_nextBusReservation!.getDate()} ${_nextBusReservation!.getStart(app)} → ${_nextBusReservation!.getEnd(app)} ${_nextBusReservation!.getTime()}',
+                onTap: () {
+                  if (isLogin) {
+                    _pushAndReload(const BusPage());
+                  } else {
+                    UiUtil.instance.showToast(context, ap.notLogin);
+                  }
+                },
+              ),
+            if (_nextBusReservation == null)
+              QuickInfoItem(
+                icon: ApIcon.directionsBus,
+                label: app.bus,
+                subtitle: app.busReservations,
+                onTap: () {
+                  if (isLogin) {
+                    _pushAndReload(const BusPage());
+                  } else {
+                    UiUtil.instance.showToast(context, ap.notLogin);
+                  }
+                },
+              ),
+          ],
+        ),
+      if (canUseBus) const SizedBox(height: 16),
+      if (courseData != null)
+        TodayScheduleCard(
+          courseData: courseData!,
+          onTap: () {
+            _pushAndReload(CoursePage());
+          },
+        ),
+      if (courseData == null)
+        _buildEmptyScheduleCard(),
     ];
   }
 
+  Widget _buildEmptyScheduleCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        child: InkWell(
+          onTap: () {
+            if (isLogin) {
+              ApUtils.pushCupertinoStyle(context, CoursePage());
+            } else {
+              openLoginPage();
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.today_rounded,
+                  size: 32,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    isLogin ? ap.courseEmpty : ap.notLogin,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _loadCourseData() async {
+    final String username = Helper.username ??
+        PreferenceUtil.instance
+            .getString(Constants.prefUsername, '')
+            .toUpperCase();
+    if (username.isEmpty) return;
     final SemesterData? semesterData = SemesterData.load();
-    if (semesterData == null || Helper.username == null) return;
-    final String tag = semesterData.defaultSemester.cacheSaveTag;
-    final CourseData? data = CourseData.load(tag);
-    if (data != null && mounted) {
-      setState(() {
-        courseData = data;
-      });
+    if (semesterData != null) {
+      final String tag =
+          '${username}_${semesterData.defaultSemester.code}';
+      final CourseData? data = CourseData.load(tag);
+      if (data != null && mounted) {
+        setState(() => courseData = data);
+      }
+    }
+    final BusReservationsData? busData =
+        BusReservationsData.load(username);
+    if (busData != null && mounted) {
+      setState(() => busReservationsData = busData);
     }
   }
 
@@ -529,22 +640,28 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _setupBusNotify(BuildContext context) async {
-    if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
-      try {
-        final BusReservationsData response =
-            await Helper.instance.getBusReservations();
-        await Utils.setBusNotify(context, response.reservations);
-      } on DioException catch (e) {
-        if (e.hasResponse) {
-          AnalyticsUtil.instance.logApiEvent(
-            'getBusReservations',
-            e.response!.statusCode!,
-            message: e.message ?? '',
-          );
-        }
-      } catch (e, s) {
-        CrashlyticsUtil.instance.recordError(e, s);
+    try {
+      final BusReservationsData response =
+          await Helper.instance.getBusReservations();
+      response.save(Helper.username);
+      if (mounted) {
+        setState(() {
+          busReservationsData = response;
+        });
       }
+      if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
+        await Utils.setBusNotify(context, response.reservations);
+      }
+    } on DioException catch (e) {
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getBusReservations',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    } catch (e, s) {
+      CrashlyticsUtil.instance.recordError(e, s);
     }
   }
 
