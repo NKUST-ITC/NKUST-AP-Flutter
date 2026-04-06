@@ -18,8 +18,12 @@ platform :mac do
         in_house: false
     )
 
-    pkg_path = Dir["../build/macos/Build/Products/Release/*.app"].first
-    raise "No .app found in build/macos/Build/Products/Release/" if pkg_path.nil?
+    app_dir = File.expand_path("../../build/macos/Build/Products/Release", __dir__)
+    app_files = Dir["#{app_dir}/*.app"]
+    UI.message("Looking for .app in: #{app_dir}")
+    UI.message("Found files: #{Dir["#{app_dir}/*"].join(', ')}")
+    raise "No .app found in #{app_dir}" if app_files.empty?
+    pkg_path = app_files.first
 
     upload_to_testflight(
       app_identifier: APP_STORE_CONNECT_BUNDLE_IDENTIFIER,
