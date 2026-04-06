@@ -99,6 +99,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             notificationList: notificationList,
             onRefresh: () async {
               setState(() => notificationList.clear());
+              page = 1;
               _getNotifications();
             },
             onLoadingMore: () async {
@@ -171,6 +172,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         if (mounted && notificationList.isEmpty) {
           setState(() => notificationState = NotificationState.error);
         }
+        rethrow;
       }
     }
   }
