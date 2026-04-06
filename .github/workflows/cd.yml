@@ -3,7 +3,7 @@ name: Store CD
 on:
   push:
     branches:
-      - master
+      - production
       - develop
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       version_code: ${{ steps.get_version_code.outputs.version_code }}
-      is_production: ${{ github.ref == 'refs/heads/master' }}
+      is_production: ${{ github.ref == 'refs/heads/production' }}
     steps:
       - uses: actions/checkout@v4
       - name: Get version from pubspec.yaml
@@ -142,7 +142,7 @@ jobs:
         run: flutter doctor -v
       - run: flutter pub get
       - name: Generate changelog
-        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} ios
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
@@ -280,11 +280,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
-          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
-          prerelease: ${{ github.ref != 'refs/heads/master' }}
+          prerelease: ${{ github.ref != 'refs/heads/production' }}
           files: |
             nkust_ap_windows_setup.exe
             nkust_ap_windows_portable.zip

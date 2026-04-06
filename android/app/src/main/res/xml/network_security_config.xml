@@ -6,8 +6,12 @@
         <domain includeSubdomains="true">oosaf.nkust.edu.tw</domain>
         <domain includeSubdomains="true">vms.nkust.edu.tw</domain>
         <domain includeSubdomains="true">stdsys.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">leave.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">acad.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">bus.kuas.edu.tw</domain>
         <trust-anchors>
             <certificates src="@raw/twca_nkust"/>
+            <certificates src="system"/>
         </trust-anchors>
     </domain-config>
 </network-security-config>
