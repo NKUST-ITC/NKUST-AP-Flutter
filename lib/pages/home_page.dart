@@ -659,6 +659,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void offLineLogin() {
+    if (!mounted) return;
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, true);
     UiUtil.instance.showToast(context, ap.loadOfflineData);
     setState(() {
@@ -669,6 +670,7 @@ class HomePageState extends State<HomePage> {
   }
 
   void handleLoginSuccess(String? username, String? password) {
+    if (!mounted) return;
     setState(() {
       isLogin = true;
     });
