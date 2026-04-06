@@ -518,6 +518,7 @@ class Helper {
     username = null;
     password = null;
     ApCommonPlugin.clearCourseWidget();
+    ApCommonPlugin.clearUserInfoWidget();
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;

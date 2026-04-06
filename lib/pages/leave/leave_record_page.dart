@@ -1,11 +1,9 @@
 import 'dart:developer';
 
-import 'package:ap_common/ap_common.dart' hide SemesterPicker;
-import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
+import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/semester_picker.dart';
 
 enum _State {
   loading,
@@ -35,7 +33,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   Orientation? orientation;
 
-  late Semester selectSemester;
+  Semester? selectSemester;
   SemesterData? semesterData;
   LeaveData? leaveData;
 
@@ -43,6 +41,8 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
 
   bool hasNight = false;
   bool isOffline = false;
+
+  final SemesterPickerController _pickerController = SemesterPickerController();
 
   TextStyle get _textBlueStyle =>
       TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
@@ -53,11 +53,13 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   void initState() {
     AnalyticsUtil.instance
         .setCurrentScreen('LeaveRecordPage', 'leave_record_page.dart');
+    _getSemester();
     super.initState();
   }
 
   @override
   void dispose() {
+    _pickerController.dispose();
     super.dispose();
   }
 
@@ -66,33 +68,35 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     super.build(context);
     ap = context.ap;
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: () {
-          if (semesterData != null) {
-            ap_ui.SemesterPicker.show(
-              context: context,
-              semesterData: semesterData!,
-              currentIndex: semesterData!.currentIndex,
-              onSelect: (Semester semester, int index) {
-                setState(() {
-                  selectSemester = semester;
-                  semesterData = semesterData?.copyWith(currentIndex: index);
-                  state = _State.loading;
-                });
-                if (PreferenceUtil.instance.getBool(
-                  Constants.prefIsOfflineLogin,
-                  false,
-                )) {
-                  _loadOfflineLeaveData();
-                } else {
-                  _getSemesterLeaveRecord();
-                }
+      floatingActionButton: semesterData == null
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.search),
+              onPressed: () {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    if (PreferenceUtil.instance.getBool(
+                      Constants.prefIsOfflineLogin,
+                      false,
+                    )) {
+                      _loadOfflineLeaveData();
+                    } else {
+                      _getSemesterLeaveRecord();
+                    }
+                  },
+                );
               },
-            );
-          }
-        },
-      ),
+            ),
       body: SizedBox(
         width: double.infinity,
         child: Flex(
@@ -101,26 +105,28 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             const SizedBox(height: 8.0),
-            SemesterPicker(
-              selectSemester: selectSemester,
-              currentIndex: semesterData?.currentIndex ?? 0,
-              onDataLoaded: (SemesterData data) => semesterData = data,
-              onSelect: (Semester semester, int index) {
-                setState(() {
-                  selectSemester = semester;
-                  semesterData = semesterData?.copyWith(currentIndex: index);
-                  state = _State.loading;
-                });
-                if (PreferenceUtil.instance.getBool(
-                  Constants.prefIsOfflineLogin,
-                  false,
-                )) {
-                  _loadOfflineLeaveData();
-                } else {
-                  _getSemesterLeaveRecord();
-                }
-              },
-            ),
+            if (semesterData != null)
+              SemesterPicker(
+                semesterData: semesterData!,
+                currentIndex: semesterData!.currentIndex,
+                featureTag: 'leave',
+                controller: _pickerController,
+                onSelect: (Semester semester, int index) {
+                  setState(() {
+                    selectSemester = semester;
+                    semesterData = semesterData?.copyWith(currentIndex: index);
+                    state = _State.loading;
+                  });
+                  if (PreferenceUtil.instance.getBool(
+                    Constants.prefIsOfflineLogin,
+                    false,
+                  )) {
+                    _loadOfflineLeaveData();
+                  } else {
+                    _getSemesterLeaveRecord();
+                  }
+                },
+              ),
             if (isOffline)
               Text(
                 ap.offlineLeaveData,
@@ -178,14 +184,16 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
           onTap: () {
             if (state == _State.empty || state == _State.offlineEmpty) {
               if (semesterData != null) {
-                ap_ui.SemesterPicker.show(
+                SemesterPicker.show(
                   context: context,
                   semesterData: semesterData!,
                   currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
                   onSelect: (Semester semester, int index) {
                     setState(() {
                       selectSemester = semester;
-                      semesterData = semesterData?.copyWith(currentIndex: index);
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
                       state = _State.loading;
                     });
                     if (PreferenceUtil.instance.getBool(
@@ -362,32 +370,81 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
     return TableRow(children: widgets);
   }
 
+  Future<void> _getSemester() async {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      final SemesterData? cacheData = SemesterData.load();
+      if (cacheData != null && mounted) {
+        setState(() {
+          semesterData = cacheData;
+          selectSemester = semesterData!.defaultSemester;
+        });
+        _loadOfflineLeaveData();
+      }
+      return;
+    }
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      data.save();
+      if (mounted) {
+        setState(() {
+          semesterData = data;
+          selectSemester = data.defaultSemester;
+        });
+        _getSemesterLeaveRecord();
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        UiUtil.instance
+            .showToast(context, response.getGeneralMessage(context));
+      }
+    } on DioException catch (e) {
+      if (e.i18nMessage != null && mounted) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
+  }
+
   Future<void> _getSemesterLeaveRecord() async {
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     try {
       final LeaveData data = await Helper.instance.getLeaves(
-        semester: selectSemester,
+        semester: selectSemester!,
       );
       if (mounted) {
         setState(() {
           leaveData = data;
           if (leaveData == null || leaveData!.leaves.isEmpty) {
             state = _State.empty;
+            _pickerController.markSemesterEmpty(selectSemester!);
           } else {
             state = _State.finish;
+            _pickerController.markSemesterHasData(selectSemester!);
           }
         });
       }
       log(state.toString());
-      leaveData!.save(selectSemester.cacheSaveTag);
+      leaveData!.save(selectSemester!.cacheSaveTag);
     } on GeneralResponse catch (response) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
       setState(() {
         state = _State.custom;
         customStateHint = response.getGeneralMessage(context);
       });
       _loadOfflineLeaveData();
     } on DioException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
       setState(() {
         state = _State.custom;
         customStateHint = e.i18nMessage;
@@ -404,7 +461,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
   }
 
   Future<void> _loadOfflineLeaveData() async {
-    leaveData = LeaveData.load(selectSemester.cacheSaveTag);
+    leaveData = LeaveData.load(selectSemester!.cacheSaveTag);
     if (mounted) {
       setState(() {
         isOffline = true;
