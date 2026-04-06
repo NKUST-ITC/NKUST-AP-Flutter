@@ -121,6 +121,8 @@ class WebApHelper {
     3 : Not found login message
     */
     //
+    assert(retryCounts >= 0, 'retryCounts must be >= 0');
+    
     for (int i = 0; i < retryCounts; i++) {
       try {
         final Uint8List? imageBytes = await getValidationImage();
@@ -134,9 +136,9 @@ class WebApHelper {
           bodyBytes: imageBytes,
         );
 
-        log(username);
-        log(password);
-        log(captchaCode);
+        // log(username);
+        // log(password);
+        // log(captchaCode);
 
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',

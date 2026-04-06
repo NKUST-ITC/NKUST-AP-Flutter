@@ -97,69 +97,83 @@ class NKUSTHelper {
       birthday.day,
     ]);
 
+    assert(retryCounts >= 0, 'retryCounts must be >= 0');
+    
+    Object? lastError;
+
     for (int i = 0; i < retryCounts; i++) {
-      final Uint8List? imageBytes = await getUidValidationImage();
+      try {
+        final Uint8List? imageBytes = await getUidValidationImage();
 
-      if (imageBytes == null) {
-        continue;
-      }
+        if (imageBytes == null) {
+          continue;
+        }
 
-      final String captchaCode = await CaptchaUtils.extractByEucDist(
-        bodyBytes: imageBytes,
-      );
+        final String captchaCode = await CaptchaUtils.extractByEucDist(
+          bodyBytes: imageBytes,
+        );
 
-      final List<Cookie> cookies = await cookieJar
-          .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
-      final String cookieHeader = cookies
-          .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-          .join('; ');
+        final List<Cookie> cookies = await cookieJar
+            .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+        final String cookieHeader = cookies
+            .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+            .join('; ');
 
-      final http.Response response = await http.post(
-        Uri(
-          scheme: 'https',
-          host: 'webap.nkust.edu.tw',
-          path: '/nkust/system/getuid_1.jsp',
-          queryParameters: <String, String>{
-            'uid': rocId,
-            'bir': birthdayText,
-            'Text3': captchaCode,
-            'kind': '2',
+        final http.Response response = await http.post(
+          Uri(
+            scheme: 'https',
+            host: 'webap.nkust.edu.tw',
+            path: '/nkust/system/getuid_1.jsp',
+            queryParameters: <String, String>{
+              'uid': rocId,
+              'bir': birthdayText,
+              'Text3': captchaCode,
+              'kind': '2',
+            },
+          ),
+          headers: <String, String>{
+            'Connection': 'close',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Referer': 'https://webap.nkust.edu.tw/',
+            'Cookie': cookieHeader,
           },
-        ),
-        headers: <String, String>{
-          'Connection': 'close',
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Referer': 'https://webap.nkust.edu.tw/',
-          'Cookie': cookieHeader,
-        },
-      );
+        );
 
-      if (!response.body.contains('驗證碼')) {
-        final Document document = parse(response.body);
-        final List<Element> elements = document.getElementsByTagName('b');
+        if (!response.body.contains('驗證碼')) {
+          final Document document = parse(response.body);
+          final List<Element> elements = document.getElementsByTagName('b');
 
-        if (elements.length >= 4) {
-          final UserInfo userInfo = UserInfo(
-            id: elements[4].text.replaceAll(' ', ''),
-            name: elements[2].text,
-            className: '',
-            department: '',
-          );
-          return userInfo;
-        } else if (elements.length == 1) {
-          throw GeneralResponse(
-            statusCode: 404,
-            message: elements[0].text,
-          );
-        } else {
-          throw GeneralResponse.unknownError();
+          if (elements.length >= 4) {
+            final UserInfo userInfo = UserInfo(
+              id: elements[4].text.replaceAll(' ', ''),
+              name: elements[2].text,
+              className: '',
+              department: '',
+            );
+            return userInfo;
+          } else if (elements.length == 1) {
+            throw GeneralResponse(
+              statusCode: 404,
+              message: elements[0].text,
+            );
+          } else {
+            throw GeneralResponse.unknownError();
+          }
+        }
+      } catch (error) {
+        lastError = error;
+
+        if (i == retryCounts - 1) {
+          rethrow;
         }
       }
     }
 
     throw GeneralResponse(
       statusCode: ApStatusCode.unknownError,
-      message: 'captcha error or unknown error',
+      message: lastError == null
+          ? 'captcha error or unknown error'
+          : 'captcha error or unknown error: $lastError',
     );
   }
 
