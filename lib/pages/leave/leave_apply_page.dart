@@ -91,7 +91,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return _body()!;
   }
 
@@ -412,9 +412,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
                       if (!mounted) return;
                       UiUtil.instance.showToast(
                         context,
-                        sprintf(
-                          ap.imageTooBigHint,
-                          <double>[Constants.maxImageSize],
+                        ap.imageTooBigHint(
+                          arg1MB: Constants.maxImageSize,
                         ),
                       );
                     } else {
@@ -541,53 +540,49 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
   }
 
   Future<void> _getLeavesInfo() async {
-    Helper.instance.getLeavesSubmitInfo(
-      callback: GeneralCallback<LeaveSubmitInfoData>(
-        onSuccess: (LeaveSubmitInfoData data) {
-          setState(() {
-            leaveSubmitInfo = data;
-            state = _State.finish;
-          });
-        },
-        onFailure: (DioException e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 403) {
-                    state = _State.userNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getLeaveSubmitInfo',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-              case DioExceptionType.unknown:
-                setState(() => state = _State.error);
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
-            }
-          }
-          AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-          AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
-        },
-      ),
-    );
+    try {
+      final LeaveSubmitInfoData data =
+          await Helper.instance.getLeavesSubmitInfo();
+      setState(() {
+        leaveSubmitInfo = data;
+        state = _State.finish;
+      });
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
+            setState(() {
+              if (e.response!.statusCode == 403) {
+                state = _State.userNotSupport;
+              } else {
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getLeaveSubmitInfo',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
+              }
+            });
+          case DioExceptionType.unknown:
+            setState(() => state = _State.error);
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
+    }
   }
 
   void checkIsDelay() {
@@ -740,7 +735,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
     }
   }
 
-  void _leaveUpload(LeaveSubmitData data) {
+  Future<void> _leaveUpload(LeaveSubmitData data) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => PopScope(
@@ -749,60 +744,56 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       ),
       barrierDismissible: false,
     );
-    Helper.instance.sendLeavesSubmit(
-      data: data,
-      image: image,
-      callback: GeneralCallback<Response<dynamic>>(
-        onSuccess: (Response<dynamic> data) {
-          Navigator.of(context, rootNavigator: true).pop();
-          DialogUtils.showDefault(
-            context: context,
-            title:
-                data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
-            content:
-                data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
-          );
-          AnalyticsUtil.instance.logEvent('leave_submit_success');
-        },
-        onFailure: (DioException e) {
-          Navigator.of(context, rootNavigator: true).pop();
-          String? text;
-          switch (e.type) {
-            case DioExceptionType.badResponse:
-              if (e.response!.data is Map<String, dynamic>) {
-                text = ErrorResponse.fromJson(
-                  e.response!.data as Map<String, dynamic>,
-                ).description;
-              } else {
-                text = ap.somethingError;
-              }
-            case DioExceptionType.unknown:
-              text = ap.somethingError;
-            case DioExceptionType.cancel:
-              break;
-            default:
-              text = e.i18nMessage;
+    try {
+      final Response<dynamic>? res = await Helper.instance.sendLeavesSubmit(
+        data: data,
+        image: image,
+      );
+      Navigator.of(context, rootNavigator: true).pop();
+      DialogUtils.showDefault(
+        context: context,
+        title:
+            res?.statusCode == 200 ? ap.leaveSubmit : '${res?.statusCode}',
+        content:
+            res?.statusCode == 200 ? ap.leaveSubmitSuccess : '${res?.data}',
+      );
+      AnalyticsUtil.instance.logEvent('leave_submit_success');
+    } on GeneralResponse catch (response) {
+      Navigator.of(context, rootNavigator: true).pop();
+      DialogUtils.showDefault(
+        context: context,
+        title: ap.leaveSubmitFail,
+        content: response.getGeneralMessage(context),
+      );
+      AnalyticsUtil.instance.logEvent('leave_submit_fail');
+    } on DioException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      String? text;
+      switch (e.type) {
+        case DioExceptionType.badResponse:
+          if (e.response!.data is Map<String, dynamic>) {
+            text = ErrorResponse.fromJson(
+              e.response!.data as Map<String, dynamic>,
+            ).description;
+          } else {
+            text = ap.somethingError;
           }
-          if (text != null) {
-            DialogUtils.showDefault(
-              context: context,
-              title: ap.leaveSubmitFail,
-              content: text,
-            );
-          }
-          AnalyticsUtil.instance.logEvent('leave_submit_fail');
-        },
-        onError: (GeneralResponse response) {
-          Navigator.of(context, rootNavigator: true).pop();
-          DialogUtils.showDefault(
-            context: context,
-            title: ap.leaveSubmitFail,
-            content: response.getGeneralMessage(context),
-          );
-          AnalyticsUtil.instance.logEvent('leave_submit_fail');
-        },
-      ),
-    );
+        case DioExceptionType.unknown:
+          text = ap.somethingError;
+        case DioExceptionType.cancel:
+          break;
+        default:
+          text = e.i18nMessage;
+      }
+      if (text != null) {
+        DialogUtils.showDefault(
+          context: context,
+          title: ap.leaveSubmitFail,
+          content: text,
+        );
+      }
+      AnalyticsUtil.instance.logEvent('leave_submit_fail');
+    }
   }
 
   Future<void> resizeImage(File image) async {
@@ -814,12 +805,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (!mounted) return;
       UiUtil.instance.showToast(
         context,
-        sprintf(
-          ap.imageCompressHint,
-          <double>[
-            Constants.maxImageSize,
-            result.mb,
-          ],
+        ap.imageCompressHint(
+          arg1MB: Constants.maxImageSize,
+          arg2: result.mb,
         ),
       );
       setState(() {
@@ -827,7 +815,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       });
     } else {
       if (!mounted) return;
-      UiUtil.instance.showToast(context, ap.imageTooBigHint);
+      UiUtil.instance.showToast(
+        context,
+        ap.imageTooBigHint(arg1MB: Constants.maxImageSize),
+      );
       AnalyticsUtil.instance.logEvent('leave_pick_fail');
     }
   }

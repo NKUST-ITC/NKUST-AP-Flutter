@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/semester_picker.dart';
@@ -11,8 +12,6 @@ class ScorePage extends StatefulWidget {
 }
 
 class ScorePageState extends State<ScorePage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
-
   late ApLocalizations ap;
 
   ScoreState state = ScoreState.loading;
@@ -38,18 +37,35 @@ class ScorePageState extends State<ScorePage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return ScoreScaffold(
       state: state,
       scoreData: scoreData,
       customHint: isOffline ? ap.offlineScore : '',
       customStateHint: customStateHint,
+      semesterData: semesterData,
+      onSelect: (int index) {
+        setState(() {
+          selectSemester = semesterData!.data[index];
+          semesterData = semesterData?.copyWith(currentIndex: index);
+          state = ScoreState.loading;
+        });
+        if (PreferenceUtil.instance
+            .getBool(Constants.prefIsOfflineLogin, false)) {
+          _loadOfflineScoreData();
+        } else {
+          _getSemesterScore();
+        }
+      },
       itemPicker: SemesterPicker(
-        key: key,
         featureTag: 'score',
+        selectSemester: selectSemester,
+        currentIndex: semesterData?.currentIndex ?? 0,
+        onDataLoaded: (SemesterData data) => semesterData = data,
         onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
+            semesterData = semesterData?.copyWith(currentIndex: index);
             state = ScoreState.loading;
           });
           if (PreferenceUtil.instance
@@ -67,14 +83,27 @@ class ScorePageState extends State<ScorePage> {
         return null;
       },
       onSearchButtonClick: () {
-        key.currentState!.pickSemester();
+        if (semesterData != null) {
+          ap_ui.SemesterPicker.show(
+            context: context,
+            semesterData: semesterData!,
+            currentIndex: semesterData!.currentIndex,
+            onSelect: (Semester semester, int index) {
+              setState(() {
+                selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
+                state = ScoreState.loading;
+              });
+              if (PreferenceUtil.instance
+                  .getBool(Constants.prefIsOfflineLogin, false)) {
+                _loadOfflineScoreData();
+              } else {
+                _getSemesterScore();
+              }
+            },
+          );
+        }
       },
-      details: <String>[
-        '${ap.conductScore}：${scoreData?.detail.conduct ?? ''}',
-        '${ap.average}：${scoreData?.detail.average ?? ''}',
-        '${ap.classRank}：${scoreData?.detail.classRank ?? ''}',
-        '${ap.departmentRank}：${scoreData?.detail.departmentRank ?? ''}',
-      ],
     );
   }
 
@@ -84,48 +113,44 @@ class ScorePageState extends State<ScorePage> {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       _loadOfflineScoreData();
     } else {
-      Helper.instance.getScores(
-        semester: selectSemester!,
-        callback: GeneralCallback<ScoreData?>(
-          onSuccess: (ScoreData? data) {
-            if (mounted) {
-              setState(() {
-                if (data == null) {
-                  state = ScoreState.empty;
-                } else {
-                  scoreData = data;
-                  state = ScoreState.finish;
-                  scoreData!.save(selectSemester!.cacheSaveTag);
-                }
-              });
+      try {
+        final ScoreData? data = await Helper.instance.getScores(
+          semester: selectSemester!,
+        );
+        if (mounted) {
+          setState(() {
+            if (data == null) {
+              state = ScoreState.empty;
+            } else {
+              scoreData = data;
+              state = ScoreState.finish;
+              scoreData!.save(selectSemester!.cacheSaveTag);
             }
-          },
-          onFailure: (DioException e) async {
-            if (await _loadOfflineScoreData() &&
-                e.type != DioExceptionType.cancel) {
-              setState(() {
-                state = ScoreState.custom;
-                customStateHint = e.i18nMessage;
-              });
-            }
-            if (e.hasResponse) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getSemesterScore',
-                e.response!.statusCode!,
-                message: e.message ?? '',
-              );
-            }
-          },
-          onError: (GeneralResponse generalResponse) async {
-            if (await _loadOfflineScoreData()) {
-              setState(() {
-                state = ScoreState.custom;
-                customStateHint = generalResponse.getGeneralMessage(context);
-              });
-            }
-          },
-        ),
-      );
+          });
+        }
+      } on GeneralResponse catch (generalResponse) {
+        if (await _loadOfflineScoreData()) {
+          setState(() {
+            state = ScoreState.custom;
+            customStateHint = generalResponse.getGeneralMessage(context);
+          });
+        }
+      } on DioException catch (e) {
+        if (await _loadOfflineScoreData() &&
+            e.type != DioExceptionType.cancel) {
+          setState(() {
+            state = ScoreState.custom;
+            customStateHint = e.i18nMessage;
+          });
+        }
+        if (e.hasResponse) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getSemesterScore',
+            e.response!.statusCode!,
+            message: e.message ?? '',
+          );
+        }
+      }
     }
   }
 

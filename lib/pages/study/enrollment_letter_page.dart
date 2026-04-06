@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class EnrollmentLetterPage extends StatefulWidget {
@@ -63,7 +63,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final Response<Uint8List> response =
-          await WebApHelper.instance.getEnrollmentLetter();
+          await StdsysHelper.instance.getEnrollmentLetter();
       setState(() {
         pdfState = PdfState.finish;
         data = response.data;

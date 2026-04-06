@@ -62,7 +62,7 @@ class SchedulePageState extends State<SchedulePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return _body();
   }
 
@@ -188,9 +188,8 @@ class SchedulePageState extends State<SchedulePage>
                         ),
                         children: <TextSpan>[
                           TextSpan(
-                            text: sprintf(
-                              ap.addCalendarContent,
-                              <dynamic>[schedule.events[index]],
+                            text: ap.addCalendarContent(
+                              arg1: schedule.events[index],
                             ),
                           ),
                         ],

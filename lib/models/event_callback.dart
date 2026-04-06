@@ -1,13 +1,15 @@
-import 'package:ap_common/ap_common.dart';
 import 'package:nkust_ap/models/event_info_response.dart';
 
-class EventSendCallback<T> extends GeneralCallback<T> {
+class EventSendCallback<T> {
+  final Function(T data) onSuccess;
+  final Function(dynamic e) onFailure;
+  final Function(dynamic e) onError;
   final Function(EventInfoResponse e) onNeedPick;
 
   EventSendCallback({
-    required super.onFailure,
-    required super.onError,
-    required super.onSuccess,
+    required this.onFailure,
+    required this.onError,
+    required this.onSuccess,
     required this.onNeedPick,
   });
 }

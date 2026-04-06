@@ -1,4 +1,5 @@
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common/ap_common.dart' hide SemesterPicker;
+import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart' as ap_ui;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
@@ -17,13 +18,11 @@ class EmptyRoomPage extends StatefulWidget {
 }
 
 class _EmptyRoomPageState extends State<EmptyRoomPage> {
-  final GlobalKey<SemesterPickerState> key = GlobalKey<SemesterPickerState>();
-
   late ApLocalizations ap;
 
   CourseState state = CourseState.loading;
 
-  late Semester selectSemester;
+  Semester? selectSemester;
   SemesterData? semesterData;
 
   CourseData courseData = CourseData.empty();
@@ -41,22 +40,33 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return CourseScaffold(
       title: '${ap.classroomCourseTableSearch} - ${widget.room.name}',
       state: state,
       courseData: courseData,
       customStateHint: customStateHint,
       enableNotifyControl: false,
+      semesterData: semesterData,
+      onSelect: (int index) {
+        setState(() {
+          selectSemester = semesterData!.data[index];
+          semesterData = semesterData?.copyWith(currentIndex: index);
+          state = CourseState.loading;
+        });
+        _getRoomCourseTable();
+      },
       itemPicker: SemesterPicker(
-        key: key,
         featureTag: 'room_coruse',
+        selectSemester: selectSemester,
+        currentIndex: semesterData?.currentIndex ?? 0,
+        onDataLoaded: (SemesterData data) => semesterData = data,
         onSelect: (Semester semester, int index) {
           setState(() {
             selectSemester = semester;
+            semesterData = semesterData?.copyWith(currentIndex: index);
             state = CourseState.loading;
           });
-          semesterData = key.currentState!.semesterData;
           _getRoomCourseTable();
         },
       ),
@@ -64,52 +74,62 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         _getRoomCourseTable();
       },
       onSearchButtonClick: () {
-        key.currentState!.pickSemester();
+        if (semesterData != null) {
+          ap_ui.SemesterPicker.show(
+            context: context,
+            semesterData: semesterData!,
+            currentIndex: semesterData!.currentIndex,
+            onSelect: (Semester semester, int index) {
+              setState(() {
+                selectSemester = semester;
+                semesterData = semesterData?.copyWith(currentIndex: index);
+                state = CourseState.loading;
+              });
+              _getRoomCourseTable();
+            },
+          );
+        }
       },
     );
   }
 
   Future<void> _getRoomCourseTable() async {
-    Helper.instance.getRoomCourseTables(
-      roomId: widget.room.id,
-      semester: selectSemester,
-      callback: GeneralCallback<CourseData>(
-        onSuccess: (CourseData data) {
-          courseData = data;
-          if (mounted) {
-            setState(() {
-              if (courseData.courses.isNotEmpty) {
-                state = CourseState.finish;
-              } else {
-                state = CourseState.empty;
-              }
-            });
+    try {
+      final CourseData data = await Helper.instance.getRoomCourseTables(
+        roomId: widget.room.id,
+        semester: selectSemester!,
+      );
+      courseData = data;
+      if (mounted) {
+        setState(() {
+          if (courseData.courses.isNotEmpty) {
+            state = CourseState.finish;
+          } else {
+            state = CourseState.empty;
           }
-        },
-        onFailure: (DioException e) async {
-          if (e.type != DioExceptionType.cancel && mounted) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = e.i18nMessage;
-            });
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRoomCourseTables',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse generalResponse) async {
-          if (mounted) {
-            setState(() {
-              state = CourseState.custom;
-              customStateHint = generalResponse.getGeneralMessage(context);
-            });
-          }
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (generalResponse) {
+      if (mounted) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = generalResponse.getGeneralMessage(context);
+        });
+      }
+    } on DioException catch (e) {
+      if (e.type != DioExceptionType.cancel && mounted) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = e.i18nMessage;
+        });
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRoomCourseTables',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

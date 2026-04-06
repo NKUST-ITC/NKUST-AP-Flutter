@@ -1,285 +1,170 @@
 {
-  "31108": {
-    "visible": true,
-    "date": "2025/09/22",
-    "zh-TW": "* 修正在學證明查詢錯誤(by  ryan940618)\n* 修正校車系統查詢錯誤(by  abc873693)\n* 修正缺曠系統查詢錯誤(by  ryan940618)\n* 改善驗證碼解析(by yappy2000d)",
-    "en-US": "* Fix enrollment parser error.(by  ryan940618)\n* Fix bus system parser error.(by  abc873693)\n* Fix leave system parser error.(by  ryan940618)\n* Improve captcha handle(by yappy2000d)"
+  "31300": {
+    "version": "3.13.0",
+    "date": "2026-04-03",
+    "zh-TW": [],
+    "en-US": []
   },
-  "31107": {
-    "visible": false,
-    "date": "2025/09/21",
-    "zh-TW": "* 修正在學證明查詢錯誤(by  ryan940618)\n* 改善驗證碼解析(by yappy2000d)",
-    "en-US": "* Fix enrollment parser error.(by  ryan940618)\n* Improve captcha handle(by yappy2000d)"
+  "31200": {
+    "version": "3.12.0",
+    "date": "2026-03-02",
+    "zh-TW": [
+      "修正課表查詢錯誤(by rainvisitor)",
+      "修正教室課表查詢錯誤(by ryan940618)"
+    ],
+    "en-US": [
+      "Fix course table parser error (by rainvisitor)",
+      "Fix classroom course table parser error (by ryan940618)"
+    ]
+  },
+  "31108": {
+    "version": "3.11.8",
+    "date": "2025-09-22",
+    "zh-TW": [
+      "修正在學證明查詢錯誤(by ryan940618)",
+      "修正校車系統查詢錯誤(by abc873693)",
+      "修正缺曠系統查詢錯誤(by ryan940618)",
+      "改善驗證碼解析(by yappy2000d)"
+    ],
+    "en-US": [
+      "Fix enrollment parser error (by ryan940618)",
+      "Fix bus system parser error (by abc873693)",
+      "Fix leave system parser error (by ryan940618)",
+      "Improve captcha handle (by yappy2000d)"
+    ]
   },
   "31106": {
-    "visible": true,
-    "date": "2025/05/23",
-    "zh-TW": "* 技術支援更新",
-    "en-US": "* SDK support update."
-  },
-  "31104": {
-    "visible": true,
-    "date": "2025/05/23",
-    "zh-TW": "* 技術支援更新",
-    "en-US": "* SDK support update."
+    "version": "3.11.6",
+    "date": "2025-05-23",
+    "zh-TW": [
+      "技術支援更新"
+    ],
+    "en-US": [
+      "SDK support update"
+    ]
   },
   "31102": {
-    "visible": true,
-    "date": "2024/09/25",
-    "zh-TW": "* 修正課表提醒星期設定錯誤(需重新點選才能正常)\n  * 修正請假系統顯示錯誤",
-    "en-US": "* Fixed an issue where the week setting for class schedule reminders was incorrect (requiring a re-click to function properly).\n* Fixed a display error in the leave request system."
+    "version": "3.11.2",
+    "date": "2024-09-25",
+    "zh-TW": [
+      "修正課表提醒星期設定錯誤(需重新點選才能正常)",
+      "修正請假系統顯示錯誤"
+    ],
+    "en-US": [
+      "Fixed an issue where the week setting for class schedule reminders was incorrect (requiring a re-click to function properly)",
+      "Fixed a display error in the leave request system"
+    ]
   },
   "31101": {
-    "visible": true,
-    "date": "2024/09/14",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報\n* 修正部分介面高度錯誤\n* 支援自動登入可手動切換離線登入",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school.\n* Corrected UI height discrepancies.\n* Support automatic login with a manual switch to offline login."
-  },
-  "31011": {
-    "visible": false,
-    "date": "2024/09/06",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
-  },
-  "31010": {
-    "visible": false,
-    "date": "2024/09/06",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
-  },
-  "31009": {
-    "visible": false,
-    "date": "2024/09/06",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
-  },
-  "31008": {
-    "visible": false,
-    "date": "2024/09/03",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
-  },
-  "31007": {
-    "visible": false,
-    "date": "2024/09/02",
-    "zh-TW": "* 新增在學證明查詢\n* 新增校方問題回報",
-    "en-US": "* Provide a new feature to check enrollment status.\n* Offer a new way to report issues to the school."
+    "version": "3.11.1",
+    "date": "2024-09-14",
+    "zh-TW": [
+      "新增在學證明查詢",
+      "新增校方問題回報",
+      "修正部分介面高度錯誤",
+      "支援自動登入可手動切換離線登入"
+    ],
+    "en-US": [
+      "Provide a new feature to check enrollment status",
+      "Offer a new way to report issues to the school",
+      "Corrected UI height discrepancies",
+      "Support automatic login with a manual switch to offline login"
+    ]
   },
   "31006": {
-    "visible": true,
-    "date": "2024/04/19",
-    "zh-TW": "* 修正無法登入錯誤",
-    "en-US": "* Fix login error"
+    "version": "3.10.6",
+    "date": "2024-04-19",
+    "zh-TW": [
+      "修正無法登入錯誤"
+    ],
+    "en-US": [
+      "Fix login error"
+    ]
   },
   "31005": {
-    "visible": true,
-    "date": "2024/03/16",
-    "zh-TW": "* 修正部分課程名稱解析錯誤",
-    "en-US": "* Fix some course name parser error"
+    "version": "3.10.5",
+    "date": "2024-03-16",
+    "zh-TW": [
+      "修正部分課程名稱解析錯誤"
+    ],
+    "en-US": [
+      "Fix some course name parser error"
+    ]
   },
   "31004": {
-    "visible": true,
-    "date": "2024/01/07",
-    "zh-TW": "* 改善密碼錯誤導致無法登出\n* 支援更多校方登入錯誤訊息",
-    "en-US": "* Improve password error lead to can't logout.\n* Support more login error message."
-  },
-  "31003": {
-    "visible": false,
-    "date": "2023/11/14",
-    "zh-TW": "* 修正無法登入錯誤",
-    "en-US": "* Fix login error"
-  },
-  "31002": {
-    "visible": false,
-    "date": "2023/10/08",
-    "zh-TW": "* 穩定性更新",
-    "en-US": "* Stability update."
+    "version": "3.10.4",
+    "date": "2024-01-07",
+    "zh-TW": [
+      "改善密碼錯誤導致無法登出",
+      "支援更多校方登入錯誤訊息"
+    ],
+    "en-US": [
+      "Improve password error lead to can't logout",
+      "Support more login error message"
+    ]
   },
   "31001": {
-    "visible": true,
-    "date": "2023/08/23",
-    "zh-TW": "* 修正校車系統違規查詢錯誤\n* 修正教室查詢錯誤",
-    "en-US": "* Fix bus system violation viewer error.\n* Fix classroom course table error"
+    "version": "3.10.1",
+    "date": "2023-08-23",
+    "zh-TW": [
+      "修正校車系統違規查詢錯誤",
+      "修正教室查詢錯誤"
+    ],
+    "en-US": [
+      "Fix bus system violation viewer error",
+      "Fix classroom course table error"
+    ]
   },
   "31000": {
-    "visible": true,
-    "date": "2023/08/11",
-    "zh-TW": "* 修正無法使用課表與成績系統錯誤",
-    "en-US": "* Fix course and score system error."
+    "version": "3.10.0",
+    "date": "2023-08-11",
+    "zh-TW": [
+      "修正無法使用課表與成績系統錯誤"
+    ],
+    "en-US": [
+      "Fix course and score system error"
+    ]
   },
   "30907": {
-    "visible": true,
-    "date": "2023/04/29",
-    "zh-TW": "* 修正 SSL 憑證檢查導致無法登入系統",
-    "en-US": "* Fix login error for ssl certificate check."
-  },
-  "30906": {
-    "visible": false,
-    "date": "2022/11/03",
-    "zh-TW": "* 修正部分錯誤\n* 穩定性更新",
-    "en-US": "* Fix some error.\nStability update."
-  },
-  "30905": {
-    "visible": false,
-    "date": "2022/09/28",
-    "zh-TW": "* 修正部分錯誤\n* 穩定性更新",
-    "en-US": "* Fix some error.\nStability update."
+    "version": "3.9.7",
+    "date": "2023-04-29",
+    "zh-TW": [
+      "修正 SSL 憑證檢查導致無法登入系統"
+    ],
+    "en-US": [
+      "Fix login error for ssl certificate check"
+    ]
   },
   "30904": {
-    "visible": true,
-    "date": "202/09/27",
-    "zh-TW": "* 修正 SSL 憑證檢查導致無法登入缺曠系統",
-    "en-US": "* Fix login error in leave system for ssl certificate check."
+    "version": "3.9.4",
+    "date": "2022-09-27",
+    "zh-TW": [
+      "修正 SSL 憑證檢查導致無法登入缺曠系統"
+    ],
+    "en-US": [
+      "Fix login error in leave system for ssl certificate check"
+    ]
   },
   "30903": {
-    "visible": true,
-    "date": "2022/04/27",
-    "zh-TW": "* 修正憑證檢查導致無法登入",
-    "en-US": "* Fix login error for certificate check."
+    "version": "3.9.3",
+    "date": "2022-04-27",
+    "zh-TW": [
+      "修正憑證檢查導致無法登入"
+    ],
+    "en-US": [
+      "Fix login error for certificate check"
+    ]
   },
   "30902": {
-    "visible": true,
-    "date": "2022/03/24",
-    "zh-TW": "* 修正登入需要修改密碼導致無法登入\n* 改善登入點擊體驗",
-    "en-US": "* Fix login need to modify password error.\n* Improve login button click UX."
-  },
-  "30901": {
-    "visible": true,
-    "date": "2022/02/20",
-    "zh-TW": "* 改善校車及缺曠系統登入",
-    "en-US": "* Improve bus and leave system login."
-  },
-  "30900": {
-    "visible": true,
-    "date": "2022/02/20",
-    "zh-TW": "* 改善校車及缺曠系統登入",
-    "en-US": "* Improve bus and leave system login."
-  },
-  "30818": {
-    "visible": true,
-    "date": "2022/02/20",
-    "zh-TW": "* 改善校車及缺曠系統登入",
-    "en-US": "* Improve bus and leave system login."
-  },
-  "30817": {
-    "visible": true,
-    "date": "2022/02/13",
-    "zh-TW": "* 改善校車系統登入",
-    "en-US": "* Improve bus system login."
-  },
-  "30816": {
-    "visible": true,
-    "date": "2021/12/15",
-    "zh-TW": "* 增加登入驗證碼辨識功能",
-    "en-US": "* Add login captcha detection method."
-  },
-  "30815": {
-    "visible": true,
-    "date": "2021/10/04",
-    "zh-TW": "* 修復 Android 11 無法匯出課表",
-    "en-US": "* Fix android 11 export course to calendar error."
-  },
-  "30814": {
-    "visible": true,
-    "date": "2021/09/30",
-    "zh-TW": "* 修復校車無法顯示",
-    "en-US": "* Fix bus can't reserve."
-  },
-  "30813": {
-    "visible": true,
-    "date": "2021/09/28",
-    "zh-TW": "* 改善校車無法預約提示",
-    "en-US": "* Improve bus reservation hint when can't reserve."
-  },
-  "30812": {
-    "visible": true,
-    "date": "2021/09/18",
-    "zh-TW": "* 修正無法載入照片\n* 修正無法載入學期成績",
-    "en-US": "* Fix can't load user image.\n* Fix load semester score error."
-  },
-  "30811": {
-    "visible": true,
-    "date": "2021/09/13",
-    "zh-TW": "* 穩定性更新\n* 修正部分課表無法顯示\n* 缺曠系統暫時以連結至網頁版本呈顯",
-    "en-US": "* Update stability.\n* Fix some user course table error.\n* Leave system use web version temporary."
-  },
-  "30807": {
-    "visible": true,
-    "date": "2021/07/21",
-    "zh-TW": "* 修正隱私權追蹤說明跑版問題",
-    "en-US": "* Fix privacy tracking description overflow pixel."
-  },
-  "30806": {
-    "visible": true,
-    "date": "2021/05/20",
-    "zh-TW": "* 加入隱私權追蹤說明",
-    "en-US": "* Add privacy tracking description."
-  },
-  "30805": {
-    "visible": true,
-    "date": "2021/04/14",
-    "zh-TW": "* 修復缺曠申請下載資料過多導致崩潰",
-    "en-US": "* Fix leave apply download data too much lead to crash."
-  },
-  "30804": {
-    "visible": true,
-    "date": "2021/04/04",
-    "zh-TW": "* 修復缺曠系統",
-    "en-US": "* Fix leave system."
-  },
-  "30803": {
-    "visible": true,
-    "date": "2021/03/21",
-    "zh-TW": "* 校車申請錯誤",
-    "en-US": "* Fix bus reverse error."
-  },
-  "30802": {
-    "visible": true,
-    "date": "2021/03/14",
-    "zh-TW": "* 修正部分裝置點擊錯誤\n* 修正校車與缺曠登入錯誤",
-    "en-US": "* Fix a part of device click error.\n* Fix bus and leave login error."
-  },
-  "30801": {
-    "visible": true,
-    "date": "2021/03/06",
-    "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
-    "en-US": "* Improve app stability.\n* Improve news content text overflow"
-  },
-  "30800": {
-    "visible": false,
-    "date": "2021/03/06",
-    "zh-TW": "* 穩定性改善\n* 改善最新消息內容文字過長",
-    "en-US": "* Improve app stability.\n* Improve news content text overflow"
-  },
-  "30713": {
-    "visible": false,
-    "date": "2021/03/05",
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
-  },
-  "30712": {
-    "visible": false,
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
-  },
-  "30711": {
-    "visible": false,
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
-  },
-  "30710": {
-    "visible": false,
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
-  },
-  "30709": {
-    "visible": false,
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
-  },
-  "30708": {
-    "visible": true,
-    "zh-TW": "* 修正部分裝置桌面小工具無法顯示",
-    "en-US": "* Fix part of device home widget error."
+    "version": "3.9.2",
+    "date": "2022-03-24",
+    "zh-TW": [
+      "修正登入需要修改密碼導致無法登入",
+      "改善登入點擊體驗"
+    ],
+    "en-US": [
+      "Fix login need to modify password error",
+      "Improve login button click UX"
+    ]
   }
 }

@@ -32,8 +32,6 @@ class WebApHelper {
 
   bool isLogin = false;
 
-  String? pictureUrl;
-
   //cache key name
   static String get semesterCacheKey => 'semesterCacheKey';
 
@@ -484,7 +482,6 @@ class WebApHelper {
       final UserInfo data = UserInfo.fromJson(
         WebApParser.instance.apUserInfoParser(query.data as String),
       );
-      pictureUrl = data.pictureUrl;
       return data;
     }
     final Response<dynamic> query = await apQuery(
@@ -502,15 +499,14 @@ class WebApHelper {
     final UserInfo data = UserInfo.fromJson(
       WebApParser.instance.apUserInfoParser(query.data as String),
     );
-    pictureUrl = data.pictureUrl;
     return data;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      pictureUrl!,
+      pictureUrl,
       options: Options(
         responseType: ResponseType.bytes,
       ),
@@ -541,21 +537,50 @@ class WebApHelper {
     return SemesterData.fromJson(parsedData);
   }
 
+  @Deprecated('use StdsysHelper.getEnrollmentLetter instead')
   Future<Response<Uint8List>> getEnrollmentLetter() async {
-    await loginToStdsys();
-
     final List<Cookie> cookies =
-        await cookieJar.loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+        await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
 
+    final Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'AG225'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> requestData =
+        WebApParser.instance.enrollmentRequestParser(res.data);
+
+    final String action = (requestData['action'] as String)
+        .replaceAll('ag_pro/', '')
+        .replaceAll('.jsp', '');
+    final Map<String, String> params =
+        requestData['params'] as Map<String, String>;
+
+    final Response<dynamic> query = await apQuery(
+      action,
+      params,
+    );
+
+    final String? pdfPath =
+        WebApParser.instance.enrollmentLetterPathParser(query.data as String);
+
+    if (pdfPath == null || pdfPath.isEmpty) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.unknownError,
+        message: 'cannot find pdf url',
+      );
+    }
+
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
+          'Referer': 'https://webap.nkust.edu.tw/',
           'Cookie': cookieHeader,
         },
       ),
@@ -654,6 +679,7 @@ class WebApHelper {
     );
   }
 
+  @Deprecated('use StdsysHelper.roomList instead')
   Future<RoomData> roomList(
     String cmpAreaId,
     String? years,
