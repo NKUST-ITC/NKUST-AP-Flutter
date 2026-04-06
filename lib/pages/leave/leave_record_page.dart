@@ -375,7 +375,9 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
         _loadOfflineLeaveData();
@@ -387,7 +389,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getSemesterLeaveRecord();

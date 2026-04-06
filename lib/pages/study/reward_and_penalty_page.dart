@@ -238,7 +238,9 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
       }
@@ -249,7 +251,7 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getRewardAndPenaltyData();

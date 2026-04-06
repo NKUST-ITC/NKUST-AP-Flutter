@@ -231,7 +231,9 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       final SemesterData? cacheData = SemesterData.load();
       if (cacheData != null && mounted) {
         setState(() {
-          semesterData = cacheData;
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
           selectSemester = semesterData!.defaultSemester;
         });
       }
@@ -242,7 +244,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
       data.save();
       if (mounted) {
         setState(() {
-          semesterData = data;
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
           selectSemester = data.defaultSemester;
         });
         _getMidtermAlertsData();
