@@ -522,7 +522,6 @@ class Helper {
     ApCommonPlugin.clearUserInfoWidget();
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
-    LeaveHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
     MobileNkustHelper.instance.cookiesData?.clear();
   }

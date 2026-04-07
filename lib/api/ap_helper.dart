@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
@@ -27,6 +28,10 @@ class WebApHelper {
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
+  static const int _baseBackoffMilliseconds = 300;
+  static const int _maxBackoffMilliseconds = 5000;
+  // `apLoginParser == 2` means current session is invalid and must relogin.
+  static const int _sessionExpiredParserCode = 2;
 
   bool isLogin = false;
   WebApSessionState sessionState = WebApSessionState.idle;
@@ -237,15 +242,19 @@ class WebApHelper {
 
     if (_loginFuture != null) {
       await _loginFuture;
+      if (sessionState != WebApSessionState.authenticated || !isLogin) {
+        throw GeneralResponse(
+          statusCode: ApStatusCode.networkConnectFail,
+          message: 'webap session is not authenticated',
+        );
+      }
       return;
     }
 
     final DateTime now = DateTime.now();
     if (_backoffUntil != null && now.isBefore(_backoffUntil!)) {
       final Duration remain = _backoffUntil!.difference(now);
-      if (remain.inMilliseconds > 0) {
-        await Future<void>.delayed(remain);
-      }
+      await Future<void>.delayed(remain);
     }
 
     sessionState = WebApSessionState.authenticating;
@@ -289,7 +298,8 @@ class WebApHelper {
         url,
         options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
-      return WebApParser.instance.apLoginParser(response.data) != 2;
+      return WebApParser.instance.apLoginParser(response.data) !=
+          _sessionExpiredParserCode;
     } catch (_) {
       return false;
     }
@@ -301,7 +311,6 @@ class WebApHelper {
 
   void _markWebApExpired() {
     isLogin = false;
-    LeaveHelper.instance.isLogin = false;
     sessionState = WebApSessionState.expired;
     for (final WebApServiceType service in _serviceStates.keys) {
       if (_serviceStates[service] == WebApServiceSessionState.ready) {
@@ -315,17 +324,24 @@ class WebApHelper {
     Future<LoginResponse> Function() handshake,
   ) async {
     if (_serviceStates[service] == WebApServiceSessionState.ready) {
+      await ensureAuthenticated();
       if (service != WebApServiceType.stdsys ||
           (_stdsysLoginExpireTime != null &&
               DateTime.now().isBefore(_stdsysLoginExpireTime!))) {
-        return LoginResponse(expireTime: _stdsysLoginExpireTime);
+        if (service == WebApServiceType.stdsys) {
+          return LoginResponse(expireTime: _stdsysLoginExpireTime);
+        }
+        return LoginResponse(
+          expireTime: DateTime.now().add(const Duration(hours: 1)),
+        );
       }
       _serviceStates[service] = WebApServiceSessionState.expired;
     }
 
-    final Future<LoginResponse>? runningFuture = _serviceHandshakeFutures[service];
-    if (runningFuture != null) {
-      return runningFuture;
+    final Future<LoginResponse>? existingHandshake =
+        _serviceHandshakeFutures[service];
+    if (existingHandshake != null) {
+      return existingHandshake;
     }
 
     _serviceStates[service] = WebApServiceSessionState.handshaking;
@@ -427,13 +443,6 @@ class WebApHelper {
   DateTime? _stdsysLoginExpireTime;
 
   Future<LoginResponse> loginToStdsys() async {
-    // Skip login if session is still valid.
-    if (_stdsysLoginExpireTime != null &&
-        DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
-      _serviceStates[WebApServiceType.stdsys] = WebApServiceSessionState.ready;
-      return LoginResponse(expireTime: _stdsysLoginExpireTime!);
-    }
-
     return _ensureServiceSession(WebApServiceType.stdsys, () async {
       await apQuery('ag304_01', null);
 
@@ -518,10 +527,19 @@ class WebApHelper {
     });
   }
 
-  @Deprecated('use ensureAuthenticated()')
+  @Deprecated(
+    'Use ensureAuthenticated() instead. Deprecated in 3.13.x and will be removed in 3.14.0.',
+  )
   Future<LoginResponse?> checkLogin() async {
+    final bool wasAlreadyAuthenticated =
+        sessionState == WebApSessionState.authenticated && isLogin;
     await ensureAuthenticated();
-    return null;
+    if (wasAlreadyAuthenticated) {
+      return null;
+    }
+    return LoginResponse(
+      expireTime: DateTime.now().add(const Duration(hours: 6)),
+    );
   }
 
   Future<Response<dynamic>> apQuery(
@@ -541,28 +559,31 @@ class WebApHelper {
     while (reLoginReTryCounts <= reLoginReTryCountsLimit) {
       await ensureAuthenticated();
 
-      final Response<dynamic> request;
-      if (bytesResponse != null) {
-        request = await dio.post<List<int>>(
-          url,
-          data: queryData,
-          options: options,
-        );
-      } else {
-        request = await dio.post<dynamic>(
-          url,
-          data: queryData,
-          options: options,
-        );
-      }
+      final Response<dynamic> request = bytesResponse != null
+          ? await dio.post<List<int>>(
+              url,
+              data: queryData,
+              options: options,
+            )
+          : await dio.post<dynamic>(
+              url,
+              data: queryData,
+              options: options,
+            );
 
-      if (WebApParser.instance.apLoginParser(request.data) == 2) {
+      if (WebApParser.instance.apLoginParser(request.data) ==
+          _sessionExpiredParserCode) {
         reLoginReTryCounts += 1;
         markSessionInvalid();
-        sessionState = WebApSessionState.backoff;
+        final int calculatedBackoff = (_baseBackoffMilliseconds *
+                pow(2, reLoginReTryCounts - 1))
+            .toInt();
         _backoffUntil = DateTime.now().add(
-          Duration(milliseconds: 300 * reLoginReTryCounts),
+          Duration(
+            milliseconds: min(calculatedBackoff, _maxBackoffMilliseconds),
+          ),
         );
+        sessionState = WebApSessionState.backoff;
         continue;
       }
       reLoginReTryCounts = 0;
