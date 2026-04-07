@@ -37,6 +37,7 @@ class WebApHelper {
   WebApSessionState sessionState = WebApSessionState.idle;
   Future<void>? _loginFuture;
   DateTime? _backoffUntil;
+  int _sessionEpoch = 0;
   final Map<WebApServiceType, WebApServiceSessionState> _serviceStates =
       <WebApServiceType, WebApServiceSessionState>{
     WebApServiceType.leave: WebApServiceSessionState.cold,
@@ -95,6 +96,7 @@ class WebApHelper {
   }
 
   void resetSessionMachine({bool resetLoginState = true}) {
+    _sessionEpoch += 1;
     _stdsysLoginExpireTime = null;
     _backoffUntil = null;
     _loginFuture = null;
@@ -126,6 +128,7 @@ class WebApHelper {
     required String username,
     required String password,
     int retryCounts = 5,
+    int? sessionEpoch,
   }) async {
     //
     /*
@@ -177,9 +180,11 @@ class WebApHelper {
             await stayOldPwd();
             return login(username: username, password: password);
           case 0:
-            isLogin = true;
-            sessionState = WebApSessionState.authenticated;
-            _backoffUntil = null;
+            if (sessionEpoch == null || sessionEpoch == _sessionEpoch) {
+              isLogin = true;
+              sessionState = WebApSessionState.authenticated;
+              _backoffUntil = null;
+            }
             return LoginResponse(
               expireTime: DateTime.now().add(const Duration(hours: 6)),
             );
@@ -240,8 +245,9 @@ class WebApHelper {
       return;
     }
 
-    if (_loginFuture != null) {
-      await _loginFuture;
+    final Future<void>? existingLoginFuture = _loginFuture;
+    if (existingLoginFuture != null) {
+      await existingLoginFuture;
       if (sessionState != WebApSessionState.authenticated || !isLogin) {
         throw GeneralResponse(
           statusCode: ApStatusCode.networkConnectFail,
@@ -251,26 +257,55 @@ class WebApHelper {
       return;
     }
 
-    final DateTime now = DateTime.now();
-    if (_backoffUntil != null && now.isBefore(_backoffUntil!)) {
-      final Duration remain = _backoffUntil!.difference(now);
-      await Future<void>.delayed(remain);
-    }
+    final int authEpoch = _sessionEpoch;
+    late final Future<void> createdLoginFuture;
+    createdLoginFuture = () async {
+      final DateTime now = DateTime.now();
+      if (_backoffUntil != null && now.isBefore(_backoffUntil!)) {
+        final Duration remain = _backoffUntil!.difference(now);
+        await Future<void>.delayed(remain);
+      }
 
-    sessionState = WebApSessionState.authenticating;
-    _loginFuture = _authenticateWithVerify();
+      if (authEpoch != _sessionEpoch) {
+        return;
+      }
+
+      sessionState = WebApSessionState.authenticating;
+      await _authenticateWithVerify(authEpoch);
+    }();
+    _loginFuture = createdLoginFuture;
     try {
-      await _loginFuture;
+      await createdLoginFuture;
+      if (authEpoch != _sessionEpoch ||
+          sessionState != WebApSessionState.authenticated ||
+          !isLogin) {
+        throw GeneralResponse(
+          statusCode: ApStatusCode.networkConnectFail,
+          message: 'webap session is not authenticated',
+        );
+      }
     } finally {
-      _loginFuture = null;
+      if (identical(_loginFuture, createdLoginFuture)) {
+        _loginFuture = null;
+      }
     }
   }
 
-  Future<void> _authenticateWithVerify() async {
+  Future<void> _authenticateWithVerify(int authEpoch) async {
     try {
-      await login(username: Helper.username!, password: Helper.password!);
+      await login(
+        username: Helper.username!,
+        password: Helper.password!,
+        sessionEpoch: authEpoch,
+      );
+      if (authEpoch != _sessionEpoch) {
+        return;
+      }
       sessionState = WebApSessionState.verifying;
       final bool isValid = await _verifyWebApSession();
+      if (authEpoch != _sessionEpoch) {
+        return;
+      }
       if (!isValid) {
         _markWebApExpired();
         throw GeneralResponse(
@@ -282,7 +317,9 @@ class WebApHelper {
       _backoffUntil = null;
       reLoginReTryCounts = 0;
     } catch (_) {
-      sessionState = WebApSessionState.failed;
+      if (authEpoch == _sessionEpoch) {
+        sessionState = WebApSessionState.failed;
+      }
       rethrow;
     }
   }
@@ -323,6 +360,8 @@ class WebApHelper {
     WebApServiceType service,
     Future<LoginResponse> Function() handshake,
   ) async {
+    final int serviceEpoch = _sessionEpoch;
+
     if (_serviceStates[service] == WebApServiceSessionState.ready) {
       await ensureAuthenticated();
       if (service != WebApServiceType.stdsys ||
@@ -345,17 +384,24 @@ class WebApHelper {
     }
 
     _serviceStates[service] = WebApServiceSessionState.handshaking;
-    final Future<LoginResponse> future = () async {
+    late final Future<LoginResponse> future;
+    future = () async {
       try {
         await ensureAuthenticated();
         final LoginResponse response = await handshake();
-        _serviceStates[service] = WebApServiceSessionState.ready;
+        if (serviceEpoch == _sessionEpoch) {
+          _serviceStates[service] = WebApServiceSessionState.ready;
+        }
         return response;
       } catch (_) {
-        _serviceStates[service] = WebApServiceSessionState.failed;
+        if (serviceEpoch == _sessionEpoch) {
+          _serviceStates[service] = WebApServiceSessionState.failed;
+        }
         rethrow;
       } finally {
-        _serviceHandshakeFutures.remove(service);
+        if (identical(_serviceHandshakeFutures[service], future)) {
+          _serviceHandshakeFutures.remove(service);
+        }
       }
     }();
     _serviceHandshakeFutures[service] = future;
@@ -556,7 +602,8 @@ class WebApHelper {
     dio.options.headers['Referer'] =
         'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
-    while (reLoginReTryCounts <= reLoginReTryCountsLimit) {
+    int retryCount = 0;
+    while (retryCount <= reLoginReTryCountsLimit) {
       await ensureAuthenticated();
 
       final Response<dynamic> request = bytesResponse != null
@@ -573,10 +620,11 @@ class WebApHelper {
 
       if (WebApParser.instance.apLoginParser(request.data) ==
           _sessionExpiredParserCode) {
-        reLoginReTryCounts += 1;
+        retryCount += 1;
+        reLoginReTryCounts = retryCount;
         markSessionInvalid();
         final int calculatedBackoff = (_baseBackoffMilliseconds *
-                pow(2, reLoginReTryCounts - 1))
+                pow(2, retryCount - 1))
             .toInt();
         _backoffUntil = DateTime.now().add(
           Duration(
