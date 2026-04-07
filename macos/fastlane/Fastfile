@@ -18,15 +18,18 @@ platform :mac do
         in_house: false
     )
 
-    app_dir = File.expand_path("../../build/macos/Build/Products/Release", __dir__)
-    app_files = Dir["#{app_dir}/*.app"]
-    UI.message("Looking for .app in: #{app_dir}")
-    raise "No .app found in #{app_dir}" if app_files.empty?
-    app_path = app_files.first
+    build_mac_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "../build/macos/pkg",
+      output_name: "NKUST_AP.pkg",
+    )
 
-    pkg_path = "#{app_dir}/NKUST_AP.pkg"
-    sh("productbuild", "--component", app_path, "/Applications", pkg_path)
-    UI.message("Built pkg: #{pkg_path}")
+    pkg_dir = File.expand_path("../../build/macos/pkg", __dir__)
+    pkg_path = "#{pkg_dir}/NKUST_AP.pkg"
+    raise "No .pkg found at #{pkg_path}" unless File.exist?(pkg_path)
 
     upload_to_testflight(
       app_identifier: APP_STORE_CONNECT_BUNDLE_IDENTIFIER,
