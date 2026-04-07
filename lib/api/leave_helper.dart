@@ -204,13 +204,7 @@ class LeaveHelper {
     if (Helper.username == null || Helper.password == null) {
       throw 'NullThrownError';
     }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
-    if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
-    }
+    await WebApHelper.instance.loginToLeave();
     final Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/AK002MainM.aspx',
     );
@@ -235,13 +229,7 @@ class LeaveHelper {
     if (Helper.username == null || Helper.password == null) {
       throw 'NullThrownError';
     }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
-    if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
-    }
+    await WebApHelper.instance.loginToLeave();
     Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
     );

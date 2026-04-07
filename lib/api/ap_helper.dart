@@ -11,6 +11,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_ap/api/webap_session_state.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -28,6 +29,18 @@ class WebApHelper {
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
+  WebApSessionState sessionState = WebApSessionState.idle;
+  Future<void>? _loginFuture;
+  DateTime? _backoffUntil;
+  final Map<WebApServiceType, WebApServiceSessionState> _serviceStates =
+      <WebApServiceType, WebApServiceSessionState>{
+    WebApServiceType.leave: WebApServiceSessionState.cold,
+    WebApServiceType.stdsys: WebApServiceSessionState.cold,
+    WebApServiceType.mobile: WebApServiceSessionState.cold,
+    WebApServiceType.oosaf: WebApServiceSessionState.cold,
+  };
+  final Map<WebApServiceType, Future<LoginResponse>> _serviceHandshakeFutures =
+      <WebApServiceType, Future<LoginResponse>>{};
 
   //ignore: prefer_constructors_over_static_methods
   static WebApHelper get instance {
@@ -49,7 +62,7 @@ class WebApHelper {
   }
 
   Future<void> logout() async {
-    _stdsysLoginExpireTime = null;
+    resetSessionMachine();
     try {
       await dio.post('https://webap.nkust.edu.tw/nkust/reclear.jsp');
     } catch (_) {}
@@ -72,6 +85,22 @@ class WebApHelper {
     );
     if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
       dio.httpClientAdapter = NativeAdapter();
+    }
+    resetSessionMachine(resetLoginState: false);
+  }
+
+  void resetSessionMachine({bool resetLoginState = true}) {
+    _stdsysLoginExpireTime = null;
+    _backoffUntil = null;
+    _loginFuture = null;
+    sessionState = WebApSessionState.idle;
+    reLoginReTryCounts = 0;
+    for (final WebApServiceType service in _serviceStates.keys) {
+      _serviceStates[service] = WebApServiceSessionState.cold;
+    }
+    _serviceHandshakeFutures.clear();
+    if (resetLoginState) {
+      isLogin = false;
     }
   }
 
@@ -144,6 +173,8 @@ class WebApHelper {
             return login(username: username, password: password);
           case 0:
             isLogin = true;
+            sessionState = WebApSessionState.authenticated;
+            _backoffUntil = null;
             return LoginResponse(
               expireTime: DateTime.now().add(const Duration(hours: 6)),
             );
@@ -199,185 +230,142 @@ class WebApHelper {
     return res;
   }
 
+  Future<void> ensureAuthenticated() async {
+    if (sessionState == WebApSessionState.authenticated && isLogin) {
+      return;
+    }
+
+    if (_loginFuture != null) {
+      await _loginFuture;
+      return;
+    }
+
+    final DateTime now = DateTime.now();
+    if (_backoffUntil != null && now.isBefore(_backoffUntil!)) {
+      final Duration remain = _backoffUntil!.difference(now);
+      if (remain.inMilliseconds > 0) {
+        await Future<void>.delayed(remain);
+      }
+    }
+
+    sessionState = WebApSessionState.authenticating;
+    _loginFuture = _authenticateWithVerify();
+    try {
+      await _loginFuture;
+    } finally {
+      _loginFuture = null;
+    }
+  }
+
+  Future<void> _authenticateWithVerify() async {
+    try {
+      await login(username: Helper.username!, password: Helper.password!);
+      sessionState = WebApSessionState.verifying;
+      final bool isValid = await _verifyWebApSession();
+      if (!isValid) {
+        _markWebApExpired();
+        throw GeneralResponse(
+          statusCode: ApStatusCode.networkConnectFail,
+          message: 'verify webap session failed',
+        );
+      }
+      sessionState = WebApSessionState.authenticated;
+      _backoffUntil = null;
+      reLoginReTryCounts = 0;
+    } catch (_) {
+      sessionState = WebApSessionState.failed;
+      rethrow;
+    }
+  }
+
+  Future<bool> _verifyWebApSession() async {
+    final String queryQid = 'ag304_01';
+    final String url =
+        'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
+    try {
+      dio.options.headers['Referer'] =
+          'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
+      final Response<dynamic> response = await dio.post<dynamic>(
+        url,
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
+      );
+      return WebApParser.instance.apLoginParser(response.data) != 2;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void markSessionInvalid() {
+    _markWebApExpired();
+  }
+
+  void _markWebApExpired() {
+    isLogin = false;
+    LeaveHelper.instance.isLogin = false;
+    sessionState = WebApSessionState.expired;
+    for (final WebApServiceType service in _serviceStates.keys) {
+      if (_serviceStates[service] == WebApServiceSessionState.ready) {
+        _serviceStates[service] = WebApServiceSessionState.expired;
+      }
+    }
+  }
+
+  Future<LoginResponse> _ensureServiceSession(
+    WebApServiceType service,
+    Future<LoginResponse> Function() handshake,
+  ) async {
+    if (_serviceStates[service] == WebApServiceSessionState.ready) {
+      if (service != WebApServiceType.stdsys ||
+          (_stdsysLoginExpireTime != null &&
+              DateTime.now().isBefore(_stdsysLoginExpireTime!))) {
+        return LoginResponse(expireTime: _stdsysLoginExpireTime);
+      }
+      _serviceStates[service] = WebApServiceSessionState.expired;
+    }
+
+    final Future<LoginResponse>? runningFuture = _serviceHandshakeFutures[service];
+    if (runningFuture != null) {
+      return runningFuture;
+    }
+
+    _serviceStates[service] = WebApServiceSessionState.handshaking;
+    final Future<LoginResponse> future = () async {
+      try {
+        await ensureAuthenticated();
+        final LoginResponse response = await handshake();
+        _serviceStates[service] = WebApServiceSessionState.ready;
+        return response;
+      } catch (_) {
+        _serviceStates[service] = WebApServiceSessionState.failed;
+        rethrow;
+      } finally {
+        _serviceHandshakeFutures.remove(service);
+      }
+    }();
+    _serviceHandshakeFutures[service] = future;
+    return future;
+  }
+
   Future<LoginResponse> loginToMobile() async {
-    // Login leave.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
+    return _ensureServiceSession(WebApServiceType.mobile, () async {
+      await apQuery('ag304_01', null);
+
+      Response<String> res = await dio.post<String>(
+        'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+        data: <String, String>{'fncid': 'CK004'},
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
-    }
-    await checkLogin();
-    await apQuery('ag304_01', null);
 
-    Response<String> res = await dio.post<String>(
-      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: 'application/x-www-form-urlencoded'),
-    );
+      final Map<String, dynamic> skyDirectData =
+          WebApParser.instance.webapToleaveParser(res.data);
 
-    final Map<String, dynamic> skyDirectData =
-        WebApParser.instance.webapToleaveParser(res.data);
-
-    res = await (Dio()
-          ..interceptors.add(
-            PrivateCookieManager(cookieJar),
-          ))
-        .post(
-      'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
-      data: skyDirectData,
-      options: Options(
-        followRedirects: false,
-        validateStatus: (int? status) {
-          return status! < 500;
-        },
-        contentType: 'application/x-www-form-urlencoded',
-      ),
-    );
-
-    if (res.statusCode == 200 && res.data!.contains('/Student/Leave/Create')) {
-      return LoginResponse(
-        expireTime: DateTime.now().add(const Duration(hours: 1)),
-      );
-    } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
-    }
-  }
-
-  Future<LoginResponse> loginToOosaf() async {
-    // Login oosaf.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
-    await checkLogin();
-    await apQuery('ag304_01', null);
-
-    Response<String> res = await dio.post<String>(
-      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: 'application/x-www-form-urlencoded'),
-    );
-
-    final Map<String, dynamic> skyDirectData =
-        WebApParser.instance.webapToleaveParser(res.data);
-
-    res = await (Dio()
-          ..interceptors.add(
-            PrivateCookieManager(cookieJar),
-          ))
-        .post(
-      'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
-      data: skyDirectData,
-      options: Options(
-        followRedirects: false,
-        validateStatus: (int? status) {
-          return status! < 500;
-        },
-        contentType: 'application/x-www-form-urlencoded',
-      ),
-    );
-
-    if (res.statusCode == 200 && res.data!.contains('/Student/Leave/Create')) {
-      return LoginResponse(
-        expireTime: DateTime.now().add(const Duration(hours: 1)),
-      );
-    } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
-    }
-  }
-
-  DateTime? _stdsysLoginExpireTime;
-
-  Future<LoginResponse> loginToStdsys() async {
-    // Skip login if session is still valid.
-    if (_stdsysLoginExpireTime != null &&
-        DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
-      return LoginResponse(expireTime: _stdsysLoginExpireTime!);
-    }
-
-    // Login stdsys.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
-    await checkLogin();
-    await apQuery('ag304_01', null);
-
-    Response<String> res = await dio.post<String>(
-      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: 'application/x-www-form-urlencoded'),
-    );
-
-    final Map<String, dynamic> skyDirectData =
-        WebApParser.instance.webapToleaveParser(res.data);
-
-    res = await (Dio()
-          ..interceptors.add(
-            PrivateCookieManager(cookieJar),
-          ))
-        .post(
-      'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
-      data: skyDirectData,
-      options: Options(
-        followRedirects: false,
-        validateStatus: (int? status) {
-          return status! < 500;
-        },
-        contentType: 'application/x-www-form-urlencoded',
-      ),
-    );
-
-    if (res.statusCode == 200 && res.data!.contains('/Student/Home/Index')) {
-      _stdsysLoginExpireTime = DateTime.now().add(const Duration(hours: 1));
-      return LoginResponse(
-        expireTime: _stdsysLoginExpireTime!,
-      );
-    } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
-    }
-  }
-
-  Future<LoginResponse> loginToLeave() async {
-    // Login leave.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
-    await checkLogin();
-    await apQuery('ag304_01', null);
-
-    Response<String> res = await dio.post(
-      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
-      data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: 'application/x-www-form-urlencoded'),
-    );
-    final Map<String?, dynamic> skyDirectData =
-        WebApParser.instance.webapToleaveParser(res.data);
-    res = await dio.get<String>(
-      'https://leave.nkust.edu.tw/SkyDir.aspx',
-      queryParameters: <String, dynamic>{
-        'u': skyDirectData['uid'],
-        'r': skyDirectData['ls_randnum'],
-      },
-      options: Options(
-        followRedirects: false,
-        validateStatus: (int? status) {
-          return status! < 500;
-        },
-        contentType: 'application/x-www-form-urlencoded',
-      ),
-    );
-    if (res.data!.contains('masterindex.aspx')) {
-      res = await dio.get(
-        'https://leave.nkust.edu.tw/masterindex.aspx',
+      res = await (Dio()
+            ..interceptors.add(
+              PrivateCookieManager(cookieJar),
+            ))
+          .post(
+        'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
+        data: skyDirectData,
         options: Options(
           followRedirects: false,
           validateStatus: (int? status) {
@@ -387,18 +375,153 @@ class WebApHelper {
         ),
       );
 
-      LeaveHelper.instance.isLogin = true;
-      return LoginResponse(
-        expireTime: DateTime.now().add(const Duration(hours: 1)),
-      );
-    }
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      if (res.statusCode == 200 &&
+          res.data!.contains('/Student/Leave/Create')) {
+        return LoginResponse(
+          expireTime: DateTime.now().add(const Duration(hours: 1)),
+        );
+      }
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    });
   }
 
+  Future<LoginResponse> loginToOosaf() async {
+    return _ensureServiceSession(WebApServiceType.oosaf, () async {
+      await apQuery('ag304_01', null);
+
+      Response<String> res = await dio.post<String>(
+        'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+        data: <String, String>{'fncid': 'CK004'},
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
+      );
+
+      final Map<String, dynamic> skyDirectData =
+          WebApParser.instance.webapToleaveParser(res.data);
+
+      res = await (Dio()
+            ..interceptors.add(
+              PrivateCookieManager(cookieJar),
+            ))
+          .post(
+        'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
+        data: skyDirectData,
+        options: Options(
+          followRedirects: false,
+          validateStatus: (int? status) {
+            return status! < 500;
+          },
+          contentType: 'application/x-www-form-urlencoded',
+        ),
+      );
+
+      if (res.statusCode == 200 &&
+          res.data!.contains('/Student/Leave/Create')) {
+        return LoginResponse(
+          expireTime: DateTime.now().add(const Duration(hours: 1)),
+        );
+      }
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    });
+  }
+
+  DateTime? _stdsysLoginExpireTime;
+
+  Future<LoginResponse> loginToStdsys() async {
+    // Skip login if session is still valid.
+    if (_stdsysLoginExpireTime != null &&
+        DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
+      _serviceStates[WebApServiceType.stdsys] = WebApServiceSessionState.ready;
+      return LoginResponse(expireTime: _stdsysLoginExpireTime!);
+    }
+
+    return _ensureServiceSession(WebApServiceType.stdsys, () async {
+      await apQuery('ag304_01', null);
+
+      Response<String> res = await dio.post<String>(
+        'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+        data: <String, String>{'fncid': 'CK004'},
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
+      );
+
+      final Map<String, dynamic> skyDirectData =
+          WebApParser.instance.webapToleaveParser(res.data);
+
+      res = await (Dio()
+            ..interceptors.add(
+              PrivateCookieManager(cookieJar),
+            ))
+          .post(
+        'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
+        data: skyDirectData,
+        options: Options(
+          followRedirects: false,
+          validateStatus: (int? status) {
+            return status! < 500;
+          },
+          contentType: 'application/x-www-form-urlencoded',
+        ),
+      );
+
+      if (res.statusCode == 200 && res.data!.contains('/Student/Home/Index')) {
+        _stdsysLoginExpireTime = DateTime.now().add(const Duration(hours: 1));
+        return LoginResponse(
+          expireTime: _stdsysLoginExpireTime!,
+        );
+      }
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    });
+  }
+
+  Future<LoginResponse> loginToLeave() async {
+    return _ensureServiceSession(WebApServiceType.leave, () async {
+      await apQuery('ag304_01', null);
+
+      Response<String> res = await dio.post(
+        'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+        data: <String, String>{'fncid': 'CK004'},
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
+      );
+      final Map<String?, dynamic> skyDirectData =
+          WebApParser.instance.webapToleaveParser(res.data);
+      res = await dio.get<String>(
+        'https://leave.nkust.edu.tw/SkyDir.aspx',
+        queryParameters: <String, dynamic>{
+          'u': skyDirectData['uid'],
+          'r': skyDirectData['ls_randnum'],
+        },
+        options: Options(
+          followRedirects: false,
+          validateStatus: (int? status) {
+            return status! < 500;
+          },
+          contentType: 'application/x-www-form-urlencoded',
+        ),
+      );
+      if (res.data!.contains('masterindex.aspx')) {
+        res = await dio.get(
+          'https://leave.nkust.edu.tw/masterindex.aspx',
+          options: Options(
+            followRedirects: false,
+            validateStatus: (int? status) {
+              return status! < 500;
+            },
+            contentType: 'application/x-www-form-urlencoded',
+          ),
+        );
+
+        LeaveHelper.instance.isLogin = true;
+        return LoginResponse(
+          expireTime: DateTime.now().add(const Duration(hours: 1)),
+        );
+      }
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    });
+  }
+
+  @Deprecated('use ensureAuthenticated()')
   Future<LoginResponse?> checkLogin() async {
-    return isLogin
-        ? null
-        : await login(username: Helper.username!, password: Helper.password!);
+    await ensureAuthenticated();
+    return null;
   }
 
   Future<Response<dynamic>> apQuery(
@@ -406,13 +529,6 @@ class WebApHelper {
     Map<String, String?>? queryData, {
     bool? bytesResponse,
   }) async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
-    await checkLogin();
     final String url =
         'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
     final Options options = Options(
@@ -422,28 +538,41 @@ class WebApHelper {
     dio.options.headers['Referer'] =
         'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
-    Response<dynamic> request;
-    if (bytesResponse != null) {
-      request = await dio.post<List<int>>(
-        url,
-        data: queryData,
-        options: options,
-      );
-    } else {
-      request = await dio.post<dynamic>(
-        url,
-        data: queryData,
-        options: options,
-      );
-    }
+    while (reLoginReTryCounts <= reLoginReTryCountsLimit) {
+      await ensureAuthenticated();
 
-    if (WebApParser.instance.apLoginParser(request.data) == 2) {
-      reLoginReTryCounts += 1;
-      await login(username: Helper.username!, password: Helper.password!);
-      return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
+      final Response<dynamic> request;
+      if (bytesResponse != null) {
+        request = await dio.post<List<int>>(
+          url,
+          data: queryData,
+          options: options,
+        );
+      } else {
+        request = await dio.post<dynamic>(
+          url,
+          data: queryData,
+          options: options,
+        );
+      }
+
+      if (WebApParser.instance.apLoginParser(request.data) == 2) {
+        reLoginReTryCounts += 1;
+        markSessionInvalid();
+        sessionState = WebApSessionState.backoff;
+        _backoffUntil = DateTime.now().add(
+          Duration(milliseconds: 300 * reLoginReTryCounts),
+        );
+        continue;
+      }
+      reLoginReTryCounts = 0;
+      return request;
     }
-    reLoginReTryCounts = 0;
-    return request;
+    sessionState = WebApSessionState.failed;
+    throw GeneralResponse(
+      statusCode: ApStatusCode.networkConnectFail,
+      message: 'Login exceeded retry limit',
+    );
   }
 
   Future<UserInfo> userInfoCrawler() async {
@@ -524,7 +653,7 @@ class WebApHelper {
   }
 
   Future<ScoreData> scores(String? years, String? semesterValue) async {
-    await checkLogin();
+    await ensureAuthenticated();
     final Response<dynamic> query = await apQuery(
       'ag008',
       <String, String?>{'arg01': years, 'arg02': semesterValue},
