@@ -31,6 +31,9 @@ class WebApHelper {
   // ── Session state machine ──────────────────────────────────────────────
   WebApSessionState _state = WebApSessionState.idle;
 
+  /// Expiry time of the current WebAP session, set when login succeeds.
+  DateTime? _loginExpireTime;
+
   /// The single in-flight WebAP login Future.  All concurrent callers share
   /// this Future so that only one login sequence runs at a time.
   Future<LoginResponse>? _loginFuture;
@@ -59,6 +62,7 @@ class WebApHelper {
 
   Future<void> logout() async {
     _stdsysLoginExpireTime = null;
+    _loginExpireTime = null;
     _state = WebApSessionState.idle;
     _loginFuture = null;
     _stdsysLoginFuture = null;
@@ -160,10 +164,9 @@ class WebApHelper {
             // have flushed the cookie. Probe a lightweight endpoint first.
             _state = WebApSessionState.verifying;
             await _verifyWebApSession();
+            _loginExpireTime = DateTime.now().add(const Duration(hours: 6));
             _state = WebApSessionState.authenticated;
-            return LoginResponse(
-              expireTime: DateTime.now().add(const Duration(hours: 6)),
-            );
+            return LoginResponse(expireTime: _loginExpireTime);
           case 1:
             throw GeneralResponse(
               statusCode: ApStatusCode.userDataError,
@@ -238,9 +241,9 @@ class WebApHelper {
   /// login sequence is started — every concurrent caller joins the same
   /// in-flight [Future] rather than firing independent login requests.
   Future<LoginResponse> ensureAuthenticated() {
-    if (_state == WebApSessionState.authenticated) {
+    if (_state == WebApSessionState.authenticated && _loginExpireTime != null) {
       return Future<LoginResponse>.value(
-        LoginResponse(expireTime: DateTime.now().add(const Duration(hours: 6))),
+        LoginResponse(expireTime: _loginExpireTime),
       );
     }
     return _loginFuture ??= login(
