@@ -35,9 +35,6 @@ class LeaveHelper {
     return _instance ??= LeaveHelper();
   }
 
-  int reLoginReTryCountsLimit = 3;
-  int reLoginReTryCounts = 0;
-
   bool? isLogin;
 
   late Dio dio;
