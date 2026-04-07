@@ -168,8 +168,10 @@ class WebApHelper {
           },
           options: Options(contentType: 'application/x-www-form-urlencoded'),
         );
-        Helper.username = username;
-        Helper.password = password;
+        if (sessionEpoch == null || sessionEpoch == _sessionEpoch) {
+          Helper.username = username;
+          Helper.password = password;
+        }
         final int code = WebApParser.instance.apLoginParser(res.data);
         switch (code) {
           case -1:
@@ -178,7 +180,13 @@ class WebApHelper {
           case 4:
             //Stay old password and relogin.
             await stayOldPwd();
-            return login(username: username, password: password);
+            //After stay old password, session may be changed, so we need to check sessionEpoch.
+            return login(
+              username: username,
+              password: password,
+              sessionEpoch: sessionEpoch,
+              retryCounts: retryCounts,
+            );
           case 0:
             if (sessionEpoch == null || sessionEpoch == _sessionEpoch) {
               isLogin = true;
