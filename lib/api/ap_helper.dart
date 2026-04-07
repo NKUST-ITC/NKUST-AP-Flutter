@@ -11,6 +11,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_ap/api/webap_session_state.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -27,7 +28,15 @@ class WebApHelper {
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
 
-  bool isLogin = false;
+  // ── Session state machine ──────────────────────────────────────────────
+  WebApSessionState _state = WebApSessionState.idle;
+
+  /// The single in-flight WebAP login Future.  All concurrent callers share
+  /// this Future so that only one login sequence runs at a time.
+  Future<LoginResponse>? _loginFuture;
+
+  /// The single in-flight stdsys login Future, same deduplication pattern.
+  Future<LoginResponse>? _stdsysLoginFuture;
 
   //ignore: prefer_constructors_over_static_methods
   static WebApHelper get instance {
@@ -50,6 +59,9 @@ class WebApHelper {
 
   Future<void> logout() async {
     _stdsysLoginExpireTime = null;
+    _state = WebApSessionState.idle;
+    _loginFuture = null;
+    _stdsysLoginFuture = null;
     try {
       await dio.post('https://webap.nkust.edu.tw/nkust/reclear.jsp');
     } catch (_) {}
@@ -104,7 +116,8 @@ class WebApHelper {
     */
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
-    
+    _state = WebApSessionState.loggingIn;
+
     for (int i = 0; i < retryCounts; i++) {
       try {
         final Uint8List? imageBytes = await getValidationImage();
@@ -143,7 +156,11 @@ class WebApHelper {
             await stayOldPwd();
             return login(username: username, password: password);
           case 0:
-            isLogin = true;
+            // HTTP login succeeded — but the server session-store may not yet
+            // have flushed the cookie. Probe a lightweight endpoint first.
+            _state = WebApSessionState.verifying;
+            await _verifyWebApSession();
+            _state = WebApSessionState.authenticated;
             return LoginResponse(
               expireTime: DateTime.now().add(const Duration(hours: 6)),
             );
@@ -169,6 +186,8 @@ class WebApHelper {
             );
         }
       } catch (e, s) {
+        // Reset state so the next iteration can attempt a clean login.
+        _state = WebApSessionState.idle;
         CrashlyticsUtil.instance.recordError(e, s);
         log(e.toString());
       }
@@ -178,6 +197,58 @@ class WebApHelper {
       statusCode: ApStatusCode.unknownError,
       message: 'captcha error or unknown error',
     );
+  }
+
+  /// Probes a lightweight WebAP endpoint to confirm the session cookie has
+  /// been committed to the server-side session store.
+  ///
+  /// Retries up to 3 times with exponential backoff (300 → 600 → 1200 ms).
+  /// Throws [GeneralResponse] with [ApStatusCode.schoolServerError] if the
+  /// session is still not ready after all retries.
+  Future<void> _verifyWebApSession() async {
+    const int maxRetries = 3;
+    int delayMs = 300;
+    for (int i = 0; i < maxRetries; i++) {
+      if (i > 0) {
+        await Future<void>.delayed(Duration(milliseconds: delayMs));
+        delayMs *= 2;
+      }
+      try {
+        final Response<dynamic> res = await dio.post<dynamic>(
+          'https://webap.nkust.edu.tw/nkust/ag_pro/ag304_01.jsp',
+          options: Options(contentType: 'application/x-www-form-urlencoded'),
+        );
+        if (WebApParser.instance.apLoginParser(res.data) != 2) {
+          return; // Session is ready — exit immediately.
+        }
+      } catch (_) {
+        // Network/parse failure — keep retrying.
+      }
+    }
+    throw GeneralResponse(
+      statusCode: ApStatusCode.schoolServerError,
+      message: 'Session not ready after post-login probe retries',
+    );
+  }
+
+  /// Returns a [Future] that resolves once the WebAP session is authenticated.
+  ///
+  /// If the session is already [WebApSessionState.authenticated] the call
+  /// returns synchronously (no network round-trip).  Otherwise, at most one
+  /// login sequence is started — every concurrent caller joins the same
+  /// in-flight [Future] rather than firing independent login requests.
+  Future<LoginResponse> ensureAuthenticated() {
+    if (_state == WebApSessionState.authenticated) {
+      return Future<LoginResponse>.value(
+        LoginResponse(expireTime: DateTime.now().add(const Duration(hours: 6))),
+      );
+    }
+    return _loginFuture ??= login(
+      username: Helper.username!,
+      password: Helper.password!,
+    ).whenComplete(() {
+      _loginFuture = null;
+    });
   }
 
   Future<Response<dynamic>> stayOldPwd() async {
@@ -291,13 +362,21 @@ class WebApHelper {
 
   DateTime? _stdsysLoginExpireTime;
 
-  Future<LoginResponse> loginToStdsys() async {
-    // Skip login if session is still valid.
+  Future<LoginResponse> loginToStdsys() {
+    // Fast path: session is still valid.
     if (_stdsysLoginExpireTime != null &&
         DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
-      return LoginResponse(expireTime: _stdsysLoginExpireTime!);
+      return Future<LoginResponse>.value(
+        LoginResponse(expireTime: _stdsysLoginExpireTime!),
+      );
     }
+    // Deduplicate concurrent calls: only one stdsys login runs at a time.
+    return _stdsysLoginFuture ??= _doLoginToStdsys().whenComplete(() {
+      _stdsysLoginFuture = null;
+    });
+  }
 
+  Future<LoginResponse> _doLoginToStdsys() async {
     // Login stdsys.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
@@ -395,10 +474,8 @@ class WebApHelper {
     throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
-  Future<LoginResponse?> checkLogin() async {
-    return isLogin
-        ? null
-        : await login(username: Helper.username!, password: Helper.password!);
+  Future<LoginResponse?> checkLogin() {
+    return ensureAuthenticated();
   }
 
   Future<Response<dynamic>> apQuery(
@@ -412,7 +489,7 @@ class WebApHelper {
         message: 'Login exceeded retry limit',
       );
     }
-    await checkLogin();
+    await ensureAuthenticated();
     final String url =
         'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
     final Options options = Options(
@@ -439,7 +516,14 @@ class WebApHelper {
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
       reLoginReTryCounts += 1;
-      await login(username: Helper.username!, password: Helper.password!);
+      // Mark the session as expired so ensureAuthenticated() starts a fresh
+      // login instead of short-circuiting on the stale authenticated state.
+      _state = WebApSessionState.expired;
+      await ensureAuthenticated();
+      // Give the server session-store time to propagate before retrying.
+      await Future<void>.delayed(
+        Duration(milliseconds: 500 * reLoginReTryCounts),
+      );
       return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
     }
     reLoginReTryCounts = 0;
@@ -524,7 +608,6 @@ class WebApHelper {
   }
 
   Future<ScoreData> scores(String? years, String? semesterValue) async {
-    await checkLogin();
     final Response<dynamic> query = await apQuery(
       'ag008',
       <String, String?>{'arg01': years, 'arg02': semesterValue},

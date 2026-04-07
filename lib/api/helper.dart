@@ -518,11 +518,11 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
+    WebApHelper.reLoginReTryCounts = 0;
     ApCommonPlugin.clearCourseWidget();
     ApCommonPlugin.clearUserInfoWidget();
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
-    WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
     MobileNkustHelper.instance.cookiesData?.clear();
   }
