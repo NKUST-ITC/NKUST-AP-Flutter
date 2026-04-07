@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-import 'dart:math';
+import 'dart:math' hide log;
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
