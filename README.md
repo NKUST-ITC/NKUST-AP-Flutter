@@ -42,7 +42,7 @@
 
 ## 貢獻規範
 1. `Fork` 此專案到你的 GitHub 帳號.
-2. 挑選一個你想解決的 [issue](https://github.com/NKUST-IT/NKUST-AP-Flutter/issues).
+2. 挑選一個你想解決的 [issue](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues).
 3. 創建一個分支(Branch)以該問題命名.
 ```console
 $ git branch feature/issue-short-name
