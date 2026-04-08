@@ -288,6 +288,13 @@ class StdsysHelper {
 
   Future<ScoreData> getScores(String? year, String? semester) async {
     final Response<Uint8List> rawpdf = await getSingleTranscript(year, semester);
+
+    final String rawText = String.fromCharCodes(rawpdf.data!);
+
+    if (rawText.contains('script')) {
+      return ScoreData.empty();
+    }
+
     final String parsed = parsePdfText(rawpdf);
 
     return ScoreData.fromJson(
