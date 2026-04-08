@@ -16,7 +16,13 @@ class StdsysHelper {
   Dio get dio => WebApHelper.instance.dio;
   CookieJar get cookieJar => WebApHelper.instance.cookieJar;
 
-  Future<Response<Uint8List>> getEnrollmentLetter() async {
+  Future<Response<Uint8List>> getEnrollmentLetter([String lang = "ch"]) async {
+    String path = "EnglishPDF";
+
+    if (lang != "en") {
+      path = "ChinesePDF";
+    }
+
     await WebApHelper.instance.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -26,7 +32,7 @@ class StdsysHelper {
         .join('; ');
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://stdsys.nkust.edu.tw/student/Doc/Status/${path}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
