@@ -495,4 +495,68 @@ class StdsysParser {
 
     return semesterDataJson;
   }
+
+  Map<String, dynamic> scoresParser(String rawstr) {
+    final List<String> lines = rawstr
+      .split('\n')
+      .map((e) => e.trim())
+      .where((e) => e.isNotEmpty)
+      .toList();
+
+    List<Map<String, dynamic>> scores = [];
+    Map<String, dynamic> detail = {
+        'conduct': 0.0,
+        'classRank': "",
+        'departmentRank': "",
+        'average': 0.0,
+      };
+
+    int beginLine = 14;
+
+    for (int i = 0; i < lines.length - 1; i++) {
+      final line = lines[i];
+	  
+      if (line.contains('課程名稱')) {
+        beginLine = i + 4;
+      } else if (line.contains('操行成績：')) {
+        detail['conduct'] = double.tryParse(lines[i + 1]);
+      } else if (line.contains('班 排 名：')) {
+        final match = RegExp(r'班\s*排\s*名：\s*(\d+)').firstMatch(line);
+		    detail['classRank'] = match != null ? match.group(1) : "";
+      } else if (line.contains('學業成績：')) {
+        detail['average'] = double.tryParse(lines[i + 1]);
+      }
+    }
+
+    for (int i = beginLine; i < lines.length - 1; i = i + 4) {
+      Map<String, dynamic> score = {
+        "title": "",
+        "units": "",
+        "hours": "",
+        "required": "",
+        "at": "",
+        "middleScore": "",
+        "semesterScore": "",
+        "remark": ""
+      };
+
+      if (lines[i].contains('-----')) {
+        break;
+      } 
+
+      score['title'] = lines[i];
+      score['required'] = lines[i+1];
+      score['units'] = lines[i+2];
+      score['semesterScore'] = lines[i+3];
+
+      scores.add(score);
+    }
+
+    final Map<String, dynamic> data = <String, dynamic>{
+      'scores': scores,
+      'detail': detail,
+    };
+
+    return data;
+  }
 }
