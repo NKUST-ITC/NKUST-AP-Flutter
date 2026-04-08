@@ -9,13 +9,15 @@
 高雄科技大學校務系統 App，使用由 Google 開發的 UI 框架[Flutter](https://flutter.dev/)開發
 
 # 支援平台
-
+手機平台
 - [X] [Android](https://play.google.com/store/apps/details?id=com.kuas.ap&hl=zh_TW)
 - [X] [iOS](https://itunes.apple.com/us/app/id1439751462)
-- [ ] [Web](https://nkust-ap-flutter.web.app)：因為學校阻擋高請求IP，改為客戶端爬蟲而無法使用。
-- [X] [Windows](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/latest/download/nkust_ap_windows_portable.zip)
+---
+其他平台
+- [X] [Windows (Portable)](https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/latest/download/nkust_ap_windows_portable.zip)
 - [X] [MacOS](https://itunes.apple.com/us/app/id1439751462)
-- [X] [Linux](https://snapcraft.io/nkust-ap)
+- [X] [Linux (Snap)](https://snapcraft.io/nkust-ap)
+- [ ] [Web](https://nkust-ap-flutter.web.app)：因為學校阻擋高請求IP，改為客戶端爬蟲而無法使用。
 
 # 維護團隊
 
@@ -26,8 +28,8 @@
 > OCF 由多個台灣開源社群共同發起，在開放源碼、開放資料、開放政府等領域，提供社群支援、組織合作、海外交流、顧問諮詢等服務。期待以法人組織的力量激起開放協作的火花。
 
 **開發人員**
-- v1 & v2：呂紹榕（Louie Lu），姜尚德（JohnThunder），registerAutumn，詹濬鍵（Evans），陳建霖（HearSilent），陳冠蓁，徐羽柔
-- v3：房志剛（Rainvisitor），林義翔（takidog）林鈺軒（Lin YuHsuan），周鈺禮（Gary）
+- v1 & v2：呂紹榕(Louie Lu)、姜尚德(JohnThunder)、registerAutumn、詹濬鍵(Evans)、陳建霖(HearSilent)、陳冠蓁、徐羽柔
+- v3：房志剛(Rainvisitor)、林義翔(takidog)、林鈺軒(Lin YuHsuan)、周鈺禮(Gary)
 
 # 如何貢獻？
 如果你想為專案付出一份心力，你需要知道:
@@ -37,8 +39,6 @@
    使用Git作為版本控制的工具，倉儲採用GitHub
  - [AP-COMMON](https://github.com/abc873693/ap_common) : 
    校務通系列UI與函式庫共用工程，有共用的項目可至該專案檢查
- - [NKUST API](https://github.com/NKUST-ITC/NKUST-AP-API) : 
-   高科校務通後端HTTP RESTful API，代為App處理所有爬蟲問題
 
 ## 貢獻規範
 1. `Fork` 此專案到你的 GitHub 帳號.
