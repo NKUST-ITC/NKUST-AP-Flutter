@@ -5,6 +5,7 @@ import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class StdsysHelper {
   static StdsysHelper? _instance;
@@ -268,5 +269,20 @@ class StdsysHelper {
       ),
     );
     return response;
+  }
+
+  String parsePdfText(Response<Uint8List> rawpdf) {
+    try {
+      final Uint8List bytes = rawpdf.data!;
+      final document = PdfDocument(inputBytes: bytes);
+      final extractor = PdfTextExtractor(document);
+      final text = extractor.extractText();
+
+      document.dispose();
+
+      return text;
+    } catch (e) {
+      throw Exception('parsePdfText parse error: $e');
+    }
   }
 }
