@@ -244,4 +244,29 @@ class StdsysHelper {
     );
     return response;
   }
+
+  Future<Response<Uint8List>> getHistoryTranscript(
+    String? year,
+    String? semester,
+    [bool showRank = true]
+    ) async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript/PrintTranscript?YM=${year}${semester}&ShowRank=${showRank}',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
 }
