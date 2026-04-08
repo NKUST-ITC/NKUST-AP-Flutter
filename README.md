@@ -30,6 +30,7 @@
 **開發人員**
 - v1 & v2：呂紹榕(Louie Lu)、姜尚德(JohnThunder)、registerAutumn、詹濬鍵(Evans)、陳建霖(HearSilent)、陳冠蓁、徐羽柔
 - v3：房志剛(Rainvisitor)、林義翔(takidog)、林鈺軒(Lin YuHsuan)、周鈺禮(Gary)
+- v4：黃昱翔(Marco), YuYu1015, 梁晨恩(ryan940618), 李庭宇(yappy2000)
 
 # 如何貢獻？
 如果你想為專案付出一份心力，你需要知道:
