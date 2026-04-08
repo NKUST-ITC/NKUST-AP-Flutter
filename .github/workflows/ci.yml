@@ -5,10 +5,34 @@ on:
     branches:
       - master
       - develop
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'assets/**'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches:
       - master
       - develop
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'assets/**'
+      - '.github/workflows/ci.yml'
 
 env:
   flutter_version: '3.38.x'
