@@ -311,9 +311,6 @@ class Helper {
           year: semester.year,
           semester: semester.value,
         );
-      case inkust:
-        //TODO
-        break;
       case webap:
       default:
         data = await WebApHelper.instance.scores(
