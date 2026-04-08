@@ -155,6 +155,7 @@ jobs:
         env:
           APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
           APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER: 'com.nkust.ap.flutter'
+          MAC_INSALLER_DISTRIBUTION_CERT_NAME: '${{ secrets.MAC_INSALLER_DISTRIBUTION_CERT_NAME }}'
           DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
           KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
           ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
@@ -282,6 +283,7 @@ jobs:
         with:
           tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
           name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          target_commitish: ${{ github.sha }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/production' }}
