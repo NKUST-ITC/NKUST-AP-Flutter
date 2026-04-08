@@ -521,8 +521,8 @@ class StdsysParser {
       } else if (line.contains('操行成績：')) {
         detail['conduct'] = double.tryParse(lines[i + 1]);
       } else if (line.contains('班 排 名：')) {
-        final match = RegExp(r'班\s*排\s*名：\s*(\d+)').firstMatch(line);
-		    detail['classRank'] = match != null ? match.group(1) : "";
+        final match = RegExp(r'班\s*排\s*名：\s*(\d+)\s*/\s*(\d+)').firstMatch(line);
+		    detail['classRank'] = match != null ? '${match.group(1)}/${match.group(2)}' : "";
       } else if (line.contains('學業成績：')) {
         detail['average'] = double.tryParse(lines[i + 1]);
       }
