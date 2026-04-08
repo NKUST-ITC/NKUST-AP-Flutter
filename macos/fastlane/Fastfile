@@ -1,7 +1,7 @@
 default_platform(:mac)
 
 APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER"] || "com.nkust.ap.flutter"
-INSTALLER_CERT_NAME = ENV["INSTALLER_CERT_NAME"] || "3rd Party Mac Developer Installer"
+MAC_INSALLER_DISTRIBUTION_CERT_NAME = ENV["MAC_INSALLER_DISTRIBUTION_CERT_NAME"] || "3rd Party Mac Developer Installer"
 
 platform :mac do
   lane :release do |options|
@@ -29,7 +29,7 @@ platform :mac do
     sh(
       "productbuild",
       "--component", app_path, "/Applications",
-      "--sign", INSTALLER_CERT_NAME,
+      "--sign", MAC_INSALLER_DISTRIBUTION_CERT_NAME,
       pkg_path,
     )
     UI.message("Built signed pkg: #{pkg_path}")
