@@ -219,4 +219,29 @@ class StdsysHelper {
     final Map<String, dynamic> json = StdsysParser.instance.semesterParser(response.data);
     return SemesterData.fromJson(json);
   }
+
+  Future<Response<Uint8List>> getSingleTranscript(
+    String? year,
+    String? semester,
+    [bool showRank = true]
+    ) async {
+    await WebApHelper.instance.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://stdsys.nkust.edu.tw/student/Score/SingleSemesterTranscript/PrintTranscript?YM=${year}${semester}&ShowRank=${showRank}',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
 }
