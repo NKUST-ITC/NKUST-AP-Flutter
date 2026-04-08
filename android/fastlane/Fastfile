@@ -4,12 +4,12 @@ platform :android do
   lane :beta do
     desc "Deploy to beta track"
     upload_to_play_store(
-      track: 'beta',
+      track: 'internal',
       aab: '../build/app/outputs/bundle/release/app-release.aab',
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
-      release_status: "draft",
+      release_status: "completed",
     )
   end
 
