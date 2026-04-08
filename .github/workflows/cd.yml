@@ -283,6 +283,7 @@ jobs:
         with:
           tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
           name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          target_commitish: ${{ github.sha }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
           prerelease: ${{ github.ref != 'refs/heads/production' }}
