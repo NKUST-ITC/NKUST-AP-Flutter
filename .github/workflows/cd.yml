@@ -5,6 +5,18 @@ on:
     branches:
       - production
       - develop
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'assets/**'
+      - '.github/workflows/cd.yml'
+      - '.github/scripts/**'
   workflow_dispatch:
 
 env:
@@ -15,6 +27,7 @@ env:
 permissions:
   contents: write
   actions: write
+  pull-requests: read
 
 jobs:
   prepare:
@@ -36,6 +49,17 @@ jobs:
         run: |
           echo "version_code=${{ vars.VERSION_CODE }}" >> $GITHUB_OUTPUT
           echo "Using version code: ${{ vars.VERSION_CODE }}"
+      - name: Aggregate changelog from merged PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TYPE=${{ github.ref == 'refs/heads/production' && 'stable' || 'beta' }}
+          bash "$GITHUB_WORKSPACE/.github/scripts/aggregate_changelog.sh" "$RELEASE_TYPE" changelog_aggregated.json
+      - name: Upload aggregated changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog-aggregated
+          path: changelog_aggregated.json
 
   deploy_android:
     name: Android Play Store
@@ -53,9 +77,15 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} android
         working-directory: ./android/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -91,9 +121,15 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ env.java_version }}
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} ios
         working-directory: ./ios/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -141,9 +177,15 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
       - name: Decode API Key
@@ -252,8 +294,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate release notes
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} github
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
       - name: Download Windows installer
         uses: actions/download-artifact@v4
         with:
