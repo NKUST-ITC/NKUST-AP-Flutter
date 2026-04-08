@@ -311,6 +311,11 @@ class Helper {
           year: semester.year,
           semester: semester.value,
         );
+      case stdsys:
+        data = await StdsysHelper.instance.getScores(
+          semester.year,
+          semester.value,
+        );
       case webap:
       default:
         data = await WebApHelper.instance.scores(
