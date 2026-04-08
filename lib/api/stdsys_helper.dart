@@ -285,4 +285,13 @@ class StdsysHelper {
       throw Exception('parsePdfText parse error: $e');
     }
   }
+
+  Future<ScoreData> getScores(String? year, String? semester) async {
+    final Response<Uint8List> rawpdf = await getSingleTranscript(year, semester);
+    final String parsed = parsePdfText(rawpdf);
+
+    return ScoreData.fromJson(
+      StdsysParser.instance.scoresParser(parsed),
+    );
+  }
 }
