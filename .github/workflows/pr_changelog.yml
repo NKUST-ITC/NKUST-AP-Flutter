@@ -66,7 +66,6 @@ jobs:
             exit 0
           }
 
-          gh pr comment "$PR_NUMBER" --body "<!-- changelog-entry
-${ENTRY}
--->"
+          COMMENT_BODY=$(printf '<!-- changelog-entry\n%s\n-->' "$ENTRY")
+          gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
           echo "Posted changelog entry for PR #$PR_NUMBER"
