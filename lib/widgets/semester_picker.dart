@@ -137,44 +137,39 @@ class SemesterPickerState extends State<SemesterPicker> {
       _loadSemesterData();
       return;
     }
-    Helper.instance.getSemester(
-      callback: GeneralCallback<SemesterData>(
-        onSuccess: (SemesterData data) {
-          semesterData = data;
-          semesterData.save();
-          final String newSemester = '${Helper.username}_${semesterData.defaultSemester.code}';
-          PreferenceUtil.instance.setString(
-            ApConstants.currentSemesterCode,
-            newSemester,
-          );
-          if (mounted) {
-            currentIndex = semesterData.defaultIndex;
-            widget.onSelect?.call(
-              semesterData.defaultSemester,
-              semesterData.defaultIndex,
-            );
-            setState(() {
-              selectSemester = semesterData.defaultSemester;
-            });
-          }
-        },
-        onFailure: (DioException e) {
-          if (e.i18nMessage != null) {
-            UiUtil.instance.showToast(context, e.i18nMessage!);
-          }
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getSemester',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (GeneralResponse response) {
-          UiUtil.instance.showToast(context, response.getGeneralMessage(context));
-        },
-      ),
-    );
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      semesterData = data;
+      semesterData.save();
+      final String newSemester = '${Helper.username}_${semesterData.defaultSemester.code}';
+      PreferenceUtil.instance.setString(
+        ApConstants.currentSemesterCode,
+        newSemester,
+      );
+      if (mounted) {
+        currentIndex = semesterData.defaultIndex;
+        widget.onSelect?.call(
+          semesterData.defaultSemester,
+          semesterData.defaultIndex,
+        );
+        setState(() {
+          selectSemester = semesterData.defaultSemester;
+        });
+      }
+    } on GeneralResponse catch (response) {
+      UiUtil.instance.showToast(context, response.getGeneralMessage(context));
+    } on DioException catch (e) {
+      if (e.i18nMessage != null) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 
   int _getSemesterSortValue(String value) {
@@ -281,7 +276,7 @@ class SemesterPickerState extends State<SemesterPicker> {
 
   void pickSemester() {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
     final List<MapEntry<int, Semester>> sortedSemesters = _getSortedSemesters();
 
     final Map<String, List<MapEntry<int, Semester>>> groupedByYear = <String, List<MapEntry<int, Semester>>>{};

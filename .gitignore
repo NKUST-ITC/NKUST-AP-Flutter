@@ -44,15 +44,12 @@ app.*.map.json
 # Exceptions to above rules.
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
-GoogleService-Info.plist
 ios_keys.zip
 
-google-services.json
 key.jks
 service_account_key.json
 android/android_keys.zip
 dev_configs.zip
-lib/firebase_options.dart
 
 .vscode/
 

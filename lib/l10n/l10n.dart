@@ -19,8 +19,10 @@ class AppLocalizations {
   static AppLocalizations? _current;
 
   static AppLocalizations get current {
-    assert(_current != null,
-        'No instance of AppLocalizations was loaded. Try to initialize the AppLocalizations delegate before accessing AppLocalizations.current.');
+    assert(
+      _current != null,
+      'No instance of AppLocalizations was loaded. Try to initialize the AppLocalizations delegate before accessing AppLocalizations.current.',
+    );
     return _current!;
   }
 
@@ -42,8 +44,10 @@ class AppLocalizations {
 
   static AppLocalizations of(BuildContext context) {
     final instance = AppLocalizations.maybeOf(context);
-    assert(instance != null,
-        'No instance of AppLocalizations present in the widget tree. Did you add AppLocalizations.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of AppLocalizations present in the widget tree. Did you add AppLocalizations.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -53,12 +57,7 @@ class AppLocalizations {
 
   /// `高科校務通`
   String get appName {
-    return Intl.message(
-      '高科校務通',
-      name: 'appName',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('高科校務通', name: 'appName', desc: '', args: []);
   }
 
   /// `* 修正部分裝置桌面小工具無法顯示`
@@ -83,32 +82,17 @@ class AppLocalizations {
 
   /// `選擇乘車時間：%s`
   String get busPickDate {
-    return Intl.message(
-      '選擇乘車時間：%s',
-      name: 'busPickDate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('選擇乘車時間：%s', name: 'busPickDate', desc: '', args: []);
   }
 
   /// `選擇乘車時間`
   String get busNotPickDate {
-    return Intl.message(
-      '選擇乘車時間',
-      name: 'busNotPickDate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('選擇乘車時間', name: 'busNotPickDate', desc: '', args: []);
   }
 
   /// `(%s / %s)`
   String get busCount {
-    return Intl.message(
-      '(%s / %s)',
-      name: 'busCount',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('(%s / %s)', name: 'busCount', desc: '', args: []);
   }
 
   /// `到燕巢，發車日期：`
@@ -133,22 +117,12 @@ class AppLocalizations {
 
   /// `到燕巢，發車：`
   String get busJiangong {
-    return Intl.message(
-      '到燕巢，發車：',
-      name: 'busJiangong',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('到燕巢，發車：', name: 'busJiangong', desc: '', args: []);
   }
 
   /// `到建工，發車：`
   String get busYanchao {
-    return Intl.message(
-      '到建工，發車：',
-      name: 'busYanchao',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('到建工，發車：', name: 'busYanchao', desc: '', args: []);
   }
 
   /// `√ 到燕巢，發車：`
@@ -173,22 +147,12 @@ class AppLocalizations {
 
   /// `預定校車`
   String get busReserve {
-    return Intl.message(
-      '預定校車',
-      name: 'busReserve',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預定校車', name: 'busReserve', desc: '', args: []);
   }
 
   /// `校車紀錄`
   String get busReservations {
-    return Intl.message(
-      '校車紀錄',
-      name: 'busReservations',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('校車紀錄', name: 'busReservations', desc: '', args: []);
   }
 
   /// `校車罰緩`
@@ -203,32 +167,17 @@ class AppLocalizations {
 
   /// `未繳款`
   String get unpaid {
-    return Intl.message(
-      '未繳款',
-      name: 'unpaid',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('未繳款', name: 'unpaid', desc: '', args: []);
   }
 
   /// `已繳款`
   String get paid {
-    return Intl.message(
-      '已繳款',
-      name: 'paid',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('已繳款', name: 'paid', desc: '', args: []);
   }
 
   /// `取消預定校車`
   String get busCancelReserve {
-    return Intl.message(
-      '取消預定校車',
-      name: 'busCancelReserve',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('取消預定校車', name: 'busCancelReserve', desc: '', args: []);
   }
 
   /// `確定要預定本次校車？`
@@ -303,182 +252,92 @@ class AppLocalizations {
 
   /// `建工到燕巢`
   String get busFromJiangong {
-    return Intl.message(
-      '建工到燕巢',
-      name: 'busFromJiangong',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('建工到燕巢', name: 'busFromJiangong', desc: '', args: []);
   }
 
   /// `燕巢到建工`
   String get busFromYanchao {
-    return Intl.message(
-      '燕巢到建工',
-      name: 'busFromYanchao',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('燕巢到建工', name: 'busFromYanchao', desc: '', args: []);
   }
 
   /// `預約`
   String get reserve {
-    return Intl.message(
-      '預約',
-      name: 'reserve',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約', name: 'reserve', desc: '', args: []);
   }
 
   /// `預約日期`
   String get busReserveDate {
-    return Intl.message(
-      '預約日期',
-      name: 'busReserveDate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約日期', name: 'busReserveDate', desc: '', args: []);
   }
 
   /// `上車地點`
   String get busReserveLocation {
-    return Intl.message(
-      '上車地點',
-      name: 'busReserveLocation',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上車地點', name: 'busReserveLocation', desc: '', args: []);
   }
 
   /// `預約班次`
   String get busReserveTime {
-    return Intl.message(
-      '預約班次',
-      name: 'busReserveTime',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約班次', name: 'busReserveTime', desc: '', args: []);
   }
 
   /// `建工`
   String get jiangong {
-    return Intl.message(
-      '建工',
-      name: 'jiangong',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('建工', name: 'jiangong', desc: '', args: []);
   }
 
   /// `燕巢`
   String get yanchao {
-    return Intl.message(
-      '燕巢',
-      name: 'yanchao',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('燕巢', name: 'yanchao', desc: '', args: []);
   }
 
   /// `第一`
   String get first {
-    return Intl.message(
-      '第一',
-      name: 'first',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('第一', name: 'first', desc: '', args: []);
   }
 
   /// `楠梓`
   String get nanzi {
-    return Intl.message(
-      '楠梓',
-      name: 'nanzi',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('楠梓', name: 'nanzi', desc: '', args: []);
   }
 
   /// `旗津`
   String get qijin {
-    return Intl.message(
-      '旗津',
-      name: 'qijin',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('旗津', name: 'qijin', desc: '', args: []);
   }
 
   /// `未知`
   String get unknown {
-    return Intl.message(
-      '未知',
-      name: 'unknown',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('未知', name: 'unknown', desc: '', args: []);
   }
 
   /// `校區`
   String get campus {
-    return Intl.message(
-      '校區',
-      name: 'campus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('校區', name: 'campus', desc: '', args: []);
   }
 
   /// `已預約`
   String get reserved {
-    return Intl.message(
-      '已預約',
-      name: 'reserved',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('已預約', name: 'reserved', desc: '', args: []);
   }
 
   /// `無法預約`
   String get canNotReserve {
-    return Intl.message(
-      '無法預約',
-      name: 'canNotReserve',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('無法預約', name: 'canNotReserve', desc: '', args: []);
   }
 
   /// `特殊班次`
   String get specialBus {
-    return Intl.message(
-      '特殊班次',
-      name: 'specialBus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('特殊班次', name: 'specialBus', desc: '', args: []);
   }
 
   /// `試辦車次`
   String get trialBus {
-    return Intl.message(
-      '試辦車次',
-      name: 'trialBus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('試辦車次', name: 'trialBus', desc: '', args: []);
   }
 
   /// `預約成功！`
   String get busReserveSuccess {
-    return Intl.message(
-      '預約成功！',
-      name: 'busReserveSuccess',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約成功！', name: 'busReserveSuccess', desc: '', args: []);
   }
 
   /// `取消日期`
@@ -553,12 +412,7 @@ class AppLocalizations {
 
   /// `我知道了`
   String get iKnow {
-    return Intl.message(
-      '我知道了',
-      name: 'iKnow',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('我知道了', name: 'iKnow', desc: '', args: []);
   }
 
   /// `Oops！本日校車沒上班喔～\n請選擇其他日期 😋`
@@ -603,32 +457,17 @@ class AppLocalizations {
 
   /// `建工`
   String get busNotifyJiangong {
-    return Intl.message(
-      '建工',
-      name: 'busNotifyJiangong',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('建工', name: 'busNotifyJiangong', desc: '', args: []);
   }
 
   /// `燕巢`
   String get busNotifyYanchao {
-    return Intl.message(
-      '燕巢',
-      name: 'busNotifyYanchao',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('燕巢', name: 'busNotifyYanchao', desc: '', args: []);
   }
 
   /// `校車提醒`
   String get busNotify {
-    return Intl.message(
-      '校車提醒',
-      name: 'busNotify',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('校車提醒', name: 'busNotify', desc: '', args: []);
   }
 
   /// `發車前三十分鐘提醒`
@@ -643,72 +482,37 @@ class AppLocalizations {
 
   /// `校車系統`
   String get bus {
-    return Intl.message(
-      '校車系統',
-      name: 'bus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('校車系統', name: 'bus', desc: '', args: []);
   }
 
   /// `建工上車`
   String get fromJiangong {
-    return Intl.message(
-      '建工上車',
-      name: 'fromJiangong',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('建工上車', name: 'fromJiangong', desc: '', args: []);
   }
 
   /// `燕巢上車`
   String get fromYanchao {
-    return Intl.message(
-      '燕巢上車',
-      name: 'fromYanchao',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('燕巢上車', name: 'fromYanchao', desc: '', args: []);
   }
 
   /// `第一上車`
   String get fromFirst {
-    return Intl.message(
-      '第一上車',
-      name: 'fromFirst',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('第一上車', name: 'fromFirst', desc: '', args: []);
   }
 
   /// `目的地`
   String get destination {
-    return Intl.message(
-      '目的地',
-      name: 'destination',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('目的地', name: 'destination', desc: '', args: []);
   }
 
   /// `預約中...`
   String get reserving {
-    return Intl.message(
-      '預約中...',
-      name: 'reserving',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約中...', name: 'reserving', desc: '', args: []);
   }
 
   /// `取消中...`
   String get canceling {
-    return Intl.message(
-      '取消中...',
-      name: 'canceling',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('取消中...', name: 'canceling', desc: '', args: []);
   }
 
   /// `學校校車系統或許壞掉惹～`
@@ -723,22 +527,12 @@ class AppLocalizations {
 
   /// `預約截止時間`
   String get reserveDeadline {
-    return Intl.message(
-      '預約截止時間',
-      name: 'reserveDeadline',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('預約截止時間', name: 'reserveDeadline', desc: '', args: []);
   }
 
   /// `校車搭乘規則`
   String get busRule {
-    return Intl.message(
-      '校車搭乘規則',
-      name: 'busRule',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('校車搭乘規則', name: 'busRule', desc: '', args: []);
   }
 
   /// `首次登入密碼預設為身分證末四碼`
@@ -773,42 +567,22 @@ class AppLocalizations {
 
   /// `拍照打卡`
   String get punch {
-    return Intl.message(
-      '拍照打卡',
-      name: 'punch',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('拍照打卡', name: 'punch', desc: '', args: []);
   }
 
   /// `打卡成功`
   String get punchSuccess {
-    return Intl.message(
-      '打卡成功',
-      name: 'punchSuccess',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('打卡成功', name: 'punchSuccess', desc: '', args: []);
   }
 
   /// `非上課時間`
   String get nonCourseTime {
-    return Intl.message(
-      '非上課時間',
-      name: 'nonCourseTime',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('非上課時間', name: 'nonCourseTime', desc: '', args: []);
   }
 
   /// `離線成績`
   String get offlineScore {
-    return Intl.message(
-      '離線成績',
-      name: 'offlineScore',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('離線成績', name: 'offlineScore', desc: '', args: []);
   }
 
   /// `離線校車紀錄`
@@ -823,12 +597,7 @@ class AppLocalizations {
 
   /// `離線缺曠資料`
   String get offlineLeaveData {
-    return Intl.message(
-      '離線缺曠資料',
-      name: 'offlineLeaveData',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('離線缺曠資料', name: 'offlineLeaveData', desc: '', args: []);
   }
 
   /// `預約校車\n`
@@ -843,12 +612,7 @@ class AppLocalizations {
 
   /// `• 請上 `
   String get busRuleTravelBy {
-    return Intl.message(
-      '• 請上 ',
-      name: 'busRuleTravelBy',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('• 請上 ', name: 'busRuleTravelBy', desc: '', args: []);
   }
 
   /// `• 校車預約系統預約校車\n• 可預約14天以內的校車班次\n• 為配合總務處派車需求預約時間\n`
@@ -903,12 +667,7 @@ class AppLocalizations {
 
   /// `上車\n`
   String get busRuleTakeOn {
-    return Intl.message(
-      '上車\n',
-      name: 'busRuleTakeOn',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('上車\n', name: 'busRuleTakeOn', desc: '', args: []);
   }
 
   /// `• 每次上車繳款20元`
@@ -993,12 +752,7 @@ class AppLocalizations {
 
   /// `罰款\n`
   String get busRuleFineTitle {
-    return Intl.message(
-      '罰款\n',
-      name: 'busRuleFineTitle',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('罰款\n', name: 'busRuleFineTitle', desc: '', args: []);
   }
 
   /// `• 違規罰款金額計算，違規前三次不計點，從第四次開始違規記點，每點應繳納等同車資之罰款\n• 違規點數統計至學期末為止(上學期學期末1/31，下學期8/31)，新學期違規點數重新計算。當學期罰款未繳清者，次學期停止預約權限至罰款繳清為止\n• 罰款請自行列印違規明細後至自動繳費機或總務處出納組繳費，繳費後憑收據至總務處事務組銷帳(當天開列之收據須於當天銷帳)，銷帳完後隔天凌晨4點後才可預約當天9點後的校車。\n• 罰款點數如有疑義，請於違規發生日起10日內(含星期例假日)逕向總務處事務組確認。\n`
@@ -1033,12 +787,7 @@ class AppLocalizations {
 
   /// `登入驗證`
   String get loginAuth {
-    return Intl.message(
-      '登入驗證',
-      name: 'loginAuth',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('登入驗證', name: 'loginAuth', desc: '', args: []);
   }
 
   /// `點擊看說明`
@@ -1073,22 +822,12 @@ class AppLocalizations {
 
   /// `請假查詢`
   String get leaveApplyRecord {
-    return Intl.message(
-      '請假查詢',
-      name: 'leaveApplyRecord',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('請假查詢', name: 'leaveApplyRecord', desc: '', args: []);
   }
 
   /// `網路問題通報`
   String get reportNetProblem {
-    return Intl.message(
-      '網路問題通報',
-      name: 'reportNetProblem',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('網路問題通報', name: 'reportNetProblem', desc: '', args: []);
   }
 
   /// `通報遇到的網路問題(需使用校內信箱登入)`
@@ -1103,22 +842,12 @@ class AppLocalizations {
 
   /// `問題通報`
   String get reportProblem {
-    return Intl.message(
-      '問題通報',
-      name: 'reportProblem',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('問題通報', name: 'reportProblem', desc: '', args: []);
   }
 
   /// `在學證明`
   String get enrollmentLetter {
-    return Intl.message(
-      '在學證明',
-      name: 'enrollmentLetter',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('在學證明', name: 'enrollmentLetter', desc: '', args: []);
   }
 
   /// `主題色`

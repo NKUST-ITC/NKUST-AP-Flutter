@@ -1,45 +1,10 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
     id "com.google.firebase.crashlytics"
-}
-
-def localProperties = new Properties()
-def localPropertiesFile = rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    localPropertiesFile.withReader('UTF-8') { reader ->
-        localProperties.load(reader)
-    }
-}
-
-def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
-if (flutterVersionCode == null) {
-    flutterVersionCode = '1'
-}
-
-def flutterVersionName = localProperties.getProperty('flutter.versionName')
-if (flutterVersionName == null) {
-    flutterVersionName = '1.0'
-}
-
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-def hasKeystore = false
-
-if (keystorePropertiesFile.canRead()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-    if (keystoreProperties['storeFile'] != null &&
-        keystoreProperties['storePassword'] != null &&
-        keystoreProperties['keyAlias'] != null &&
-        keystoreProperties['keyPassword'] != null) {
-        hasKeystore = true
-    } else {
-        println 'Some entries in \'key.properties\' not found!'
-    }
-} else {
-    println '\'key.properties\' not found! Using debug signing for release build.'
 }
 
 android {
@@ -48,6 +13,7 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        // Flag to enable support for the new language APIs
         coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -66,23 +32,12 @@ android {
     }
 
     signingConfigs {
-        if (hasKeystore) {
-            release {
-                storeFile file(keystoreProperties['storeFile'])
-                storePassword keystoreProperties['storePassword']
-                keyAlias keystoreProperties['keyAlias']
-                keyPassword keystoreProperties['keyPassword']
-            }
-        }
+        release
     }
 
     buildTypes {
         release {
-            if (hasKeystore) {
-                signingConfig signingConfigs.release
-            } else {
-                signingConfig signingConfigs.debug
-            }
+            signingConfig signingConfigs.release
             ndk {
                 debugSymbolLevel 'FULL'
             }
@@ -96,5 +51,50 @@ flutter {
 }
 
 dependencies {
+    /// Version 10+ `flutter_local_notification` on the plugin now relies on desugaring to support scheduled notifications with backwards compatibility on older versions of Android.
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    /// There have been reports that enabling desugaring may result in a Flutter apps crashing on Android 12L and above
+    implementation 'androidx.window:window:1.0.0'
+    implementation 'androidx.window:window-java:1.0.0'
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.canRead()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+    if (keystoreProperties != null) {
+        android.signingConfigs.release.storeFile file(keystoreProperties['storeFile'])
+        android.signingConfigs.release.storePassword keystoreProperties['storePassword']
+        android.signingConfigs.release.keyAlias keystoreProperties['keyAlias']
+        android.signingConfigs.release.keyPassword keystoreProperties['keyPassword']
+    } else {
+        println 'some entries in \'release keystore.properties\' not found!'
+    }
+} else {
+    println '\'release keystore.properties\' not found!'
 }

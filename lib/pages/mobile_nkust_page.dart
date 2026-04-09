@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class MobileNkustPage extends StatefulWidget {
   final String? username;

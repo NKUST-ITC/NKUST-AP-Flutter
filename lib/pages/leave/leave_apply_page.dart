@@ -31,7 +31,8 @@ class LeaveApplyPage extends StatefulWidget {
   LeaveApplyPageState createState() => LeaveApplyPageState();
 }
 
-class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveClientMixin {
+class LeaveApplyPageState extends State<LeaveApplyPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -76,7 +77,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
 
   @override
   void initState() {
-    AnalyticsUtil.instance.setCurrentScreen('LeaveApplyPage', 'leave_apply_page.dart');
+    AnalyticsUtil.instance
+        .setCurrentScreen('LeaveApplyPage', 'leave_apply_page.dart');
     _getLeavesInfo();
     super.initState();
   }
@@ -89,7 +91,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return _body()!;
   }
 
@@ -107,7 +109,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
         return InkWell(
           onTap: _getLeavesInfo,
           child: HintContent(
-            icon: state == _State.offline ? ApIcon.offlineBolt : ApIcon.permIdentity,
+            icon: state == _State.offline
+                ? ApIcon.offlineBolt
+                : ApIcon.permIdentity,
             content: errorTitle!,
           ),
         );
@@ -132,11 +136,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
                     title: Text(ap.leaveType),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(8),
-                      ),
-                    ),
                     contentPadding: EdgeInsets.zero,
                     content: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.7,
@@ -195,16 +194,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
             const SizedBox(height: 16),
             FractionallySizedBox(
               widthFactor: 0.3,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(4.0),
-                ),
+              child: FilledButton(
                 onPressed: () async {
                   final DateTimeRange? picked = await showDateRangePicker(
                     context: context,
@@ -217,7 +207,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                   );
                   if (picked != null) {
                     DateTime dateTime = picked.start;
-                    final DateTime end = picked.end.add(const Duration(days: 1));
+                    final DateTime end =
+                        picked.end.add(const Duration(days: 1));
                     while (dateTime.isBefore(end)) {
                       bool hasRepeat = false;
                       for (int i = 0; i < leaveModels.length; i++) {
@@ -257,9 +248,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                     vertical: 8.0,
                     horizontal: 8.0,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Column(
@@ -294,10 +282,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                           width: 200,
                           child: GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                             ),
-                            itemBuilder: (BuildContext context, int sectionIndex) {
+                            itemBuilder:
+                                (BuildContext context, int sectionIndex) {
                               return InkWell(
                                 child: Container(
                                   margin: const EdgeInsets.all(4.0),
@@ -309,7 +299,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                                     border: Border.all(
                                       color: ApTheme.of(context).blueAccent,
                                     ),
-                                    color: leaveModels[index].selected[sectionIndex]
+                                    color: leaveModels[index]
+                                            .selected[sectionIndex]
                                         ? ApTheme.of(context).blueAccent
                                         : null,
                                   ),
@@ -317,7 +308,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                                   child: Text(
                                     leaveSubmitInfo.timeCodes[sectionIndex],
                                     style: TextStyle(
-                                      color: leaveModels[index].selected[sectionIndex]
+                                      color: leaveModels[index]
+                                              .selected[sectionIndex]
                                           ? Colors.white
                                           : ApTheme.of(context).blueAccent,
                                     ),
@@ -326,7 +318,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                                 onTap: () {
                                   setState(() {
                                     leaveModels[index].selected[sectionIndex] =
-                                        !leaveModels[index].selected[sectionIndex];
+                                        !leaveModels[index]
+                                            .selected[sectionIndex];
                                   });
                                 },
                               );
@@ -346,7 +339,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
               enabled: leaveSubmitInfo.tutor == null,
               onTap: leaveSubmitInfo.tutor == null
                   ? () async {
-                      final LeavesTeacher? teacher = await Navigator.of(context).push<LeavesTeacher>(
+                      final LeavesTeacher? teacher =
+                          await Navigator.of(context).push<LeavesTeacher>(
                         MaterialPageRoute<LeavesTeacher>(
                           builder: (BuildContext context) {
                             return PickTutorPage();
@@ -379,7 +373,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                 style: const TextStyle(fontSize: 20),
               ),
               subtitle: Text(
-                leaveSubmitInfo.tutor == null ? (teacher?.name ?? ap.pleasePick) : (leaveSubmitInfo.tutor?.name ?? ''),
+                leaveSubmitInfo.tutor == null
+                    ? (teacher?.name ?? ap.pleasePick)
+                    : (leaveSubmitInfo.tutor?.name ?? ''),
                 style: const TextStyle(fontSize: 20),
               ),
             ),
@@ -391,14 +387,16 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
 //                            AnalyticsUtil.instance
 //                                .logLeavesImageSize(image);
                   if (kIsWeb) {
-                    final double size = (await pickedImage.readAsBytes()).length.toDouble() / 1024.0 / 1024.0;
+                    final double size =
+                        (await pickedImage.readAsBytes()).length.toDouble() /
+                            1024.0 /
+                            1024.0;
                     if (size >= Constants.maxImageSize) {
                       if (!mounted) return;
                       UiUtil.instance.showToast(
                         context,
-                        sprintf(
-                          ap.imageTooBigHint,
-                          <double>[Constants.maxImageSize],
+                        ap.imageTooBigHint(
+                          arg1MB: Constants.maxImageSize,
                         ),
                       );
                     } else {
@@ -457,10 +455,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                 },
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  fillColor: ApTheme.of(context).blueAccent,
-                  labelStyle: TextStyle(
-                    color: ApTheme.of(context).grey,
-                  ),
                   labelText: ap.reason,
                 ),
               ),
@@ -482,10 +476,6 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                   controller: _delayReason,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
-                    fillColor: ApTheme.of(context).blueAccent,
-                    labelStyle: TextStyle(
-                      color: ApTheme.of(context).grey,
-                    ),
                     labelText: ap.delayReason,
                   ),
                 ),
@@ -494,27 +484,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
             const SizedBox(height: 36),
             FractionallySizedBox(
               widthFactor: 0.8,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(30.0),
-                    ),
-                  ),
-                  backgroundColor: ApTheme.of(context).blueAccent,
-                  padding: const EdgeInsets.all(14.0),
-                ),
+              child: FilledButton(
                 onPressed: () {
                   _leaveSubmit();
                   AnalyticsUtil.instance.logEvent('leave_submit_click');
                 },
-                child: Text(
-                  ap.confirm,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18.0,
-                  ),
-                ),
+                child: Text(ap.confirm),
               ),
             ),
             const SizedBox(height: 24),
@@ -525,53 +500,49 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
   }
 
   Future<void> _getLeavesInfo() async {
-    Helper.instance.getLeavesSubmitInfo(
-      callback: GeneralCallback<LeaveSubmitInfoData>(
-        onSuccess: (LeaveSubmitInfoData data) {
-          setState(() {
-            leaveSubmitInfo = data;
-            state = _State.finish;
-          });
-        },
-        onFailure: (DioException e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 403) {
-                    state = _State.userNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getLeaveSubmitInfo',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-              case DioExceptionType.unknown:
-                setState(() => state = _State.error);
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
-            }
-          }
-          AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
-        },
-        onError: (GeneralResponse response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-          AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
-        },
-      ),
-    );
+    try {
+      final LeaveSubmitInfoData data =
+          await Helper.instance.getLeavesSubmitInfo();
+      setState(() {
+        leaveSubmitInfo = data;
+        state = _State.finish;
+      });
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
+            setState(() {
+              if (e.response!.statusCode == 403) {
+                state = _State.userNotSupport;
+              } else {
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getLeaveSubmitInfo',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
+              }
+            });
+          case DioExceptionType.unknown:
+            setState(() => state = _State.error);
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
+    }
   }
 
   void checkIsDelay() {
@@ -641,7 +612,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
           title: ap.leaveSubmit,
           contentWidgetPadding: EdgeInsets.zero,
           contentWidget: SizedBox(
-            height: MediaQuery.of(context).size.height * ((image == null) ? 0.3 : 0.5),
+            height: MediaQuery.of(context).size.height *
+                ((image == null) ? 0.3 : 0.5),
             width: MediaQuery.of(context).size.width * 0.7,
             child: ListView(
               children: <Widget>[
@@ -688,7 +660,8 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                           text: '${ap.leaveDateAndSection}：\n',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        for (final LeaveDay day in days) TextSpan(text: '$day\n'),
+                        for (final LeaveDay day in days)
+                          TextSpan(text: '$day\n'),
                         TextSpan(
                           text: '${ap.leaveProof}：'
                               '${image == null ? ap.none : ''}\n',
@@ -705,7 +678,9 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
                       left: 30.0,
                       right: 30.0,
                     ),
-                    child: kIsWeb ? Image.network(image!.path) : Image.file(File(image!.path)),
+                    child: kIsWeb
+                        ? Image.network(image!.path)
+                        : Image.file(File(image!.path)),
                   ),
               ],
             ),
@@ -720,7 +695,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
     }
   }
 
-  void _leaveUpload(LeaveSubmitData data) {
+  Future<void> _leaveUpload(LeaveSubmitData data) async {
     showDialog(
       context: context,
       builder: (BuildContext context) => PopScope(
@@ -729,74 +704,70 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
       ),
       barrierDismissible: false,
     );
-    Helper.instance.sendLeavesSubmit(
-      data: data,
-      image: image,
-      callback: GeneralCallback<Response<dynamic>>(
-        onSuccess: (Response<dynamic> data) {
-          Navigator.of(context, rootNavigator: true).pop();
-          DialogUtils.showDefault(
-            context: context,
-            title: data.statusCode == 200 ? ap.leaveSubmit : '${data.statusCode}',
-            content: data.statusCode == 200 ? ap.leaveSubmitSuccess : '${data.data}',
-          );
-          AnalyticsUtil.instance.logEvent('leave_submit_success');
-        },
-        onFailure: (DioException e) {
-          Navigator.of(context, rootNavigator: true).pop();
-          String? text;
-          switch (e.type) {
-            case DioExceptionType.badResponse:
-              if (e.response!.data is Map<String, dynamic>) {
-                text = ErrorResponse.fromJson(
-                  e.response!.data as Map<String, dynamic>,
-                ).description;
-              } else {
-                text = ap.somethingError;
-              }
-            case DioExceptionType.unknown:
-              text = ap.somethingError;
-            case DioExceptionType.cancel:
-              break;
-            default:
-              text = e.i18nMessage;
+    try {
+      final Response<dynamic>? res = await Helper.instance.sendLeavesSubmit(
+        data: data,
+        image: image,
+      );
+      Navigator.of(context, rootNavigator: true).pop();
+      DialogUtils.showDefault(
+        context: context,
+        title:
+            res?.statusCode == 200 ? ap.leaveSubmit : '${res?.statusCode}',
+        content:
+            res?.statusCode == 200 ? ap.leaveSubmitSuccess : '${res?.data}',
+      );
+      AnalyticsUtil.instance.logEvent('leave_submit_success');
+    } on GeneralResponse catch (response) {
+      Navigator.of(context, rootNavigator: true).pop();
+      DialogUtils.showDefault(
+        context: context,
+        title: ap.leaveSubmitFail,
+        content: response.getGeneralMessage(context),
+      );
+      AnalyticsUtil.instance.logEvent('leave_submit_fail');
+    } on DioException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      String? text;
+      switch (e.type) {
+        case DioExceptionType.badResponse:
+          if (e.response!.data is Map<String, dynamic>) {
+            text = ErrorResponse.fromJson(
+              e.response!.data as Map<String, dynamic>,
+            ).description;
+          } else {
+            text = ap.somethingError;
           }
-          if (text != null) {
-            DialogUtils.showDefault(
-              context: context,
-              title: ap.leaveSubmitFail,
-              content: text,
-            );
-          }
-          AnalyticsUtil.instance.logEvent('leave_submit_fail');
-        },
-        onError: (GeneralResponse response) {
-          Navigator.of(context, rootNavigator: true).pop();
-          DialogUtils.showDefault(
-            context: context,
-            title: ap.leaveSubmitFail,
-            content: response.getGeneralMessage(context),
-          );
-          AnalyticsUtil.instance.logEvent('leave_submit_fail');
-        },
-      ),
-    );
+        case DioExceptionType.unknown:
+          text = ap.somethingError;
+        case DioExceptionType.cancel:
+          break;
+        default:
+          text = e.i18nMessage;
+      }
+      if (text != null) {
+        DialogUtils.showDefault(
+          context: context,
+          title: ap.leaveSubmitFail,
+          content: text,
+        );
+      }
+      AnalyticsUtil.instance.logEvent('leave_submit_fail');
+    }
   }
 
   Future<void> resizeImage(File image) async {
     final File result = await Utils.resizeImageByNative(image);
     log('resize after: ${result.mb}');
-    (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logLeavesImageCompressSize(image, result);
+    (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
+        .logLeavesImageCompressSize(image, result);
     if ((result.mb) <= Constants.maxImageSize) {
       if (!mounted) return;
       UiUtil.instance.showToast(
         context,
-        sprintf(
-          ap.imageCompressHint,
-          <double>[
-            Constants.maxImageSize,
-            result.mb,
-          ],
+        ap.imageCompressHint(
+          arg1MB: Constants.maxImageSize,
+          arg2: result.mb,
         ),
       );
       setState(() {
@@ -804,7 +775,10 @@ class LeaveApplyPageState extends State<LeaveApplyPage> with AutomaticKeepAliveC
       });
     } else {
       if (!mounted) return;
-      UiUtil.instance.showToast(context, ap.imageTooBigHint);
+      UiUtil.instance.showToast(
+        context,
+        ap.imageTooBigHint(arg1MB: Constants.maxImageSize),
+      );
       AnalyticsUtil.instance.logEvent('leave_pick_fail');
     }
   }

@@ -1,14 +1,21 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
 
-enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, offline, custom }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  campusNotSupport,
+  userNotSupport,
+  offline,
+  custom
+}
 
 enum Station { janGong, yanchao, first }
 
@@ -19,7 +26,8 @@ class BusReservePage extends StatefulWidget {
   BusReservePageState createState() => BusReservePageState();
 }
 
-class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveClientMixin {
+class BusReservePageState extends State<BusReservePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
@@ -27,35 +35,41 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
   late ApLocalizations ap;
 
   _State state = _State.finish;
+
   String? customStateHint = '';
+
   Station selectStartStation = Station.janGong;
   DateTime dateTime = DateTime.now();
+
   BusData? busData;
+
   double top = 0.0;
 
   @override
   void initState() {
-    AnalyticsUtil.instance.setCurrentScreen(
-      'BusReservePage',
-      'bus_reserve_page.dart',
-    );
+    AnalyticsUtil.instance
+        .setCurrentScreen('BusReservePage', 'bus_reserve_page.dart');
     _getBusTimeTables();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
+    ap = context.ap;
     return Scaffold(
       body: OrientationBuilder(
-        builder: (_, orientation) {
+        builder: (_, Orientation orientation) {
           return NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
+            headerSliverBuilder:
+                (BuildContext context, bool innerBoxIsScrolled) {
+              return <Widget>[
                 SliverAppBar(
                   leading: Container(),
                   expandedHeight: orientation == Orientation.portrait
@@ -65,29 +79,31 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
                   backgroundColor: Colors.transparent,
                   flexibleSpace: FlexibleSpaceBar(
                     background: Column(
-                      children: [
+                      children: <Widget>[
                         Container(
                           color: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                          ),
                           child: Calendar(
                             showTodayAction: false,
-                            onDateSelected: (datetime) {
+                            onDateSelected: (DateTime? datetime) {
                               if (datetime != null) {
                                 dateTime = datetime;
                                 _getBusTimeTables();
-                                AnalyticsUtil.instance.logEvent(
-                                  'date_picker_click',
-                                );
+                                AnalyticsUtil.instance
+                                    .logEvent('date_picker_click');
                               }
                             },
                             initialCalendarDateOverride: dateTime,
-                            dayChildAspectRatio: orientation == Orientation.portrait ? 1.5 : 3,
+                            dayChildAspectRatio:
+                                orientation == Orientation.portrait ? 1.5 : 3,
                             weekdays: ap.weekdays,
                           ),
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Divider(color: colorScheme.outlineVariant),
+                          child: Divider(color: ApTheme.of(context).grey),
                         ),
                       ],
                     ),
@@ -96,17 +112,19 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
               ];
             },
             body: Column(
-              children: [
+              children: <Widget>[
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(minWidth: double.infinity),
+                    constraints:
+                        const BoxConstraints(minWidth: double.infinity),
                     child: CupertinoSegmentedControl<Station>(
-                      selectedColor: colorScheme.primary,
-                      borderColor: colorScheme.primary,
-                      unselectedColor: colorScheme.surface,
+                      selectedColor: ApTheme.of(context).blueAccent,
+                      borderColor: ApTheme.of(context).blueAccent,
+                      unselectedColor:
+                          ApTheme.of(context).segmentControlUnSelect,
                       groupValue: selectStartStation,
-                      children: {
+                      children: <Station, Widget>{
                         Station.janGong: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(app!.fromJiangong),
@@ -120,14 +138,20 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
                           child: Text(app!.fromFirst),
                         ),
                       },
-                      onValueChanged: (text) {
-                        if (mounted) setState(() => selectStartStation = text);
+                      onValueChanged: (Station text) {
+                        if (mounted) {
+                          setState(() {
+                            selectStartStation = text;
+                          });
+                        }
                         AnalyticsUtil.instance.logEvent('segment_click');
                       },
                     ),
                   ),
                 ),
-                Expanded(child: _body()),
+                Expanded(
+                  child: _body(),
+                ),
               ],
             ),
           );
@@ -136,14 +160,11 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
     );
   }
 
-  TextStyle _textStyle(BusTime busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return TextStyle(
-      color: busTime.getColorState(context),
-      fontSize: 18.0,
-      decorationColor: colorScheme.onSurfaceVariant,
-    );
-  }
+  TextStyle _textStyle(BusTime busTime) => TextStyle(
+        color: busTime.getColorState(context),
+        fontSize: 18.0,
+        decorationColor: ApTheme.of(context).greyText,
+      );
 
   String? get errorText {
     switch (state) {
@@ -179,15 +200,22 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
             _getBusTimeTables();
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(icon: ApIcon.assignment, content: errorText!),
+          child: HintContent(
+            icon: ApIcon.assignment,
+            content: errorText!,
+          ),
         );
       case _State.offline:
-        return HintContent(icon: ApIcon.offlineBolt, content: ap.offlineMode);
+        return HintContent(
+          icon: ApIcon.offlineBolt,
+          content: ap.offlineMode,
+        );
       default:
         return RefreshIndicator(
           onRefresh: () async {
             await _getBusTimeTables();
             AnalyticsUtil.instance.logEvent('refresh_swipe');
+            return;
           },
           child: ListView(
             physics: const NeverScrollableScrollPhysics(),
@@ -198,14 +226,16 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
   }
 
   List<Widget> _renderBusTimeWidgets() {
-    final list = <Widget>[];
+    final List<Widget> list = <Widget>[];
     if (busData != null) {
-      for (final i in busData!.timetable) {
+      for (final BusTime i in busData!.timetable) {
         if (selectStartStation == Station.janGong && i.startStation == '建工') {
           list.add(_busTimeWidget(i));
-        } else if (selectStartStation == Station.yanchao && i.startStation == '燕巢') {
+        } else if (selectStartStation == Station.yanchao &&
+            i.startStation == '燕巢') {
           list.add(_busTimeWidget(i));
-        } else if (selectStartStation == Station.first && i.startStation == '第一') {
+        } else if (selectStartStation == Station.first &&
+            i.startStation == '第一') {
           list.add(_busTimeWidget(i));
         }
       }
@@ -213,161 +243,161 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
     return list;
   }
 
-  Widget _busTimeWidget(BusTime busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        InkWell(
-          onTap: busTime.canReserve() && !busTime.isReserve
-              ? () => _showBookingDialog(busTime)
-              : (busTime.isReserve ? () => _showCancelDialog(busTime) : null),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Expanded(
-                  child: Icon(
-                    ApIcon.directionsBus,
-                    size: 20.0,
-                    color: busTime.getColorState(context),
+  Widget _busTimeWidget(BusTime busTime) => Column(
+        children: <Widget>[
+          InkWell(
+            onTap: busTime.canReserve() && !busTime.isReserve
+                ? () => _showBookingDialog(busTime)
+                : (busTime.isReserve ? () => _showCancelDialog(busTime) : null),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: Icon(
+                      ApIcon.directionsBus,
+                      size: 20.0,
+                      color: busTime.getColorState(context),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getTime(),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getTime(),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(
-                    '${busTime.reserveCount} ${ap.people}',
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      '${busTime.reserveCount} ${ap.people}',
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getSpecialTrainTitle(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getSpecialTrainTitle(app),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Icon(
-                    ApIcon.accessTime,
-                    size: 20.0,
-                    color: busTime.getColorState(context),
+                  Expanded(
+                    flex: 2,
+                    child: Icon(
+                      ApIcon.accessTime,
+                      size: 20.0,
+                      color: busTime.getColorState(context),
+                    ),
                   ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    busTime.getReserveState(app),
-                    textAlign: TextAlign.center,
-                    style: _textStyle(busTime),
+                  Expanded(
+                    flex: 3,
+                    child: Text(
+                      busTime.getReserveState(app),
+                      textAlign: TextAlign.center,
+                      style: _textStyle(busTime),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Divider(color: colorScheme.outlineVariant, height: 0.0),
-        ),
-      ],
-    );
-  }
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Divider(color: ApTheme.of(context).grey, height: 0.0),
+          ),
+        ],
+      );
 
   Future<void> _getBusTimeTables() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      setState(() => state = _State.offline);
+      setState(() {
+        state = _State.offline;
+      });
       return;
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     if (mounted) setState(() => state = _State.loading);
-    Helper.instance.getBusTimeTables(
-      dateTime: dateTime,
-      callback: GeneralCallback<BusData>(
-        onSuccess: (data) {
-          busData = data;
-          if (mounted) {
+    try {
+      final BusData data = await Helper.instance.getBusTimeTables(
+        dateTime: dateTime,
+      );
+      busData = data;
+      if (mounted) {
+        setState(() {
+          if (busData == null || busData!.timetable.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
+          }
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        if (response.statusCode == 403) {
+          customStateHint = response.message;
+        } else {
+          customStateHint = response.getGeneralMessage(context);
+        }
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
             setState(() {
-              if (busData == null || busData!.timetable.isEmpty) {
-                state = _State.empty;
+              if (e.response!.statusCode == 401) {
+                state = _State.userNotSupport;
+              } else if (e.response!.statusCode == 403) {
+                state = _State.campusNotSupport;
               } else {
-                state = _State.finish;
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusTimeTables',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
               }
             });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-        },
-        onFailure: (e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 401) {
-                    state = _State.userNotSupport;
-                  } else if (e.response!.statusCode == 403) {
-                    state = _State.campusNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getBusTimeTables',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
-                  AnalyticsUtil.instance.setUserProperty(
-                    Constants.canUseBus,
-                    AnalyticsConstants.no,
-                  );
-                }
-              case DioExceptionType.unknown:
-                setState(() {
-                  if (e.message?.contains('HttpException') ?? false) {
-                    state = _State.custom;
-                    customStateHint = app!.busFailInfinity;
-                  } else {
-                    state = _State.error;
-                  }
-                });
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
+            if (e.response!.statusCode == 401 ||
+                e.response!.statusCode == 403) {
+              AnalyticsUtil.instance.setUserProperty(
+                Constants.canUseBus,
+                AnalyticsConstants.no,
+              );
             }
-          }
-        },
-        onError: (response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.statusCode == 403 ? response.message : response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+          case DioExceptionType.unknown:
+            setState(() {
+              if (e.message?.contains('HttpException') ?? false) {
+                state = _State.custom;
+                customStateHint = app!.busFailInfinity;
+              } else {
+                state = _State.error;
+              }
+            });
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+    }
   }
 
   void _showBookingDialog(BusTime busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
     String start = '';
     if (selectStartStation == Station.janGong) {
       start = app!.fromJiangong;
@@ -378,45 +408,55 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
     }
     showDialog(
       context: context,
-      builder: (_) => YesNoDialog(
+      builder: (BuildContext context) => YesNoDialog(
         title: '${busTime.getSpecialTrainTitle(app)}'
             '${busTime.specialTrain == '0' ? app!.reserve : ''}',
         contentWidget: RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
             style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
+              color: ApTheme.of(context).grey,
               height: 1.3,
               fontSize: 16.0,
             ),
-            children: [
+            children: <TextSpan>[
               TextSpan(
                 text: '${busTime.getTime()} $start\n',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               TextSpan(
                 text: '${app!.destination}：${busTime.getEnd(app)}\n\n',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              if (busTime.description != null && busTime.description!.isNotEmpty)
+              if (busTime.description != null &&
+                  busTime.description!.isNotEmpty)
                 TextSpan(
-                  text: '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
+                  text:
+                      '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
                   style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
+                    color: ApTheme.of(context).grey,
                     height: 1.3,
                     fontSize: 14.0,
                   ),
                 ),
               TextSpan(
                 text: app!.busReserveConfirmTitle,
-                style: TextStyle(color: colorScheme.onSurfaceVariant),
+                style: TextStyle(
+                  color: ApTheme.of(context).grey,
+                ),
               ),
             ],
           ),
         ),
         leftActionText: ap.cancel,
         rightActionText: app!.reserve,
-        rightActionFunction: () => _bookingBus(busTime),
+        rightActionFunction: () {
+          _bookingBus(busTime);
+        },
       ),
     );
   }
@@ -424,7 +464,7 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
   void _showCancelDialog(BusTime busTime) {
     showDialog(
       context: context,
-      builder: (_) => YesNoDialog(
+      builder: (BuildContext context) => YesNoDialog(
         title: app!.busCancelReserve,
         contentWidget: Text(
           '${app!.busCancelReserveConfirmContent1}${busTime.getStart(app)}'
@@ -443,122 +483,145 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
     AnalyticsUtil.instance.logEvent('cancel_bus_create');
   }
 
-  void _bookingBus(BusTime busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Future<void> _bookingBus(BusTime busTime) async {
     showDialog(
       context: context,
-      builder: (_) => PopScope(
+      builder: (BuildContext context) => PopScope(
         canPop: false,
         child: ProgressDialog(app!.reserving),
       ),
       barrierDismissible: false,
     );
-    Helper.instance.bookingBusReservation(
-      busId: busTime.busId,
-      callback: GeneralCallback<BookingBusData>(
-        onSuccess: (data) {
-          _getBusTimeTables();
-          AnalyticsUtil.instance.logEvent('book_bus_success');
-          Navigator.of(context, rootNavigator: true).pop();
-          showDialog(
-            context: context,
-            builder: (_) => DefaultDialog(
-              title: app!.busReserveSuccess,
-              contentWidget: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${app!.busReserveDate}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getDate()}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveLocation}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getStart(app)}${app!.campus}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveTime}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: busTime.getTime()),
-                  ],
-                ),
+    try {
+      await Helper.instance.bookingBusReservation(
+        busId: busTime.busId,
+      );
+      _getBusTimeTables();
+      _refreshBusReservationsCache();
+      AnalyticsUtil.instance.logEvent('book_bus_success');
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app!.busReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                color: ApTheme.of(context).grey,
+                height: 1.3,
+                fontSize: 16.0,
               ),
-              actionText: ap.iKnow,
-              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${app!.busReserveDate}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveLocation}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveTime}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: busTime.getTime(),
+                ),
+              ],
             ),
-          );
-        },
-        onFailure: (e) => handleDioError(context, e, app!.busReserveFailTitle, 'book_bus'),
-        onError: (response) => handleGeneralError(context, response, app!.busReserveFailTitle),
-      ),
-    );
+          ),
+          actionText: ap.iKnow,
+          actionFunction: () {
+            Navigator.of(context, rootNavigator: true).pop();
+          },
+        ),
+      );
+    } on GeneralResponse catch (response) {
+      handleGeneralError(context, response, app!.busReserveFailTitle);
+    } on DioException catch (e) {
+      handleDioError(context, e, app!.busReserveFailTitle, 'book_bus');
+    }
   }
 
-  void cancelBusReservation(BusTime busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Future<void> cancelBusReservation(BusTime busTime) async {
     showDialog(
       context: context,
-      builder: (_) => PopScope(
+      builder: (BuildContext context) => PopScope(
         canPop: false,
         child: ProgressDialog(app!.canceling),
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(
-      cancelKey: busTime.cancelKey!,
-      callback: GeneralCallback<CancelBusData>(
-        onSuccess: (data) {
-          _getBusTimeTables();
-          AnalyticsUtil.instance.logEvent('cancel_bus_success');
-          Navigator.of(context, rootNavigator: true).pop();
-          showDialog(
-            context: context,
-            builder: (_) => DefaultDialog(
-              title: app!.busCancelReserveSuccess,
-              contentWidget: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${app!.busReserveCancelDate}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getDate()}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveCancelLocation}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getStart(app)}${app!.campus}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveCancelTime}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: busTime.getTime()),
-                  ],
-                ),
+    try {
+      await Helper.instance.cancelBusReservation(
+        cancelKey: busTime.cancelKey!,
+      );
+      _getBusTimeTables();
+      _refreshBusReservationsCache();
+      AnalyticsUtil.instance.logEvent('cancel_bus_success');
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app!.busCancelReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                color: ApTheme.of(context).grey,
+                height: 1.3,
+                fontSize: 16.0,
               ),
-              actionText: ap.iKnow,
-              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${app!.busReserveCancelDate}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelLocation}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelTime}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: busTime.getTime(),
+                ),
+              ],
             ),
-          );
-        },
-        onFailure: (e) => handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus'),
-        onError: (response) => handleGeneralError(context, response, app!.busCancelReserveFail),
-      ),
-    );
+          ),
+          actionText: ap.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop(),
+        ),
+      );
+    } on GeneralResponse catch (response) {
+      handleGeneralError(context, response, app!.busCancelReserveFail);
+    } on DioException catch (e) {
+      handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus');
+    }
+  }
+
+  Future<void> _refreshBusReservationsCache() async {
+    try {
+      final BusReservationsData data =
+          await Helper.instance.getBusReservations();
+      data.save(Helper.username);
+    } catch (_) {}
   }
 
   static void handleGeneralError(
@@ -584,17 +647,20 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
     String? message;
     switch (e.type) {
       case DioExceptionType.badResponse:
-        final errorResponse = ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
+        final ErrorResponse errorResponse =
+            ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
         message = errorResponse.description;
         AnalyticsUtil.instance.logEvent(
           tag,
-          parameters: {'message': errorResponse.description},
+          parameters: <String, String>{
+            'message': errorResponse.description,
+          },
         );
       case DioExceptionType.unknown:
         if (e.message?.contains('HttpException') ?? false) {
           message = AppLocalizations.of(context).busFailInfinity;
         } else {
-          message = ApLocalizations.of(context).somethingError;
+          message = context.ap.somethingError;
         }
       case DioExceptionType.cancel:
         break;
@@ -602,7 +668,11 @@ class BusReservePageState extends State<BusReservePage> with AutomaticKeepAliveC
         message = e.i18nMessage;
     }
     if (message != null) {
-      DialogUtils.showDefault(context: context, title: title, content: message);
+      DialogUtils.showDefault(
+        context: context,
+        title: title,
+        content: message,
+      );
     }
   }
 }

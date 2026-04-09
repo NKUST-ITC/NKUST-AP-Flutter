@@ -1,0 +1,3 @@
+tags:
+  integration:
+    skip: "Requires NKUST_USERNAME/NKUST_PASSWORD environment variables"

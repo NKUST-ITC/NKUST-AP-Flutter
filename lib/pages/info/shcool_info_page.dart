@@ -14,8 +14,9 @@ class SchoolInfoPage extends StatefulWidget {
   SchoolInfoPageState createState() => SchoolInfoPageState();
 }
 
-class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProviderStateMixin {
-  final phoneModelList = <PhoneModel>[
+class SchoolInfoPageState extends State<SchoolInfoPage>
+    with SingleTickerProviderStateMixin {
+  final List<PhoneModel> phoneModelList = <PhoneModel>[
     PhoneModel('校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5', '0800-550995'),
     PhoneModel('建工校區', ''),
     PhoneModel('校安專線', '0916-507-506'),
@@ -49,21 +50,27 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
   ];
 
   NotificationState notificationState = NotificationState.loading;
-  List<Notifications> notificationList = [];
+
+  List<Notifications> notificationList = <Notifications>[];
+
   int page = 1;
+
   PhoneState phoneState = PhoneState.finish;
+
   PdfState pdfState = PdfState.loading;
+
   late ApLocalizations ap;
+
   late TabController controller;
+
   int _currentIndex = 0;
+
   Uint8List? data;
 
   @override
   void initState() {
-    AnalyticsUtil.instance.setCurrentScreen(
-      'SchoolInfoPage',
-      'school_info_page.dart',
-    );
+    AnalyticsUtil.instance
+        .setCurrentScreen('SchoolInfoPage', 'school_info_page.dart');
     controller = TabController(length: 3, vsync: this);
     _getNotifications();
     _getSchedules();
@@ -78,18 +85,21 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
-      appBar: AppBar(title: Text(ap.schoolInfo)),
+      appBar: AppBar(
+        title: Text(ap.schoolInfo),
+      ),
       body: TabBarView(
         controller: controller,
         physics: const NeverScrollableScrollPhysics(),
-        children: [
+        children: <Widget>[
           NotificationListView(
             state: notificationState,
             notificationList: notificationList,
             onRefresh: () async {
               setState(() => notificationList.clear());
+              page = 1;
               _getNotifications();
             },
             onLoadingMore: () async {
@@ -98,7 +108,10 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
               _getNotifications();
             },
           ),
-          PhoneListView(state: phoneState, phoneModelList: phoneModelList),
+          PhoneListView(
+            state: phoneState,
+            phoneModelList: phoneModelList,
+          ),
           PdfView(
             state: pdfState,
             data: data,
@@ -111,61 +124,65 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
-        onDestinationSelected: (index) {
+        onDestinationSelected: (int index) {
           setState(() {
             _currentIndex = index;
             controller.animateTo(_currentIndex);
           });
         },
-        destinations: [
+        destinations: <NavigationDestination>[
           NavigationDestination(
             icon: Icon(ApIcon.fiberNew),
             label: ap.notifications,
           ),
-          NavigationDestination(icon: Icon(ApIcon.phone), label: ap.phones),
-          NavigationDestination(icon: Icon(ApIcon.dateRange), label: ap.events),
+          NavigationDestination(
+            icon: Icon(ApIcon.phone),
+            label: ap.phones,
+          ),
+          NavigationDestination(
+            icon: Icon(ApIcon.dateRange),
+            label: ap.events,
+          ),
         ],
       ),
     );
   }
 
-  void _getNotifications() {
+  Future<void> _getNotifications() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() => notificationState = NotificationState.offline);
     } else {
-      Helper.instance.getNotifications(
-        page: page,
-        callback: GeneralCallback<NotificationsData>(
-          onSuccess: (data) {
-            notificationList.addAll(data.data.notifications);
-            if (mounted) {
-              setState(() => notificationState = NotificationState.finish);
-            }
-          },
-          onFailure: (e) {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-            if (mounted && notificationList.isEmpty) {
-              setState(() => notificationState = NotificationState.error);
-            }
-          },
-          onError: (response) {
-            UiUtil.instance.showToast(context, ap.somethingError);
-            if (mounted && notificationList.isEmpty) {
-              setState(() => notificationState = NotificationState.error);
-            }
-          },
-        ),
-      );
+      try {
+        final NotificationsData data = await Helper.instance.getNotifications(
+          page: page,
+        );
+        notificationList.addAll(data.data.notifications);
+        if (mounted) {
+          setState(() => notificationState = NotificationState.finish);
+        }
+      } on GeneralResponse {
+        UiUtil.instance.showToast(context, ap.somethingError);
+        if (mounted && notificationList.isEmpty) {
+          setState(() => notificationState = NotificationState.error);
+        }
+      } on DioException catch (e) {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+        if (mounted && notificationList.isEmpty) {
+          setState(() => notificationState = NotificationState.error);
+        }
+        rethrow;
+      }
     }
   }
 
   Future<void> _getSchedules() async {
-    String pdfUrl = 'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
+    String pdfUrl =
+        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final remoteConfig = FirebaseRemoteConfig.instance;
+        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
         await remoteConfig.setConfigSettings(
           RemoteConfigSettings(
             fetchTimeout: const Duration(seconds: 10),
@@ -175,7 +192,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
         await remoteConfig.fetchAndActivate();
         pdfUrl = remoteConfig.getString(Constants.schedulePdfUrl);
         downloadFdf(pdfUrl);
-      } catch (_) {
+      } catch (exception) {
         downloadFdf(pdfUrl);
       }
     } else {
@@ -186,7 +203,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
   Future<void> downloadFdf(String url) async {
     try {
       log(url);
-      final response = await Dio().get<Uint8List>(
+      final Response<Uint8List> response = await Dio().get<Uint8List>(
         url,
         options: Options(responseType: ResponseType.bytes),
       );
@@ -194,8 +211,11 @@ class SchoolInfoPageState extends State<SchoolInfoPage> with SingleTickerProvide
         pdfState = PdfState.finish;
         data = response.data;
       });
-    } catch (_) {
-      setState(() => pdfState = PdfState.error);
+    } catch (e) {
+      setState(() {
+        pdfState = PdfState.error;
+      });
+      rethrow;
     }
   }
 }

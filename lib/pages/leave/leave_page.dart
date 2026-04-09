@@ -1,8 +1,8 @@
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = '/leave';
@@ -55,7 +55,7 @@ class LeavePageState extends State<LeavePage> with SingleTickerProviderStateMixi
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return Scaffold(
       appBar: AppBar(title: Text(ap.leave)),
       body: FutureBuilder<bool>(

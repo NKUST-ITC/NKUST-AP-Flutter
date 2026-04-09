@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 
@@ -20,7 +22,7 @@ List<Map<String, dynamic>> acadParser({
     if (element.getElementsByTagName('a').isNotEmpty) {
       info['index'] = baseIndex;
       baseIndex++;
-      info['title'] = element.getElementsByTagName('a')[0].attributes['title'];
+      info['title'] = element.getElementsByTagName('a')[0].text.trim();
       temp['link'] = element.getElementsByTagName('a')[0].attributes['href'];
       temp['info'] = info;
       dataList.add(temp);

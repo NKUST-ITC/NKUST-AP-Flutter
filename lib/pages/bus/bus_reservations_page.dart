@@ -1,10 +1,18 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 
-enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, offlineEmpty, custom }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  campusNotSupport,
+  userNotSupport,
+  offlineEmpty,
+  custom
+}
 
 class BusReservationsPage extends StatefulWidget {
   static const String routerName = '/bus/reservations';
@@ -13,47 +21,54 @@ class BusReservationsPage extends StatefulWidget {
   BusReservationsPageState createState() => BusReservationsPageState();
 }
 
-class BusReservationsPageState extends State<BusReservationsPage> with AutomaticKeepAliveClientMixin {
+class BusReservationsPageState extends State<BusReservationsPage>
+    with AutomaticKeepAliveClientMixin {
   @override
   bool get wantKeepAlive => true;
 
   _State state = _State.finish;
   String? customStateHint;
+
   BusReservationsData? busReservationsData;
   DateTime dateTime = DateTime.now();
+
   AppLocalizations? app;
   late ApLocalizations ap;
+
   bool isOffline = false;
 
   @override
   void initState() {
-    AnalyticsUtil.instance.setCurrentScreen(
-      'BusReservationsPage',
-      'bus_reservations_page.dart',
-    );
+    AnalyticsUtil.instance
+        .setCurrentScreen('BusReservationsPage', 'bus_reservations_page.dart');
     _getBusReservations();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
+    ap = context.ap;
     return Column(
-      children: [
+      children: <Widget>[
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: isOffline
               ? Text(
                   app!.offlineBusReservations,
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                  style: TextStyle(color: ApTheme.of(context).grey),
                 )
               : null,
         ),
-        Expanded(child: _body()),
+        Expanded(
+          child: _body(),
+        ),
       ],
     );
   }
@@ -78,7 +93,9 @@ class BusReservationsPageState extends State<BusReservationsPage> with Automatic
   Widget _body() {
     switch (state) {
       case _State.loading:
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
       case _State.campusNotSupport:
@@ -89,88 +106,100 @@ class BusReservationsPageState extends State<BusReservationsPage> with Automatic
             _getBusReservations();
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(icon: ApIcon.assignment, content: errorText!),
+          child: HintContent(
+            icon: ApIcon.assignment,
+            content: errorText!,
+          ),
         );
       case _State.offlineEmpty:
-        return HintContent(icon: ApIcon.assignment, content: ap.noOfflineData);
+        return HintContent(
+          icon: ApIcon.assignment,
+          content: ap.noOfflineData,
+        );
       default:
         return RefreshIndicator(
           onRefresh: () async {
             _getBusReservations();
             AnalyticsUtil.instance.logEvent('refresh_swipe');
+            return;
           },
           child: ListView.builder(
             itemCount: busReservationsData!.reservations.length,
-            itemBuilder: (context, i) {
-              return _busReservationWidget(busReservationsData!.reservations[i]);
+            itemBuilder: (BuildContext context, int i) {
+              return _busReservationWidget(
+                busReservationsData!.reservations[i],
+              );
             },
           ),
         );
     }
   }
 
-  TextStyle _textStyle(BusReservation busReservation) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return TextStyle(
-      color: busReservation.getColorState(context),
-      fontSize: 18.0,
-      decorationColor: colorScheme.onSurfaceVariant,
-    );
-  }
+  TextStyle _textStyle(BusReservation busReservation) => TextStyle(
+        color: busReservation.getColorState(context),
+        fontSize: 18.0,
+        decorationColor: ApTheme.of(context).greyText,
+      );
 
-  Widget _busReservationWidget(BusReservation busReservation) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Icon(
-                  ApIcon.directionsBus,
-                  size: 20.0,
-                  color: colorScheme.primary,
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(
-                  '${busReservation.getStart(app)}→${busReservation.getEnd(app)}',
-                  textAlign: TextAlign.center,
-                  style: _textStyle(busReservation),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(
-                  busReservation.dateTime,
-                  textAlign: TextAlign.center,
-                  style: _textStyle(busReservation),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: IconButton(
-                  icon: Icon(
-                    ApIcon.cancel,
+  Widget _busReservationWidget(BusReservation busReservation) => Column(
+        children: <Widget>[
+          Container(
+            padding:
+                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  child: Icon(
+                    ApIcon.directionsBus,
                     size: 20.0,
-                    color: isOffline ? colorScheme.onSurfaceVariant : colorScheme.error,
+                    color: ApTheme.of(context).blueAccent,
                   ),
-                  onPressed: isOffline ? null : () => _showCancelDialog(busReservation),
                 ),
-              ),
-            ],
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    '${busReservation.getStart(app)}'
+                    '→${busReservation.getEnd(app)}',
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busReservation),
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    busReservation.dateTime,
+                    textAlign: TextAlign.center,
+                    style: _textStyle(busReservation),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: IconButton(
+                    icon: Icon(
+                      ApIcon.cancel,
+                      size: 20.0,
+                      color: isOffline
+                          ? ApTheme.of(context).grey
+                          : ApTheme.of(context).red,
+                    ),
+                    onPressed: isOffline
+                        ? null
+                        : () => _showCancelDialog(busReservation),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Divider(color: colorScheme.outlineVariant, indent: 4.0),
-        ),
-      ],
-    );
-  }
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Divider(
+              color: ApTheme.of(context).grey,
+              indent: 4.0,
+            ),
+          ),
+        ],
+      );
 
   Future<void> _getBusReservations() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
@@ -189,88 +218,90 @@ class BusReservationsPageState extends State<BusReservationsPage> with Automatic
       }
       return;
     }
-    if (mounted) setState(() => state = _State.loading);
-    Helper.instance.getBusReservations(
-      callback: GeneralCallback<BusReservationsData>(
-        onSuccess: (data) {
-          busReservationsData = data;
-          if (mounted) {
+    if (mounted) {
+      setState(() {
+        state = _State.loading;
+      });
+    }
+    try {
+      final BusReservationsData data =
+          await Helper.instance.getBusReservations();
+      busReservationsData = data;
+      if (mounted) {
+        setState(() {
+          if (busReservationsData == null ||
+              busReservationsData!.reservations.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
+          }
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+      busReservationsData?.save(Helper.username);
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        setState(() {
+          state = _State.custom;
+          customStateHint = response.getGeneralMessage(context);
+        });
+      }
+      _loadCache();
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
             setState(() {
-              if (busReservationsData == null || busReservationsData!.reservations.isEmpty) {
-                state = _State.empty;
+              if (e.response!.statusCode == 401) {
+                state = _State.userNotSupport;
+              } else if (e.response!.statusCode == 403) {
+                state = _State.campusNotSupport;
               } else {
-                state = _State.finish;
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusReservations',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
               }
             });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-          busReservationsData?.save(Helper.username);
-        },
-        onFailure: (e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 401) {
-                    state = _State.userNotSupport;
-                  } else if (e.response!.statusCode == 403) {
-                    state = _State.campusNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getBusReservations',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
-                  AnalyticsUtil.instance.setUserProperty(
-                    Constants.canUseBus,
-                    AnalyticsConstants.no,
-                  );
-                }
-              case DioExceptionType.unknown:
-                setState(() {
-                  if (e.message?.contains('HttpException') ?? false) {
-                    state = _State.custom;
-                    customStateHint = app!.busFailInfinity;
-                  } else {
-                    state = _State.error;
-                  }
-                });
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
+            if (e.response!.statusCode == 401 ||
+                e.response!.statusCode == 403) {
+              AnalyticsUtil.instance.setUserProperty(
+                Constants.canUseBus,
+                AnalyticsConstants.no,
+              );
             }
-          }
-          _loadCache();
-        },
-        onError: (response) {
-          if (mounted) {
+          case DioExceptionType.unknown:
+            setState(() {
+              if (e.message?.contains('HttpException') ?? false) {
+                state = _State.custom;
+                customStateHint = app!.busFailInfinity;
+              } else {
+                state = _State.error;
+              }
+            });
+          case DioExceptionType.cancel:
+            break;
+          default:
             setState(() {
               state = _State.custom;
-              customStateHint = response.getGeneralMessage(context);
+              customStateHint = e.i18nMessage;
             });
-          }
-          _loadCache();
-        },
-      ),
-    );
+        }
+      }
+      _loadCache();
+    }
   }
 
   void _showCancelDialog(BusReservation reservation) {
     showDialog(
       context: context,
-      builder: (_) => YesNoDialog(
+      builder: (BuildContext context) => YesNoDialog(
         title: app!.busCancelReserve,
         contentWidget: Text(
           '${app!.busCancelReserveConfirmContent1}${reservation.getStart(app)}'
@@ -289,72 +320,78 @@ class BusReservationsPageState extends State<BusReservationsPage> with Automatic
     AnalyticsUtil.instance.logEvent('cancel_bus_create');
   }
 
-  void cancelBusReservation(BusReservation busTime) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Future<void> cancelBusReservation(BusReservation busTime) async {
     showDialog(
       context: context,
-      builder: (_) => PopScope(
+      builder: (BuildContext context) => PopScope(
         canPop: false,
         child: ProgressDialog(app!.canceling),
       ),
       barrierDismissible: false,
     );
-    Helper.instance.cancelBusReservation(
-      cancelKey: busTime.cancelKey,
-      callback: GeneralCallback<CancelBusData>(
-        onSuccess: (data) {
-          _getBusReservations();
-          AnalyticsUtil.instance.logEvent('cancel_bus_success');
-          Navigator.of(context, rootNavigator: true).pop();
-          showDialog(
-            context: context,
-            builder: (_) => DefaultDialog(
-              title: app!.busCancelReserveSuccess,
-              contentWidget: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    height: 1.3,
-                    fontSize: 16.0,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: '${app!.busReserveCancelDate}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getDate()}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveCancelLocation}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: '${busTime.getStart(app)}${app!.campus}\n'),
-                    TextSpan(
-                      text: '${app!.busReserveCancelTime}：',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    TextSpan(text: busTime.getTime()),
-                  ],
-                ),
+    try {
+      await Helper.instance.cancelBusReservation(
+        cancelKey: busTime.cancelKey,
+      );
+      _getBusReservations();
+      AnalyticsUtil.instance.logEvent('cancel_bus_success');
+      Navigator.of(context, rootNavigator: true).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => DefaultDialog(
+          title: app!.busCancelReserveSuccess,
+          contentWidget: RichText(
+            textAlign: TextAlign.left,
+            text: TextSpan(
+              style: TextStyle(
+                color: ApTheme.of(context).grey,
+                height: 1.3,
+                fontSize: 16.0,
               ),
-              actionText: ap.iKnow,
-              actionFunction: () => Navigator.of(context, rootNavigator: true).pop(),
+              children: <TextSpan>[
+                TextSpan(
+                  text: '${app!.busReserveCancelDate}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getDate()}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelLocation}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                ),
+                TextSpan(
+                  text: '${app!.busReserveCancelTime}：',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: busTime.getTime(),
+                ),
+              ],
             ),
-          );
-        },
-        onFailure: (e) => BusReservePageState.handleDioError(
-          context,
-          e,
-          app!.busCancelReserveFail,
-          'cancel_bus',
+          ),
+          actionText: ap.iKnow,
+          actionFunction: () =>
+              Navigator.of(context, rootNavigator: true).pop(),
         ),
-        onError: (response) => BusReservePageState.handleGeneralError(
-          context,
-          response,
-          app!.busCancelReserveFail,
-        ),
-      ),
-    );
+      );
+    } on GeneralResponse catch (response) {
+      BusReservePageState.handleGeneralError(
+        context,
+        response,
+        app!.busCancelReserveFail,
+      );
+    } on DioException catch (e) {
+      BusReservePageState.handleDioError(
+        context,
+        e,
+        app!.busCancelReserveFail,
+        'cancel_bus',
+      );
+    }
   }
 
   Future<void> _loadCache() async {

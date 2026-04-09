@@ -5,7 +5,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class LoginPage extends StatefulWidget {
@@ -47,7 +46,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     app = AppLocalizations.of(context);
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
@@ -428,58 +427,53 @@ class LoginPageState extends State<LoginPage> {
     } else {
       setState(() => isLoginIng = true);
       PreferenceUtil.instance.setString(Constants.prefUsername, _username.text);
-      Helper.instance.login(
-        context: context,
-        username: _username.text,
-        password: _password.text,
-        clearCache: true,
-        callback: GeneralCallback<LoginResponse?>(
-          onSuccess: (response) async {
-            PreferenceUtil.instance.setString(
-              Constants.prefUsername,
-              _username.text,
-            );
-            if (isRememberPassword) {
-              PreferenceUtil.instance.setStringSecurity(
-                Constants.prefPassword,
-                _password.text,
-              );
-            }
-            PreferenceUtil.instance.setBool(
-              Constants.prefIsOfflineLogin,
-              false,
-            );
-            TextInput.finishAutofillContext();
-            Navigator.of(context).pop(true);
-          },
-          onFailure: (e) {
-            if (e.i18nMessage != null) {
-              UiUtil.instance.showToast(context, e.i18nMessage!);
-            }
-            setState(() => isLoginIng = false);
-            if (e.type != DioExceptionType.cancel) _offlineLogin();
-          },
-          onError: (response) {
-            String? message;
-            switch (response.statusCode) {
-              case ApStatusCode.schoolServerError:
-                message = ap.schoolServerError;
-              case ApStatusCode.apiServerError:
-                message = ap.apiServerError;
-              case ApStatusCode.userDataError:
-                message = ap.loginFail;
-              case ApStatusCode.passwordFiveTimesError:
-                message = '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!';
-              case ApStatusCode.cancel:
-                message = null;
-              default:
-                message = ap.somethingError;
-            }
-            if (message != null) UiUtil.instance.showToast(context, message);
-            setState(() => isLoginIng = false);
-          },
-        ),
-      );
+      try {
+        await Helper.instance.login(
+          username: _username.text,
+          password: _password.text,
+          clearCache: true,
+        );
+        PreferenceUtil.instance.setString(
+          Constants.prefUsername,
+          _username.text,
+        );
+        if (isRememberPassword) {
+          PreferenceUtil.instance.setStringSecurity(
+            Constants.prefPassword,
+            _password.text,
+          );
+        }
+        PreferenceUtil.instance.setBool(
+          Constants.prefIsOfflineLogin,
+          false,
+        );
+        TextInput.finishAutofillContext();
+        Navigator.of(context).pop(true);
+      } on GeneralResponse catch (response) {
+        String? message;
+        switch (response.statusCode) {
+          case ApStatusCode.schoolServerError:
+            message = ap.schoolServerError;
+          case ApStatusCode.apiServerError:
+            message = ap.apiServerError;
+          case ApStatusCode.userDataError:
+            message = ap.loginFail;
+          case ApStatusCode.passwordFiveTimesError:
+            message = '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!';
+          case ApStatusCode.cancel:
+            message = null;
+          default:
+            message = ap.somethingError;
+        }
+        if (message != null) UiUtil.instance.showToast(context, message);
+        setState(() => isLoginIng = false);
+      } on DioException catch (e) {
+        if (e.i18nMessage != null) {
+          UiUtil.instance.showToast(context, e.i18nMessage!);
+        }
+        setState(() => isLoginIng = false);
+        if (e.type != DioExceptionType.cancel) _offlineLogin();
+      }
     }
   }
 

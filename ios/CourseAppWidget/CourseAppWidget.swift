@@ -1,130 +1,163 @@
-//
-//  CourseAppWidget.swift
-//  CourseAppWidget
-//
-//  Created by rainvisitor on 2020/10/1.
-//  Copyright © 2020 The Chromium Authors. All rights reserved.
-//
-
 import WidgetKit
 import SwiftUI
-import Intents
 
-struct Provider: IntentTimelineProvider {
+// MARK: - Configuration
+
+/// The App Group identifier used to share data between the main app
+/// and the widget extension.
+let appGroupId = "group.com.nkust.ap"
+
+/// The UserDefaults key for course data JSON.
+let courseNotifyKey = "course_notify"
+
+// MARK: - Timeline Provider
+
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(text: "", shortText: "", configuration: ConfigurationIntent())
+        SimpleEntry(text: "", shortText: "")
     }
-    
-    func getSnapshot(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entry = SimpleEntry(text: "下一堂課是 9:00\n在 EC5012 的 演算法",shortText: "9:00 在 EC5012 的演算法", configuration: configuration)
+
+    func getSnapshot(
+        in context: Context,
+        completion: @escaping (SimpleEntry) -> Void
+    ) {
+        let entry = SimpleEntry(
+            text: "下一堂課是 9:00\n在 EC5012 的 演算法",
+            shortText: "9:00 在 EC5012 的演算法"
+        )
         completion(entry)
     }
-    
-    func getTimeline(for configuration: ConfigurationIntent, in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var entries: [SimpleEntry] = []
-        
-        var myUserDefaults :UserDefaults!
-        myUserDefaults = UserDefaults(suiteName: "group.com.nkust.ap")
-        var text = "尚無課程資料"
-        var shortText = "尚無課程資料"
-        if let json = myUserDefaults.string(forKey: "course_notify"){
-            let courseData = try? JSONDecoder().decode(CourseData.self, from: Data(json.utf8))
-            let today = Date()
-            let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: today)
-            let courses = courseData?.courses
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "HH:mm"
-            var minDiff = today.timeIntervalSince1970
-            var todayCount = 0
-            courses?.forEach({ (course) in
-                course.sectionTimes.forEach { (sectionTime) in
-                    let timeCode = courseData?.timeCodes[sectionTime.index]
-                    let time = time2Date(timeText: timeCode?.startTime ?? "00:00")
-                    let diff = time.timeIntervalSince1970 - today.timeIntervalSince1970
-                    let weekday = dateComponents.weekday == 1 ? 7 :  (dateComponents.weekday ?? 1) - 1
-                    if(weekday == sectionTime.weekday) {
-                        todayCount = todayCount + 1
-                    }
-                    if( diff > 0.0  && diff < minDiff && weekday == sectionTime.weekday){
-                        minDiff = diff
-                        text = "下一節課是\(timeCode?.startTime ?? "")\n在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的 \(course.title )"
-                        shortText = "\(timeCode?.startTime ?? "")在 \(course.location.building ?? "" )\(course.location.room  ?? "") 的\(course.title )"
-                    }
-                }
-            })
-            if(todayCount == 0){
-                text = "太好了今天沒有任何課"
-                shortText = "今天沒有任何課"
-            } else if (minDiff == today.timeIntervalSince1970){
-                text = "太好了今天已經沒有任何課"
-                shortText = "今天已經沒有任何課"
-            }
-        }
-        
-        let entry = SimpleEntry(text: text, shortText: shortText, configuration: configuration)
-        entries.append(entry)
-        
-        let timeline = Timeline(entries: entries, policy: .atEnd)
+
+    func getTimeline(
+        in context: Context,
+        completion: @escaping (Timeline<SimpleEntry>) -> Void
+    ) {
+        let (text, shortText) = loadCourseText()
+        let entry = SimpleEntry(text: text, shortText: shortText)
+        let timeline = Timeline(entries: [entry], policy: .atEnd)
         completion(timeline)
     }
-    
-    func time2Date(timeText:String) -> Date {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = (timeText.count == 4 ? "HHmm" : "HH:mm")
-        let time = dateFormatter.date(from: timeText) ?? Date()
-        var now = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
-        let courseTime = Calendar.current.dateComponents(in: TimeZone.current, from: time)
+
+    private func loadCourseText() -> (String, String) {
+        guard let defaults = UserDefaults(suiteName: appGroupId),
+              let json = defaults.string(forKey: courseNotifyKey),
+              let data = json.data(using: .utf8),
+              let courseData = try? JSONDecoder().decode(
+                  CourseData.self, from: data
+              )
+        else {
+            return ("尚無課程資料", "尚無課程資料")
+        }
+
+        let today = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents(
+            in: TimeZone.current, from: today
+        )
+        let weekday = components.weekday == 1
+            ? 7
+            : (components.weekday ?? 1) - 1
+
+        var todayCount = 0
+        var minDiff = Double.greatestFiniteMagnitude
+        var text = "太好了今天已經沒有任何課"
+        var shortText = "今天已經沒有任何課"
+
+        for course in courseData.courses {
+            for sectionTime in course.sectionTimes {
+                guard sectionTime.weekday == weekday else { continue }
+                todayCount += 1
+
+                guard sectionTime.index < courseData.timeCodes.count
+                else { continue }
+                let timeCode = courseData.timeCodes[sectionTime.index]
+                let startDate = parseTime(timeCode.startTime)
+                let diff = startDate.timeIntervalSince1970
+                    - today.timeIntervalSince1970
+
+                if diff > 0 && diff < minDiff {
+                    minDiff = diff
+                    let building = course.location?.building ?? ""
+                    let room = course.location?.room ?? ""
+                    let location = "\(building)\(room)"
+                    text = "下一節課是\(timeCode.startTime)\n"
+                        + "在 \(location) 的 \(course.title)"
+                    shortText = "\(timeCode.startTime)"
+                        + "在 \(location) 的\(course.title)"
+                }
+            }
+        }
+
+        if todayCount == 0 {
+            text = "太好了今天沒有任何課"
+            shortText = "今天沒有任何課"
+        }
+
+        return (text, shortText)
+    }
+
+    private func parseTime(_ timeText: String) -> Date {
+        let formatter = DateFormatter()
+        formatter.dateFormat = timeText.count == 4 ? "HHmm" : "HH:mm"
+        let parsed = formatter.date(from: timeText) ?? Date()
+        var now = Calendar.current.dateComponents(
+            in: TimeZone.current, from: Date()
+        )
+        let courseTime = Calendar.current.dateComponents(
+            in: TimeZone.current, from: parsed
+        )
         now.hour = courseTime.hour
         now.minute = courseTime.minute
-        let userCalendar = Calendar.current
-        let someDateTime = userCalendar.date(from: now)
-        return someDateTime ?? Date()
+        return Calendar.current.date(from: now) ?? Date()
     }
 }
+
+// MARK: - Timeline Entry
 
 struct SimpleEntry: TimelineEntry {
     var date = Date()
     let text: String
     let shortText: String
-    let configuration: ConfigurationIntent
 }
+
+// MARK: - Widget Views
 
 struct CourseAppWidgetEntryView: View {
     var entry: Provider.Entry
     @Environment(\.colorScheme) var colorScheme
-    
-    func getTitleBackgroudColor() -> Color {
-        return Color.init(
-            colorScheme == .dark ?
-                UIColor(red: 0.08, green: 0.12, blue: 0.18, alpha: 1.00):
-                UIColor(red: 0.15, green: 0.45, blue: 1.00, alpha: 1.00)
+
+    private var titleBackground: Color {
+        Color(
+            colorScheme == .dark
+                ? UIColor(red: 0.08, green: 0.12, blue: 0.18, alpha: 1)
+                : UIColor(red: 0.15, green: 0.45, blue: 1.00, alpha: 1)
         )
     }
-    
-    func getContentBackgroudColor() -> Color {
-        return colorScheme == .dark ? Color.init(  UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1.00)):Color.white
+
+    private var contentBackground: Color {
+        colorScheme == .dark
+            ? Color(UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1))
+            : Color.white
     }
-    
-    func getContentTextColor() -> Color {
-        return colorScheme == .dark ? Color.white : Color.black
+
+    private var contentTextColor: Color {
+        colorScheme == .dark ? .white : .black
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
-            VStack{
-                HStack{
-                    Text("上課提醒")
-                        .foregroundColor(Color.white)
-                        .frame(width: geometry.size.width, height: 36)
-                }
-                .background(getTitleBackgroudColor())
-                Text("\(entry.text)")
-                    .foregroundColor(getContentTextColor())
-                    .frame(height: geometry.size.height - 36)
-                    .padding([.trailing, .leading], 8)
+            VStack(spacing: 0) {
+                Text("上課提醒")
+                    .foregroundColor(.white)
+                    .frame(width: geometry.size.width, height: 36)
+                    .background(titleBackground)
+                Text(entry.text)
+                    .foregroundColor(contentTextColor)
+                    .frame(maxHeight: .infinity)
+                    .padding(.horizontal, 8)
                     .multilineTextAlignment(.center)
             }
-            .widgetBackground(getContentBackgroudColor())
+            .widgetBackground(contentBackground)
         }
     }
 }
@@ -132,7 +165,7 @@ struct CourseAppWidgetEntryView: View {
 @available(iOSApplicationExtension 16.0, *)
 struct InlineWidgetView: View {
     var entry: Provider.Entry
-    
+
     var body: some View {
         Text(entry.shortText)
     }
@@ -141,37 +174,33 @@ struct InlineWidgetView: View {
 @available(iOSApplicationExtension 16.0, *)
 struct CourseTextWidgetEntryView: View {
     var entry: Provider.Entry
-    
-    func getContentBackgroudColor() -> Color {
-        return Color.init(  UIColor(red: 0.07, green: 0.07, blue: 0.07, alpha: 1))
-    }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 AccessoryWidgetBackground()
                     .cornerRadius(8)
-                GeometryReader { geometry in
-                        VStack{
-                            Text("\(entry.text)")
-                                .font(.system(.caption, weight: .bold))
-                                .frame(height: geometry.size.height)
-                                .padding([.trailing, .leading], 4)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        }
-                }
+                Text(entry.text)
+                    .font(.system(.caption, weight: .bold))
+                    .frame(
+                        width: geometry.size.width,
+                        height: geometry.size.height
+                    )
+                    .padding(.horizontal, 4)
+                    .multilineTextAlignment(.center)
             }
-            .widgetBackground(getContentBackgroudColor())
+            .widgetBackground(
+                Color(UIColor(
+                    red: 0.07, green: 0.07, blue: 0.07, alpha: 1
+                ))
+            )
         }
     }
 }
 
 struct ViewSizeWidgetView: View {
-
     let entry: SimpleEntry
 
-    // Obtain the widget family value
     @Environment(\.widgetFamily)
     var family
 
@@ -183,7 +212,6 @@ struct ViewSizeWidgetView: View {
             case .accessoryRectangular:
                 CourseTextWidgetEntryView(entry: entry)
             default:
-                // UI for Home Screen widget
                 CourseAppWidgetEntryView(entry: entry)
             }
         } else {
@@ -192,12 +220,16 @@ struct ViewSizeWidgetView: View {
     }
 }
 
-@main
-struct CourseAppWidget: Widget {
+// MARK: - Widget
+
+struct CourseHintWidget: Widget {
     let kind: String = "CourseAppWidget"
-    
+
     var body: some WidgetConfiguration {
-        IntentConfiguration(kind: kind, intent: ConfigurationIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(
+            kind: kind,
+            provider: Provider()
+        ) { entry in
             ViewSizeWidgetView(entry: entry)
         }
         .configurationDisplayName("上課提醒")
@@ -207,19 +239,28 @@ struct CourseAppWidget: Widget {
     }
 }
 
-struct CourseAppWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        ViewSizeWidgetView(entry: SimpleEntry(text: "下一堂課是 9:00\n在 EC5012 的 演算法", shortText: "9:00 在 EC5012 的演算法", configuration: ConfigurationIntent()))
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
+// MARK: - Widget Bundle
+
+@main
+struct CourseWidgetBundle: WidgetBundle {
+    var body: some Widget {
+        CourseHintWidget()
+        CourseTableWidget()
+        TodayScheduleWidget()
+        CountdownCourseWidget()
+        StudentIdCardWidget()
     }
 }
+
+// MARK: - Extensions
 
 extension View {
     func widgetBackground(_ backgroundView: some View) -> some View {
         if #available(iOSApplicationExtension 17.0, *) {
-            return containerBackground(for: .widget) {
-                backgroundView
-            }
+            return background(backgroundView)
+                .containerBackground(for: .widget) {
+                    backgroundView
+                }
         } else {
             return background(backgroundView)
         }
@@ -234,20 +275,33 @@ extension WidgetConfiguration {
             return self
         }
     }
-    
+
     func supportedFamiliesIfNeeded() -> some WidgetConfiguration {
         if #available(iOSApplicationExtension 16, *) {
             return self.supportedFamilies([
                 .systemSmall,
                 .systemMedium,
                 .systemLarge,
-
-                // Add Support to Lock Screen widgets
                 .accessoryRectangular,
                 .accessoryInline,
             ])
         } else {
             return self
+        }
+    }
+
+    func supportedFamiliesForTable() -> some WidgetConfiguration {
+        if #available(iOSApplicationExtension 15.0, *) {
+            return self.supportedFamilies([
+                .systemMedium,
+                .systemLarge,
+                .systemExtraLarge,
+            ])
+        } else {
+            return self.supportedFamilies([
+                .systemMedium,
+                .systemLarge,
+            ])
         }
     }
 }

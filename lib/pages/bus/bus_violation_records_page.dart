@@ -6,19 +6,30 @@ import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
-enum _State { loading, finish, error, empty, campusNotSupport, userNotSupport, custom }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  campusNotSupport,
+  userNotSupport,
+  custom
+}
 
 class BusViolationRecordsPage extends StatefulWidget {
   @override
-  BusViolationRecordsPageState createState() => BusViolationRecordsPageState();
+  _BusViolationRecordsPageState createState() =>
+      _BusViolationRecordsPageState();
 }
 
-class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
+class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   late AppLocalizations app;
   late ApLocalizations ap;
 
   _State state = _State.loading;
+
   String? customStateHint = '';
+
   BusViolationRecordsData? violationData;
 
   String? get errorText {
@@ -47,10 +58,12 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     switch (state) {
       case _State.loading:
-        return const Center(child: CircularProgressIndicator());
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       case _State.error:
       case _State.empty:
       case _State.campusNotSupport:
@@ -61,7 +74,10 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             getBusViolationRecords();
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(icon: ApIcon.assignment, content: errorText!),
+          child: HintContent(
+            icon: ApIcon.assignment,
+            content: errorText!,
+          ),
         );
       default:
         return _body();
@@ -69,11 +85,13 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Widget _body() {
-    final colorScheme = Theme.of(context).colorScheme;
     return RefreshIndicator(
-      onRefresh: () async => getBusViolationRecords(),
+      onRefresh: () async {
+        await getBusViolationRecords();
+        return;
+      },
       child: CustomScrollView(
-        slivers: [
+        slivers: <Widget>[
           SliverPersistentHeader(
             delegate: MySliverAppBar(
               expandedHeight: 140,
@@ -83,15 +101,18 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
           SliverFixedExtentList(
             itemExtent: 100.0,
             delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final isLeft = index % 2 != 0;
-                final reservations = violationData!.reservations;
-                final isShowYear = (index == 0) ||
+              (BuildContext context, int index) {
+                final bool isLeft = index % 2 != 0;
+                final List<Reservation> reservations =
+                    violationData!.reservations;
+                final bool isShowYear = (index == 0) ||
                     (index == reservations.length - 1) ||
-                    (reservations[index].time.year != reservations[index + 1].time.year) ||
-                    (reservations[index].time.year != reservations[index - 1].time.year);
+                    (reservations[index].time.year !=
+                        reservations[index + 1].time.year) ||
+                    (reservations[index].time.year !=
+                        reservations[index - 1].time.year);
                 return Row(
-                  children: [
+                  children: <Widget>[
                     Expanded(
                       child: isLeft
                           ? ReservationItem(
@@ -104,7 +125,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: colorScheme.onSurfaceVariant,
+                                        color: ApTheme.of(context).greyText,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -113,10 +134,11 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             ),
                     ),
                     Column(
-                      children: [
+                      children: <Widget>[
                         Expanded(
                           child: Container(
-                            color: index != 0 ? colorScheme.outlineVariant : null,
+                            color:
+                                (index != 0) ? ApTheme.of(context).grey : null,
                             width: 1.0,
                           ),
                         ),
@@ -128,7 +150,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             ),
                             border: Border.all(
                               width: 3,
-                              color: colorScheme.secondary,
+                              color: ApTheme.of(context).yellow,
                             ),
                           ),
                           constraints: const BoxConstraints(
@@ -138,13 +160,17 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                           child: Text(
                             reservations[index].amountendText,
                             style: TextStyle(
-                              color: reservations[index].isPayment ? colorScheme.secondary : colorScheme.error,
+                              color: reservations[index].isPayment
+                                  ? ApTheme.of(context).yellow
+                                  : ApTheme.of(context).red,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
-                            color: index != reservations.length - 1 ? colorScheme.outlineVariant : null,
+                            color: (index != reservations.length - 1)
+                                ? ApTheme.of(context).grey
+                                : null,
                             width: 1.0,
                           ),
                         ),
@@ -162,7 +188,7 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: colorScheme.onSurfaceVariant,
+                                        color: ApTheme.of(context).greyText,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -182,84 +208,85 @@ class BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
   }
 
   Future<void> getBusViolationRecords() async {
-    Helper.instance.getBusViolationRecords(
-      callback: GeneralCallback<BusViolationRecordsData>(
-        onSuccess: (data) {
-          violationData = data;
-          violationData!.reservations.sort(
-            (a, b) => b.time.compareTo(a.time),
-          );
-          if (mounted) {
+    try {
+      final BusViolationRecordsData data =
+          await Helper.instance.getBusViolationRecords();
+      violationData = data;
+      violationData!.reservations.sort(
+        (Reservation a, Reservation b) => b.time.compareTo(a.time),
+      );
+      if (mounted) {
+        setState(() {
+          if (violationData == null ||
+              violationData!.reservations.isEmpty) {
+            state = _State.empty;
+          } else {
+            state = _State.finish;
+          }
+          ShareDataWidget.of(context)!.data.hasBusViolationRecords =
+              data.hasBusViolationRecords;
+        });
+      }
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.canUseBus,
+        AnalyticsConstants.yes,
+      );
+      AnalyticsUtil.instance.setUserProperty(
+        Constants.hasBusViolation,
+        (data.hasBusViolationRecords)
+            ? AnalyticsConstants.yes
+            : AnalyticsConstants.no,
+      );
+    } on GeneralResponse catch (response) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        switch (e.type) {
+          case DioExceptionType.badResponse:
             setState(() {
-              if (violationData == null || violationData!.reservations.isEmpty) {
-                state = _State.empty;
+              if (e.response!.statusCode == 401) {
+                state = _State.userNotSupport;
+              } else if (e.response!.statusCode == 403) {
+                state = _State.campusNotSupport;
               } else {
-                state = _State.finish;
+                state = _State.custom;
+                customStateHint = e.message;
+                AnalyticsUtil.instance.logApiEvent(
+                  'getBusViolationRecords',
+                  e.response!.statusCode!,
+                  message: e.message ?? '',
+                );
               }
-              ShareDataWidget.of(context)!.data.hasBusViolationRecords = data.hasBusViolationRecords;
             });
-          }
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.canUseBus,
-            AnalyticsConstants.yes,
-          );
-          AnalyticsUtil.instance.setUserProperty(
-            Constants.hasBusViolation,
-            data.hasBusViolationRecords ? AnalyticsConstants.yes : AnalyticsConstants.no,
-          );
-        },
-        onFailure: (e) {
-          if (mounted) {
-            switch (e.type) {
-              case DioExceptionType.badResponse:
-                setState(() {
-                  if (e.response!.statusCode == 401) {
-                    state = _State.userNotSupport;
-                  } else if (e.response!.statusCode == 403) {
-                    state = _State.campusNotSupport;
-                  } else {
-                    state = _State.custom;
-                    customStateHint = e.message;
-                    AnalyticsUtil.instance.logApiEvent(
-                      'getBusViolationRecords',
-                      e.response!.statusCode!,
-                      message: e.message ?? '',
-                    );
-                  }
-                });
-                if (e.response!.statusCode == 401 || e.response!.statusCode == 403) {
-                  AnalyticsUtil.instance.setUserProperty(
-                    Constants.canUseBus,
-                    AnalyticsConstants.no,
-                  );
-                }
-              case DioExceptionType.unknown:
-                setState(() {
-                  if (e.message?.contains('HttpException') ?? false) {
-                    state = _State.custom;
-                    customStateHint = app.busFailInfinity;
-                  } else {
-                    state = _State.error;
-                  }
-                });
-              case DioExceptionType.cancel:
-                break;
-              default:
-                setState(() {
-                  state = _State.custom;
-                  customStateHint = e.i18nMessage;
-                });
+            if (e.response!.statusCode == 401 ||
+                e.response!.statusCode == 403) {
+              AnalyticsUtil.instance.setUserProperty(
+                Constants.canUseBus,
+                AnalyticsConstants.no,
+              );
             }
-          }
-        },
-        onError: (response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+          case DioExceptionType.unknown:
+            setState(() {
+              if (e.message?.contains('HttpException') ?? false) {
+                state = _State.custom;
+                customStateHint = app.busFailInfinity;
+              } else {
+                state = _State.error;
+              }
+            });
+          case DioExceptionType.cancel:
+            break;
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.i18nMessage;
+            });
+        }
+      }
+    }
   }
 }
 
@@ -267,25 +294,33 @@ class ReservationItem extends StatelessWidget {
   final Reservation? reservation;
   final bool? isLeft;
 
-  const ReservationItem({super.key, this.reservation, this.isLeft});
+  const ReservationItem({
+    super.key,
+    this.reservation,
+    this.isLeft,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final dateFormat = DateFormat(
-      'E h:mm a',
-      ApLocalizations.of(context).dateTimeLocale,
-    );
+    final DateFormat dateFormat =
+        DateFormat('E h:mm a', context.ap.dateTimeLocale);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8.0,
+        vertical: 2.0,
+      ),
       alignment: isLeft! ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Row(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isLeft!) startStation(context, reservation!.startStationText(context)),
+            children: <Widget>[
+              if (isLeft!)
+                startStation(
+                  context,
+                  reservation!.startStationText(context),
+                ),
               Tooltip(
                 message: '${reservation!.time.year}',
                 child: Padding(
@@ -294,31 +329,36 @@ class ReservationItem extends StatelessWidget {
                     '${reservation!.time.month}/${reservation!.time.day}',
                     style: TextStyle(
                       fontSize: 24.0,
-                      color: colorScheme.onSurfaceVariant,
+                      color: ApTheme.of(context).greyText,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                   ),
                 ),
               ),
-              if (!isLeft!) startStation(context, reservation!.startStationText(context)),
+              if (!isLeft!)
+                startStation(
+                  context,
+                  reservation!.startStationText(context),
+                ),
             ],
           ),
           Row(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Icon(
                 ApIcon.accessTime,
                 size: 12.0,
-                color: colorScheme.onSurfaceVariant,
+                color: ApTheme.of(context).greyText,
               ),
               const SizedBox(width: 2.0),
               Text(
-                dateFormat.format(
-                  reservation!.time.add(const Duration(hours: 8)),
+                dateFormat
+                    .format(reservation!.time.add(const Duration(hours: 8))),
+                style: TextStyle(
+                  color: ApTheme.of(context).greyText,
                 ),
-                style: TextStyle(color: colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -326,12 +366,16 @@ class ReservationItem extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+              children: <Widget>[
                 Center(
                   child: Text(
-                    reservation!.isPayment ? AppLocalizations.of(context).paid : AppLocalizations.of(context).unpaid,
+                    reservation!.isPayment
+                        ? AppLocalizations.of(context).paid
+                        : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
-                      color: reservation!.isPayment ? colorScheme.tertiary : colorScheme.error,
+                      color: reservation!.isPayment
+                          ? ApTheme.of(context).green
+                          : ApTheme.of(context).red,
                     ),
                   ),
                 ),
@@ -343,19 +387,23 @@ class ReservationItem extends StatelessWidget {
   }
 
   Widget startStation(BuildContext context, String? station) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: colorScheme.primary,
+        borderRadius: const BorderRadius.all(
+          Radius.circular(12),
+        ),
+        color: ApTheme.of(context).blueAccent,
       ),
-      padding: const EdgeInsets.symmetric(vertical: 1.0, horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(
+        vertical: 1.0,
+        horizontal: 8.0,
+      ),
       child: Text(
         station ?? AppLocalizations.of(context).unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,
-          color: colorScheme.onPrimary,
+          color: ApTheme.of(context).courseText,
         ),
       ),
     );
@@ -366,27 +414,33 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
   final double expandedHeight;
   final String text;
 
-  MySliverAppBar({required this.expandedHeight, required this.text});
+  MySliverAppBar({
+    required this.expandedHeight,
+    required this.text,
+  });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final colorScheme = Theme.of(context).colorScheme;
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return ColoredBox(
-      color: colorScheme.primary,
+      color: ApTheme.of(context).blue,
       child: Stack(
         clipBehavior: Clip.none,
         fit: StackFit.expand,
-        children: [
+        children: <Widget>[
           Opacity(
             opacity: 1 - shrinkOffset / expandedHeight,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
+              children: <Widget>[
                 const SizedBox(height: 32.0),
                 Text(
                   text,
                   style: TextStyle(
-                    color: colorScheme.onPrimary,
+                    color: Colors.grey[100],
                     fontSize: 56.0,
                   ),
                 ),
@@ -401,11 +455,14 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
               opacity: 1 - shrinkOffset / expandedHeight,
               child: CustomPaint(
                 painter: TrianglePainter(
-                  strokeColor: colorScheme.primary,
+                  strokeColor: ApTheme.of(context).blue,
                   strokeWidth: 10,
                   paintingStyle: PaintingStyle.fill,
                 ),
-                child: const SizedBox(height: 18, width: 20),
+                child: const SizedBox(
+                  height: 18,
+                  width: 20,
+                ),
               ),
             ),
           ),
@@ -437,10 +494,11 @@ class TrianglePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final Paint paint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
       ..style = paintingStyle;
+
     canvas.drawPath(getTrianglePath(size.width, size.height), paint);
   }
 

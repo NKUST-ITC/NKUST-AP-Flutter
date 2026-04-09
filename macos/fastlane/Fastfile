@@ -1,0 +1,46 @@
+default_platform(:mac)
+
+APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER"] || "com.nkust.ap.flutter"
+MAC_INSALLER_DISTRIBUTION_CERT_NAME = ENV["MAC_INSALLER_DISTRIBUTION_CERT_NAME"] || "3rd Party Mac Developer Installer"
+
+platform :mac do
+  lane :release do |options|
+    key_id = options[:key_id]
+    issuer_id = options[:issuer_id]
+
+    changelog_file = "./zh-TW.txt"
+    changelog = File.exist?(changelog_file) ? File.read(changelog_file) : "Bug fixes and improvements."
+
+    api_key = app_store_connect_api_key(
+        key_id: key_id,
+        issuer_id: issuer_id,
+        key_filepath: "./AuthKey.p8",
+        duration: 1200,
+        in_house: false
+    )
+
+    app_dir = File.expand_path("../../build/macos/Build/Products/Release", __dir__)
+    app_files = Dir["#{app_dir}/*.app"]
+    UI.message("Looking for .app in: #{app_dir}")
+    raise "No .app found in #{app_dir}" if app_files.empty?
+    app_path = app_files.first
+
+    pkg_path = File.expand_path("../../build/macos/NKUST_AP.pkg", __dir__)
+    sh(
+      "productbuild",
+      "--component", app_path, "/Applications",
+      "--sign", MAC_INSALLER_DISTRIBUTION_CERT_NAME,
+      pkg_path,
+    )
+    UI.message("Built signed pkg: #{pkg_path}")
+
+    upload_to_testflight(
+      app_identifier: APP_STORE_CONNECT_BUNDLE_IDENTIFIER,
+      api_key: api_key,
+      pkg: pkg_path,
+      skip_submission: true,
+      notify_external_testers: true,
+      changelog: changelog,
+    )
+  end
+end

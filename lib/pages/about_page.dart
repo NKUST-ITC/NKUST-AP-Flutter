@@ -211,7 +211,7 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
     final AppLocalizations app = AppLocalizations.of(context);
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 

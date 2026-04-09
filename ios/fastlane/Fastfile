@@ -2,37 +2,48 @@ default_platform(:ios)
 
 APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_BUNDLE_IDENTIFIER"]
 
-sh("chmod", "a+x", "../../.github/scripts/generate_ios_changelog.sh")
-
-sh("../../.github/scripts/generate_ios_changelog.sh", flutter_version()["version_code"])
-
 platform :ios do
   lane :release do |options|
     key_id = options[:key_id]
     issuer_id = options[:issuer_id]
-    changelog = File.read("./zh-TW.txt")
+
+    changelog_file = "./zh-TW.txt"
+    changelog = File.exist?(changelog_file) ? File.read(changelog_file) : "Bug fixes and improvements."
+
     api_key = app_store_connect_api_key(
         key_id: key_id,
         issuer_id: issuer_id,
         key_filepath: "./AuthKey.p8",
-        duration: 1200, # optional (maximum 1200)
-        in_house: false # optional but may be required if using match/sigh
+        duration: 1200,
+        in_house: false
     )
+
+    ipa_dir = File.expand_path("../../build/ios/ipa", __dir__)
+    ipa_files = Dir["#{ipa_dir}/*.ipa"]
+    UI.message("Looking for IPA in: #{ipa_dir}")
+    UI.message("Found files: #{Dir["#{ipa_dir}/*"].join(', ')}")
+    raise "No IPA file found in #{ipa_dir}" if ipa_files.empty?
+    ipa_path = ipa_files.first
+
+    localized_info = {
+      "default": {
+        whats_new: changelog,
+      },
+    }
+
+    en_file = "./en-US.txt"
+    if File.exist?(en_file)
+      localized_info["en-US"] = { whats_new: File.read(en_file) }
+    end
+
     upload_to_testflight(
       app_identifier: "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}",
       api_key: api_key,
-      ipa: "../build/ios/ipa/nsysuap.ipa",
+      ipa: ipa_path,
       skip_submission: true,
       notify_external_testers: true,
       changelog: changelog,
-      localized_build_info: {
-          "default": {
-            whats_new: File.read("./zh-TW.txt"),
-          },
-          "en-US": {
-            whats_new: File.read("./en-US.txt"),
-          }
-      }
+      localized_build_info: localized_info,
     )
   end
 end

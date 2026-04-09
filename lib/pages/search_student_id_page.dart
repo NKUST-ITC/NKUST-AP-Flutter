@@ -42,7 +42,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   @override
   Widget build(BuildContext context) {
     app = AppLocalizations.of(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -388,35 +388,31 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       setState(() => isSearching = true);
       AnalyticsUtil.instance.logEvent('search_username_click');
 
-      NKUSTHelper.instance.getUsername(
-        rocId: _id.text,
-        birthday: birthday,
-        callback: GeneralCallback<UserInfo>(
-          onSuccess: (data) {
-            setState(() => isSearching = false);
-            if (isAutoFill) {
-              Navigator.pop(context, data.id);
-            } else {
-              _showResultDialog(
-                sprintf(
-                  AppLocalizations.of(context).searchStudentIdFormat,
-                  <String?>[data.name, data.id],
-                ),
-              );
-            }
-          },
-          onError: (response) {
-            setState(() => isSearching = false);
-            _showResultDialog(
-            response.statusCode == 404 ? response.message : ap.unknownError,
-            showFirstHint: false,
-            );
-          },
-          onFailure: (_) {
-            setState(() => isSearching = false);
-          },
-        ),
-      );
+      try {
+        final UserInfo data = await NKUSTHelper.instance.getUsername(
+          rocId: _id.text,
+          birthday: birthday,
+        );
+        setState(() => isSearching = false);
+        if (isAutoFill) {
+          Navigator.pop(context, data.id);
+        } else {
+          _showResultDialog(
+            sprintf(
+              AppLocalizations.of(context).searchStudentIdFormat,
+              <dynamic>[data.name, data.id],
+            ),
+          );
+        }
+      } on GeneralResponse catch (response) {
+        setState(() => isSearching = false);
+        _showResultDialog(
+          response.statusCode == 404 ? response.message : ap.unknownError,
+          showFirstHint: false,
+        );
+      } on DioException catch (_) {
+        setState(() => isSearching = false);
+      }
     }
   }
 

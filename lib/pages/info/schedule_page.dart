@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty, pdf }
 
@@ -51,7 +50,7 @@ class SchedulePageState extends State<SchedulePage> with AutomaticKeepAliveClien
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    ap = ApLocalizations.of(context);
+    ap = context.ap;
     return _body();
   }
 
@@ -172,9 +171,8 @@ class SchedulePageState extends State<SchedulePage> with AutomaticKeepAliveClien
                 ),
                 children: <TextSpan>[
                   TextSpan(
-                    text: sprintf(
-                      ap.addCalendarContent,
-                      <dynamic>[schedule.events[index]],
+                    text: ap.addCalendarContent(
+                      arg1: schedule.events[index],
                     ),
                   ),
                 ],

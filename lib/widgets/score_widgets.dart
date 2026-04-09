@@ -35,7 +35,7 @@ class _CustomScoreScaffoldState extends State<CustomScoreScaffold> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -246,7 +246,7 @@ class _ScoreAnalysisTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
     final ScoreAnalysis analysis = ScoreAnalysis(scoreData);
 
     return RefreshIndicator(

@@ -217,7 +217,7 @@ class MobileNkustHelper {
         );
         AnalyticsUtil.instance.logEvent(
           'cookies_persistence_time',
-          parameters: <String, dynamic>{
+          parameters: <String, Object>{
             'time': now.microsecondsSinceEpoch - lastTime,
           },
         );

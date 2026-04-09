@@ -2,9 +2,9 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/config/app_theme.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/page.dart';
@@ -20,10 +20,17 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   ThemeMode themeMode = ThemeMode.system;
+
   Locale? locale;
   LoginResponse? loginResponse;
+  Uint8List? pictureBytes;
+
+  int currentColorIndex = 0;
+  Color? customColor;
+
   bool offlineLogin = false;
   bool hasBusViolationRecords = false;
+
   FirebaseAnalytics? analytics;
 
   void logout() {
@@ -37,17 +44,50 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     analytics = FirebaseUtils.init();
-    FirebaseMessagingUtils.instance.init(vapidKey: Constants.fcmWebVapidKey);
-    themeMode = ThemeMode.values[PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
-    AppTheme.currentColorIndex = PreferenceUtil.instance.getInt(Constants.prefThemeColorIndex, 0);
-    final int customColorValue = PreferenceUtil.instance.getInt(Constants.prefCustomThemeColor, 0);
-    if (AppTheme.currentColorIndex == AppTheme.customColorIndex && customColorValue != 0) {
-      AppTheme.customColor = Color(customColorValue);
+    FirebaseMessagingUtils.instance.init(
+      vapidKey: Constants.fcmWebVapidKey,
+    );
+    _initLocale();
+    themeMode = ThemeMode.values[
+        PreferenceUtil.instance.getInt(Constants.prefThemeModeIndex, 0)];
+    currentColorIndex =
+        PreferenceUtil.instance.getInt(ApTheme.PREF_COLOR_INDEX, 0);
+    final int customColorValue =
+        PreferenceUtil.instance.getInt(ApTheme.PREF_CUSTOM_COLOR, 0);
+    if (currentColorIndex == ApTheme.customColorIndex &&
+        customColorValue != 0) {
+      customColor = Color(customColorValue);
     }
     (AnalyticsUtil.instance as FirebaseAnalyticsUtils).logThemeEvent(themeMode);
-    AnalyticsUtil.instance.setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
+    AnalyticsUtil.instance
+        .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
+    Future<void>.microtask(() {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarContrastEnforced: true,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+    });
     super.initState();
+  }
+
+  Future<void> _initLocale() async {
+    final String languageCode = PreferenceUtil.instance.getString(
+      Constants.prefLanguageCode,
+      ApSupportLanguageConstants.system,
+    );
+    if (languageCode == ApSupportLanguageConstants.system) {
+      await useApDeviceLocale();
+    } else {
+      final Locale locale = Locale(
+        languageCode,
+        languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+      );
+      await setApLocaleFromFlutter(locale);
+    }
   }
 
   @override
@@ -65,75 +105,75 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return ShareDataWidget(
-      data: this,
-      child: ApTheme(
-        themeMode,
-        child: MaterialApp(
-          localeResolutionCallback: _resolveLocale,
-          onGenerateTitle: (context) => AppLocalizations.of(context).appName,
-          debugShowCheckedModeBanner: false,
-          routes: {
-            Navigator.defaultRouteName: (_) => kIsWeb
-                ? const AnnouncementHomePage(
-                    organizationDomain: Constants.mailDomain,
-                  )
-                : HomePage(),
-            AnnouncementHomePage.routerName: (_) => const AnnouncementHomePage(
-                  organizationDomain: Constants.mailDomain,
-                ),
+    return TranslationProvider(
+      child: ShareDataWidget(
+        data: this,
+        child: ApTheme(
+        themeMode: themeMode,
+        currentColorIndex: currentColorIndex,
+        customColor: customColor,
+        preferences: PreferenceUtil.instance as ApPreferenceUtil,
+        child: Builder(
+          builder: (BuildContext context) {
+            final Color seedColor = ApTheme.of(context).seedColor;
+            return MaterialApp(
+              onGenerateTitle: (BuildContext context) =>
+                  AppLocalizations.of(context).appName,
+              debugShowCheckedModeBanner: false,
+              routes: <String, WidgetBuilder>{
+                Navigator.defaultRouteName: (BuildContext context) => kIsWeb
+                    ? const AnnouncementHomePage(
+                        organizationDomain: Constants.mailDomain,
+                      )
+                    : HomePage(),
+                AnnouncementHomePage.routerName: (BuildContext context) =>
+                    const AnnouncementHomePage(
+                      organizationDomain: Constants.mailDomain,
+                    ),
+              },
+              theme: ApTheme.light(seedColor),
+              darkTheme: ApTheme.dark(seedColor),
+              themeMode: themeMode,
+              locale: TranslationProvider.of(context).flutterLocale,
+              localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+                appDelegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const <Locale>[
+                Locale('en', 'US'), // English
+                Locale('zh', 'TW'), // Traditional Chinese TW
+              ],
+            );
           },
-          theme: AppTheme.light,
-          darkTheme: AppTheme.dark,
-          themeMode: themeMode,
-          locale: locale,
-          localizationsDelegates: const [
-            apLocalizationsDelegateWrapper,
-            appDelegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', 'US'),
-            Locale('zh', 'TW'),
-            Locale('ja', 'JP'),
-          ],
         ),
       ),
+    ),
     );
   }
 
-  Locale? _resolveLocale(Locale? locale, Iterable<Locale> supportedLocales) {
-    final languageCode = PreferenceUtil.instance.getString(
-      Constants.prefLanguageCode,
-      ApSupportLanguageConstants.system,
-    );
-    if (languageCode == ApSupportLanguageConstants.system) {
-      this.locale = ApLocalizations.delegate.isSupported(locale!) ? locale : const Locale('en');
-    } else if (languageCode == 'ja') {
-      this.locale = const Locale('ja', 'JP');
-    } else {
-      this.locale = Locale(
-        languageCode,
-        languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
-      );
-    }
-    AnnouncementHelper.instance.setLocale(this.locale!);
-    return this.locale;
+  void update() {
+    setState(() {});
   }
 
-  void update() => setState(() {});
+  void loadTheme(ThemeMode mode) {
+    setState(() {
+      themeMode = mode;
+    });
+  }
 
-  void loadTheme(ThemeMode mode) => setState(() => themeMode = mode);
+  void loadThemeColor(int index, Color? custom) {
+    setState(() {
+      currentColorIndex = index;
+      customColor = custom;
+    });
+  }
 
   void loadLocale(Locale locale) {
     this.locale = locale;
-    final Locale apLocale = locale.languageCode == 'ja' ? const Locale('en') : locale;
-    AnnouncementHelper.instance.setLocale(apLocale);
-    setState(() {
-      appDelegate.load(locale);
-      ApLocalizations.load(apLocale);
-    });
+    AnnouncementHelper.instance.setLocale(this.locale!);
+    appDelegate.load(locale);
+    setApLocaleFromFlutter(locale);
   }
 }

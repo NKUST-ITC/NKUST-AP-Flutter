@@ -1,21 +1,36 @@
 name: nkust-ap
-version: 3.5.1
-summary: NKUST AP
-description: Awesome school affairs(AP) system app!
+title: NKUST AP
+summary: 高科大校務系統
+description: |
+  史上最強大的高科大校務系統 App，提供課表、成績、校車、缺曠等校務功能查詢。
+  The most powerful NKUST school affairs system app.
+version: git
+license: MIT
 
+base: core22
 confinement: strict
-base: core18
 grade: stable
+architectures:
+  - build-on: amd64
 
 apps:
   nkust-ap:
     command: nkust_ap
-    extensions: [flutter-master] # Where "master" defines which Flutter channel to use for the build
+    desktop: snap/gui/nkust-ap.desktop
     plugs:
       - network
+      - network-bind
+      - desktop
+      - desktop-legacy
+      - opengl
+      - wayland
+      - x11
 
 parts:
   nkust-ap:
-    source: .
-    plugin: flutter
-    flutter-target: lib/main.dart # The main entry-point file of the application
+    source: build/linux/x64/release/bundle
+    plugin: dump
+    stage-packages:
+      - libgtk-3-0
+      - libblkid1
+      - liblzma5

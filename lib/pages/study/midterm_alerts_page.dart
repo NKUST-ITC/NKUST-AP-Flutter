@@ -2,31 +2,36 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/semester_picker.dart';
-import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty, offline, custom }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
 
 class MidtermAlertsPage extends StatefulWidget {
   static const String routerName = '/user/midtermAlerts';
 
   @override
-  MidtermAlertsPageState createState() => MidtermAlertsPageState();
+  _MidtermAlertsPageState createState() => _MidtermAlertsPageState();
 }
 
-class MidtermAlertsPageState extends State<MidtermAlertsPage> {
-  final key = GlobalKey<SemesterPickerState>();
-
+class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
   late ApLocalizations ap;
 
   _State state = _State.loading;
   String? customStateHint;
 
-  late Semester selectSemester;
+  Semester? selectSemester;
   SemesterData? semesterData;
   late MidtermAlertsData midtermAlertData;
 
   bool isOffline = false;
+
+  final SemesterPickerController _pickerController = SemesterPickerController();
 
   @override
   void initState() {
@@ -34,47 +39,77 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
       'MidtermAlertsPage',
       'midterm_alerts_page.dart',
     );
+    _getSemester();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+  void dispose() {
+    _pickerController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    ap = context.ap;
     return Scaffold(
-      appBar: AppBar(title: Text(ap.midtermAlerts)),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: () => key.currentState!.pickSemester(),
+      appBar: AppBar(
+        title: Text(ap.midtermAlerts),
       ),
+      floatingActionButton: semesterData == null
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.search),
+              onPressed: () {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getMidtermAlertsData();
+                  },
+                );
+              },
+            ),
       body: Flex(
         direction: Axis.vertical,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
+        children: <Widget>[
           const SizedBox(height: 8.0),
-          SemesterPicker(
-            key: key,
-            featureTag: 'midterm_alerts',
-            onSelect: (semester, index) {
-              setState(() {
-                selectSemester = semester;
-                state = _State.loading;
-              });
-              _getMidtermAlertsData();
-            },
-          ),
+          if (semesterData != null)
+            SemesterPicker(
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              featureTag: 'midterm_alerts',
+              controller: _pickerController,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                _getMidtermAlertsData();
+              },
+            ),
           if (isOffline)
             Text(
               ap.offlineScore,
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
+              style: TextStyle(color: ApTheme.of(context).grey),
             ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
                 await _getMidtermAlertsData();
                 AnalyticsUtil.instance.logEvent('refresh_swipe');
+                return;
               },
               child: _body(),
             ),
@@ -103,6 +138,9 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
     switch (state) {
       case _State.offline:
         return ApIcon.offlineBolt;
+      case _State.error:
+      case _State.empty:
+      case _State.custom:
       default:
         return ApIcon.classIcon;
     }
@@ -122,17 +160,38 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
         return InkWell(
           onTap: () {
             if (state == _State.empty) {
-              key.currentState!.pickSemester();
+              if (semesterData != null) {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getMidtermAlertsData();
+                  },
+                );
+              }
             } else {
               _getMidtermAlertsData();
             }
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(icon: stateIcon, content: stateHint!),
+          child: HintContent(
+            icon: stateIcon,
+            content: stateHint!,
+          ),
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, index) => _midtermAlertsItem(midtermAlertData.courses[index]),
+          itemBuilder: (_, int index) {
+            return _midtermAlertsItem(midtermAlertData.courses[index]);
+          },
           itemCount: midtermAlertData.courses.length,
         );
     }
@@ -140,18 +199,20 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
 
   Widget _midtermAlertsItem(MidtermAlerts item) {
     return Card(
-      elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text(item.title, style: const TextStyle(fontSize: 18.0)),
+          title: Text(
+            item.title,
+            style: const TextStyle(fontSize: 18.0),
+          ),
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              sprintf(
-                ap.midtermAlertsContent,
-                [item.reason ?? '', item.remark ?? ''],
+              ap.midtermAlertsContent(
+                arg1: item.reason ?? '',
+                arg2: item.remark ?? '',
               ),
             ),
           ),
@@ -160,44 +221,96 @@ class MidtermAlertsPageState extends State<MidtermAlertsPage> {
     );
   }
 
+  Future<void> _getSemester() async {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      final SemesterData? cacheData = SemesterData.load();
+      if (cacheData != null && mounted) {
+        setState(() {
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
+          selectSemester = semesterData!.defaultSemester;
+        });
+      }
+      return;
+    }
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      data.save();
+      if (mounted) {
+        setState(() {
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
+          selectSemester = data.defaultSemester;
+        });
+        _getMidtermAlertsData();
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        UiUtil.instance
+            .showToast(context, response.getGeneralMessage(context));
+      }
+    } on DioException catch (e) {
+      if (e.i18nMessage != null && mounted) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
+  }
+
   Future<void> _getMidtermAlertsData() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      setState(() => state = _State.offline);
+      setState(() {
+        state = _State.offline;
+      });
       return;
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getMidtermAlerts(
-      semester: selectSemester,
-      callback: GeneralCallback<MidtermAlertsData>(
-        onSuccess: (data) {
-          if (mounted) {
-            setState(() {
-              midtermAlertData = data;
-              state = data.courses.isEmpty ? _State.empty : _State.finish;
-            });
+    try {
+      final MidtermAlertsData data = await Helper.instance.getMidtermAlerts(
+        semester: selectSemester!,
+      );
+      if (mounted) {
+        setState(() {
+          midtermAlertData = data;
+          if (data.courses.isEmpty) {
+            state = _State.empty;
+            _pickerController.markSemesterEmpty(selectSemester!);
+          } else {
+            state = _State.finish;
+            _pickerController.markSemesterHasData(selectSemester!);
           }
-        },
-        onFailure: (e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getMidtermAlert',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getMidtermAlert',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

@@ -1,19 +1,17 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
-import 'package:dio_http_cache/dio_http_cache.dart';
-import 'package:flutter/foundation.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
-import 'package:nkust_ap/api/parser/api_tool.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
@@ -21,87 +19,69 @@ import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 
 class WebApHelper {
-  static const String _baseUrl = 'https://webap.nkust.edu.tw';
-
   static WebApHelper? _instance;
 
   late Dio dio;
-  late DioCacheManager _manager;
   late CookieJar cookieJar;
 
   static int reLoginReTryCountsLimit = 3;
   static int reLoginReTryCounts = 0;
 
   bool isLogin = false;
-  String? pictureUrl;
 
-  static String get semesterCacheKey => 'semesterCacheKey';
-  static String get coursetableCacheKey => '${Helper.username}_coursetableCacheKey';
-  static String get scoresCacheKey => '${Helper.username}_scoresCacheKey';
-  static String get userInfoCacheKey => '${Helper.username}_userInfoCacheKey';
-
-  static WebApHelper get instance => _instance ??= WebApHelper();
+  //ignore: prefer_constructors_over_static_methods
+  static WebApHelper get instance {
+    return _instance ??= WebApHelper();
+  }
 
   WebApHelper() {
     dioInit();
   }
 
   void setProxy(String proxyIP) {
-    if (kIsWeb) return;
-
     (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final client = HttpClient();
-      client.findProxy = (uri) => 'PROXY $proxyIP';
-      client.badCertificateCallback = (cert, host, port) => true;
+      final HttpClient client = HttpClient();
+      client.findProxy = (Uri uri) {
+        return 'PROXY $proxyIP';
+      };
       return client;
     };
   }
 
   Future<void> logout() async {
+    _stdsysLoginExpireTime = null;
     try {
-      await dio.post<dynamic>('$_baseUrl/nkust/reclear.jsp');
+      await dio.post('https://webap.nkust.edu.tw/nkust/reclear.jsp');
     } catch (_) {}
   }
 
   void dioInit() {
-    dio = Dio(
-      BaseOptions(
-        baseUrl: _baseUrl,
-        connectTimeout: ApiConfig.connectTimeout,
-        receiveTimeout: ApiConfig.receiveTimeout,
-        sendTimeout: ApiConfig.sendTimeout,
-        headers: <String, String>{
-          'user-agent': ApiConfig.defaultUserAgent,
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-          'Connection': 'keep-alive',
-        },
-        validateStatus: (status) => status != null && status < 500,
-      ),
-    );
-
+    // Use PrivateCookieManager to overwrite origin CookieManager, because
+    // Cookie name of the NKUST ap system not follow the RFC6265. :(
+    dio = Dio();
     cookieJar = CookieJar();
-
-    if (Helper.isSupportCacheData) {
-      _manager = DioCacheManager(CacheConfig(baseUrl: _baseUrl));
-      dio.interceptors.add(_manager.interceptor as Interceptor);
-    }
-
     dio.interceptors.add(PrivateCookieManager(cookieJar));
-
-    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
+    dio.options.headers['user-agent'] =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
+    dio.options.headers['Connection'] = 'close';
+    dio.options.connectTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    dio.options.receiveTimeout = const Duration(
+      milliseconds: Constants.timeoutMs,
+    );
+    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
       dio.httpClientAdapter = NativeAdapter();
     }
   }
 
   Future<Uint8List?> getValidationImage() async {
-    final response = await dio.get<Uint8List>(
-      '/nkust/validateCode.jsp',
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://webap.nkust.edu.tw/nkust/validateCode.jsp',
       options: Options(
         responseType: ResponseType.bytes,
-        headers: <String, String>{
-          'Referer': '$_baseUrl/nkust/index_main.html',
+        headers: <String, dynamic>{
+          'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
         },
       ),
     );
@@ -111,36 +91,55 @@ class WebApHelper {
   Future<LoginResponse> login({
     required String username,
     required String password,
+    int retryCounts = 5,
   }) async {
-    for (int i = 0; i < 5; i++) {
+    //
+    /*
+    Retrun type Int
+    -1: captcha error
+    0 : Login Success
+    1 : Password error or not found user
+    2 : Relogin
+    3 : Not found login message
+    */
+    //
+    assert(retryCounts >= 0, 'retryCounts must be >= 0');
+    
+    for (int i = 0; i < retryCounts; i++) {
       try {
-        final captchaCode = await CaptchaUtils.extractByEucDist(
-          bodyBytes: (await getValidationImage())!,
-        );
+        final Uint8List? imageBytes = await getValidationImage();
 
-        if (kDebugMode) {
-          log('Login attempt ${i + 1}: $username');
+        if (imageBytes == null) {
+          continue;
         }
 
-        final res = await dio.post<dynamic>(
-          '/nkust/perchk.jsp',
+        // extractByEucDist 不會回傳 null，失敗會丟出 exception
+        final String captchaCode = await CaptchaUtils.extractByEucDist(
+          bodyBytes: imageBytes,
+        );
+
+        // log(username);
+        // log(password);
+        // log(captchaCode);
+
+        final Response<dynamic> res = await dio.post(
+          'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{
             'uid': username,
             'pwd': password,
             'etxt_code': captchaCode,
           },
-          options: Options(contentType: Headers.formUrlEncodedContentType),
+          options: Options(contentType: 'application/x-www-form-urlencoded'),
         );
-
         Helper.username = username;
         Helper.password = password;
-
-        final code = WebApParser.instance.apLoginParser(res.data);
-
+        final int code = WebApParser.instance.apLoginParser(res.data);
         switch (code) {
           case -1:
-            continue;
+            //Captcha error, go retry.
+            break;
           case 4:
+            //Stay old password and relogin.
             await stayOldPwd();
             return login(username: username, password: password);
           case 0:
@@ -156,7 +155,7 @@ class WebApHelper {
           case 5:
             throw GeneralResponse(
               statusCode: ApStatusCode.passwordFiveTimesError,
-              message: 'password error 5 times',
+              message: 'username or password error',
             );
           case 500:
             throw GeneralResponse(
@@ -164,14 +163,17 @@ class WebApHelper {
               message: 'school server error',
             );
           default:
-            throw GeneralResponse(statusCode: code, message: 'unknown error');
+            throw GeneralResponse(
+              statusCode: code,
+              message: 'unknown error',
+            );
         }
       } catch (e, s) {
         CrashlyticsUtil.instance.recordError(e, s);
-        if (kDebugMode) log('Login error: $e');
+        log(e.toString());
       }
     }
-
+    //
     throw GeneralResponse(
       statusCode: ApStatusCode.unknownError,
       message: 'captcha error or unknown error',
@@ -179,45 +181,57 @@ class WebApHelper {
   }
 
   Future<Response<dynamic>> stayOldPwd() async {
-    return dio.post<dynamic>(
-      '/nkust/system/sys010_stay.jsp',
-      data: <String, String>{'cpwd': '', 'opwd': '', 'spwd': ''},
+    final Response<dynamic> res = await dio.post(
+      'https://webap.nkust.edu.tw/nkust/system/sys010_stay.jsp',
+      data: <String, String>{
+        'cpwd': '',
+        'opwd': '',
+        'spwd': '',
+      },
       options: Options(
         followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
       ),
     );
+    return res;
   }
 
   Future<LoginResponse> loginToMobile() async {
+    // Login leave.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
         statusCode: ApStatusCode.networkConnectFail,
         message: 'Login exceeded retry limit',
       );
     }
-
     await checkLogin();
     await apQuery('ag304_01', null);
 
-    var res = await dio.post<String>(
-      '/nkust/fnc.jsp',
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
       data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
     );
 
-    final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
+    final Map<String, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
-
-    res = await tempDio.post<String>(
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
       data: skyDirectData,
       options: Options(
         followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
       ),
     );
 
@@ -225,39 +239,44 @@ class WebApHelper {
       return LoginResponse(
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
     }
-
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
   Future<LoginResponse> loginToOosaf() async {
+    // Login oosaf.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
         statusCode: ApStatusCode.networkConnectFail,
         message: 'Login exceeded retry limit',
       );
     }
-
     await checkLogin();
     await apQuery('ag304_01', null);
 
-    var res = await dio.post<String>(
-      '/nkust/fnc.jsp',
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
       data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
     );
 
-    final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
+    final Map<String, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
-
-    res = await tempDio.post<String>(
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
       'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
       data: skyDirectData,
       options: Options(
         followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
       ),
     );
 
@@ -265,75 +284,83 @@ class WebApHelper {
       return LoginResponse(
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
     }
-
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
+  DateTime? _stdsysLoginExpireTime;
+
   Future<LoginResponse> loginToStdsys() async {
+    // Skip login if session is still valid.
+    if (_stdsysLoginExpireTime != null &&
+        DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
+      return LoginResponse(expireTime: _stdsysLoginExpireTime!);
+    }
+
+    // Login stdsys.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
         statusCode: ApStatusCode.networkConnectFail,
         message: 'Login exceeded retry limit',
       );
     }
-
     await checkLogin();
     await apQuery('ag304_01', null);
 
-    var res = await dio.post<String>(
-      '/nkust/fnc.jsp',
-      data: <String, String>{
-        'fncid': 'AG225',
-      },
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: <String, String>{'Referer': '$_baseUrl/'},
-      ),
+    Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'CK004'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
     );
 
-    final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
+    final Map<String, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
 
-    final tempDio = Dio()..interceptors.add(PrivateCookieManager(cookieJar));
-
-    res = await tempDio.post<String>(
+    res = await (Dio()
+          ..interceptors.add(
+            PrivateCookieManager(cookieJar),
+          ))
+        .post(
       'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
       data: skyDirectData,
       options: Options(
         followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
       ),
     );
 
-    if (res.statusCode == 302 || (res.statusCode == 200 && res.data!.contains('/Student/Home/Index'))) {
+    if (res.statusCode == 200 && res.data!.contains('/Student/Home/Index')) {
+      _stdsysLoginExpireTime = DateTime.now().add(const Duration(hours: 1));
       return LoginResponse(
-        expireTime: DateTime.now().add(const Duration(hours: 1)),
+        expireTime: _stdsysLoginExpireTime!,
       );
+    } else {
+      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
     }
-
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
   Future<LoginResponse> loginToLeave() async {
+    // Login leave.nkust from webap.
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
       throw GeneralResponse(
         statusCode: ApStatusCode.networkConnectFail,
         message: 'Login exceeded retry limit',
       );
     }
-
     await checkLogin();
     await apQuery('ag304_01', null);
 
-    var res = await dio.post<String>(
-      '/nkust/fnc.jsp',
+    Response<String> res = await dio.post(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
       data: <String, String>{'fncid': 'CK004'},
-      options: Options(contentType: Headers.formUrlEncodedContentType),
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
     );
-
-    final skyDirectData = WebApParser.instance.webapToleaveParser(res.data);
-
+    final Map<String?, dynamic> skyDirectData =
+        WebApParser.instance.webapToleaveParser(res.data);
     res = await dio.get<String>(
       'https://leave.nkust.edu.tw/SkyDir.aspx',
       queryParameters: <String, dynamic>{
@@ -342,18 +369,21 @@ class WebApHelper {
       },
       options: Options(
         followRedirects: false,
-        validateStatus: (status) => status != null && status < 500,
-        contentType: Headers.formUrlEncodedContentType,
+        validateStatus: (int? status) {
+          return status! < 500;
+        },
+        contentType: 'application/x-www-form-urlencoded',
       ),
     );
-
     if (res.data!.contains('masterindex.aspx')) {
-      await dio.get<String>(
+      res = await dio.get(
         'https://leave.nkust.edu.tw/masterindex.aspx',
         options: Options(
           followRedirects: false,
-          validateStatus: (status) => status != null && status < 500,
-          contentType: Headers.formUrlEncodedContentType,
+          validateStatus: (int? status) {
+            return status! < 500;
+          },
+          contentType: 'application/x-www-form-urlencoded',
         ),
       );
 
@@ -362,20 +392,18 @@ class WebApHelper {
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
     }
-
     throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
   Future<LoginResponse?> checkLogin() async {
-    if (isLogin) return null;
-    return login(username: Helper.username!, password: Helper.password!);
+    return isLogin
+        ? null
+        : await login(username: Helper.username!, password: Helper.password!);
   }
 
   Future<Response<dynamic>> apQuery(
     String queryQid,
     Map<String, String?>? queryData, {
-    String? cacheKey,
-    Duration? cacheExpiredTime,
     bool? bytesResponse,
   }) async {
     if (reLoginReTryCounts > reLoginReTryCountsLimit) {
@@ -384,213 +412,151 @@ class WebApHelper {
         message: 'Login exceeded retry limit',
       );
     }
-
     await checkLogin();
-
-    final url = '/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
-    final referer = '$_baseUrl/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
-
-    Options options;
-    dynamic requestData;
-
-    if (cacheKey == null) {
-      options = Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: <String, String>{'Referer': referer},
-      );
-      if (bytesResponse == true) {
-        options = options.copyWith(responseType: ResponseType.bytes);
-      }
-      requestData = queryData;
-    } else {
-      dio.options.headers['Content-Type'] = Headers.formUrlEncodedContentType;
-      dio.options.headers['Referer'] = referer;
-
-      Options? otherOptions;
-      if (bytesResponse == true) {
-        otherOptions = Options(responseType: ResponseType.bytes);
-      }
-
-      options = buildConfigurableCacheOptions(
-        options: otherOptions,
-        maxAge: cacheExpiredTime ?? const Duration(seconds: 60),
-        primaryKey: cacheKey,
-      );
-      requestData = formUrlEncoded(queryData);
-    }
+    final String url =
+        'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
+    final Options options = Options(
+      contentType: 'application/x-www-form-urlencoded',
+      responseType: bytesResponse != null ? ResponseType.bytes : null,
+    );
+    dio.options.headers['Referer'] =
+        'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
     Response<dynamic> request;
-
-    if (bytesResponse == true) {
-      request = await dio.post<List<int>>(url, data: requestData, options: options);
+    if (bytesResponse != null) {
+      request = await dio.post<List<int>>(
+        url,
+        data: queryData,
+        options: options,
+      );
     } else {
-      request = await dio.post<dynamic>(url, data: requestData, options: options);
+      request = await dio.post<dynamic>(
+        url,
+        data: queryData,
+        options: options,
+      );
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
-      if (Helper.isSupportCacheData && cacheKey != null) {
-        _manager.delete(cacheKey);
-      }
       reLoginReTryCounts += 1;
       await login(username: Helper.username!, password: Helper.password!);
       return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
     }
-
     reLoginReTryCounts = 0;
     return request;
   }
 
   Future<UserInfo> userInfoCrawler() async {
-    if (!Helper.isSupportCacheData) {
-      final query = await apQuery('ag003', null);
-      final data = UserInfo.fromJson(
-        WebApParser.instance.apUserInfoParser(query.data as String),
-      );
-      pictureUrl = data.pictureUrl;
-      return data;
-    }
-
-    final query = await apQuery(
-      'ag003',
-      null,
-      cacheKey: userInfoCacheKey,
-      cacheExpiredTime: const Duration(hours: 6),
+    final Response<dynamic> query = await apQuery('ag003', null);
+    return UserInfo.fromJson(
+      WebApParser.instance.apUserInfoParser(query.data as String),
     );
-
-    final parsedData = WebApParser.instance.apUserInfoParser(query.data as String);
-    if (parsedData['id'] == null) {
-      _manager.delete(userInfoCacheKey);
-    }
-
-    final data = UserInfo.fromJson(parsedData);
-    pictureUrl = data.pictureUrl;
-    return data;
   }
 
-  Future<Uint8List?> getUserPicture() async {
-    final response = await dio.get<Uint8List>(
-      pictureUrl!,
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
+    dio.options.headers['Accept'] =
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      pictureUrl,
       options: Options(
         responseType: ResponseType.bytes,
-        headers: <String, String>{
-          'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
-        },
       ),
     );
     return response.data;
   }
 
   Future<SemesterData> semesters() async {
-    if (!Helper.isSupportCacheData) {
-      final query = await apQuery('ag304_01', null);
-      return SemesterData.fromJson(
-        WebApParser.instance.semestersParser(query.data as String),
+    final Response<dynamic> query = await apQuery('ag304_01', null);
+    return SemesterData.fromJson(
+      WebApParser.instance.semestersParser(query.data as String),
+    );
+  }
+
+  @Deprecated('use StdsysHelper.getEnrollmentLetter instead')
+  Future<Response<Uint8List>> getEnrollmentLetter() async {
+    final List<Cookie> cookies =
+        await cookieJar.loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> res = await dio.post<String>(
+      'https://webap.nkust.edu.tw/nkust/fnc.jsp',
+      data: <String, String>{'fncid': 'AG225'},
+      options: Options(contentType: 'application/x-www-form-urlencoded'),
+    );
+
+    final Map<String, dynamic> requestData =
+        WebApParser.instance.enrollmentRequestParser(res.data);
+
+    final String action = (requestData['action'] as String)
+        .replaceAll('ag_pro/', '')
+        .replaceAll('.jsp', '');
+    final Map<String, String> params =
+        requestData['params'] as Map<String, String>;
+
+    final Response<dynamic> query = await apQuery(
+      action,
+      params,
+    );
+
+    final String? pdfPath =
+        WebApParser.instance.enrollmentLetterPathParser(query.data as String);
+
+    if (pdfPath == null || pdfPath.isEmpty) {
+      throw GeneralResponse(
+        statusCode: ApStatusCode.unknownError,
+        message: 'cannot find pdf url',
       );
     }
 
-    final query = await apQuery(
-      'ag304_01',
-      null,
-      cacheKey: semesterCacheKey,
-      cacheExpiredTime: const Duration(hours: 3),
-    );
-
-    final parsedData = WebApParser.instance.semestersParser(query.data as String);
-    if ((parsedData['data'] as List<dynamic>).isEmpty) {
-      _manager.delete(semesterCacheKey);
-    }
-
-    return SemesterData.fromJson(parsedData);
-  }
-
-  Future<Response<Uint8List>> getEnrollmentLetter() async {
-    await loginToStdsys();
-
-    final List<Cookie> cookies = await cookieJar.loadForRequest(
-      Uri.parse('https://stdsys.nkust.edu.tw'),
-    );
-    final String cookieHeader = cookies.map((Cookie cookie) => '${cookie.name}=${cookie.value}').join('; ');
-
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://webap.nkust.edu.tw/nkust/ag_pro/${pdfPath}',
       options: Options(
         responseType: ResponseType.bytes,
-        headers: <String, String>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/Doc/Status',
+        headers: <String, dynamic>{
+          'Referer': 'https://webap.nkust.edu.tw/',
           'Cookie': cookieHeader,
         },
       ),
     );
-
     return response;
   }
 
   Future<ScoreData> scores(String? years, String? semesterValue) async {
     await checkLogin();
-
-    if (!Helper.isSupportCacheData) {
-      final query = await apQuery(
-        'ag008',
-        <String, String?>{'arg01': years, 'arg02': semesterValue},
-      );
-      return ScoreData.fromJson(
-        WebApParser.instance.scoresParser(query.data as String),
-      );
-    }
-
-    final cacheKey = '${scoresCacheKey}_${years}_$semesterValue';
-    final query = await apQuery(
+    final Response<dynamic> query = await apQuery(
       'ag008',
       <String, String?>{'arg01': years, 'arg02': semesterValue},
-      cacheKey: cacheKey,
-      cacheExpiredTime: const Duration(hours: 6),
     );
-
-    final parsedData = WebApParser.instance.scoresParser(query.data as String);
-    if ((parsedData['scores'] as List<dynamic>).isEmpty) {
-      _manager.delete(cacheKey);
-    }
-
-    return ScoreData.fromJson(parsedData);
+    return ScoreData.fromJson(
+      WebApParser.instance.scoresParser(query.data as String),
+    );
   }
 
-  Future<CourseData> getCourseTable({String? year, String? semester}) async {
-    if (!Helper.isSupportCacheData) {
-      final query = await apQuery(
-        'ag222',
-        <String, String?>{'arg01': year, 'arg02': semester},
-        bytesResponse: true,
-      );
-      return CourseData.fromJson(
-        await WebApParser.instance.coursetableParser(query.data),
-      );
-    }
-
-    final cacheKey = '${coursetableCacheKey}_${year}_$semester';
-    final query = await apQuery(
+  Future<CourseData> getCourseTable({
+    String? year,
+    String? semester,
+  }) async {
+    final Response<dynamic> query = await apQuery(
       'ag222',
       <String, String?>{'arg01': year, 'arg02': semester},
-      cacheKey: cacheKey,
-      cacheExpiredTime: const Duration(hours: 6),
       bytesResponse: true,
     );
-
-    final parsedData = await WebApParser.instance.coursetableParser(query.data);
-    if ((parsedData['courses'] as List<dynamic>).isEmpty) {
-      _manager.delete(cacheKey);
-    }
-
-    return CourseData.fromJson(parsedData);
+    return CourseData.fromJson(
+      await WebApParser.instance.coursetableParser(query.data),
+    );
   }
 
   Future<MidtermAlertsData> midtermAlerts(
     String? years,
     String? semesterValue,
   ) async {
-    final query = await apQuery(
+    final Response<dynamic> query = await apQuery(
       'ag009',
       <String, String?>{'arg01': years, 'arg02': semesterValue},
     );
+
     return MidtermAlertsData.fromJson(
       WebApParser.instance.midtermAlertsParser(query.data as String),
     );
@@ -600,27 +566,34 @@ class WebApHelper {
     String? years,
     String? semesterValue,
   ) async {
-    final query = await apQuery(
+    final Response<dynamic> query = await apQuery(
       'ak010',
       <String, String?>{'arg01': years, 'arg02': semesterValue},
     );
+
     return RewardAndPenaltyData.fromJson(
       WebApParser.instance.rewardAndPenaltyParser(query.data as String),
     );
   }
 
+  @Deprecated('use StdsysHelper.roomList instead')
   Future<RoomData> roomList(
     String cmpAreaId,
     String? years,
     String? semesterValue,
   ) async {
-    final query = await apQuery(
+    /*
+    cmpAreaId
+    1=建工/2=燕巢/3=第一/4=楠梓/5=旗津
+    */
+    final Response<dynamic> query = await apQuery(
       'ag302_01',
       <String, String>{
         'yms_yms': '$years#$semesterValue',
         'cmp_area_id': cmpAreaId,
       },
     );
+
     return RoomData.fromJson(
       WebApParser.instance.roomListParser(query.data as String),
     );
@@ -631,11 +604,12 @@ class WebApHelper {
     String? years,
     String? semesterValue,
   ) async {
-    final query = await apQuery(
+    final Response<dynamic> query = await apQuery(
       'ag302_02',
       <String, String?>{'room_id': roomId, 'yms_yms': '$years#$semesterValue'},
       bytesResponse: true,
     );
+
     return CourseData.fromJson(
       WebApParser.instance.roomCourseTableQueryParser(query.data),
     );

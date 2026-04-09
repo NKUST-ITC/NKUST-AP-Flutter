@@ -31,7 +31,7 @@ class UserInfoPageState extends State<UserInfoPage> {
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
     final AppLocalizations app = AppLocalizations.of(context);
 
     return Scaffold(

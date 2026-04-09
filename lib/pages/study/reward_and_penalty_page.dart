@@ -2,31 +2,36 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:nkust_ap/widgets/semester_picker.dart';
-import 'package:sprintf/sprintf.dart';
 
-enum _State { loading, finish, error, empty, offline, custom }
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
 
 class RewardAndPenaltyPage extends StatefulWidget {
   static const String routerName = '/user/reward-and-penalty';
 
   @override
-  RewardAndPenaltyPageState createState() => RewardAndPenaltyPageState();
+  _RewardAndPenaltyPageState createState() => _RewardAndPenaltyPageState();
 }
 
-class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
-  final key = GlobalKey<SemesterPickerState>();
-
+class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
   late ApLocalizations ap;
 
   _State state = _State.loading;
   String? customStateHint;
 
-  late Semester selectSemester;
+  Semester? selectSemester;
   SemesterData? semesterData;
   late RewardAndPenaltyData rewardAndPenaltyData;
 
   bool isOffline = false;
+
+  final SemesterPickerController _pickerController = SemesterPickerController();
 
   @override
   void initState() {
@@ -34,47 +39,77 @@ class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
       'RewardAndPenaltyPage',
       'reward_and_penalty_page.dart',
     );
+    _getSemester();
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    ap = ApLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+  void dispose() {
+    _pickerController.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    ap = context.ap;
     return Scaffold(
-      appBar: AppBar(title: Text(ap.rewardAndPenalty)),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.search),
-        onPressed: () => key.currentState!.pickSemester(),
+      appBar: AppBar(
+        title: Text(ap.rewardAndPenalty),
       ),
+      floatingActionButton: semesterData == null
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.search),
+              onPressed: () {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getRewardAndPenaltyData();
+                  },
+                );
+              },
+            ),
       body: Flex(
         direction: Axis.vertical,
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
+        children: <Widget>[
           const SizedBox(height: 8.0),
-          SemesterPicker(
-            key: key,
-            featureTag: 'reward',
-            onSelect: (semester, index) {
-              setState(() {
-                selectSemester = semester;
-                state = _State.loading;
-              });
-              _getRewardAndPenaltyData();
-            },
-          ),
+          if (semesterData != null)
+            SemesterPicker(
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              featureTag: 'reward',
+              controller: _pickerController,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                _getRewardAndPenaltyData();
+              },
+            ),
           if (isOffline)
             Text(
               ap.offlineScore,
-              style: TextStyle(color: colorScheme.onSurfaceVariant),
+              style: TextStyle(color: ApTheme.of(context).grey),
             ),
           Expanded(
             child: RefreshIndicator(
               onRefresh: () async {
                 await _getRewardAndPenaltyData();
                 AnalyticsUtil.instance.logEvent('refresh_swipe');
+                return;
               },
               child: _body(),
             ),
@@ -103,6 +138,9 @@ class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     switch (state) {
       case _State.offline:
         return ApIcon.offlineBolt;
+      case _State.error:
+      case _State.empty:
+      case _State.custom:
       default:
         return ApIcon.classIcon;
     }
@@ -122,44 +160,66 @@ class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         return InkWell(
           onTap: () {
             if (state == _State.empty) {
-              key.currentState!.pickSemester();
+              if (semesterData != null) {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getRewardAndPenaltyData();
+                  },
+                );
+              }
             } else {
               _getRewardAndPenaltyData();
             }
             AnalyticsUtil.instance.logEvent('retry_click');
           },
-          child: HintContent(icon: ApIcon.classIcon, content: stateHint!),
+          child: HintContent(
+            icon: ApIcon.classIcon,
+            content: stateHint!,
+          ),
         );
       case _State.finish:
         return ListView.builder(
-          itemBuilder: (_, index) => _rewardAndPenaltyItem(rewardAndPenaltyData.data[index]),
+          itemBuilder: (_, int index) {
+            return _rewardAndPenaltyItem(rewardAndPenaltyData.data[index]);
+          },
           itemCount: rewardAndPenaltyData.data.length,
         );
     }
   }
 
   Widget _rewardAndPenaltyItem(RewardAndPenalty item) {
-    final colorScheme = Theme.of(context).colorScheme;
     return Card(
-      elevation: 4.0,
       margin: const EdgeInsets.all(8.0),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListTile(
-          title: Text(item.reason, style: const TextStyle(fontSize: 18.0)),
+          title: Text(
+            item.reason,
+            style: const TextStyle(fontSize: 18.0),
+          ),
           trailing: Text(
             item.type,
             style: TextStyle(
               fontSize: 16.0,
-              color: item.isReward ? colorScheme.tertiary : colorScheme.error,
+              color: item.isReward ? Colors.green : Colors.red,
             ),
           ),
           subtitle: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Text(
-              sprintf(
-                ap.rewardAndPenaltyContent,
-                [item.counts, item.date],
+              ap.rewardAndPenaltyContent(
+                arg1: item.counts,
+                arg2: item.date,
               ),
             ),
           ),
@@ -168,44 +228,97 @@ class RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
     );
   }
 
+  Future<void> _getSemester() async {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      final SemesterData? cacheData = SemesterData.load();
+      if (cacheData != null && mounted) {
+        setState(() {
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
+          selectSemester = semesterData!.defaultSemester;
+        });
+      }
+      return;
+    }
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      data.save();
+      if (mounted) {
+        setState(() {
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
+          selectSemester = data.defaultSemester;
+        });
+        _getRewardAndPenaltyData();
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        UiUtil.instance
+            .showToast(context, response.getGeneralMessage(context));
+      }
+    } on DioException catch (e) {
+      if (e.i18nMessage != null && mounted) {
+        UiUtil.instance.showToast(context, e.i18nMessage!);
+      }
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
+  }
+
   Future<void> _getRewardAndPenaltyData() async {
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      setState(() => state = _State.offline);
+      setState(() {
+        state = _State.offline;
+      });
       return;
     }
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
-    Helper.instance.getRewardAndPenalty(
-      semester: selectSemester,
-      callback: GeneralCallback<RewardAndPenaltyData>(
-        onSuccess: (data) {
-          if (mounted) {
-            setState(() {
-              rewardAndPenaltyData = data;
-              state = data.data.isEmpty ? _State.empty : _State.finish;
-            });
+    try {
+      final RewardAndPenaltyData data =
+          await Helper.instance.getRewardAndPenalty(
+        semester: selectSemester!,
+      );
+      if (mounted) {
+        setState(() {
+          rewardAndPenaltyData = data;
+          if (data.data.isEmpty) {
+            state = _State.empty;
+            _pickerController.markSemesterEmpty(selectSemester!);
+          } else {
+            state = _State.finish;
+            _pickerController.markSemesterHasData(selectSemester!);
           }
-        },
-        onFailure: (e) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = e.i18nMessage;
-          });
-          if (e.hasResponse) {
-            AnalyticsUtil.instance.logApiEvent(
-              'getRewardAndPenalty',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        },
-        onError: (response) {
-          setState(() {
-            state = _State.custom;
-            customStateHint = response.getGeneralMessage(context);
-          });
-        },
-      ),
-    );
+        });
+      }
+    } on GeneralResponse catch (response) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      setState(() {
+        state = _State.custom;
+        customStateHint = response.getGeneralMessage(context);
+      });
+    } on DioException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.i18nMessage;
+      });
+      if (e.hasResponse) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getRewardAndPenalty',
+          e.response!.statusCode!,
+          message: e.message ?? '',
+        );
+      }
+    }
   }
 }

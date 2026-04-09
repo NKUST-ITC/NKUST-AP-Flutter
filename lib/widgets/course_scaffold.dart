@@ -36,7 +36,7 @@ class _CustomCourseScaffoldState extends State<CustomCourseScaffold> {
   @override
   Widget build(BuildContext context) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final ApLocalizations ap = ApLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

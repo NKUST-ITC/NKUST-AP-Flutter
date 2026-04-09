@@ -1,17 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
+import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
@@ -30,18 +32,22 @@ import 'package:nkust_ap/utils/global.dart';
 
 class Helper {
   static const String host = 'nkust.taki.dog';
+
   static const String version = 'v3';
 
+  //LOGIN API
   static const int userDataError = 1401;
 
   static const String webap = 'webap';
   static const String inkust = 'inkust';
   static const String mobile = 'mobile';
+  static const String stdsys = 'stdsys';
   static const String remoteConfig = 'config';
 
   static Helper? _instance;
 
   late Dio dio;
+
   late BaseOptions options;
 
   JsonCodec? jsonCodec;
@@ -53,8 +59,6 @@ class Helper {
 
   static DateTime? expireTime;
 
-  static bool isSupportCacheData = false;
-
   static CrawlerSelector? selector;
 
   int reLoginCount = 0;
@@ -62,20 +66,28 @@ class Helper {
   bool get canReLogin => reLoginCount == 0;
 
   bool isExpire() {
-    if (expireTime == null) return false;
-    return DateTime.now().isAfter(expireTime!.add(const Duration(hours: 8)));
+    if (expireTime == null) {
+      return false;
+    } else {
+      return DateTime.now().isAfter(expireTime!.add(const Duration(hours: 8)));
+    }
   }
 
-  static Helper get instance => _instance ??= Helper();
+  //ignore: prefer_constructors_over_static_methods
+  static Helper get instance {
+    return _instance ??= Helper();
+  }
 
   Helper() {
-    final apiHost = PreferenceUtil.instance.getString(Constants.apiHost, host);
-
-    dio = ApiConfig.createDio(
-      baseUrl: 'https://$apiHost/$version',
-      enableGzip: true,
+    final String apiHost =
+        PreferenceUtil.instance.getString(Constants.apiHost, host);
+    dio = Dio(
+      BaseOptions(
+        baseUrl: 'https://$apiHost/$version',
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
     );
-
     cancelToken = CancelToken();
   }
 
@@ -84,588 +96,430 @@ class Helper {
     cancelToken = CancelToken();
   }
 
-  Future<void> login({
-    required BuildContext context,
+  Future<LoginResponse?> login({
     required String username,
     required String password,
-    required GeneralCallback<LoginResponse?> callback,
     bool clearCache = false,
   }) async {
     Helper.username = username.toUpperCase();
     Helper.password = password;
-
-    try {
-      LoginResponse? loginResponse;
-
-      switch (selector?.login) {
-        case mobile:
-        case webap:
-        default:
-          if (selector != null && selector!.login == mobile) {
-            loginResponse = await WebApHelper.instance.login(
-              username: username.toUpperCase(),
-              password: password,
-            );
-            await WebApHelper.instance.loginVms();
-          } else {
-            loginResponse = await WebApHelper.instance.login(
-              username: username.toUpperCase(),
-              password: password,
-            );
-          }
-      }
-
-      expireTime = loginResponse.expireTime;
-      callback.onSuccess(loginResponse);
-    } on GeneralResponse catch (response) {
-      callback.onError(response);
-    } on DioException catch (e) {
-      callback.onFailure(e);
-    } catch (e, s) {
-      _logError('login', e, s);
-      callback.onError(GeneralResponse.unknownError());
+    LoginResponse? loginResponse;
+    switch (selector?.login) {
+      case mobile:
+      case webap:
+      default:
+        if (selector != null && (selector!.login == mobile)) {
+          loginResponse = await WebApHelper.instance.login(
+            username: username.toUpperCase(),
+            password: password,
+          );
+          await WebApHelper.instance.loginVms();
+        } else {
+          loginResponse = await WebApHelper.instance.login(
+            username: username.toUpperCase(),
+            password: password,
+          );
+        }
     }
-  }
-
-  Future<LoginResponse> adminLogin(String username, String password) async {
-    final response = await dio.post<Map<String, dynamic>>(
-      '/oauth/admin/token',
-      data: <String, String>{
-        'username': username,
-        'password': password,
-      },
-    );
-
-    final loginResponse = LoginResponse.fromJson(response.data!);
-    options.headers = _createBearerTokenAuth(loginResponse.token);
-    expireTime = loginResponse.expireTime;
-    Helper.username = username;
-    Helper.password = password;
-
+    if (loginResponse != null) {
+      expireTime = loginResponse.expireTime;
+    }
     return loginResponse;
   }
 
+  Future<LoginResponse> adminLogin(String username, String password) async {
+    try {
+      final Response<Map<String, dynamic>> response =
+          await dio.post<Map<String, dynamic>>(
+        '/oauth/admin/token',
+        data: <String, String>{
+          'username': username,
+          'password': password,
+        },
+      );
+      final LoginResponse loginResponse =
+          LoginResponse.fromJson(response.data!);
+      options.headers = _createBearerTokenAuth(loginResponse.token);
+      expireTime = loginResponse.expireTime;
+      Helper.username = username;
+      Helper.password = password;
+      return loginResponse;
+    } catch (dioError) {
+      rethrow;
+    }
+  }
+
   Future<Response<dynamic>> deleteToken() async {
-    return dio.delete<dynamic>('/oauth/token');
+    try {
+      final Response<dynamic> response = await dio.delete(
+        '/oauth/token',
+      );
+      return response;
+    } on DioException {
+      rethrow;
+    }
   }
 
   Future<Response<dynamic>> deleteAllToken() async {
-    return dio.delete<dynamic>('/oauth/token/all');
+    try {
+      final Response<dynamic> response = await dio.delete(
+        '/oauth/token/all',
+      );
+      return response;
+    } on DioException {
+      rethrow;
+    }
   }
 
   Future<ServerInfoData> getServerInfoData() async {
-    final response = await dio.get<Map<String, dynamic>>('/server/info');
-    return ServerInfoData.fromJson(response.data!);
-  }
-
-  Future<void> getAllAnnouncements({
-    String? locale,
-    GeneralCallback<List<Announcement>?>? callback,
-  }) async {
     try {
-      final response = await dio.get<Map<String, dynamic>>(
-        '/news/announcements/all',
-        queryParameters: <String, String>{'lang': locale ?? ''},
-      );
-
-      var data = AnnouncementData(data: <Announcement>[]);
-
-      if (response.statusCode != 204) {
-        data = AnnouncementData.fromJson(response.data!);
-        data.data.sort((a, b) => b.weight.compareTo(a.weight));
-      }
-
-      callback?.onSuccess(data.data);
-    } on DioException catch (e) {
-      callback?.onFailure(e);
-    } catch (e, s) {
-      _logError('getAllAnnouncements', e, s);
-      callback?.onError(GeneralResponse.unknownError());
+      final Response<Map<String, dynamic>> response =
+          await dio.get<Map<String, dynamic>>('​/server​/info');
+      return ServerInfoData.fromJson(response.data!);
+    } on DioException {
+      rethrow;
     }
   }
 
-  Future<Response<dynamic>> addAnnouncement(Announcement announcement) async {
-    return dio.post<dynamic>(
-      '/news/announcements/add',
-      data: announcement.toUpdateJson(),
+  Future<List<Announcement>> getAllAnnouncements({
+    String? locale,
+  }) async {
+    final Response<Map<String, dynamic>> response =
+        await dio.get<Map<String, dynamic>>(
+      '/news/announcements/all',
+      queryParameters: <String, String>{
+        'lang': locale ?? '',
+      },
     );
+    AnnouncementData data = AnnouncementData(
+      data: <Announcement>[],
+    );
+    if (response.statusCode != 204) {
+      data = AnnouncementData.fromJson(response.data!);
+      data.data.sort((Announcement a, Announcement b) {
+        return b.weight.compareTo(a.weight);
+      });
+    }
+    return data.data;
+  }
+
+  Future<Response<dynamic>> addAnnouncement(Announcement announcements) async {
+    try {
+      final Response<dynamic> response = await dio.post(
+        '/news/announcements/add',
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioException {
+      rethrow;
+    }
   }
 
   Future<Response<dynamic>> updateAnnouncement(
-    Announcement announcement,
+    Announcement announcements,
   ) async {
-    return dio.put<dynamic>(
-      '/news/announcements/update/${announcement.id}',
-      data: announcement.toUpdateJson(),
-    );
+    try {
+      final Response<dynamic> response = await dio.put(
+        '/news/announcements/update/${announcements.id}',
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioException {
+      rethrow;
+    }
   }
 
   Future<Response<dynamic>> deleteAnnouncement(
-    Announcement announcement,
+    Announcement announcements,
   ) async {
-    return dio.delete<dynamic>(
-      '/news/announcements/remove/${announcement.id}',
-      data: announcement.toUpdateJson(),
-    );
-  }
-
-  Future<UserInfo?> getUsersInfo({
-    GeneralCallback<UserInfo>? callback,
-  }) async {
     try {
-      UserInfo data;
-
-      switch (selector?.userInfo) {
-        case mobile:
-          data = await MobileNkustHelper.instance.getUserInfo();
-        case webap:
-        default:
-          data = await WebApHelper.instance.userInfoCrawler();
-      }
-
-      reLoginCount = 0;
-
-      if (data.id.isEmpty) {
-        data = data.copyWith(id: username);
-      }
-
-      callback?.onSuccess(data);
-      return data;
-    } on DioException catch (e) {
-      callback?.onFailure(e);
-    } catch (e, s) {
-      _logError('getUsersInfo', e, s);
-      callback?.onError(GeneralResponse.unknownError());
+      final Response<dynamic> response = await dio.delete(
+        '/news/announcements/remove/${announcements.id}',
+        data: announcements.toUpdateJson(),
+      );
+      return response;
+    } on DioException {
+      rethrow;
     }
-    return null;
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  Future<UserInfo> getUsersInfo() async {
+    UserInfo data;
+    switch (selector?.userInfo) {
+      case mobile:
+        data = await MobileNkustHelper.instance.getUserInfo();
+      case webap:
+        data = await WebApHelper.instance.userInfoCrawler();
+      case stdsys:
+      default:
+        data = await StdsysHelper.instance.getUserInfo();
+    }
+    reLoginCount = 0;
+    if (data.id.isEmpty) {
+      data = data.copyWith(
+        id: username!,
+      );
+    }
+    return data;
+  }
+
+  Future<Uint8List?> getUserPicture(String pictureUrl) async {
     switch (selector?.userInfo) {
       case mobile:
         return MobileNkustHelper.instance.getUserPicture();
       case webap:
+        return WebApHelper.instance.getUserPicture(pictureUrl);
+      case stdsys:
       default:
-        return WebApHelper.instance.getUserPicture();
+        return StdsysHelper.instance.getUserPicture(pictureUrl);
     }
   }
 
-  Future<SemesterData?> getSemester({
-    GeneralCallback<SemesterData>? callback,
-  }) async {
-    try {
-      SemesterData? data;
-
-      switch (selector?.semester) {
-        case remoteConfig:
-          data = SemesterData.load();
-          await Future<void>.delayed(const Duration(milliseconds: 100));
-        case inkust:
-        case mobile:
-          break;
-        case webap:
-        default:
-          data = await WebApHelper.instance.semesters();
-      }
-
-      reLoginCount = 0;
-      callback?.onSuccess(data!);
-      return data;
-    } on DioException catch (e) {
-      callback?.onFailure(e);
-    } catch (e, s) {
-      _logError('getSemester', e, s);
-      callback?.onError(GeneralResponse.unknownError());
+  Future<SemesterData> getSemester() async {
+    SemesterData? data;
+    log(selector?.semester.toString() ?? '');
+    switch (selector?.semester) {
+      case remoteConfig:
+        data = SemesterData.load();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      case inkust:
+        //TODO
+        break;
+      case mobile:
+        //TODO
+        break;
+      case webap:
+        data = await WebApHelper.instance.semesters();
+      case stdsys:
+      default:
+        data = await StdsysHelper.instance.getSemesters();
     }
-    return null;
+    reLoginCount = 0;
+    if (data == null) {
+      throw GeneralResponse.unknownError();
+    }
+    return data;
   }
 
   Future<ScoreData?> getScores({
     required Semester semester,
-    GeneralCallback<ScoreData?>? callback,
   }) async {
-    try {
-      ScoreData? data;
-
-      switch (selector?.score) {
-        case mobile:
-          data = await MobileNkustHelper.instance.getScores(
-            year: semester.year,
-            semester: semester.value,
-          );
-        case inkust:
-          break;
-        case webap:
-        default:
-          data = await WebApHelper.instance.scores(
-            semester.year,
-            semester.value,
-          );
-      }
-
-      if (data != null && data.scores.isEmpty) data = null;
-      callback?.onSuccess(data);
-      return data;
-    } on DioException catch (e) {
-      callback?.onFailure(e);
-    } catch (e, s) {
-      _logError('getScores', e, s);
-      callback?.onError(GeneralResponse.unknownError());
+    ScoreData? data;
+    switch (selector?.score) {
+      case mobile:
+        data = await MobileNkustHelper.instance.getScores(
+          year: semester.year,
+          semester: semester.value,
+        );
+      case inkust:
+        //TODO
+        break;
+      case webap:
+      default:
+        data = await WebApHelper.instance.scores(
+          semester.year,
+          semester.value,
+        );
     }
-    return null;
+    if (data != null && data.scores.isEmpty) data = null;
+    return data;
   }
 
-  Future<void> getCourseTables({
+  Future<CourseData> getCourseTables({
     required Semester semester,
     Semester? semesterDefault,
-    required GeneralCallback<CourseData?>? callback,
   }) async {
-    try {
-      CourseData data;
-
-      switch (selector?.course) {
-        case mobile:
-          final isDefault = semesterDefault!.code == semester.code;
-          data = await MobileNkustHelper.instance.getCourseTable(
-            year: isDefault ? null : semester.year,
-            semester: isDefault ? null : semester.value,
-          );
-        case webap:
-        default:
-          data = await WebApHelper.instance.getCourseTable(
-            year: semester.year,
-            semester: semester.value,
-          );
-      }
-
-      if (data.courses.isNotEmpty) reLoginCount = 0;
-      callback?.onSuccess(data);
-    } on DioException catch (e) {
-      if (selector?.course == mobile && e.response?.statusCode == 302) {
-        AnalyticsUtil.instance.logEvent(
-          'mobile_user_agent_error',
-          parameters: <String, dynamic>{
-            'message': MobileNkustHelper.instance.userAgent,
-          },
+    CourseData data;
+    log('Fetch(CourseTable) ${selector?.course} '
+        '${semester.year} ${semester.code}');
+    switch (selector?.course) {
+      case mobile:
+        final bool isDefault = semesterDefault!.code == semester.code;
+        data = await MobileNkustHelper.instance.getCourseTable(
+          year: isDefault ? null : semester.year,
+          semester: isDefault ? null : semester.value,
         );
-      }
-      callback?.onFailure(e);
-    } catch (e, s) {
-      _logError('getCourseTables', e, s);
-      callback?.onError(GeneralResponse.unknownError());
+      case webap:
+        data = await WebApHelper.instance.getCourseTable(
+          year: semester.year,
+          semester: semester.value,
+        );
+      case stdsys:
+      default:
+        data = await StdsysHelper.instance.getCourseTable(
+          year: semester.year,
+          semester: semester.value,
+        );
     }
-  }
-
-  Future<void> getRewardAndPenalty({
-    required Semester semester,
-    required GeneralCallback<RewardAndPenaltyData> callback,
-  }) async {
-    try {
-      final data = await WebApHelper.instance.rewardAndPenalty(
-        semester.year,
-        semester.value,
-      );
+    if (data.courses.isNotEmpty) {
       reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      callback.onFailure(e);
-    } catch (e, s) {
-      _logError('getRewardAndPenalty', e, s);
-      callback.onError(GeneralResponse.unknownError());
     }
+    return data;
   }
 
-  Future<void> getMidtermAlerts({
+  Future<RewardAndPenaltyData> getRewardAndPenalty({
     required Semester semester,
-    required GeneralCallback<MidtermAlertsData> callback,
   }) async {
-    try {
-      final data = await WebApHelper.instance.midtermAlerts(
-        semester.year,
-        semester.value,
-      );
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      callback.onFailure(e);
-    } catch (e, s) {
-      _logError('getMidtermAlerts', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    final RewardAndPenaltyData data =
+        await WebApHelper.instance.rewardAndPenalty(
+      semester.year,
+      semester.value,
+    );
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> getRoomList({
+  Future<MidtermAlertsData> getMidtermAlerts({
+    required Semester semester,
+  }) async {
+    return await WebApHelper.instance.midtermAlerts(
+      semester.year,
+      semester.value,
+    );
+  }
+
+  //1=建工/2=燕巢/3=第一/4=楠梓/5=旗津/6=東方
+  Future<RoomData> getRoomList({
+    required Semester semester,
     required int campusCode,
-    required GeneralCallback<RoomData> callback,
   }) async {
-    try {
-      final data = await WebApHelper.instance.roomList(
-        '$campusCode',
-        '112',
-        '1',
-      );
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      callback.onFailure(e);
-    } catch (e, s) {
-      _logError('getRoomList', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    final RoomData data = await StdsysHelper.instance
+        .roomList('$campusCode', semester.year, semester.value);
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> getRoomCourseTables({
+  Future<CourseData> getRoomCourseTables({
     required String? roomId,
     required Semester semester,
-    required GeneralCallback<CourseData> callback,
   }) async {
-    try {
-      final data = await WebApHelper.instance.roomCourseTableQuery(
-        roomId,
-        semester.year,
-        semester.value,
-      );
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      callback.onFailure(e);
-    } catch (e, s) {
-      _logError('getRoomCourseTables', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    final CourseData data = await StdsysHelper.instance.roomCourseTableQuery(
+      roomId,
+      semester.year,
+      semester.value,
+    );
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> getBusTimeTables({
+  Future<BusData> getBusTimeTables({
     required DateTime dateTime,
-    required GeneralCallback<BusData> callback,
   }) async {
-    try {
-      if (!MobileNkustHelper.isSupport) {
-        callback.onError(GeneralResponse.platformNotSupport());
-        return;
-      }
-
-      final data = await MobileNkustHelper.instance.busTimeTableQuery(
-        fromDateTime: dateTime,
+    if (!MobileNkustHelper.isSupport) {
+      throw GeneralResponse.platformNotSupport();
+    }
+    final BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
+      fromDateTime: dateTime,
+    );
+    reLoginCount = 0;
+    if (data.canReserve) {
+      return data;
+    } else {
+      throw GeneralResponse(
+        statusCode: 403,
+        message: data.description!,
       );
-
-      reLoginCount = 0;
-
-      if (data.canReserve) {
-        callback.onSuccess(data);
-      } else {
-        callback.onError(
-          GeneralResponse(statusCode: 403, message: data.description!),
-        );
-      }
-    } on DioException catch (e) {
-      _handleBusError(e, callback);
-    } catch (e, s) {
-      _logError('getBusTimeTables', e, s);
-      callback.onError(GeneralResponse.unknownError());
     }
   }
 
-  Future<void> getBusReservations({
-    required GeneralCallback<BusReservationsData> callback,
-  }) async {
-    try {
-      if (!MobileNkustHelper.isSupport) {
-        callback.onError(GeneralResponse.platformNotSupport());
-        return;
-      }
-
-      final data = await MobileNkustHelper.instance.busUserRecord();
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleBusError(e, callback);
-    } catch (e, s) {
-      _logError('getBusReservations', e, s);
-      callback.onError(GeneralResponse.unknownError());
+  Future<BusReservationsData> getBusReservations() async {
+    if (!MobileNkustHelper.isSupport) {
+      throw GeneralResponse.platformNotSupport();
     }
+    final BusReservationsData data =
+        await MobileNkustHelper.instance.busUserRecord();
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> bookingBusReservation({
+  Future<BookingBusData> bookingBusReservation({
     required String busId,
-    required GeneralCallback<BookingBusData> callback,
   }) async {
-    try {
-      if (!MobileNkustHelper.isSupport) {
-        callback.onError(GeneralResponse.platformNotSupport());
-        return;
-      }
-
-      final data = await MobileNkustHelper.instance.busBook(busId: busId);
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleBusError(e, callback);
-    } catch (e, s) {
-      _logError('bookingBusReservation', e, s);
-      callback.onError(GeneralResponse.unknownError());
+    if (!MobileNkustHelper.isSupport) {
+      throw GeneralResponse.platformNotSupport();
     }
+    final BookingBusData data =
+        await MobileNkustHelper.instance.busBook(busId: busId);
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> cancelBusReservation({
+  Future<CancelBusData> cancelBusReservation({
     required String cancelKey,
-    required GeneralCallback<CancelBusData> callback,
   }) async {
-    try {
-      if (!MobileNkustHelper.isSupport) {
-        callback.onError(GeneralResponse.platformNotSupport());
-        return;
-      }
-
-      final data = await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleBusError(e, callback);
-    } catch (e, s) {
-      _logError('cancelBusReservation', e, s);
-      callback.onError(GeneralResponse.unknownError());
+    if (!MobileNkustHelper.isSupport) {
+      throw GeneralResponse.platformNotSupport();
     }
+    final CancelBusData data =
+        await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> getBusViolationRecords({
-    required GeneralCallback<BusViolationRecordsData> callback,
-  }) async {
-    try {
-      if (!MobileNkustHelper.isSupport) {
-        callback.onError(GeneralResponse.platformNotSupport());
-        return;
-      }
-
-      final data = await MobileNkustHelper.instance.busViolationRecords();
-      reLoginCount = 0;
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleBusError(e, callback);
-    } catch (e, s) {
-      _logError('getBusViolationRecords', e, s);
-      callback.onError(GeneralResponse.unknownError());
+  Future<BusViolationRecordsData> getBusViolationRecords() async {
+    if (!MobileNkustHelper.isSupport) {
+      throw GeneralResponse.platformNotSupport();
     }
+    final BusViolationRecordsData data =
+        await MobileNkustHelper.instance.busViolationRecords();
+    reLoginCount = 0;
+    return data;
   }
 
-  Future<void> getNotifications({
+  Future<NotificationsData> getNotifications({
     required int page,
-    required GeneralCallback<NotificationsData> callback,
   }) async {
-    try {
-      final data = await NKUSTHelper.instance.getNotifications(page);
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleServerError(e, callback);
-    } catch (e, s) {
-      _logError('getNotifications', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    return await NKUSTHelper.instance.getNotifications(page);
   }
 
-  Future<void> getLeaves({
+  Future<LeaveData> getLeaves({
     required Semester semester,
-    required GeneralCallback<LeaveData> callback,
   }) async {
-    try {
-      final data = await LeaveHelper.instance.getLeaves(
-        year: semester.year,
-        semester: semester.value,
-      );
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleServerError(e, callback);
-    } catch (e, s) {
-      _logError('getLeaves', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    return await LeaveHelper.instance
+        .getLeaves(year: semester.year, semester: semester.value);
   }
 
-  Future<void> getLeavesSubmitInfo({
-    required GeneralCallback<LeaveSubmitInfoData> callback,
-  }) async {
-    try {
-      final data = await LeaveHelper.instance.getLeavesSubmitInfo();
-      callback.onSuccess(data);
-    } on DioException catch (e) {
-      _handleServerError(e, callback);
-    } catch (e, s) {
-      _logError('getLeavesSubmitInfo', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+  Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
+    return await LeaveHelper.instance.getLeavesSubmitInfo();
   }
 
-  Future<void> sendLeavesSubmit({
+  Future<Response<dynamic>?> sendLeavesSubmit({
     required LeaveSubmitData data,
     required XFile? image,
-    required GeneralCallback<Response<dynamic>?> callback,
   }) async {
-    try {
-      final res = await LeaveHelper.instance.leavesSubmit(
-        data,
-        proofImage: image,
-      );
-      callback.onSuccess(res);
-    } on DioException catch (e) {
-      _handleServerError(e, callback);
-    } catch (e, s) {
-      _logError('sendLeavesSubmit', e, s);
-      callback.onError(GeneralResponse.unknownError());
-    }
+    return await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
   }
 
   Future<LibraryInfo?> getLibraryInfo() async {
-    final response = await dio.get<Map<String, dynamic>>(
-      '/leaves/submit/info',
-      cancelToken: cancelToken,
-    );
-
-    if (response.statusCode == 204) return null;
-    return LibraryInfoData.fromJson(response.data!).data;
-  }
-
-  Map<String, dynamic> _createBearerTokenAuth(String? token) {
-    return <String, String>{'Authorization': 'Bearer $token'};
-  }
-
-  void _handleBusError<T>(DioException e, GeneralCallback<T> callback) {
-    if (e.hasResponse) {
-      BusHelper.reLoginReTryCounts = 0;
-      if (e.isServerError) {
-        callback.onError(e.serverErrorResponse);
-      } else {
-        callback.onFailure(e);
-      }
-    } else {
-      callback.onFailure(e);
-    }
-  }
-
-  void _handleServerError<T>(DioException e, GeneralCallback<T> callback) {
-    if (e.hasResponse) {
-      if (e.isServerError) {
-        callback.onError(e.serverErrorResponse);
-      } else {
-        callback.onFailure(e);
-      }
-    } else {
-      callback.onFailure(e);
-    }
-  }
-
-  Future<void> _logError(String method, Object e, StackTrace s) async {
-    if (FirebaseCrashlyticsUtils.isSupported) {
-      await FirebaseCrashlytics.instance.recordError(
-        e,
-        s,
-        reason: 'Helper.$method error',
+    try {
+      final Response<Map<String, dynamic>> response =
+          await dio.get<Map<String, dynamic>>(
+        '/leaves/submit/info',
+        cancelToken: cancelToken,
       );
+      if (response.statusCode == 204) {
+        return null;
+      } else {
+        return LibraryInfoData.fromJson(response.data!).data;
+      }
+    } on DioException {
+      rethrow;
     }
+  }
+
+  // v3 api Authorization
+  Map<String, dynamic> _createBearerTokenAuth(String? token) {
+    return <String, String>{
+      'Authorization': 'Bearer $token',
+    };
   }
 
   static void clearSetting() {
     expireTime = null;
     username = null;
     password = null;
+    ApCommonPlugin.clearCourseWidget();
+    ApCommonPlugin.clearUserInfoWidget();
     WebApHelper.instance.logout();
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
@@ -688,33 +542,34 @@ extension NewsExtension on Announcement {
 extension DioErrorExtension on DioException {
   bool get hasResponse => type == DioExceptionType.badResponse;
 
-  bool get isExpire => response?.statusCode == ApStatusCode.apiExpire;
+  bool get isExpire => response!.statusCode == ApStatusCode.apiExpire;
 
   bool get isServerError =>
-      response?.statusCode == ApStatusCode.schoolServerError || response?.statusCode == ApStatusCode.apiServerError;
+      response!.statusCode == ApStatusCode.schoolServerError ||
+      response!.statusCode == ApStatusCode.apiServerError;
 
   GeneralResponse get serverErrorResponse {
-    switch (response?.statusCode) {
+    switch (response!.statusCode) {
       case ApStatusCode.apiServerError:
         return GeneralResponse(
           statusCode: ApStatusCode.apiServerError,
-          message: 'API 伺服器錯誤',
+          message: 'api server error',
         );
       case ApStatusCode.schoolServerError:
       default:
         return GeneralResponse(
           statusCode: ApStatusCode.schoolServerError,
-          message: '學校伺服器錯誤',
+          message: 'shool server error',
         );
     }
   }
 }
 
 extension GeneralResponseExtension on GeneralResponse {
-  String getGeneralMessage(BuildContext context) {
-    final ap = ApLocalizations.current;
-    String message;
-
+  String getGeneralMessage(
+    BuildContext context,
+  ) {
+    String message = '';
     switch (statusCode) {
       case ApStatusCode.schoolServerError:
         message = ap.schoolServerError;
@@ -727,13 +582,11 @@ extension GeneralResponseExtension on GeneralResponse {
       default:
         message = ap.unknownError;
     }
-
     AnalyticsUtil.instance.logApiEvent(
       'GeneralResponse',
       statusCode,
       message: message,
     );
-
     return message;
   }
 }
