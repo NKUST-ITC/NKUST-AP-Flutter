@@ -22,7 +22,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   late AppLocalizations app;
 
   Uint8List? data;
-
+  String selectedLang = '';
   String? errorMessage;
 
   @override
@@ -47,14 +47,38 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       appBar: AppBar(
         title: Text(app.enrollmentLetter),
       ),
-      body: PdfView(
-        state: pdfState,
-        data: data,
-        errorMessage: errorMessage,
-        onRefresh: () {
-          setState(() => pdfState = PdfState.loading);
-          _getEnrollmentLetter();
-        },
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButton<String>(
+              value: selectedLang,
+              items: const [
+                DropdownMenuItem(value: '', child: Text('中文')),
+                DropdownMenuItem(value: 'en', child: Text('English')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  selectedLang = value!;
+                  pdfState = PdfState.loading;
+                });
+                _getEnrollmentLetter();
+              },
+            ),
+          ),
+
+          Expanded(
+            child: PdfView(
+              state: pdfState,
+              data: data,
+              errorMessage: errorMessage,
+              onRefresh: () {
+                setState(() => pdfState = PdfState.loading);
+                _getEnrollmentLetter();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -62,7 +86,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final Response<Uint8List> response =
-          await StdsysHelper.instance.getEnrollmentLetter();
+          await StdsysHelper.instance.getEnrollmentLetter(selectedLang);
       setState(() {
         pdfState = PdfState.finish;
         data = response.data;
