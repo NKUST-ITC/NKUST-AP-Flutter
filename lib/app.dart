@@ -2,6 +2,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -61,6 +62,15 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     AnalyticsUtil.instance
         .setUserProperty(AnalyticsConstants.iconStyle, ApIcon.code);
     WidgetsBinding.instance.addObserver(this);
+    Future<void>.microtask(() {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          systemNavigationBarContrastEnforced: true,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+    });
     super.initState();
   }
 

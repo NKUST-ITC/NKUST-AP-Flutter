@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  flutter_version: '3.35.x'
+  flutter_version: '3.38.x'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:

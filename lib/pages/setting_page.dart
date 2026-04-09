@@ -114,11 +114,20 @@ class SettingPageState extends State<SettingPage> {
                 ChangeThemeColorItem(
                   onChanged: (Color color) {
                     final int index = ApTheme.themeColors.indexWhere(
-                      (ThemeColor themeColor) => themeColor.color == color,
+                      (ThemeColor tc) =>
+                          tc.color.toARGB32() == color.toARGB32(),
                     );
+                    final int newIndex =
+                        (index != -1) ? index : ApTheme.customColorIndex;
+                    final Color? newCustomColor =
+                        (index != -1) ? null : color;
                     ShareDataWidget.of(context)!
                         .data
-                        .loadThemeColor(index, color);
+                        .loadThemeColor(newIndex, newCustomColor);
+                    ApTheme.of(context).saveSettings(
+                      index: newIndex,
+                      customColor: newCustomColor,
+                    );
                   },
                 ),
                 ChangeIconStyleItem(

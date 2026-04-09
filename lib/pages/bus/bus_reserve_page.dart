@@ -497,6 +497,7 @@ class BusReservePageState extends State<BusReservePage>
         busId: busTime.busId,
       );
       _getBusTimeTables();
+      _refreshBusReservationsCache();
       AnalyticsUtil.instance.logEvent('book_bus_success');
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
@@ -563,6 +564,7 @@ class BusReservePageState extends State<BusReservePage>
         cancelKey: busTime.cancelKey!,
       );
       _getBusTimeTables();
+      _refreshBusReservationsCache();
       AnalyticsUtil.instance.logEvent('cancel_bus_success');
       Navigator.of(context, rootNavigator: true).pop();
       showDialog(
@@ -612,6 +614,14 @@ class BusReservePageState extends State<BusReservePage>
     } on DioException catch (e) {
       handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus');
     }
+  }
+
+  Future<void> _refreshBusReservationsCache() async {
+    try {
+      final BusReservationsData data =
+          await Helper.instance.getBusReservations();
+      data.save(Helper.username);
+    } catch (_) {}
   }
 
   static void handleGeneralError(

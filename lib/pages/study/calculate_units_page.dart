@@ -119,7 +119,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       appBar: AppBar(
         // Title
         title: Text(ap.calculateCredits),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Flex(
         direction: Axis.vertical,

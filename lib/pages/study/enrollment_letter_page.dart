@@ -46,7 +46,6 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.enrollmentLetter),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: PdfView(
         state: pdfState,

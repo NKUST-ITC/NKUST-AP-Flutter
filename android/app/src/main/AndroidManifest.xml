@@ -4,6 +4,10 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Storage permissions for saving course table screenshots -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- Permissions options for the Android 14 alarm `flutter_local_notification` -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />

@@ -50,7 +50,6 @@ void main() {
   setUpAll(() {
     Helper.username = username;
     Helper.password = password;
-    Helper.isSupportCacheData = false;
   });
 
   // ─── Health Check（不需帳密，純偵測網站是否存活）──────────────────────
