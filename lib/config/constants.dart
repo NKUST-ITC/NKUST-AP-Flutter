@@ -37,8 +37,6 @@ class Constants {
   static const String prefThemeCode = 'pref_theme_code';
   static const String prefIconStyleCode = 'pref_icon_style_code';
   static const String prefThemeModeIndex = 'pref_theme_mode_index';
-  static const String prefThemeColorIndex = 'pref_theme_color_index';
-  static const String prefCustomThemeColor = 'pref_custom_theme_color';
 
   static const String prefApEnable = 'pref_ap_enable';
   static const String prefBusEnable = 'pref_bus_enable';
