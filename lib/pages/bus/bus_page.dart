@@ -153,8 +153,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
       );
     } on DioException catch (e) {
       if (e.hasResponse &&
-          (e.response!.statusCode == 401 ||
-              e.response!.statusCode == 403)) {
+          (e.response!.statusCode == 401 || e.response!.statusCode == 403)) {
         AnalyticsUtil.instance.setUserProperty(
           Constants.canUseBus,
           AnalyticsConstants.no,

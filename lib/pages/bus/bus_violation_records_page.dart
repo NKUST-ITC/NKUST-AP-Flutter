@@ -217,8 +217,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       );
       if (mounted) {
         setState(() {
-          if (violationData == null ||
-              violationData!.reservations.isEmpty) {
+          if (violationData == null || violationData!.reservations.isEmpty) {
             state = _State.empty;
           } else {
             state = _State.finish;
