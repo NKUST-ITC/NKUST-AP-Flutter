@@ -38,7 +38,8 @@ class CrawlerSelector {
         semester: semester ?? this.semester,
       );
 
-  factory CrawlerSelector.fromJson(Map<String, dynamic> json) => _$CrawlerSelectorFromJson(json);
+  factory CrawlerSelector.fromJson(Map<String, dynamic> json) =>
+      _$CrawlerSelectorFromJson(json);
 
   Map<String, dynamic> toJson() => _$CrawlerSelectorToJson(this);
 

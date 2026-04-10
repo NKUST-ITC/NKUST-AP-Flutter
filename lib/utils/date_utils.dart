@@ -14,11 +14,16 @@ import 'package:intl/intl.dart';
 class CalendarDateUtils {
   CalendarDateUtils._();
 
-  static final DateFormat _monthFormat = DateFormat('MMMM yyyy', Locale(Intl.defaultLocale!).languageCode);
-  static final DateFormat _dayFormat = DateFormat('dd', Locale(Intl.defaultLocale!).languageCode);
-  static final DateFormat _firstDayFormat = DateFormat('MMM dd', Locale(Intl.defaultLocale!).languageCode);
-  static final DateFormat _fullDayFormat = DateFormat('EEE MMM dd, yyyy', Locale(Intl.defaultLocale!).languageCode);
-  static final DateFormat _apiDayFormat = DateFormat('yyyy-MM-dd', Locale(Intl.defaultLocale!).languageCode);
+  static final DateFormat _monthFormat =
+      DateFormat('MMMM yyyy', Locale(Intl.defaultLocale!).languageCode);
+  static final DateFormat _dayFormat =
+      DateFormat('dd', Locale(Intl.defaultLocale!).languageCode);
+  static final DateFormat _firstDayFormat =
+      DateFormat('MMM dd', Locale(Intl.defaultLocale!).languageCode);
+  static final DateFormat _fullDayFormat =
+      DateFormat('EEE MMM dd, yyyy', Locale(Intl.defaultLocale!).languageCode);
+  static final DateFormat _apiDayFormat =
+      DateFormat('yyyy-MM-dd', Locale(Intl.defaultLocale!).languageCode);
 
   static String formatMonth(DateTime d) => _monthFormat.format(d);
 
@@ -73,7 +78,8 @@ class CalendarDateUtils {
   static DateTime firstDayOfWeek(DateTime dateTime) {
     /// Handle Daylight Savings by setting hour to 12:00 Noon
     /// rather than the default of Midnight
-    final DateTime day = DateTime.utc(dateTime.year, dateTime.month, dateTime.day, 12);
+    final DateTime day =
+        DateTime.utc(dateTime.year, dateTime.month, dateTime.day, 12);
 
     /// Weekday is on a 1-7 scale Monday - Sunday,
     /// This Calendar works from Sunday - Monday
@@ -84,7 +90,8 @@ class CalendarDateUtils {
   static DateTime lastDayOfWeek(DateTime dateTime) {
     /// Handle Daylight Savings by setting hour to 12:00 Noon
     /// rather than the default of Midnight
-    final DateTime day = DateTime.utc(dateTime.year, dateTime.month, dateTime.day, 12);
+    final DateTime day =
+        DateTime.utc(dateTime.year, dateTime.month, dateTime.day, 12);
 
     /// Weekday is on a 1-7 scale Monday - Sunday,
     /// This Calendar's Week starts on Sunday
@@ -94,8 +101,9 @@ class CalendarDateUtils {
 
   /// The last day of a given month
   static DateTime lastDayOfMonth(DateTime month) {
-    final DateTime beginningNextMonth =
-        (month.month < 12) ? DateTime(month.year, month.month + 1) : DateTime(month.year + 1);
+    final DateTime beginningNextMonth = (month.month < 12)
+        ? DateTime(month.year, month.month + 1)
+        : DateTime(month.year + 1);
     return beginningNextMonth.subtract(const Duration(days: 1));
   }
 
@@ -125,8 +133,10 @@ class CalendarDateUtils {
   static bool isSameWeek(DateTime dataTimeA, DateTime dataTimeB) {
     /// Handle Daylight Savings by setting hour to 12:00 Noon
     /// rather than the default of Midnight
-    final DateTime a = DateTime.utc(dataTimeA.year, dataTimeA.month, dataTimeA.day);
-    final DateTime b = DateTime.utc(dataTimeB.year, dataTimeB.month, dataTimeB.day);
+    final DateTime a =
+        DateTime.utc(dataTimeA.year, dataTimeA.month, dataTimeA.day);
+    final DateTime b =
+        DateTime.utc(dataTimeB.year, dataTimeB.month, dataTimeB.day);
 
     final int diff = a.toUtc().difference(b.toUtc()).inDays;
     if (diff.abs() >= 7) {

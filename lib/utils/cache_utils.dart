@@ -9,7 +9,8 @@ class CacheUtils {
   CacheUtils._();
 
   static Future<void> savePictureData(Uint8List bytes) async {
-    final String username = PreferenceUtil.instance.getString(Constants.prefUsername, '');
+    final String username =
+        PreferenceUtil.instance.getString(Constants.prefUsername, '');
     await PreferenceUtil.instance.setString(
       '${Constants.prefPictureData}_$username',
       base64.encode(bytes),
@@ -17,8 +18,10 @@ class CacheUtils {
   }
 
   static Future<Uint8List?> loadPictureData() async {
-    final String username = PreferenceUtil.instance.getString(Constants.prefUsername, '');
-    final String base64String = PreferenceUtil.instance.getString('${Constants.prefPictureData}_$username', '');
+    final String username =
+        PreferenceUtil.instance.getString(Constants.prefUsername, '');
+    final String base64String = PreferenceUtil.instance
+        .getString('${Constants.prefPictureData}_$username', '');
     if (base64String == '') {
       return null;
     }

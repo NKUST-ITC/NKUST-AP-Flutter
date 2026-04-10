@@ -63,7 +63,8 @@ class _PickTutorPageState extends State<PickTutorPage> {
         return InkWell(
           child: HintContent(
             icon: ApIcon.permIdentity,
-            content: state == _State.error ? ap.functionNotOpen : ap.functionNotOpen,
+            content:
+                state == _State.error ? ap.functionNotOpen : ap.functionNotOpen,
           ),
         );
       default:
@@ -212,7 +213,8 @@ class _PickTutorPageState extends State<PickTutorPage> {
           width: MediaQuery.of(context).size.width * 0.7,
           child: ListView.separated(
             shrinkWrap: true,
-            controller: ScrollController(initialScrollOffset: currentIndex * 40.0),
+            controller:
+                ScrollController(initialScrollOffset: currentIndex * 40.0),
             itemCount: items.length,
             itemBuilder: (BuildContext context, int index) {
               return DialogOption(

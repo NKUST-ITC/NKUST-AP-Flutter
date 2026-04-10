@@ -58,7 +58,8 @@ class ReportPageState extends State<ReportPage> {
               title: app.reportAppBug,
               subtitle: app.reportAppBugSubtitle,
               onTap: () async {
-                const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/new';
+                const String url =
+                    'https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/new';
                 await PlatformUtil.instance.launchUrl(url);
                 AnalyticsUtil.instance.logEvent('app_bug_click');
               },
@@ -70,7 +71,8 @@ class ReportPageState extends State<ReportPage> {
               title: app.featureSuggestion,
               subtitle: app.featureSuggestionSubtitle,
               onTap: () async {
-                const String url = 'https://github.com/NKUST-ITC/NKUST-AP-Flutter/discussions/new?category=ideas';
+                const String url =
+                    'https://github.com/NKUST-ITC/NKUST-AP-Flutter/discussions/new?category=ideas';
                 await PlatformUtil.instance.launchUrl(url);
                 AnalyticsUtil.instance.logEvent('feature_request_click');
               },

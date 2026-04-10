@@ -21,11 +21,13 @@ class MobileCookiesData {
         cookies: cookies ?? this.cookies,
       );
 
-  factory MobileCookiesData.fromJson(Map<String, dynamic> json) => _$MobileCookiesDataFromJson(json);
+  factory MobileCookiesData.fromJson(Map<String, dynamic> json) =>
+      _$MobileCookiesDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$MobileCookiesDataToJson(this);
 
-  factory MobileCookiesData.fromRawJson(String str) => MobileCookiesData.fromJson(
+  factory MobileCookiesData.fromRawJson(String str) =>
+      MobileCookiesData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -43,7 +45,8 @@ class MobileCookiesData {
   }
 
   static MobileCookiesData? load() {
-    final String str = PreferenceUtil.instance.getStringSecurity(Constants.mobileCookiesData, '');
+    final String str = PreferenceUtil.instance
+        .getStringSecurity(Constants.mobileCookiesData, '');
     return str.isEmpty ? null : MobileCookiesData.fromRawJson(str);
   }
 }
@@ -75,7 +78,8 @@ class MobileCookies {
         domain: domain ?? this.domain,
       );
 
-  factory MobileCookies.fromJson(Map<String, dynamic> json) => _$MobileCookiesFromJson(json);
+  factory MobileCookies.fromJson(Map<String, dynamic> json) =>
+      _$MobileCookiesFromJson(json);
 
   Map<String, dynamic> toJson() => _$MobileCookiesToJson(this);
 

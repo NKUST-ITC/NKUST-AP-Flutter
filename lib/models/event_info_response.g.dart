@@ -6,28 +6,34 @@ part of 'event_info_response.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-EventInfoResponse _$EventInfoResponseFromJson(Map<String, dynamic> json) => EventInfoResponse(
+EventInfoResponse _$EventInfoResponseFromJson(Map<String, dynamic> json) =>
+    EventInfoResponse(
       code: (json['code'] as num).toInt(),
       description: json['description'] as String,
       title: json['title'] as String,
-      data: (json['data'] as List<dynamic>).map((e) => EventInfo.fromJson(e as Map<String, dynamic>)).toList(),
+      data: (json['data'] as List<dynamic>)
+          .map((e) => EventInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
-Map<String, dynamic> _$EventInfoResponseToJson(EventInfoResponse instance) => <String, dynamic>{
+Map<String, dynamic> _$EventInfoResponseToJson(EventInfoResponse instance) =>
+    <String, dynamic>{
       'code': instance.code,
       'description': instance.description,
       'title': instance.title,
       'data': instance.data.map((e) => e.toJson()).toList(),
     };
 
-EventSendResponse _$EventSendResponseFromJson(Map<String, dynamic> json) => EventSendResponse(
+EventSendResponse _$EventSendResponseFromJson(Map<String, dynamic> json) =>
+    EventSendResponse(
       code: (json['code'] as num).toInt(),
       description: json['description'] as String,
       title: json['title'] as String,
       data: EventInfo.fromJson(json['data'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$EventSendResponseToJson(EventSendResponse instance) => <String, dynamic>{
+Map<String, dynamic> _$EventSendResponseToJson(EventSendResponse instance) =>
+    <String, dynamic>{
       'code': instance.code,
       'description': instance.description,
       'title': instance.title,

@@ -125,7 +125,9 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -137,8 +139,9 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                       children: <Widget>[
                         Expanded(
                           child: Container(
-                            color:
-                                (index != 0) ? Theme.of(context).colorScheme.outlineVariant : null,
+                            color: (index != 0)
+                                ? Theme.of(context).colorScheme.outlineVariant
+                                : null,
                             width: 1.0,
                           ),
                         ),
@@ -188,7 +191,9 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -217,8 +222,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       );
       if (mounted) {
         setState(() {
-          if (violationData == null ||
-              violationData!.reservations.isEmpty) {
+          if (violationData == null || violationData!.reservations.isEmpty) {
             state = _State.empty;
           } else {
             state = _State.finish;

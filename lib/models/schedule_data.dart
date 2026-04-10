@@ -14,7 +14,8 @@ class ScheduleData {
     required this.events,
   });
 
-  factory ScheduleData.fromJson(Map<String, dynamic> json) => _$ScheduleDataFromJson(json);
+  factory ScheduleData.fromJson(Map<String, dynamic> json) =>
+      _$ScheduleDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$ScheduleDataToJson(this);
 
@@ -26,7 +27,8 @@ class ScheduleData {
 
   static List<ScheduleData> toList(List<Map<String, dynamic>>? jsonArray) {
     final List<ScheduleData> list = <ScheduleData>[];
-    for (final Map<String, dynamic> item in jsonArray ?? <Map<String, dynamic>>[]) {
+    for (final Map<String, dynamic> item
+        in jsonArray ?? <Map<String, dynamic>>[]) {
       list.add(ScheduleData.fromJson(item));
     }
     return list;

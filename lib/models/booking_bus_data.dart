@@ -12,7 +12,8 @@ class BookingBusData {
     required this.success,
   });
 
-  factory BookingBusData.fromJson(Map<String, dynamic> json) => _$BookingBusDataFromJson(json);
+  factory BookingBusData.fromJson(Map<String, dynamic> json) =>
+      _$BookingBusDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$BookingBusDataToJson(this);
 

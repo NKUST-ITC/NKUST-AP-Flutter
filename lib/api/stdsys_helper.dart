@@ -169,8 +169,7 @@ class StdsysHelper {
         responseType: ResponseType.plain,
         contentType: 'application/x-www-form-urlencoded',
         headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student',
+          'Referer': 'https://stdsys.nkust.edu.tw/student',
           'Cookie': cookieHeader,
         },
       ),
@@ -209,14 +208,14 @@ class StdsysHelper {
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/',
+          'Referer': 'https://stdsys.nkust.edu.tw/student/',
           'Cookie': cookieHeader,
         },
       ),
     );
 
-    final Map<String, dynamic> json = StdsysParser.instance.semesterParser(response.data);
+    final Map<String, dynamic> json =
+        StdsysParser.instance.semesterParser(response.data);
     return SemesterData.fromJson(json);
   }
 }

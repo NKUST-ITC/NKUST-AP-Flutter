@@ -119,8 +119,7 @@ class SettingPageState extends State<SettingPage> {
                     );
                     final int newIndex =
                         (index != -1) ? index : ApTheme.customColorIndex;
-                    final Color? newCustomColor =
-                        (index != -1) ? null : color;
+                    final Color? newCustomColor = (index != -1) ? null : color;
                     ShareDataWidget.of(context)!
                         .data
                         .loadThemeColor(newIndex, newCustomColor);
@@ -255,8 +254,7 @@ class SettingPageState extends State<SettingPage> {
       Navigator.of(context, rootNavigator: true).pop();
       setState(() => busNotify = false);
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-      UiUtil.instance
-          .showToast(context, response.getGeneralMessage(context));
+      UiUtil.instance.showToast(context, response.getGeneralMessage(context));
     } on DioException catch (e) {
       Navigator.of(context, rootNavigator: true).pop();
       setState(() => busNotify = false);

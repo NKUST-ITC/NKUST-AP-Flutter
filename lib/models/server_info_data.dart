@@ -18,7 +18,8 @@ class ServerInfoData {
     required this.data,
   });
 
-  factory ServerInfoData.fromJson(Map<String, dynamic> json) => _$ServerInfoDataFromJson(json);
+  factory ServerInfoData.fromJson(Map<String, dynamic> json) =>
+      _$ServerInfoDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$ServerInfoDataToJson(this);
 
@@ -41,7 +42,8 @@ class ServerInfo {
     required this.description,
   });
 
-  factory ServerInfo.fromJson(Map<String, dynamic> json) => _$ServerInfoFromJson(json);
+  factory ServerInfo.fromJson(Map<String, dynamic> json) =>
+      _$ServerInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$ServerInfoToJson(this);
 

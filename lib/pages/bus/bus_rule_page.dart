@@ -17,7 +17,8 @@ class BusRulePageState extends State<BusRulePage> {
 
   @override
   void initState() {
-    AnalyticsUtil.instance.setCurrentScreen('BusRulePage', 'bus_rule_page.dart');
+    AnalyticsUtil.instance
+        .setCurrentScreen('BusRulePage', 'bus_rule_page.dart');
     super.initState();
   }
 

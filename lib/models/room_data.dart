@@ -16,7 +16,8 @@ class RoomData {
     required this.data,
   });
 
-  factory RoomData.fromJson(Map<String, dynamic> json) => _$RoomDataFromJson(json);
+  factory RoomData.fromJson(Map<String, dynamic> json) =>
+      _$RoomDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$RoomDataToJson(this);
 

@@ -4,7 +4,8 @@ import 'package:html/parser.dart' show parse;
 Map<String?, dynamic> hiddenInputGet(String? html, {bool? removeTdElement}) {
   String? rawHtml = html;
   if (removeTdElement == true) {
-    const String firstMatchString = '<td width="40px" nowrap="nowrap" align="left">';
+    const String firstMatchString =
+        '<td width="40px" nowrap="nowrap" align="left">';
     const String lastMatchString = '</td>';
     int startIndex = rawHtml!.indexOf(firstMatchString);
     while (startIndex > -1) {
@@ -23,7 +24,8 @@ Map<String?, dynamic> hiddenInputGet(String? html, {bool? removeTdElement}) {
     if (inputDom[i].attributes['type'] == 'hidden' &&
         inputDom[i].attributes['name'] != null &&
         inputDom[i].attributes['name']!.substring(0, 1) == '_') {
-      hiddenData[inputDom[i].attributes['name']] = inputDom[i].attributes['value'] ?? '';
+      hiddenData[inputDom[i].attributes['name']] =
+          inputDom[i].attributes['value'] ?? '';
     }
   }
   return hiddenData;
@@ -35,7 +37,8 @@ Map<String?, dynamic> allInputValueParser(String? html) {
   final List<Element> inputDoc = document.getElementsByTagName('input');
   for (int i = 0; i < inputDoc.length; i++) {
     if (inputDoc[i].attributes['name'] != null) {
-      hiddenData[inputDoc[i].attributes['name']] = inputDoc[i].attributes['value'] ?? '';
+      hiddenData[inputDoc[i].attributes['name']] =
+          inputDoc[i].attributes['value'] ?? '';
     }
   }
   return hiddenData;
@@ -95,8 +98,10 @@ Map<String, dynamic>? leaveSubmitInfoParser(String? html) {
   List<String> timeCodeList = <String>[];
   final List<Element> grids = document.getElementsByClassName('mGrid');
   if (grids.isNotEmpty) {
-    final List<Element> timeCode =
-        document.getElementsByClassName('mGrid')[0].getElementsByTagName('tr')[0].getElementsByTagName('th');
+    final List<Element> timeCode = document
+        .getElementsByClassName('mGrid')[0]
+        .getElementsByTagName('tr')[0]
+        .getElementsByTagName('th');
     if (timeCode.length > 5) {
       for (int i = 3; i < timeCode.length; i++) {
         timeCodeList.add(timeCode[i].text);
@@ -124,11 +129,14 @@ Map<String, dynamic>? leaveSubmitInfoParser(String? html) {
   //LeaveType generate part.
   final List<Map<String, String>> leaveType = <Map<String, String>>[];
 
-  final List<Element> leaveTypeList = document.getElementsByClassName('aspNetDisabled');
+  final List<Element> leaveTypeList =
+      document.getElementsByClassName('aspNetDisabled');
   if (leaveTypeList.length > 1) {
     for (int i = 1; i < leaveTypeList.length; i++) {
-      final List<Element> labels = leaveTypeList[i].getElementsByTagName('label');
-      final List<Element> inputs = leaveTypeList[i].getElementsByTagName('input');
+      final List<Element> labels =
+          leaveTypeList[i].getElementsByTagName('label');
+      final List<Element> inputs =
+          leaveTypeList[i].getElementsByTagName('input');
       if (labels.isEmpty) continue;
       leaveType.add(<String, String>{
         'title': labels[0].text,
@@ -138,8 +146,9 @@ Map<String, dynamic>? leaveSubmitInfoParser(String? html) {
 
     Map<String, dynamic>? tutorData;
     //Get default tutor
-    final List<Element> toturSelect =
-        document.getElementById('ContentPlaceHolder1_CK001_ddlTeach')!.getElementsByTagName('option');
+    final List<Element> toturSelect = document
+        .getElementById('ContentPlaceHolder1_CK001_ddlTeach')!
+        .getElementsByTagName('option');
     for (int i = 1; i < toturSelect.length; i++) {
       if (toturSelect[i].attributes['selected'] != null) {
         tutorData = <String, dynamic>{

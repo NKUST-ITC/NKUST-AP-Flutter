@@ -73,13 +73,16 @@ class MobileNkustPageState extends State<MobileNkustPage> {
           debugPrint('onPageCommitVisible $title $uri');
           if (uri.toString() == MobileNkustHelper.loginUrl) {
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Account")[0].value = "${widget.username}";',
+              source:
+                  'document.getElementsByName("Account")[0].value = "${widget.username}";',
             );
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Password")[0].value = "${widget.password}";',
+              source:
+                  'document.getElementsByName("Password")[0].value = "${widget.password}";',
             );
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("RememberMe")[0].checked = true;',
+              source:
+                  'document.getElementsByName("RememberMe")[0].checked = true;',
             );
           }
         },
@@ -111,7 +114,10 @@ class MobileNkustPageState extends State<MobileNkustPage> {
           path: MobileNkustHelper.homeUrl,
           name: element.name,
           value: element.value.toString(),
-          domain: element.domain ?? (element.name == '.AspNetCore.Cookies' ? 'mobile.nkust.edu.tw' : '.nkust.edu.tw'),
+          domain: element.domain ??
+              (element.name == '.AspNetCore.Cookies'
+                  ? 'mobile.nkust.edu.tw'
+                  : '.nkust.edu.tw'),
         ),
       );
       if (kDebugMode) {

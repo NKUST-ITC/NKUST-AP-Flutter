@@ -17,7 +17,8 @@ List<Map<String, dynamic>> acadParser({
     final List<Element> dTxtList = element.getElementsByClassName('d-txt');
     if (element.getElementsByClassName('d-txt').isNotEmpty) {
       info['date'] = dTxtList[0].text.replaceAll('	', '').replaceAll('\n', '');
-      info['department'] = dTxtList[1].text.replaceAll('	', '').replaceAll('\n', '');
+      info['department'] =
+          dTxtList[1].text.replaceAll('	', '').replaceAll('\n', '');
     }
     if (element.getElementsByTagName('a').isNotEmpty) {
       info['index'] = baseIndex;

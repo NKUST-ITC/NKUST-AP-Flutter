@@ -123,7 +123,9 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       width: 80,
       height: 80,
       decoration: BoxDecoration(
-        color: isDark ? colorScheme.primaryContainer : colorScheme.onPrimary.withAlpha(51),
+        color: isDark
+            ? colorScheme.primaryContainer
+            : colorScheme.onPrimary.withAlpha(51),
         borderRadius: BorderRadius.circular(20),
         boxShadow: <BoxShadow>[
           BoxShadow(
@@ -224,15 +226,15 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   Widget _buildDatePicker(ColorScheme colorScheme) {
     return InkWell(
-          onTap: () async {
-            final DateTime? date = await showDatePicker(
-              context: context,
-              initialDate: birthday,
-              firstDate: DateTime(1911),
-              lastDate: DateTime.now(),
-            );
-            if (date != null) setState(() => birthday = date);
-          },
+      onTap: () async {
+        final DateTime? date = await showDatePicker(
+          context: context,
+          initialDate: birthday,
+          firstDate: DateTime(1911),
+          lastDate: DateTime.now(),
+        );
+        if (date != null) setState(() => birthday = date);
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -251,9 +253,9 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             ),
             const SizedBox(width: 16),
             Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   Text(
                     ap.birthDay,
                     style: TextStyle(
@@ -262,27 +264,27 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-              Text(
-                sprintf(
-                  '%i-%02i-%02i',
+                  Text(
+                    sprintf(
+                      '%i-%02i-%02i',
                       <int>[birthday.year, birthday.month, birthday.day],
-                ),
+                    ),
                     style: TextStyle(
                       fontSize: 16,
                       color: colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
-                ),
-              ),
+                    ),
+                  ),
                 ],
               ),
             ),
             Icon(
               Icons.arrow_drop_down_rounded,
               color: colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -322,7 +324,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
             color: colorScheme.outline.withAlpha(77),
-        ),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -371,7 +373,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
             ),
           ],
         ),
-        ),
+      ),
     );
   }
 

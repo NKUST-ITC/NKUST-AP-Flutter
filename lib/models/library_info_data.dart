@@ -16,7 +16,8 @@ class LibraryInfoData {
     required this.data,
   });
 
-  factory LibraryInfoData.fromJson(Map<String, dynamic> json) => _$LibraryInfoDataFromJson(json);
+  factory LibraryInfoData.fromJson(Map<String, dynamic> json) =>
+      _$LibraryInfoDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LibraryInfoDataToJson(this);
 
@@ -48,7 +49,8 @@ class LibraryInfo {
     required this.record,
   });
 
-  factory LibraryInfo.fromJson(Map<String, dynamic> json) => _$LibraryInfoFromJson(json);
+  factory LibraryInfo.fromJson(Map<String, dynamic> json) =>
+      _$LibraryInfoFromJson(json);
 
   Map<String, dynamic> toJson() => _$LibraryInfoToJson(this);
 

@@ -297,7 +297,8 @@ class RoomListPageState extends State<RoomListPage> {
               ],
             ),
           ),
-          children: floorRooms.entries.map((MapEntry<String, List<Room>> entry) {
+          children:
+              floorRooms.entries.map((MapEntry<String, List<Room>> entry) {
             return _buildFloorCard(entry.key, entry.value, colorScheme);
           }).toList(),
         ),

@@ -82,10 +82,12 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
           debugPrint('onLoadStop $title $uri');
           if (uri.toString() == LeaveHelper.basePath) {
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";',
+              source:
+                  'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";',
             );
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";',
+              source:
+                  'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";',
             );
           }
         },
@@ -106,7 +108,10 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
           path: MobileNkustHelper.homeUrl,
           name: element.name,
           value: element.value.toString(),
-          domain: element.domain ?? (element.name == 'ASP.NET_SessionId' ? 'leave.nkust.edu.tw' : '.nkust.edu.tw'),
+          domain: element.domain ??
+              (element.name == 'ASP.NET_SessionId'
+                  ? 'leave.nkust.edu.tw'
+                  : '.nkust.edu.tw'),
         ),
       );
       if (kDebugMode) {

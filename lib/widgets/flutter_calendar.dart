@@ -54,8 +54,10 @@ class _CalendarState extends State<Calendar> {
       _selectedDate = widget.initialCalendarDateOverride;
     }
     selectedMonthsDays = CalendarDateUtils.daysInMonth(_selectedDate!);
-    final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-    final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+    final DateTime firstDayOfCurrentWeek =
+        CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+    final DateTime lastDayOfCurrentWeek =
+        CalendarDateUtils.lastDayOfWeek(_selectedDate!);
     selectedWeeksDays = CalendarDateUtils.daysInRange(
       firstDayOfCurrentWeek,
       lastDayOfCurrentWeek,
@@ -127,9 +129,12 @@ class _CalendarState extends State<Calendar> {
 
   Widget get calendarGridView {
     return GestureDetector(
-      onHorizontalDragStart: (DragStartDetails gestureDetails) => beginSwipe(gestureDetails),
-      onHorizontalDragUpdate: (DragUpdateDetails gestureDetails) => getDirection(gestureDetails),
-      onHorizontalDragEnd: (DragEndDetails gestureDetails) => endSwipe(gestureDetails),
+      onHorizontalDragStart: (DragStartDetails gestureDetails) =>
+          beginSwipe(gestureDetails),
+      onHorizontalDragUpdate: (DragUpdateDetails gestureDetails) =>
+          getDirection(gestureDetails),
+      onHorizontalDragEnd: (DragEndDetails gestureDetails) =>
+          endSwipe(gestureDetails),
       child: GridView.count(
         shrinkWrap: true,
         crossAxisCount: 7,
@@ -143,7 +148,8 @@ class _CalendarState extends State<Calendar> {
 
   List<Widget> calendarBuilder() {
     final List<Widget> dayWidgets = <Widget>[];
-    final List<DateTime> calendarDays = isExpanded ? selectedMonthsDays : selectedWeeksDays as List<DateTime>;
+    final List<DateTime> calendarDays =
+        isExpanded ? selectedMonthsDays : selectedWeeksDays as List<DateTime>;
 
     for (final String day in widget.weekdays) {
       dayWidgets.add(
@@ -197,8 +203,9 @@ class _CalendarState extends State<Calendar> {
   }) {
     TextStyle dateStyles;
     if (isExpanded) {
-      dateStyles =
-          monthStarted && !monthEnded ? const TextStyle(color: Colors.black) : const TextStyle(color: Colors.black38);
+      dateStyles = monthStarted && !monthEnded
+          ? const TextStyle(color: Colors.black)
+          : const TextStyle(color: Colors.black38);
     } else {
       dateStyles = TextStyle(color: ApTheme.of(context).grey);
     }
@@ -215,7 +222,9 @@ class _CalendarState extends State<Calendar> {
             iconSize: 20.0,
             padding: EdgeInsets.zero,
             onPressed: toggleExpanded,
-            icon: isExpanded ? Icon(ApIcon.arrowDropUp) : Icon(ApIcon.arrowDropDown),
+            icon: isExpanded
+                ? Icon(ApIcon.arrowDropUp)
+                : Icon(ApIcon.arrowDropDown),
           ),
         ],
       );
@@ -242,8 +251,10 @@ class _CalendarState extends State<Calendar> {
 
   void resetToToday() {
     _selectedDate = DateTime.now();
-    final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-    final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+    final DateTime firstDayOfCurrentWeek =
+        CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+    final DateTime lastDayOfCurrentWeek =
+        CalendarDateUtils.lastDayOfWeek(_selectedDate!);
 
     setState(() {
       selectedWeeksDays = CalendarDateUtils.daysInRange(
@@ -259,8 +270,10 @@ class _CalendarState extends State<Calendar> {
   void nextMonth() {
     setState(() {
       _selectedDate = CalendarDateUtils.nextMonth(_selectedDate!);
-      final DateTime firstDateOfNewMonth = CalendarDateUtils.firstDayOfMonth(_selectedDate!);
-      final DateTime lastDateOfNewMonth = CalendarDateUtils.lastDayOfMonth(_selectedDate!);
+      final DateTime firstDateOfNewMonth =
+          CalendarDateUtils.firstDayOfMonth(_selectedDate!);
+      final DateTime lastDateOfNewMonth =
+          CalendarDateUtils.lastDayOfMonth(_selectedDate!);
       updateSelectedRange(firstDateOfNewMonth, lastDateOfNewMonth);
       selectedMonthsDays = CalendarDateUtils.daysInMonth(_selectedDate!);
       displayMonth = CalendarDateUtils.formatMonth(_selectedDate!);
@@ -270,8 +283,10 @@ class _CalendarState extends State<Calendar> {
   void previousMonth() {
     setState(() {
       _selectedDate = CalendarDateUtils.previousMonth(_selectedDate!);
-      final DateTime firstDateOfNewMonth = CalendarDateUtils.firstDayOfMonth(_selectedDate!);
-      final DateTime lastDateOfNewMonth = CalendarDateUtils.lastDayOfMonth(_selectedDate!);
+      final DateTime firstDateOfNewMonth =
+          CalendarDateUtils.firstDayOfMonth(_selectedDate!);
+      final DateTime lastDateOfNewMonth =
+          CalendarDateUtils.lastDayOfMonth(_selectedDate!);
       updateSelectedRange(firstDateOfNewMonth, lastDateOfNewMonth);
       selectedMonthsDays = CalendarDateUtils.daysInMonth(_selectedDate!);
       displayMonth = CalendarDateUtils.formatMonth(_selectedDate!);
@@ -281,8 +296,10 @@ class _CalendarState extends State<Calendar> {
   void nextWeek() {
     setState(() {
       _selectedDate = CalendarDateUtils.nextWeek(_selectedDate!);
-      final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-      final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+      final DateTime firstDayOfCurrentWeek =
+          CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+      final DateTime lastDayOfCurrentWeek =
+          CalendarDateUtils.lastDayOfWeek(_selectedDate!);
       updateSelectedRange(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
       selectedWeeksDays = CalendarDateUtils.daysInRange(
         firstDayOfCurrentWeek,
@@ -296,8 +313,10 @@ class _CalendarState extends State<Calendar> {
   void previousWeek() {
     setState(() {
       _selectedDate = CalendarDateUtils.previousWeek(_selectedDate!);
-      final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(_selectedDate!);
-      final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(_selectedDate!);
+      final DateTime firstDayOfCurrentWeek =
+          CalendarDateUtils.firstDayOfWeek(_selectedDate!);
+      final DateTime lastDayOfCurrentWeek =
+          CalendarDateUtils.lastDayOfWeek(_selectedDate!);
       updateSelectedRange(firstDayOfCurrentWeek, lastDayOfCurrentWeek);
       selectedWeeksDays = CalendarDateUtils.daysInRange(
         firstDayOfCurrentWeek,
@@ -309,7 +328,8 @@ class _CalendarState extends State<Calendar> {
   }
 
   void updateSelectedRange(DateTime start, DateTime end) {
-    final Tuple2<DateTime, DateTime> selectedRange = Tuple2<DateTime, DateTime>(start, end);
+    final Tuple2<DateTime, DateTime> selectedRange =
+        Tuple2<DateTime, DateTime>(start, end);
     if (widget.onSelectedRangeChange != null) {
       widget.onSelectedRangeChange!.call(selectedRange);
     }
@@ -324,8 +344,10 @@ class _CalendarState extends State<Calendar> {
     );
 
     if (selected != null) {
-      final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(selected);
-      final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(selected);
+      final DateTime firstDayOfCurrentWeek =
+          CalendarDateUtils.firstDayOfWeek(selected);
+      final DateTime lastDayOfCurrentWeek =
+          CalendarDateUtils.lastDayOfWeek(selected);
 
       setState(() {
         _selectedDate = selected;
@@ -380,7 +402,8 @@ class _CalendarState extends State<Calendar> {
   }
 
   void handleSelectedDateAndUserCallback(DateTime day) {
-    final DateTime firstDayOfCurrentWeek = CalendarDateUtils.firstDayOfWeek(day);
+    final DateTime firstDayOfCurrentWeek =
+        CalendarDateUtils.firstDayOfWeek(day);
     final DateTime lastDayOfCurrentWeek = CalendarDateUtils.lastDayOfWeek(day);
     setState(() {
       _selectedDate = day;
@@ -416,7 +439,8 @@ class ExpansionCrossFade extends StatelessWidget {
         firstCurve: const Interval(0.0, 1.0, curve: Curves.fastOutSlowIn),
         secondCurve: const Interval(0.0, 1.0, curve: Curves.fastOutSlowIn),
         sizeCurve: Curves.decelerate,
-        crossFadeState: isExpanded! ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+        crossFadeState:
+            isExpanded! ? CrossFadeState.showSecond : CrossFadeState.showFirst,
         duration: const Duration(milliseconds: 300),
       ),
     );

@@ -6,7 +6,8 @@ part of 'crawler_selector.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) => CrawlerSelector(
+CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) =>
+    CrawlerSelector(
       login: json['login'] as String,
       userInfo: json['user_info'] as String,
       course: json['course'] as String,
@@ -14,7 +15,8 @@ CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) => CrawlerS
       semester: json['semester'] as String,
     );
 
-Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) => <String, dynamic>{
+Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) =>
+    <String, dynamic>{
       'login': instance.login,
       'user_info': instance.userInfo,
       'course': instance.course,

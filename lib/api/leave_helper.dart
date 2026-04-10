@@ -67,7 +67,8 @@ class LeaveHelper {
       'Origin': 'http://leave.nkust.edu.tw',
       'Upgrade-Insecure-Requests': '1',
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+      'Accept':
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
       'Referer': 'https://leave.nkust.edu.tw/LogOn.aspx',
       'Accept-Encoding': 'gzip, deflate',
       'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
@@ -188,7 +189,8 @@ class LeaveHelper {
       //login fail
       return false;
     } on DioException catch (e) {
-      if (e.type == DioExceptionType.badResponse && e.response!.statusCode == 302) {
+      if (e.type == DioExceptionType.badResponse &&
+          e.response!.statusCode == 302) {
         //Use 302 to mean login success, nice...
         await dio.get('https://leave.nkust.edu.tw/masterindex.aspx');
         isLogin = true;
@@ -213,7 +215,8 @@ class LeaveHelper {
       'https://leave.nkust.edu.tw/AK002MainM.aspx',
     );
     final Map<String?, dynamic> requestData = allInputValueParser(res.data);
-    requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] = '$year-$semester';
+    requestData[r'ctl00$ContentPlaceHolder1$SYS001$DropDownListYms'] =
+        '$year-$semester';
     requestData[r'ctl00$ContentPlaceHolder1$Button1	'] = '確定送出';
     requestData.remove(r'ctl00$ButtonLogOut');
     final Response<String> queryRequest = await dio.post<String>(
@@ -253,9 +256,11 @@ class LeaveHelper {
         contentType: Headers.formUrlEncodedContentType,
       ),
     );
-    final String fakeDate = '${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}';
+    final String fakeDate =
+        '${DateTime.now().year - 1911}/${DateTime.now().month}/${DateTime.now().day}';
     requestData = hiddenInputGet(res.data, removeTdElement: true);
-    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] = fakeDate;
+    requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] =
+        fakeDate;
     requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCEnd$text1'] = fakeDate;
     requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonCommit'] = '下一步';
     res = await dio.post(
@@ -295,7 +300,8 @@ class LeaveHelper {
     requestData = hiddenInputGet(res.data, removeTdElement: true);
     final DateFormat dateFormate = DateFormat('yyyy/MM/dd');
     final DateTime beginDate = dateFormate.parse(data.days[0].day!);
-    final DateTime endDate = dateFormate.parse(data.days[data.days.length - 1].day!);
+    final DateTime endDate =
+        dateFormate.parse(data.days[data.days.length - 1].day!);
 
     requestData[r'ctl00$ContentPlaceHolder1$CK001$DateUCCBegin$text1'] =
         '${beginDate.year - 1911}/${beginDate.month}/${beginDate.day}';
@@ -315,21 +321,28 @@ class LeaveHelper {
     if (res.data.toString().contains('alert(')) {
       return null;
     }
-    final Map<String, dynamic>? submitData = leaveSubmitInfoParser(res.data.toString());
+    final Map<String, dynamic>? submitData =
+        leaveSubmitInfoParser(res.data.toString());
     log('on submit main page.');
     log('Change leave type');
     final Map<String, dynamic> globalRequestData = <String, dynamic>{};
 
-    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxReason'] = data.reasonText;
-    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$ddlTeach'] = data.teacherId;
-    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] = data.leaveTypeId;
+    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxReason'] =
+        data.reasonText;
+    globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$ddlTeach'] =
+        data.teacherId;
+    globalRequestData[
+            r'ctl00$ContentPlaceHolder1$CK001$RadioButtonListOption'] =
+        data.leaveTypeId;
     if (data.delayReasonText != null && res.data.toString().contains('延遲理由')) {
-      globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] = data.delayReasonText;
+      globalRequestData[r'ctl00$ContentPlaceHolder1$CK001$TextBoxDelayReason'] =
+          data.delayReasonText;
     }
     final html.Document document = parse(res.data.toString());
 
     log('generate need click button list');
-    final List<html.Element> trObj = document.getElementsByClassName('mGrid')[0].getElementsByTagName('tr');
+    final List<html.Element> trObj =
+        document.getElementsByClassName('mGrid')[0].getElementsByTagName('tr');
     if (trObj.length < 2) {
       log('Error: not found leave days options');
       return null;
@@ -340,7 +353,8 @@ class LeaveHelper {
       final List<String> leaveDays = data.days[i - 1].dayClass!;
       for (int l = 0; l < leaveDays.length; l++) {
         clickList.add(
-          td[(submitData!['timeCodes'] as List<dynamic>).indexOf(leaveDays[l]) + 3]
+          td[(submitData!['timeCodes'] as List<dynamic>).indexOf(leaveDays[l]) +
+                  3]
               .getElementsByTagName('input')[0]
               .attributes['name'],
         );
@@ -349,7 +363,8 @@ class LeaveHelper {
     log('click leave class');
 
     for (int i = 0; i < clickList.length; i++) {
-      final Map<String?, dynamic> requestData = hiddenInputGet(res.data.toString());
+      final Map<String?, dynamic> requestData =
+          hiddenInputGet(res.data.toString());
       requestData.addAll(globalRequestData);
 
       requestData[clickList[i]] = '';
@@ -384,16 +399,19 @@ class LeaveHelper {
     requestData[r'ctl00$ContentPlaceHolder1$CK001$ButtonSend'] = '存檔';
     if (proofImage != null) {
       log('Add proof image');
-      requestData[r'ctl00$ContentPlaceHolder1$CK001$FileUpload1'] = await MultipartFile.fromFile(
+      requestData[r'ctl00$ContentPlaceHolder1$CK001$FileUpload1'] =
+          await MultipartFile.fromFile(
         proofImage.path,
         filename: 'proof_image.jpg',
         contentType: MediaType.parse('image/jpeg'),
       );
     }
 
-    final FormData formData = FormData.fromMap(requestData as Map<String, dynamic>);
+    final FormData formData =
+        FormData.fromMap(requestData as Map<String, dynamic>);
 
-    dio.options.headers['Content-Type'] = 'multipart/form-data; boundary=${formData.boundary}';
+    dio.options.headers['Content-Type'] =
+        'multipart/form-data; boundary=${formData.boundary}';
     res = await dio.post(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
       data: formData,

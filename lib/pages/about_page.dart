@@ -205,7 +205,11 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
   }
 
   List<String> _splitParagraphs(String content) {
-    return content.split('\n').map((String s) => s.trim()).where((String s) => s.isNotEmpty).toList();
+    return content
+        .split('\n')
+        .map((String s) => s.trim())
+        .where((String s) => s.isNotEmpty)
+        .toList();
   }
 
   @override
@@ -608,7 +612,8 @@ class _CustomAboutPageState extends State<CustomAboutPage> {
   }
 
   Widget _buildAvatarPlaceholder(Color accentColor, String name) {
-    final String initial = name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
+    final String initial =
+        name.isNotEmpty ? name.characters.first.toUpperCase() : '?';
     return Container(
       width: 36,
       height: 36,

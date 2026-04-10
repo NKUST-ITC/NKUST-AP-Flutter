@@ -62,7 +62,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
           child: isOffline
               ? Text(
                   app!.offlineBusReservations,
-                  style: TextStyle(color: Theme.of(context).colorScheme.outlineVariant),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.outlineVariant),
                 )
               : null,
         ),

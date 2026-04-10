@@ -6,15 +6,19 @@ part of 'leave_submit_data.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-LeaveSubmitData _$LeaveSubmitDataFromJson(Map<String, dynamic> json) => LeaveSubmitData(
-      days: (json['days'] as List<dynamic>).map((e) => LeaveDay.fromJson(e as Map<String, dynamic>)).toList(),
+LeaveSubmitData _$LeaveSubmitDataFromJson(Map<String, dynamic> json) =>
+    LeaveSubmitData(
+      days: (json['days'] as List<dynamic>)
+          .map((e) => LeaveDay.fromJson(e as Map<String, dynamic>))
+          .toList(),
       leaveTypeId: json['leaveTypeId'] as String,
       teacherId: json['teacherId'] as String,
       reasonText: json['reasonText'] as String,
       delayReasonText: json['delayReasonText'] as String?,
     );
 
-Map<String, dynamic> _$LeaveSubmitDataToJson(LeaveSubmitData instance) => <String, dynamic>{
+Map<String, dynamic> _$LeaveSubmitDataToJson(LeaveSubmitData instance) =>
+    <String, dynamic>{
       'days': instance.days.map((e) => e.toJson()).toList(),
       'leaveTypeId': instance.leaveTypeId,
       'teacherId': instance.teacherId,
@@ -24,7 +28,8 @@ Map<String, dynamic> _$LeaveSubmitDataToJson(LeaveSubmitData instance) => <Strin
 
 LeaveDay _$LeaveDayFromJson(Map<String, dynamic> json) => LeaveDay(
       day: json['day'] as String?,
-      dayClass: (json['class'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      dayClass:
+          (json['class'] as List<dynamic>?)?.map((e) => e as String).toList(),
     );
 
 Map<String, dynamic> _$LeaveDayToJson(LeaveDay instance) => <String, dynamic>{

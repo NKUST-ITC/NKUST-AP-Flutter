@@ -103,7 +103,9 @@ class BusReservePageState extends State<BusReservePage>
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                          child: Divider(
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant),
                         ),
                       ],
                     ),
@@ -121,8 +123,7 @@ class BusReservePageState extends State<BusReservePage>
                     child: CupertinoSegmentedControl<Station>(
                       selectedColor: Theme.of(context).colorScheme.primary,
                       borderColor: Theme.of(context).colorScheme.primary,
-                      unselectedColor:
-                          Theme.of(context).colorScheme.surface,
+                      unselectedColor: Theme.of(context).colorScheme.surface,
                       groupValue: selectStartStation,
                       children: <Station, Widget>{
                         Station.janGong: Container(
@@ -308,7 +309,9 @@ class BusReservePageState extends State<BusReservePage>
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(color: Theme.of(context).colorScheme.outlineVariant, height: 0.0),
+            child: Divider(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                height: 0.0),
           ),
         ],
       );

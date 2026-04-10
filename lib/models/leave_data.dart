@@ -17,7 +17,8 @@ class LeaveData {
     required this.timeCodes,
   });
 
-  factory LeaveData.fromJson(Map<String, dynamic> json) => _$LeaveDataFromJson(json);
+  factory LeaveData.fromJson(Map<String, dynamic> json) =>
+      _$LeaveDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeaveDataToJson(this);
 
@@ -69,7 +70,9 @@ class Leave {
     required this.leaveSections,
   });
 
-  String get dateText => date.length == 7 ? '${date.substring(3, 5)}/${date.substring(5, 7)}' : date;
+  String get dateText => date.length == 7
+      ? '${date.substring(3, 5)}/${date.substring(5, 7)}'
+      : date;
 
   factory Leave.fromJson(Map<String, dynamic> json) => _$LeaveFromJson(json);
 
@@ -100,7 +103,8 @@ class LeaveSections {
     required this.reason,
   });
 
-  factory LeaveSections.fromJson(Map<String, dynamic> json) => _$LeaveSectionsFromJson(json);
+  factory LeaveSections.fromJson(Map<String, dynamic> json) =>
+      _$LeaveSectionsFromJson(json);
 
   Map<String, dynamic> toJson() => _$LeaveSectionsToJson(this);
 

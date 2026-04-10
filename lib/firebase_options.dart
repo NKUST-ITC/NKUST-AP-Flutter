@@ -67,8 +67,10 @@ class DefaultFirebaseOptions {
     projectId: 'nkust-ap-flutter',
     databaseURL: 'https://nkust-ap-flutter.firebaseio.com',
     storageBucket: 'nkust-ap-flutter.appspot.com',
-    androidClientId: '141403473068-46ao3s54s6jio6nndl70sq26k0bpki6g.apps.googleusercontent.com',
-    iosClientId: '141403473068-b9ugkddmql2nefsuggoc9unte0qm23eb.apps.googleusercontent.com',
+    androidClientId:
+        '141403473068-46ao3s54s6jio6nndl70sq26k0bpki6g.apps.googleusercontent.com',
+    iosClientId:
+        '141403473068-b9ugkddmql2nefsuggoc9unte0qm23eb.apps.googleusercontent.com',
     iosBundleId: 'com.nkust.ap.flutter',
   );
 
@@ -79,8 +81,10 @@ class DefaultFirebaseOptions {
     projectId: 'nkust-ap-flutter',
     databaseURL: 'https://nkust-ap-flutter.firebaseio.com',
     storageBucket: 'nkust-ap-flutter.appspot.com',
-    androidClientId: '141403473068-46ao3s54s6jio6nndl70sq26k0bpki6g.apps.googleusercontent.com',
-    iosClientId: '141403473068-r9a6m4f8lmg31e5v08v1kfnnn8cin8iv.apps.googleusercontent.com',
+    androidClientId:
+        '141403473068-46ao3s54s6jio6nndl70sq26k0bpki6g.apps.googleusercontent.com',
+    iosClientId:
+        '141403473068-r9a6m4f8lmg31e5v08v1kfnnn8cin8iv.apps.googleusercontent.com',
     iosBundleId: 'com.nkust.nkustApFlutter',
   );
 

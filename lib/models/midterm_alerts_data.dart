@@ -16,11 +16,13 @@ class MidtermAlertsData {
     required this.courses,
   });
 
-  factory MidtermAlertsData.fromJson(Map<String, dynamic> json) => _$MidtermAlertsDataFromJson(json);
+  factory MidtermAlertsData.fromJson(Map<String, dynamic> json) =>
+      _$MidtermAlertsDataFromJson(json);
 
   Map<String, dynamic> toJson() => _$MidtermAlertsDataToJson(this);
 
-  factory MidtermAlertsData.fromRawJson(String str) => MidtermAlertsData.fromJson(
+  factory MidtermAlertsData.fromRawJson(String str) =>
+      MidtermAlertsData.fromJson(
         json.decode(str) as Map<String, dynamic>,
       );
 
@@ -47,7 +49,8 @@ class MidtermAlerts {
     this.remark,
   });
 
-  factory MidtermAlerts.fromJson(Map<String, dynamic> json) => _$MidtermAlertsFromJson(json);
+  factory MidtermAlerts.fromJson(Map<String, dynamic> json) =>
+      _$MidtermAlertsFromJson(json);
 
   Map<String, dynamic> toJson() => _$MidtermAlertsToJson(this);
 
