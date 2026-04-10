@@ -56,7 +56,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   TextStyle _textBlueStyle() {
-    return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
+    return TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 16.0);
   }
 
   TextStyle _textStyle() {
@@ -130,7 +130,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             child: Text(
               ap.calculateUnitsContent,
               style: TextStyle(
-                color: ApTheme.of(context).blueText,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 16.0,
               ),
             ),

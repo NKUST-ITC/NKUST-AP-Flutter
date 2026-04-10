@@ -125,7 +125,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: ApTheme.of(context).greyText,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -138,7 +138,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                         Expanded(
                           child: Container(
                             color:
-                                (index != 0) ? ApTheme.of(context).grey : null,
+                                (index != 0) ? Theme.of(context).colorScheme.outlineVariant : null,
                             width: 1.0,
                           ),
                         ),
@@ -150,7 +150,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             ),
                             border: Border.all(
                               width: 3,
-                              color: ApTheme.of(context).yellow,
+                              color: Theme.of(context).colorScheme.secondary,
                             ),
                           ),
                           constraints: const BoxConstraints(
@@ -161,15 +161,15 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                             reservations[index].amountendText,
                             style: TextStyle(
                               color: reservations[index].isPayment
-                                  ? ApTheme.of(context).yellow
-                                  : ApTheme.of(context).red,
+                                  ? Theme.of(context).colorScheme.secondary
+                                  : Theme.of(context).colorScheme.error,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Container(
                             color: (index != reservations.length - 1)
-                                ? ApTheme.of(context).grey
+                                ? Theme.of(context).colorScheme.outlineVariant
                                 : null,
                             width: 1.0,
                           ),
@@ -188,7 +188,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
                                       '${reservations[index].time.year}',
                                       style: TextStyle(
                                         fontSize: 28.0,
-                                        color: ApTheme.of(context).greyText,
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.bold,
                                       ),
                                       maxLines: 1,
@@ -329,7 +329,7 @@ class ReservationItem extends StatelessWidget {
                     '${reservation!.time.month}/${reservation!.time.day}',
                     style: TextStyle(
                       fontSize: 24.0,
-                      color: ApTheme.of(context).greyText,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
@@ -350,14 +350,14 @@ class ReservationItem extends StatelessWidget {
               Icon(
                 ApIcon.accessTime,
                 size: 12.0,
-                color: ApTheme.of(context).greyText,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 2.0),
               Text(
                 dateFormat
                     .format(reservation!.time.add(const Duration(hours: 8))),
                 style: TextStyle(
-                  color: ApTheme.of(context).greyText,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -374,8 +374,8 @@ class ReservationItem extends StatelessWidget {
                         : AppLocalizations.of(context).unpaid,
                     style: TextStyle(
                       color: reservation!.isPayment
-                          ? ApTheme.of(context).green
-                          : ApTheme.of(context).red,
+                          ? Theme.of(context).colorScheme.tertiary
+                          : Theme.of(context).colorScheme.error,
                     ),
                   ),
                 ),
@@ -392,7 +392,7 @@ class ReservationItem extends StatelessWidget {
         borderRadius: const BorderRadius.all(
           Radius.circular(12),
         ),
-        color: ApTheme.of(context).blueAccent,
+        color: Theme.of(context).colorScheme.primary,
       ),
       padding: const EdgeInsets.symmetric(
         vertical: 1.0,
@@ -403,7 +403,7 @@ class ReservationItem extends StatelessWidget {
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,
-          color: ApTheme.of(context).courseText,
+          color: Theme.of(context).colorScheme.onPrimary,
         ),
       ),
     );
@@ -426,7 +426,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return ColoredBox(
-      color: ApTheme.of(context).blue,
+      color: Theme.of(context).colorScheme.primary,
       child: Stack(
         clipBehavior: Clip.none,
         fit: StackFit.expand,
@@ -455,7 +455,7 @@ class MySliverAppBar extends SliverPersistentHeaderDelegate {
               opacity: 1 - shrinkOffset / expandedHeight,
               child: CustomPaint(
                 painter: TrianglePainter(
-                  strokeColor: ApTheme.of(context).blue,
+                  strokeColor: Theme.of(context).colorScheme.primary,
                   strokeWidth: 10,
                   paintingStyle: PaintingStyle.fill,
                 ),
