@@ -42,7 +42,8 @@ void main() {
   final String? password = Platform.environment['NKUST_PASSWORD'];
 
   if (username == null || password == null) {
-    print('⚠ NKUST_USERNAME / NKUST_PASSWORD not set — skipping integration tests');
+    print(
+        '⚠ NKUST_USERNAME / NKUST_PASSWORD not set — skipping integration tests');
     return;
   }
 
@@ -101,7 +102,8 @@ void main() {
       final SemesterData semesters = await WebApHelper.instance.semesters();
       expect(semesters.data, isNotEmpty);
       expect(semesters.defaultSemester, isNotNull);
-      print('  ✓ semesters: ${semesters.data.length} entries, default=${semesters.defaultSemester.text}');
+      print(
+          '  ✓ semesters: ${semesters.data.length} entries, default=${semesters.defaultSemester.text}');
     });
 
     test('scores has expected structure', () async {

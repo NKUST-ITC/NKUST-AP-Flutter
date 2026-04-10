@@ -142,7 +142,6 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           showFirstHint: false,
         );
       } on DioException catch (_) {}
-
     }
   }
 

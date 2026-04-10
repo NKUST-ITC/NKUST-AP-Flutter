@@ -330,8 +330,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         semester: semesterData!.data[currentSemesterIndex],
       );
       if (startYear == -1) {
-        startYear =
-            int.parse(semesterData!.data[currentSemesterIndex].year);
+        startYear = int.parse(semesterData!.data[currentSemesterIndex].year);
       }
       semesterList.add(semesterData!.data[currentSemesterIndex]);
       if (data?.scores != null) {
@@ -339,8 +338,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           if (score.semesterScore == null || score.semesterScore!.isEmpty) {
             continue;
           }
-          final double? semesterScore =
-              double.tryParse(score.semesterScore!);
+          final double? semesterScore = double.tryParse(score.semesterScore!);
           if ((semesterScore != null && semesterScore >= 60.0) ||
               score.semesterScore == '合格' ||
               score.semesterScore == '通過') {
@@ -351,8 +349,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             } else {
               otherUnitsTotal += double.parse(score.units);
             }
-            if (score.title.contains('延伸通識') ||
-                score.title.contains('博雅')) {
+            if (score.title.contains('延伸通識') || score.title.contains('博雅')) {
               extendGeneralEducations.add(score);
             } else if (score.title.contains('核心通識') ||
                 score.title.contains('核心')) {
@@ -370,12 +367,10 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       } else {
         final DateTime end = DateTime.now();
         final double second =
-            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
-                1000;
+            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) / 1000;
         (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
             .logCalculateUnits(second);
-        unitsTotal =
-            requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+        unitsTotal = requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
         if (mounted) {
           setState(() {
             state = _State.finish;

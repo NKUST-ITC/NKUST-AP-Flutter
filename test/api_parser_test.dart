@@ -97,8 +97,7 @@ void main() {
   // ─── WebApParser: scoresParser ───────────────────────────────────────
   group('WebApParser.scoresParser', () {
     test('parses scores and detail', () {
-      final String html =
-          File('assets_test/ap/scores.html').readAsStringSync();
+      final String html = File('assets_test/ap/scores.html').readAsStringSync();
       final Map<String, dynamic> result =
           WebApParser.instance.scoresParser(html);
 
@@ -444,15 +443,13 @@ void main() {
       expect(data[0]['leaveSheetId'], 'L001');
       expect(data[0]['date'], '2024/03/15');
       expect(data[0]['instructorsComment'], '已核准');
-      final List<dynamic> sections =
-          data[0]['sections'] as List<dynamic>;
+      final List<dynamic> sections = data[0]['sections'] as List<dynamic>;
       expect(sections.length, 2);
       expect(sections[0]['section'], '1');
       expect(sections[0]['reason'], '事假');
 
       expect(data[1]['leaveSheetId'], 'L002');
-      final List<dynamic> sections2 =
-          data[1]['sections'] as List<dynamic>;
+      final List<dynamic> sections2 = data[1]['sections'] as List<dynamic>;
       expect(sections2.length, 4); // M, 1, 2, 3 are 病假
     });
 
