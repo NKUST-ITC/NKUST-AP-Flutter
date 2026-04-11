@@ -314,7 +314,7 @@ class HomePageState extends State<HomePage> {
             ),
             DrawerSubMenuItem(
               icon: enrollmentLetter,
-              title: '在學證明',
+              title: app.enrollmentLetter,
               onTap: () => _openPage(
                 const EnrollmentLetterPage(),
                 needLogin: true,

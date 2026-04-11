@@ -187,9 +187,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "fromFirst": MessageLookupByLibrary.simpleMessage("From First"),
         "fromJiangong": MessageLookupByLibrary.simpleMessage("From JianGong"),
         "fromYanchao": MessageLookupByLibrary.simpleMessage("From YanChao"),
+        "invalidPdfFormat": MessageLookupByLibrary.simpleMessage(
+          "Unable to get valid PDF document",
+        ),
         "jiangong": MessageLookupByLibrary.simpleMessage("JianGong"),
         "leaveApplyRecord":
             MessageLookupByLibrary.simpleMessage("Apply Records"),
+        "loadFailed": MessageLookupByLibrary.simpleMessage("Load failed: %s"),
         "loginAuth":
             MessageLookupByLibrary.simpleMessage("Login Authentication"),
         "mobileNkustLoginDescription": MessageLookupByLibrary.simpleMessage(
@@ -199,6 +203,14 @@ class MessageLookup extends MessageLookupByLibrary {
           "Wait for the webpage to finish loading, the student ID and password will be filled in automatically.\nAfter completing the Google reCaptcha and clicking login, it will automatically redirected.",
         ),
         "nanzi": MessageLookupByLibrary.simpleMessage("Nanzi"),
+        "networkError":
+            MessageLookupByLibrary.simpleMessage("Network error: %s"),
+        "noEnrollmentAvailable": MessageLookupByLibrary.simpleMessage(
+          "Enrollment letter not available\nPlease check if you have applied",
+        ),
+        "noEnrollmentData": MessageLookupByLibrary.simpleMessage(
+          "No enrollment data found",
+        ),
         "nonCourseTime":
             MessageLookupByLibrary.simpleMessage("Non Course Time"),
         "offlineBusReservations": MessageLookupByLibrary.simpleMessage(
@@ -233,6 +245,8 @@ class MessageLookup extends MessageLookupByLibrary {
           "Name：%s\nStudent ID：%s\n",
         ),
         "specialBus": MessageLookupByLibrary.simpleMessage("Special Bus"),
+        "traditionalChinese":
+            MessageLookupByLibrary.simpleMessage("Traditional Chinese"),
         "trialBus": MessageLookupByLibrary.simpleMessage("Trial Bus"),
         "unpaid": MessageLookupByLibrary.simpleMessage("Unpaid"),
         "updateNoteContent": MessageLookupByLibrary.simpleMessage(
