@@ -62,7 +62,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
           child: isOffline
               ? Text(
                   app!.offlineBusReservations,
-                  style: TextStyle(color: ApTheme.of(context).grey),
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.outlineVariant),
                 )
               : null,
         ),
@@ -138,7 +139,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   TextStyle _textStyle(BusReservation busReservation) => TextStyle(
         color: busReservation.getColorState(context),
         fontSize: 18.0,
-        decorationColor: ApTheme.of(context).greyText,
+        decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
       );
 
   Widget _busReservationWidget(BusReservation busReservation) => Column(
@@ -153,7 +154,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
                   child: Icon(
                     ApIcon.directionsBus,
                     size: 20.0,
-                    color: ApTheme.of(context).blueAccent,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 Expanded(
@@ -180,8 +181,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                       ApIcon.cancel,
                       size: 20.0,
                       color: isOffline
-                          ? ApTheme.of(context).grey
-                          : ApTheme.of(context).red,
+                          ? Theme.of(context).colorScheme.outlineVariant
+                          : Theme.of(context).colorScheme.error,
                     ),
                     onPressed: isOffline
                         ? null
@@ -194,7 +195,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Divider(
-              color: ApTheme.of(context).grey,
+              color: Theme.of(context).colorScheme.outlineVariant,
               indent: 4.0,
             ),
           ),
@@ -344,7 +345,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             textAlign: TextAlign.left,
             text: TextSpan(
               style: TextStyle(
-                color: ApTheme.of(context).grey,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 height: 1.3,
                 fontSize: 16.0,
               ),

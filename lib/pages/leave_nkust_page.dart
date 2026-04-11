@@ -1,13 +1,13 @@
 import 'dart:developer';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeaveNkustPage extends StatefulWidget {
   final String username;
@@ -22,14 +22,12 @@ class LeaveNkustPage extends StatefulWidget {
   });
 
   @override
-  _LeaveNkustPageState createState() => _LeaveNkustPageState();
+  LeaveNkustPageState createState() => LeaveNkustPageState();
 }
 
-class _LeaveNkustPageState extends State<LeaveNkustPage> {
+class LeaveNkustPageState extends State<LeaveNkustPage> {
   late AppLocalizations app;
-
   late InAppWebViewController webViewController;
-
   bool finish = false;
 
   @override
@@ -38,7 +36,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.loginAuth),
-        actions: <Widget>[
+        actions: [
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
@@ -54,57 +52,42 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       floatingActionButton: kDebugMode
           ? FloatingActionButton(
               child: const Icon(Icons.done_outline),
-              onPressed: () async {
-                // final html = await webViewController.getHtml();
-                // debugPrint(html);
-              },
+              onPressed: () async {},
             )
           : null,
       body: InAppWebView(
-        initialUrlRequest: URLRequest(
-          url: WebUri(LeaveHelper.basePath),
-        ),
+        initialUrlRequest: URLRequest(url: WebUri(LeaveHelper.basePath)),
         initialSettings: InAppWebViewSettings(
           clearCache: widget.clearCache,
           userAgent: MobileNkustHelper.instance.userAgent,
         ),
-        onWebViewCreated: (InAppWebViewController webViewController) {
-          this.webViewController = webViewController;
+        onWebViewCreated: (controller) {
+          webViewController = controller;
           UiUtil.instance.showToast(context, app.mobileNkustLoginHint);
         },
-        onJsPrompt: (
-          InAppWebViewController controller,
-          JsPromptRequest jsPromptRequest,
-        ) async {
-          return;
-        },
-        onPageCommitVisible:
-            (InAppWebViewController controller, Uri? title) async {
-          final Uri? uri = await controller.getUrl();
+        onJsPrompt: (controller, jsPromptRequest) async => null,
+        onPageCommitVisible: (controller, title) async {
+          final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $uri');
-          // await webViewController.evaluateJavascript(
-          //     source:
-          //         r'$.getScript("https://cdnjs.cloudflare.com/ajax/libs/vConsole/3.4.0/vconsole.min.js", function() {var vConsole = new VConsole();});');
         },
-        onTitleChanged:
-            (InAppWebViewController controller, String? title) async {
-          final Uri? uri = await controller.getUrl();
+        onTitleChanged: (controller, title) async {
+          final uri = await controller.getUrl();
           debugPrint('onTitleChanged $title $uri');
           if (uri.toString() == LeaveHelper.home) {
             _finishLogin();
           }
         },
-        onLoadStop: (InAppWebViewController controller, Uri? title) async {
-          final Uri? uri = await controller.getUrl();
+        onLoadStop: (controller, title) async {
+          final uri = await controller.getUrl();
           debugPrint('onLoadStop $title $uri');
           if (uri.toString() == LeaveHelper.basePath) {
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Login1\$UserName")[0].value'
-                  ' = "${widget.username}";',
+              source:
+                  'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";',
             );
             await webViewController.evaluateJavascript(
-              source: 'document.getElementsByName("Login1\$Password")[0].value'
-                  ' = "${widget.password}";',
+              source:
+                  'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";',
             );
           }
         },
@@ -113,18 +96,13 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
   }
 
   Future<void> _finishLogin() async {
-    if (finish) {
-      return;
-    } else {
-      finish = true;
-    }
-    final List<Cookie> cookies = await CookieManager.instance().getCookies(
+    if (finish) return;
+    finish = true;
+    final cookies = await CookieManager.instance().getCookies(
       url: WebUri(LeaveHelper.basePath),
     );
-    final MobileCookiesData data = MobileCookiesData(
-      cookies: <MobileCookies>[],
-    );
-    for (final Cookie element in cookies) {
+    final data = MobileCookiesData(cookies: []);
+    for (final element in cookies) {
       data.cookies.add(
         MobileCookies(
           path: MobileNkustHelper.homeUrl,
@@ -138,8 +116,7 @@ class _LeaveNkustPageState extends State<LeaveNkustPage> {
       );
       if (kDebugMode) {
         log(
-          'Cookie: ${element.name}: '
-          '${element.value} ${element.domain} ${element.expiresDate} \n',
+          'Cookie: ${element.name}: ${element.value} ${element.domain} ${element.expiresDate}',
         );
       }
     }
