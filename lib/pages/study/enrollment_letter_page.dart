@@ -20,7 +20,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   PdfState pdfState = PdfState.loading;
   late AppLocalizations app;
   Uint8List? data;
-  String selectedLang = '';
+  late EnrollmentLetterLang selectedLang;
   String? errorMessage;
   bool _initialized = false;
 
@@ -43,10 +43,10 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     }
   }
 
-  String _defaultLangForLocale(Locale locale) {
+  EnrollmentLetterLang _defaultLangForLocale(Locale locale) {
     return switch (locale.languageCode) {
-      'zh' || 'ja' => '',
-      _ => 'en',
+      'zh' || 'ja' => EnrollmentLetterLang.chinese,
+      _ => EnrollmentLetterLang.english,
     };
   }
 
@@ -67,10 +67,10 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
                 PickerOption(value: 0, label: '中文'),
                 PickerOption(value: 1, label: 'English'),
               ],
-              selectedValue: selectedLang == '' ? 0 : 1,
+              selectedValue: selectedLang.index,
               onSelect: (v) {
                 setState(() {
-                  selectedLang = v == 0 ? '' : 'en';
+                  selectedLang = EnrollmentLetterLang.values[v];
                   pdfState = PdfState.loading;
                 });
                 _getEnrollmentLetter();
