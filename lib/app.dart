@@ -109,47 +109,47 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       child: ShareDataWidget(
         data: this,
         child: ApTheme(
-        themeMode: themeMode,
-        currentColorIndex: currentColorIndex,
-        customColor: customColor,
-        preferences: PreferenceUtil.instance as ApPreferenceUtil,
-        child: Builder(
-          builder: (BuildContext context) {
-            final Color seedColor = ApTheme.of(context).seedColor;
-            return MaterialApp(
-              onGenerateTitle: (BuildContext context) =>
-                  AppLocalizations.of(context).appName,
-              debugShowCheckedModeBanner: false,
-              routes: <String, WidgetBuilder>{
-                Navigator.defaultRouteName: (BuildContext context) => kIsWeb
-                    ? const AnnouncementHomePage(
+          themeMode: themeMode,
+          currentColorIndex: currentColorIndex,
+          customColor: customColor,
+          preferences: PreferenceUtil.instance as ApPreferenceUtil,
+          child: Builder(
+            builder: (BuildContext context) {
+              final Color seedColor = ApTheme.of(context).seedColor;
+              return MaterialApp(
+                onGenerateTitle: (BuildContext context) =>
+                    AppLocalizations.of(context).appName,
+                debugShowCheckedModeBanner: false,
+                routes: <String, WidgetBuilder>{
+                  Navigator.defaultRouteName: (BuildContext context) => kIsWeb
+                      ? const AnnouncementHomePage(
+                          organizationDomain: Constants.mailDomain,
+                        )
+                      : HomePage(),
+                  AnnouncementHomePage.routerName: (BuildContext context) =>
+                      const AnnouncementHomePage(
                         organizationDomain: Constants.mailDomain,
-                      )
-                    : HomePage(),
-                AnnouncementHomePage.routerName: (BuildContext context) =>
-                    const AnnouncementHomePage(
-                      organizationDomain: Constants.mailDomain,
-                    ),
-              },
-              theme: ApTheme.light(seedColor),
-              darkTheme: ApTheme.dark(seedColor),
-              themeMode: themeMode,
-              locale: TranslationProvider.of(context).flutterLocale,
-              localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-                appDelegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const <Locale>[
-                Locale('en', 'US'), // English
-                Locale('zh', 'TW'), // Traditional Chinese TW
-              ],
-            );
-          },
+                      ),
+                },
+                theme: ApTheme.light(seedColor),
+                darkTheme: ApTheme.dark(seedColor),
+                themeMode: themeMode,
+                locale: TranslationProvider.of(context).flutterLocale,
+                localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+                  appDelegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const <Locale>[
+                  Locale('en', 'US'), // English
+                  Locale('zh', 'TW'), // Traditional Chinese TW
+                ],
+              );
+            },
+          ),
         ),
       ),
-    ),
     );
   }
 

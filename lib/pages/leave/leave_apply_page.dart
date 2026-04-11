@@ -712,8 +712,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       Navigator.of(context, rootNavigator: true).pop();
       DialogUtils.showDefault(
         context: context,
-        title:
-            res?.statusCode == 200 ? ap.leaveSubmit : '${res?.statusCode}',
+        title: res?.statusCode == 200 ? ap.leaveSubmit : '${res?.statusCode}',
         content:
             res?.statusCode == 200 ? ap.leaveSubmitSuccess : '${res?.data}',
       );

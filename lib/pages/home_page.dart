@@ -58,7 +58,6 @@ class HomePageState extends State<HomePage> {
   CourseData? courseData;
   BusReservationsData? busReservationsData;
 
-
   String get sectionImage {
     final String department = userInfo?.department ?? '';
     final bool halfSnapFingerChance = Random().nextInt(2000).isEven;
@@ -324,7 +323,7 @@ class HomePageState extends State<HomePage> {
           ],
         ),
         if (leaveEnable)
-        DrawerMenuSection(
+          DrawerMenuSection(
             initiallyExpanded: isLeaveExpanded,
             onExpansionChanged: (bool bool) {
               setState(() {
@@ -364,7 +363,7 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.calendarToday,
             title: ap.leave,
             onTap: () => PlatformUtil.instance.launchUrl(
@@ -372,7 +371,7 @@ class HomePageState extends State<HomePage> {
             ),
           ),
         if (canUseBus)
-        DrawerMenuSection(
+          DrawerMenuSection(
             initiallyExpanded: isBusExpanded,
             onExpansionChanged: (bool bool) {
               setState(() {
@@ -409,7 +408,7 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
             onTap: () => PlatformUtil.instance.launchUrl(
@@ -443,7 +442,7 @@ class HomePageState extends State<HomePage> {
         ),
         if (isLogin) ...<Widget>[
           const DrawerDivider(),
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.powerSettingsNew,
             title: ap.logout,
             iconColor: Theme.of(context).colorScheme.error,
@@ -547,8 +546,7 @@ class HomePageState extends State<HomePage> {
             _pushAndReload(CoursePage());
           },
         ),
-      if (courseData == null)
-        _buildEmptyScheduleCard(),
+      if (courseData == null) _buildEmptyScheduleCard(),
     ];
   }
 
@@ -603,15 +601,13 @@ class HomePageState extends State<HomePage> {
     if (username.isEmpty) return;
     final SemesterData? semesterData = SemesterData.load();
     if (semesterData != null) {
-      final String tag =
-          '${username}_${semesterData.defaultSemester.code}';
+      final String tag = '${username}_${semesterData.defaultSemester.code}';
       final CourseData? data = CourseData.load(tag);
       if (data != null && mounted) {
         setState(() => courseData = data);
       }
     }
-    final BusReservationsData? busData =
-        BusReservationsData.load(username);
+    final BusReservationsData? busData = BusReservationsData.load(username);
     if (busData != null && mounted) {
       setState(() => busReservationsData = busData);
     }
@@ -767,8 +763,7 @@ class HomePageState extends State<HomePage> {
       if (response.statusCode == ApStatusCode.userDataError ||
           response.statusCode == ApStatusCode.passwordFiveTimesError) {
         Toast.show(ap.passwordError, context);
-        await PreferenceUtil.instance
-            .setBool(Constants.prefAutoLogin, false);
+        await PreferenceUtil.instance.setBool(Constants.prefAutoLogin, false);
         checkLogin();
       } else {
         switch (response.statusCode) {

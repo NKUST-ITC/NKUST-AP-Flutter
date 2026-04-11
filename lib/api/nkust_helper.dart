@@ -89,7 +89,7 @@ class NKUSTHelper {
     ]);
 
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
-    
+
     Object? lastError;
 
     for (int i = 0; i < retryCounts; i++) {
@@ -180,12 +180,10 @@ class NKUSTHelper {
         'Op': 'getpartlist',
         'Page': page - 1,
       },
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: {
-          'Referer': 'https://acad.nkust.edu.tw/p/403-1004-232-1.php?Lang=zh-tw'
-        }
-      ),
+      options:
+          Options(contentType: Headers.formUrlEncodedContentType, headers: {
+        'Referer': 'https://acad.nkust.edu.tw/p/403-1004-232-1.php?Lang=zh-tw'
+      }),
     );
     List<Map<String, dynamic>> acadData;
     if (res.statusCode == 200 && res.data != null) {

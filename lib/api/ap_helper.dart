@@ -104,7 +104,7 @@ class WebApHelper {
     */
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
-    
+
     for (int i = 0; i < retryCounts; i++) {
       try {
         final Uint8List? imageBytes = await getValidationImage();

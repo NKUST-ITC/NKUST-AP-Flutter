@@ -396,8 +396,7 @@ class LeaveRecordPageState extends State<LeaveRecordPage>
       }
     } on GeneralResponse catch (response) {
       if (mounted) {
-        UiUtil.instance
-            .showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
       }
     } on DioException catch (e) {
       if (e.i18nMessage != null && mounted) {
