@@ -22,6 +22,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Uint8List? data;
   String selectedLang = '';
   String? errorMessage;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -30,7 +31,23 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       'EnrollmentLetterPage',
       'enrollment_letter_page.dart',
     );
-    _getEnrollmentLetter();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      selectedLang = _defaultLangForLocale(Localizations.localeOf(context));
+      _getEnrollmentLetter();
+    }
+  }
+
+  String _defaultLangForLocale(Locale locale) {
+    return switch (locale.languageCode) {
+      'zh' || 'ja' => '',
+      _ => 'en',
+    };
   }
 
   @override
@@ -39,38 +56,37 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(app.enrollmentLetter),
-      ),
-      body: Column(
-        children: [
+        actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: DropdownButton<String>(
-              value: selectedLang,
-              items: const [
-                DropdownMenuItem(value: '', child: Text('中文')),
-                DropdownMenuItem(value: 'en', child: Text('English')),
+            padding: const EdgeInsets.only(right: 8),
+            child: OptionPickerBottomSheet.fromOptions(
+              title: context.ap.language,
+              titleIcon: Icons.translate_rounded,
+              buttonIcon: Icons.language_rounded,
+              options: const [
+                PickerOption(value: 0, label: '中文'),
+                PickerOption(value: 1, label: 'English'),
               ],
-              onChanged: (value) {
+              selectedValue: selectedLang == '' ? 0 : 1,
+              onSelect: (v) {
                 setState(() {
-                  selectedLang = value!;
+                  selectedLang = v == 0 ? '' : 'en';
                   pdfState = PdfState.loading;
                 });
                 _getEnrollmentLetter();
               },
             ),
           ),
-          Expanded(
-            child: PdfView(
-              state: pdfState,
-              data: data,
-              errorMessage: errorMessage,
-              onRefresh: () {
-                setState(() => pdfState = PdfState.loading);
-                _getEnrollmentLetter();
-              },
-            ),
-          ),
         ],
+      ),
+      body: PdfView(
+        state: pdfState,
+        data: data,
+        errorMessage: errorMessage,
+        onRefresh: () {
+          setState(() => pdfState = PdfState.loading);
+          _getEnrollmentLetter();
+        },
       ),
     );
   }
