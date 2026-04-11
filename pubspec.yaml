@@ -15,9 +15,9 @@ dependencies:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
 
-  ap_common: ^1.0.1-dev.8
-  ap_common_firebase: ^1.0.1-dev.9
-  ap_common_plugin: ^1.0.1-dev.8
+  ap_common: ^1.0.1-dev.11
+  ap_common_firebase: ^1.0.1-dev.12
+  ap_common_plugin: ^1.0.1-dev.11
   #official plugin
   http: ^0.13.3
   html: ^0.15.0

@@ -93,19 +93,39 @@ class StdsysParser {
 
     // 節次對應 index
     final List<String> timeKeys = [
-      'M', '1', '2', '3', '4', 'A', '5', '6', '7', '8', '9', '10', '11', '12', '13'
+      'M',
+      '1',
+      '2',
+      '3',
+      '4',
+      'A',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13'
     ];
 
     // 星期對應
     final Map<String, int> weekdayMap = {
-      '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7
+      '一': 1,
+      '二': 2,
+      '三': 3,
+      '四': 4,
+      '五': 5,
+      '六': 6,
+      '日': 7
     };
 
     for (final Element row in rows) {
       final List<Element> cells = row.querySelectorAll('td');
-      
+
       // 忽略最後一列「總學分數」
-      if (cells.length < 9) continue; 
+      if (cells.length < 9) continue;
 
       final String code = cells[0].text.trim();
       final String title = cells[1].text.trim();
@@ -132,7 +152,8 @@ class StdsysParser {
       // 上課時間
       final List<Map<String, int>> sectionTimes = [];
 
-      final RegExp exp = RegExp(r'\((一|二|三|四|五|六|日)\)([A-Z0-9]+(?:-[A-Z0-9]+)?)');
+      final RegExp exp =
+          RegExp(r'\((一|二|三|四|五|六|日)\)([A-Z0-9]+(?:-[A-Z0-9]+)?)');
       final Iterable<RegExpMatch> matches = exp.allMatches(timeStr);
 
       for (final RegExpMatch match in matches) {
@@ -145,7 +166,7 @@ class StdsysParser {
           final List<String> parts = periods.split('-');
           final int startIdx = timeKeys.indexOf(parts[0]);
           final int endIdx = timeKeys.indexOf(parts[1]);
-          
+
           if (startIdx != -1 && endIdx != -1) {
             for (int i = startIdx; i <= endIdx; i++) {
               sectionTimes.add({'weekday': weekday, 'index': i});
@@ -170,10 +191,7 @@ class StdsysParser {
         'required': required,
         'at': '',
         'sectionTimes': sectionTimes,
-        'location': {
-          'building': '',
-          'room': room
-        },
+        'location': {'building': '', 'room': room},
         'instructors': instructors,
       });
     }
@@ -467,11 +485,12 @@ class StdsysParser {
     );
   }
 
-  Map<String, dynamic> semesterParser(String? rawJson){
-    final Map<String, dynamic> apiData = json.decode(rawJson!) as Map<String, dynamic>;
+  Map<String, dynamic> semesterParser(String? rawJson) {
+    final Map<String, dynamic> apiData =
+        json.decode(rawJson!) as Map<String, dynamic>;
     final List<dynamic> result = (apiData['result'] as List<dynamic>?) ?? [];
-    
-     final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
+
+    final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
       final String text = item['text'].toString();
       final String value = item['value'].toString();
       final List<String> parts = value.split('-');
@@ -485,7 +504,8 @@ class StdsysParser {
       };
     }).toList();
 
-    final Map<String, dynamic>? defaultSemester = semesters.isNotEmpty ? semesters.first : null;
+    final Map<String, dynamic>? defaultSemester =
+        semesters.isNotEmpty ? semesters.first : null;
 
     final Map<String, dynamic> semesterDataJson = {
       'data': semesters,

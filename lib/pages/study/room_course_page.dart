@@ -47,8 +47,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   @override
   Widget build(BuildContext context) {
     return CourseScaffold(
-      title:
-          '${context.ap.classroomCourseTableSearch} - ${widget.room.name}',
+      title: '${context.ap.classroomCourseTableSearch} - ${widget.room.name}',
       state: state,
       courseData: courseData,
       customStateHint: customStateHint,
@@ -95,8 +94,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       }
     } on GeneralResponse catch (response) {
       if (mounted) {
-        UiUtil.instance
-            .showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
       }
     } on DioException catch (e) {
       if (e.i18nMessage != null && mounted) {

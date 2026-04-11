@@ -7,6 +7,16 @@ import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
+enum EnrollmentLetterLang {
+  chinese,
+  english;
+
+  String get _path => switch (this) {
+        EnrollmentLetterLang.chinese => 'ChinesePDF',
+        EnrollmentLetterLang.english => 'EnglishPDF',
+      };
+}
+
 class StdsysHelper {
   static StdsysHelper? _instance;
   // ignore: prefer_constructors_over_static_methods
@@ -17,7 +27,9 @@ class StdsysHelper {
   Dio get dio => WebApHelper.instance.dio;
   CookieJar get cookieJar => WebApHelper.instance.cookieJar;
 
-  Future<Response<Uint8List>> getEnrollmentLetter() async {
+  Future<Response<Uint8List>> getEnrollmentLetter([
+    EnrollmentLetterLang lang = EnrollmentLetterLang.chinese,
+  ]) async {
     await WebApHelper.instance.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -27,7 +39,7 @@ class StdsysHelper {
         .join('; ');
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://stdsys.nkust.edu.tw/student/Doc/Status/${lang._path}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
@@ -170,8 +182,7 @@ class StdsysHelper {
         responseType: ResponseType.plain,
         contentType: 'application/x-www-form-urlencoded',
         headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student',
+          'Referer': 'https://stdsys.nkust.edu.tw/student',
           'Cookie': cookieHeader,
         },
       ),
@@ -210,14 +221,14 @@ class StdsysHelper {
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/',
+          'Referer': 'https://stdsys.nkust.edu.tw/student/',
           'Cookie': cookieHeader,
         },
       ),
     );
 
-    final Map<String, dynamic> json = StdsysParser.instance.semesterParser(response.data);
+    final Map<String, dynamic> json =
+        StdsysParser.instance.semesterParser(response.data);
     return SemesterData.fromJson(json);
   }
 

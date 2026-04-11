@@ -1,18 +1,11 @@
-import 'dart:io' as io;
-
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = '/leave';
-
-  // final List<Widget> _children = <Widget>[
-  //   LeaveApplyPage(),
-  //   LeaveRecordPage(),
-  // ];
   final int initIndex;
 
   const LeavePage({this.initIndex = 0});
@@ -24,15 +17,11 @@ class LeavePage extends StatefulWidget {
 class LeavePageState extends State<LeavePage>
     with SingleTickerProviderStateMixin {
   late ApLocalizations ap;
-
   late TabController controller;
 
   int _currentIndex = 0;
-
   InAppWebViewController? webViewController;
-
   CookieManager cookieManager = CookieManager.instance();
-
   Future<bool>? _login;
 
   String get path {
@@ -56,49 +45,39 @@ class LeavePageState extends State<LeavePage>
       initialIndex: widget.initIndex,
       vsync: this,
     );
-    _login = Future<bool>.microtask(() => login());
+    _login = Future.microtask(() => login());
   }
 
   @override
   void dispose() {
-    super.dispose();
     controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     ap = context.ap;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(ap.leave),
-      ),
+      appBar: AppBar(title: Text(ap.leave)),
       body: FutureBuilder<bool>(
         future: _login,
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return InAppWebView(
-              initialUrlRequest: URLRequest(
-                url: WebUri(path),
-              ),
+              initialUrlRequest: URLRequest(url: WebUri(path)),
               initialSettings: InAppWebViewSettings(
                 mediaPlaybackRequiresUserGesture: false,
                 allowsInlineMediaPlayback: true,
               ),
-              onWebViewCreated: (InAppWebViewController controller) {
-                webViewController = controller;
-              },
+              onWebViewCreated: (controller) => webViewController = controller,
             );
           } else if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           } else {
             return InkWell(
-              onTap: () {
-                _login = Future<bool>.microtask(() => login());
-              },
+              onTap: () => _login = Future.microtask(() => login()),
               child: HintContent(
-                content: context.ap.clickToRetry,
+                content: ap.clickToRetry,
                 icon: ApIcon.error,
               ),
             );
@@ -108,11 +87,8 @@ class LeavePageState extends State<LeavePage>
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: onTabTapped,
-        destinations: <NavigationDestination>[
-          NavigationDestination(
-            icon: Icon(ApIcon.edit),
-            label: ap.leaveApply,
-          ),
+        destinations: [
+          NavigationDestination(icon: Icon(ApIcon.edit), label: ap.leaveApply),
           NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: ap.leaveRecords,
@@ -127,25 +103,17 @@ class LeavePageState extends State<LeavePage>
   }
 
   void onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-      // controller.animateTo(_currentIndex);
-    });
-    webViewController?.loadUrl(
-      urlRequest: URLRequest(
-        url: WebUri(path),
-      ),
-    );
+    setState(() => _currentIndex = index);
+    webViewController?.loadUrl(urlRequest: URLRequest(url: WebUri(path)));
   }
 
   Future<bool> login() async {
     try {
       await WebApHelper.instance.loginToOosaf();
-      final List<io.Cookie> cookies =
-          await WebApHelper.instance.cookieJar.loadForRequest(
+      final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
         WebUri('https://oosaf.nkust.edu.tw'),
       );
-      for (final io.Cookie cookie in cookies) {
+      for (final cookie in cookies) {
         cookieManager.setCookie(
           url: WebUri('https://oosaf.nkust.edu.tw'),
           name: cookie.name,
@@ -153,7 +121,7 @@ class LeavePageState extends State<LeavePage>
         );
       }
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }

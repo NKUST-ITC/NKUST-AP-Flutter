@@ -8,8 +8,10 @@ import 'package:dio/io.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/parser/mobile_nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -23,21 +25,6 @@ import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
 class MobileNkustHelper {
-  MobileNkustHelper() {
-    final Random random = Random();
-    final int i = random.nextInt(userAgentList.length);
-    // print('user agnent index = $i');
-    dio = Dio(
-      BaseOptions(
-        followRedirects: false,
-        headers: <String, String>{
-          'user-agent': userAgentList[i],
-        },
-      ),
-    );
-    initCookiesJar();
-  }
-
   static const String baseUrl = 'https://mobile.nkust.edu.tw/';
   static const String busBaseUrl = 'https://vms.nkust.edu.tw/';
 
@@ -59,7 +46,6 @@ class MobileNkustHelper {
       '${busBaseUrl}Bus/Bus/Illegal';
   static const String busViolationRecordsApiUrl =
       '${busBaseUrl}Bus/Bus/GetIllegalGrid';
-
   static const String checkExpireUrl = '${baseUrl}Account/CheckExpire';
 
   static MobileNkustHelper? _instance;
@@ -68,37 +54,56 @@ class MobileNkustHelper {
       !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   late Dio dio;
-
   late CookieJar cookieJar;
 
   MobileCookiesData? cookiesData;
 
   static List<String> userAgentList = <String>[
-    'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1650.16 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1667.0 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2762.73 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2226.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.17 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1547.62 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1623.0 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/44.0.2403.155 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:120.0) Gecko/20100101 Firefox/120.0',
   ];
 
   String? get userAgent => dio.options.headers['user-agent'] as String?;
 
-  //ignore: prefer_constructors_over_static_methods
-  static MobileNkustHelper get instance {
-    return _instance ??= MobileNkustHelper();
+  MobileNkustHelper() {
+    _initDio();
   }
 
-  void initCookiesJar() {
+  static MobileNkustHelper get instance => _instance ??= MobileNkustHelper();
+
+  void _initDio() {
+    final random = Random();
+    final userAgent = userAgentList[random.nextInt(userAgentList.length)];
+
+    dio = Dio(
+      BaseOptions(
+        followRedirects: false,
+        connectTimeout: ApiConfig.connectTimeout,
+        receiveTimeout: ApiConfig.receiveTimeout,
+        sendTimeout: ApiConfig.sendTimeout,
+        headers: <String, String>{
+          'user-agent': userAgent,
+          'Accept':
+              'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+          'Connection': 'keep-alive',
+        },
+        validateStatus: (status) => status != null && status < 500,
+      ),
+    );
+
+    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
+      dio.httpClientAdapter = NativeAdapter();
+    }
+
+    _initCookiesJar();
+  }
+
+  void _initCookiesJar() {
     cookieJar = CookieJar();
     dio.interceptors.add(CookieManager(cookieJar));
     dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
@@ -106,20 +111,21 @@ class MobileNkustHelper {
   }
 
   void setProxy(String proxyIP) {
+    if (kIsWeb) return;
+
     (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final HttpClient client = HttpClient();
-      client.findProxy = (Uri uri) {
-        return 'PROXY $proxyIP';
-      };
+      final client = HttpClient();
+      client.findProxy = (uri) => 'PROXY $proxyIP';
+      client.badCertificateCallback = (cert, host, port) => true;
       return client;
     };
   }
 
   void setCookieFromData(MobileCookiesData data) {
     cookiesData = data;
-    for (final MobileCookies element in data.cookies) {
-      final Cookie tempCookie = Cookie(element.name, element.value);
-      tempCookie.domain = element.domain;
+    for (final element in data.cookies) {
+      final tempCookie = Cookie(element.name, element.value)
+        ..domain = element.domain;
       cookieJar.saveFromResponse(
         Uri.parse(element.path),
         <Cookie>[tempCookie],
@@ -133,53 +139,52 @@ class MobileNkustHelper {
     required String cookieValue,
     String? cookieDomain,
   }) {
-    final Cookie tempCookie = Cookie(cookieName, cookieValue);
-    tempCookie.domain = cookieDomain;
-    cookieJar.saveFromResponse(
-      Uri.parse(url),
-      <Cookie>[tempCookie],
-    );
+    final tempCookie = Cookie(cookieName, cookieValue)..domain = cookieDomain;
+    cookieJar.saveFromResponse(Uri.parse(url), <Cookie>[tempCookie]);
   }
 
   Future<bool> isCookieAlive() async {
     try {
-      final Response<dynamic> res = await dio.get(checkExpireUrl);
+      final res = await dio.get<dynamic>(
+        checkExpireUrl,
+        options: Options(
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
       return res.data == 'alive';
-    } catch (_) {}
-    return false;
+    } catch (_) {
+      return false;
+    }
   }
 
-  Future<Response<dynamic>> generalRequest(
+  Future<Response<dynamic>> _request(
     String url, {
-    Map<String, dynamic>? firstRequestHeader,
-    String? otherRequestUrl,
-    Map<String, dynamic>? otherRequestHeader,
+    Map<String, dynamic>? headers,
+    String? postUrl,
+    Map<String, dynamic>? postHeaders,
     Map<String, dynamic>? data,
   }) async {
-    Response<dynamic> response = await dio.get(
+    var response = await dio.get<dynamic>(
       url,
-      options: Options(headers: firstRequestHeader),
+      options: Options(headers: headers),
     );
 
-    if (data != null) {
-      if (otherRequestUrl != null) {
-        final Map<String, dynamic> requestData = <String, dynamic>{
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(
-            response.data,
-          ),
-        };
-        requestData.addAll(data);
+    if (data != null && postUrl != null) {
+      final requestData = <String, dynamic>{
+        '__RequestVerificationToken': MobileNkustParser.getCSRF(response.data),
+        ...data,
+      };
 
-        response = await dio.post<dynamic>(
-          otherRequestUrl,
-          data: requestData,
-          options: Options(
-            contentType: Headers.formUrlEncodedContentType,
-            headers: otherRequestHeader,
-          ),
-        );
-      }
+      response = await dio.post<dynamic>(
+        postUrl,
+        data: requestData,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          headers: postHeaders,
+        ),
+      );
     }
+
     return response;
   }
 
@@ -188,9 +193,9 @@ class MobileNkustHelper {
     required String password,
   }) async {
     try {
-      final Response<dynamic> _ = await generalRequest(
+      await _request(
         busBaseUrl,
-        otherRequestUrl: busBaseUrl,
+        postUrl: busBaseUrl,
         data: <String, dynamic>{
           'Account': username,
           'Password': password,
@@ -198,11 +203,7 @@ class MobileNkustHelper {
         },
       );
     } on DioException catch (e) {
-      if (e.response?.statusCode == 302) {
-        return;
-      } else {
-        rethrow;
-      }
+      if (e.response?.statusCode != 302) rethrow;
     }
   }
 
@@ -212,14 +213,12 @@ class MobileNkustHelper {
     required String password,
     bool clearCache = false,
   }) async {
-    final MobileCookiesData? data = MobileCookiesData.load();
+    final data = MobileCookiesData.load();
     if (data != null && !clearCache) {
-      MobileNkustHelper.instance.setCookieFromData(data);
-      final bool isCookieAlive =
-          await MobileNkustHelper.instance.isCookieAlive();
-      if (isCookieAlive) {
-        final DateTime now = DateTime.now();
-        final int lastTime = PreferenceUtil.instance.getInt(
+      setCookieFromData(data);
+      if (await isCookieAlive()) {
+        final now = DateTime.now();
+        final lastTime = PreferenceUtil.instance.getInt(
           Constants.mobileCookiesLastTime,
           now.microsecondsSinceEpoch,
         );
@@ -232,8 +231,10 @@ class MobileNkustHelper {
         return LoginResponse();
       }
     }
+
     if (!context.mounted) return LoginResponse();
-    final bool? result = await Navigator.push<bool>(
+
+    final result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
         builder: (_) => MobileNkustPage(
@@ -243,37 +244,31 @@ class MobileNkustHelper {
         ),
       ),
     );
+
     if (result ?? false) {
       return LoginResponse();
-    } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
     }
+
+    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
-  Future<CourseData> getCourseTable({
-    String? year,
-    String? semester,
-  }) async {
+  Future<CourseData> getCourseTable({String? year, String? semester}) async {
     Response<dynamic> response;
+
     if (year == null || semester == null) {
-      response = await generalRequest(
+      response = await _request(
         courseUrl,
-        firstRequestHeader: <String, String>{'Referer': homeUrl},
+        headers: <String, String>{'Referer': homeUrl},
       );
     } else {
-      response = await generalRequest(
+      response = await _request(
         courseUrl,
-        data: <String, String>{
-          'Yms': '$year-$semester',
-        },
-        firstRequestHeader: <String, String>{'Referer': courseUrl},
+        data: <String, String>{'Yms': '$year-$semester'},
+        headers: <String, String>{'Referer': courseUrl},
       );
     }
 
-    final dynamic rawHtml = response.data;
-    // if (kDebugMode) debugPrint(rawHtml);
-    final CourseData courseData = MobileNkustParser.courseTable(rawHtml);
-    return courseData;
+    return MobileNkustParser.courseTable(response.data);
   }
 
   Future<MidtermAlertsData> getMidAlerts({
@@ -281,299 +276,230 @@ class MobileNkustHelper {
     String? semester,
   }) async {
     Response<dynamic> response;
+
     if (year == null || semester == null) {
-      response = await generalRequest(
+      response = await _request(
         midAlertsUrl,
-        firstRequestHeader: <String, String>{'Referer': homeUrl},
+        headers: <String, String>{'Referer': homeUrl},
       );
     } else {
-      response = await generalRequest(
+      response = await _request(
         midAlertsUrl,
         data: <String, String>{'Yms': '$year-$semester'},
-        firstRequestHeader: <String, String>{'Referer': midAlertsUrl},
+        headers: <String, String>{'Referer': midAlertsUrl},
       );
     }
 
-    final dynamic rawHtml = response.data;
-    // if (kDebugMode) debugPrint(rawHtml);
-    final MidtermAlertsData midtermAlertsData =
-        MobileNkustParser.midtermAlerts(rawHtml);
-    return midtermAlertsData;
+    return MobileNkustParser.midtermAlerts(response.data);
   }
 
-  Future<ScoreData> getScores({
-    String? year,
-    String? semester,
-  }) async {
+  Future<ScoreData> getScores({String? year, String? semester}) async {
     Response<dynamic> response;
+
     if (year == null || semester == null) {
-      response = await generalRequest(
+      response = await _request(
         scoreUrl,
-        firstRequestHeader: <String, String>{'Referer': homeUrl},
+        headers: <String, String>{'Referer': homeUrl},
       );
     } else {
-      response = await generalRequest(
+      response = await _request(
         scoreUrl,
         data: <String, String>{'Yms': '$year-$semester'},
-        firstRequestHeader: <String, String>{'Referer': scoreUrl},
+        headers: <String, String>{'Referer': scoreUrl},
       );
     }
 
-    final dynamic rawHtml = response.data;
-    // if (kDebugMode) debugPrint(rawHtml);
-    final ScoreData courseData = MobileNkustParser.scores(rawHtml);
-    return courseData;
+    return MobileNkustParser.scores(response.data);
   }
 
   Future<UserInfo> getUserInfo() async {
-    final Response<dynamic> response = await generalRequest(
+    final response = await _request(
       homeUrl,
-      firstRequestHeader: <String, String>{'Referer': homeUrl},
+      headers: <String, String>{'Referer': homeUrl},
     );
-    final dynamic rawHtml = response.data;
-    // if (kDebugMode) debugPrint(rawHtml);
-    final UserInfo data = MobileNkustParser.userInfo(rawHtml);
-    return data;
+    return MobileNkustParser.userInfo(response.data);
   }
 
   Future<Uint8List?> getUserPicture() async {
-    dio.options.headers['Accept'] =
-        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
-    final Response<Uint8List> response = await dio.get<Uint8List>(
+    final response = await dio.get<Uint8List>(
       pictureUrl,
       options: Options(
         responseType: ResponseType.bytes,
-        headers: <String, String>{'Referer': homeUrl},
+        headers: <String, String>{
+          'Referer': homeUrl,
+          'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8',
+        },
       ),
     );
     return response.data;
   }
 
-  Future<BusData> busTimeTableQuery({
-    required DateTime fromDateTime,
-  }) async {
-    // support DateTime or {year,month,day}.
-    final String year = fromDateTime.year.toString();
-    String month = fromDateTime.month.toString();
-    String day = fromDateTime.day.toString();
-    for (int i = 0; month.length < 2; i++) {
-      month = '0$month';
-    }
-    for (int i = 0; day.length < 2; i++) {
-      day = '0$day';
-    }
+  Future<BusData> busTimeTableQuery({required DateTime fromDateTime}) async {
+    final year = fromDateTime.year.toString();
+    final month = fromDateTime.month.toString().padLeft(2, '0');
+    final day = fromDateTime.day.toString().padLeft(2, '0');
+    final dateStr = '$year/$month/$day';
 
-    //get main CSRF
-    final Response<String> request = await dio.get<String>(
+    final pageResponse = await dio.get<String>(
       busTimetablePageUrl,
-      options: Options(
-        headers: <String, String>{
-          'Referer': homeUrl,
-        },
-      ),
+      options: Options(headers: <String, String>{'Referer': homeUrl}),
     );
 
-    final Map<String, dynamic> busInfo =
-        MobileNkustParser.busInfo(request.data);
+    final busInfo = MobileNkustParser.busInfo(pageResponse.data);
+    final csrf = MobileNkustParser.getCSRF(pageResponse.data);
 
-    final List<Response<dynamic>> requestsList = <Response<dynamic>>[];
-    final List<List<String>> requestsDataList = <List<String>>[
+    final routes = <List<String>>[
       <String>['建工', '燕巢'],
       <String>['燕巢', '建工'],
       <String>['第一', '建工'],
       <String>['建工', '第一'],
     ];
-    for (final List<String> requestData in requestsDataList) {
-      final Response<dynamic> r = await dio.post(
+
+    final futures = routes.map((route) async {
+      final response = await dio.post<dynamic>(
         busTimetableApiUrl,
         data: <String, String>{
-          'driveDate': '$year/$month/$day',
-          'beginStation': requestData[0],
-          'endStation': requestData[1],
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data),
+          'driveDate': dateStr,
+          'beginStation': route[0],
+          'endStation': route[1],
+          '__RequestVerificationToken': csrf,
         },
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           headers: <String, String>{'Referer': busTimetablePageUrl},
         ),
       );
-      requestsList.add(r);
-    }
-
-    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
-
-    for (int i = 0; i < requestsList.length; i++) {
-      result.addAll(
-        MobileNkustParser.busTimeTable(
-          await requestsList[i].data,
-          time: '$year/$month/$day',
-          startStation: requestsDataList[i][0],
-          endStation: requestsDataList[i][1],
-        ),
+      return MobileNkustParser.busTimeTable(
+        response.data,
+        time: dateStr,
+        startStation: route[0],
+        endStation: route[1],
       );
-    }
-    final BusData busData = BusData.fromJson(
-      <String, dynamic>{
-        'data': result,
-        ...busInfo,
-      },
-    );
-    return busData;
+    });
+
+    final results = await Future.wait(futures);
+    final allBuses = results.expand((list) => list).toList();
+
+    return BusData.fromJson(<String, dynamic>{
+      'data': allBuses,
+      ...busInfo,
+    });
   }
 
-  Future<BookingBusData> busBook({
-    required String busId,
-  }) async {
-    final Response<dynamic> request = await generalRequest(
+  Future<BookingBusData> busBook({required String busId}) async {
+    final response = await _request(
       busTimetablePageUrl,
-      otherRequestUrl: busBookApiUrl,
+      postUrl: busBookApiUrl,
       data: <String, String>{'busId': busId},
-      firstRequestHeader: <String, String>{'Referer': homeUrl},
-      otherRequestHeader: <String, String>{'Referer': busTimetablePageUrl},
+      headers: <String, String>{'Referer': homeUrl},
+      postHeaders: <String, String>{'Referer': busTimetablePageUrl},
     );
 
-    Map<String, dynamic>? data;
-    if (request.data is String &&
-        request.headers['Content-Type']![0].contains('text/html')) {
-      data = jsonDecode(request.data as String) as Map<String, dynamic>;
-    } else if (request.data is Map<String, dynamic>) {
-      data = request.data as Map<String, dynamic>;
-    }
+    final data = _parseJsonResponse(response);
     return BookingBusData(
-      success: (data!['success'] as bool) && data['title'] == '預約成功',
+      success: (data['success'] as bool) && data['title'] == '預約成功',
     );
   }
 
-  Future<CancelBusData> busUnBook({
-    required String busId,
-  }) async {
-    final Response<dynamic> request = await generalRequest(
+  Future<CancelBusData> busUnBook({required String busId}) async {
+    final response = await _request(
       busTimetablePageUrl,
-      otherRequestUrl: busUnbookApiUrl,
+      postUrl: busUnbookApiUrl,
       data: <String, String>{'reserveId': busId},
-      firstRequestHeader: <String, String>{'Referer': homeUrl},
-      otherRequestHeader: <String, String>{'Referer': busTimetablePageUrl},
+      headers: <String, String>{'Referer': homeUrl},
+      postHeaders: <String, String>{'Referer': busTimetablePageUrl},
     );
 
-    Map<String, dynamic>? data;
-    if (request.data is String &&
-        request.headers['Content-Type']![0].contains('text/html')) {
-      data = jsonDecode(request.data as String) as Map<String, dynamic>;
-    } else if (request.data is Map<String, dynamic>) {
-      data = request.data as Map<String, dynamic>;
-    }
+    final data = _parseJsonResponse(response);
     return CancelBusData(
-      success: (data!['success'] as bool) && data['title'] == '取消成功',
+      success: (data['success'] as bool) && data['title'] == '取消成功',
     );
   }
 
   Future<BusReservationsData> busUserRecord() async {
-    //get main CSRF
-    final Response<dynamic> request = await dio.get(
+    final pageResponse = await dio.get<dynamic>(
       busUserRecordPageUrl,
       options: Options(headers: <String, String>{'Referer': homeUrl}),
     );
 
-    final List<Response<dynamic>> requestsList = <Response<dynamic>>[];
-    final List<List<String>> requestsDataList = <List<String>>[
+    final csrf = MobileNkustParser.getCSRF(pageResponse.data);
+
+    final routes = <List<String>>[
       <String>['建工', '燕巢'],
       <String>['燕巢', '建工'],
       <String>['第一', '建工'],
       <String>['建工', '第一'],
     ];
-    for (final List<String> requestData in requestsDataList) {
-      final Response<dynamic> r = await dio.post(
+
+    final futures = routes.map((route) async {
+      final response = await dio.post<dynamic>(
         busUserRecordApiUrl,
         data: <String, dynamic>{
           'reserveStateCode': 0,
-          'beginStation': requestData[0],
-          'endStation': requestData[1],
+          'beginStation': route[0],
+          'endStation': route[1],
           'pageNum': 1,
           'pageSize': 99,
-          '__RequestVerificationToken': MobileNkustParser.getCSRF(request.data),
+          '__RequestVerificationToken': csrf,
         },
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
           headers: <String, String>{'Referer': busUserRecordPageUrl},
         ),
       );
-      requestsList.add(r);
-    }
-
-    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
-
-    for (int i = 0; i < requestsList.length; i++) {
-      // add <table> tag to avoid parser error.
-      result.addAll(
-        MobileNkustParser.busUserRecords(
-          '<table>${await requestsList[i].data}</table>',
-          startStation: requestsDataList[i][0],
-          endStation: requestsDataList[i][1],
-        ),
+      return MobileNkustParser.busUserRecords(
+        '<table>${response.data}</table>',
+        startStation: route[0],
+        endStation: route[1],
       );
-    }
-
-    final BusReservationsData busReservationsData =
-        BusReservationsData.fromJson(<String, dynamic>{
-      'data': result,
     });
 
-    return busReservationsData;
+    final results = await Future.wait(futures);
+    final allRecords = results.expand((list) => list).toList();
+
+    return BusReservationsData.fromJson(<String, dynamic>{'data': allRecords});
   }
 
   Future<BusViolationRecordsData> busViolationRecords() async {
-    // paid request
-    final Response<dynamic> paidRequest = await generalRequest(
+    final paidFuture = _request(
       busViolationRecordsPageUrl,
-      otherRequestUrl: busViolationRecordsApiUrl,
-      data: <String, dynamic>{
-        'paid': true,
-        'pageNum': 1,
-        'pageSize': 100,
-      },
-      firstRequestHeader: <String, String>{
-        'Referer': homeUrl,
-      },
-      otherRequestHeader: <String, String>{
-        'Referer': busViolationRecordsPageUrl,
-      },
-    );
-    // not pay request
-    final Response<dynamic> notPaidRequest = await generalRequest(
-      busViolationRecordsPageUrl,
-      otherRequestUrl: busViolationRecordsApiUrl,
-      data: <String, dynamic>{
-        'paid': false,
-        'pageNum': 1,
-        'pageSize': 100,
-      },
-      firstRequestHeader: <String, String>{
-        'Referer': homeUrl,
-      },
-      otherRequestHeader: <String, String>{
-        'Referer': busViolationRecordsPageUrl,
-      },
+      postUrl: busViolationRecordsApiUrl,
+      data: <String, dynamic>{'paid': true, 'pageNum': 1, 'pageSize': 100},
+      headers: <String, String>{'Referer': homeUrl},
+      postHeaders: <String, String>{'Referer': busViolationRecordsPageUrl},
     );
 
-    final List<Map<String, dynamic>> result = <Map<String, dynamic>>[];
-    result.addAll(
-      MobileNkustParser.busViolationRecords(
-        '<table> ${paidRequest.data} </table>',
+    final notPaidFuture = _request(
+      busViolationRecordsPageUrl,
+      postUrl: busViolationRecordsApiUrl,
+      data: <String, dynamic>{'paid': false, 'pageNum': 1, 'pageSize': 100},
+      headers: <String, String>{'Referer': homeUrl},
+      postHeaders: <String, String>{'Referer': busViolationRecordsPageUrl},
+    );
+
+    final responses = await Future.wait([paidFuture, notPaidFuture]);
+
+    final result = <Map<String, dynamic>>[
+      ...MobileNkustParser.busViolationRecords(
+        '<table>${responses[0].data}</table>',
         paidStatus: true,
       ),
-    );
-    result.addAll(
-      MobileNkustParser.busViolationRecords(
-        '<table> ${notPaidRequest.data} </table>',
+      ...MobileNkustParser.busViolationRecords(
+        '<table>${responses[1].data}</table>',
         paidStatus: false,
       ),
-    );
+    ];
 
-    final BusViolationRecordsData busViolationRecordsData =
-        BusViolationRecordsData.fromJson(
+    return BusViolationRecordsData.fromJson(
       <String, dynamic>{'reservation': result},
     );
+  }
 
-    return busViolationRecordsData;
+  Map<String, dynamic> _parseJsonResponse(Response<dynamic> response) {
+    if (response.data is String &&
+        response.headers['Content-Type']?[0].contains('text/html') == true) {
+      return jsonDecode(response.data as String) as Map<String, dynamic>;
+    }
+    return response.data as Map<String, dynamic>;
   }
 }

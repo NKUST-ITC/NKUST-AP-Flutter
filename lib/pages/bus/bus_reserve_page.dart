@@ -103,7 +103,9 @@ class BusReservePageState extends State<BusReservePage>
                         ),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Divider(color: ApTheme.of(context).grey),
+                          child: Divider(
+                              color:
+                                  Theme.of(context).colorScheme.outlineVariant),
                         ),
                       ],
                     ),
@@ -119,10 +121,9 @@ class BusReservePageState extends State<BusReservePage>
                     constraints:
                         const BoxConstraints(minWidth: double.infinity),
                     child: CupertinoSegmentedControl<Station>(
-                      selectedColor: ApTheme.of(context).blueAccent,
-                      borderColor: ApTheme.of(context).blueAccent,
-                      unselectedColor:
-                          ApTheme.of(context).segmentControlUnSelect,
+                      selectedColor: Theme.of(context).colorScheme.primary,
+                      borderColor: Theme.of(context).colorScheme.primary,
+                      unselectedColor: Theme.of(context).colorScheme.surface,
                       groupValue: selectStartStation,
                       children: <Station, Widget>{
                         Station.janGong: Container(
@@ -163,7 +164,7 @@ class BusReservePageState extends State<BusReservePage>
   TextStyle _textStyle(BusTime busTime) => TextStyle(
         color: busTime.getColorState(context),
         fontSize: 18.0,
-        decorationColor: ApTheme.of(context).greyText,
+        decorationColor: Theme.of(context).colorScheme.onSurfaceVariant,
       );
 
   String? get errorText {
@@ -308,7 +309,9 @@ class BusReservePageState extends State<BusReservePage>
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Divider(color: ApTheme.of(context).grey, height: 0.0),
+            child: Divider(
+                color: Theme.of(context).colorScheme.outlineVariant,
+                height: 0.0),
           ),
         ],
       );
@@ -415,7 +418,7 @@ class BusReservePageState extends State<BusReservePage>
           textAlign: TextAlign.center,
           text: TextSpan(
             style: TextStyle(
-              color: ApTheme.of(context).grey,
+              color: Theme.of(context).colorScheme.outlineVariant,
               height: 1.3,
               fontSize: 16.0,
             ),
@@ -438,7 +441,7 @@ class BusReservePageState extends State<BusReservePage>
                   text:
                       '${busTime.description!.replaceAll('<br />', '\n')}\n\n',
                   style: TextStyle(
-                    color: ApTheme.of(context).grey,
+                    color: Theme.of(context).colorScheme.outlineVariant,
                     height: 1.3,
                     fontSize: 14.0,
                   ),
@@ -446,7 +449,7 @@ class BusReservePageState extends State<BusReservePage>
               TextSpan(
                 text: app!.busReserveConfirmTitle,
                 style: TextStyle(
-                  color: ApTheme.of(context).grey,
+                  color: Theme.of(context).colorScheme.outlineVariant,
                 ),
               ),
             ],
@@ -508,7 +511,7 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
               style: TextStyle(
-                color: ApTheme.of(context).grey,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 height: 1.3,
                 fontSize: 16.0,
               ),
@@ -575,7 +578,7 @@ class BusReservePageState extends State<BusReservePage>
             textAlign: TextAlign.left,
             text: TextSpan(
               style: TextStyle(
-                color: ApTheme.of(context).grey,
+                color: Theme.of(context).colorScheme.outlineVariant,
                 height: 1.3,
                 fontSize: 16.0,
               ),
