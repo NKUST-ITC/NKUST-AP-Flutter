@@ -63,9 +63,9 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
               title: context.ap.language,
               titleIcon: Icons.translate_rounded,
               buttonIcon: Icons.language_rounded,
-              options: const [
-                PickerOption(value: 0, label: '中文'),
-                PickerOption(value: 1, label: 'English'),
+              options: [
+                PickerOption(value: 0, label: app.traditionalChinese),
+                const PickerOption(value: 1, label: 'English'),
               ],
               selectedValue: selectedLang.index,
               onSelect: (v) {
@@ -113,7 +113,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
         setState(() {
           pdfState = PdfState.error;
           errorMessage =
-              isHtml ? '尚無在學證明可下載\n請確認是否已申請在學證明' : '無法取得有效的 PDF 文件';
+              isHtml ? app.noEnrollmentAvailable : app.invalidPdfFormat;
         });
         return;
       }
@@ -136,7 +136,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
     } catch (e) {
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = '載入失敗：$e';
+        errorMessage = app.loadFailed.replaceAll('%s', e.toString());
       });
     }
   }

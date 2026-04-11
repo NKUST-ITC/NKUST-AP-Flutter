@@ -160,8 +160,11 @@ class MessageLookup extends MessageLookupByLibrary {
         "fromJiangong": MessageLookupByLibrary.simpleMessage("建工上車"),
         "fromYanchao": MessageLookupByLibrary.simpleMessage("燕巢上車"),
         "iKnow": MessageLookupByLibrary.simpleMessage("我知道了"),
+        "invalidPdfFormat":
+            MessageLookupByLibrary.simpleMessage("無法取得有效的 PDF 文件"),
         "jiangong": MessageLookupByLibrary.simpleMessage("建工"),
         "leaveApplyRecord": MessageLookupByLibrary.simpleMessage("請假查詢"),
+        "loadFailed": MessageLookupByLibrary.simpleMessage("載入失敗：%s"),
         "loginAuth": MessageLookupByLibrary.simpleMessage("登入驗證"),
         "mobileNkustLoginDescription": MessageLookupByLibrary.simpleMessage(
           "因應校方關閉原有爬蟲功能，此版本需透過新版手機版校務系統登入。成功登入後會自動跳轉，除非憑證過期，否則極少需要重複驗證，強烈建議將記住我勾選。",
@@ -170,6 +173,12 @@ class MessageLookup extends MessageLookupByLibrary {
           "等待網頁完成載入\n將自動填寫學號密碼\n完成機器人驗證後點擊登入\n將自動跳轉",
         ),
         "nanzi": MessageLookupByLibrary.simpleMessage("楠梓"),
+        "networkError": MessageLookupByLibrary.simpleMessage("網路錯誤：%s"),
+        "noEnrollmentAvailable": MessageLookupByLibrary.simpleMessage(
+          "尚無在學證明可下載\n請確認是否已申請在學證明",
+        ),
+        "noEnrollmentData":
+            MessageLookupByLibrary.simpleMessage("查無在學證明資料"),
         "nonCourseTime": MessageLookupByLibrary.simpleMessage("非上課時間"),
         "offlineBusReservations":
             MessageLookupByLibrary.simpleMessage("離線校車紀錄"),
@@ -195,6 +204,7 @@ class MessageLookup extends MessageLookupByLibrary {
           "姓名：%s\n學號：%s\n",
         ),
         "specialBus": MessageLookupByLibrary.simpleMessage("特殊班次"),
+        "traditionalChinese": MessageLookupByLibrary.simpleMessage("繁體中文"),
         "trialBus": MessageLookupByLibrary.simpleMessage("試辦車次"),
         "unknown": MessageLookupByLibrary.simpleMessage("未知"),
         "unpaid": MessageLookupByLibrary.simpleMessage("未繳款"),
