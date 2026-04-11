@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty, pdf }
 
@@ -81,7 +80,7 @@ class SchedulePageState extends State<SchedulePage>
             icon: ApIcon.assignment,
             content: state == _State.error
                 ? ap.clickToRetry
-                : AppLocalizations.of(context).busEmpty,
+                : context.t.busEmpty,
           ),
         );
       case _State.pdf:

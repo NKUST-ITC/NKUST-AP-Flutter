@@ -21,8 +21,6 @@ class BusPage extends StatefulWidget {
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  AppLocalizations? app;
-
   TabController? controller;
 
   int _currentIndex = 0;
@@ -52,10 +50,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app!.bus),
+        title: Text(context.t.bus),
         actions: <Widget>[
           IconButton(
             icon: Icon(
@@ -105,11 +102,11 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
         destinations: <NavigationDestination>[
           NavigationDestination(
             icon: Icon(ApIcon.dateRange),
-            label: app!.busReserve,
+            label: context.t.busReserve,
           ),
           NavigationDestination(
             icon: Icon(ApIcon.assignment),
-            label: app!.busReservations,
+            label: context.t.busReservations,
           ),
           NavigationDestination(
             icon: Badge(
@@ -117,7 +114,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
                   ShareDataWidget.of(context)!.data.hasBusViolationRecords,
               child: Icon(ApIcon.monetizationOn),
             ),
-            label: app!.busViolationRecords,
+            label: context.t.busViolationRecords,
           ),
         ],
       ),

@@ -31,7 +31,6 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations? app;
   late ApLocalizations ap;
 
   _State state = _State.finish;
@@ -61,7 +60,6 @@ class BusReservePageState extends State<BusReservePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
     ap = context.ap;
     return Scaffold(
       body: OrientationBuilder(
@@ -127,15 +125,15 @@ class BusReservePageState extends State<BusReservePage>
                       children: <Station, Widget>{
                         Station.janGong: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app!.fromJiangong),
+                          child: Text(context.t.fromJiangong),
                         ),
                         Station.yanchao: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app!.fromYanchao),
+                          child: Text(context.t.fromYanchao),
                         ),
                         Station.first: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(app!.fromFirst),
+                          child: Text(context.t.fromFirst),
                         ),
                       },
                       onValueChanged: (Station text) {
@@ -171,7 +169,7 @@ class BusReservePageState extends State<BusReservePage>
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app!.busEmpty;
+        return context.t.busEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -281,7 +279,7 @@ class BusReservePageState extends State<BusReservePage>
                   Expanded(
                     flex: 3,
                     child: Text(
-                      busTime.getSpecialTrainTitle(app),
+                      busTime.getSpecialTrainTitle(context.t),
                       textAlign: TextAlign.center,
                       style: _textStyle(busTime),
                     ),
@@ -297,7 +295,7 @@ class BusReservePageState extends State<BusReservePage>
                   Expanded(
                     flex: 3,
                     child: Text(
-                      busTime.getReserveState(app),
+                      busTime.getReserveState(context.t),
                       textAlign: TextAlign.center,
                       style: _textStyle(busTime),
                     ),
@@ -380,7 +378,7 @@ class BusReservePageState extends State<BusReservePage>
             setState(() {
               if (e.message?.contains('HttpException') ?? false) {
                 state = _State.custom;
-                customStateHint = app!.busFailInfinity;
+                customStateHint = context.t.busFailInfinity;
               } else {
                 state = _State.error;
               }
@@ -400,17 +398,17 @@ class BusReservePageState extends State<BusReservePage>
   void _showBookingDialog(BusTime busTime) {
     String start = '';
     if (selectStartStation == Station.janGong) {
-      start = app!.fromJiangong;
+      start = context.t.fromJiangong;
     } else if (selectStartStation == Station.yanchao) {
-      start = app!.fromYanchao;
+      start = context.t.fromYanchao;
     } else if (selectStartStation == Station.first) {
-      start = app!.fromFirst;
+      start = context.t.fromFirst;
     }
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-        title: '${busTime.getSpecialTrainTitle(app)}'
-            '${busTime.specialTrain == '0' ? app!.reserve : ''}',
+        title: '${busTime.getSpecialTrainTitle(context.t)}'
+            '${busTime.specialTrain == '0' ? context.t.reserve : ''}',
         contentWidget: RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
@@ -427,7 +425,7 @@ class BusReservePageState extends State<BusReservePage>
                 ),
               ),
               TextSpan(
-                text: '${app!.destination}：${busTime.getEnd(app)}\n\n',
+                text: '${context.t.destination}：${busTime.getEnd(context.t)}\n\n',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                 ),
@@ -444,7 +442,7 @@ class BusReservePageState extends State<BusReservePage>
                   ),
                 ),
               TextSpan(
-                text: app!.busReserveConfirmTitle,
+                text: context.t.busReserveConfirmTitle,
                 style: TextStyle(
                   color: ApTheme.of(context).grey,
                 ),
@@ -453,7 +451,7 @@ class BusReservePageState extends State<BusReservePage>
           ),
         ),
         leftActionText: ap.cancel,
-        rightActionText: app!.reserve,
+        rightActionText: context.t.reserve,
         rightActionFunction: () {
           _bookingBus(busTime);
         },
@@ -465,11 +463,11 @@ class BusReservePageState extends State<BusReservePage>
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-        title: app!.busCancelReserve,
+        title: context.t.busCancelReserve,
         contentWidget: Text(
-          '${app!.busCancelReserveConfirmContent1}${busTime.getStart(app)}'
-          '${app!.busCancelReserveConfirmContent2}${busTime.getEnd(app)}\n'
-          '${busTime.getTime()}${app!.busCancelReserveConfirmContent3}',
+          '${context.t.busCancelReserveConfirmContent1}${busTime.getStart(context.t)}'
+          '${context.t.busCancelReserveConfirmContent2}${busTime.getEnd(context.t)}\n'
+          '${busTime.getTime()}${context.t.busCancelReserveConfirmContent3}',
           textAlign: TextAlign.center,
         ),
         leftActionText: ap.back,
@@ -488,7 +486,7 @@ class BusReservePageState extends State<BusReservePage>
       context: context,
       builder: (BuildContext context) => PopScope(
         canPop: false,
-        child: ProgressDialog(app!.reserving),
+        child: ProgressDialog(context.t.reserving),
       ),
       barrierDismissible: false,
     );
@@ -503,7 +501,7 @@ class BusReservePageState extends State<BusReservePage>
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-          title: app!.busReserveSuccess,
+          title: context.t.busReserveSuccess,
           contentWidget: RichText(
             textAlign: TextAlign.left,
             text: TextSpan(
@@ -514,21 +512,21 @@ class BusReservePageState extends State<BusReservePage>
               ),
               children: <TextSpan>[
                 TextSpan(
-                  text: '${app!.busReserveDate}：',
+                  text: '${context.t.busReserveDate}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text: '${busTime.getDate()}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveLocation}：',
+                  text: '${context.t.busReserveLocation}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
-                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                  text: '${busTime.getStart(context.t)}${context.ap.campus}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveTime}：',
+                  text: '${context.t.busReserveTime}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
@@ -544,9 +542,9 @@ class BusReservePageState extends State<BusReservePage>
         ),
       );
     } on GeneralResponse catch (response) {
-      handleGeneralError(context, response, app!.busReserveFailTitle);
+      handleGeneralError(context, response, context.t.busReserveFailTitle);
     } on DioException catch (e) {
-      handleDioError(context, e, app!.busReserveFailTitle, 'book_bus');
+      handleDioError(context, e, context.t.busReserveFailTitle, 'book_bus');
     }
   }
 
@@ -555,7 +553,7 @@ class BusReservePageState extends State<BusReservePage>
       context: context,
       builder: (BuildContext context) => PopScope(
         canPop: false,
-        child: ProgressDialog(app!.canceling),
+        child: ProgressDialog(context.t.canceling),
       ),
       barrierDismissible: false,
     );
@@ -570,7 +568,7 @@ class BusReservePageState extends State<BusReservePage>
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-          title: app!.busCancelReserveSuccess,
+          title: context.t.busCancelReserveSuccess,
           contentWidget: RichText(
             textAlign: TextAlign.left,
             text: TextSpan(
@@ -581,21 +579,21 @@ class BusReservePageState extends State<BusReservePage>
               ),
               children: <TextSpan>[
                 TextSpan(
-                  text: '${app!.busReserveCancelDate}：',
+                  text: '${context.t.busReserveCancelDate}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text: '${busTime.getDate()}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveCancelLocation}：',
+                  text: '${context.t.busReserveCancelLocation}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
-                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                  text: '${busTime.getStart(context.t)}${context.ap.campus}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveCancelTime}：',
+                  text: '${context.t.busReserveCancelTime}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
@@ -610,9 +608,9 @@ class BusReservePageState extends State<BusReservePage>
         ),
       );
     } on GeneralResponse catch (response) {
-      handleGeneralError(context, response, app!.busCancelReserveFail);
+      handleGeneralError(context, response, context.t.busCancelReserveFail);
     } on DioException catch (e) {
-      handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus');
+      handleDioError(context, e, context.t.busCancelReserveFail, 'cancel_bus');
     }
   }
 
@@ -658,7 +656,7 @@ class BusReservePageState extends State<BusReservePage>
         );
       case DioExceptionType.unknown:
         if (e.message?.contains('HttpException') ?? false) {
-          message = AppLocalizations.of(context).busFailInfinity;
+          message = context.t.busFailInfinity;
         } else {
           message = context.ap.somethingError;
         }

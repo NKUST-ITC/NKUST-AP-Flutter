@@ -6,9 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image/image.dart' as image_utils;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sprintf/sprintf.dart';
 
 class Utils {
   static Future<void> clearSetting() async {
@@ -19,7 +18,7 @@ class Utils {
     BuildContext context,
     List<BusReservation>? busReservations,
   ) async {
-    final AppLocalizations app = AppLocalizations.of(context);
+    final nkust = context.t;
     if (NotificationUtil.instance.isSupport) {
       for (int i = 0;
           i <
@@ -36,17 +35,14 @@ class Utils {
         await NotificationUtil.instance.schedule(
           id: Constants.notificationBusId + i,
           androidChannelId: '${Constants.notificationBusId}',
-          androidChannelDescription: app.busNotify,
+          androidChannelDescription: nkust.busNotify,
           dateTime: busReservations![i]
               .getDateTime()
               .subtract(const Duration(minutes: 30)),
-          title: app.busNotify,
-          content: sprintf(
-            app.busNotifyContent,
-            <String>[
-              busReservations[i].getStart(app),
-              busReservations[i].getEnd(app),
-            ],
+          title: nkust.busNotify,
+          content: nkust.busNotifyContent(
+            start: busReservations[i].getStart(nkust),
+            end: busReservations[i].getEnd(nkust),
           ),
         );
       }
@@ -109,7 +105,7 @@ class Utils {
     }
   }
 
-  static String parserCampus(AppLocalizations? local, String campus) {
+  static String parserCampus(NkustLocalizations? local, String campus) {
     switch (campus) {
       case '建工':
         return local!.jiangong;

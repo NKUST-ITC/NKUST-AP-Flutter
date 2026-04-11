@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/pages/study/room_course_page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 enum _State { loading, finish, custom }
 
@@ -13,8 +13,6 @@ class RoomListPage extends StatefulWidget {
 }
 
 class _RoomListPageState extends State<RoomListPage> {
-  late AppLocalizations app;
-
   _State state = _State.loading;
 
   int campusIndex = 0;
@@ -37,7 +35,6 @@ class _RoomListPageState extends State<RoomListPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(context.ap.roomList),
@@ -48,8 +45,8 @@ class _RoomListPageState extends State<RoomListPage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
           ItemPicker(
-            dialogTitle: app.campus,
-            items: app.campuses,
+            dialogTitle: context.ap.campus,
+            items: context.t.campuses,
             currentIndex: campusIndex,
             onSelected: (int index) {
               setState(() => campusIndex = index);

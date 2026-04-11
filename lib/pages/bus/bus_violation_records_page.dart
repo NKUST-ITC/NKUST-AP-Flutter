@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 enum _State {
@@ -23,7 +23,6 @@ class BusViolationRecordsPage extends StatefulWidget {
 }
 
 class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
-  late AppLocalizations app;
   late ApLocalizations ap;
 
   _State state = _State.loading;
@@ -37,7 +36,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app.busViolationRecordEmpty;
+        return context.t.busViolationRecordEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -57,7 +56,6 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     ap = context.ap;
     switch (state) {
       case _State.loading:
@@ -271,7 +269,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             setState(() {
               if (e.message?.contains('HttpException') ?? false) {
                 state = _State.custom;
-                customStateHint = app.busFailInfinity;
+                customStateHint = context.t.busFailInfinity;
               } else {
                 state = _State.error;
               }
@@ -369,8 +367,8 @@ class ReservationItem extends StatelessWidget {
                 Center(
                   child: Text(
                     reservation!.isPayment
-                        ? AppLocalizations.of(context).paid
-                        : AppLocalizations.of(context).unpaid,
+                        ? context.t.paid
+                        : context.t.unpaid,
                     style: TextStyle(
                       color: reservation!.isPayment
                           ? ApTheme.of(context).green
@@ -398,7 +396,7 @@ class ReservationItem extends StatelessWidget {
         horizontal: 8.0,
       ),
       child: Text(
-        station ?? AppLocalizations.of(context).unknown,
+        station ?? context.t.unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,

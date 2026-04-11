@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ">=0.17.0 <1.0.0"
+  slang_flutter: ^4.14.0
 
   ap_common: ^1.0.1-dev.8
   ap_common_firebase: ^1.0.1-dev.9
@@ -47,6 +47,7 @@ dev_dependencies:
   lint: ^2.1.2
   build_runner: ^2.1.11
   json_serializable: ^6.3.0
+  slang: ^4.14.0
 
 
 dependency_overrides:
@@ -85,10 +86,3 @@ flutter:
     - changelog.json
     # - assets/webap_captcha.tflite
 
-flutter_intl:
-  enabled: true
-  class_name: AppLocalizations
-  main_locale: 'zh_TW'
-  arb_dir: lib/l10n
-  output_dir: lib/l10n
-  use_deferred_loading: true

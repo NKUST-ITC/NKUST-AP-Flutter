@@ -38,7 +38,6 @@ class HomePageState extends State<HomePage> {
 
   HomeState state = HomeState.loading;
 
-  late AppLocalizations app;
   late ApLocalizations ap;
 
   Widget? content;
@@ -114,7 +113,7 @@ class HomePageState extends State<HomePage> {
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
       email: 'nkust.itc@gmail.com',
-      appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
+      appLicense: context.t.aboutOpenSourceContent,
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
@@ -160,10 +159,9 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     ap = context.ap;
     return HomePageScaffold(
-      title: app.appName,
+      title: context.t.appName,
       key: _homeKey,
       state: state,
       announcements: announcements,
@@ -212,7 +210,7 @@ class HomePageState extends State<HomePage> {
         if (canUseBus)
           NavigationDestination(
             icon: Icon(ApIcon.directionsBus),
-            label: app.bus,
+            label: context.t.bus,
           ),
         NavigationDestination(
           icon: Icon(ApIcon.classIcon),
@@ -353,7 +351,7 @@ class HomePageState extends State<HomePage> {
               ),
               DrawerSubMenuItem(
                 icon: ApIcon.folder,
-                title: app.leaveApplyRecord,
+                title: context.t.leaveApplyRecord,
                 onTap: () => _openPage(
                   const LeavePage(initIndex: 2),
                   needLogin: true,
@@ -379,11 +377,11 @@ class HomePageState extends State<HomePage> {
               });
             },
             icon: ApIcon.directionsBus,
-            title: app.bus,
+            title: context.t.bus,
             children: <DrawerSubMenuItem>[
               DrawerSubMenuItem(
                 icon: ApIcon.dateRange,
-                title: app.busReserve,
+                title: context.t.busReserve,
                 onTap: () => _openPage(
                   const BusPage(),
                   needLogin: true,
@@ -391,7 +389,7 @@ class HomePageState extends State<HomePage> {
               ),
               DrawerSubMenuItem(
                 icon: ApIcon.assignment,
-                title: app.busReservations,
+                title: context.t.busReservations,
                 onTap: () => _openPage(
                   const BusPage(initIndex: 1),
                   needLogin: true,
@@ -399,7 +397,7 @@ class HomePageState extends State<HomePage> {
               ),
               DrawerSubMenuItem(
                 icon: ApIcon.monetizationOn,
-                title: app.busViolationRecords,
+                title: context.t.busViolationRecords,
                 onTap: () => _openPage(
                   const BusPage(initIndex: 2),
                   needLogin: true,
@@ -422,7 +420,7 @@ class HomePageState extends State<HomePage> {
         ),
         DrawerMenuItem(
           icon: report,
-          title: app.reportProblem,
+          title: context.t.reportProblem,
           onTap: () => _openPage(ReportPage()),
         ),
         DrawerMenuItem(
@@ -512,9 +510,9 @@ class HomePageState extends State<HomePage> {
             if (_nextBusReservation != null)
               QuickInfoItem(
                 icon: ApIcon.directionsBus,
-                label: app.busReserve,
+                label: context.t.busReserve,
                 subtitle:
-                    '${_nextBusReservation!.getDate()} ${_nextBusReservation!.getStart(app)} → ${_nextBusReservation!.getEnd(app)} ${_nextBusReservation!.getTime()}',
+                    '${_nextBusReservation!.getDate()} ${_nextBusReservation!.getStart(context.t)} → ${_nextBusReservation!.getEnd(context.t)} ${_nextBusReservation!.getTime()}',
                 onTap: () {
                   if (isLogin) {
                     _pushAndReload(const BusPage());
@@ -526,8 +524,8 @@ class HomePageState extends State<HomePage> {
             if (_nextBusReservation == null)
               QuickInfoItem(
                 icon: ApIcon.directionsBus,
-                label: app.bus,
-                subtitle: app.busReservations,
+                label: context.t.bus,
+                subtitle: context.t.busReservations,
                 onTap: () {
                   if (isLogin) {
                     _pushAndReload(const BusPage());
@@ -881,7 +879,6 @@ class HomePageState extends State<HomePage> {
   static const String prefApiKey = 'inkust_api_key';
 
   Future<void> _checkData({bool first = false}) async {
-    final AppLocalizations app = AppLocalizations.of(context);
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion =
         PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '');
@@ -989,7 +986,7 @@ class HomePageState extends State<HomePage> {
         if (!mounted) return;
         DialogUtils.showNewVersionContent(
           context: context,
-          appName: app.appName,
+          appName: context.t.appName,
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
           windowsPath:

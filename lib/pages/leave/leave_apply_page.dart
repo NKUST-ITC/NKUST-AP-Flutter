@@ -11,7 +11,6 @@ import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State {
   loading,

@@ -24,8 +24,8 @@ class LoginPageState extends State<LoginPage> {
 
   bool isRememberPassword = true;
   bool isAutoLogin = false;
-
   bool isLoginIng = false;
+  bool _obscurePassword = true;
 
   @override
   void initState() {
@@ -48,18 +48,30 @@ class LoginPageState extends State<LoginPage> {
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
+      logoSubtitle: context.t.appName,
       forms: <Widget>[
+        Text(
+          ap.login,
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 24.0),
         ApTextField(
           controller: _username,
           keyboardType: TextInputType.emailAddress,
           focusNode: usernameFocusNode,
           nextFocusNode: passwordFocusNode,
           labelText: ap.studentId,
+          prefixIcon: Icons.person_outline_rounded,
           autofillHints: const <String>[AutofillHints.username],
         ),
         const SizedBox(height: 12.0),
         ApTextField(
-          obscureText: true,
+          obscureText: _obscurePassword,
           textInputAction: TextInputAction.send,
           controller: _password,
           focusNode: passwordFocusNode,
@@ -68,6 +80,16 @@ class LoginPageState extends State<LoginPage> {
             _login();
           },
           labelText: ap.password,
+          prefixIcon: Icons.lock_outline_rounded,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePassword
+                  ? Icons.visibility_outlined
+                  : Icons.visibility_off_outlined,
+            ),
+            onPressed: () =>
+                setState(() => _obscurePassword = !_obscurePassword),
+          ),
           autofillHints: const <String>[AutofillHints.password],
         ),
         const SizedBox(height: 12.0),
@@ -90,12 +112,11 @@ class LoginPageState extends State<LoginPage> {
         const SizedBox(height: 16.0),
         ApButton(
           text: ap.login,
-          onPressed: isLoginIng
-              ? null
-              : () {
-                  AnalyticsUtil.instance.logEvent('login_click');
-                  _login();
-                },
+          isLoading: isLoginIng,
+          onPressed: () {
+            AnalyticsUtil.instance.logEvent('login_click');
+            _login();
+          },
         ),
         ApFlatButton(
           text: ap.offlineLogin,

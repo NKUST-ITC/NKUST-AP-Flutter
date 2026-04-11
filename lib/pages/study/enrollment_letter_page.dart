@@ -19,8 +19,6 @@ class EnrollmentLetterPage extends StatefulWidget {
 class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   PdfState pdfState = PdfState.loading;
 
-  late AppLocalizations app;
-
   Uint8List? data;
 
   String? errorMessage;
@@ -42,10 +40,9 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.enrollmentLetter),
+        title: Text(context.t.enrollmentLetter),
       ),
       body: PdfView(
         state: pdfState,

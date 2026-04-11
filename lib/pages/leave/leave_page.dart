@@ -4,7 +4,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = '/leave';
@@ -119,7 +119,7 @@ class LeavePageState extends State<LeavePage>
           ),
           NavigationDestination(
             icon: Icon(ApIcon.folder),
-            label: AppLocalizations.of(context).leaveApplyRecord,
+            label: context.t.leaveApplyRecord,
           ),
         ],
       ),

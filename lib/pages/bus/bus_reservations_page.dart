@@ -32,7 +32,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
   BusReservationsData? busReservationsData;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations? app;
   late ApLocalizations ap;
 
   bool isOffline = false;
@@ -53,7 +52,6 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
     ap = context.ap;
     return Column(
       children: <Widget>[
@@ -61,7 +59,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: isOffline
               ? Text(
-                  app!.offlineBusReservations,
+                  context.t.offlineBusReservations,
                   style: TextStyle(color: ApTheme.of(context).grey),
                 )
               : null,
@@ -78,7 +76,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       case _State.error:
         return ap.clickToRetry;
       case _State.empty:
-        return app!.busReservationEmpty;
+        return context.t.busReservationEmpty;
       case _State.campusNotSupport:
         return ap.campusNotSupport;
       case _State.userNotSupport:
@@ -159,8 +157,8 @@ class BusReservationsPageState extends State<BusReservationsPage>
                 Expanded(
                   flex: 2,
                   child: Text(
-                    '${busReservation.getStart(app)}'
-                    '→${busReservation.getEnd(app)}',
+                    '${busReservation.getStart(context.t)}'
+                    '→${busReservation.getEnd(context.t)}',
                     textAlign: TextAlign.center,
                     style: _textStyle(busReservation),
                   ),
@@ -280,7 +278,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
             setState(() {
               if (e.message?.contains('HttpException') ?? false) {
                 state = _State.custom;
-                customStateHint = app!.busFailInfinity;
+                customStateHint = context.t.busFailInfinity;
               } else {
                 state = _State.error;
               }
@@ -302,11 +300,11 @@ class BusReservationsPageState extends State<BusReservationsPage>
     showDialog(
       context: context,
       builder: (BuildContext context) => YesNoDialog(
-        title: app!.busCancelReserve,
+        title: context.t.busCancelReserve,
         contentWidget: Text(
-          '${app!.busCancelReserveConfirmContent1}${reservation.getStart(app)}'
-          '${app!.busCancelReserveConfirmContent2}${reservation.getEnd(app)}\n'
-          '${reservation.getTime()}${app!.busCancelReserveConfirmContent3}',
+          '${context.t.busCancelReserveConfirmContent1}${reservation.getStart(context.t)}'
+          '${context.t.busCancelReserveConfirmContent2}${reservation.getEnd(context.t)}\n'
+          '${reservation.getTime()}${context.t.busCancelReserveConfirmContent3}',
           textAlign: TextAlign.center,
         ),
         leftActionText: ap.back,
@@ -325,7 +323,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       context: context,
       builder: (BuildContext context) => PopScope(
         canPop: false,
-        child: ProgressDialog(app!.canceling),
+        child: ProgressDialog(context.t.canceling),
       ),
       barrierDismissible: false,
     );
@@ -339,7 +337,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
       showDialog(
         context: context,
         builder: (BuildContext context) => DefaultDialog(
-          title: app!.busCancelReserveSuccess,
+          title: context.t.busCancelReserveSuccess,
           contentWidget: RichText(
             textAlign: TextAlign.left,
             text: TextSpan(
@@ -350,21 +348,21 @@ class BusReservationsPageState extends State<BusReservationsPage>
               ),
               children: <TextSpan>[
                 TextSpan(
-                  text: '${app!.busReserveCancelDate}：',
+                  text: '${context.t.busReserveCancelDate}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
                   text: '${busTime.getDate()}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveCancelLocation}：',
+                  text: '${context.t.busReserveCancelLocation}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
-                  text: '${busTime.getStart(app)}${app!.campus}\n',
+                  text: '${busTime.getStart(context.t)}${context.ap.campus}\n',
                 ),
                 TextSpan(
-                  text: '${app!.busReserveCancelTime}：',
+                  text: '${context.t.busReserveCancelTime}：',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(
@@ -382,13 +380,13 @@ class BusReservationsPageState extends State<BusReservationsPage>
       BusReservePageState.handleGeneralError(
         context,
         response,
-        app!.busCancelReserveFail,
+        context.t.busCancelReserveFail,
       );
     } on DioException catch (e) {
       BusReservePageState.handleDioError(
         context,
         e,
-        app!.busCancelReserveFail,
+        context.t.busCancelReserveFail,
         'cancel_bus',
       );
     }

@@ -13,7 +13,6 @@ class SearchStudentIdPage extends StatefulWidget {
 }
 
 class SearchStudentIdPageState extends State<SearchStudentIdPage> {
-  late AppLocalizations app;
   late ApLocalizations ap;
 
   final TextEditingController _id = TextEditingController();
@@ -34,7 +33,6 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     ap = context.ap;
     return LoginScaffold(
       logoMode: LogoMode.image,
@@ -127,12 +125,9 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           Navigator.pop(context, data.id);
         } else {
           _showResultDialog(
-            sprintf(
-              AppLocalizations.of(context).searchStudentIdFormat,
-              <dynamic>[
-                data.name,
-                data.id,
-              ],
+            context.t.searchStudentIdFormat(
+              name: data.name ?? '',
+              id: data.id,
             ),
           );
         }
@@ -169,7 +164,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               ),
               if (showFirstHint)
                 TextSpan(
-                  text: '\n${AppLocalizations.of(context).firstLoginHint}',
+                  text: '\n${context.ap.firstLoginHint}',
                 ),
             ],
           ),

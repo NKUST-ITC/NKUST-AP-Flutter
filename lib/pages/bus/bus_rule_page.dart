@@ -13,8 +13,6 @@ class BusRulePage extends StatefulWidget {
 }
 
 class BusRulePageState extends State<BusRulePage> {
-  AppLocalizations? app;
-
   @override
   void initState() {
     AnalyticsUtil.instance
@@ -29,10 +27,9 @@ class BusRulePageState extends State<BusRulePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app!.busRule),
+        title: Text(context.t.busRule),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -45,14 +42,14 @@ class BusRulePageState extends State<BusRulePage> {
             ),
             children: <TextSpan>[
               TextSpan(
-                text: app!.busRuleReservationRuleTitle,
+                text: context.t.busRuleReservationRuleTitle,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24.0,
                 ),
               ),
               TextSpan(
-                text: app!.busRuleTravelBy,
+                text: context.t.busRuleTravelBy,
               ),
               TextSpan(
                 text: 'http://bus.kuas.edu.tw/',
@@ -64,71 +61,71 @@ class BusRulePageState extends State<BusRulePage> {
                   ..onTap = () => PlatformUtil.instance
                       .launchUrl('http://bus.kuas.edu.tw/'),
               ),
-              TextSpan(text: app!.busRuleFourteenDay),
+              TextSpan(text: context.t.busRuleFourteenDay),
               TextSpan(
-                text: app!.busRuleReservationTime,
+                text: context.t.busRuleReservationTime,
                 style: TextStyle(color: ApTheme.of(context).red),
               ),
               TextSpan(
-                text: app!.busRuleCancellingTitle,
+                text: context.t.busRuleCancellingTitle,
               ),
               TextSpan(
-                text: app!.busRuleCancelingTime,
+                text: context.t.busRuleCancelingTime,
                 style: TextStyle(color: ApTheme.of(context).red),
               ),
               TextSpan(
-                text: app!.busRuleFollow,
+                text: context.t.busRuleFollow,
               ),
               TextSpan(
-                text: app!.busRuleTakeOn,
+                text: context.t.busRuleTakeOn,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24.0,
                 ),
               ),
               TextSpan(
-                text: app!.busRuleTwentyDollars,
+                text: context.t.busRuleTwentyDollars,
               ),
               TextSpan(
-                text: app!.busRulePrepareCoins,
+                text: context.t.busRulePrepareCoins,
                 style: TextStyle(color: ApTheme.of(context).blueText),
               ),
               TextSpan(
-                text: app!.busRuleIdCard,
+                text: context.t.busRuleIdCard,
               ),
               TextSpan(
-                text: app!.busRuleNoIdCard,
+                text: context.t.busRuleNoIdCard,
                 style: TextStyle(
                   color: ApTheme.of(context).red,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               TextSpan(
-                text: app!.busRuleFollowingTime,
+                text: context.t.busRuleFollowingTime,
                 style: TextStyle(color: ApTheme.of(context).red),
               ),
               TextSpan(
-                text: app!.busRuleLateAndNoReservation,
+                text: context.t.busRuleLateAndNoReservation,
               ),
               TextSpan(
-                text: app!.busRuleStandbyTitle,
+                text: context.t.busRuleStandbyTitle,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24.0,
                 ),
               ),
               TextSpan(
-                text: app!.busRuleStandbyRule,
+                text: context.t.busRuleStandbyRule,
               ),
               TextSpan(
-                text: app!.busRuleFineTitle,
+                text: context.t.busRuleFineTitle,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 24.0,
                 ),
               ),
               TextSpan(
-                text: app!.busRuleFineRule,
+                text: context.t.busRuleFineRule,
                 style: TextStyle(color: ApTheme.of(context).red),
               ),
             ],

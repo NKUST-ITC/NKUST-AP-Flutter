@@ -7,7 +7,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 class MobileNkustPage extends StatefulWidget {
   final String? username;
@@ -26,28 +26,25 @@ class MobileNkustPage extends StatefulWidget {
 }
 
 class _MobileNkustPageState extends State<MobileNkustPage> {
-  late AppLocalizations app;
-
   late InAppWebViewController webViewController;
 
   bool finish = false;
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.loginAuth),
+        title: Text(context.t.loginAuth),
         actions: <Widget>[
           TextButton(
             onPressed: () {
               DialogUtils.showDefault(
                 context: context,
-                title: app.loginAuth,
-                content: app.mobileNkustLoginDescription,
+                title: context.t.loginAuth,
+                content: context.t.mobileNkustLoginDescription,
               );
             },
-            child: Text(app.clickShowDescription),
+            child: Text(context.t.clickShowDescription),
           ),
         ],
       ),
@@ -71,7 +68,7 @@ class _MobileNkustPageState extends State<MobileNkustPage> {
         ),
         onWebViewCreated: (InAppWebViewController webViewController) {
           this.webViewController = webViewController;
-          UiUtil.instance.showToast(context, app.mobileNkustLoginHint);
+          UiUtil.instance.showToast(context, context.t.mobileNkustLoginHint);
         },
         onJsPrompt: (
           InAppWebViewController controller,
