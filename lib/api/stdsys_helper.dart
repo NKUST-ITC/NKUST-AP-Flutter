@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -233,10 +234,8 @@ class StdsysHelper {
   }
 
   Future<Response<Uint8List>> getSingleTranscript(
-    String? year,
-    String? semester,
-    [bool showRank = true]
-    ) async {
+      String? year, String? semester,
+      [bool showRank = true]) async {
     await WebApHelper.instance.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -258,10 +257,8 @@ class StdsysHelper {
   }
 
   Future<Response<Uint8List>> getHistoryTranscript(
-    String? year,
-    String? semester,
-    [bool showRank = true]
-    ) async {
+      String? year, String? semester,
+      [bool showRank = true]) async {
     await WebApHelper.instance.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -283,33 +280,29 @@ class StdsysHelper {
   }
 
   String parsePdfText(Response<Uint8List> rawpdf) {
-    try {
-      final Uint8List bytes = rawpdf.data!;
-      final document = PdfDocument(inputBytes: bytes);
-      final extractor = PdfTextExtractor(document);
-      final text = extractor.extractText();
+    final Uint8List bytes = rawpdf.data!;
+    final document = PdfDocument(inputBytes: bytes);
+    final extractor = PdfTextExtractor(document);
+    final text = extractor.extractText();
 
-      document.dispose();
+    document.dispose();
 
-      return text;
-    } catch (e) {
-      throw Exception('parsePdfText parse error: $e');
-    }
+    return text;
   }
 
   Future<ScoreData> getScores(String? year, String? semester) async {
-    final Response<Uint8List> rawpdf = await getSingleTranscript(year, semester);
+    final Response<Uint8List> rawpdf =
+        await getSingleTranscript(year, semester);
 
-    final String rawText = String.fromCharCodes(rawpdf.data!);
+    final String _ = String.fromCharCodes(rawpdf.data!);
 
-    if (rawText.contains('script')) {
+    try {
+      final String parsed = parsePdfText(rawpdf);
+      return ScoreData.fromJson(
+        StdsysParser.instance.scoresParser(parsed),
+      );
+    } catch (e) {
       return ScoreData.empty();
     }
-
-    final String parsed = parsePdfText(rawpdf);
-
-    return ScoreData.fromJson(
-      StdsysParser.instance.scoresParser(parsed),
-    );
   }
 }

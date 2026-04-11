@@ -305,6 +305,8 @@ class Helper {
     required Semester semester,
   }) async {
     ScoreData? data;
+    log('Fetch(Score) ${selector?.score} '
+        '${semester.year} ${semester.code}');
     switch (selector?.score) {
       case mobile:
         data = await MobileNkustHelper.instance.getScores(
