@@ -1,11 +1,10 @@
-import 'dart:developer';
 import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:nkust_ap/api/helper.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 enum EnrollmentLetterLang {
@@ -67,7 +66,7 @@ class StdsysHelper {
 
     final Response<String> response = await dio.get<String>(
       'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetRoomList/',
-      queryParameters: {
+      queryParameters: <String, dynamic>{
         'fgShowAll': 'False',
         'fgEnable': 'True',
         'fgShowCode': 'False',
@@ -108,7 +107,7 @@ class StdsysHelper {
 
     final Response<String> response = await dio.get<String>(
       'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetScheduleByRoom',
-      queryParameters: {
+      queryParameters: <String, dynamic>{
         'id': '$years;$semesterValue;$roomId',
       },
       options: Options(
@@ -216,7 +215,7 @@ class StdsysHelper {
 
     final Response<String> response = await dio.post<String>(
       'https://stdsys.nkust.edu.tw/student/WebCode/GetSchoolYearSmsCodes',
-      queryParameters: {
+      queryParameters: <String, dynamic>{
         'stdId': Helper.username,
       },
       options: Options(
@@ -245,7 +244,7 @@ class StdsysHelper {
         .join('; ');
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Score/SingleSemesterTranscript/PrintTranscript?YM=${year}${semester}&ShowRank=${showRank}',
+      'https://stdsys.nkust.edu.tw/student/Score/SingleSemesterTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
@@ -268,7 +267,7 @@ class StdsysHelper {
         .join('; ');
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript/PrintTranscript?YM=${year}${semester}&ShowRank=${showRank}',
+      'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
@@ -281,20 +280,19 @@ class StdsysHelper {
 
   String parsePdfText(Response<Uint8List> rawpdf) {
     final Uint8List bytes = rawpdf.data!;
-    final document = PdfDocument(inputBytes: bytes);
-    final extractor = PdfTextExtractor(document);
-    final text = extractor.extractText();
-
-    document.dispose();
-
-    return text;
+    final PdfDocument document = PdfDocument(inputBytes: bytes);
+    try {
+      final PdfTextExtractor extractor = PdfTextExtractor(document);
+      final String text = extractor.extractText();
+      return text;
+    } finally {
+      document.dispose();
+    }
   }
 
   Future<ScoreData> getScores(String? year, String? semester) async {
     final Response<Uint8List> rawpdf =
         await getSingleTranscript(year, semester);
-
-    final String _ = String.fromCharCodes(rawpdf.data!);
 
     try {
       final String parsed = parsePdfText(rawpdf);
