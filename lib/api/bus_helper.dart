@@ -9,6 +9,7 @@ import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
+import 'package:nkust_ap/api/capability/bus_provider.dart';
 import 'package:nkust_ap/api/relogin_mixin.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -118,7 +119,7 @@ class BusEncrypt {
   }
 }
 
-class BusHelper with ReloginMixin {
+class BusHelper with ReloginMixin implements BusProvider {
   BusHelper() {
     dioInit();
   }
@@ -352,4 +353,29 @@ class BusHelper with ReloginMixin {
       throw BusSessionExpiredException(data['message'] as String);
     }
   }
+
+  // -- BusProvider interface implementations --
+
+  @override
+  Future<BusData> getTimeTable({required DateTime dateTime}) =>
+      timeTableQuery(
+        year: '${dateTime.year}',
+        month: '${dateTime.month}',
+        day: '${dateTime.day}',
+      );
+
+  @override
+  Future<BookingBusData> bookBus({required String busId}) =>
+      busBook(busId: busId);
+
+  @override
+  Future<CancelBusData> cancelBus({required String busId}) =>
+      busUnBook(busId: busId);
+
+  @override
+  Future<BusReservationsData> getReservations() => busReservations();
+
+  @override
+  Future<BusViolationRecordsData> getViolationRecords() =>
+      busViolationRecords();
 }

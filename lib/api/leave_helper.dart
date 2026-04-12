@@ -11,6 +11,8 @@ import 'package:http_parser/http_parser.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/capability/leave_provider.dart';
+import 'package:nkust_ap/api/relogin_mixin.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -21,8 +23,12 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
-class LeaveHelper {
-  LeaveHelper() {
+class LeaveHelper with ReloginMixin implements LeaveProvider {
+  /// The [WebApHelper] instance this helper depends on for cookie management
+  /// and cross-system login.
+  final WebApHelper _webApHelper;
+
+  LeaveHelper(this._webApHelper) {
     dioInit();
   }
 
@@ -31,13 +37,13 @@ class LeaveHelper {
 
   static LeaveHelper? _instance;
 
-  //ignore: prefer_constructors_over_static_methods
+  // ignore: prefer_constructors_over_static_methods
   static LeaveHelper get instance {
-    return _instance ??= LeaveHelper();
+    return _instance ??= LeaveHelper(WebApHelper.instance);
   }
 
-  int reLoginReTryCountsLimit = 3;
-  int reLoginReTryCounts = 0;
+  @override
+  int get maxRelogins => 3;
 
   bool? isLogin;
 
@@ -52,7 +58,7 @@ class LeaveHelper {
 
   void dioInit() {
     final (:dio, cookieJar: _) = ApiConfig.createScraperDio(
-      sharedCookieJar: WebApHelper.instance.cookieJar,
+      sharedCookieJar: _webApHelper.cookieJar,
       headers: <String, dynamic>{
         'Origin': 'http://leave.nkust.edu.tw',
         'Upgrade-Insecure-Requests': '1',
@@ -64,7 +70,7 @@ class LeaveHelper {
       },
     );
     this.dio = dio;
-    cookieJar = WebApHelper.instance.cookieJar;
+    cookieJar = _webApHelper.cookieJar;
   }
 
   void setCookieFromData(MobileCookiesData data) {
@@ -184,16 +190,13 @@ class LeaveHelper {
     return false;
   }
 
+  @override
   Future<LeaveData> getLeaves({String? year, String? semester}) async {
     if (Helper.username == null || Helper.password == null) {
       throw 'NullThrownError';
     }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
+      await _webApHelper.loginToLeave();
     }
     final Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/AK002MainM.aspx',
@@ -219,12 +222,8 @@ class LeaveHelper {
     if (Helper.username == null || Helper.password == null) {
       throw 'NullThrownError';
     }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
+      await _webApHelper.loginToLeave();
     }
     Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
@@ -263,7 +262,7 @@ class LeaveHelper {
     XFile? proofImage,
   }) async {
     //force relogin to aviod error.
-    await WebApHelper.instance.loginToLeave();
+    await _webApHelper.loginToLeave();
 
     Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
@@ -407,4 +406,16 @@ class LeaveHelper {
 
     return null;
   }
+
+  // -- Capability interface implementations --
+
+  @override
+  Future<LeaveSubmitInfoData> getSubmitInfo() => getLeavesSubmitInfo();
+
+  @override
+  Future<Response<dynamic>?> submit(
+    LeaveSubmitData data, {
+    XFile? proofImage,
+  }) =>
+      leavesSubmit(data, proofImage: proofImage);
 }
