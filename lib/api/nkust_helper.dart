@@ -23,9 +23,6 @@ class NKUSTHelper {
   late Dio dio;
   late CookieJar cookieJar;
 
-  static int reTryCountsLimit = 3;
-  static int reTryCounts = 0;
-
   //ignore: prefer_constructors_over_static_methods
   static NKUSTHelper get instance {
     return _instance ??= NKUSTHelper();
@@ -151,38 +148,35 @@ class NKUSTHelper {
 
   Future<NotificationsData> getNotifications(int page) async {
     final int baseIndex = (page - 1) * 15;
-    if (reTryCounts > reTryCountsLimit) {
-      throw 'NullThrownError';
-    }
-    final Response<String> res = await dio.post<String>(
-      'https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist',
-      data: <String, dynamic>{
-        'Rcg': 232,
-        'Op': 'getpartlist',
-        'Page': page - 1,
-      },
-      options:
-          Options(contentType: Headers.formUrlEncodedContentType, headers: {
-        'Referer': 'https://acad.nkust.edu.tw/p/403-1004-232-1.php?Lang=zh-tw'
-      }),
-    );
-    List<Map<String, dynamic>> acadData;
-    if (res.statusCode == 200 && res.data != null) {
-      acadData = acadParser(
-        html: (json.decode(res.data!) as Map<String, dynamic>)['content']
-            as String,
-        baseIndex: baseIndex,
+    const int maxRetries = 3;
+    for (int attempt = 0; attempt <= maxRetries; attempt++) {
+      final Response<String> res = await dio.post<String>(
+        'https://acad.nkust.edu.tw/app/index.php?Action=mobilercglist',
+        data: <String, dynamic>{
+          'Rcg': 232,
+          'Op': 'getpartlist',
+          'Page': page - 1,
+        },
+        options:
+            Options(contentType: Headers.formUrlEncodedContentType, headers: {
+          'Referer':
+              'https://acad.nkust.edu.tw/p/403-1004-232-1.php?Lang=zh-tw'
+        }),
       );
-      reTryCounts = 0;
-    } else {
-      reTryCounts++;
-      return getNotifications(page);
+      if (res.statusCode == 200 && res.data != null) {
+        final List<Map<String, dynamic>> acadData = acadParser(
+          html: (json.decode(res.data!) as Map<String, dynamic>)['content']
+              as String,
+          baseIndex: baseIndex,
+        );
+        return NotificationsData.fromJson(<String, dynamic>{
+          'data': <String, dynamic>{
+            'page': page + 1,
+            'notification': acadData,
+          },
+        });
+      }
     }
-    return NotificationsData.fromJson(<String, dynamic>{
-      'data': <String, dynamic>{
-        'page': page + 1,
-        'notification': acadData,
-      },
-    });
+    throw GeneralResponse.unknownError();
   }
 }
