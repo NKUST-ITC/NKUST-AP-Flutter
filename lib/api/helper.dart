@@ -46,17 +46,6 @@ class Helper {
   //LOGIN API
   static const int userDataError = 1401;
 
-  @Deprecated('Use ScraperSource.webap instead')
-  static const String webap = 'webap';
-  @Deprecated('Use ScraperSource enum instead')
-  static const String inkust = 'inkust';
-  @Deprecated('Use ScraperSource.mobile instead')
-  static const String mobile = 'mobile';
-  @Deprecated('Use ScraperSource.stdsys instead')
-  static const String stdsys = 'stdsys';
-  @Deprecated('Use ScraperSource.remoteConfig instead')
-  static const String remoteConfig = 'config';
-
   static Helper? _instance;
 
   late Dio dio;
@@ -178,10 +167,34 @@ class Helper {
       ScraperSource.mobile, MobileNkustHelper.instance,
     );
 
+    // BusHelper: bus
+    registry.register<BusProvider>(
+      ScraperSource.webap, BusHelper.instance,
+    );
+
     // LeaveHelper: leave
     registry.register<LeaveProvider>(
       ScraperSource.webap, LeaveHelper.instance,
     );
+
+    // Register cleanup callbacks for each sub-helper.
+    // This replaces the manual cleanup in clearSetting() and ensures
+    // all helpers (including previously-missed LeaveHelper) are reset.
+    registerCleanup(() {
+      WebApHelper.instance.logout();
+      WebApHelper.instance.dioInit();
+      WebApHelper.instance.isLogin = false;
+    });
+    registerCleanup(() {
+      BusHelper.instance.isLogin = false;
+      BusHelper.instance.dioInit();
+    });
+    registerCleanup(() {
+      LeaveHelper.instance.isLogin = null;
+    });
+    registerCleanup(() {
+      MobileNkustHelper.instance.cookiesData?.clear();
+    });
   }
 
   Future<LoginResponse?> login({
@@ -446,9 +459,8 @@ class Helper {
     if (!MobileNkustHelper.isSupport) {
       throw GeneralResponse.platformNotSupport();
     }
-    final BusData data = await MobileNkustHelper.instance.busTimeTableQuery(
-      fromDateTime: dateTime,
-    );
+    final provider = registry.resolve<BusProvider>(null);
+    final BusData data = await provider.getTimeTable(dateTime: dateTime);
     reLoginCount = 0;
     if (data.canReserve) {
       return data;
@@ -464,8 +476,8 @@ class Helper {
     if (!MobileNkustHelper.isSupport) {
       throw GeneralResponse.platformNotSupport();
     }
-    final BusReservationsData data =
-        await MobileNkustHelper.instance.busUserRecord();
+    final provider = registry.resolve<BusProvider>(null);
+    final BusReservationsData data = await provider.getReservations();
     reLoginCount = 0;
     return data;
   }
@@ -476,8 +488,8 @@ class Helper {
     if (!MobileNkustHelper.isSupport) {
       throw GeneralResponse.platformNotSupport();
     }
-    final BookingBusData data =
-        await MobileNkustHelper.instance.busBook(busId: busId);
+    final provider = registry.resolve<BusProvider>(null);
+    final BookingBusData data = await provider.bookBus(busId: busId);
     reLoginCount = 0;
     return data;
   }
@@ -488,8 +500,8 @@ class Helper {
     if (!MobileNkustHelper.isSupport) {
       throw GeneralResponse.platformNotSupport();
     }
-    final CancelBusData data =
-        await MobileNkustHelper.instance.busUnBook(busId: cancelKey);
+    final provider = registry.resolve<BusProvider>(null);
+    final CancelBusData data = await provider.cancelBus(busId: cancelKey);
     reLoginCount = 0;
     return data;
   }
@@ -498,8 +510,8 @@ class Helper {
     if (!MobileNkustHelper.isSupport) {
       throw GeneralResponse.platformNotSupport();
     }
-    final BusViolationRecordsData data =
-        await MobileNkustHelper.instance.busViolationRecords();
+    final provider = registry.resolve<BusProvider>(null);
+    final BusViolationRecordsData data = await provider.getViolationRecords();
     reLoginCount = 0;
     return data;
   }
@@ -513,19 +525,24 @@ class Helper {
   Future<LeaveData> getLeaves({
     required Semester semester,
   }) async {
-    return await LeaveHelper.instance
-        .getLeaves(year: semester.year, semester: semester.value);
+    final provider = registry.resolve<LeaveProvider>(null);
+    return await provider.getLeaves(
+      year: semester.year,
+      semester: semester.value,
+    );
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    return await LeaveHelper.instance.getLeavesSubmitInfo();
+    final provider = registry.resolve<LeaveProvider>(null);
+    return await provider.getSubmitInfo();
   }
 
   Future<Response<dynamic>?> sendLeavesSubmit({
     required LeaveSubmitData data,
     required XFile? image,
   }) async {
-    return await LeaveHelper.instance.leavesSubmit(data, proofImage: image);
+    final provider = registry.resolve<LeaveProvider>(null);
+    return await provider.submit(data, proofImage: image);
   }
 
   Future<LibraryInfo?> getLibraryInfo() async {
@@ -564,18 +581,6 @@ class Helper {
     for (final callback in instance._cleanupCallbacks) {
       callback();
     }
-
-    // Direct cleanup for helpers that haven't registered yet (migration).
-    WebApHelper.instance.logout();
-    // ignore: deprecated_member_use_from_same_package
-    WebApHelper.reLoginReTryCounts = 0;
-    WebApHelper.instance.dioInit();
-    WebApHelper.instance.isLogin = false;
-    BusHelper.instance.isLogin = false;
-    MobileNkustHelper.instance.cookiesData?.clear();
-    // Fix: LeaveHelper was not being reset on logout (bug).
-    LeaveHelper.instance.isLogin = null;
-    LeaveHelper.instance.reLoginReTryCounts = 0;
   }
 }
 
