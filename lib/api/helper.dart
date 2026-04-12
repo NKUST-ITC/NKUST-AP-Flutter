@@ -305,15 +305,19 @@ class Helper {
     required Semester semester,
   }) async {
     ScoreData? data;
+    log('Fetch(Score) ${selector?.score} '
+        '${semester.year} ${semester.code}');
     switch (selector?.score) {
       case mobile:
         data = await MobileNkustHelper.instance.getScores(
           year: semester.year,
           semester: semester.value,
         );
-      case inkust:
-        //TODO
-        break;
+      case stdsys:
+        data = await StdsysHelper.instance.getScores(
+          semester.year,
+          semester.value,
+        );
       case webap:
       default:
         data = await WebApHelper.instance.scores(

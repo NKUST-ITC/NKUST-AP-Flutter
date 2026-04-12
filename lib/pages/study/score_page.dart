@@ -125,6 +125,7 @@ class ScorePageState extends State<ScorePage> {
         );
         if (mounted) {
           setState(() {
+            isOffline = false;
             if (data == null) {
               state = ScoreState.empty;
               _pickerController.markSemesterEmpty(selectSemester!);
@@ -146,6 +147,7 @@ class ScorePageState extends State<ScorePage> {
             customStateHint = generalResponse.getGeneralMessage(context);
           });
         }
+        rethrow;
       } on DioException catch (e) {
         if (mounted) {
           _pickerController.markSemesterHasData(selectSemester!);
@@ -164,6 +166,21 @@ class ScorePageState extends State<ScorePage> {
             message: e.message ?? '',
           );
         }
+      } catch (e) {
+        if (mounted) {
+          _pickerController.markSemesterHasData(selectSemester!);
+        }
+        if (await _loadOfflineScoreData()) {
+          if (mounted) {
+            setState(() {
+              state = ScoreState.custom;
+              customStateHint = e.toString();
+            });
+          }
+        } else if (mounted) {
+          setState(() => state = ScoreState.error);
+        }
+        rethrow;
       }
     }
   }

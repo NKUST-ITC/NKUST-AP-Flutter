@@ -515,4 +515,70 @@ class StdsysParser {
 
     return semesterDataJson;
   }
+
+  Map<String, dynamic> scoresParser(String rawstr) {
+    final List<String> lines = rawstr
+        .split('\n')
+        .map((String e) => e.trim())
+        .where((String e) => e.isNotEmpty)
+        .toList();
+
+    final List<Map<String, dynamic>> scores = <Map<String, dynamic>>[];
+    final Map<String, dynamic> detail = <String, dynamic>{
+      'conduct': 0.0,
+      'classRank': '',
+      'departmentRank': '',
+      'average': 0.0,
+    };
+
+    int beginLine = 14;
+
+    for (int i = 0; i < lines.length - 1; i++) {
+      final String line = lines[i];
+
+      if (line.contains('課程名稱')) {
+        beginLine = i + 4;
+      } else if (line.contains('操行成績：')) {
+        detail['conduct'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      } else if (line.contains('班 排 名：')) {
+        final RegExpMatch? match =
+            RegExp(r'班\s*排\s*名：\s*(\d+)\s*/\s*(\d+)').firstMatch(line);
+        detail['classRank'] =
+            match != null ? '${match.group(1)}/${match.group(2)}' : '';
+      } else if (line.contains('學業成績：')) {
+        detail['average'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      }
+    }
+
+    for (int i = beginLine; i + 3 < lines.length; i = i + 4) {
+      final Map<String, dynamic> score = <String, dynamic>{
+        'title': '',
+        'units': '',
+        'hours': '',
+        'required': '',
+        'at': '',
+        'middleScore': '',
+        'semesterScore': '',
+        'remark': '',
+      };
+
+      if (lines[i].contains('-----')) {
+        break;
+      }
+
+      score['title'] = lines[i];
+      score['required'] = lines[i + 1];
+      score['units'] = lines[i + 2];
+      score['semesterScore'] = lines[i + 3];
+
+      scores.add(score);
+    }
+
+    final Map<String, dynamic> data = <String, dynamic>{
+      'scores': scores,
+      'detail': detail,
+    };
+
+    return data;
+  }
 }
