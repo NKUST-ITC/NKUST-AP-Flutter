@@ -32,13 +32,6 @@ class WebApHelper
   late Dio dio;
   late CookieJar cookieJar;
 
-  /// Kept for backward compatibility during migration. Will be removed once
-  /// all call sites use [withAutoRelogin] instead.
-  @Deprecated('Use withAutoRelogin instead. See ReloginMixin.')
-  static int reLoginReTryCountsLimit = 3;
-  @Deprecated('Use withAutoRelogin instead. See ReloginMixin.')
-  static int reLoginReTryCounts = 0;
-
   @override
   int get maxRelogins => 3;
 
@@ -498,6 +491,7 @@ class WebApHelper
     );
   }
 
+  @override
   Future<CourseData> getCourseTable({
     String? year,
     String? semester,
@@ -587,12 +581,6 @@ class WebApHelper
   }
 
   // -- Capability interface implementations --
-
-  @override
-  Future<CourseData> getCourseTable({String? year, String? semester}) {
-    return WebApHelper.instance
-        .getCourseTable(year: year, semester: semester);
-  }
 
   @override
   Future<ScoreData?> getScores({

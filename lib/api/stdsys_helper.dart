@@ -203,7 +203,9 @@ class StdsysHelper
     return data;
   }
 
-  Future<Uint8List?> getUserPicture(String pictureUrl) async {
+  @override
+  Future<Uint8List?> getUserPicture(String? pictureUrl) async {
+    if (pictureUrl == null) return null;
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
