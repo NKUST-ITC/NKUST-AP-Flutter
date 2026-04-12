@@ -28,6 +28,14 @@ import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/models/server_info_data.dart';
+import 'package:nkust_ap/api/capability/bus_provider.dart';
+import 'package:nkust_ap/api/capability/course_provider.dart';
+import 'package:nkust_ap/api/capability/leave_provider.dart';
+import 'package:nkust_ap/api/capability/score_provider.dart';
+import 'package:nkust_ap/api/capability/semester_provider.dart';
+import 'package:nkust_ap/api/capability/user_info_provider.dart';
+import 'package:nkust_ap/api/scraper_registry.dart';
+import 'package:nkust_ap/api/session_state.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class Helper {
@@ -38,10 +46,15 @@ class Helper {
   //LOGIN API
   static const int userDataError = 1401;
 
+  @Deprecated('Use ScraperSource.webap instead')
   static const String webap = 'webap';
+  @Deprecated('Use ScraperSource enum instead')
   static const String inkust = 'inkust';
+  @Deprecated('Use ScraperSource.mobile instead')
   static const String mobile = 'mobile';
+  @Deprecated('Use ScraperSource.stdsys instead')
   static const String stdsys = 'stdsys';
+  @Deprecated('Use ScraperSource.remoteConfig instead')
   static const String remoteConfig = 'config';
 
   static Helper? _instance;
@@ -60,6 +73,25 @@ class Helper {
   static DateTime? expireTime;
 
   static CrawlerSelector? selector;
+
+  /// Registry for resolving capability providers at runtime.
+  final ScraperRegistry registry = ScraperRegistry();
+
+  /// Cleanup callbacks registered by sub-helpers.
+  /// Called during [clearSetting] so each helper can reset its own state.
+  final List<void Function()> _cleanupCallbacks = [];
+
+  /// Registers a cleanup callback to be called during [clearSetting].
+  /// Each sub-helper should register its own cleanup in its constructor.
+  void registerCleanup(void Function() callback) {
+    _cleanupCallbacks.add(callback);
+  }
+
+  /// Unified session state for all scrapers.
+  /// Will replace the scattered static fields (username/password/expireTime)
+  /// and per-helper isLogin booleans in a future step.
+  ScraperSessionState _sessionState = const Unauthenticated();
+  ScraperSessionState get sessionState => _sessionState;
 
   int reLoginCount = 0;
 
@@ -89,11 +121,67 @@ class Helper {
       ),
     );
     cancelToken = CancelToken();
+    _registerProviders();
   }
 
   static void resetInstance() {
     _instance = Helper();
     cancelToken = CancelToken();
+  }
+
+  /// Registers all capability providers in the [registry].
+  ///
+  /// Adding a new scraper source requires only:
+  /// 1. Implementing the relevant capability interface(s)
+  /// 2. Registering it here
+  /// No switch statements need to be modified.
+  void _registerProviders() {
+    // WebApHelper: course, score, userInfo, semester
+    registry.register<CourseProvider>(
+      ScraperSource.webap, WebApHelper.instance,
+    );
+    registry.register<ScoreProvider>(
+      ScraperSource.webap, WebApHelper.instance,
+    );
+    registry.register<UserInfoProvider>(
+      ScraperSource.webap, WebApHelper.instance,
+    );
+    registry.register<SemesterProvider>(
+      ScraperSource.webap, WebApHelper.instance,
+    );
+
+    // StdsysHelper: course, score, userInfo, semester
+    registry.register<CourseProvider>(
+      ScraperSource.stdsys, StdsysHelper.instance,
+    );
+    registry.register<ScoreProvider>(
+      ScraperSource.stdsys, StdsysHelper.instance,
+    );
+    registry.register<UserInfoProvider>(
+      ScraperSource.stdsys, StdsysHelper.instance,
+    );
+    registry.register<SemesterProvider>(
+      ScraperSource.stdsys, StdsysHelper.instance,
+    );
+
+    // MobileNkustHelper: course, score, userInfo, bus
+    registry.register<CourseProvider>(
+      ScraperSource.mobile, MobileNkustHelper.instance,
+    );
+    registry.register<ScoreProvider>(
+      ScraperSource.mobile, MobileNkustHelper.instance,
+    );
+    registry.register<UserInfoProvider>(
+      ScraperSource.mobile, MobileNkustHelper.instance,
+    );
+    registry.register<BusProvider>(
+      ScraperSource.mobile, MobileNkustHelper.instance,
+    );
+
+    // LeaveHelper: leave
+    registry.register<LeaveProvider>(
+      ScraperSource.webap, LeaveHelper.instance,
+    );
   }
 
   Future<LoginResponse?> login({
@@ -104,25 +192,24 @@ class Helper {
     Helper.username = username.toUpperCase();
     Helper.password = password;
     LoginResponse? loginResponse;
-    switch (selector?.login) {
-      case mobile:
-      case webap:
-      default:
-        if (selector != null && (selector!.login == mobile)) {
-          loginResponse = await WebApHelper.instance.login(
-            username: username.toUpperCase(),
-            password: password,
-          );
-          await WebApHelper.instance.loginVms();
-        } else {
-          loginResponse = await WebApHelper.instance.login(
-            username: username.toUpperCase(),
-            password: password,
-          );
-        }
+    if (selector?.login == ScraperSource.mobile) {
+      loginResponse = await WebApHelper.instance.login(
+        username: username.toUpperCase(),
+        password: password,
+      );
+      await WebApHelper.instance.loginVms();
+    } else {
+      loginResponse = await WebApHelper.instance.login(
+        username: username.toUpperCase(),
+        password: password,
+      );
     }
     if (loginResponse != null) {
       expireTime = loginResponse.expireTime;
+      _sessionState = Authenticated(
+        username: Helper.username!,
+        expireTime: loginResponse.expireTime ?? DateTime.now(),
+      );
     }
     return loginResponse;
   }
@@ -244,16 +331,8 @@ class Helper {
   }
 
   Future<UserInfo> getUsersInfo() async {
-    UserInfo data;
-    switch (selector?.userInfo) {
-      case mobile:
-        data = await MobileNkustHelper.instance.getUserInfo();
-      case webap:
-        data = await WebApHelper.instance.userInfoCrawler();
-      case stdsys:
-      default:
-        data = await StdsysHelper.instance.getUserInfo();
-    }
+    final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
+    UserInfo data = await provider.getUserInfo();
     reLoginCount = 0;
     if (data.id.isEmpty) {
       data = data.copyWith(
@@ -264,35 +343,19 @@ class Helper {
   }
 
   Future<Uint8List?> getUserPicture(String pictureUrl) async {
-    switch (selector?.userInfo) {
-      case mobile:
-        return MobileNkustHelper.instance.getUserPicture();
-      case webap:
-        return WebApHelper.instance.getUserPicture(pictureUrl);
-      case stdsys:
-      default:
-        return StdsysHelper.instance.getUserPicture(pictureUrl);
-    }
+    final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
+    return provider.getUserPicture(pictureUrl);
   }
 
   Future<SemesterData> getSemester() async {
     SemesterData? data;
     log(selector?.semester.toString() ?? '');
-    switch (selector?.semester) {
-      case remoteConfig:
-        data = SemesterData.load();
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      case inkust:
-        //TODO
-        break;
-      case mobile:
-        //TODO
-        break;
-      case webap:
-        data = await WebApHelper.instance.semesters();
-      case stdsys:
-      default:
-        data = await StdsysHelper.instance.getSemesters();
+    if (selector?.semester == ScraperSource.remoteConfig) {
+      data = SemesterData.load();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    } else {
+      final provider = registry.resolve<SemesterProvider>(selector?.semester);
+      data = await provider.getSemesters();
     }
     reLoginCount = 0;
     if (data == null) {
@@ -304,27 +367,13 @@ class Helper {
   Future<ScoreData?> getScores({
     required Semester semester,
   }) async {
-    ScoreData? data;
     log('Fetch(Score) ${selector?.score} '
         '${semester.year} ${semester.code}');
-    switch (selector?.score) {
-      case mobile:
-        data = await MobileNkustHelper.instance.getScores(
-          year: semester.year,
-          semester: semester.value,
-        );
-      case stdsys:
-        data = await StdsysHelper.instance.getScores(
-          semester.year,
-          semester.value,
-        );
-      case webap:
-      default:
-        data = await WebApHelper.instance.scores(
-          semester.year,
-          semester.value,
-        );
-    }
+    final provider = registry.resolve<ScoreProvider>(selector?.score);
+    ScoreData? data = await provider.getScores(
+      year: semester.year,
+      semester: semester.value,
+    );
     if (data != null && data.scores.isEmpty) data = null;
     return data;
   }
@@ -333,28 +382,13 @@ class Helper {
     required Semester semester,
     Semester? semesterDefault,
   }) async {
-    CourseData data;
     log('Fetch(CourseTable) ${selector?.course} '
         '${semester.year} ${semester.code}');
-    switch (selector?.course) {
-      case mobile:
-        final bool isDefault = semesterDefault!.code == semester.code;
-        data = await MobileNkustHelper.instance.getCourseTable(
-          year: isDefault ? null : semester.year,
-          semester: isDefault ? null : semester.value,
-        );
-      case webap:
-        data = await WebApHelper.instance.getCourseTable(
-          year: semester.year,
-          semester: semester.value,
-        );
-      case stdsys:
-      default:
-        data = await StdsysHelper.instance.getCourseTable(
-          year: semester.year,
-          semester: semester.value,
-        );
-    }
+    final provider = registry.resolve<CourseProvider>(selector?.course);
+    final CourseData data = await provider.getCourseTable(
+      year: semester.year,
+      semester: semester.value,
+    );
     if (data.courses.isNotEmpty) {
       reLoginCount = 0;
     }
@@ -519,17 +553,29 @@ class Helper {
   }
 
   static void clearSetting() {
+    instance._sessionState = const Unauthenticated();
     expireTime = null;
     username = null;
     password = null;
     ApCommonPlugin.clearCourseWidget();
     ApCommonPlugin.clearUserInfoWidget();
+
+    // Call all registered cleanup callbacks from sub-helpers.
+    for (final callback in instance._cleanupCallbacks) {
+      callback();
+    }
+
+    // Direct cleanup for helpers that haven't registered yet (migration).
     WebApHelper.instance.logout();
+    // ignore: deprecated_member_use_from_same_package
     WebApHelper.reLoginReTryCounts = 0;
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
     MobileNkustHelper.instance.cookiesData?.clear();
+    // Fix: LeaveHelper was not being reset on logout (bug).
+    LeaveHelper.instance.isLogin = null;
+    LeaveHelper.instance.reLoginReTryCounts = 0;
   }
 }
 

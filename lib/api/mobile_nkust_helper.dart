@@ -22,9 +22,14 @@ import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
+import 'package:nkust_ap/api/capability/bus_provider.dart';
+import 'package:nkust_ap/api/capability/course_provider.dart';
+import 'package:nkust_ap/api/capability/score_provider.dart';
+import 'package:nkust_ap/api/capability/user_info_provider.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
-class MobileNkustHelper {
+class MobileNkustHelper
+    implements CourseProvider, ScoreProvider, UserInfoProvider, BusProvider {
   static const String baseUrl = 'https://mobile.nkust.edu.tw/';
   static const String busBaseUrl = 'https://vms.nkust.edu.tw/';
 
@@ -252,6 +257,7 @@ class MobileNkustHelper {
     throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
   }
 
+  @override
   Future<CourseData> getCourseTable({String? year, String? semester}) async {
     Response<dynamic> response;
 
@@ -293,7 +299,8 @@ class MobileNkustHelper {
     return MobileNkustParser.midtermAlerts(response.data);
   }
 
-  Future<ScoreData> getScores({String? year, String? semester}) async {
+  @override
+  Future<ScoreData> getScores({required String year, required String semester}) async {
     Response<dynamic> response;
 
     if (year == null || semester == null) {
@@ -312,6 +319,7 @@ class MobileNkustHelper {
     return MobileNkustParser.scores(response.data);
   }
 
+  @override
   Future<UserInfo> getUserInfo() async {
     final response = await _request(
       homeUrl,
@@ -320,7 +328,8 @@ class MobileNkustHelper {
     return MobileNkustParser.userInfo(response.data);
   }
 
-  Future<Uint8List?> getUserPicture() async {
+  @override
+  Future<Uint8List?> getUserPicture([String? _]) async {
     final response = await dio.get<Uint8List>(
       pictureUrl,
       options: Options(
@@ -502,4 +511,25 @@ class MobileNkustHelper {
     }
     return response.data as Map<String, dynamic>;
   }
+
+  // -- BusProvider interface --
+
+  @override
+  Future<BusData> getTimeTable({required DateTime dateTime}) =>
+      busTimeTableQuery(fromDateTime: dateTime);
+
+  @override
+  Future<BookingBusData> bookBus({required String busId}) =>
+      busBook(busId: busId);
+
+  @override
+  Future<CancelBusData> cancelBus({required String busId}) =>
+      busUnBook(busId: busId);
+
+  @override
+  Future<BusReservationsData> getReservations() => busUserRecord();
+
+  @override
+  Future<BusViolationRecordsData> getViolationRecords() =>
+      busViolationRecords();
 }

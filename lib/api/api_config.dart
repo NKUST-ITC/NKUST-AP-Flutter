@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:ap_common/ap_common.dart';
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
@@ -50,6 +52,34 @@ class ApiConfig {
     dio.interceptors.add(ErrorInterceptor());
 
     return dio;
+  }
+
+  /// Creates a [Dio] instance configured for web scraping NKUST systems.
+  ///
+  /// Includes:
+  /// - [PrivateCookieManager] for non-RFC6265 cookie handling
+  /// - [RetryInterceptor] for HTTP-level timeout/5xx auto-retry
+  /// - [ErrorInterceptor] for enhanced Chinese error messages
+  /// - [NativeAdapter] for iOS/Android/macOS
+  ///
+  /// Pass [sharedCookieJar] to share cookies with another helper (e.g.,
+  /// LeaveHelper sharing WebApHelper's cookies).
+  static ({Dio dio, CookieJar cookieJar}) createScraperDio({
+    CookieJar? sharedCookieJar,
+    Map<String, dynamic>? headers,
+    bool keepAlive = false,
+  }) {
+    final cookieJar = sharedCookieJar ?? CookieJar();
+    final dio = createDio(
+      headers: <String, dynamic>{
+        if (!keepAlive) 'Connection': 'close',
+        ...?headers,
+      },
+    );
+    // Insert cookie manager at position 0 so it runs before retry/error
+    // interceptors.
+    dio.interceptors.insert(0, PrivateCookieManager(cookieJar));
+    return (dio: dio, cookieJar: cookieJar);
   }
 
   static void setProxy(Dio dio, String proxyIP) {

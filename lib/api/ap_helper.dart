@@ -6,6 +6,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -16,16 +17,30 @@ import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
+import 'package:nkust_ap/api/relogin_mixin.dart';
+import 'package:nkust_ap/api/capability/course_provider.dart';
+import 'package:nkust_ap/api/capability/score_provider.dart';
+import 'package:nkust_ap/api/capability/semester_provider.dart';
+import 'package:nkust_ap/api/capability/user_info_provider.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 
-class WebApHelper {
+class WebApHelper
+    with ReloginMixin
+    implements CourseProvider, ScoreProvider, UserInfoProvider, SemesterProvider {
   static WebApHelper? _instance;
 
   late Dio dio;
   late CookieJar cookieJar;
 
+  /// Kept for backward compatibility during migration. Will be removed once
+  /// all call sites use [withAutoRelogin] instead.
+  @Deprecated('Use withAutoRelogin instead. See ReloginMixin.')
   static int reLoginReTryCountsLimit = 3;
+  @Deprecated('Use withAutoRelogin instead. See ReloginMixin.')
   static int reLoginReTryCounts = 0;
+
+  @override
+  int get maxRelogins => 3;
 
   bool isLogin = false;
 
@@ -39,13 +54,7 @@ class WebApHelper {
   }
 
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final HttpClient client = HttpClient();
-      client.findProxy = (Uri uri) {
-        return 'PROXY $proxyIP';
-      };
-      return client;
-    };
+    ApiConfig.setProxy(dio, proxyIP);
   }
 
   Future<void> logout() async {
@@ -56,23 +65,9 @@ class WebApHelper {
   }
 
   void dioInit() {
-    // Use PrivateCookieManager to overwrite origin CookieManager, because
-    // Cookie name of the NKUST ap system not follow the RFC6265. :(
-    dio = Dio();
-    cookieJar = CookieJar();
-    dio.interceptors.add(PrivateCookieManager(cookieJar));
-    dio.options.headers['user-agent'] =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
-    dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
-    );
-    dio.options.receiveTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
-    );
-    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
+    final (:dio, :cookieJar) = ApiConfig.createScraperDio();
+    this.dio = dio;
+    this.cookieJar = cookieJar;
   }
 
   Future<Uint8List?> getValidationImage() async {
@@ -200,13 +195,7 @@ class WebApHelper {
   }
 
   Future<LoginResponse> loginToMobile() async {
-    // Login leave.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
+    // Login mobile.nkust from webap.
     await checkLogin();
     await apQuery('ag304_01', null);
 
@@ -246,12 +235,6 @@ class WebApHelper {
 
   Future<LoginResponse> loginToOosaf() async {
     // Login oosaf.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
     await checkLogin();
     await apQuery('ag304_01', null);
 
@@ -299,12 +282,6 @@ class WebApHelper {
     }
 
     // Login stdsys.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
     await checkLogin();
     await apQuery('ag304_01', null);
 
@@ -345,12 +322,6 @@ class WebApHelper {
 
   Future<LoginResponse> loginToLeave() async {
     // Login leave.nkust from webap.
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
     await checkLogin();
     await apQuery('ag304_01', null);
 
@@ -406,12 +377,20 @@ class WebApHelper {
     Map<String, String?>? queryData, {
     bool? bytesResponse,
   }) async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.networkConnectFail,
-        message: 'Login exceeded retry limit',
-      );
-    }
+    return withAutoRelogin(
+      action: () => _doApQuery(queryQid, queryData, bytesResponse: bytesResponse),
+      relogin: () => login(username: Helper.username!, password: Helper.password!),
+      isSessionExpired: (e) => e is ApSessionExpiredException,
+    );
+  }
+
+  /// Internal implementation of apQuery without re-login logic.
+  /// Throws [ApSessionExpiredException] when server returns code 2.
+  Future<Response<dynamic>> _doApQuery(
+    String queryQid,
+    Map<String, String?>? queryData, {
+    bool? bytesResponse,
+  }) async {
     await checkLogin();
     final String url =
         'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
@@ -438,11 +417,8 @@ class WebApHelper {
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
-      reLoginReTryCounts += 1;
-      await login(username: Helper.username!, password: Helper.password!);
-      return apQuery(queryQid, queryData, bytesResponse: bytesResponse);
+      throw const ApSessionExpiredException();
     }
-    reLoginReTryCounts = 0;
     return request;
   }
 
@@ -451,18 +427,6 @@ class WebApHelper {
     return UserInfo.fromJson(
       WebApParser.instance.apUserInfoParser(query.data as String),
     );
-  }
-
-  Future<Uint8List?> getUserPicture(String pictureUrl) async {
-    dio.options.headers['Accept'] =
-        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
-    final Response<Uint8List> response = await dio.get<Uint8List>(
-      pictureUrl,
-      options: Options(
-        responseType: ResponseType.bytes,
-      ),
-    );
-    return response.data;
   }
 
   Future<SemesterData> semesters() async {
@@ -621,4 +585,38 @@ class WebApHelper {
       password: Helper.password!,
     );
   }
+
+  // -- Capability interface implementations --
+
+  @override
+  Future<CourseData> getCourseTable({String? year, String? semester}) {
+    return WebApHelper.instance
+        .getCourseTable(year: year, semester: semester);
+  }
+
+  @override
+  Future<ScoreData?> getScores({
+    required String year,
+    required String semester,
+  }) async {
+    return scores(year, semester);
+  }
+
+  @override
+  Future<UserInfo> getUserInfo() => userInfoCrawler();
+
+  @override
+  Future<Uint8List?> getUserPicture(String? pictureUrl) async {
+    if (pictureUrl == null) return null;
+    dio.options.headers['Accept'] =
+        'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      pictureUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
+    return response.data;
+  }
+
+  @override
+  Future<SemesterData?> getSemesters() => semesters();
 }

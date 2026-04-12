@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 part 'crawler_selector.g.dart';
@@ -16,19 +17,29 @@ class CrawlerSelector {
     required this.semester,
   });
 
-  final String login;
-  @JsonKey(name: 'user_info')
-  final String userInfo;
-  final String course;
-  final String score;
-  final String semester;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource login;
+  @JsonKey(
+    name: 'user_info',
+    fromJson: ScraperSource.fromString,
+    toJson: _sourceToString,
+  )
+  final ScraperSource userInfo;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource course;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource score;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource semester;
+
+  static String _sourceToString(ScraperSource source) => source.toJsonString();
 
   CrawlerSelector copyWith({
-    String? login,
-    String? userInfo,
-    String? course,
-    String? score,
-    String? semester,
+    ScraperSource? login,
+    ScraperSource? userInfo,
+    ScraperSource? course,
+    ScraperSource? score,
+    ScraperSource? semester,
   }) =>
       CrawlerSelector(
         login: login ?? this.login,
