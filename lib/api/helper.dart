@@ -521,6 +521,7 @@ class Helper {
     ApCommonPlugin.clearCourseWidget();
     ApCommonPlugin.clearUserInfoWidget();
     WebApHelper.instance.logout();
+    WebApHelper.reLoginReTryCounts = 0;
     WebApHelper.instance.dioInit();
     WebApHelper.instance.isLogin = false;
     BusHelper.instance.isLogin = false;
