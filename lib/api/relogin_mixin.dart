@@ -16,12 +16,31 @@ mixin ReloginMixin {
   /// Maximum number of re-login attempts per call. Override in each helper.
   int get maxRelogins;
 
+  /// Marks that a login has just succeeded. Call this from the login method
+  /// so [withAutoRelogin] can distinguish race conditions from real expiry.
+  void markReloginSuccess() {
+    _lastSuccessfulRelogin = DateTime.now();
+  }
+
+  /// Resets the relogin timestamp (e.g. on logout).
+  void resetReloginState() {
+    _lastSuccessfulRelogin = null;
+  }
+
+  /// Tracks when the last successful login/re-login completed.
+  ///
+  /// Used to distinguish server race conditions from real session expiry:
+  /// if we authenticated very recently yet receive a "session expired"
+  /// response, the server likely hasn't finished initialising the session
+  /// (race condition, see #342) — retrying with a delay is enough.
+  DateTime? _lastSuccessfulRelogin;
+
   /// Executes [action] with automatic re-login on session expiry.
   ///
   /// When [isSessionExpired] returns true for a caught error:
-  /// 1. Calls [relogin] to re-authenticate
-  /// 2. Waits [retryDelay] to avoid server race conditions (#342)
-  /// 3. Retries [action]
+  /// - If the last successful login was within [recentLoginWindow], assumes
+  ///   a server race condition and retries with only a delay (no re-login).
+  /// - Otherwise, calls [relogin] to re-authenticate, then retries.
   ///
   /// After [maxRelogins] attempts, the original error is rethrown.
   ///
@@ -32,22 +51,30 @@ mixin ReloginMixin {
     required Future<void> Function() relogin,
     required bool Function(Object error) isSessionExpired,
     Duration retryDelay = const Duration(milliseconds: 500),
+    Duration recentLoginWindow = const Duration(seconds: 30),
   }) async {
     int attempts = 0;
     while (true) {
       try {
         return await action();
       } catch (e) {
-        if (isSessionExpired(e) && attempts < maxRelogins) {
-          attempts++;
-          await relogin();
-          // Delay to avoid server session race condition:
-          // The server may not have fully initialized the session yet after
-          // a successful login POST. (#342)
+        if (!isSessionExpired(e) || attempts >= maxRelogins) rethrow;
+        attempts++;
+
+        final bool recentlyLoggedIn = _lastSuccessfulRelogin != null &&
+            DateTime.now().difference(_lastSuccessfulRelogin!) <
+                recentLoginWindow;
+
+        if (recentlyLoggedIn) {
+          // Logged in recently — likely a server race condition (#342),
+          // not real session expiry. Just delay and retry the request.
           await Future<void>.delayed(retryDelay);
-          continue;
+        } else {
+          // Session actually expired — re-authenticate first.
+          await relogin();
+          _lastSuccessfulRelogin = DateTime.now();
+          await Future<void>.delayed(retryDelay);
         }
-        rethrow;
       }
     }
   }

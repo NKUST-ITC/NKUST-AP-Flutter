@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
@@ -32,6 +33,12 @@ class WebApHelper
   late Dio dio;
   late CookieJar cookieJar;
 
+  /// Guards against concurrent login attempts. When multiple callers trigger
+  /// re-login simultaneously (e.g. parallel apQuery calls both get code 2),
+  /// only the first one performs the actual captcha login; others wait for
+  /// its result.
+  Completer<LoginResponse>? _loginInProgress;
+
   @override
   int get maxRelogins => 3;
 
@@ -52,6 +59,8 @@ class WebApHelper
 
   Future<void> logout() async {
     _stdsysLoginExpireTime = null;
+    _loginInProgress = null;
+    resetReloginState();
     try {
       await dio.post('https://webap.nkust.edu.tw/nkust/reclear.jsp');
     } catch (_) {}
@@ -76,7 +85,39 @@ class WebApHelper
     return response.data;
   }
 
+  /// Logs into WebAP with captcha recognition.
+  ///
+  /// If a login is already in progress (e.g. triggered by a parallel
+  /// [withAutoRelogin] call), subsequent callers wait for the same result
+  /// instead of starting a second captcha attempt that could interfere
+  /// with the first session.
   Future<LoginResponse> login({
+    required String username,
+    required String password,
+    int retryCounts = 5,
+  }) async {
+    if (_loginInProgress != null) {
+      return _loginInProgress!.future;
+    }
+    _loginInProgress = Completer<LoginResponse>();
+    try {
+      final LoginResponse result = await _doLogin(
+        username: username,
+        password: password,
+        retryCounts: retryCounts,
+      );
+      markReloginSuccess();
+      _loginInProgress!.complete(result);
+      return result;
+    } catch (e) {
+      _loginInProgress!.completeError(e);
+      rethrow;
+    } finally {
+      _loginInProgress = null;
+    }
+  }
+
+  Future<LoginResponse> _doLogin({
     required String username,
     required String password,
     int retryCounts = 5,
@@ -106,10 +147,6 @@ class WebApHelper
           bodyBytes: imageBytes,
         );
 
-        // log(username);
-        // log(password);
-        // log(captchaCode);
-
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{
@@ -129,7 +166,7 @@ class WebApHelper
           case 4:
             //Stay old password and relogin.
             await stayOldPwd();
-            return login(username: username, password: password);
+            return _doLogin(username: username, password: password);
           case 0:
             isLogin = true;
             return LoginResponse(
