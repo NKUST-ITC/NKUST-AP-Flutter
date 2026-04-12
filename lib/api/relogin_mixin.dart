@@ -65,12 +65,14 @@ mixin ReloginMixin {
             DateTime.now().difference(_lastSuccessfulRelogin!) <
                 recentLoginWindow;
 
-        if (recentlyLoggedIn) {
-          // Logged in recently — likely a server race condition (#342),
-          // not real session expiry. Just delay and retry the request.
+        if (recentlyLoggedIn && attempts <= 1) {
+          // First retry after a recent login — likely a server race
+          // condition (#342), not real session expiry. Just delay and
+          // retry the request without re-authenticating.
           await Future<void>.delayed(retryDelay);
         } else {
-          // Session actually expired — re-authenticate first.
+          // Either not recently logged in, or the delay-only retry
+          // already failed. Session actually expired — re-authenticate.
           await relogin();
           _lastSuccessfulRelogin = DateTime.now();
           await Future<void>.delayed(retryDelay);
