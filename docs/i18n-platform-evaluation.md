@@ -1,376 +1,239 @@
-# 第三方 i18n 管理平台評估報告
+# 第三方 i18n 管理平台評估報告（基於 slang）
 
-## 1. 現況分析
+> 對應 Issue: #368
+> 前置依賴: #307 (Slang i18n 適配)
 
-### 1.1 目前架構
+## 1. 背景
 
-| 項目 | 說明 |
+隨著 ap_common v2 遷移至 slang i18n（abc873693/ap_common#147），nkust_ap 也將跟進適配（#307）。
+翻譯檔案格式將從 ARB 轉為 slang 的 nested JSON（`.i18n.json`），這改變了第三方平台的評估前提。
+
+### 1.1 架構對比
+
+| 項目 | 目前 (intl) | 遷移後 (slang) |
+|------|------------|----------------|
+| 翻譯格式 | `.arb` (flat JSON) | `.i18n.json` (nested JSON) |
+| 參數語法 | `%s` (sprintf) | `$name` / `{name}` |
+| 支援語言 | zh_TW、en、ja | 同左 |
+| 翻譯鍵數量 | 207 個 | 同左（結構化後可能調整） |
+| 程式碼產生 | `flutter_intl` → `l10n.dart` | `dart run slang` → `strings.g.dart` |
+| 型別安全 | 無（字串 key） | 有（`t.bus.reserve`） |
+
+### 1.2 slang 生態工具
+
+| 套件 | 用途 |
 |------|------|
-| 框架 | Flutter `intl` 套件 + `flutter_intl` IDE 插件 |
-| 翻譯格式 | ARB (Application Resource Bundle) |
-| 支援語言 | 繁體中文 (zh_TW, 主語系)、英文 (en)、日文 (ja) |
-| 翻譯鍵數量 | 207 個 |
-| 參數化字串 | 14 個 (使用 `%s` 佔位符搭配 sprintf) |
-| 延遲載入 | 已啟用 (`use_deferred_loading: true`) |
-| 檔案位置 | `lib/l10n/intl_*.arb` |
-| 程式碼產生 | `lib/l10n/l10n.dart` + `lib/l10n/intl/messages_*.dart` |
+| `slang` | 核心 i18n 庫 + 程式碼產生 |
+| `slang_flutter` | Flutter 整合（TranslationProvider 等） |
+| `slang_build_runner` | build_runner 整合 |
+| `slang_gpt` | GPT 自動翻譯（legacy） |
+| `slang_mcp` | MCP Server，搭配 Claude 等 LLM 翻譯（推薦） |
 
-### 1.2 現有流程的痛點
+### 1.3 slang CLI
 
-- **手動管理 ARB 檔案**：新增或修改翻譯鍵時，需同時編輯 3 個 ARB 檔案，容易漏改
-- **無翻譯狀態追蹤**：無法得知哪些鍵在哪些語系缺少翻譯
-- **協作困難**：非開發人員（如翻譯者）需直接編輯 JSON 格式的 ARB 檔案
-- **無審核流程**：翻譯品質無法經過 review 流程
-- **無翻譯記憶體**：重複或相似的翻譯無法複用
-- **無上下文資訊**：翻譯者看不到字串在 UI 中的使用場景
-
----
-
-## 2. 第三方平台比較
-
-### 2.1 候選平台一覽
-
-| 平台 | 類型 | ARB 支援 | 免費方案 | CLI 工具 | GitHub 整合 | API |
-|------|------|----------|----------|----------|-------------|-----|
-| **Crowdin** | SaaS | 原生支援 | 開源專案免費 | crowdin-cli | 完整 | REST |
-| **Lokalise** | SaaS | 原生支援 | 無（14天試用）| lokalise2 | 完整 | REST |
-| **Phrase** | SaaS | 原生支援 | 無（14天試用）| phrase-cli | 完整 | REST |
-| **POEditor** | SaaS | 支援匯入匯出 | 1,000 字串免費 | 無官方 CLI | Webhook | REST |
-| **Weblate** | 自架/SaaS | 支援 | 自架免費；SaaS 有免費方案 (開源) | wlc | 完整 | REST |
-| **Transifex** | SaaS | 支援匯入匯出 | 開源專案免費 | tx-cli | 完整 | REST |
+```
+dart run slang                    # 產生 Dart 程式碼
+dart run slang analyze            # 找出缺漏/未使用的翻譯
+dart run slang clean              # 移除未使用的翻譯
+dart run slang apply              # 補齊缺少的翻譯鍵
+dart run slang normalize          # 按 base locale 排序
+dart run slang migrate arb        # ARB → JSON（單向）
+dart run slang stats              # 翻譯統計
+dart run slang watch              # 監聽變更自動重建
+```
 
 ---
+
+## 2. 平台比較
+
+### 2.1 總覽
+
+| 平台 | slang 整合度 | nested JSON 支援 | 免費方案 | GitHub 整合 |
+|------|-------------|------------------|----------|-------------|
+| **Weblate** | 官方推薦 | 原生 | 開源免費 | Git 原生 |
+| **Crowdin** | 非官方 | 支援 | 開源免費 | 完整 |
+| **Lokalise** | 非官方 | 支援 | 無 | 完整 |
+| **POEditor** | 非官方 | 部分 | 1,000 字串免費 | Webhook |
+| **slang_mcp** | 原生 | — | 隨 LLM 訂閱 | — |
 
 ### 2.2 各平台詳細評估
 
-#### A. Crowdin
+#### A. Weblate — 官方推薦
 
-**概述**：業界最廣泛使用的翻譯管理平台之一，對開源專案完全免費。
+slang 作者在 README 中有專屬 Weblate 設定文件，LocalSend（知名開源專案）即使用 slang + Weblate 的組合。
 
-**優點**：
-- 開源專案可申請免費方案（本專案符合資格，已在 GitHub 公開）
-- 原生支援 ARB 格式，無需格式轉換
-- 強大的 GitHub 整合：可自動同步分支、建立 PR
-- `crowdin-cli` 支援 `crowdin push` / `crowdin pull` 操作
-- 內建翻譯記憶體 (TM) 和術語庫 (Glossary)
-- 支援機器翻譯整合（Google Translate、DeepL 等）預填翻譯
-- 支援螢幕截圖上傳，讓翻譯者看到 UI 上下文
-- 支援 ICU MessageFormat 和 printf-style 參數
+**優點：**
+- slang 唯一官方推薦的 TMS 平台，有文件記載的設定方式
+- 原生 Git 整合：直接讀寫倉庫中的 `.i18n.json`，無匯入匯出步驟
+- SaaS 版對開源專案免費；也可自架（GPL-3.0）
+- 社群翻譯友善，可公開翻譯入口讓貢獻者參與
+- 翻譯記憶體 + 機器翻譯整合
+- 完整的品質檢查（參數一致性、格式等）
 
-**缺點**：
-- 免費方案僅限開源專案（若未來轉為私有需付費）
-- 介面功能豐富但學習曲線稍高
-- 免費方案不含某些進階功能（如分支管理的部分功能）
+**缺點：**
+- SaaS 版 UI 相對樸素
+- 自架需維運成本
+- slang 的 key modifier（如 `(rich)`、`(context=X)`）會以原始字串顯示
 
-**定價**：
-- 開源：免費
-- Team：$100/月起
+**定價：** 自架免費 / SaaS 開源免費 / SaaS 基本 €16/月起
 
-**整合流程**：
+**整合流程：**
 ```
-GitHub Repo ← crowdin.yml → Crowdin Project
-      ↑                           ↓
-  Auto PR (翻譯完成)        翻譯者在平台上翻譯
-      ↑                           ↓
-  合併 PR ← 審核            翻譯記憶體 / 機器翻譯輔助
+開發者修改 zh_TW.i18n.json (source)
+        ↓
+Push 到 GitHub
+        ↓
+Weblate 透過 Git 自動偵測變更
+        ↓
+翻譯者在 Weblate Web 編輯器翻譯
+        ↓
+Weblate 自動 commit 回倉庫（或建立 PR）
+        ↓
+開發者 pull 後執行 dart run slang 產生程式碼
 ```
 
----
+#### B. Crowdin — 業界標準
 
-#### B. Lokalise
+**優點：**
+- 開源專案免費
+- 支援 nested JSON 匯入（可對接 slang 的 `.i18n.json`）
+- GitHub 整合完整：自動同步、自動建立 PR
+- 翻譯記憶體 + 術語庫 + 機器翻譯預填
+- 螢幕截圖上傳，提供翻譯 UI 上下文
+- 社群與文件最豐富
 
-**概述**：專為開發者設計的現代化翻譯管理平台，Flutter/Dart 生態支援度高。
+**缺點：**
+- 無 slang 原生整合，需以 generic nested JSON 格式匯入
+- slang 的 `$name` 參數語法需設定自訂 placeholder 規則
+- key modifier 會被視為 key 名稱的一部分
 
-**優點**：
-- 對 Flutter ARB 有專門的整合指南和良好支援
-- 提供 Over-the-Air (OTA) 翻譯更新（無需重新發布 App）
-- 直覺的 Web 編輯器，適合非技術翻譯者
-- 強大的品質保證功能（自動檢查參數遺漏、翻譯一致性等）
-- 支援複數形式和性別變化等 ICU 語法
-- GitHub Actions 整合文件完善
-- 翻譯工作流程支援（任務分配、截止日期、審核流程）
+**定價：** 開源免費 / Team $100/月起
 
-**缺點**：
-- 無免費方案（僅 14 天試用）
-- 付費方案價格較高
-- OTA 功能需額外整合 SDK
+#### C. Lokalise
 
-**定價**：
-- Essential：$120/月起
-- Pro：$300/月起
+**優點：**
+- 原生支援 nested JSON（深度無限制）
+- OTA 翻譯更新
+- 品質保證功能強大
 
----
-
-#### C. Phrase (前身為 PhraseApp)
-
-**概述**：老牌翻譯管理平台，企業級功能完整。
-
-**優點**：
-- 長期穩定的平台，社群資源豐富
-- `phrase-cli` 功能完善，適合 CI/CD 整合
-- 支援分支翻譯（與程式碼分支對應）
-- 翻譯記憶體和術語庫功能成熟
-- 支援 ARB 格式匯入匯出
-- 高品質的 QA 檢查
-
-**缺點**：
-- 無免費方案
-- 近年被收購後，定價策略變動頻繁
-- 介面有時反應較慢
-
-**定價**：
-- Starter：$129/月起
-- Growth：$259/月起
-
----
+**缺點：**
+- 無免費方案（14 天試用），$120/月起
+- 無 slang 原生整合
 
 #### D. POEditor
 
-**概述**：輕量、低成本的翻譯管理平台。
+**優點：**
+- 免費方案 1,000 字串
+- 介面簡潔
 
-**優點**：
-- 免費方案允許 1,000 字串（本專案 207 個鍵可完全涵蓋）
-- 介面簡潔直覺
-- 支援 ARB 格式匯入/匯出
-- 支援自動翻譯（Google Translate、Microsoft Translator）
-- API 可用於基本的自動化
-- 價格親民
+**缺點：**
+- nested JSON 支援有限（鍵路徑扁平化）
+- 無 CLI、GitHub 整合僅 Webhook
+- 不適合 slang 的巢狀結構
 
-**缺點**：
-- 無官方 CLI 工具（需透過 API 自行腳本化）
-- GitHub 整合有限（僅 Webhook，無自動 PR）
-- 缺乏進階工作流程功能（審核、任務分配）
-- 翻譯記憶體功能有限
-- 免費方案限制：無協作者角色權限控制
+#### E. slang_mcp / slang_gpt — 原生 AI 翻譯
 
-**定價**：
-- Free：1,000 字串
-- Freelancer：$14.99/月
-- Startup：$23.99/月
+適合小團隊或開發者自行管理翻譯，可與 TMS 平台互補。
 
----
+**slang_mcp（推薦）：**
+- MCP Server，搭配 Claude Code 等 LLM 使用
+- `dart pub global activate slang_mcp`
+- 提供 `get-missing-translations`、`apply-translations` 等工具
+- 無需額外 API key
 
-#### E. Weblate
-
-**概述**：開源翻譯管理平台，可自行架設或使用 SaaS 版本。
-
-**優點**：
-- 完全開源 (GPL-3.0)，可自行部署
-- SaaS 版對自由/開源軟體專案免費
-- 支援 ARB 格式
-- 原生 Git 整合（直接操作 Git 倉庫）
-- 翻譯記憶體和機器翻譯整合
-- 社群翻譯友善，可公開翻譯入口讓社群貢獻
-- 完整的翻譯品質檢查
-
-**缺點**：
-- 自行架設需維運成本
-- SaaS 版 UI 相對樸素
-- Flutter/ARB 的整合文件不如 Crowdin、Lokalise 完善
-- 效能在大量字串時可能稍差
-
-**定價**：
-- 自架：免費（開源）
-- SaaS 開源專案：免費
-- SaaS 基本方案：€16/月起
+**slang_gpt（legacy）：**
+- `dart run slang_gpt --target=ja --api-key=<key>`
+- 預設只翻譯缺少的鍵（節省成本）
 
 ---
 
-#### F. Transifex
+## 3. 評估矩陣
 
-**概述**：企業級翻譯管理平台，適合大規模多語系專案。
+以 slang 為前提，1~5 分評分（5 分最佳）：
 
-**優點**：
-- 開源專案免費方案
-- 強大的 API 和 CLI 工具 (`tx`)
-- 支援 ARB 格式匯入匯出
-- 完整的翻譯工作流程
-- OTA 翻譯更新 (Transifex Native)
-
-**缺點**：
-- 介面較複雜
-- ARB 不是原生支援格式，需做格式對應
-- 社群活躍度近年下降
-- 某些功能鎖在高階方案
-
-**定價**：
-- 開源：免費
-- Starter：$120/月起
+| 評估項目 (權重) | Weblate | Crowdin | slang_mcp | Lokalise | POEditor |
+|----------------|---------|---------|-----------|----------|----------|
+| slang 相容性 (25%) | 5 | 3 | 5 | 3 | 2 |
+| 成本效益 (20%) | 5 | 5 | 4 | 2 | 5 |
+| GitHub/Git 整合 (20%) | 5 | 5 | 3 | 5 | 2 |
+| 非技術者協作 (15%) | 4 | 5 | 1 | 5 | 4 |
+| 翻譯品質工具 (10%) | 4 | 5 | 4 | 5 | 3 |
+| 導入複雜度 (10%) | 4 | 3 | 5 | 3 | 3 |
+| **加權總分** | **4.60** | **4.20** | **3.65** | **3.40** | **2.95** |
 
 ---
 
-## 3. 整合工作流程設計
+## 4. 建議方案
 
-### 3.1 推薦工作流程（以 Crowdin 為例）
+### 首選：Weblate
 
-```
-開發者新增/修改翻譯鍵
-        ↓
-提交到 GitHub (intl_zh_TW.arb 為 source)
-        ↓
-Crowdin GitHub Integration 自動偵測變更
-        ↓
-新的翻譯鍵出現在 Crowdin 平台
-        ↓
-翻譯者在 Crowdin Web 編輯器中翻譯 (en, ja)
-        ↓
-翻譯完成後 Crowdin 自動建立 PR
-        ↓
-開發者 Review 並合併 PR
-        ↓
-執行 flutter_intl 產生 l10n.dart 等檔案
-```
+| 理由 | 說明 |
+|------|------|
+| 官方推薦 | slang 唯一有文件記載的 TMS 整合 |
+| 實戰驗證 | LocalSend 已成功使用 slang + Weblate |
+| 零成本 | 開源專案 SaaS 免費 |
+| Git 原生 | 直接讀寫 `.i18n.json`，無匯入匯出 |
+| 社群友善 | 可公開翻譯入口讓校內國際學生貢獻 |
 
-### 3.2 Crowdin 設定檔範例
+### 備選 A：Crowdin
 
-```yaml
-# crowdin.yml
-project_id_env: CROWDIN_PROJECT_ID
-api_token_env: CROWDIN_API_TOKEN
+適用情境：需要更強大的翻譯記憶體、術語庫、螢幕截圖等企業級功能。
+需將 `.i18n.json` 以 generic nested JSON 格式匯入，並設定自訂 placeholder 規則。
 
-files:
-  - source: /lib/l10n/intl_zh_TW.arb
-    translation: /lib/l10n/intl_%locale%.arb
-    type: arb
-```
+### 備選 B：slang_mcp
 
-### 3.3 CI/CD 整合（GitHub Actions 範例）
-
-```yaml
-# .github/workflows/crowdin-sync.yml
-name: Crowdin Sync
-on:
-  push:
-    branches: [master]
-    paths:
-      - 'lib/l10n/intl_zh_TW.arb'
-
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Upload sources to Crowdin
-        uses: crowdin/github-action@v2
-        with:
-          upload_sources: true
-          download_translations: false
-        env:
-          CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-          CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
-```
+適用情境：團隊小、不需要非技術者參與翻譯、偏好 AI 輔助在本地完成。
+可與 Weblate 互補：slang_mcp 產生初始翻譯 → Weblate 上審核修正。
 
 ---
 
-## 4. 綜合評估矩陣
+## 5. 導入步驟（Weblate）
 
-以 1~5 分評分（5 分最佳），依本專案需求加權：
+### 前置條件
 
-| 評估項目 (權重) | Crowdin | Lokalise | Phrase | POEditor | Weblate | Transifex |
-|-----------------|---------|----------|--------|----------|---------|-----------|
-| 成本效益 (25%) | 5 | 2 | 2 | 5 | 5 | 5 |
-| ARB 格式支援 (20%) | 5 | 5 | 4 | 3 | 4 | 3 |
-| GitHub 整合 (20%) | 5 | 5 | 4 | 2 | 5 | 4 |
-| 易用性 (15%) | 4 | 5 | 4 | 5 | 3 | 3 |
-| Flutter 生態整合 (10%) | 5 | 5 | 4 | 3 | 3 | 3 |
-| 翻譯品質工具 (10%) | 5 | 5 | 5 | 3 | 4 | 4 |
-| **加權總分** | **4.85** | **4.05** | **3.60** | **3.55** | **4.05** | **3.75** |
+- [ ] 完成 #307（slang i18n 適配）
+- [ ] 翻譯檔案遷移為 `<locale>.i18n.json` 格式
 
----
+### Phase 1：初始設定（~1 小時）
 
-## 5. 建議方案
+1. 在 Hosted Weblate 申請開源專案
+2. 建立 component，指向 `NKUST-ITC/NKUST-AP-Flutter` 倉庫
+3. 設定 source language `zh-TW`，target `en`、`ja`
+4. 設定檔案路徑 pattern
 
-### 5.1 首選推薦：Crowdin
+### Phase 2：Weblate 設定
 
-**理由**：
-1. **零成本**：本專案為 GitHub 公開的開源專案（MIT 授權），符合 Crowdin 開源免費方案資格
-2. **原生 ARB 支援**：無需格式轉換，直接對接現有的 `.arb` 檔案
-3. **GitHub 深度整合**：自動偵測原始檔變更、自動建立翻譯 PR，與現有開發流程無縫銜接
-4. **社群翻譯友善**：可公開翻譯入口，讓校內國際學生或社群貢獻者參與翻譯
-5. **翻譯輔助**：翻譯記憶體 + 機器翻譯預填，可大幅加速翻譯流程
-6. **成熟穩定**：業界廣泛使用，文件完善
+依 slang README 建議：
+- File format: JSON nested
+- File mask / template 對應 slang 命名慣例
+- 啟用建議的 Weblate addons
+- 設定翻譯品質檢查規則
 
-### 5.2 備選方案：Weblate (SaaS)
+### Phase 3：工作流程
 
-**適用情境**：若偏好完全開源的工具鏈，或未來有自架需求。
-
-### 5.3 備選方案：POEditor
-
-**適用情境**：若只需要最輕量的翻譯管理，且不需要 GitHub 自動同步。207 個鍵在免費方案限額內。
+**開發者：** 只維護 `zh_TW.i18n.json`（source），push 後 Weblate 自動偵測
+**翻譯者：** 在 Weblate Web 編輯器翻譯，利用 TM 和 MT 輔助
 
 ---
 
-## 6. 導入 Crowdin 的步驟
+## 6. 注意事項
 
-### Phase 1：初始設定（約 1 小時）
+### slang key modifier
 
-1. 以 GitHub 帳號登入 Crowdin，申請開源專案方案
-2. 建立專案，設定 source language 為 `zh_TW`，target languages 為 `en`、`ja`
-3. 安裝 Crowdin GitHub App，授權 `NKUST-ITC/NKUST-AP-Flutter` 倉庫
-4. 在專案根目錄新增 `crowdin.yml` 設定檔
-5. 首次上傳 source 檔案 (`intl_zh_TW.arb`)
+slang 的 `(rich)`、`(plural)`、`(context=GenderContext)` 等 modifier 會在 Weblate 中顯示為 key 名稱的一部分。建議在專案中加入說明文件。
 
-### Phase 2：匯入既有翻譯（約 30 分鐘）
+### 無 ARB 匯出
 
-1. 透過 Crowdin 上傳 `intl_en.arb` 和 `intl_ja.arb` 作為既有翻譯
-2. 驗證所有 207 個鍵的翻譯都已正確匯入
-3. 確認參數化字串（`%s`）的對應正確
+`dart run slang migrate arb` 是單向（ARB → JSON），無法反向。選擇的平台必須能直接處理 nested JSON。
 
-### Phase 3：建立工作流程（約 1 小時）
+### 與 slang_mcp 互補
 
-1. 設定 GitHub 整合的自動同步規則
-2. 設定翻譯完成後自動建立 PR 的規則
-3. 建立翻譯品質檢查規則（參數一致性、長度限制等）
-4. （選擇性）設定機器翻譯預填
-
-### Phase 4：調整開發流程
-
-**開發者端**：
-- 只需維護 `intl_zh_TW.arb`（source），不再手動編輯 `intl_en.arb`、`intl_ja.arb`
-- 新增翻譯鍵後 push 到 GitHub，Crowdin 會自動偵測
-- Review 並合併 Crowdin 建立的翻譯 PR
-
-**翻譯者端**：
-- 在 Crowdin Web 編輯器中翻譯
-- 利用翻譯記憶體和機器翻譯建議加速工作
-- 可加入審核流程確保品質
+即使導入 Weblate，仍可搭配 slang_mcp 在開發階段快速產生初始翻譯，再由翻譯者在 Weblate 上審核修正。
 
 ---
 
-## 7. 注意事項
+## 7. 相關 Issues
 
-### 7.1 格式相容性
-
-目前專案使用 `%s` 作為參數佔位符（搭配 `sprintf` 套件），而非 Flutter 官方推薦的 ICU MessageFormat `{paramName}`。Crowdin 的 ARB parser 支援兩種格式，但建議：
-
-- **短期**：維持現有 `%s` 格式，Crowdin 可正確處理
-- **長期**：考慮遷移到 ICU MessageFormat（如 `{date}` 取代 `%s`），可獲得更好的翻譯上下文
-
-### 7.2 日文語系 (ja) 的註冊問題
-
-目前 `app.dart` 的 `supportedLocales` 僅註冊了 `en` 和 `zh_TW`，但 `intl_ja.arb` 已存在完整翻譯。導入平台前建議先確認日文是否為正式支援語系，若是則應加入 `supportedLocales`。
-
-### 7.3 產生的程式碼管理
-
-`flutter_intl` 產生的 `l10n.dart` 和 `messages_*.dart` 目前存在於版本控制中。導入翻譯平台後的建議做法：
-
-- 翻譯 PR 合併後需執行 `flutter pub run intl_utils:generate` 重新產生程式碼
-- 可在 CI 中自動化此步驟，或在 PR 合併後的 hook 中執行
-
-### 7.4 ap_common 套件的翻譯
-
-本專案依賴 `ap_common` 套件，該套件可能有自己的翻譯鍵。導入平台時需確認是否需一併管理這些翻譯，或僅管理本專案的 207 個鍵。
-
----
-
-## 8. 結論
-
-對於本專案（開源、207 個翻譯鍵、3 種語言），**Crowdin** 是最佳選擇：
-
-- 免費（開源方案）
-- 原生 ARB 支援
-- GitHub 自動整合
-- 成熟的翻譯輔助工具
-- 導入成本低（約 2-3 小時即可完成初始設定）
-
-導入後，翻譯管理從「開發者手動編輯 JSON 檔案」轉變為「翻譯者在 Web 平台上作業，自動化同步到程式碼倉庫」，可顯著提升多語系維護的效率和品質。
+- #307 — Slang i18n 適配
+- abc873693/ap_common#147 — intl → Slang 遷移
+- abc873693/ap_common#151 — 清理 intl → slang 殘留
