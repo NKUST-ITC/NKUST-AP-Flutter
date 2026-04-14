@@ -127,7 +127,9 @@ jobs:
           cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - name: Install required dependencies
-        run: sudo apt -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
       - run: flutter doctor -v
       - run: flutter pub get
       - name: Build Linux
