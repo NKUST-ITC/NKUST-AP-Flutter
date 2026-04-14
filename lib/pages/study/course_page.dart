@@ -164,7 +164,6 @@ class CoursePageState extends State<CoursePage> {
     try {
       final CourseData data = await Helper.instance.getCourseTables(
         semester: selectSemester!,
-        semesterDefault: semesterData!.defaultSemester,
       );
       if (mounted) {
         _apiCourseData = data;

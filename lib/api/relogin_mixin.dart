@@ -1,6 +1,3 @@
-import 'package:ap_common/ap_common.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
-
 /// Mixin for handling session-level re-login when a scraper session expires.
 ///
 /// This is distinct from HTTP-level retry (handled by [RetryInterceptor] in

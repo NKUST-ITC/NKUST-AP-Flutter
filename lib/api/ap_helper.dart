@@ -99,7 +99,8 @@ class WebApHelper
     if (_loginInProgress != null) {
       return _loginInProgress!.future;
     }
-    _loginInProgress = Completer<LoginResponse>();
+    final completer = Completer<LoginResponse>();
+    _loginInProgress = completer;
     try {
       final LoginResponse result = await _doLogin(
         username: username,
@@ -107,10 +108,10 @@ class WebApHelper
         retryCounts: retryCounts,
       );
       markReloginSuccess();
-      _loginInProgress!.complete(result);
+      completer.complete(result);
       return result;
     } catch (e) {
-      _loginInProgress!.completeError(e);
+      completer.completeError(e);
       rethrow;
     } finally {
       _loginInProgress = null;
@@ -409,7 +410,7 @@ class WebApHelper
   }) async {
     return withAutoRelogin(
       action: () => _doApQuery(queryQid, queryData, bytesResponse: bytesResponse),
-      relogin: () => login(username: Helper.username!, password: Helper.password!),
+      relogin: () async { await login(username: Helper.username!, password: Helper.password!); },
       isSessionExpired: (e) => e is ApSessionExpiredException,
     );
   }

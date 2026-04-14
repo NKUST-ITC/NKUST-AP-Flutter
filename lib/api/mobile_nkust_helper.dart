@@ -301,20 +301,11 @@ class MobileNkustHelper
 
   @override
   Future<ScoreData> getScores({required String year, required String semester}) async {
-    Response<dynamic> response;
-
-    if (year == null || semester == null) {
-      response = await _request(
-        scoreUrl,
-        headers: <String, String>{'Referer': homeUrl},
-      );
-    } else {
-      response = await _request(
-        scoreUrl,
-        data: <String, String>{'Yms': '$year-$semester'},
-        headers: <String, String>{'Referer': scoreUrl},
-      );
-    }
+    final response = await _request(
+      scoreUrl,
+      data: <String, String>{'Yms': '$year-$semester'},
+      headers: <String, String>{'Referer': scoreUrl},
+    );
 
     return MobileNkustParser.scores(response.data);
   }

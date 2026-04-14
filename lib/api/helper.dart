@@ -68,11 +68,11 @@ class Helper {
 
   /// Cleanup callbacks registered by sub-helpers.
   /// Called during [clearSetting] so each helper can reset its own state.
-  final List<void Function()> _cleanupCallbacks = [];
+  final List<FutureOr<void> Function()> _cleanupCallbacks = [];
 
   /// Registers a cleanup callback to be called during [clearSetting].
   /// Each sub-helper should register its own cleanup in its constructor.
-  void registerCleanup(void Function() callback) {
+  void registerCleanup(FutureOr<void> Function() callback) {
     _cleanupCallbacks.add(callback);
   }
 
@@ -180,8 +180,8 @@ class Helper {
     // Register cleanup callbacks for each sub-helper.
     // This replaces the manual cleanup in clearSetting() and ensures
     // all helpers (including previously-missed LeaveHelper) are reset.
-    registerCleanup(() {
-      WebApHelper.instance.logout();
+    registerCleanup(() async {
+      await WebApHelper.instance.logout();
       WebApHelper.instance.dioInit();
       WebApHelper.instance.isLogin = false;
     });
@@ -393,7 +393,6 @@ class Helper {
 
   Future<CourseData> getCourseTables({
     required Semester semester,
-    Semester? semesterDefault,
   }) async {
     log('Fetch(CourseTable) ${selector?.course} '
         '${semester.year} ${semester.code}');
@@ -569,7 +568,7 @@ class Helper {
     };
   }
 
-  static void clearSetting() {
+  static Future<void> clearSetting() async {
     instance._sessionState = const Unauthenticated();
     expireTime = null;
     username = null;
@@ -579,7 +578,7 @@ class Helper {
 
     // Call all registered cleanup callbacks from sub-helpers.
     for (final callback in instance._cleanupCallbacks) {
-      callback();
+      await callback();
     }
   }
 }

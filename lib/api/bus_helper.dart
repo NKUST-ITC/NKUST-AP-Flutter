@@ -213,7 +213,7 @@ class BusHelper with ReloginMixin implements BusProvider {
   }) async {
     return withAutoRelogin(
       action: () => _doTimeTableQuery(year: year, month: month, day: day),
-      relogin: () => busLogin(),
+      relogin: () async { await busLogin(); },
       isSessionExpired: _isBusSessionExpired,
     );
   }
@@ -266,7 +266,7 @@ class BusHelper with ReloginMixin implements BusProvider {
         _checkBusSessionExpired(res.data!);
         return BookingBusData.fromJson(res.data!);
       },
-      relogin: () => busLogin(),
+      relogin: () async { await busLogin(); },
       isSessionExpired: _isBusSessionExpired,
     );
   }
@@ -287,7 +287,7 @@ class BusHelper with ReloginMixin implements BusProvider {
         _checkBusSessionExpired(res.data!);
         return CancelBusData.fromJson(res.data!);
       },
-      relogin: () => busLogin(),
+      relogin: () async { await busLogin(); },
       isSessionExpired: _isBusSessionExpired,
     );
   }
@@ -313,7 +313,7 @@ class BusHelper with ReloginMixin implements BusProvider {
           busReservationsParser(res.data!),
         );
       },
-      relogin: () => busLogin(),
+      relogin: () async { await busLogin(); },
       isSessionExpired: _isBusSessionExpired,
     );
   }
@@ -339,7 +339,7 @@ class BusHelper with ReloginMixin implements BusProvider {
           busViolationRecordsParser(res.data!),
         );
       },
-      relogin: () => busLogin(),
+      relogin: () async { await busLogin(); },
       isSessionExpired: _isBusSessionExpired,
     );
   }
