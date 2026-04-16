@@ -23,13 +23,33 @@ mixin ReloginMixin {
 
   /// Marks that a login has just succeeded. Call this from the login method
   /// so [withAutoRelogin] can distinguish race conditions from real expiry.
+  /// Also broadcasts on [onReloginSuccess] so UI consumers can refresh data
+  /// that was lost to an earlier exhausted-retry failure.
   void markReloginSuccess() {
     _lastSuccessfulRelogin = DateTime.now();
+    _emitReloginSuccess();
   }
 
   /// Resets the relogin timestamp (e.g. on logout).
   void resetReloginState() {
     _lastSuccessfulRelogin = null;
+  }
+
+  /// Broadcast stream that fires whenever a relogin (or top-level login that
+  /// called [markReloginSuccess]) completes successfully.
+  ///
+  /// Useful for UI layers: if a request gave up after [maxRelogins] attempts
+  /// but a *later* unrelated request then succeeds in reauthenticating, the
+  /// giver-upper can listen to this stream and retry itself.
+  Stream<void> get onReloginSuccess => _reloginSuccessController.stream;
+
+  final StreamController<void> _reloginSuccessController =
+      StreamController<void>.broadcast();
+
+  void _emitReloginSuccess() {
+    if (!_reloginSuccessController.isClosed) {
+      _reloginSuccessController.add(null);
+    }
   }
 
   /// Tracks when the last successful login/re-login completed.
@@ -104,6 +124,7 @@ mixin ReloginMixin {
         try {
           await relogin();
           _lastSuccessfulRelogin = DateTime.now();
+          _emitReloginSuccess();
           completer.complete();
         } catch (err, st) {
           completer.completeError(err, st);

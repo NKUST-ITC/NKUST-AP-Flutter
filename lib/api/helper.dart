@@ -99,6 +99,13 @@ class Helper {
     return _instance ??= Helper();
   }
 
+  /// Fires whenever a scraper helper completes a successful (re)login.
+  ///
+  /// UI layers that had a request exhaust its retry budget can listen here
+  /// to retry themselves once another operation has restored the session.
+  Stream<void> get onReloginSuccess =>
+      WebApHelper.instance.onReloginSuccess;
+
   Helper() {
     final String apiHost =
         PreferenceUtil.instance.getString(Constants.apiHost, host);
