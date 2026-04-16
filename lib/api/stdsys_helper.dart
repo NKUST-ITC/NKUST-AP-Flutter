@@ -2,6 +2,10 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/capability/course_provider.dart';
+import 'package:nkust_ap/api/capability/score_provider.dart';
+import 'package:nkust_ap/api/capability/semester_provider.dart';
+import 'package:nkust_ap/api/capability/user_info_provider.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/room_data.dart';
@@ -17,20 +21,27 @@ enum EnrollmentLetterLang {
       };
 }
 
-class StdsysHelper {
+class StdsysHelper
+    implements CourseProvider, ScoreProvider, UserInfoProvider, SemesterProvider {
+  /// The [WebApHelper] instance this helper depends on for Dio and cookie
+  /// management.
+  final WebApHelper _webApHelper;
+
+  StdsysHelper(this._webApHelper);
+
   static StdsysHelper? _instance;
   // ignore: prefer_constructors_over_static_methods
   static StdsysHelper get instance {
-    return _instance ??= StdsysHelper();
+    return _instance ??= StdsysHelper(WebApHelper.instance);
   }
 
-  Dio get dio => WebApHelper.instance.dio;
-  CookieJar get cookieJar => WebApHelper.instance.cookieJar;
+  Dio get dio => _webApHelper.dio;
+  CookieJar get cookieJar => _webApHelper.cookieJar;
 
   Future<Response<Uint8List>> getEnrollmentLetter([
     EnrollmentLetterLang lang = EnrollmentLetterLang.chinese,
   ]) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -56,7 +67,7 @@ class StdsysHelper {
     String? schoolYear,
     String? semester,
   ) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -129,7 +140,7 @@ class StdsysHelper {
     String? year,
     String? semester,
   }) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -168,7 +179,7 @@ class StdsysHelper {
   }
 
   Future<UserInfo> getUserInfo() async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -192,7 +203,9 @@ class StdsysHelper {
     return data;
   }
 
-  Future<Uint8List?> getUserPicture(String pictureUrl) async {
+  @override
+  Future<Uint8List?> getUserPicture(String? pictureUrl) async {
+    if (pictureUrl == null) return null;
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
@@ -205,7 +218,7 @@ class StdsysHelper {
   }
 
   Future<SemesterData?> getSemesters() async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -235,7 +248,7 @@ class StdsysHelper {
   Future<Response<Uint8List>> getSingleTranscript(
       String? year, String? semester,
       [bool showRank = true]) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -258,7 +271,7 @@ class StdsysHelper {
   Future<Response<Uint8List>> getHistoryTranscript(
       String? year, String? semester,
       [bool showRank = true]) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -290,7 +303,10 @@ class StdsysHelper {
     }
   }
 
-  Future<ScoreData> getScores(String? year, String? semester) async {
+  Future<ScoreData> getScoresByYearSemester(
+    String? year,
+    String? semester,
+  ) async {
     final Response<Uint8List> rawpdf =
         await getSingleTranscript(year, semester);
 
@@ -303,4 +319,11 @@ class StdsysHelper {
       return ScoreData.empty();
     }
   }
+
+  @override
+  Future<ScoreData?> getScores({
+    required String year,
+    required String semester,
+  }) =>
+      getScoresByYearSemester(year, semester);
 }
