@@ -39,6 +39,8 @@ class MobileNkustHelper
   static const String scoreUrl = '${baseUrl}Student/Grades';
   static const String pictureUrl = '${baseUrl}Common/GetStudentPhoto';
   static const String midAlertsUrl = '${baseUrl}Student/Grades/MidWarning';
+  static const String studentLeavePageUrl = '${baseUrl}Student/Leave';
+  static const String mobileBusTimetablePageUrl = '${baseUrl}Bus/Timetable';
   static const String busTimetablePageUrl = '${busBaseUrl}Bus/Bus/Timetable';
   static const String busTimetableApiUrl =
       '${busBaseUrl}Bus/Bus/GetTimetableGrid';
