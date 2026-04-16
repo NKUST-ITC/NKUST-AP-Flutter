@@ -1,3 +1,5 @@
+import 'dart:async';
+
 /// Mixin for handling session-level re-login when a scraper session expires.
 ///
 /// This is distinct from HTTP-level retry (handled by [RetryInterceptor] in
@@ -9,6 +11,12 @@
 /// (`reLoginReTryCounts`) shared across ALL operations. When one operation
 /// exhausted the retry limit, ALL subsequent operations would immediately fail.
 /// This mixin uses **per-call** counting so operations are independent.
+///
+/// Single-flight relogin: when multiple concurrent calls all see a session
+/// expired error, only the first call actually performs [relogin]. Others
+/// wait on the same in-flight [Completer] and then retry their own action.
+/// This avoids hammering the login endpoint (and its captcha) with N parallel
+/// login attempts when any app-start burst of requests all expire together.
 mixin ReloginMixin {
   /// Maximum number of re-login attempts per call. Override in each helper.
   int get maxRelogins;
@@ -32,12 +40,18 @@ mixin ReloginMixin {
   /// (race condition, see #342) — retrying with a delay is enough.
   DateTime? _lastSuccessfulRelogin;
 
+  /// Holds the in-flight relogin [Completer] while a relogin is running.
+  /// Concurrent callers awaiting session recovery wait on this future
+  /// instead of launching their own relogin (single-flight pattern).
+  Completer<void>? _reloginInFlight;
+
   /// Executes [action] with automatic re-login on session expiry.
   ///
   /// When [isSessionExpired] returns true for a caught error:
   /// - If the last successful login was within [recentLoginWindow], assumes
   ///   a server race condition and retries with only a delay (no re-login).
-  /// - Otherwise, calls [relogin] to re-authenticate, then retries.
+  /// - Otherwise, performs a single-flight [relogin]: the first caller runs
+  ///   it, concurrent callers await the same future, then all retry.
   ///
   /// After [maxRelogins] attempts, the original error is rethrown.
   ///
@@ -67,13 +81,37 @@ mixin ReloginMixin {
           // condition (#342), not real session expiry. Just delay and
           // retry the request without re-authenticating.
           await Future<void>.delayed(retryDelay);
-        } else {
-          // Either not recently logged in, or the delay-only retry
-          // already failed. Session actually expired — re-authenticate.
+          continue;
+        }
+
+        // Single-flight relogin: piggy-back on any in-progress relogin.
+        final Completer<void>? inFlight = _reloginInFlight;
+        if (inFlight != null) {
+          try {
+            await inFlight.future;
+          } catch (_) {
+            // The in-flight relogin failed; the caller that started it
+            // will rethrow its own error. We retry the loop, which will
+            // either succeed (session may have recovered by another
+            // path) or hit the next retry slot.
+          }
+          await Future<void>.delayed(retryDelay);
+          continue;
+        }
+
+        final Completer<void> completer = Completer<void>();
+        _reloginInFlight = completer;
+        try {
           await relogin();
           _lastSuccessfulRelogin = DateTime.now();
-          await Future<void>.delayed(retryDelay);
+          completer.complete();
+        } catch (err, st) {
+          completer.completeError(err, st);
+          rethrow;
+        } finally {
+          _reloginInFlight = null;
         }
+        await Future<void>.delayed(retryDelay);
       }
     }
   }
@@ -85,7 +123,8 @@ class ApSessionExpiredException implements Exception {
   const ApSessionExpiredException();
 
   @override
-  String toString() => 'ApSessionExpiredException: WebAP session expired (code 2)';
+  String toString() =>
+      'ApSessionExpiredException: WebAP session expired (code 2)';
 }
 
 /// Exception thrown when the Bus system returns a "未登入" (not logged in)
