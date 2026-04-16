@@ -11,7 +11,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -108,6 +110,18 @@ class HomePageState extends State<HomePage> {
   }
 
   bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
+
+  String get _leaveFallbackUrl {
+    switch (Helper.selector?.leave) {
+      case ScraperSource.stdsys:
+        return LeaveHelper.oosafLeaveUrl;
+      case ScraperSource.mobile:
+      case ScraperSource.webap:
+      case ScraperSource.remoteConfig:
+      case null:
+        return MobileNkustHelper.studentLeavePageUrl;
+    }
+  }
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
     return AboutUsPage(
@@ -366,9 +380,7 @@ class HomePageState extends State<HomePage> {
           DrawerMenuItem(
             icon: ApIcon.calendarToday,
             title: ap.leave,
-            onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Student/Leave',
-            ),
+            onTap: () => PlatformUtil.instance.launchUrl(_leaveFallbackUrl),
           ),
         if (canUseBus)
           DrawerMenuSection(
@@ -412,7 +424,7 @@ class HomePageState extends State<HomePage> {
             icon: ApIcon.directionsBus,
             title: ap.bus,
             onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Bus/Timetable',
+              MobileNkustHelper.mobileBusTimetablePageUrl,
             ),
           ),
         DrawerMenuItem(

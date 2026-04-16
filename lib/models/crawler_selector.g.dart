@@ -13,6 +13,9 @@ CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) =>
       course: ScraperSource.fromString(json['course'] as String),
       score: ScraperSource.fromString(json['score'] as String),
       semester: ScraperSource.fromString(json['semester'] as String),
+      leave: json['leave'] == null
+          ? ScraperSource.stdsys
+          : CrawlerSelector._leaveFromJson(json['leave']),
     );
 
 Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) =>
@@ -22,4 +25,5 @@ Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) =>
       'course': CrawlerSelector._sourceToString(instance.course),
       'score': CrawlerSelector._sourceToString(instance.score),
       'semester': CrawlerSelector._sourceToString(instance.semester),
+      'leave': CrawlerSelector._sourceToString(instance.leave),
     };
