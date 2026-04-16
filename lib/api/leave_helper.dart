@@ -191,7 +191,8 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
   }
 
   @override
-  Future<LeaveData> getLeaves({String? year, String? semester}) async {
+  Future<LeaveData> getLeaves(
+      {required String year, required String semester}) async {
     if (Helper.username == null || Helper.password == null) {
       throw 'NullThrownError';
     }
