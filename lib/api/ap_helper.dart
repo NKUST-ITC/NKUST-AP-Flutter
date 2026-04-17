@@ -9,6 +9,7 @@ import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
@@ -174,35 +175,41 @@ class WebApHelper
               expireTime: DateTime.now().add(const Duration(hours: 6)),
             );
           case 1:
-            throw GeneralResponse(
-              statusCode: ApStatusCode.userDataError,
+            throw AuthException(
+              AuthFailureReason.invalidCredentials,
               message: 'username or password error',
             );
           case 5:
-            throw GeneralResponse(
-              statusCode: ApStatusCode.passwordFiveTimesError,
-              message: 'username or password error',
+            throw AuthException(
+              AuthFailureReason.tooManyAttempts,
+              message: 'too many failed attempts',
             );
           case 500:
-            throw GeneralResponse(
+            throw ServerException(
               statusCode: ApStatusCode.schoolServerError,
               message: 'school server error',
             );
           default:
-            throw GeneralResponse(
+            throw ServerException(
               statusCode: code,
-              message: 'unknown error',
+              message: 'unknown login response code: $code',
             );
         }
+      } on ApException {
+        // Non-captcha auth / server errors should propagate immediately —
+        // retrying with the same credentials would only hammer the login
+        // endpoint. Only captcha/network issues (which land in the generic
+        // catch below) deserve a retry.
+        rethrow;
       } catch (e, s) {
         CrashlyticsUtil.instance.recordError(e, s);
         log(e.toString());
       }
     }
     //
-    throw GeneralResponse(
-      statusCode: ApStatusCode.unknownError,
-      message: 'captcha error or unknown error',
+    throw CaptchaException(
+      attempts: retryCounts,
+      message: 'captcha failed after $retryCounts attempts',
     );
   }
 
