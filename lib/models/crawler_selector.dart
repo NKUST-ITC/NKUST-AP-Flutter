@@ -15,6 +15,7 @@ class CrawlerSelector {
     required this.course,
     required this.score,
     required this.semester,
+    this.leave = ScraperSource.stdsys,
   });
 
   @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
@@ -31,8 +32,13 @@ class CrawlerSelector {
   final ScraperSource score;
   @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
   final ScraperSource semester;
+  @JsonKey(fromJson: _leaveFromJson, toJson: _sourceToString)
+  final ScraperSource leave;
 
   static String _sourceToString(ScraperSource source) => source.toJsonString();
+
+  static ScraperSource _leaveFromJson(Object? value) =>
+      value is String ? ScraperSource.fromString(value) : ScraperSource.stdsys;
 
   CrawlerSelector copyWith({
     ScraperSource? login,
@@ -40,6 +46,7 @@ class CrawlerSelector {
     ScraperSource? course,
     ScraperSource? score,
     ScraperSource? semester,
+    ScraperSource? leave,
   }) =>
       CrawlerSelector(
         login: login ?? this.login,
@@ -47,6 +54,7 @@ class CrawlerSelector {
         course: course ?? this.course,
         score: score ?? this.score,
         semester: semester ?? this.semester,
+        leave: leave ?? this.leave,
       );
 
   factory CrawlerSelector.fromJson(Map<String, dynamic> json) =>

@@ -3,6 +3,7 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = '/leave';
@@ -27,12 +28,12 @@ class LeavePageState extends State<LeavePage>
   String get path {
     switch (_currentIndex) {
       case 0:
-        return 'https://oosaf.nkust.edu.tw/Student/Leave/Create';
+        return LeaveHelper.oosafLeaveCreateUrl;
       case 1:
-        return 'https://oosaf.nkust.edu.tw/Student/Absenteeism';
+        return LeaveHelper.oosafAbsenteeismUrl;
       case 2:
       default:
-        return 'https://oosaf.nkust.edu.tw/Student/Leave';
+        return LeaveHelper.oosafLeaveUrl;
     }
   }
 
@@ -111,11 +112,11 @@ class LeavePageState extends State<LeavePage>
     try {
       await WebApHelper.instance.loginToOosaf();
       final cookies = await WebApHelper.instance.cookieJar.loadForRequest(
-        WebUri('https://oosaf.nkust.edu.tw'),
+        WebUri(LeaveHelper.oosafBasePath),
       );
       for (final cookie in cookies) {
         cookieManager.setCookie(
-          url: WebUri('https://oosaf.nkust.edu.tw'),
+          url: WebUri(LeaveHelper.oosafBasePath),
           name: cookie.name,
           value: cookie.value,
         );
