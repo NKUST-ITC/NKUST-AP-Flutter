@@ -114,12 +114,11 @@ class HomePageState extends State<HomePage> {
   String get _leaveFallbackUrl {
     switch (Helper.selector?.leave) {
       case ScraperSource.stdsys:
-        return LeaveHelper.oosafLeaveUrl;
       case ScraperSource.mobile:
       case ScraperSource.webap:
       case ScraperSource.remoteConfig:
       case null:
-        return MobileNkustHelper.studentLeavePageUrl;
+        return LeaveHelper.oosafLeaveUrl;
     }
   }
 
