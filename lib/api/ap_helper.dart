@@ -267,7 +267,7 @@ class WebApHelper
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
     } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      throw AuthException(AuthFailureReason.unknown, message: 'cross-system SSO did not land on target page');
     }
   }
 
@@ -306,7 +306,7 @@ class WebApHelper
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
     } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      throw AuthException(AuthFailureReason.unknown, message: 'cross-system SSO did not land on target page');
     }
   }
 
@@ -354,7 +354,7 @@ class WebApHelper
         expireTime: _stdsysLoginExpireTime!,
       );
     } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      throw AuthException(AuthFailureReason.unknown, message: 'cross-system SSO did not land on target page');
     }
   }
 
@@ -401,7 +401,7 @@ class WebApHelper
         expireTime: DateTime.now().add(const Duration(hours: 1)),
       );
     }
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    throw AuthException(AuthFailureReason.unknown, message: 'cross-system SSO did not land on target page');
   }
 
   Future<LoginResponse?> checkLogin() async {

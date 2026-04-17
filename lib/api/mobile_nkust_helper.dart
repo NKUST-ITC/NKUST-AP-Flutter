@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/parser/mobile_nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -256,7 +257,9 @@ class MobileNkustHelper
       return LoginResponse();
     }
 
-    throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+    throw const CancelledException(
+      message: 'mobile.nkust login cancelled by user',
+    );
   }
 
   @override

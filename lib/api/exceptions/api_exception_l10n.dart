@@ -29,13 +29,11 @@ extension ApExceptionL10n on ApException {
       case CaptchaException():
         return ap.captchaError;
       case ServerException():
-        // httpStatusCode is the raw HTTP status when known; statusCode is
-        // the app-internal mapping (ApStatusCode.apiServerError=500,
-        // schoolServerError=503) used when the helper only has a response
-        // code rather than a real HTTP status. They line up numerically,
-        // so fall through to whichever is populated.
-        final int code = self.httpStatusCode ?? self.statusCode;
-        if (code == 500) return ap.apiServerError;
+        // In the current crawler-only architecture there is no proxy API
+        // server — every 5xx response ultimately comes from the school
+        // system, so all server errors map to schoolServerError. The
+        // legacy apiServerError branch was only meaningful when the app
+        // still talked to a middle-tier API.
         return ap.schoolServerError;
       case CancelledException():
         return ap.loginFail;
