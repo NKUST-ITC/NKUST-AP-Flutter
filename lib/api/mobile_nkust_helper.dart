@@ -31,6 +31,7 @@ import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 class MobileNkustHelper
     implements CourseProvider, ScoreProvider, UserInfoProvider, BusProvider {
   static const String baseUrl = 'https://mobile.nkust.edu.tw/';
+  //TODO: Move vms (for school bus) somewhere out of mobileNkustHelper
   static const String busBaseUrl = 'https://vms.nkust.edu.tw/';
 
   static const String loginUrl = baseUrl;
@@ -39,8 +40,6 @@ class MobileNkustHelper
   static const String scoreUrl = '${baseUrl}Student/Grades';
   static const String pictureUrl = '${baseUrl}Common/GetStudentPhoto';
   static const String midAlertsUrl = '${baseUrl}Student/Grades/MidWarning';
-  static const String studentLeavePageUrl = '${baseUrl}Student/Leave';
-  static const String mobileBusTimetablePageUrl = '${baseUrl}Bus/Timetable';
   static const String busTimetablePageUrl = '${busBaseUrl}Bus/Bus/Timetable';
   static const String busTimetableApiUrl =
       '${busBaseUrl}Bus/Bus/GetTimetableGrid';
