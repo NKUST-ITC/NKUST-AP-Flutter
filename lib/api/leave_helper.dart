@@ -34,7 +34,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
 
   static const String basePath = 'https://leave.nkust.edu.tw/';
   static const String home = '${basePath}masterindex.aspx';
-
+  //TODO: Move oosaf (for attendant/absent etc.) somewhere out of leaveHelper
   static const String oosafBasePath = 'https://oosaf.nkust.edu.tw/';
   static const String oosafLeaveCreateUrl =
       '${oosafBasePath}Student/Leave/Create';
