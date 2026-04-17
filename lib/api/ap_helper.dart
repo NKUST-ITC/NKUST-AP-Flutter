@@ -517,9 +517,8 @@ class WebApHelper
         WebApParser.instance.enrollmentLetterPathParser(query.data as String);
 
     if (pdfPath == null || pdfPath.isEmpty) {
-      throw GeneralResponse(
-        statusCode: ApStatusCode.unknownError,
-        message: 'cannot find pdf url',
+      throw ServerException(
+        message: 'enrollment letter PDF url not found in response',
       );
     }
 

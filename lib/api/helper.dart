@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
@@ -231,18 +232,16 @@ class Helper {
     Helper.username = username.toUpperCase();
     Helper.password = password;
     LoginResponse? loginResponse;
-    if (selector?.login == ScraperSource.mobile) {
-      loginResponse = await WebApHelper.instance.login(
+    loginResponse = await _call(() async {
+      final LoginResponse? result = await WebApHelper.instance.login(
         username: username.toUpperCase(),
         password: password,
       );
-      await WebApHelper.instance.loginVms();
-    } else {
-      loginResponse = await WebApHelper.instance.login(
-        username: username.toUpperCase(),
-        password: password,
-      );
-    }
+      if (selector?.login == ScraperSource.mobile) {
+        await WebApHelper.instance.loginVms();
+      }
+      return result;
+    });
     if (loginResponse != null) {
       expireTime = loginResponse.expireTime;
       _sessionState = Authenticated(
@@ -370,15 +369,17 @@ class Helper {
   }
 
   Future<UserInfo> getUsersInfo() async {
-    final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
-    UserInfo data = await provider.getUserInfo();
-    reLoginCount = 0;
-    if (data.id.isEmpty) {
-      data = data.copyWith(
-        id: username!,
-      );
-    }
-    return data;
+    return _call(() async {
+      final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
+      UserInfo data = await provider.getUserInfo();
+      reLoginCount = 0;
+      if (data.id.isEmpty) {
+        data = data.copyWith(
+          id: username!,
+        );
+      }
+      return data;
+    });
   }
 
   Future<Uint8List?> getUserPicture(String pictureUrl) async {
@@ -387,71 +388,95 @@ class Helper {
   }
 
   Future<SemesterData> getSemester() async {
-    SemesterData? data;
-    log(selector?.semester.toString() ?? '');
-    if (selector?.semester == ScraperSource.remoteConfig) {
-      data = SemesterData.load();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
-    } else {
-      final provider = registry.resolve<SemesterProvider>(selector?.semester);
-      data = await provider.getSemesters();
+    return _call(() async {
+      SemesterData? data;
+      log(selector?.semester.toString() ?? '');
+      if (selector?.semester == ScraperSource.remoteConfig) {
+        data = SemesterData.load();
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      } else {
+        final provider = registry.resolve<SemesterProvider>(selector?.semester);
+        data = await provider.getSemesters();
+      }
+      reLoginCount = 0;
+      if (data == null) {
+        throw ServerException(message: 'empty semester data');
+      }
+      return data;
+    });
+  }
+
+  /// Runs a crawler-facing operation and normalises any raw [DioException]
+  /// that escapes into the appropriate [ApException] subtype, so UI layers
+  /// only need `on ApException catch` instead of handling DioException
+  /// separately. Helpers that already throw [ApException] are untouched.
+  Future<T> _call<T>(Future<T> Function() body) async {
+    try {
+      return await body();
+    } on ApException {
+      rethrow;
+    } on DioException catch (e) {
+      throw e.toApException();
     }
-    reLoginCount = 0;
-    if (data == null) {
-      throw GeneralResponse.unknownError();
-    }
-    return data;
   }
 
   Future<ScoreData?> getScores({
     required Semester semester,
   }) async {
-    log('Fetch(Score) ${selector?.score} '
-        '${semester.year} ${semester.code}');
-    final provider = registry.resolve<ScoreProvider>(selector?.score);
-    ScoreData? data = await provider.getScores(
-      year: semester.year,
-      semester: semester.value,
-    );
-    if (data != null && data.scores.isEmpty) data = null;
-    return data;
+    return _call(() async {
+      log('Fetch(Score) ${selector?.score} '
+          '${semester.year} ${semester.code}');
+      final provider = registry.resolve<ScoreProvider>(selector?.score);
+      ScoreData? data = await provider.getScores(
+        year: semester.year,
+        semester: semester.value,
+      );
+      if (data != null && data.scores.isEmpty) data = null;
+      return data;
+    });
   }
 
   Future<CourseData> getCourseTables({
     required Semester semester,
   }) async {
-    log('Fetch(CourseTable) ${selector?.course} '
-        '${semester.year} ${semester.code}');
-    final provider = registry.resolve<CourseProvider>(selector?.course);
-    final CourseData data = await provider.getCourseTable(
-      year: semester.year,
-      semester: semester.value,
-    );
-    if (data.courses.isNotEmpty) {
-      reLoginCount = 0;
-    }
-    return data;
+    return _call(() async {
+      log('Fetch(CourseTable) ${selector?.course} '
+          '${semester.year} ${semester.code}');
+      final provider = registry.resolve<CourseProvider>(selector?.course);
+      final CourseData data = await provider.getCourseTable(
+        year: semester.year,
+        semester: semester.value,
+      );
+      if (data.courses.isNotEmpty) {
+        reLoginCount = 0;
+      }
+      return data;
+    });
   }
 
   Future<RewardAndPenaltyData> getRewardAndPenalty({
     required Semester semester,
   }) async {
-    final RewardAndPenaltyData data =
-        await WebApHelper.instance.rewardAndPenalty(
-      semester.year,
-      semester.value,
-    );
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      final RewardAndPenaltyData data =
+          await WebApHelper.instance.rewardAndPenalty(
+        semester.year,
+        semester.value,
+      );
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<MidtermAlertsData> getMidtermAlerts({
     required Semester semester,
   }) async {
-    return await WebApHelper.instance.midtermAlerts(
-      semester.year,
-      semester.value,
-    );
+    return _call(() async {
+      return WebApHelper.instance.midtermAlerts(
+        semester.year,
+        semester.value,
+      );
+    });
   }
 
   //1=建工/2=燕巢/3=第一/4=楠梓/5=旗津/6=東方
@@ -459,115 +484,137 @@ class Helper {
     required Semester semester,
     required int campusCode,
   }) async {
-    final RoomData data = await StdsysHelper.instance
-        .roomList('$campusCode', semester.year, semester.value);
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      final RoomData data = await StdsysHelper.instance
+          .roomList('$campusCode', semester.year, semester.value);
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<CourseData> getRoomCourseTables({
     required String? roomId,
     required Semester semester,
   }) async {
-    final CourseData data = await StdsysHelper.instance.roomCourseTableQuery(
-      roomId,
-      semester.year,
-      semester.value,
-    );
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      final CourseData data = await StdsysHelper.instance.roomCourseTableQuery(
+        roomId,
+        semester.year,
+        semester.value,
+      );
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<BusData> getBusTimeTables({
     required DateTime dateTime,
   }) async {
-    if (!MobileNkustHelper.isSupport) {
-      throw GeneralResponse.platformNotSupport();
-    }
-    final provider = registry.resolve<BusProvider>(null);
-    final BusData data = await provider.getTimeTable(dateTime: dateTime);
-    reLoginCount = 0;
-    if (data.canReserve) {
-      return data;
-    } else {
-      throw GeneralResponse(
-        statusCode: 403,
-        message: data.description!,
+    return _call(() async {
+      if (!MobileNkustHelper.isSupport) {
+        throw const PlatformUnsupportedException();
+      }
+      final provider = registry.resolve<BusProvider>(null);
+      final BusData data = await provider.getTimeTable(dateTime: dateTime);
+      reLoginCount = 0;
+      if (data.canReserve) {
+        return data;
+      }
+      throw ServerException(
+        httpStatusCode: 403,
+        message: data.description ?? 'bus not reservable',
       );
-    }
+    });
   }
 
   Future<BusReservationsData> getBusReservations() async {
-    if (!MobileNkustHelper.isSupport) {
-      throw GeneralResponse.platformNotSupport();
-    }
-    final provider = registry.resolve<BusProvider>(null);
-    final BusReservationsData data = await provider.getReservations();
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      if (!MobileNkustHelper.isSupport) {
+        throw const PlatformUnsupportedException();
+      }
+      final provider = registry.resolve<BusProvider>(null);
+      final BusReservationsData data = await provider.getReservations();
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<BookingBusData> bookingBusReservation({
     required String busId,
   }) async {
-    if (!MobileNkustHelper.isSupport) {
-      throw GeneralResponse.platformNotSupport();
-    }
-    final provider = registry.resolve<BusProvider>(null);
-    final BookingBusData data = await provider.bookBus(busId: busId);
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      if (!MobileNkustHelper.isSupport) {
+        throw const PlatformUnsupportedException();
+      }
+      final provider = registry.resolve<BusProvider>(null);
+      final BookingBusData data = await provider.bookBus(busId: busId);
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<CancelBusData> cancelBusReservation({
     required String cancelKey,
   }) async {
-    if (!MobileNkustHelper.isSupport) {
-      throw GeneralResponse.platformNotSupport();
-    }
-    final provider = registry.resolve<BusProvider>(null);
-    final CancelBusData data = await provider.cancelBus(busId: cancelKey);
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      if (!MobileNkustHelper.isSupport) {
+        throw const PlatformUnsupportedException();
+      }
+      final provider = registry.resolve<BusProvider>(null);
+      final CancelBusData data = await provider.cancelBus(busId: cancelKey);
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
-    if (!MobileNkustHelper.isSupport) {
-      throw GeneralResponse.platformNotSupport();
-    }
-    final provider = registry.resolve<BusProvider>(null);
-    final BusViolationRecordsData data = await provider.getViolationRecords();
-    reLoginCount = 0;
-    return data;
+    return _call(() async {
+      if (!MobileNkustHelper.isSupport) {
+        throw const PlatformUnsupportedException();
+      }
+      final provider = registry.resolve<BusProvider>(null);
+      final BusViolationRecordsData data =
+          await provider.getViolationRecords();
+      reLoginCount = 0;
+      return data;
+    });
   }
 
   Future<NotificationsData> getNotifications({
     required int page,
   }) async {
-    return await NKUSTHelper.instance.getNotifications(page);
+    return _call(() async {
+      return NKUSTHelper.instance.getNotifications(page);
+    });
   }
 
   Future<LeaveData> getLeaves({
     required Semester semester,
   }) async {
-    final provider = registry.resolve<LeaveProvider>(null);
-    return await provider.getLeaves(
-      year: semester.year,
-      semester: semester.value,
-    );
+    return _call(() async {
+      final provider = registry.resolve<LeaveProvider>(null);
+      return provider.getLeaves(
+        year: semester.year,
+        semester: semester.value,
+      );
+    });
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    final provider = registry.resolve<LeaveProvider>(null);
-    return await provider.getSubmitInfo();
+    return _call(() async {
+      final provider = registry.resolve<LeaveProvider>(null);
+      return provider.getSubmitInfo();
+    });
   }
 
   Future<Response<dynamic>?> sendLeavesSubmit({
     required LeaveSubmitData data,
     required XFile? image,
   }) async {
-    final provider = registry.resolve<LeaveProvider>(null);
-    return await provider.submit(data, proofImage: image);
+    return _call(() async {
+      final provider = registry.resolve<LeaveProvider>(null);
+      return provider.submit(data, proofImage: image);
+    });
   }
 
   Future<LibraryInfo?> getLibraryInfo() async {

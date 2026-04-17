@@ -202,3 +202,37 @@ final class BusSessionExpiredException extends ApException {
   @override
   String get typeName => 'BusSessionExpiredException';
 }
+
+/// Feature not usable on the current platform/campus configuration
+/// (e.g. bus system on web, or a sub-system the user's campus doesn't
+/// have access to).
+final class PlatformUnsupportedException extends ApException {
+  const PlatformUnsupportedException({
+    super.message = 'feature not supported on this platform',
+  }) : super(statusCode: ApStatusCode.unknownError);
+
+  @override
+  String get typeName => 'PlatformUnsupportedException';
+}
+
+/// Translates the transport / HTTP failure captured by Dio into the
+/// appropriate [ApException] subtype so callers can use a single
+/// `on ApException catch` clause instead of handling DioException
+/// separately in every UI page.
+extension DioExceptionToApException on DioException {
+  ApException toApException() {
+    if (type == DioExceptionType.cancel) {
+      return const CancelledException(message: 'request cancelled');
+    }
+    if (NetworkException.isTransport(this)) {
+      return NetworkException.from(this);
+    }
+    // DioExceptionType.badResponse — server responded with a non-2xx.
+    return ServerException(
+      httpStatusCode: response?.statusCode,
+      message: message ?? 'server error',
+      cause: this,
+      causeStackTrace: stackTrace,
+    );
+  }
+}

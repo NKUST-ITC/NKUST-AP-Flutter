@@ -42,6 +42,8 @@ extension ApExceptionL10n on ApException {
         // Session expired after relogin retries were exhausted — prompt
         // the user to log in again instead of showing a cryptic auth code.
         return ap.tokenExpiredContent;
+      case PlatformUnsupportedException():
+        return ap.platformError;
     }
   }
 }
