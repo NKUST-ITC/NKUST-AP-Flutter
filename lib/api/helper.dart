@@ -99,12 +99,15 @@ class Helper {
     return _instance ??= Helper();
   }
 
-  /// Fires whenever a scraper helper completes a successful (re)login.
+  /// Fires whenever any scraper helper (WebAP / Bus / Leave) completes a
+  /// successful (re)login.
   ///
   /// UI layers that had a request exhaust its retry budget can listen here
   /// to retry themselves once another operation has restored the session.
-  Stream<void> get onReloginSuccess =>
-      WebApHelper.instance.onReloginSuccess;
+  Stream<void> get onReloginSuccess => _reloginSuccessController.stream;
+
+  final StreamController<void> _reloginSuccessController =
+      StreamController<void>.broadcast();
 
   Helper() {
     final String apiHost =
@@ -183,6 +186,22 @@ class Helper {
     registry.register<LeaveProvider>(
       ScraperSource.webap, LeaveHelper.instance,
     );
+
+    // Forward relogin-success events from every helper that uses
+    // ReloginMixin so consumers can subscribe once via
+    // [Helper.instance.onReloginSuccess] instead of knowing about each
+    // helper individually.
+    void forward(Stream<void> source) {
+      source.listen((_) {
+        if (!_reloginSuccessController.isClosed) {
+          _reloginSuccessController.add(null);
+        }
+      });
+    }
+
+    forward(WebApHelper.instance.onReloginSuccess);
+    forward(BusHelper.instance.onReloginSuccess);
+    forward(LeaveHelper.instance.onReloginSuccess);
 
     // Register cleanup callbacks for each sub-helper.
     // This replaces the manual cleanup in clearSetting() and ensures

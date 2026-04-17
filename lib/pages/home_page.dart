@@ -61,6 +61,7 @@ class HomePageState extends State<HomePage> {
 
   StreamSubscription<void>? _reloginSub;
   bool _userInfoFetchFailed = false;
+  bool _userInfoFetchInProgress = false;
 
   String get sectionImage {
     final String department = userInfo?.department ?? '';
@@ -156,7 +157,10 @@ class HomePageState extends State<HomePage> {
     });
     _reloginSub = Helper.instance.onReloginSuccess.listen((_) {
       if (!mounted) return;
-      if (_userInfoFetchFailed || userInfo == null) {
+      // Only retry when a previous fetch actually failed. The initial
+      // login flow calls `_getUserInfo()` directly, so no retry is needed
+      // just because the stream fired.
+      if (_userInfoFetchFailed) {
         _getUserInfo();
       }
     });
@@ -675,9 +679,14 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _getUserInfo() async {
-    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      userInfo = UserInfo.load(Helper.username!);
-    } else {
+    if (_userInfoFetchInProgress) return;
+    _userInfoFetchInProgress = true;
+    try {
+      if (PreferenceUtil.instance
+          .getBool(Constants.prefIsOfflineLogin, false)) {
+        userInfo = UserInfo.load(Helper.username!);
+        return;
+      }
       try {
         final UserInfo data = await Helper.instance.getUsersInfo();
         _userInfoFetchFailed = false;
@@ -709,6 +718,8 @@ class HomePageState extends State<HomePage> {
         _userInfoFetchFailed = true;
         CrashlyticsUtil.instance.recordError(e, s);
       }
+    } finally {
+      _userInfoFetchInProgress = false;
     }
   }
 

@@ -111,16 +111,12 @@ mixin ReloginMixin {
         }
 
         // Single-flight relogin: piggy-back on any in-progress relogin.
+        // If it fails (e.g. wrong password), propagate the same failure to
+        // all waiters instead of letting each one run its own retry budget
+        // and trigger redundant captcha attempts.
         final Completer<void>? inFlight = _reloginInFlight;
         if (inFlight != null) {
-          try {
-            await inFlight.future;
-          } catch (_) {
-            // The in-flight relogin failed; the caller that started it
-            // will rethrow its own error. We retry the loop, which will
-            // either succeed (session may have recovered by another
-            // path) or hit the next retry slot.
-          }
+          await inFlight.future;
           await Future<void>.delayed(retryDelay);
           continue;
         }
