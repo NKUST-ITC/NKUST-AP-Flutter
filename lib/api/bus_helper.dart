@@ -198,6 +198,7 @@ class BusHelper with ReloginMixin implements BusProvider {
 
     if (res.data!['code'] == 200 && res.data!['success'] == true) {
       isLogin = true;
+      markReloginSuccess();
     }
     return res.data;
   }

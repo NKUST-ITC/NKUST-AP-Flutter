@@ -77,6 +77,12 @@ mixin ReloginMixin {
   ///
   /// The retry counter is **per-call** (local variable), not shared across
   /// operations, so one failing operation cannot block others.
+  ///
+  /// **Contract:** the [relogin] callback is responsible for calling
+  /// [markReloginSuccess] on successful authentication. This ensures both
+  /// the race-condition timestamp and the [onReloginSuccess] broadcast stay
+  /// consistent whether the login was triggered by top-level `login()` or
+  /// by this method.
   Future<T> withAutoRelogin<T>({
     required Future<T> Function() action,
     required Future<void> Function() relogin,
@@ -123,8 +129,9 @@ mixin ReloginMixin {
         _reloginInFlight = completer;
         try {
           await relogin();
-          _lastSuccessfulRelogin = DateTime.now();
-          _emitReloginSuccess();
+          // The relogin callback is expected to call [markReloginSuccess]
+          // itself (see contract above), so we don't duplicate state updates
+          // or event emissions here.
           completer.complete();
         } catch (err, st) {
           completer.completeError(err, st);
