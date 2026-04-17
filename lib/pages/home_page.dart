@@ -420,11 +420,12 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
+          //TODO: Move vms (for school bus) somewhere out of mobileNkustHelper
           DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
             onTap: () => PlatformUtil.instance.launchUrl(
-              MobileNkustHelper.mobileBusTimetablePageUrl,
+              MobileNkustHelper.busTimetablePageUrl,
             ),
           ),
         DrawerMenuItem(
