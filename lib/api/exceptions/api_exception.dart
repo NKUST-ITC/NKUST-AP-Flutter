@@ -176,3 +176,29 @@ final class CancelledException extends ApException {
   @override
   String get typeName => 'CancelledException';
 }
+
+/// Server indicated the current session has expired and a re-login is
+/// required (e.g. WebAP login parser returns code 2, Bus system returns
+/// "未登入"). Usually caught and handled by [ReloginMixin.withAutoRelogin];
+/// only escapes to the UI when all relogin attempts have been exhausted.
+final class ApSessionExpiredException extends ApException {
+  const ApSessionExpiredException()
+      : super(
+          statusCode: ApStatusCode.apiExpire,
+          message: 'WebAP session expired (code 2)',
+        );
+
+  @override
+  String get typeName => 'ApSessionExpiredException';
+}
+
+/// Bus-system variant of [ApSessionExpiredException]. Kept distinct so
+/// [BusHelper] can match only its own session errors without accidentally
+/// reacting to WebAP's.
+final class BusSessionExpiredException extends ApException {
+  const BusSessionExpiredException(String message)
+      : super(statusCode: ApStatusCode.apiExpire, message: message);
+
+  @override
+  String get typeName => 'BusSessionExpiredException';
+}

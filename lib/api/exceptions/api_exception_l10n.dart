@@ -37,6 +37,11 @@ extension ApExceptionL10n on ApException {
         return ap.schoolServerError;
       case CancelledException():
         return ap.loginFail;
+      case ApSessionExpiredException():
+      case BusSessionExpiredException():
+        // Session expired after relogin retries were exhausted — prompt
+        // the user to log in again instead of showing a cryptic auth code.
+        return ap.tokenExpiredContent;
     }
   }
 }
