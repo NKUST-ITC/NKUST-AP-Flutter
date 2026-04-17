@@ -247,22 +247,15 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         _getMidtermAlertsData();
       }
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on GeneralResponse catch (response) {
-      if (mounted) {
-        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
-      }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -294,6 +287,7 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         });
       }
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);
       }
@@ -301,27 +295,11 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         state = _State.custom;
         customStateHint = e.toLocalizedMessage(context);
       });
-    } on GeneralResponse catch (response) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      setState(() {
-        state = _State.custom;
-        customStateHint = response.getGeneralMessage(context);
-      });
-    } on DioException catch (e) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      setState(() {
-        state = _State.custom;
-        customStateHint = e.i18nMessage;
-      });
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getMidtermAlert',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

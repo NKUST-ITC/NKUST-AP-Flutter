@@ -124,21 +124,16 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
         data = responseData;
       });
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = e.toLocalizedMessage(context);
-      });
-    } on GeneralResponse catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-        errorMessage = e.message;
-      });
-    } on DioException catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-        errorMessage = e.response?.statusCode == 404
-            ? app.noEnrollmentData
-            : app.networkError.replaceAll('%s', e.message ?? '');
+        // Keep the 404 special case (no enrollment letter available for
+        // this student) mapped to a dedicated user message.
+        if (e is ServerException && e.httpStatusCode == 404) {
+          errorMessage = app.noEnrollmentData;
+        } else {
+          errorMessage = e.toLocalizedMessage(context);
+        }
       });
     } catch (e) {
       setState(() {

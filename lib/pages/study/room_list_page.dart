@@ -532,27 +532,16 @@ class RoomListPageState extends State<RoomListPage> {
         state = _State.finish;
       });
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       setState(() {
         state = _State.custom;
         customStateHint = e.toLocalizedMessage(context);
       });
-    } on GeneralResponse catch (generalResponse) {
-      setState(() {
-        state = _State.custom;
-        customStateHint = generalResponse.getGeneralMessage(context);
-      });
-    } on DioException catch (e) {
-      if (e.type != DioExceptionType.cancel) {
-        setState(() {
-          state = _State.custom;
-          customStateHint = e.i18nMessage;
-        });
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getRoomCourseTables',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

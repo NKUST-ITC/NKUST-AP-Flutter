@@ -98,22 +98,15 @@ class ScorePageState extends State<ScorePage> {
         _getSemesterScore();
       }
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on GeneralResponse catch (response) {
-      if (mounted) {
-        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
-      }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -147,42 +140,20 @@ class ScorePageState extends State<ScorePage> {
         if (mounted) {
           _pickerController.markSemesterHasData(selectSemester!);
         }
-        if (await _loadOfflineScoreData()) {
+        if (await _loadOfflineScoreData() && e is! CancelledException) {
           setState(() {
             state = ScoreState.custom;
             customStateHint = e.toLocalizedMessage(context);
           });
         }
-        rethrow;
-      } on GeneralResponse catch (generalResponse) {
-        if (mounted) {
-          _pickerController.markSemesterHasData(selectSemester!);
-        }
-        if (await _loadOfflineScoreData()) {
-          setState(() {
-            state = ScoreState.custom;
-            customStateHint = generalResponse.getGeneralMessage(context);
-          });
-        }
-        rethrow;
-      } on DioException catch (e) {
-        if (mounted) {
-          _pickerController.markSemesterHasData(selectSemester!);
-        }
-        if (await _loadOfflineScoreData() &&
-            e.type != DioExceptionType.cancel) {
-          setState(() {
-            state = ScoreState.custom;
-            customStateHint = e.i18nMessage;
-          });
-        }
-        if (e.hasResponse) {
+        if (e is ServerException && e.httpStatusCode != null) {
           AnalyticsUtil.instance.logApiEvent(
             'getSemesterScore',
-            e.response!.statusCode!,
-            message: e.message ?? '',
+            e.httpStatusCode!,
+            message: e.message,
           );
         }
+        rethrow;
       } catch (e) {
         if (mounted) {
           _pickerController.markSemesterHasData(selectSemester!);

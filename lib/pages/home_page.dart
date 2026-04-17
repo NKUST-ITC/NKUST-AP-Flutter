@@ -680,12 +680,12 @@ class HomePageState extends State<HomePage> {
       if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
         await Utils.setBusNotify(context, response.reservations);
       }
-    } on DioException catch (e) {
-      if (e.hasResponse) {
+    } on ApException catch (e) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getBusReservations',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     } catch (e, s) {
@@ -720,13 +720,13 @@ class HomePageState extends State<HomePage> {
             _getUserPicture();
           }
         }
-      } on DioException catch (e) {
+      } on ApException catch (e) {
         _userInfoFetchFailed = true;
-        if (e.hasResponse) {
+        if (e is ServerException && e.httpStatusCode != null) {
           AnalyticsUtil.instance.logApiEvent(
             'getUserInfo',
-            e.response!.statusCode!,
-            message: e.message ?? '',
+            e.httpStatusCode!,
+            message: e.message,
           );
         }
       } catch (e, s) {
@@ -804,6 +804,7 @@ class HomePageState extends State<HomePage> {
         ..showBasicHint(text: ap.loginSuccess);
     } on ApException catch (e) {
       if (isLogin) return;
+      if (e is CancelledException) return;
       // Invalid credentials / account lockout — stop auto-login; user must
       // re-enter password.
       if (e is AuthException &&
@@ -820,15 +821,6 @@ class HomePageState extends State<HomePage> {
         );
         offLineLogin();
       }
-    } on DioException catch (e) {
-      if (isLogin) return;
-      final String text = e.i18nMessage!;
-      _homeKey.currentState!.showSnackBar(
-        text: text,
-        actionText: ap.retry,
-        onSnackBarTapped: _login,
-      );
-      offLineLogin();
     }
   }
 

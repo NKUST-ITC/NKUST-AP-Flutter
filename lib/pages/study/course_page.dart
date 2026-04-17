@@ -122,22 +122,15 @@ class CoursePageState extends State<CoursePage> {
         _getCourseTables();
       }
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on GeneralResponse catch (response) {
-      if (mounted) {
-        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
-      }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -195,38 +188,18 @@ class CoursePageState extends State<CoursePage> {
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);
       }
-      if (await _loadCacheData(selectSemester!.code)) {
+      if (await _loadCacheData(selectSemester!.code) &&
+          e is! CancelledException) {
         setState(() {
           state = CourseState.custom;
           customStateHint = e.toLocalizedMessage(context);
         });
       }
-    } on GeneralResponse catch (generalResponse) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      if (await _loadCacheData(selectSemester!.code)) {
-        setState(() {
-          state = CourseState.custom;
-          customStateHint = generalResponse.getGeneralMessage(context);
-        });
-      }
-    } on DioException catch (e) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      if (await _loadCacheData(selectSemester!.code) &&
-          e.type != DioExceptionType.cancel) {
-        setState(() {
-          state = CourseState.custom;
-          customStateHint = e.i18nMessage;
-        });
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getCourseTables',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

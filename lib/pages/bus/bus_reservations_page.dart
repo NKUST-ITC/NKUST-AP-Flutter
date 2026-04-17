@@ -246,64 +246,42 @@ class BusReservationsPageState extends State<BusReservationsPage>
       );
       busReservationsData?.save(Helper.username);
     } on ApException catch (e) {
-      if (mounted) {
+      if (e is CancelledException) return;
+      if (!mounted) return;
+      // Map specific bus-system HTTP statuses to dedicated states so
+      // users see the right "not supported" hint for campus/account.
+      if (e is ServerException) {
+        switch (e.httpStatusCode) {
+          case 401:
+            setState(() => state = _State.userNotSupport);
+            AnalyticsUtil.instance.setUserProperty(
+              Constants.canUseBus,
+              AnalyticsConstants.no,
+            );
+          case 403:
+            setState(() => state = _State.campusNotSupport);
+            AnalyticsUtil.instance.setUserProperty(
+              Constants.canUseBus,
+              AnalyticsConstants.no,
+            );
+          default:
+            setState(() {
+              state = _State.custom;
+              customStateHint = e.toLocalizedMessage(context);
+            });
+            if (e.httpStatusCode != null) {
+              AnalyticsUtil.instance.logApiEvent(
+                'getBusReservations',
+                e.httpStatusCode!,
+                message: e.message,
+              );
+            }
+        }
+      } else {
         setState(() {
           state = _State.custom;
           customStateHint = e.toLocalizedMessage(context);
         });
-      }
-      _loadCache();
-    } on GeneralResponse catch (response) {
-      if (mounted) {
-        setState(() {
-          state = _State.custom;
-          customStateHint = response.getGeneralMessage(context);
-        });
-      }
-      _loadCache();
-    } on DioException catch (e) {
-      if (mounted) {
-        switch (e.type) {
-          case DioExceptionType.badResponse:
-            setState(() {
-              if (e.response!.statusCode == 401) {
-                state = _State.userNotSupport;
-              } else if (e.response!.statusCode == 403) {
-                state = _State.campusNotSupport;
-              } else {
-                state = _State.custom;
-                customStateHint = e.message;
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusReservations',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            });
-            if (e.response!.statusCode == 401 ||
-                e.response!.statusCode == 403) {
-              AnalyticsUtil.instance.setUserProperty(
-                Constants.canUseBus,
-                AnalyticsConstants.no,
-              );
-            }
-          case DioExceptionType.unknown:
-            setState(() {
-              if (e.message?.contains('HttpException') ?? false) {
-                state = _State.custom;
-                customStateHint = app!.busFailInfinity;
-              } else {
-                state = _State.error;
-              }
-            });
-          case DioExceptionType.cancel:
-            break;
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.i18nMessage;
-            });
-        }
       }
       _loadCache();
     }
@@ -390,22 +368,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
         ),
       );
     } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on GeneralResponse catch (response) {
-      BusReservePageState.handleGeneralError(
-        context,
-        response,
-        app!.busCancelReserveFail,
-      );
-    } on DioException catch (e) {
-      BusReservePageState.handleDioError(
-        context,
-        e,
-        app!.busCancelReserveFail,
-        'cancel_bus',
-      );
     }
   }
 
