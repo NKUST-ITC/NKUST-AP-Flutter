@@ -151,6 +151,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
       ),
     );
     if (result ?? false) {
+      markReloginSuccess();
       return LoginResponse();
     } else {
       throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
