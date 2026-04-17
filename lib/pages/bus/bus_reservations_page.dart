@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -243,6 +245,14 @@ class BusReservationsPageState extends State<BusReservationsPage>
         AnalyticsConstants.yes,
       );
       busReservationsData?.save(Helper.username);
+    } on ApException catch (e) {
+      if (mounted) {
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.toLocalizedMessage(context);
+        });
+      }
+      _loadCache();
     } on GeneralResponse catch (response) {
       if (mounted) {
         setState(() {
@@ -379,6 +389,10 @@ class BusReservationsPageState extends State<BusReservationsPage>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
       );
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       BusReservePageState.handleGeneralError(
         context,

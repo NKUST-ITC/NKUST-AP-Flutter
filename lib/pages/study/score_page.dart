@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class ScorePage extends StatefulWidget {
@@ -95,6 +97,10 @@ class ScorePageState extends State<ScorePage> {
         });
         _getSemesterScore();
       }
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       if (mounted) {
         UiUtil.instance.showToast(context, response.getGeneralMessage(context));
@@ -137,6 +143,17 @@ class ScorePageState extends State<ScorePage> {
             }
           });
         }
+      } on ApException catch (e) {
+        if (mounted) {
+          _pickerController.markSemesterHasData(selectSemester!);
+        }
+        if (await _loadOfflineScoreData()) {
+          setState(() {
+            state = ScoreState.custom;
+            customStateHint = e.toLocalizedMessage(context);
+          });
+        }
+        rethrow;
       } on GeneralResponse catch (generalResponse) {
         if (mounted) {
           _pickerController.markSemesterHasData(selectSemester!);

@@ -1,6 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -344,6 +346,11 @@ class BusReservePageState extends State<BusReservePage>
         Constants.canUseBus,
         AnalyticsConstants.yes,
       );
+    } on ApException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.toLocalizedMessage(context);
+      });
     } on GeneralResponse catch (response) {
       setState(() {
         state = _State.custom;
@@ -546,6 +553,10 @@ class BusReservePageState extends State<BusReservePage>
           },
         ),
       );
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       handleGeneralError(context, response, app!.busReserveFailTitle);
     } on DioException catch (e) {
@@ -612,6 +623,10 @@ class BusReservePageState extends State<BusReservePage>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
       );
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       handleGeneralError(context, response, app!.busCancelReserveFail);
     } on DioException catch (e) {

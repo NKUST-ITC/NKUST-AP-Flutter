@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -244,6 +246,10 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
         });
         _getMidtermAlertsData();
       }
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       if (mounted) {
         UiUtil.instance.showToast(context, response.getGeneralMessage(context));
@@ -287,6 +293,14 @@ class _MidtermAlertsPageState extends State<MidtermAlertsPage> {
           }
         });
       }
+    } on ApException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.toLocalizedMessage(context);
+      });
     } on GeneralResponse catch (response) {
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);

@@ -5,6 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -507,6 +509,12 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         leaveSubmitInfo = data;
         state = _State.finish;
       });
+    } on ApException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.toLocalizedMessage(context);
+      });
+      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
     } on GeneralResponse catch (response) {
       setState(() {
         state = _State.custom;
@@ -717,6 +725,14 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             res?.statusCode == 200 ? ap.leaveSubmitSuccess : '${res?.data}',
       );
       AnalyticsUtil.instance.logEvent('leave_submit_success');
+    } on ApException catch (e) {
+      Navigator.of(context, rootNavigator: true).pop();
+      DialogUtils.showDefault(
+        context: context,
+        title: ap.leaveSubmitFail,
+        content: e.toLocalizedMessage(context),
+      );
+      AnalyticsUtil.instance.logEvent('leave_submit_fail');
     } on GeneralResponse catch (response) {
       Navigator.of(context, rootNavigator: true).pop();
       DialogUtils.showDefault(

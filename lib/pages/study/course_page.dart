@@ -1,6 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class CoursePage extends StatefulWidget {
@@ -119,6 +121,10 @@ class CoursePageState extends State<CoursePage> {
         _loadCacheData(selectSemester!.code);
         _getCourseTables();
       }
+    } on ApException catch (e) {
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     } on GeneralResponse catch (response) {
       if (mounted) {
         UiUtil.instance.showToast(context, response.getGeneralMessage(context));
@@ -184,6 +190,16 @@ class CoursePageState extends State<CoursePage> {
         if (courseData.courses.isNotEmpty) {
           await ApCommonPlugin.updateCourseWidget(courseData);
         }
+      }
+    } on ApException catch (e) {
+      if (mounted) {
+        _pickerController.markSemesterHasData(selectSemester!);
+      }
+      if (await _loadCacheData(selectSemester!.code)) {
+        setState(() {
+          state = CourseState.custom;
+          customStateHint = e.toLocalizedMessage(context);
+        });
       }
     } on GeneralResponse catch (generalResponse) {
       if (mounted) {

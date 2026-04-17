@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/pages/study/room_course_page.dart';
@@ -528,6 +530,11 @@ class RoomListPageState extends State<RoomListPage> {
       setState(() {
         roomData = data;
         state = _State.finish;
+      });
+    } on ApException catch (e) {
+      setState(() {
+        state = _State.custom;
+        customStateHint = e.toLocalizedMessage(context);
       });
     } on GeneralResponse catch (generalResponse) {
       setState(() {

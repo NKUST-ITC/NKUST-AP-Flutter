@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -120,6 +122,11 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       setState(() {
         pdfState = PdfState.finish;
         data = responseData;
+      });
+    } on ApException catch (e) {
+      setState(() {
+        pdfState = PdfState.error;
+        errorMessage = e.toLocalizedMessage(context);
       });
     } on GeneralResponse catch (e) {
       setState(() {
