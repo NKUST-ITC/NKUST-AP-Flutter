@@ -351,7 +351,7 @@ class HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        if (true)
+        if (leaveEnable)
           DrawerMenuSection(
             initiallyExpanded: isLeaveExpanded,
             onExpansionChanged: (bool bool) {
