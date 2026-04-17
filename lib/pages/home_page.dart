@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -57,6 +58,10 @@ class HomePageState extends State<HomePage> {
   UserInfo? userInfo;
   CourseData? courseData;
   BusReservationsData? busReservationsData;
+
+  StreamSubscription<void>? _reloginSub;
+  bool _userInfoFetchFailed = false;
+  bool _userInfoFetchInProgress = false;
 
   String get sectionImage {
     final String department = userInfo?.department ?? '';
@@ -150,11 +155,21 @@ class HomePageState extends State<HomePage> {
       }
       await _checkData(first: true);
     });
+    _reloginSub = Helper.instance.onReloginSuccess.listen((_) {
+      if (!mounted) return;
+      // Only retry when a previous fetch actually failed. The initial
+      // login flow calls `_getUserInfo()` directly, so no retry is needed
+      // just because the stream fired.
+      if (_userInfoFetchFailed) {
+        _getUserInfo();
+      }
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    _reloginSub?.cancel();
     super.dispose();
   }
 
@@ -664,11 +679,17 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _getUserInfo() async {
-    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      userInfo = UserInfo.load(Helper.username!);
-    } else {
+    if (_userInfoFetchInProgress) return;
+    _userInfoFetchInProgress = true;
+    try {
+      if (PreferenceUtil.instance
+          .getBool(Constants.prefIsOfflineLogin, false)) {
+        userInfo = UserInfo.load(Helper.username!);
+        return;
+      }
       try {
         final UserInfo data = await Helper.instance.getUsersInfo();
+        _userInfoFetchFailed = false;
         if (mounted) {
           setState(() {
             userInfo = data;
@@ -685,6 +706,7 @@ class HomePageState extends State<HomePage> {
           }
         }
       } on DioException catch (e) {
+        _userInfoFetchFailed = true;
         if (e.hasResponse) {
           AnalyticsUtil.instance.logApiEvent(
             'getUserInfo',
@@ -693,8 +715,11 @@ class HomePageState extends State<HomePage> {
           );
         }
       } catch (e, s) {
+        _userInfoFetchFailed = true;
         CrashlyticsUtil.instance.recordError(e, s);
       }
+    } finally {
+      _userInfoFetchInProgress = false;
     }
   }
 
