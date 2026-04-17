@@ -121,13 +121,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
       final Response<dynamic> res = await dio.get('');
       return res.data == 'alive';
     } on DioException catch (e) {
-      final bool isTransport = e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout ||
-          e.type == DioExceptionType.sendTimeout ||
-          e.type == DioExceptionType.connectionError ||
-          e.type == DioExceptionType.badCertificate ||
-          e.type == DioExceptionType.unknown;
-      if (isTransport) {
+      if (NetworkException.isTransport(e)) {
         throw NetworkException.from(e);
       }
       // Non-transport DioException (badResponse etc.) indicates the server

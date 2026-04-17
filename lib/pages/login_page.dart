@@ -216,6 +216,9 @@ class LoginPageState extends State<LoginPage> {
           UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
         }
         setState(() => isLoginIng = false);
+        // Offer offline mode on network failure so the user isn't stuck
+        // on a blocked login screen when their connection drops.
+        if (e is NetworkException) _offlineLogin();
       } on DioException catch (e) {
         if (e.i18nMessage != null) {
           UiUtil.instance.showToast(context, e.i18nMessage!);

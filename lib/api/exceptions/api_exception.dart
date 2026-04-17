@@ -105,6 +105,25 @@ final class NetworkException extends ApException {
 
   final DioExceptionType? dioType;
 
+  /// Whether [e] represents a transport-layer failure (no usable response
+  /// was received), as opposed to an HTTP-level error the server
+  /// actually produced. Callers short-circuit with [NetworkException.from]
+  /// on `true` instead of interpreting the failure as e.g. a captcha retry.
+  static bool isTransport(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.connectionError:
+      case DioExceptionType.badCertificate:
+      case DioExceptionType.unknown:
+        return true;
+      case DioExceptionType.badResponse:
+      case DioExceptionType.cancel:
+        return false;
+    }
+  }
+
   @override
   String get typeName => 'NetworkException';
 }

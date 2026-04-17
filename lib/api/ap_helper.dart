@@ -198,9 +198,20 @@ class WebApHelper
       } on ApException {
         // Non-captcha auth / server errors should propagate immediately —
         // retrying with the same credentials would only hammer the login
-        // endpoint. Only captcha/network issues (which land in the generic
-        // catch below) deserve a retry.
+        // endpoint.
         rethrow;
+      } on DioException catch (e) {
+        // Transport-layer failures (no internet, DNS, SSL, timeout)
+        // short-circuit the captcha retry loop — we never got a response,
+        // so another attempt with a fresh captcha is pointless and only
+        // masks the real network problem behind a bogus "captcha error"
+        // message to the user. See GH issue triage: login screen showed
+        // "驗證碼錯誤" when the device was simply offline.
+        if (NetworkException.isTransport(e)) {
+          throw NetworkException.from(e);
+        }
+        CrashlyticsUtil.instance.recordError(e, StackTrace.current);
+        log(e.toString());
       } catch (e, s) {
         CrashlyticsUtil.instance.recordError(e, s);
         log(e.toString());
