@@ -29,8 +29,13 @@ extension ApExceptionL10n on ApException {
       case CaptchaException():
         return ap.captchaError;
       case ServerException():
-        if (self.httpStatusCode == 503) return ap.schoolServerError;
-        if (self.httpStatusCode == 500) return ap.apiServerError;
+        // httpStatusCode is the raw HTTP status when known; statusCode is
+        // the app-internal mapping (ApStatusCode.apiServerError=500,
+        // schoolServerError=503) used when the helper only has a response
+        // code rather than a real HTTP status. They line up numerically,
+        // so fall through to whichever is populated.
+        final int code = self.httpStatusCode ?? self.statusCode;
+        if (code == 500) return ap.apiServerError;
         return ap.schoolServerError;
       case CancelledException():
         return ap.loginFail;

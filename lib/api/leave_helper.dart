@@ -125,6 +125,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout ||
           e.type == DioExceptionType.connectionError ||
+          e.type == DioExceptionType.badCertificate ||
           e.type == DioExceptionType.unknown;
       if (isTransport) {
         throw NetworkException.from(e);
