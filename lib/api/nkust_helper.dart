@@ -134,6 +134,28 @@ class NKUSTHelper {
         }
       } on ApException {
         rethrow;
+      } on SocketException catch (e, s) {
+        // package:http wraps transport errors as SocketException /
+        // HandshakeException; translate immediately so the UI shows
+        // "沒有網路連線" rather than the generic "未知錯誤" that _call
+        // would otherwise wrap this as.
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
+      } on HandshakeException catch (e, s) {
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
+      } on http.ClientException catch (e, s) {
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
       } catch (error) {
         lastError = error;
 

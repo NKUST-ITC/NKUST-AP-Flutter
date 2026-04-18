@@ -383,8 +383,10 @@ class Helper {
   }
 
   Future<Uint8List?> getUserPicture(String pictureUrl) async {
-    final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
-    return provider.getUserPicture(pictureUrl);
+    return _call(() async {
+      final provider = registry.resolve<UserInfoProvider>(selector?.userInfo);
+      return provider.getUserPicture(pictureUrl);
+    });
   }
 
   Future<SemesterData> getSemester() async {

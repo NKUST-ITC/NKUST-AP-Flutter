@@ -200,20 +200,16 @@ class WebApHelper
         // retrying with the same credentials would only hammer the login
         // endpoint.
         rethrow;
-      } on DioException catch (e, s) {
-        // Transport-layer failures (no internet, DNS, SSL, timeout) AND
-        // server error responses (badResponse with 5xx / 4xx) both
-        // short-circuit the captcha retry loop — in neither case would
-        // another captcha attempt help, and masking them as "captcha
-        // failed" misleads the user. Delegate the translation to the
-        // shared DioException extension.
-        if (NetworkException.isTransport(e) ||
-            e.type == DioExceptionType.badResponse) {
-          throw e.toApException();
-        }
-        CrashlyticsUtil.instance.recordError(e, s);
-        log(e.toString());
+      } on DioException catch (e) {
+        // Any DioException — transport failure, server 4xx/5xx, or user
+        // cancellation — terminates the captcha retry loop. Another
+        // attempt with a fresh captcha cannot help when the HTTP layer
+        // itself failed, and retrying a cancelled request would waste
+        // work and produce misleading "captcha error" messages.
+        throw e.toApException();
       } catch (e, s) {
+        // Truly unexpected errors (parser bugs, etc.) are logged and
+        // allowed to trigger another captcha attempt.
         CrashlyticsUtil.instance.recordError(e, s);
         log(e.toString());
       }
