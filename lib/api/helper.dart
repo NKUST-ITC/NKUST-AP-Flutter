@@ -622,28 +622,6 @@ extension NewsExtension on Announcement {
 
 extension DioErrorExtension on DioException {
   bool get hasResponse => type == DioExceptionType.badResponse;
-
-  bool get isExpire => response!.statusCode == ApStatusCode.apiExpire;
-
-  bool get isServerError =>
-      response!.statusCode == ApStatusCode.schoolServerError ||
-      response!.statusCode == ApStatusCode.apiServerError;
-
-  GeneralResponse get serverErrorResponse {
-    switch (response!.statusCode) {
-      case ApStatusCode.apiServerError:
-        return GeneralResponse(
-          statusCode: ApStatusCode.apiServerError,
-          message: 'api server error',
-        );
-      case ApStatusCode.schoolServerError:
-      default:
-        return GeneralResponse(
-          statusCode: ApStatusCode.schoolServerError,
-          message: 'shool server error',
-        );
-    }
-  }
 }
 
 extension GeneralResponseExtension on GeneralResponse {
@@ -654,10 +632,6 @@ extension GeneralResponseExtension on GeneralResponse {
     switch (statusCode) {
       case ApStatusCode.schoolServerError:
         message = ap.schoolServerError;
-      case ApStatusCode.apiServerError:
-        message = ap.schoolServerError;
-      case ApStatusCode.apiExpire:
-        message = ap.tokenExpiredContent;
       case GeneralResponse.platformNotSupportCode:
         message = ap.platformError;
       default:

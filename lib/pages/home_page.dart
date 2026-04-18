@@ -812,8 +812,6 @@ class HomePageState extends State<HomePage> {
         switch (response.statusCode) {
           case ApStatusCode.schoolServerError:
             message = ap.schoolServerError;
-          case ApStatusCode.apiServerError:
-            message = ap.apiServerError;
           case ApStatusCode.unknownError:
           case ApStatusCode.cancel:
             message = ap.loginFail;

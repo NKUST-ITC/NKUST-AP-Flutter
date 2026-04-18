@@ -9,7 +9,5 @@ class ApStatusCode {
   static const int passwordFiveTimesError = 1405;
 
   //Common
-  static const int apiExpire = 401;
-  static const int apiServerError = 500;
   static const int schoolServerError = 503;
 }

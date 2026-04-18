@@ -212,8 +212,6 @@ class LoginPageState extends State<LoginPage> {
         switch (response.statusCode) {
           case ApStatusCode.schoolServerError:
             message = ap.schoolServerError;
-          case ApStatusCode.apiServerError:
-            message = ap.apiServerError;
           case ApStatusCode.userDataError:
             message = ap.loginFail;
           case ApStatusCode.passwordFiveTimesError:
