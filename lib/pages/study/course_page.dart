@@ -187,7 +187,8 @@ class CoursePageState extends State<CoursePage> {
             _pickerController.markSemesterHasData(selectSemester!);
           }
         });
-        if (courseData.courses.isNotEmpty) {
+        if (courseData.courses.isNotEmpty &&
+            selectSemester!.code == semesterData!.defaultSemester.code) {
           await ApCommonPlugin.updateCourseWidget(courseData);
         }
       }
