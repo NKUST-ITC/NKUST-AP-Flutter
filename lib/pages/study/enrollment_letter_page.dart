@@ -135,11 +135,6 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
           errorMessage = e.toLocalizedMessage(context);
         }
       });
-    } catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-        errorMessage = app.loadFailed.replaceAll('%s', e.toString());
-      });
     }
   }
 }

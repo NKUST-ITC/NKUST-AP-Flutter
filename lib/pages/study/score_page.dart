@@ -154,21 +154,6 @@ class ScorePageState extends State<ScorePage> {
           );
         }
         rethrow;
-      } catch (e) {
-        if (mounted) {
-          _pickerController.markSemesterHasData(selectSemester!);
-        }
-        if (await _loadOfflineScoreData()) {
-          if (mounted) {
-            setState(() {
-              state = ScoreState.custom;
-              customStateHint = e.toString();
-            });
-          }
-        } else if (mounted) {
-          setState(() => state = ScoreState.error);
-        }
-        rethrow;
       }
     }
   }
