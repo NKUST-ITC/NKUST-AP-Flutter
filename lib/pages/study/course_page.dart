@@ -147,9 +147,11 @@ class CoursePageState extends State<CoursePage> {
           _apiCourseData = cacheData;
           _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
           courseData = cacheData.mergeCustom(_customCourseData.courses);
-          state = courseData.courses.isEmpty
-              ? CourseState.empty
-              : CourseState.finish;
+          // Any non-null cache (even if courses list is empty) maps to
+          // `finish` so the offline view renders an empty course grid
+          // rather than the `empty` error state which hides the table.
+          // Matches ScorePage's _loadOfflineScoreData behaviour.
+          state = CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
@@ -166,7 +168,12 @@ class CoursePageState extends State<CoursePage> {
       );
       if (mounted) {
         _apiCourseData = data;
-        data.save(selectSemester!.cacheSaveTag);
+        // Only persist non-empty course data so a bad fetch (parser
+        // hiccup / transient empty response) doesn't overwrite a
+        // previously-working offline copy with nothing.
+        if (data.courses.isNotEmpty) {
+          data.save(selectSemester!.cacheSaveTag);
+        }
         _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
         courseData = data.mergeCustom(_customCourseData.courses);
         setState(() {
