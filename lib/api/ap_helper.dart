@@ -319,13 +319,39 @@ class WebApHelper
 
   DateTime? _stdsysLoginExpireTime;
 
+  /// Tracks an in-flight stdsys SSO handshake so concurrent callers
+  /// piggy-back on a single login instead of hammering the portal with
+  /// duplicate requests. Cleared (successfully or otherwise) once the
+  /// handshake returns.
+  Completer<LoginResponse>? _stdsysLoginInFlight;
+
   Future<LoginResponse> loginToStdsys() async {
-    // Skip login if session is still valid.
+    // Fast-path: reuse a still-valid cached session.
     if (_stdsysLoginExpireTime != null &&
         DateTime.now().isBefore(_stdsysLoginExpireTime!)) {
       return LoginResponse(expireTime: _stdsysLoginExpireTime!);
     }
 
+    // Single-flight: if another call is already running the SSO flow,
+    // await the same future. Errors propagate to every waiter.
+    final Completer<LoginResponse>? inFlight = _stdsysLoginInFlight;
+    if (inFlight != null) return inFlight.future;
+
+    final Completer<LoginResponse> completer = Completer<LoginResponse>();
+    _stdsysLoginInFlight = completer;
+    try {
+      final LoginResponse response = await _performStdsysLogin();
+      completer.complete(response);
+      return response;
+    } catch (error, stackTrace) {
+      completer.completeError(error, stackTrace);
+      rethrow;
+    } finally {
+      _stdsysLoginInFlight = null;
+    }
+  }
+
+  Future<LoginResponse> _performStdsysLogin() async {
     // Login stdsys.nkust from webap.
     await checkLogin();
     await apQuery('ag304_01', null);
