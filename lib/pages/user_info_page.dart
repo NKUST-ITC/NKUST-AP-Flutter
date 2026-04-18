@@ -6,10 +6,7 @@ class UserInfoPage extends StatefulWidget {
   static const String routerName = '/userInfo';
   final UserInfo userInfo;
 
-  const UserInfoPage({
-    super.key,
-    required this.userInfo,
-  });
+  const UserInfoPage({super.key, required this.userInfo});
 
   @override
   UserInfoPageState createState() => UserInfoPageState();
@@ -20,8 +17,10 @@ class UserInfoPageState extends State<UserInfoPage> {
 
   @override
   void initState() {
-    AnalyticsUtil.instance
-        .setCurrentScreen('UserInfoPage', 'user_info_page.dart');
+    AnalyticsUtil.instance.setCurrentScreen(
+      'UserInfoPage',
+      'user_info_page.dart',
+    );
     userInfo = widget.userInfo;
     super.initState();
   }
@@ -30,20 +29,21 @@ class UserInfoPageState extends State<UserInfoPage> {
   Widget build(BuildContext context) {
     return UserInfoScaffold(
       userInfo: userInfo,
-      actions: const <Widget>[],
+      onRefresh: _refreshUserInfo,
       enableBarCode: true,
-      onRefresh: () async {
-        final UserInfo? userInfo = await Helper.instance.getUsersInfo();
-        if (userInfo != null) {
-          setState(
-            () => this.userInfo = userInfo.copyWith(
-              pictureBytes: this.userInfo.pictureBytes,
-            ),
-          );
-          AnalyticsUtil.instance.logUserInfo(userInfo);
-        }
-        return null;
-      },
     );
+  }
+
+  Future<UserInfo?> _refreshUserInfo() async {
+    final UserInfo newUserInfo = await Helper.instance.getUsersInfo();
+    if (mounted) {
+      final UserInfo updated = newUserInfo.copyWith(
+        pictureBytes: userInfo.pictureBytes,
+      );
+      setState(() => userInfo = updated);
+      AnalyticsUtil.instance.logUserInfo(newUserInfo);
+      return updated;
+    }
+    return null;
   }
 }

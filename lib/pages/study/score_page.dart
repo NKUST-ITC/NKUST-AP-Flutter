@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class ScorePage extends StatefulWidget {
@@ -95,20 +97,16 @@ class ScorePageState extends State<ScorePage> {
         });
         _getSemesterScore();
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
-        UiUtil.instance
-            .showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -126,6 +124,7 @@ class ScorePageState extends State<ScorePage> {
         );
         if (mounted) {
           setState(() {
+            isOffline = false;
             if (data == null) {
               state = ScoreState.empty;
               _pickerController.markSemesterEmpty(selectSemester!);
@@ -137,34 +136,24 @@ class ScorePageState extends State<ScorePage> {
             }
           });
         }
-      } on GeneralResponse catch (generalResponse) {
+      } on ApException catch (e) {
         if (mounted) {
           _pickerController.markSemesterHasData(selectSemester!);
         }
-        if (await _loadOfflineScoreData()) {
+        if (await _loadOfflineScoreData() && e is! CancelledException) {
           setState(() {
             state = ScoreState.custom;
-            customStateHint = generalResponse.getGeneralMessage(context);
+            customStateHint = e.toLocalizedMessage(context);
           });
         }
-      } on DioException catch (e) {
-        if (mounted) {
-          _pickerController.markSemesterHasData(selectSemester!);
-        }
-        if (await _loadOfflineScoreData() &&
-            e.type != DioExceptionType.cancel) {
-          setState(() {
-            state = ScoreState.custom;
-            customStateHint = e.i18nMessage;
-          });
-        }
-        if (e.hasResponse) {
+        if (e is ServerException && e.httpStatusCode != null) {
           AnalyticsUtil.instance.logApiEvent(
             'getSemesterScore',
-            e.response!.statusCode!,
-            message: e.message ?? '',
+            e.httpStatusCode!,
+            message: e.message,
           );
         }
+        rethrow;
       }
     }
   }

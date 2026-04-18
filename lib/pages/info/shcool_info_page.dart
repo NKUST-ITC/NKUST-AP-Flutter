@@ -5,6 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
@@ -160,15 +162,9 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         if (mounted) {
           setState(() => notificationState = NotificationState.finish);
         }
-      } on GeneralResponse {
-        UiUtil.instance.showToast(context, ap.somethingError);
-        if (mounted && notificationList.isEmpty) {
-          setState(() => notificationState = NotificationState.error);
-        }
-      } on DioException catch (e) {
-        if (e.i18nMessage != null) {
-          UiUtil.instance.showToast(context, e.i18nMessage!);
-        }
+      } on ApException catch (e) {
+        if (e is CancelledException) return;
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
         if (mounted && notificationList.isEmpty) {
           setState(() => notificationState = NotificationState.error);
         }

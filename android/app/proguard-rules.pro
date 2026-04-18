@@ -35,3 +35,7 @@
 -keep class com.dexterous.** { *; }
 
 -dontwarn org.tensorflow.lite.gpu.GpuDelegateFactory$Options
+
+## AndroidX Window Extensions
+-dontwarn androidx.window.extensions.**
+-dontwarn androidx.window.sidecar.**

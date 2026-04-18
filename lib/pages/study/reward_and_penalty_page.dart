@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -251,20 +253,16 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
         });
         _getRewardAndPenaltyData();
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
-        UiUtil.instance
-            .showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -296,27 +294,20 @@ class _RewardAndPenaltyPageState extends State<RewardAndPenaltyPage> {
           }
         });
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);
       }
       setState(() {
         state = _State.custom;
-        customStateHint = response.getGeneralMessage(context);
+        customStateHint = e.toLocalizedMessage(context);
       });
-    } on DioException catch (e) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      setState(() {
-        state = _State.custom;
-        customStateHint = e.i18nMessage;
-      });
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getRewardAndPenalty',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

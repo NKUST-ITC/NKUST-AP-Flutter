@@ -1,7 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/bus/bus_violation_records_page.dart';
@@ -151,10 +151,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             ? AnalyticsConstants.yes
             : AnalyticsConstants.no,
       );
-    } on DioException catch (e) {
-      if (e.hasResponse &&
-          (e.response!.statusCode == 401 ||
-              e.response!.statusCode == 403)) {
+    } on ApException catch (e) {
+      if (e is AccountNotSupportedException ||
+          e is CampusNotSupportedException) {
         AnalyticsUtil.instance.setUserProperty(
           Constants.canUseBus,
           AnalyticsConstants.no,
@@ -165,15 +164,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
     }
   }
 
+  /// Kick off the initial data load. BusHelper auto-logs in lazily on
+  /// the first query, so no explicit login call is needed anymore.
   Future<bool> login() async {
-    if (MobileNkustHelper.instance.cookiesData == null) {
-      try {
-        await WebApHelper.instance.loginVms();
-      } catch (e, s) {
-        CrashlyticsUtil.instance.recordError(e, s);
-        return false;
-      }
-    }
     if (widget.initIndex != 2) getBusViolationRecords();
     return true;
   }

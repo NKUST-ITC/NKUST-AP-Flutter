@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
-import 'package:nkust_ap/api/parser/mobile_nkust_parser.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
@@ -97,8 +96,7 @@ void main() {
   // ─── WebApParser: scoresParser ───────────────────────────────────────
   group('WebApParser.scoresParser', () {
     test('parses scores and detail', () {
-      final String html =
-          File('assets_test/ap/scores.html').readAsStringSync();
+      final String html = File('assets_test/ap/scores.html').readAsStringSync();
       final Map<String, dynamic> result =
           WebApParser.instance.scoresParser(html);
 
@@ -444,15 +442,13 @@ void main() {
       expect(data[0]['leaveSheetId'], 'L001');
       expect(data[0]['date'], '2024/03/15');
       expect(data[0]['instructorsComment'], '已核准');
-      final List<dynamic> sections =
-          data[0]['sections'] as List<dynamic>;
+      final List<dynamic> sections = data[0]['sections'] as List<dynamic>;
       expect(sections.length, 2);
       expect(sections[0]['section'], '1');
       expect(sections[0]['reason'], '事假');
 
       expect(data[1]['leaveSheetId'], 'L002');
-      final List<dynamic> sections2 =
-          data[1]['sections'] as List<dynamic>;
+      final List<dynamic> sections2 = data[1]['sections'] as List<dynamic>;
       expect(sections2.length, 4); // M, 1, 2, 3 are 病假
     });
 
@@ -551,104 +547,6 @@ void main() {
     });
   });
 
-  // ─── MobileNkustParser ──────────────────────────────────────────────
-  group('MobileNkustParser.userInfo', () {
-    test('parses user info from mobile portal', () {
-      final String html =
-          File('assets_test/mobile/user_info.html').readAsStringSync();
-      final UserInfo result = MobileNkustParser.userInfo(html);
-
-      expect(result.id, 'C110355001');
-      expect(result.department, '資訊工程系');
-      expect(result.name, '王小明');
-    });
-
-    test('returns empty UserInfo for missing user-header', () {
-      final UserInfo result =
-          MobileNkustParser.userInfo('<html><body></body></html>');
-      expect(result.id, '');
-    });
-  });
-
-  group('MobileNkustParser.scores', () {
-    test('parses scores from mobile portal', () {
-      final String html =
-          File('assets_test/mobile/scores.html').readAsStringSync();
-      final ScoreData result = MobileNkustParser.scores(html);
-
-      expect(result.scores.length, 2);
-      expect(result.scores[0].title, '程式設計');
-      expect(result.scores[0].units, '3');
-      expect(result.scores[0].middleScore, '88');
-      expect(result.scores[0].semesterScore, '90');
-      expect(result.scores[1].title, '資料結構');
-
-      expect(result.detail.average, 82.3);
-      expect(result.detail.conduct, 85.5);
-      expect(result.detail.classRank, '5/45');
-      expect(result.detail.departmentRank, '12/180');
-    });
-
-    test('returns empty ScoreData for missing datatable', () {
-      final ScoreData result =
-          MobileNkustParser.scores('<html><body></body></html>');
-      expect(result.scores, isEmpty);
-    });
-  });
-
-  group('MobileNkustParser.courseTable', () {
-    test('parses course table from embedded JSON', () {
-      final String html =
-          File('assets_test/mobile/course_table.html').readAsStringSync();
-      final CourseData result = MobileNkustParser.courseTable(html);
-
-      expect(result.courses.length, 2);
-      expect(result.courses[0].code, 'CS101');
-      expect(result.courses[0].title, '程式設計');
-      expect(result.courses[0].className, '資工三甲');
-      expect(result.courses[0].instructors, <String>['王教授']);
-      expect(result.courses[0].location?.room, 'E201');
-
-      // 程式設計: Mon periods 2,3,4
-      expect(result.courses[0].times.length, 3);
-      for (final SectionTime st in result.courses[0].times) {
-        expect(st.weekday, 1); // Monday
-      }
-
-      // 資料結構: Wed periods 2,3,4
-      expect(result.courses[1].times.length, 3);
-      for (final SectionTime st in result.courses[1].times) {
-        expect(st.weekday, 3); // Wednesday
-      }
-
-      // timeCodes: M, 1, 2, 3, 4
-      expect(result.timeCodes.length, 5);
-      expect(result.timeCodes[0].title, '第M節');
-      expect(result.timeCodes[0].startTime, '07:10');
-      expect(result.timeCodes[0].endTime, '08:00');
-    });
-  });
-
-  group('MobileNkustParser.getCSRF', () {
-    test('extracts CSRF token', () {
-      final String html =
-          File('assets_test/mobile/csrf.html').readAsStringSync();
-      final String result = MobileNkustParser.getCSRF(html);
-      expect(result, 'CfDJ8ABC123XYZ789');
-    });
-
-    test('returns empty string when token not found', () {
-      final String result =
-          MobileNkustParser.getCSRF('<html><body></body></html>');
-      expect(result, '');
-    });
-  });
-
-  group('MobileNkustParser.midtermAlerts', () {
-    test('returns empty list (not yet implemented)', () {
-      final MidtermAlertsData result =
-          MobileNkustParser.midtermAlerts('<html></html>');
-      expect(result.courses, isEmpty);
-    });
-  });
+  // MobileNkustParser tests removed along with the mobile crawler
+  // implementation (#301).
 }

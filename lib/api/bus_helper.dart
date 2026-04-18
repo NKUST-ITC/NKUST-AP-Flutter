@@ -6,8 +6,12 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:crypto/crypto.dart';
 import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/api_config.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
+import 'package:nkust_ap/api/capability/bus_provider.dart';
+import 'package:nkust_ap/api/relogin_mixin.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
@@ -116,7 +120,7 @@ class BusEncrypt {
   }
 }
 
-class BusHelper {
+class BusHelper with ReloginMixin implements BusProvider {
   BusHelper() {
     dioInit();
   }
@@ -125,8 +129,8 @@ class BusHelper {
   static BusHelper? _instance;
   late CookieJar cookieJar;
 
-  static int reLoginReTryCountsLimit = 5;
-  static int reLoginReTryCounts = 0;
+  @override
+  int get maxRelogins => 5;
 
   bool isLogin = false;
 
@@ -139,33 +143,13 @@ class BusHelper {
   }
 
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final HttpClient client = HttpClient();
-      client.findProxy = (Uri uri) {
-        return 'PROXY $proxyIP';
-      };
-      return client;
-    };
+    ApiConfig.setProxy(dio, proxyIP);
   }
 
   void dioInit() {
-    // Use PrivateCookieManager to overwrite origin CookieManager, because
-    // Cookie name of the NKUST ap system not follow the RFC6265. :(
-    dio = Dio();
-    cookieJar = CookieJar();
-    dio.interceptors.add(PrivateCookieManager(cookieJar));
-    dio.options.headers['user-agent'] =
-        'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
-    dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
-    );
-    dio.options.receiveTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
-    );
-    if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
-      dio.httpClientAdapter = NativeAdapter();
-    }
+    final (:dio, :cookieJar) = ApiConfig.createScraperDio();
+    this.dio = dio;
+    this.cookieJar = cookieJar;
   }
 
   Future<void> loginPrepare() async {
@@ -177,24 +161,23 @@ class BusHelper {
     busEncryptObject = BusEncrypt(jsCode: res.data!);
   }
 
-  Future<Map<String, dynamic>?> busLogin() async {
-    /*
-    Return type Map<String, dynamic>(from Json)
-    response data (from NKUST)
-    {
-      'success': true,
-      'code': 200,
-      'message': 'User Name',
-      'count': 1,
-      'data': {}
-    }
-    Code:
-    200: Login success.
-    400: Wrong campus or not found user.
-    302: Wrong password.
-    */
+  /// Logs in to the bus (vms) system.
+  ///
+  /// Throws:
+  /// - [AuthException] with [AuthFailureReason.invalidCredentials] on code 302.
+  /// - [AuthException] with [AuthFailureReason.wrongCampus] on code 400.
+  /// - [ServerException] on any other non-success code.
+  /// - [StateError] if username or password is not configured in [Helper].
+  ///
+  /// NKUST response codes:
+  /// - 200: Login success
+  /// - 302: Wrong password
+  /// - 400: Wrong campus or user not found
+  Future<Map<String, dynamic>> busLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError(
+        'BusHelper.busLogin: Helper.username/password not configured',
+      );
     }
 
     await loginPrepare();
@@ -213,24 +196,57 @@ class BusHelper {
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
-    if (res.data!['code'] == 200 && res.data!['success'] == true) {
+    final Map<String, dynamic>? data = res.data;
+    final int? code = data?['code'] as int?;
+    final bool success = data?['success'] == true;
+
+    if (code == 200 && success) {
       isLogin = true;
+      markReloginSuccess();
+      return data!;
     }
-    return res.data;
+
+    switch (code) {
+      case 302:
+        throw AuthException(
+          AuthFailureReason.invalidCredentials,
+          message: 'bus login: wrong password',
+        );
+      case 400:
+        throw AuthException(
+          AuthFailureReason.wrongCampus,
+          message: 'bus login: wrong campus or user not found',
+        );
+      default:
+        throw ServerException(
+          httpStatusCode: res.statusCode,
+          message: 'bus login: unexpected response code: $code',
+        );
+    }
   }
+
+  /// Checks if a Bus API response indicates an expired session.
+  static bool _isBusSessionExpired(Object error) =>
+      error is BusSessionExpiredException;
 
   Future<BusData> timeTableQuery({
     required String year,
     required String month,
     required String day,
   }) async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
+    return withAutoRelogin(
+      action: () => _doTimeTableQuery(year: year, month: month, day: day),
+      relogin: () async { await busLogin(); },
+      isSessionExpired: _isBusSessionExpired,
+    );
+  }
 
-    if (!isLogin) {
-      await busLogin();
-    }
+  Future<BusData> _doTimeTableQuery({
+    required String year,
+    required String month,
+    required String day,
+  }) async {
+    if (!isLogin) await busLogin();
 
     final Future<BusReservationsData> userRecord = busReservations();
 
@@ -251,130 +267,138 @@ class BusHelper {
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
-    if (res.data!['code'] == 400 &&
-        (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      reLoginReTryCounts += 1;
-      await busLogin();
-      return timeTableQuery(year: year, month: month, day: day);
-    }
-    reLoginReTryCounts = 0;
+    _checkBusSessionExpired(res.data!);
     return BusData.fromJson(
       busTimeTableParser(res.data!, busReservations: await userRecord),
     );
   }
 
   Future<BookingBusData> busBook({required String busId}) async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
+    return withAutoRelogin(
+      action: () async {
+        if (!isLogin) await busLogin();
 
-    if (!isLogin) {
-      await busLogin();
-    }
+        final Response<Map<String, dynamic>> res =
+            await dio.post<Map<String, dynamic>>(
+          '${busHost}API/Reserves/add',
+          data: <String, dynamic>{
+            'busId': int.parse(busId),
+          },
+        );
 
-    final Response<Map<String, dynamic>> res =
-        await dio.post<Map<String, dynamic>>(
-      '${busHost}API/Reserves/add',
-      data: <String, dynamic>{
-        'busId': int.parse(busId),
+        _checkBusSessionExpired(res.data!);
+        return BookingBusData.fromJson(res.data!);
       },
+      relogin: () async { await busLogin(); },
+      isSessionExpired: _isBusSessionExpired,
     );
-
-    if (res.data!['code'] == 400 &&
-        (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      reLoginReTryCounts += 1;
-      await busLogin();
-      return busBook(busId: busId);
-    }
-    return BookingBusData.fromJson(res.data!);
   }
 
   Future<CancelBusData> busUnBook({required String busId}) async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
+    return withAutoRelogin(
+      action: () async {
+        if (!isLogin) await busLogin();
 
-    if (!isLogin) {
-      await busLogin();
-    }
-    final Response<Map<String, dynamic>> res =
-        await dio.post<Map<String, dynamic>>(
-      '${busHost}API/Reserves/remove',
-      data: <String, dynamic>{
-        'reserveId': int.parse(busId),
+        final Response<Map<String, dynamic>> res =
+            await dio.post<Map<String, dynamic>>(
+          '${busHost}API/Reserves/remove',
+          data: <String, dynamic>{
+            'reserveId': int.parse(busId),
+          },
+        );
+
+        _checkBusSessionExpired(res.data!);
+        return CancelBusData.fromJson(res.data!);
       },
+      relogin: () async { await busLogin(); },
+      isSessionExpired: _isBusSessionExpired,
     );
-
-    if (res.data!['code'] == 400 &&
-        (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      reLoginReTryCounts += 1;
-      await busLogin();
-      return busUnBook(busId: busId);
-    }
-    return CancelBusData.fromJson(res.data!);
   }
 
   Future<BusReservationsData> busReservations() async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
+    return withAutoRelogin(
+      action: () async {
+        if (!isLogin) await busLogin();
 
-    if (!isLogin) {
-      await busLogin();
-    }
+        final Response<Map<String, dynamic>> res =
+            await dio.post<Map<String, dynamic>>(
+          '${busHost}API/Reserves/getOwn',
+          data: <String, dynamic>{
+            'page': 1,
+            'start': 0,
+            'limit': 90,
+          },
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
 
-    final Response<Map<String, dynamic>> res =
-        await dio.post<Map<String, dynamic>>(
-      '${busHost}API/Reserves/getOwn',
-      data: <String, dynamic>{
-        'page': 1,
-        'start': 0,
-        'limit': 90,
+        _checkBusSessionExpired(res.data!);
+        return BusReservationsData.fromJson(
+          busReservationsParser(res.data!),
+        );
       },
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
-
-    if (res.data!['code'] == 400 &&
-        (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      reLoginReTryCounts += 1;
-      await busLogin();
-      return busReservations();
-    }
-    reLoginReTryCounts = 0;
-    return BusReservationsData.fromJson(
-      busReservationsParser(res.data!),
+      relogin: () async { await busLogin(); },
+      isSessionExpired: _isBusSessionExpired,
     );
   }
 
   Future<BusViolationRecordsData> busViolationRecords() async {
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
-    }
+    return withAutoRelogin(
+      action: () async {
+        if (!isLogin) await busLogin();
 
-    if (!isLogin) {
-      await busLogin();
-    }
+        final Response<Map<String, dynamic>> res =
+            await dio.post<Map<String, dynamic>>(
+          '${busHost}API/Illegals/getOwn',
+          data: <String, int>{
+            'page': 1,
+            'start': 0,
+            'limit': 200,
+          },
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        );
 
-    final Response<Map<String, dynamic>> res =
-        await dio.post<Map<String, dynamic>>(
-      '${busHost}API/Illegals/getOwn',
-      data: <String, int>{
-        'page': 1,
-        'start': 0,
-        'limit': 200,
+        _checkBusSessionExpired(res.data!);
+        return BusViolationRecordsData.fromJson(
+          busViolationRecordsParser(res.data!),
+        );
       },
-      options: Options(contentType: Headers.formUrlEncodedContentType),
-    );
-
-    if (res.data!['code'] == 400 &&
-        (res.data!['message'] as String).contains('未登入或是登入逾')) {
-      reLoginReTryCounts += 1;
-      await busLogin();
-      return busViolationRecords();
-    }
-    reLoginReTryCounts = 0;
-    return BusViolationRecordsData.fromJson(
-      busViolationRecordsParser(res.data!),
+      relogin: () async { await busLogin(); },
+      isSessionExpired: _isBusSessionExpired,
     );
   }
+
+  /// Throws [BusSessionExpiredException] if the server response indicates
+  /// an expired session.
+  void _checkBusSessionExpired(Map<String, dynamic> data) {
+    if (data['code'] == 400 &&
+        (data['message'] as String).contains('未登入或是登入逾')) {
+      isLogin = false;
+      throw BusSessionExpiredException(data['message'] as String);
+    }
+  }
+
+  // -- BusProvider interface implementations --
+
+  @override
+  Future<BusData> getTimeTable({required DateTime dateTime}) =>
+      timeTableQuery(
+        year: '${dateTime.year}',
+        month: '${dateTime.month}',
+        day: '${dateTime.day}',
+      );
+
+  @override
+  Future<BookingBusData> bookBus({required String busId}) =>
+      busBook(busId: busId);
+
+  @override
+  Future<CancelBusData> cancelBus({required String busId}) =>
+      busUnBook(busId: busId);
+
+  @override
+  Future<BusReservationsData> getReservations() => busReservations();
+
+  @override
+  Future<BusViolationRecordsData> getViolationRecords() =>
+      busViolationRecords();
 }

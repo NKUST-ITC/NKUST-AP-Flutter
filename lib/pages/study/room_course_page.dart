@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/room_data.dart';
@@ -47,8 +49,7 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
   @override
   Widget build(BuildContext context) {
     return CourseScaffold(
-      title:
-          '${context.ap.classroomCourseTableSearch} - ${widget.room.name}',
+      title: '${context.ap.classroomCourseTableSearch} - ${widget.room.name}',
       state: state,
       courseData: courseData,
       customStateHint: customStateHint,
@@ -93,20 +94,16 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
         });
         _getRoomCourseTable();
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
-        UiUtil.instance
-            .showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -130,27 +127,20 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
           }
         });
       }
-    } on GeneralResponse catch (generalResponse) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);
         setState(() {
           state = CourseState.custom;
-          customStateHint = generalResponse.getGeneralMessage(context);
+          customStateHint = e.toLocalizedMessage(context);
         });
       }
-    } on DioException catch (e) {
-      if (e.type != DioExceptionType.cancel && mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-        setState(() {
-          state = CourseState.custom;
-          customStateHint = e.i18nMessage;
-        });
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getRoomCourseTables',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

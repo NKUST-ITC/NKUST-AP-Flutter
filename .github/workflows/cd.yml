@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 env:
-  flutter_version: '3.38.x'
+  flutter_version: '3.41.x'
   java_version: '21'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -162,7 +162,6 @@ jobs:
     name: macOS Deploy TestFlight
     needs: prepare
     runs-on: self-hosted
-    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -177,10 +176,21 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
-      - name: Download aggregated changelog
-        uses: actions/download-artifact@v4
+      - name: Import Mac Installer Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
         with:
-          name: changelog-aggregated
+          p12-file-base64: ${{ secrets.MAC_INSTALLER_CERT_BASE64 }}
+          p12-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
+          keychain: mac-installer-signing
+          keychain-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
+      - name: Verify Installer Distribution identity is available
+        run: |
+          if ! security find-identity -v | grep -q "3rd Party Mac Developer Installer"; then
+            echo "::error::3rd Party Mac Developer Installer identity not found in any keychain after import. Verify MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD secrets contain a valid Installer Distribution .p12."
+            security find-identity -v || true
+            exit 1
+          fi
+          security find-identity -v | grep "3rd Party Mac Developer Installer"
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane

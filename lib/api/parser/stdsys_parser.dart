@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 class StdsysParser {
   static StdsysParser? _instance;
@@ -11,42 +12,6 @@ class StdsysParser {
   // ignore: prefer_constructors_over_static_methods
   static StdsysParser get instance {
     return _instance ??= StdsysParser();
-  }
-
-  String clearTransEncoding(List<int> htmlBytes) {
-    // htmlBytes is fixed-length list, need copy.
-    final List<int> tempData = List<int>.from(htmlBytes);
-
-    //Add /r/n on first word.
-    tempData.insert(0, 10);
-    tempData.insert(0, 13);
-
-    int startIndex = 0;
-    for (int i = 0; i < tempData.length - 1; i++) {
-      //check i and i+1 is /r/n
-      if (tempData[i] == 13 && tempData[i + 1] == 10) {
-        if (i - startIndex - 2 <= 4 && i - startIndex - 2 > 0) {
-          //check in this range word is number or A~F (Hex)
-          int removeCount = 0;
-          for (int strIndex = startIndex + 2; strIndex < i; strIndex++) {
-            if ((tempData[strIndex] > 47 && tempData[strIndex] < 58) ||
-                (tempData[strIndex] > 64 && tempData[strIndex] < 71) ||
-                (tempData[strIndex] > 96 && tempData[strIndex] < 103)) {
-              removeCount++;
-            }
-          }
-          if (removeCount == i - startIndex - 2) {
-            tempData.removeRange(startIndex, i + 2);
-          }
-          //Subtract offset
-          i -= i - startIndex - 2;
-          startIndex -= i - startIndex - 2;
-        }
-        startIndex = i;
-      }
-    }
-
-    return utf8.decode(tempData, allowMalformed: true);
   }
 
   Map<String, dynamic> roomListParser(String? jsonString) {
@@ -93,19 +58,39 @@ class StdsysParser {
 
     // 節次對應 index
     final List<String> timeKeys = [
-      'M', '1', '2', '3', '4', 'A', '5', '6', '7', '8', '9', '10', '11', '12', '13'
+      'M',
+      '1',
+      '2',
+      '3',
+      '4',
+      'A',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13'
     ];
 
     // 星期對應
     final Map<String, int> weekdayMap = {
-      '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7
+      '一': 1,
+      '二': 2,
+      '三': 3,
+      '四': 4,
+      '五': 5,
+      '六': 6,
+      '日': 7
     };
 
     for (final Element row in rows) {
       final List<Element> cells = row.querySelectorAll('td');
-      
+
       // 忽略最後一列「總學分數」
-      if (cells.length < 9) continue; 
+      if (cells.length < 9) continue;
 
       final String code = cells[0].text.trim();
       final String title = cells[1].text.trim();
@@ -132,7 +117,8 @@ class StdsysParser {
       // 上課時間
       final List<Map<String, int>> sectionTimes = [];
 
-      final RegExp exp = RegExp(r'\((一|二|三|四|五|六|日)\)([A-Z0-9]+(?:-[A-Z0-9]+)?)');
+      final RegExp exp =
+          RegExp(r'\((一|二|三|四|五|六|日)\)([A-Z0-9]+(?:-[A-Z0-9]+)?)');
       final Iterable<RegExpMatch> matches = exp.allMatches(timeStr);
 
       for (final RegExpMatch match in matches) {
@@ -145,7 +131,7 @@ class StdsysParser {
           final List<String> parts = periods.split('-');
           final int startIdx = timeKeys.indexOf(parts[0]);
           final int endIdx = timeKeys.indexOf(parts[1]);
-          
+
           if (startIdx != -1 && endIdx != -1) {
             for (int i = startIdx; i <= endIdx; i++) {
               sectionTimes.add({'weekday': weekday, 'index': i});
@@ -170,10 +156,7 @@ class StdsysParser {
         'required': required,
         'at': '',
         'sectionTimes': sectionTimes,
-        'location': {
-          'building': '',
-          'room': room
-        },
+        'location': {'building': '', 'room': room},
         'instructors': instructors,
       });
     }
@@ -467,11 +450,12 @@ class StdsysParser {
     );
   }
 
-  Map<String, dynamic> semesterParser(String? rawJson){
-    final Map<String, dynamic> apiData = json.decode(rawJson!) as Map<String, dynamic>;
+  Map<String, dynamic> semesterParser(String? rawJson) {
+    final Map<String, dynamic> apiData =
+        json.decode(rawJson!) as Map<String, dynamic>;
     final List<dynamic> result = (apiData['result'] as List<dynamic>?) ?? [];
-    
-     final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
+
+    final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
       final String text = item['text'].toString();
       final String value = item['value'].toString();
       final List<String> parts = value.split('-');
@@ -485,7 +469,8 @@ class StdsysParser {
       };
     }).toList();
 
-    final Map<String, dynamic>? defaultSemester = semesters.isNotEmpty ? semesters.first : null;
+    final Map<String, dynamic>? defaultSemester =
+        semesters.isNotEmpty ? semesters.first : null;
 
     final Map<String, dynamic> semesterDataJson = {
       'data': semesters,
@@ -494,5 +479,71 @@ class StdsysParser {
     };
 
     return semesterDataJson;
+  }
+
+  Map<String, dynamic> scoresParser(String rawstr) {
+    final List<String> lines = rawstr
+        .split('\n')
+        .map((String e) => e.trim())
+        .where((String e) => e.isNotEmpty)
+        .toList();
+
+    final List<Map<String, dynamic>> scores = <Map<String, dynamic>>[];
+    final Map<String, dynamic> detail = <String, dynamic>{
+      'conduct': 0.0,
+      'classRank': '',
+      'departmentRank': '',
+      'average': 0.0,
+    };
+
+    int beginLine = 14;
+
+    for (int i = 0; i < lines.length - 1; i++) {
+      final String line = lines[i];
+
+      if (line.contains('課程名稱')) {
+        beginLine = i + 4;
+      } else if (line.contains('操行成績：')) {
+        detail['conduct'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      } else if (line.contains('班 排 名：')) {
+        final RegExpMatch? match =
+            RegExp(r'班\s*排\s*名：\s*(\d+)\s*/\s*(\d+)').firstMatch(line);
+        detail['classRank'] =
+            match != null ? '${match.group(1)}/${match.group(2)}' : '';
+      } else if (line.contains('學業成績：')) {
+        detail['average'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      }
+    }
+
+    for (int i = beginLine; i + 3 < lines.length; i = i + 4) {
+      final Map<String, dynamic> score = <String, dynamic>{
+        'title': '',
+        'units': '',
+        'hours': '',
+        'required': '',
+        'at': '',
+        'middleScore': '',
+        'semesterScore': '',
+        'remark': '',
+      };
+
+      if (lines[i].contains('-----')) {
+        break;
+      }
+
+      score['title'] = lines[i];
+      score['required'] = lines[i + 1];
+      score['units'] = lines[i + 2];
+      score['semesterScore'] = lines[i + 3];
+
+      scores.add(score);
+    }
+
+    final Map<String, dynamic> data = <String, dynamic>{
+      'scores': scores,
+      'detail': detail,
+    };
+
+    return data;
   }
 }

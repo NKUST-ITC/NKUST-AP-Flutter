@@ -8,18 +8,22 @@ part of 'crawler_selector.dart';
 
 CrawlerSelector _$CrawlerSelectorFromJson(Map<String, dynamic> json) =>
     CrawlerSelector(
-      login: json['login'] as String,
-      userInfo: json['user_info'] as String,
-      course: json['course'] as String,
-      score: json['score'] as String,
-      semester: json['semester'] as String,
+      login: ScraperSource.fromString(json['login'] as String),
+      userInfo: ScraperSource.fromString(json['user_info'] as String),
+      course: ScraperSource.fromString(json['course'] as String),
+      score: ScraperSource.fromString(json['score'] as String),
+      semester: ScraperSource.fromString(json['semester'] as String),
+      leave: json['leave'] == null
+          ? ScraperSource.stdsys
+          : CrawlerSelector._leaveFromJson(json['leave']),
     );
 
 Map<String, dynamic> _$CrawlerSelectorToJson(CrawlerSelector instance) =>
     <String, dynamic>{
-      'login': instance.login,
-      'user_info': instance.userInfo,
-      'course': instance.course,
-      'score': instance.score,
-      'semester': instance.semester,
+      'login': CrawlerSelector._sourceToString(instance.login),
+      'user_info': CrawlerSelector._sourceToString(instance.userInfo),
+      'course': CrawlerSelector._sourceToString(instance.course),
+      'score': CrawlerSelector._sourceToString(instance.score),
+      'semester': CrawlerSelector._sourceToString(instance.semester),
+      'leave': CrawlerSelector._sourceToString(instance.leave),
     };
