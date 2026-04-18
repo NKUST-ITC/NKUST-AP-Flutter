@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
@@ -21,13 +20,11 @@ import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
-import 'package:nkust_ap/models/library_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/models/reward_and_penalty_data.dart';
 import 'package:nkust_ap/models/room_data.dart';
-import 'package:nkust_ap/models/server_info_data.dart';
 import 'package:nkust_ap/api/capability/bus_provider.dart';
 import 'package:nkust_ap/api/capability/course_provider.dart';
 import 'package:nkust_ap/api/capability/leave_provider.dart';
@@ -229,122 +226,6 @@ class Helper {
       );
     }
     return loginResponse;
-  }
-
-  Future<LoginResponse> adminLogin(String username, String password) async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.post<Map<String, dynamic>>(
-        '/oauth/admin/token',
-        data: <String, String>{
-          'username': username,
-          'password': password,
-        },
-      );
-      final LoginResponse loginResponse =
-          LoginResponse.fromJson(response.data!);
-      options.headers = _createBearerTokenAuth(loginResponse.token);
-      expireTime = loginResponse.expireTime;
-      Helper.username = username;
-      Helper.password = password;
-      return loginResponse;
-    } catch (dioError) {
-      rethrow;
-    }
-  }
-
-  Future<Response<dynamic>> deleteToken() async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/oauth/token',
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  Future<Response<dynamic>> deleteAllToken() async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/oauth/token/all',
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  Future<ServerInfoData> getServerInfoData() async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.get<Map<String, dynamic>>('​/server​/info');
-      return ServerInfoData.fromJson(response.data!);
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  Future<List<Announcement>> getAllAnnouncements({
-    String? locale,
-  }) async {
-    final Response<Map<String, dynamic>> response =
-        await dio.get<Map<String, dynamic>>(
-      '/news/announcements/all',
-      queryParameters: <String, String>{
-        'lang': locale ?? '',
-      },
-    );
-    AnnouncementData data = AnnouncementData(
-      data: <Announcement>[],
-    );
-    if (response.statusCode != 204) {
-      data = AnnouncementData.fromJson(response.data!);
-      data.data.sort((Announcement a, Announcement b) {
-        return b.weight.compareTo(a.weight);
-      });
-    }
-    return data.data;
-  }
-
-  Future<Response<dynamic>> addAnnouncement(Announcement announcements) async {
-    try {
-      final Response<dynamic> response = await dio.post(
-        '/news/announcements/add',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  Future<Response<dynamic>> updateAnnouncement(
-    Announcement announcements,
-  ) async {
-    try {
-      final Response<dynamic> response = await dio.put(
-        '/news/announcements/update/${announcements.id}',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  Future<Response<dynamic>> deleteAnnouncement(
-    Announcement announcements,
-  ) async {
-    try {
-      final Response<dynamic> response = await dio.delete(
-        '/news/announcements/remove/${announcements.id}',
-        data: announcements.toUpdateJson(),
-      );
-      return response;
-    } on DioException {
-      rethrow;
-    }
   }
 
   Future<UserInfo> getUsersInfo() async {
@@ -675,30 +556,6 @@ class Helper {
     });
   }
 
-  Future<LibraryInfo?> getLibraryInfo() async {
-    try {
-      final Response<Map<String, dynamic>> response =
-          await dio.get<Map<String, dynamic>>(
-        '/leaves/submit/info',
-        cancelToken: cancelToken,
-      );
-      if (response.statusCode == 204) {
-        return null;
-      } else {
-        return LibraryInfoData.fromJson(response.data!).data;
-      }
-    } on DioException {
-      rethrow;
-    }
-  }
-
-  // v3 api Authorization
-  Map<String, dynamic> _createBearerTokenAuth(String? token) {
-    return <String, String>{
-      'Authorization': 'Bearer $token',
-    };
-  }
-
   static Future<void> clearSetting() async {
     instance._sessionState = const Unauthenticated();
     expireTime = null;
@@ -712,17 +569,6 @@ class Helper {
       await callback();
     }
   }
-}
-
-extension NewsExtension on Announcement {
-  Map<String, dynamic> toUpdateJson() => <String, dynamic>{
-        'title': title,
-        'weight': weight,
-        'imgUrl': imgUrl,
-        'url': url,
-        'description': description,
-        'expireTime': expireTime,
-      };
 }
 
 extension DioErrorExtension on DioException {
