@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -8,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 //TODO confirm this rule
 //ignore_for_file: unreachable_from_main
@@ -20,42 +20,6 @@ class WebApParser {
   // ignore: prefer_constructors_over_static_methods
   static WebApParser get instance {
     return _instance ??= WebApParser();
-  }
-
-  String clearTransEncoding(List<int> htmlBytes) {
-    // htmlBytes is fixed-length list, need copy.
-    final List<int> tempData = List<int>.from(htmlBytes);
-
-    //Add /r/n on first word.
-    tempData.insert(0, 10);
-    tempData.insert(0, 13);
-
-    int startIndex = 0;
-    for (int i = 0; i < tempData.length - 1; i++) {
-      //check i and i+1 is /r/n
-      if (tempData[i] == 13 && tempData[i + 1] == 10) {
-        if (i - startIndex - 2 <= 4 && i - startIndex - 2 > 0) {
-          //check in this range word is number or A~F (Hex)
-          int removeCount = 0;
-          for (int strIndex = startIndex + 2; strIndex < i; strIndex++) {
-            if ((tempData[strIndex] > 47 && tempData[strIndex] < 58) ||
-                (tempData[strIndex] > 64 && tempData[strIndex] < 71) ||
-                (tempData[strIndex] > 96 && tempData[strIndex] < 103)) {
-              removeCount++;
-            }
-          }
-          if (removeCount == i - startIndex - 2) {
-            tempData.removeRange(startIndex, i + 2);
-          }
-          //Subtract offset
-          i -= i - startIndex - 2;
-          startIndex -= i - startIndex - 2;
-        }
-        startIndex = i;
-      }
-    }
-
-    return utf8.decode(tempData, allowMalformed: true);
   }
 
   int apLoginParser(dynamic html) {
