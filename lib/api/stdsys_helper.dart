@@ -110,6 +110,8 @@ class StdsysHelper
     String? years,
     String? semesterValue,
   ) async {
+    await _webApHelper.loginToStdsys();
+
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
