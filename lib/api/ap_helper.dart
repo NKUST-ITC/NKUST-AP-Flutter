@@ -200,17 +200,18 @@ class WebApHelper
         // retrying with the same credentials would only hammer the login
         // endpoint.
         rethrow;
-      } on DioException catch (e) {
-        // Transport-layer failures (no internet, DNS, SSL, timeout)
-        // short-circuit the captcha retry loop — we never got a response,
-        // so another attempt with a fresh captcha is pointless and only
-        // masks the real network problem behind a bogus "captcha error"
-        // message to the user. See GH issue triage: login screen showed
-        // "驗證碼錯誤" when the device was simply offline.
-        if (NetworkException.isTransport(e)) {
-          throw NetworkException.from(e);
+      } on DioException catch (e, s) {
+        // Transport-layer failures (no internet, DNS, SSL, timeout) AND
+        // server error responses (badResponse with 5xx / 4xx) both
+        // short-circuit the captcha retry loop — in neither case would
+        // another captcha attempt help, and masking them as "captcha
+        // failed" misleads the user. Delegate the translation to the
+        // shared DioException extension.
+        if (NetworkException.isTransport(e) ||
+            e.type == DioExceptionType.badResponse) {
+          throw e.toApException();
         }
-        CrashlyticsUtil.instance.recordError(e, StackTrace.current);
+        CrashlyticsUtil.instance.recordError(e, s);
         log(e.toString());
       } catch (e, s) {
         CrashlyticsUtil.instance.recordError(e, s);

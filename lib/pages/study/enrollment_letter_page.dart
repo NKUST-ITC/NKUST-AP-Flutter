@@ -96,7 +96,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final Response<Uint8List> response =
-          await StdsysHelper.instance.getEnrollmentLetter(selectedLang);
+          await Helper.instance.getEnrollmentLetter(selectedLang);
       final responseData = response.data;
       if (responseData == null || responseData.isEmpty) {
         setState(() {

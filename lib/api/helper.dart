@@ -588,6 +588,18 @@ class Helper {
     });
   }
 
+  Future<UserInfo> searchUsername({
+    required String rocId,
+    required DateTime birthday,
+  }) async {
+    return _call(() async {
+      return NKUSTHelper.instance.getUsername(
+        rocId: rocId,
+        birthday: birthday,
+      );
+    });
+  }
+
   Future<LeaveData> getLeaves({
     required Semester semester,
   }) async {
@@ -597,6 +609,14 @@ class Helper {
         year: semester.year,
         semester: semester.value,
       );
+    });
+  }
+
+  Future<Response<Uint8List>> getEnrollmentLetter(
+    EnrollmentLetterLang lang,
+  ) async {
+    return _call(() async {
+      return StdsysHelper.instance.getEnrollmentLetter(lang);
     });
   }
 
