@@ -215,6 +215,22 @@ final class PlatformUnsupportedException extends ApException {
   String get typeName => 'PlatformUnsupportedException';
 }
 
+/// Catch-all for unexpected errors that aren't one of the modelled
+/// failure modes above — typically programmer bugs (TypeError,
+/// FormatException, StateError, plugin failures). Produced by
+/// `Helper._call` so UI layers can still rely on `on ApException catch`
+/// while the original exception is recorded to Crashlytics via [cause].
+final class UnknownException extends ApException {
+  const UnknownException({
+    super.message = 'unexpected error',
+    super.cause,
+    super.causeStackTrace,
+  }) : super(statusCode: ApStatusCode.unknownError);
+
+  @override
+  String get typeName => 'UnknownException';
+}
+
 /// Translates the transport / HTTP failure captured by Dio into the
 /// appropriate [ApException] subtype so callers can use a single
 /// `on ApException catch` clause instead of handling DioException

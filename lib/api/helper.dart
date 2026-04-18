@@ -406,10 +406,17 @@ class Helper {
     });
   }
 
-  /// Runs a crawler-facing operation and normalises any raw [DioException]
-  /// that escapes into the appropriate [ApException] subtype, so UI layers
-  /// only need `on ApException catch` instead of handling DioException
-  /// separately. Helpers that already throw [ApException] are untouched.
+  /// Runs a crawler-facing operation and normalises every escaping
+  /// exception into an [ApException] subtype:
+  ///
+  /// - [ApException] → rethrown as-is.
+  /// - [DioException] → translated to the matching subtype (network /
+  ///   server / cancelled) via [DioExceptionToApException].
+  /// - Anything else (TypeError, FormatException, StateError, plugin
+  ///   failures…) → recorded to Crashlytics and wrapped as
+  ///   [UnknownException] so the UI's single `on ApException catch`
+  ///   clause can surface a user-visible "未知錯誤" message instead of
+  ///   the call silently disappearing.
   Future<T> _call<T>(Future<T> Function() body) async {
     try {
       return await body();
@@ -417,6 +424,13 @@ class Helper {
       rethrow;
     } on DioException catch (e) {
       throw e.toApException();
+    } catch (e, s) {
+      CrashlyticsUtil.instance.recordError(e, s);
+      throw UnknownException(
+        message: '${e.runtimeType}: $e',
+        cause: e,
+        causeStackTrace: s,
+      );
     }
   }
 

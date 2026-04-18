@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
-import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
