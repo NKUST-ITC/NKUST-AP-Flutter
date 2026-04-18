@@ -176,6 +176,15 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Clean previous signing keychains (self-hosted idempotency)
+        # Self-hosted runners keep ~/Library/Keychains between jobs, so
+        # apple-actions/import-codesign-certs fails on the second run
+        # with exit 48 ("A keychain with the same name already exists").
+        # Remove any leftover keychains from earlier runs so the import
+        # steps below can always create a fresh one.
+        run: |
+          security delete-keychain mac-installer-signing.keychain 2>/dev/null || true
+          security delete-keychain mac-app-signing.keychain 2>/dev/null || true
       - name: Import Mac Installer Distribution certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
