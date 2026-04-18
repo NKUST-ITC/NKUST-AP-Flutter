@@ -47,9 +47,6 @@ class Constants {
 
   static const String prefIsOfflineLogin = 'pref_is_offline_login';
 
-  static const String mobileCookiesData = 'mobile_cookies_data';
-  static const String mobileCookiesLastTime = 'mobile_cookies_last_time';
-
   static const String scheduleData = 'schedule_data';
   static const String schedulePdfUrl = 'schedule_pdf_url';
   static const String androidAppVersion = 'android_app_version';
@@ -62,7 +59,6 @@ class Constants {
   static const String leavesTimeCode = 'leaves_time_code';
   static const String crawlerSelector = 'crawler_selector';
   static const String semesterData = 'semester_data';
-  static const String mobileNkustUserAgent = 'mobile_nksut_user_agent';
   static const String versionCode = 'version_code';
 
   static const String tagStudentPicture = 'tag_student_picture';

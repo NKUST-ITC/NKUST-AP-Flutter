@@ -1,13 +1,18 @@
 import 'dart:developer';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
-import 'package:nkust_ap/models/mobile_cookies_data.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
+
+/// User agent used for the leave-system WebView login. Kept as a plain
+/// constant now that the old randomized list from MobileNkustHelper has
+/// been removed along with the rest of the mobile crawler (#301).
+const String _leaveLoginUserAgent =
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+    '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 class LeaveNkustPage extends StatefulWidget {
   final String username;
@@ -59,7 +64,7 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
         initialUrlRequest: URLRequest(url: WebUri(LeaveHelper.basePath)),
         initialSettings: InAppWebViewSettings(
           clearCache: widget.clearCache,
-          userAgent: MobileNkustHelper.instance.userAgent,
+          userAgent: _leaveLoginUserAgent,
         ),
         onWebViewCreated: (controller) {
           webViewController = controller;
@@ -101,18 +106,15 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
     final cookies = await CookieManager.instance().getCookies(
       url: WebUri(LeaveHelper.basePath),
     );
-    final data = MobileCookiesData(cookies: []);
     for (final element in cookies) {
-      data.cookies.add(
-        MobileCookies(
-          path: MobileNkustHelper.homeUrl,
-          name: element.name,
-          value: element.value.toString(),
-          domain: element.domain ??
-              (element.name == 'ASP.NET_SessionId'
-                  ? 'leave.nkust.edu.tw'
-                  : '.nkust.edu.tw'),
-        ),
+      LeaveHelper.instance.setCookie(
+        LeaveHelper.basePath,
+        cookieName: element.name,
+        cookieValue: element.value.toString(),
+        cookieDomain: element.domain ??
+            (element.name == 'ASP.NET_SessionId'
+                ? 'leave.nkust.edu.tw'
+                : '.nkust.edu.tw'),
       );
       if (kDebugMode) {
         log(
@@ -120,7 +122,6 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
         );
       }
     }
-    LeaveHelper.instance.setCookieFromData(data);
     if (!mounted) return;
     Navigator.pop(context, true);
   }

@@ -184,7 +184,7 @@ final class CancelledException extends ApException {
 final class ApSessionExpiredException extends ApException {
   const ApSessionExpiredException()
       : super(
-          statusCode: ApStatusCode.apiExpire,
+          statusCode: ApStatusCode.sessionExpired,
           message: 'WebAP session expired (code 2)',
         );
 
@@ -197,7 +197,7 @@ final class ApSessionExpiredException extends ApException {
 /// reacting to WebAP's.
 final class BusSessionExpiredException extends ApException {
   const BusSessionExpiredException(String message)
-      : super(statusCode: ApStatusCode.apiExpire, message: message);
+      : super(statusCode: ApStatusCode.sessionExpired, message: message);
 
   @override
   String get typeName => 'BusSessionExpiredException';
