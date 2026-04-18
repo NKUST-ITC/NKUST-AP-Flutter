@@ -409,7 +409,11 @@ class Helper {
   /// Runs a crawler-facing operation and normalises every escaping
   /// exception into an [ApException] subtype:
   ///
-  /// - [ApException] → rethrown as-is.
+  /// - [ApException] → rethrown as-is. High-signal subtypes
+  ///   ([ServerException], [CaptchaException]) are also logged to
+  ///   Crashlytics so regressions in the school system or captcha OCR
+  ///   stay visible; low-signal ones (user wrong password, network off,
+  ///   user cancellation) are not logged to avoid noise.
   /// - [DioException] → translated to the matching subtype (network /
   ///   server / cancelled) via [DioExceptionToApException].
   /// - Anything else (TypeError, FormatException, StateError, plugin
@@ -420,10 +424,13 @@ class Helper {
   Future<T> _call<T>(Future<T> Function() body) async {
     try {
       return await body();
-    } on ApException {
+    } on ApException catch (e, s) {
+      _maybeRecordApException(e, s);
       rethrow;
-    } on DioException catch (e) {
-      throw e.toApException();
+    } on DioException catch (e, s) {
+      final ApException translated = e.toApException();
+      _maybeRecordApException(translated, s);
+      throw translated;
     } catch (e, s) {
       CrashlyticsUtil.instance.recordError(e, s);
       throw UnknownException(
@@ -431,6 +438,16 @@ class Helper {
         cause: e,
         causeStackTrace: s,
       );
+    }
+  }
+
+  /// High-signal ApException subtypes go to Crashlytics so regressions in
+  /// the school system or captcha OCR stay visible. Low-signal ones
+  /// (wrong password, no internet, user cancellation) are skipped to
+  /// keep the dashboard usable.
+  void _maybeRecordApException(ApException e, StackTrace s) {
+    if (e is ServerException || e is CaptchaException) {
+      CrashlyticsUtil.instance.recordError(e, s, reason: e.typeName);
     }
   }
 
