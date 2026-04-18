@@ -202,16 +202,35 @@ jobs:
           create-keychain: true
       - name: Verify Mac signing identities are available
         run: |
+          # A valid "identity" means cert + matching private key are both
+          # present in the keychain. If the .p12 was exported without its
+          # private key (i.e. selecting only the certificate row in
+          # Keychain Access instead of Cmd-clicking both the cert AND
+          # the private key child, so "Export 2 items" appears),
+          # `security import` still succeeds and the cert shows up under
+          # `find-certificate`, but `find-identity` won't list it —
+          # signing fails later with a confusing error. Detect both
+          # failure modes separately so the fix (re-export the .p12
+          # correctly vs. upload the right .p12 in the first place) is
+          # obvious.
+          check_identity() {
+            local label="$1" cn_prefix="$2" base_secret="$3" pwd_secret="$4"
+            if security find-identity -v | grep -q "$cn_prefix"; then
+              echo "  ✓ $label identity present"
+              return 0
+            fi
+            if security find-certificate -c "$cn_prefix" >/dev/null 2>&1; then
+              echo "::error::$label certificate is imported but has no matching private key. The .p12 in $base_secret was exported without the private key. Re-export from Keychain Access with BOTH the cert row AND its private key child selected ('Export 2 items…')."
+            else
+              echo "::error::$label certificate not found in any keychain. Verify $base_secret contains a valid .p12 and $pwd_secret matches its export password."
+            fi
+            return 1
+          }
           missing=0
-          if ! security find-identity -v | grep -q "3rd Party Mac Developer Installer"; then
-            echo "::error::3rd Party Mac Developer Installer identity missing. Check MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD."
-            missing=1
-          fi
-          if ! security find-identity -v | grep -q "3rd Party Mac Developer Application"; then
-            echo "::error::3rd Party Mac Developer Application identity missing. Check MAC_APP_CERT_BASE64 / MAC_APP_CERT_PASSWORD."
-            missing=1
-          fi
+          check_identity "Installer"    "3rd Party Mac Developer Installer"    MAC_INSTALLER_CERT_BASE64 MAC_INSTALLER_CERT_PASSWORD || missing=1
+          check_identity "Application"  "3rd Party Mac Developer Application"  MAC_APP_CERT_BASE64       MAC_APP_CERT_PASSWORD       || missing=1
           if [ "$missing" = "1" ]; then
+            echo "--- current signing identities ---"
             security find-identity -v || true
             exit 1
           fi
