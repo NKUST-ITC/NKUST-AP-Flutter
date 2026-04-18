@@ -183,14 +183,30 @@ jobs:
           p12-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
           keychain: mac-installer-signing
           keychain-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
-      - name: Verify Installer Distribution identity is available
+      - name: Import Mac App Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_APP_CERT_BASE64 }}
+          p12-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          keychain: mac-app-signing
+          keychain-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          create-keychain: true
+      - name: Verify Mac signing identities are available
         run: |
+          missing=0
           if ! security find-identity -v | grep -q "3rd Party Mac Developer Installer"; then
-            echo "::error::3rd Party Mac Developer Installer identity not found in any keychain after import. Verify MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD secrets contain a valid Installer Distribution .p12."
+            echo "::error::3rd Party Mac Developer Installer identity missing. Check MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD."
+            missing=1
+          fi
+          if ! security find-identity -v | grep -q "3rd Party Mac Developer Application"; then
+            echo "::error::3rd Party Mac Developer Application identity missing. Check MAC_APP_CERT_BASE64 / MAC_APP_CERT_PASSWORD."
+            missing=1
+          fi
+          if [ "$missing" = "1" ]; then
             security find-identity -v || true
             exit 1
           fi
-          security find-identity -v | grep "3rd Party Mac Developer Installer"
+          security find-identity -v | grep "3rd Party Mac Developer"
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
@@ -198,6 +214,26 @@ jobs:
           AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Codesign macOS .app with Release entitlements
+        env:
+          MAC_APP_DISTRIBUTION_CERT_NAME: ${{ secrets.MAC_APP_DISTRIBUTION_CERT_NAME }}
+        run: |
+          APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -type d -name '*.app' | head -n1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::No .app bundle found under build/macos/Build/Products/Release"
+            exit 1
+          fi
+          echo "Signing $APP_PATH"
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements macos/Runner/Release.entitlements \
+            --sign "$MAC_APP_DISTRIBUTION_CERT_NAME" \
+            "$APP_PATH"
+          codesign --verify --verbose=2 "$APP_PATH"
+          codesign --display --entitlements :- "$APP_PATH" | \
+            grep -q "com.apple.security.app-sandbox" || {
+              echo "::error::app-sandbox entitlement missing from signed .app"
+              exit 1
+            }
       - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
