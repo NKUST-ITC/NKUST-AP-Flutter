@@ -1,0 +1,71 @@
+name: PR Changelog Generator
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - develop
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'assets/**'
+
+permissions:
+  pull-requests: write
+
+jobs:
+  generate:
+    name: Generate Changelog Entry
+    if: github.event.pull_request.merged == true
+    runs-on: self-hosted
+    steps:
+      - name: Generate bilingual changelog entry via Ollama
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+
+          REQUEST=$(jq -n \
+            --arg title "$PR_TITLE" \
+            --arg body "$PR_BODY" \
+            '{
+              model: "qwen2.5:3b",
+              messages: [
+                {
+                  role: "system",
+                  content: "你是 App 更新說明撰寫員。根據 PR 資訊，用一句話生成使用者可看懂的更新描述。繁體中文使用台灣用語，避免技術術語。只輸出 JSON，格式為 {\"zh-TW\": \"...\", \"en-US\": \"...\"}，不要其他文字。"
+                },
+                {
+                  role: "user",
+                  content: ("PR Title: " + $title + "\nPR Description: " + $body)
+                }
+              ],
+              temperature: 0.3
+            }')
+
+          RESPONSE=$(curl -sf http://localhost:11434/v1/chat/completions \
+            -H "Content-Type: application/json" \
+            -d "$REQUEST") || {
+            echo "::warning::Ollama request failed, skipping changelog generation"
+            exit 0
+          }
+
+          ENTRY=$(echo "$RESPONSE" | jq -r '.choices[0].message.content' | tr -d '\n')
+
+          # Validate JSON has required fields
+          echo "$ENTRY" | jq -e '.["zh-TW"] and .["en-US"]' > /dev/null 2>&1 || {
+            echo "::warning::LLM returned invalid JSON: $ENTRY"
+            exit 0
+          }
+
+          COMMENT_BODY=$(printf '<!-- changelog-entry\n%s\n-->' "$ENTRY")
+          gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          echo "Posted changelog entry for PR #$PR_NUMBER"
