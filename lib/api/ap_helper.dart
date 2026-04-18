@@ -12,7 +12,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -622,13 +621,6 @@ class WebApHelper
 
     return CourseData.fromJson(
       WebApParser.instance.roomCourseTableQueryParser(query.data),
-    );
-  }
-
-  Future<void> loginVms() async {
-    await MobileNkustHelper.instance.loginVms(
-      username: Helper.username!,
-      password: Helper.password!,
     );
   }
 

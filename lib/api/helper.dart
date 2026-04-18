@@ -12,7 +12,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
@@ -164,21 +163,8 @@ class Helper {
       ScraperSource.stdsys, StdsysHelper.instance,
     );
 
-    // MobileNkustHelper: course, score, userInfo, bus
-    registry.register<CourseProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-    registry.register<ScoreProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-    registry.register<UserInfoProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-    registry.register<BusProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-
-    // BusHelper: bus
+    // BusHelper: bus (sole BusProvider — the mobile.nkust.edu.tw-based
+    // implementation in MobileNkustHelper was removed in #301).
     registry.register<BusProvider>(
       ScraperSource.webap, BusHelper.instance,
     );
@@ -219,9 +205,6 @@ class Helper {
     registerCleanup(() {
       LeaveHelper.instance.isLogin = null;
     });
-    registerCleanup(() {
-      MobileNkustHelper.instance.cookiesData?.clear();
-    });
   }
 
   Future<LoginResponse?> login({
@@ -233,14 +216,10 @@ class Helper {
     Helper.password = password;
     LoginResponse? loginResponse;
     loginResponse = await _call(() async {
-      final LoginResponse? result = await WebApHelper.instance.login(
+      return WebApHelper.instance.login(
         username: username.toUpperCase(),
         password: password,
       );
-      if (selector?.login == ScraperSource.mobile) {
-        await WebApHelper.instance.loginVms();
-      }
-      return result;
     });
     if (loginResponse != null) {
       expireTime = loginResponse.expireTime;
@@ -582,9 +561,6 @@ class Helper {
     required DateTime dateTime,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusData data = await provider.getTimeTable(dateTime: dateTime);
       reLoginCount = 0;
@@ -603,9 +579,6 @@ class Helper {
 
   Future<BusReservationsData> getBusReservations() async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusReservationsData data = await provider.getReservations();
       reLoginCount = 0;
@@ -617,9 +590,6 @@ class Helper {
     required String busId,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BookingBusData data = await provider.bookBus(busId: busId);
       reLoginCount = 0;
@@ -631,9 +601,6 @@ class Helper {
     required String cancelKey,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final CancelBusData data = await provider.cancelBus(busId: cancelKey);
       reLoginCount = 0;
@@ -643,9 +610,6 @@ class Helper {
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusViolationRecordsData data =
           await provider.getViolationRecords();

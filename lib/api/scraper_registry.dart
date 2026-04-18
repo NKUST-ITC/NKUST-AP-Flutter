@@ -4,11 +4,13 @@
 /// [ScraperRegistry] for capability resolution.
 ///
 /// Values match the JSON strings from Firebase Remote Config for backward
-/// compatibility (e.g., `"webap"`, `"mobile"`, `"stdsys"`, `"config"`).
+/// compatibility (e.g., `"webap"`, `"stdsys"`, `"config"`). Legacy value
+/// `"mobile"` is accepted on parse (maps to [webap]) so that installed
+/// apps with a stored `"mobile"` config keep working after #301 removed
+/// the mobile.nkust.edu.tw crawler.
 enum ScraperSource {
   webap,
   stdsys,
-  mobile,
   remoteConfig;
 
   /// Parses a string value (e.g., from Remote Config JSON) into a
