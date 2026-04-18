@@ -1,6 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State {
@@ -286,17 +288,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  void _onFailure(DioException e) {
+  void _onError(ApException e) {
+    if (e is CancelledException) return;
     setState(() {
       state = _State.custom;
-      customStateHint = e.i18nMessage;
-    });
-  }
-
-  void _onError(GeneralResponse response) {
-    setState(() {
-      state = _State.custom;
-      customStateHint = response.getGeneralMessage(context);
+      customStateHint = e.toLocalizedMessage(context);
     });
   }
 
@@ -309,10 +305,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     }
     try {
       semesterData = await Helper.instance.getSemester();
-    } on GeneralResponse catch (response) {
-      _onError(response);
-    } on DioException catch (e) {
-      _onFailure(e);
+    } on ApException catch (e) {
+      _onError(e);
     }
   }
 
@@ -378,10 +372,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           });
         }
       }
-    } on GeneralResponse catch (response) {
-      _onError(response);
-    } on DioException catch (e) {
-      _onFailure(e);
+    } on ApException catch (e) {
+      _onError(e);
     }
   }
 }

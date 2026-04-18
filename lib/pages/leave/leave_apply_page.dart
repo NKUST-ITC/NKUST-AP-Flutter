@@ -5,6 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/error_response.dart';
 import 'package:nkust_ap/models/leave_campus_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
@@ -507,38 +509,21 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
         leaveSubmitInfo = data;
         state = _State.finish;
       });
-    } on GeneralResponse catch (response) {
-      setState(() {
-        state = _State.custom;
-        customStateHint = response.getGeneralMessage(context);
-      });
-      AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
-    } on DioException catch (e) {
-      if (mounted) {
-        switch (e.type) {
-          case DioExceptionType.badResponse:
-            setState(() {
-              if (e.response!.statusCode == 403) {
-                state = _State.userNotSupport;
-              } else {
-                state = _State.custom;
-                customStateHint = e.message;
-                AnalyticsUtil.instance.logApiEvent(
-                  'getLeaveSubmitInfo',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            });
-          case DioExceptionType.unknown:
-            setState(() => state = _State.error);
-          case DioExceptionType.cancel:
-            break;
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.i18nMessage;
-            });
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (e is AccountNotSupportedException) {
+        setState(() => state = _State.userNotSupport);
+      } else {
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.toLocalizedMessage(context);
+        });
+        if (e is ServerException && e.httpStatusCode != null) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getLeaveSubmitInfo',
+            e.httpStatusCode!,
+            message: e.message,
+          );
         }
       }
       AnalyticsUtil.instance.logEvent('get_submit_submit_fail');
@@ -717,40 +702,26 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
             res?.statusCode == 200 ? ap.leaveSubmitSuccess : '${res?.data}',
       );
       AnalyticsUtil.instance.logEvent('leave_submit_success');
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       Navigator.of(context, rootNavigator: true).pop();
+      // When the leave submit returns a badResponse with a JSON body,
+      // surface the server-provided description instead of the generic
+      // localized string.
+      String content = e.toLocalizedMessage(context);
+      if (e is ServerException && e.cause is DioException) {
+        final DioException inner = e.cause! as DioException;
+        if (inner.response?.data is Map<String, dynamic>) {
+          content = ErrorResponse.fromJson(
+            inner.response!.data as Map<String, dynamic>,
+          ).description;
+        }
+      }
       DialogUtils.showDefault(
         context: context,
         title: ap.leaveSubmitFail,
-        content: response.getGeneralMessage(context),
+        content: content,
       );
-      AnalyticsUtil.instance.logEvent('leave_submit_fail');
-    } on DioException catch (e) {
-      Navigator.of(context, rootNavigator: true).pop();
-      String? text;
-      switch (e.type) {
-        case DioExceptionType.badResponse:
-          if (e.response!.data is Map<String, dynamic>) {
-            text = ErrorResponse.fromJson(
-              e.response!.data as Map<String, dynamic>,
-            ).description;
-          } else {
-            text = ap.somethingError;
-          }
-        case DioExceptionType.unknown:
-          text = ap.somethingError;
-        case DioExceptionType.cancel:
-          break;
-        default:
-          text = e.i18nMessage;
-      }
-      if (text != null) {
-        DialogUtils.showDefault(
-          context: context,
-          title: ap.leaveSubmitFail,
-          content: text,
-        );
-      }
       AnalyticsUtil.instance.logEvent('leave_submit_fail');
     }
   }

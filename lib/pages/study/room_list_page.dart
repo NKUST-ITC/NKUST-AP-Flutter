@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/pages/study/room_course_page.dart';
@@ -529,23 +531,17 @@ class RoomListPageState extends State<RoomListPage> {
         roomData = data;
         state = _State.finish;
       });
-    } on GeneralResponse catch (generalResponse) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       setState(() {
         state = _State.custom;
-        customStateHint = generalResponse.getGeneralMessage(context);
+        customStateHint = e.toLocalizedMessage(context);
       });
-    } on DioException catch (e) {
-      if (e.type != DioExceptionType.cancel) {
-        setState(() {
-          state = _State.custom;
-          customStateHint = e.i18nMessage;
-        });
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getRoomCourseTables',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

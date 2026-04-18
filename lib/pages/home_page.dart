@@ -12,6 +12,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
@@ -678,12 +680,12 @@ class HomePageState extends State<HomePage> {
       if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
         await Utils.setBusNotify(context, response.reservations);
       }
-    } on DioException catch (e) {
-      if (e.hasResponse) {
+    } on ApException catch (e) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getBusReservations',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     } catch (e, s) {
@@ -718,13 +720,13 @@ class HomePageState extends State<HomePage> {
             _getUserPicture();
           }
         }
-      } on DioException catch (e) {
+      } on ApException catch (e) {
         _userInfoFetchFailed = true;
-        if (e.hasResponse) {
+        if (e is ServerException && e.httpStatusCode != null) {
           AnalyticsUtil.instance.logApiEvent(
             'getUserInfo',
-            e.response!.statusCode!,
-            message: e.message ?? '',
+            e.httpStatusCode!,
+            message: e.message,
           );
         }
       } catch (e, s) {
@@ -737,19 +739,13 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _getUserPicture() async {
-    try {
-      if (userInfo != null && userInfo!.pictureUrl != null) {
-        final Uint8List? response =
-            await Helper.instance.getUserPicture(userInfo!.pictureUrl!);
-        if (mounted) {
-          setState(() {
-            userInfo = userInfo!.copyWith(pictureBytes: response);
-          });
-        }
-        // CacheUtils.savePictureData(response);
-      }
-    } catch (e) {
-      rethrow;
+    if (userInfo == null || userInfo!.pictureUrl == null) return;
+    final Uint8List? response =
+        await Helper.instance.getUserPicture(userInfo!.pictureUrl!);
+    if (mounted) {
+      setState(() {
+        userInfo = userInfo!.copyWith(pictureBytes: response);
+      });
     }
   }
 
@@ -800,42 +796,25 @@ class HomePageState extends State<HomePage> {
       _homeKey.currentState
         ?..hideSnackBar()
         ..showBasicHint(text: ap.loginSuccess);
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
       if (isLogin) return;
-      String message = '';
-      if (response.statusCode == ApStatusCode.userDataError ||
-          response.statusCode == ApStatusCode.passwordFiveTimesError) {
-        Toast.show(ap.passwordError, context);
+      if (e is CancelledException) return;
+      // Invalid credentials / account lockout — stop auto-login; user must
+      // re-enter password.
+      if (e is AuthException &&
+          (e.reason == AuthFailureReason.invalidCredentials ||
+              e.reason == AuthFailureReason.tooManyAttempts)) {
+        Toast.show(e.toLocalizedMessage(context), context);
         await PreferenceUtil.instance.setBool(Constants.prefAutoLogin, false);
         checkLogin();
       } else {
-        switch (response.statusCode) {
-          case ApStatusCode.schoolServerError:
-            message = ap.schoolServerError;
-          case ApStatusCode.apiServerError:
-            message = ap.apiServerError;
-          case ApStatusCode.unknownError:
-          case ApStatusCode.cancel:
-            message = ap.loginFail;
-          default:
-            message = ap.somethingError;
-        }
         _homeKey.currentState!.showSnackBar(
-          text: message,
+          text: e.toLocalizedMessage(context),
           actionText: ap.retry,
           onSnackBarTapped: _login,
         );
         offLineLogin();
       }
-    } on DioException catch (e) {
-      if (isLogin) return;
-      final String text = e.i18nMessage!;
-      _homeKey.currentState!.showSnackBar(
-        text: text,
-        actionText: ap.retry,
-        onSnackBarTapped: _login,
-      );
-      offLineLogin();
     }
   }
 

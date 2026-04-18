@@ -1,6 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/nkust_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -161,7 +162,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     AnalyticsUtil.instance.logEvent('search_username_click');
 
     try {
-      final UserInfo data = await NKUSTHelper.instance.getUsername(
+      final UserInfo data = await Helper.instance.searchUsername(
         rocId: _id.text,
         birthday: birthday,
       );
@@ -177,15 +178,17 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           ),
         );
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
       if (!mounted) return;
       setState(() => isSearching = false);
+      if (e is CancelledException) return;
+      // 404 means "no match found" — surface the server's own message
+      // (e.g. "查無此人") instead of the generic ap.unknownError.
+      final bool isNotFound = e is ServerException && e.httpStatusCode == 404;
       _showResultDialog(
-        response.statusCode == 404 ? response.message : context.ap.unknownError,
+        isNotFound ? e.message : context.ap.unknownError,
         showFirstHint: false,
       );
-    } on DioException catch (_) {
-      if (mounted) setState(() => isSearching = false);
     }
   }
 

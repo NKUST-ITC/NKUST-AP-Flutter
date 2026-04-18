@@ -1,6 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class CoursePage extends StatefulWidget {
@@ -119,19 +121,16 @@ class CoursePageState extends State<CoursePage> {
         _loadCacheData(selectSemester!.code);
         _getCourseTables();
       }
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       if (mounted) {
-        UiUtil.instance.showToast(context, response.getGeneralMessage(context));
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
       }
-    } on DioException catch (e) {
-      if (e.i18nMessage != null && mounted) {
-        UiUtil.instance.showToast(context, e.i18nMessage!);
-      }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getSemester',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }
@@ -148,9 +147,11 @@ class CoursePageState extends State<CoursePage> {
           _apiCourseData = cacheData;
           _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
           courseData = cacheData.mergeCustom(_customCourseData.courses);
-          state = courseData.courses.isEmpty
-              ? CourseState.empty
-              : CourseState.finish;
+          // Any non-null cache (even if courses list is empty) maps to
+          // `finish` so the offline view renders an empty course grid
+          // rather than the `empty` error state which hides the table.
+          // Matches ScorePage's _loadOfflineScoreData behaviour.
+          state = CourseState.finish;
           notifyData = CourseNotifyData.load(courseNotifyCacheKey);
         }
       });
@@ -167,7 +168,12 @@ class CoursePageState extends State<CoursePage> {
       );
       if (mounted) {
         _apiCourseData = data;
-        data.save(selectSemester!.cacheSaveTag);
+        // Only persist non-empty course data so a bad fetch (parser
+        // hiccup / transient empty response) doesn't overwrite a
+        // previously-working offline copy with nothing.
+        if (data.courses.isNotEmpty) {
+          data.save(selectSemester!.cacheSaveTag);
+        }
         _customCourseData = CustomCourseData.load(courseNotifyCacheKey);
         courseData = data.mergeCustom(_customCourseData.courses);
         setState(() {
@@ -185,32 +191,22 @@ class CoursePageState extends State<CoursePage> {
           await ApCommonPlugin.updateCourseWidget(courseData);
         }
       }
-    } on GeneralResponse catch (generalResponse) {
-      if (mounted) {
-        _pickerController.markSemesterHasData(selectSemester!);
-      }
-      if (await _loadCacheData(selectSemester!.code)) {
-        setState(() {
-          state = CourseState.custom;
-          customStateHint = generalResponse.getGeneralMessage(context);
-        });
-      }
-    } on DioException catch (e) {
+    } on ApException catch (e) {
       if (mounted) {
         _pickerController.markSemesterHasData(selectSemester!);
       }
       if (await _loadCacheData(selectSemester!.code) &&
-          e.type != DioExceptionType.cancel) {
+          e is! CancelledException) {
         setState(() {
           state = CourseState.custom;
-          customStateHint = e.i18nMessage;
+          customStateHint = e.toLocalizedMessage(context);
         });
       }
-      if (e.hasResponse) {
+      if (e is ServerException && e.httpStatusCode != null) {
         AnalyticsUtil.instance.logApiEvent(
           'getCourseTables',
-          e.response!.statusCode!,
-          message: e.message ?? '',
+          e.httpStatusCode!,
+          message: e.message,
         );
       }
     }

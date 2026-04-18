@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/bus_parser.dart';
 import 'package:nkust_ap/api/capability/bus_provider.dart';
@@ -160,24 +161,23 @@ class BusHelper with ReloginMixin implements BusProvider {
     busEncryptObject = BusEncrypt(jsCode: res.data!);
   }
 
-  Future<Map<String, dynamic>?> busLogin() async {
-    /*
-    Return type Map<String, dynamic>(from Json)
-    response data (from NKUST)
-    {
-      'success': true,
-      'code': 200,
-      'message': 'User Name',
-      'count': 1,
-      'data': {}
-    }
-    Code:
-    200: Login success.
-    400: Wrong campus or not found user.
-    302: Wrong password.
-    */
+  /// Logs in to the bus (vms) system.
+  ///
+  /// Throws:
+  /// - [AuthException] with [AuthFailureReason.invalidCredentials] on code 302.
+  /// - [AuthException] with [AuthFailureReason.wrongCampus] on code 400.
+  /// - [ServerException] on any other non-success code.
+  /// - [StateError] if username or password is not configured in [Helper].
+  ///
+  /// NKUST response codes:
+  /// - 200: Login success
+  /// - 302: Wrong password
+  /// - 400: Wrong campus or user not found
+  Future<Map<String, dynamic>> busLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError(
+        'BusHelper.busLogin: Helper.username/password not configured',
+      );
     }
 
     await loginPrepare();
@@ -196,11 +196,33 @@ class BusHelper with ReloginMixin implements BusProvider {
       options: Options(contentType: Headers.formUrlEncodedContentType),
     );
 
-    if (res.data!['code'] == 200 && res.data!['success'] == true) {
+    final Map<String, dynamic>? data = res.data;
+    final int? code = data?['code'] as int?;
+    final bool success = data?['success'] == true;
+
+    if (code == 200 && success) {
       isLogin = true;
       markReloginSuccess();
+      return data!;
     }
-    return res.data;
+
+    switch (code) {
+      case 302:
+        throw AuthException(
+          AuthFailureReason.invalidCredentials,
+          message: 'bus login: wrong password',
+        );
+      case 400:
+        throw AuthException(
+          AuthFailureReason.wrongCampus,
+          message: 'bus login: wrong campus or user not found',
+        );
+      default:
+        throw ServerException(
+          httpStatusCode: res.statusCode,
+          message: 'bus login: unexpected response code: $code',
+        );
+    }
   }
 
   /// Checks if a Bus API response indicates an expired session.

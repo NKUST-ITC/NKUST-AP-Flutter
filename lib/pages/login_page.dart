@@ -2,6 +2,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -207,31 +209,16 @@ class LoginPageState extends State<LoginPage> {
         PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
         TextInput.finishAutofillContext();
         Navigator.of(context).pop(true);
-      } on GeneralResponse catch (response) {
-        String? message;
-        switch (response.statusCode) {
-          case ApStatusCode.schoolServerError:
-            message = ap.schoolServerError;
-          case ApStatusCode.apiServerError:
-            message = ap.apiServerError;
-          case ApStatusCode.userDataError:
-            message = ap.loginFail;
-          case ApStatusCode.passwordFiveTimesError:
-            //TODO i18n
-            message = '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!';
-          case ApStatusCode.cancel:
-            message = null;
-          default:
-            message = ap.somethingError;
-        }
-        if (message != null) UiUtil.instance.showToast(context, message);
-        setState(() => isLoginIng = false);
-      } on DioException catch (e) {
-        if (e.i18nMessage != null) {
-          UiUtil.instance.showToast(context, e.i18nMessage!);
+      } on ApException catch (e) {
+        // Silently dismiss user-initiated cancellations (e.g. closing the
+        // leave-system WebView); any other failure gets a user-visible toast.
+        if (e is! CancelledException) {
+          UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
         }
         setState(() => isLoginIng = false);
-        if (e.type != DioExceptionType.cancel) _offlineLogin();
+        // Offer offline mode on network failure so the user isn't stuck
+        // on a blocked login screen when their connection drops.
+        if (e is NetworkException) _offlineLogin();
       }
     }
   }

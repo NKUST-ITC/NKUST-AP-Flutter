@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -94,7 +96,7 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final Response<Uint8List> response =
-          await StdsysHelper.instance.getEnrollmentLetter(selectedLang);
+          await Helper.instance.getEnrollmentLetter(selectedLang);
       final responseData = response.data;
       if (responseData == null || responseData.isEmpty) {
         setState(() {
@@ -121,22 +123,17 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
         pdfState = PdfState.finish;
         data = responseData;
       });
-    } on GeneralResponse catch (e) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = e.message;
-      });
-    } on DioException catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-        errorMessage = e.response?.statusCode == 404
-            ? app.noEnrollmentData
-            : app.networkError.replaceAll('%s', e.message ?? '');
-      });
-    } catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-        errorMessage = app.loadFailed.replaceAll('%s', e.toString());
+        // Keep the 404 special case (no enrollment letter available for
+        // this student) mapped to a dedicated user message.
+        if (e is ServerException && e.httpStatusCode == 404) {
+          errorMessage = app.noEnrollmentData;
+        } else {
+          errorMessage = e.toLocalizedMessage(context);
+        }
       });
     }
   }

@@ -1,5 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
@@ -241,53 +243,32 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
             ? AnalyticsConstants.yes
             : AnalyticsConstants.no,
       );
-    } on GeneralResponse catch (response) {
-      setState(() {
-        state = _State.custom;
-        customStateHint = response.getGeneralMessage(context);
-      });
-    } on DioException catch (e) {
-      if (mounted) {
-        switch (e.type) {
-          case DioExceptionType.badResponse:
-            setState(() {
-              if (e.response!.statusCode == 401) {
-                state = _State.userNotSupport;
-              } else if (e.response!.statusCode == 403) {
-                state = _State.campusNotSupport;
-              } else {
-                state = _State.custom;
-                customStateHint = e.message;
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusViolationRecords',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            });
-            if (e.response!.statusCode == 401 ||
-                e.response!.statusCode == 403) {
-              AnalyticsUtil.instance.setUserProperty(
-                Constants.canUseBus,
-                AnalyticsConstants.no,
-              );
-            }
-          case DioExceptionType.unknown:
-            setState(() {
-              if (e.message?.contains('HttpException') ?? false) {
-                state = _State.custom;
-                customStateHint = app.busFailInfinity;
-              } else {
-                state = _State.error;
-              }
-            });
-          case DioExceptionType.cancel:
-            break;
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.i18nMessage;
-            });
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (!mounted) return;
+      if (e is AccountNotSupportedException) {
+        setState(() => state = _State.userNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is CampusNotSupportedException) {
+        setState(() => state = _State.campusNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else {
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.toLocalizedMessage(context);
+        });
+        if (e is ServerException && e.httpStatusCode != null) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getBusViolationRecords',
+            e.httpStatusCode!,
+            message: e.message,
+          );
         }
       }
     }

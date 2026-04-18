@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
@@ -121,14 +122,40 @@ class NKUSTHelper {
             );
             return userInfo;
           } else if (elements.length == 1) {
-            throw GeneralResponse(
-              statusCode: 404,
+            throw ServerException(
+              httpStatusCode: 404,
               message: elements[0].text,
             );
           } else {
-            throw GeneralResponse.unknownError();
+            throw ServerException(
+              message: 'unexpected element count in username lookup response',
+            );
           }
         }
+      } on ApException {
+        rethrow;
+      } on SocketException catch (e, s) {
+        // package:http wraps transport errors as SocketException /
+        // HandshakeException; translate immediately so the UI shows
+        // "沒有網路連線" rather than the generic "未知錯誤" that _call
+        // would otherwise wrap this as.
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
+      } on HandshakeException catch (e, s) {
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
+      } on http.ClientException catch (e, s) {
+        throw NetworkException(
+          message: e.message,
+          cause: e,
+          causeStackTrace: s,
+        );
       } catch (error) {
         lastError = error;
 
@@ -138,11 +165,11 @@ class NKUSTHelper {
       }
     }
 
-    throw GeneralResponse(
-      statusCode: ApStatusCode.unknownError,
+    throw CaptchaException(
+      attempts: retryCounts,
       message: lastError == null
-          ? 'captcha error or unknown error'
-          : 'captcha error or unknown error: $lastError',
+          ? 'captcha failed after $retryCounts attempts'
+          : 'captcha failed: $lastError',
     );
   }
 
@@ -177,6 +204,8 @@ class NKUSTHelper {
         });
       }
     }
-    throw GeneralResponse.unknownError();
+    throw ServerException(
+      message: 'notifications request returned no usable response',
+    );
   }
 }

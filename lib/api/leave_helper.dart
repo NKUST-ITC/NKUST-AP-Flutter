@@ -12,6 +12,7 @@ import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/capability/leave_provider.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/relogin_mixin.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
@@ -106,13 +107,27 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
     );
   }
 
+  /// Probes whether the current cookies still authenticate us to the
+  /// leave system.
+  ///
+  /// - Returns `true`  → session alive.
+  /// - Returns `false` → session absent / expired but server reachable.
+  /// - Throws [NetworkException] when the probe itself cannot reach the
+  ///   server (timeout, DNS, etc.) — caller should distinguish this from
+  ///   a real logged-out state.
   Future<bool> isCookieAlive() async {
     try {
       //TODO check cookies is expire
       final Response<dynamic> res = await dio.get('');
       return res.data == 'alive';
-    } catch (_) {}
-    return false;
+    } on DioException catch (e) {
+      if (NetworkException.isTransport(e)) {
+        throw NetworkException.from(e);
+      }
+      // Non-transport DioException (badResponse etc.) indicates the server
+      // answered but not with 'alive' — treat as logged out.
+      return false;
+    }
   }
 
   Future<LoginResponse> login({
@@ -154,7 +169,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
       markReloginSuccess();
       return LoginResponse();
     } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      throw const CancelledException(message: 'leave login cancelled by user');
     }
   }
 
@@ -163,7 +178,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
   )
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
 
     //Get base hidden data.
@@ -202,7 +217,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
   Future<LeaveData> getLeaves(
       {required String year, required String semester}) async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
     if (!(isLogin ?? false)) {
       await _webApHelper.loginToLeave();
@@ -229,7 +244,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
     if (!(isLogin ?? false)) {
       await _webApHelper.loginToLeave();

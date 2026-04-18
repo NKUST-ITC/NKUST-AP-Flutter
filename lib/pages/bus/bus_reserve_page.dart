@@ -1,7 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/models/error_response.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/models.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/flutter_calendar.dart';
@@ -344,57 +345,39 @@ class BusReservePageState extends State<BusReservePage>
         Constants.canUseBus,
         AnalyticsConstants.yes,
       );
-    } on GeneralResponse catch (response) {
-      setState(() {
-        state = _State.custom;
-        if (response.statusCode == 403) {
-          customStateHint = response.message;
-        } else {
-          customStateHint = response.getGeneralMessage(context);
-        }
-      });
-    } on DioException catch (e) {
-      if (mounted) {
-        switch (e.type) {
-          case DioExceptionType.badResponse:
-            setState(() {
-              if (e.response!.statusCode == 401) {
-                state = _State.userNotSupport;
-              } else if (e.response!.statusCode == 403) {
-                state = _State.campusNotSupport;
-              } else {
-                state = _State.custom;
-                customStateHint = e.message;
-                AnalyticsUtil.instance.logApiEvent(
-                  'getBusTimeTables',
-                  e.response!.statusCode!,
-                  message: e.message ?? '',
-                );
-              }
-            });
-            if (e.response!.statusCode == 401 ||
-                e.response!.statusCode == 403) {
-              AnalyticsUtil.instance.setUserProperty(
-                Constants.canUseBus,
-                AnalyticsConstants.no,
-              );
-            }
-          case DioExceptionType.unknown:
-            setState(() {
-              if (e.message?.contains('HttpException') ?? false) {
-                state = _State.custom;
-                customStateHint = app!.busFailInfinity;
-              } else {
-                state = _State.error;
-              }
-            });
-          case DioExceptionType.cancel:
-            break;
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.i18nMessage;
-            });
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (!mounted) return;
+      if (e is AccountNotSupportedException) {
+        setState(() => state = _State.userNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is CampusNotSupportedException) {
+        setState(() => state = _State.campusNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is ServerException && e.message.isNotEmpty) {
+        // Bus "cannot reserve" business rule keeps the raw server
+        // message (e.g. reservation window closed / train full).
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.message;
+        });
+      } else {
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.toLocalizedMessage(context);
+        });
+        if (e is ServerException && e.httpStatusCode != null) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getBusTimeTables',
+            e.httpStatusCode!,
+            message: e.message,
+          );
         }
       }
     }
@@ -546,10 +529,12 @@ class BusReservePageState extends State<BusReservePage>
           },
         ),
       );
-    } on GeneralResponse catch (response) {
-      handleGeneralError(context, response, app!.busReserveFailTitle);
-    } on DioException catch (e) {
-      handleDioError(context, e, app!.busReserveFailTitle, 'book_bus');
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     }
   }
 
@@ -612,10 +597,12 @@ class BusReservePageState extends State<BusReservePage>
               Navigator.of(context, rootNavigator: true).pop(),
         ),
       );
-    } on GeneralResponse catch (response) {
-      handleGeneralError(context, response, app!.busCancelReserveFail);
-    } on DioException catch (e) {
-      handleDioError(context, e, app!.busCancelReserveFail, 'cancel_bus');
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
     }
   }
 
@@ -627,55 +614,4 @@ class BusReservePageState extends State<BusReservePage>
     } catch (_) {}
   }
 
-  static void handleGeneralError(
-    BuildContext context,
-    GeneralResponse response,
-    String title,
-  ) {
-    Navigator.of(context, rootNavigator: true).pop();
-    DialogUtils.showDefault(
-      context: context,
-      title: title,
-      content: response.getGeneralMessage(context),
-    );
-  }
-
-  static void handleDioError(
-    BuildContext context,
-    DioException e,
-    String title,
-    String tag,
-  ) {
-    Navigator.of(context, rootNavigator: true).pop();
-    String? message;
-    switch (e.type) {
-      case DioExceptionType.badResponse:
-        final ErrorResponse errorResponse =
-            ErrorResponse.fromJson(e.response!.data as Map<String, dynamic>);
-        message = errorResponse.description;
-        AnalyticsUtil.instance.logEvent(
-          tag,
-          parameters: <String, String>{
-            'message': errorResponse.description,
-          },
-        );
-      case DioExceptionType.unknown:
-        if (e.message?.contains('HttpException') ?? false) {
-          message = AppLocalizations.of(context).busFailInfinity;
-        } else {
-          message = context.ap.somethingError;
-        }
-      case DioExceptionType.cancel:
-        break;
-      default:
-        message = e.i18nMessage;
-    }
-    if (message != null) {
-      DialogUtils.showDefault(
-        context: context,
-        title: title,
-        content: message,
-      );
-    }
-  }
 }

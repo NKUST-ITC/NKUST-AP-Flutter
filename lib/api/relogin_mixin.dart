@@ -141,22 +141,7 @@ mixin ReloginMixin {
   }
 }
 
-/// Exception thrown when WebAP `apQuery` detects a session-expired response
-/// (login parser returns code 2).
-class ApSessionExpiredException implements Exception {
-  const ApSessionExpiredException();
-
-  @override
-  String toString() =>
-      'ApSessionExpiredException: WebAP session expired (code 2)';
-}
-
-/// Exception thrown when the Bus system returns a "未登入" (not logged in)
-/// response.
-class BusSessionExpiredException implements Exception {
-  final String message;
-  const BusSessionExpiredException(this.message);
-
-  @override
-  String toString() => 'BusSessionExpiredException: $message';
-}
+// ApSessionExpiredException / BusSessionExpiredException have been folded
+// into the ApException hierarchy in lib/api/exceptions/api_exception.dart
+// so UI layers that catch `on ApException catch` automatically cover the
+// session-expired case when relogin retries are exhausted.
