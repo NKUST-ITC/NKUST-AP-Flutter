@@ -511,7 +511,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       });
     } on ApException catch (e) {
       if (e is CancelledException) return;
-      if (e is ServerException && e.httpStatusCode == 403) {
+      if (e is AccountNotSupportedException) {
         setState(() => state = _State.userNotSupport);
       } else {
         setState(() {

@@ -246,38 +246,30 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
     } on ApException catch (e) {
       if (e is CancelledException) return;
       if (!mounted) return;
-      if (e is ServerException) {
-        switch (e.httpStatusCode) {
-          case 401:
-            setState(() => state = _State.userNotSupport);
-            AnalyticsUtil.instance.setUserProperty(
-              Constants.canUseBus,
-              AnalyticsConstants.no,
-            );
-          case 403:
-            setState(() => state = _State.campusNotSupport);
-            AnalyticsUtil.instance.setUserProperty(
-              Constants.canUseBus,
-              AnalyticsConstants.no,
-            );
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.toLocalizedMessage(context);
-            });
-            if (e.httpStatusCode != null) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getBusViolationRecords',
-                e.httpStatusCode!,
-                message: e.message,
-              );
-            }
-        }
+      if (e is AccountNotSupportedException) {
+        setState(() => state = _State.userNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is CampusNotSupportedException) {
+        setState(() => state = _State.campusNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
       } else {
         setState(() {
           state = _State.custom;
           customStateHint = e.toLocalizedMessage(context);
         });
+        if (e is ServerException && e.httpStatusCode != null) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getBusViolationRecords',
+            e.httpStatusCode!,
+            message: e.message,
+          );
+        }
       }
     }
   }

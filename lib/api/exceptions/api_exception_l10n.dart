@@ -44,6 +44,10 @@ extension ApExceptionL10n on ApException {
         return ap.tokenExpiredContent;
       case PlatformUnsupportedException():
         return ap.platformError;
+      case AccountNotSupportedException():
+        return ap.userNotSupport;
+      case CampusNotSupportedException():
+        return ap.campusNotSupport;
       case UnknownException():
         return ap.unknownError;
     }

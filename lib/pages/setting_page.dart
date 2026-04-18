@@ -257,19 +257,13 @@ class SettingPageState extends State<SettingPage> {
       Navigator.of(context, rootNavigator: true).pop();
       setState(() => busNotify = false);
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-      if (e is ServerException && e.httpStatusCode == 401) {
-        UiUtil.instance.showToast(context, ap.userNotSupport);
-      } else if (e is ServerException && e.httpStatusCode == 403) {
-        UiUtil.instance.showToast(context, ap.campusNotSupport);
-      } else {
-        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
-        if (e is ServerException && e.httpStatusCode != null) {
-          AnalyticsUtil.instance.logApiEvent(
-            'getBusReservations',
-            e.httpStatusCode!,
-            message: e.message,
-          );
-        }
+      UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      if (e is ServerException && e.httpStatusCode != null) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getBusReservations',
+          e.httpStatusCode!,
+          message: e.message,
+        );
       }
     }
   }

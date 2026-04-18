@@ -203,6 +203,33 @@ final class BusSessionExpiredException extends ApException {
   String get typeName => 'BusSessionExpiredException';
 }
 
+/// The current account does not have access to this feature (e.g. a
+/// non-student trying to use the bus / leave system). Distinct from
+/// [AuthException] because authentication succeeded — the server simply
+/// refuses to serve this particular account. Typically produced by
+/// helpers translating an HTTP 401 (bus) or 403 (leave) into a typed
+/// subtype.
+final class AccountNotSupportedException extends ApException {
+  const AccountNotSupportedException({
+    super.message = 'account not supported',
+  }) : super(statusCode: ApStatusCode.unknownError);
+
+  @override
+  String get typeName => 'AccountNotSupportedException';
+}
+
+/// The current campus does not support this feature (e.g. a campus
+/// without a shuttle bus trying to open the bus page). Translated from
+/// HTTP 403 on bus endpoints.
+final class CampusNotSupportedException extends ApException {
+  const CampusNotSupportedException({
+    super.message = 'campus not supported',
+  }) : super(statusCode: ApStatusCode.unknownError);
+
+  @override
+  String get typeName => 'CampusNotSupportedException';
+}
+
 /// Feature not usable on the current platform/campus configuration
 /// (e.g. bus system on web, or a sub-system the user's campus doesn't
 /// have access to).

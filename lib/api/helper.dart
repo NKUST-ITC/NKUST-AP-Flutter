@@ -453,6 +453,44 @@ class Helper {
     }
   }
 
+  /// Specialisation of [_call] for bus endpoints: translates the bus
+  /// system's HTTP status conventions into typed subtypes before the
+  /// outer [_call] sees them.
+  ///
+  /// - 401 → [AccountNotSupportedException] (non-student, blocked account).
+  /// - 403 → [CampusNotSupportedException] (campus without shuttle bus).
+  ///
+  /// These are user-facing states, not regressions, so they skip the
+  /// Crashlytics pathway in `_maybeRecordApException`.
+  Future<T> _busCall<T>(Future<T> Function() body) async {
+    return _call(() async {
+      try {
+        return await body();
+      } on DioException catch (e) {
+        final int? code = e.response?.statusCode;
+        if (code == 401) throw const AccountNotSupportedException();
+        if (code == 403) throw const CampusNotSupportedException();
+        rethrow;
+      }
+    });
+  }
+
+  /// Specialisation of [_call] for leave endpoints: maps the leave
+  /// system's HTTP 403 to [AccountNotSupportedException] (the only
+  /// business-semantic status we currently translate for leave).
+  Future<T> _leaveCall<T>(Future<T> Function() body) async {
+    return _call(() async {
+      try {
+        return await body();
+      } on DioException catch (e) {
+        if (e.response?.statusCode == 403) {
+          throw const AccountNotSupportedException();
+        }
+        rethrow;
+      }
+    });
+  }
+
   Future<ScoreData?> getScores({
     required Semester semester,
   }) async {
@@ -543,7 +581,7 @@ class Helper {
   Future<BusData> getBusTimeTables({
     required DateTime dateTime,
   }) async {
-    return _call(() async {
+    return _busCall(() async {
       if (!MobileNkustHelper.isSupport) {
         throw const PlatformUnsupportedException();
       }
@@ -553,15 +591,18 @@ class Helper {
       if (data.canReserve) {
         return data;
       }
+      // Business-rule failure (outside reservation window / full).
+      // Preserve the server's Chinese description but leave
+      // httpStatusCode null so the typed-subtype layer doesn't treat
+      // this like a real HTTP 403 "campus not supported".
       throw ServerException(
-        httpStatusCode: 403,
         message: data.description ?? 'bus not reservable',
       );
     });
   }
 
   Future<BusReservationsData> getBusReservations() async {
-    return _call(() async {
+    return _busCall(() async {
       if (!MobileNkustHelper.isSupport) {
         throw const PlatformUnsupportedException();
       }
@@ -575,7 +616,7 @@ class Helper {
   Future<BookingBusData> bookingBusReservation({
     required String busId,
   }) async {
-    return _call(() async {
+    return _busCall(() async {
       if (!MobileNkustHelper.isSupport) {
         throw const PlatformUnsupportedException();
       }
@@ -589,7 +630,7 @@ class Helper {
   Future<CancelBusData> cancelBusReservation({
     required String cancelKey,
   }) async {
-    return _call(() async {
+    return _busCall(() async {
       if (!MobileNkustHelper.isSupport) {
         throw const PlatformUnsupportedException();
       }
@@ -601,7 +642,7 @@ class Helper {
   }
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
-    return _call(() async {
+    return _busCall(() async {
       if (!MobileNkustHelper.isSupport) {
         throw const PlatformUnsupportedException();
       }
@@ -636,7 +677,7 @@ class Helper {
   Future<LeaveData> getLeaves({
     required Semester semester,
   }) async {
-    return _call(() async {
+    return _leaveCall(() async {
       final provider = registry.resolve<LeaveProvider>(null);
       return provider.getLeaves(
         year: semester.year,
@@ -654,7 +695,7 @@ class Helper {
   }
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
-    return _call(() async {
+    return _leaveCall(() async {
       final provider = registry.resolve<LeaveProvider>(null);
       return provider.getSubmitInfo();
     });
@@ -664,7 +705,7 @@ class Helper {
     required LeaveSubmitData data,
     required XFile? image,
   }) async {
-    return _call(() async {
+    return _leaveCall(() async {
       final provider = registry.resolve<LeaveProvider>(null);
       return provider.submit(data, proofImage: image);
     });

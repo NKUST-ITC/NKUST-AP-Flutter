@@ -153,8 +153,8 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             : AnalyticsConstants.no,
       );
     } on ApException catch (e) {
-      if (e is ServerException &&
-          (e.httpStatusCode == 401 || e.httpStatusCode == 403)) {
+      if (e is AccountNotSupportedException ||
+          e is CampusNotSupportedException) {
         AnalyticsUtil.instance.setUserProperty(
           Constants.canUseBus,
           AnalyticsConstants.no,

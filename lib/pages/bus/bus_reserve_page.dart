@@ -348,42 +348,37 @@ class BusReservePageState extends State<BusReservePage>
     } on ApException catch (e) {
       if (e is CancelledException) return;
       if (!mounted) return;
-      if (e is ServerException) {
-        switch (e.httpStatusCode) {
-          case 401:
-            setState(() => state = _State.userNotSupport);
-            AnalyticsUtil.instance.setUserProperty(
-              Constants.canUseBus,
-              AnalyticsConstants.no,
-            );
-          case 403:
-            setState(() {
-              state = _State.custom;
-              // Bus "cannot reserve" business rule keeps the raw server
-              // message (e.g. reservation window closed); other 403s fall
-              // back to the generic campus-unsupported hint.
-              customStateHint = e.message.isNotEmpty
-                  ? e.message
-                  : e.toLocalizedMessage(context);
-            });
-          default:
-            setState(() {
-              state = _State.custom;
-              customStateHint = e.toLocalizedMessage(context);
-            });
-            if (e.httpStatusCode != null) {
-              AnalyticsUtil.instance.logApiEvent(
-                'getBusTimeTables',
-                e.httpStatusCode!,
-                message: e.message,
-              );
-            }
-        }
+      if (e is AccountNotSupportedException) {
+        setState(() => state = _State.userNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is CampusNotSupportedException) {
+        setState(() => state = _State.campusNotSupport);
+        AnalyticsUtil.instance.setUserProperty(
+          Constants.canUseBus,
+          AnalyticsConstants.no,
+        );
+      } else if (e is ServerException && e.message.isNotEmpty) {
+        // Bus "cannot reserve" business rule keeps the raw server
+        // message (e.g. reservation window closed / train full).
+        setState(() {
+          state = _State.custom;
+          customStateHint = e.message;
+        });
       } else {
         setState(() {
           state = _State.custom;
           customStateHint = e.toLocalizedMessage(context);
         });
+        if (e is ServerException && e.httpStatusCode != null) {
+          AnalyticsUtil.instance.logApiEvent(
+            'getBusTimeTables',
+            e.httpStatusCode!,
+            message: e.message,
+          );
+        }
       }
     }
   }
