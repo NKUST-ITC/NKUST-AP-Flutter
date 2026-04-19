@@ -177,6 +177,13 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Clean previous signing keychains (self-hosted idempotency)
+        # Self-hosted runners keep ~/Library/Keychains between jobs, so
+        # apple-actions/import-codesign-certs fails on the second run
+        # with exit 48 ("A keychain with the same name already exists").
+        run: |
+          security delete-keychain mac-installer-signing.keychain 2>/dev/null || true
+          security delete-keychain mac-app-signing.keychain 2>/dev/null || true
       - name: Import Mac Installer Distribution certificate
         uses: apple-actions/import-codesign-certs@v3
         with:
@@ -184,14 +191,56 @@ jobs:
           p12-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
           keychain: mac-installer-signing
           keychain-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
-      - name: Verify Installer Distribution identity is available
+      - name: Import Mac App Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_APP_CERT_BASE64 }}
+          p12-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          keychain: mac-app-signing
+          keychain-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          create-keychain: true
+      - name: Consolidate keychain search list
+        # Each apple-actions/import-codesign-certs@v3 run rewrites the
+        # user-domain search list to `<its keychain> login`, which
+        # evicts the previous custom keychain. Re-add both so every
+        # subsequent security/codesign/productbuild lookup sees both
+        # identities.
         run: |
+          security list-keychains -d user -s \
+            mac-installer-signing.keychain \
+            mac-app-signing.keychain \
+            login.keychain
+          security list-keychains -d user
+      - name: Verify Mac signing identities are available
+        run: |
+          missing=0
           if ! security find-identity -v | grep -q "3rd Party Mac Developer Installer"; then
-            echo "::error::3rd Party Mac Developer Installer identity not found in any keychain after import. Verify MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD secrets contain a valid Installer Distribution .p12."
+            echo "::error::3rd Party Mac Developer Installer identity missing. Check MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD."
+            missing=1
+          fi
+          if ! security find-identity -v | grep -q "3rd Party Mac Developer Application"; then
+            echo "::error::3rd Party Mac Developer Application identity missing. Check MAC_APP_CERT_BASE64 / MAC_APP_CERT_PASSWORD."
+            missing=1
+          fi
+          if [ "$missing" = "1" ]; then
             security find-identity -v || true
             exit 1
           fi
-          security find-identity -v | grep "3rd Party Mac Developer Installer"
+          security find-identity -v | grep "3rd Party Mac Developer"
+      - name: Download Mac App Store provisioning profile
+        # Pull the Mac App Store Distribution provisioning profile via
+        # the Connect API rather than committing it to the repo. The
+        # action drops the .provisionprofile under
+        # ~/Library/MobileDevice/Provisioning Profiles/ with a UUID
+        # filename. We copy it into the .app bundle after build, before
+        # codesign seals the Contents hash.
+        uses: apple-actions/download-provisioning-profiles@v4
+        with:
+          bundle-id: com.nkust.ap.flutter
+          profile-type: MAC_APP_STORE
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_PEM }}
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
@@ -199,6 +248,47 @@ jobs:
           AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Embed provisioning profile and codesign .app
+        # `flutter build macos --release` produces an unsigned (or
+        # ad-hoc-signed) .app. For App Store upload we need to:
+        #   1. Copy the downloaded MAC_APP_STORE profile into the
+        #      bundle as Contents/embedded.provisionprofile so altool's
+        #      "profile included in the bundle" check matches.
+        #   2. Re-sign with the 3rd Party Mac Developer Application
+        #      identity and the Release.entitlements (which declares
+        #      com.apple.security.app-sandbox=true, required for App
+        #      Store submission).
+        # Order matters: profile must land before codesign seals the
+        # _CodeSignature directory; otherwise the signature invalidates
+        # the moment we drop a new file into Contents/.
+        env:
+          MAC_APP_DISTRIBUTION_CERT_NAME: ${{ secrets.MAC_APP_DISTRIBUTION_CERT_NAME }}
+        run: |
+          APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -type d -name '*.app' | head -n1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::No .app bundle found under build/macos/Build/Products/Release"
+            exit 1
+          fi
+          echo "App bundle: $APP_PATH"
+
+          PROFILE_SRC="$(find "$HOME/Library/MobileDevice/Provisioning Profiles" -maxdepth 1 -type f -name '*.provisionprofile' | head -n1)"
+          if [ -z "$PROFILE_SRC" ]; then
+            echo "::error::No provisioning profile found under ~/Library/MobileDevice/Provisioning Profiles/ — download step didn't land anything."
+            exit 1
+          fi
+          echo "Embedding profile: $PROFILE_SRC"
+          cp "$PROFILE_SRC" "$APP_PATH/Contents/embedded.provisionprofile"
+
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements macos/Runner/Release.entitlements \
+            --sign "$MAC_APP_DISTRIBUTION_CERT_NAME" \
+            "$APP_PATH"
+          codesign --verify --verbose=2 "$APP_PATH"
+          codesign --display --entitlements :- "$APP_PATH" | \
+            grep -q "com.apple.security.app-sandbox" || {
+              echo "::error::app-sandbox entitlement missing from signed .app"
+              exit 1
+            }
       - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
