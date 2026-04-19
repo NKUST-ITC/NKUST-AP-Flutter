@@ -519,9 +519,27 @@ class WebApHelper
     // successful logins while ag003 recovered — ag003 apparently
     // tolerates missing nav context, ag304_01 does not.
     //
+    // Log jar state so we can verify the session cookie webap expects
+    // (typically JSESSIONID) is actually being sent. If only auxiliary
+    // cookies are present the POST was orphaned before it reached
+    // webap's session filter.
+    final List<Cookie> jarCookies = await cookieJar.loadForRequest(
+      Uri.parse(url),
+    );
+    final String cookieNames =
+        jarCookies.map((Cookie c) => c.name).join(',');
+    log('[apQuery] $queryQid: cookies=[$cookieNames]');
+
     // Touch the nav URL first to install the context. Response body
-    // is not consumed.
-    await dio.get<dynamic>(navUrl);
+    // is not consumed past status/length logging.
+    final Response<dynamic> navRes = await dio.get<dynamic>(navUrl);
+    final int navBodyLen = (navRes.data is String)
+        ? (navRes.data as String).length
+        : (navRes.data is List<int>)
+            ? (navRes.data as List<int>).length
+            : -1;
+    log('[apQuery] $queryQid: nav GET → status=${navRes.statusCode} '
+        'bodyLen=$navBodyLen');
     dio.options.headers['Referer'] = navUrl;
 
     final Options options = Options(
@@ -545,17 +563,33 @@ class WebApHelper
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
-      // Helps tell apart a short 302 redirect body (session truly gone
-      // on server side) from a full login page HTML (cookie didn't
-      // reach the server, or jar didn't persist). Logged only on the
-      // failure path to avoid noise.
+      // Include a preview of the first few hundred chars of the body.
+      // That's enough to distinguish a short 302 html, a login page, a
+      // <script>location.href=...</script> redirect stub, or whatever
+      // other flavour webap is sending; current header-only logging
+      // can't tell them apart.
+      final String bodyStr = (request.data is String)
+          ? request.data as String
+          : (request.data is List<int>)
+              ? String.fromCharCodes((request.data as List<int>).take(400))
+              : '';
       final int bodyLen = (request.data is String)
           ? (request.data as String).length
           : (request.data is List<int>)
               ? (request.data as List<int>).length
               : -1;
+      final String preview = bodyStr.length > 400
+          ? bodyStr.substring(0, 400)
+          : bodyStr;
+      // Collapse whitespace so the preview fits on one log line.
+      final String previewOneLine = preview
+          .replaceAll('\r', ' ')
+          .replaceAll('\n', ' ')
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim();
       log('[apQuery] $queryQid → code=2 session expired '
           '(status=${request.statusCode} bodyLen=$bodyLen)');
+      log('[apQuery] $queryQid body preview: $previewOneLine');
       throw const ApSessionExpiredException();
     }
     return request;
