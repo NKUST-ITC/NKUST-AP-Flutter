@@ -64,7 +64,7 @@ jobs:
   deploy_android:
     name: Android Play Store
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, android, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -91,7 +91,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -109,7 +108,7 @@ jobs:
   deploy_ios:
     name: iOS Deploy TestFlight
     needs: prepare
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -161,7 +160,7 @@ jobs:
   deploy_macos:
     name: macOS Deploy TestFlight
     needs: prepare
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -215,7 +214,7 @@ jobs:
   deploy_windows:
     name: Windows App
     needs: prepare
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -224,7 +223,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter doctor -v
       - run: flutter pub get
