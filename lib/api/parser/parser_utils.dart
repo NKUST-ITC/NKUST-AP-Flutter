@@ -1,5 +1,23 @@
 import 'dart:convert';
 
+import 'package:html/dom.dart';
+import 'package:html/parser.dart' as html;
+
+/// Extracts the ASP.NET `__RequestVerificationToken` CSRF value from an
+/// HTML form payload. Returns an empty string when the form either has
+/// no such input or the input lacks a `value` attribute — callers that
+/// genuinely need the token should treat that as an error separately.
+String getCSRF(dynamic rawHtml) {
+  final Document document = html.parse(rawHtml);
+  for (final Element inputElement in document.getElementsByTagName('input')) {
+    if ((inputElement.attributes['name'] ?? '') ==
+        '__RequestVerificationToken') {
+      return inputElement.attributes['value'] ?? '';
+    }
+  }
+  return '';
+}
+
 /// Strips HTTP chunked-transfer-encoding hex length markers that leak into
 /// the response body, then UTF-8 decodes the result.
 ///

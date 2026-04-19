@@ -13,6 +13,7 @@ import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
@@ -160,10 +161,12 @@ class Helper {
       ScraperSource.stdsys, StdsysHelper.instance,
     );
 
-    // BusHelper: bus (sole BusProvider — the mobile.nkust.edu.tw-based
-    // implementation in MobileNkustHelper was removed in #301).
+    // VmsBusHelper: bus (vms.nkust.edu.tw — the sole remaining
+    // BusProvider since the legacy bus.kuas.edu.tw implementation
+    // never survived the KUAS/NKUST merger and the mobile.nkust.edu.tw
+    // scraper that used to share cookies with it has been removed).
     registry.register<BusProvider>(
-      ScraperSource.webap, BusHelper.instance,
+      ScraperSource.webap, VmsBusHelper.instance,
     );
 
     // LeaveHelper: leave
@@ -201,6 +204,10 @@ class Helper {
     });
     registerCleanup(() {
       LeaveHelper.instance.isLogin = null;
+    });
+    registerCleanup(() {
+      VmsBusHelper.instance.isLogin = false;
+      VmsBusHelper.instance.dioInit();
     });
   }
 
