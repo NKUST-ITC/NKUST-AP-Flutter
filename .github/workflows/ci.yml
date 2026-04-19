@@ -39,6 +39,10 @@ env:
   java_version: '21'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze_and_test:
     name: Analyze & Test
@@ -62,7 +66,7 @@ jobs:
   build_android:
     name: Build Android App
     needs: analyze_and_test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, android, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,7 +84,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -89,7 +92,7 @@ jobs:
   build_ios:
     name: Build iOS App
     needs: analyze_and_test
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -118,7 +121,7 @@ jobs:
   build_macos:
     name: Build macOS App
     needs: analyze_and_test
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -162,7 +165,7 @@ jobs:
   build_windows:
     name: Build Windows App
     needs: analyze_and_test
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -171,7 +174,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter doctor -v
       - run: flutter pub get
