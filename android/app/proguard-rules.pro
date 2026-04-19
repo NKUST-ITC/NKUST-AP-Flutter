@@ -39,3 +39,12 @@
 ## AndroidX Window Extensions
 -dontwarn androidx.window.extensions.**
 -dontwarn androidx.window.sidecar.**
+
+## androidx.datastore JNI bridge
+# R8 was renaming NativeSharedCounter and its native method, so JNI lookup
+# for Java_androidx_datastore_core_NativeSharedCounter_nativeTruncateFile
+# failed at runtime and crashed Firebase's background DataStore reads.
+-keep class androidx.datastore.core.NativeSharedCounter { *; }
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
