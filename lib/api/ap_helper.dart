@@ -190,9 +190,13 @@ class WebApHelper
         // way to tell apart "OCR read wrong string, server said -1" from
         // "OCR right but login succeeded and caller still sees problems
         // downstream". Printed before the switch so every branch is
-        // covered.
+        // covered. Also print the Set-Cookie header names so we can
+        // spot session-id rotation and any extra cookies webap only
+        // hands out at login time.
+        final List<String>? perchkSetCookie = res.headers['set-cookie'];
         log('[login] attempt ${i + 1}/$retryCounts: '
-            'captcha=$captchaCode perchk=$code');
+            'captcha=$captchaCode perchk=$code '
+            'setCookieCount=${perchkSetCookie?.length ?? 0}');
         switch (code) {
           case -1:
             //Captcha error, go retry.
@@ -206,6 +210,37 @@ class WebApHelper
               retryCounts: retryCounts,
             );
           case 0:
+            // webap's perchk.jsp only returns HTML that tells the
+            // browser "top.location.href='f_index.html'". The actual
+            // "session is now authenticated" state in the Tomcat
+            // backend is only finalised when the browser follows that
+            // redirect and GETs f_index.html — that's when webap
+            // stamps the JSESSIONID as an authenticated session and
+            // issues any auxiliary cookies (e.g. SKI…).
+            //
+            // Skipping this step leaves the session in an "authenticated
+            // by perchk but not promoted" limbo; any subsequent apQuery
+            // gets a 'Please Logon' redirect page and our parser reads
+            // it as code=2, triggering a full relogin cycle that keeps
+            // losing to the same issue. Just fetch the page here so
+            // the session is actually usable by the time this future
+            // resolves. Response body is not consumed.
+            try {
+              await dio.get<dynamic>(
+                'https://webap.nkust.edu.tw/nkust/f_index.html',
+                options: Options(
+                  headers: <String, String>{
+                    'Referer':
+                        'https://webap.nkust.edu.tw/nkust/perchk.jsp',
+                  },
+                ),
+              );
+            } catch (e) {
+              // Non-fatal: if the finalise GET fails transiently the
+              // caller's retry path will still fire on the next
+              // apQuery. Logged so a regression here is visible.
+              log('[login] f_index finalise GET failed: $e');
+            }
             isLogin = true;
             return LoginResponse(
               expireTime: DateTime.now().add(const Duration(hours: 6)),
