@@ -14,6 +14,7 @@ import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/models/cancel_bus_data.dart';
@@ -161,7 +162,9 @@ class Helper {
       ScraperSource.stdsys, StdsysHelper.instance,
     );
 
-    // MobileNkustHelper: course, score, userInfo, bus
+    // MobileNkustHelper: course, score, userInfo. Bus has been extracted
+    // into its own helper (VmsBusHelper) because the bus endpoints live on
+    // vms.nkust.edu.tw, not mobile.nkust.edu.tw.
     registry.register<CourseProvider>(
       ScraperSource.mobile, MobileNkustHelper.instance,
     );
@@ -171,11 +174,14 @@ class Helper {
     registry.register<UserInfoProvider>(
       ScraperSource.mobile, MobileNkustHelper.instance,
     );
+
+    // VmsBusHelper: bus (vms.nkust.edu.tw)
     registry.register<BusProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
+      ScraperSource.mobile, VmsBusHelper.instance,
     );
 
-    // BusHelper: bus
+    // BusHelper: legacy bus.kuas.edu.tw implementation; kept for the
+    // webap source registration.
     registry.register<BusProvider>(
       ScraperSource.webap, BusHelper.instance,
     );
@@ -218,6 +224,10 @@ class Helper {
     });
     registerCleanup(() {
       MobileNkustHelper.instance.cookiesData?.clear();
+    });
+    registerCleanup(() {
+      VmsBusHelper.instance.isLogin = false;
+      VmsBusHelper.instance.dioInit();
     });
   }
 

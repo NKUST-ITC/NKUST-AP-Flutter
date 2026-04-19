@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -10,30 +9,22 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/parser/mobile_nkust_parser.dart';
+import 'package:nkust_ap/api/parser/parser_utils.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/bus_data.dart';
-import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/midterm_alerts_data.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
-import 'package:nkust_ap/api/capability/bus_provider.dart';
 import 'package:nkust_ap/api/capability/course_provider.dart';
 import 'package:nkust_ap/api/capability/score_provider.dart';
 import 'package:nkust_ap/api/capability/user_info_provider.dart';
 import 'package:nkust_ap/pages/mobile_nkust_page.dart';
 
 class MobileNkustHelper
-    implements CourseProvider, ScoreProvider, UserInfoProvider, BusProvider {
+    implements CourseProvider, ScoreProvider, UserInfoProvider {
   static const String baseUrl = 'https://mobile.nkust.edu.tw/';
-  //TODO: Move vms (for school bus) somewhere out of mobileNkustHelper
-  static const String busBaseUrl = 'https://vms.nkust.edu.tw/';
 
   static const String loginUrl = baseUrl;
   static const String homeUrl = '${baseUrl}Home/Index';
@@ -42,18 +33,6 @@ class MobileNkustHelper
   static const String pictureUrl = '${baseUrl}Common/GetStudentPhoto';
   static const String midAlertsUrl = '${baseUrl}Student/Grades/MidWarning';
   static const String studentLeavePageUrl = '${baseUrl}Student/Leave';
-  static const String busTimetablePageUrl = '${busBaseUrl}Bus/Bus/Timetable';
-  static const String busTimetableApiUrl =
-      '${busBaseUrl}Bus/Bus/GetTimetableGrid';
-  static const String busBookApiUrl = '${busBaseUrl}Bus/Bus/CreateReserve';
-  static const String busUnbookApiUrl = '${busBaseUrl}Bus/Bus/CancelReserve';
-  static const String busUserRecordPageUrl = '${busBaseUrl}Bus/Bus/Reserve';
-  static const String busUserRecordApiUrl =
-      '${busBaseUrl}Bus/Bus/GetReserveGrid';
-  static const String busViolationRecordsPageUrl =
-      '${busBaseUrl}Bus/Bus/Illegal';
-  static const String busViolationRecordsApiUrl =
-      '${busBaseUrl}Bus/Bus/GetIllegalGrid';
   static const String checkExpireUrl = '${baseUrl}Account/CheckExpire';
 
   static MobileNkustHelper? _instance;
@@ -179,7 +158,7 @@ class MobileNkustHelper
 
     if (data != null && postUrl != null) {
       final requestData = <String, dynamic>{
-        '__RequestVerificationToken': MobileNkustParser.getCSRF(response.data),
+        '__RequestVerificationToken': getCSRF(response.data),
         ...data,
       };
 
@@ -194,25 +173,6 @@ class MobileNkustHelper
     }
 
     return response;
-  }
-
-  Future<void> loginVms({
-    required String username,
-    required String password,
-  }) async {
-    try {
-      await _request(
-        busBaseUrl,
-        postUrl: busBaseUrl,
-        data: <String, dynamic>{
-          'Account': username,
-          'Password': password,
-          'RememberMe': 'true',
-        },
-      );
-    } on DioException catch (e) {
-      if (e.response?.statusCode != 302) rethrow;
-    }
   }
 
   Future<LoginResponse> login({
@@ -339,193 +299,4 @@ class MobileNkustHelper
     return response.data;
   }
 
-  Future<BusData> busTimeTableQuery({required DateTime fromDateTime}) async {
-    final year = fromDateTime.year.toString();
-    final month = fromDateTime.month.toString().padLeft(2, '0');
-    final day = fromDateTime.day.toString().padLeft(2, '0');
-    final dateStr = '$year/$month/$day';
-
-    final pageResponse = await dio.get<String>(
-      busTimetablePageUrl,
-      options: Options(headers: <String, String>{'Referer': homeUrl}),
-    );
-
-    final busInfo = MobileNkustParser.busInfo(pageResponse.data);
-    final csrf = MobileNkustParser.getCSRF(pageResponse.data);
-
-    final routes = <List<String>>[
-      <String>['建工', '燕巢'],
-      <String>['燕巢', '建工'],
-      <String>['第一', '建工'],
-      <String>['建工', '第一'],
-    ];
-
-    final futures = routes.map((route) async {
-      final response = await dio.post<dynamic>(
-        busTimetableApiUrl,
-        data: <String, String>{
-          'driveDate': dateStr,
-          'beginStation': route[0],
-          'endStation': route[1],
-          '__RequestVerificationToken': csrf,
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          headers: <String, String>{'Referer': busTimetablePageUrl},
-        ),
-      );
-      return MobileNkustParser.busTimeTable(
-        response.data,
-        time: dateStr,
-        startStation: route[0],
-        endStation: route[1],
-      );
-    });
-
-    final results = await Future.wait(futures);
-    final allBuses = results.expand((list) => list).toList();
-
-    return BusData.fromJson(<String, dynamic>{
-      'data': allBuses,
-      ...busInfo,
-    });
-  }
-
-  Future<BookingBusData> busBook({required String busId}) async {
-    final response = await _request(
-      busTimetablePageUrl,
-      postUrl: busBookApiUrl,
-      data: <String, String>{'busId': busId},
-      headers: <String, String>{'Referer': homeUrl},
-      postHeaders: <String, String>{'Referer': busTimetablePageUrl},
-    );
-
-    final data = _parseJsonResponse(response);
-    return BookingBusData(
-      success: (data['success'] as bool) && data['title'] == '預約成功',
-    );
-  }
-
-  Future<CancelBusData> busUnBook({required String busId}) async {
-    final response = await _request(
-      busTimetablePageUrl,
-      postUrl: busUnbookApiUrl,
-      data: <String, String>{'reserveId': busId},
-      headers: <String, String>{'Referer': homeUrl},
-      postHeaders: <String, String>{'Referer': busTimetablePageUrl},
-    );
-
-    final data = _parseJsonResponse(response);
-    return CancelBusData(
-      success: (data['success'] as bool) && data['title'] == '取消成功',
-    );
-  }
-
-  Future<BusReservationsData> busUserRecord() async {
-    final pageResponse = await dio.get<dynamic>(
-      busUserRecordPageUrl,
-      options: Options(headers: <String, String>{'Referer': homeUrl}),
-    );
-
-    final csrf = MobileNkustParser.getCSRF(pageResponse.data);
-
-    final routes = <List<String>>[
-      <String>['建工', '燕巢'],
-      <String>['燕巢', '建工'],
-      <String>['第一', '建工'],
-      <String>['建工', '第一'],
-    ];
-
-    final futures = routes.map((route) async {
-      final response = await dio.post<dynamic>(
-        busUserRecordApiUrl,
-        data: <String, dynamic>{
-          'reserveStateCode': 0,
-          'beginStation': route[0],
-          'endStation': route[1],
-          'pageNum': 1,
-          'pageSize': 99,
-          '__RequestVerificationToken': csrf,
-        },
-        options: Options(
-          contentType: Headers.formUrlEncodedContentType,
-          headers: <String, String>{'Referer': busUserRecordPageUrl},
-        ),
-      );
-      return MobileNkustParser.busUserRecords(
-        '<table>${response.data}</table>',
-        startStation: route[0],
-        endStation: route[1],
-      );
-    });
-
-    final results = await Future.wait(futures);
-    final allRecords = results.expand((list) => list).toList();
-
-    return BusReservationsData.fromJson(<String, dynamic>{'data': allRecords});
-  }
-
-  Future<BusViolationRecordsData> busViolationRecords() async {
-    final paidFuture = _request(
-      busViolationRecordsPageUrl,
-      postUrl: busViolationRecordsApiUrl,
-      data: <String, dynamic>{'paid': true, 'pageNum': 1, 'pageSize': 100},
-      headers: <String, String>{'Referer': homeUrl},
-      postHeaders: <String, String>{'Referer': busViolationRecordsPageUrl},
-    );
-
-    final notPaidFuture = _request(
-      busViolationRecordsPageUrl,
-      postUrl: busViolationRecordsApiUrl,
-      data: <String, dynamic>{'paid': false, 'pageNum': 1, 'pageSize': 100},
-      headers: <String, String>{'Referer': homeUrl},
-      postHeaders: <String, String>{'Referer': busViolationRecordsPageUrl},
-    );
-
-    final responses = await Future.wait([paidFuture, notPaidFuture]);
-
-    final result = <Map<String, dynamic>>[
-      ...MobileNkustParser.busViolationRecords(
-        '<table>${responses[0].data}</table>',
-        paidStatus: true,
-      ),
-      ...MobileNkustParser.busViolationRecords(
-        '<table>${responses[1].data}</table>',
-        paidStatus: false,
-      ),
-    ];
-
-    return BusViolationRecordsData.fromJson(
-      <String, dynamic>{'reservation': result},
-    );
-  }
-
-  Map<String, dynamic> _parseJsonResponse(Response<dynamic> response) {
-    if (response.data is String &&
-        response.headers['Content-Type']?[0].contains('text/html') == true) {
-      return jsonDecode(response.data as String) as Map<String, dynamic>;
-    }
-    return response.data as Map<String, dynamic>;
-  }
-
-  // -- BusProvider interface --
-
-  @override
-  Future<BusData> getTimeTable({required DateTime dateTime}) =>
-      busTimeTableQuery(fromDateTime: dateTime);
-
-  @override
-  Future<BookingBusData> bookBus({required String busId}) =>
-      busBook(busId: busId);
-
-  @override
-  Future<CancelBusData> cancelBus({required String busId}) =>
-      busUnBook(busId: busId);
-
-  @override
-  Future<BusReservationsData> getReservations() => busUserRecord();
-
-  @override
-  Future<BusViolationRecordsData> getViolationRecords() =>
-      busViolationRecords();
 }

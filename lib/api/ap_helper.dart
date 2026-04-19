@@ -12,7 +12,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -652,7 +652,7 @@ class WebApHelper
   }
 
   Future<void> loginVms() async {
-    await MobileNkustHelper.instance.loginVms(
+    await VmsBusHelper.instance.loginVms(
       username: Helper.username!,
       password: Helper.password!,
     );

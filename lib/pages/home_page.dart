@@ -16,6 +16,7 @@ import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -437,12 +438,11 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
-          //TODO: Move vms (for school bus) somewhere out of mobileNkustHelper
           DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
             onTap: () => PlatformUtil.instance.launchUrl(
-              MobileNkustHelper.busTimetablePageUrl,
+              VmsBusHelper.timetablePageUrl,
             ),
           ),
         DrawerMenuItem(
