@@ -89,7 +89,7 @@ jobs:
   build_ios:
     name: Build iOS App
     needs: analyze_and_test
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -118,7 +118,7 @@ jobs:
   build_macos:
     name: Build macOS App
     needs: analyze_and_test
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
