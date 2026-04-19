@@ -136,25 +136,6 @@ class WebApHelper
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
 
-    // Clear any stale webap cookies before issuing a fresh login.
-    // Without this step the cookie jar accumulates a new JSESSIONID on
-    // every successful perchk.jsp response without ever evicting the
-    // previous one (PrivateCookieManager stores webap's non-RFC6265
-    // cookies with slightly different attributes each time, so they
-    // don't collide by name). The outgoing Cookie header then carries
-    // both copies and Tomcat picks the first — the old, now-invalid
-    // one — producing persistent "session expired" errors on every
-    // apQuery even though the login itself succeeded. Forcing a
-    // single JSESSIONID by wiping the jar first short-circuits that.
-    final List<Cookie> before = await cookieJar.loadForRequest(
-      Uri.parse('https://webap.nkust.edu.tw/'),
-    );
-    if (before.isNotEmpty) {
-      log('[login] clearing ${before.length} stale webap cookie(s) before '
-          'fresh login: ${before.map((Cookie c) => c.name).join(',')}');
-      await cookieJar.delete(Uri.parse('https://webap.nkust.edu.tw/'));
-    }
-
     // Last transient transport error seen during this login attempt.
     // Used when every captcha iteration fails due to mobile network
     // blips so the caller gets a [NetworkException] (and the UI's
@@ -210,37 +191,6 @@ class WebApHelper
               retryCounts: retryCounts,
             );
           case 0:
-            // webap's perchk.jsp only returns HTML that tells the
-            // browser "top.location.href='f_index.html'". The actual
-            // "session is now authenticated" state in the Tomcat
-            // backend is only finalised when the browser follows that
-            // redirect and GETs f_index.html — that's when webap
-            // stamps the JSESSIONID as an authenticated session and
-            // issues any auxiliary cookies (e.g. SKI…).
-            //
-            // Skipping this step leaves the session in an "authenticated
-            // by perchk but not promoted" limbo; any subsequent apQuery
-            // gets a 'Please Logon' redirect page and our parser reads
-            // it as code=2, triggering a full relogin cycle that keeps
-            // losing to the same issue. Just fetch the page here so
-            // the session is actually usable by the time this future
-            // resolves. Response body is not consumed.
-            try {
-              await dio.get<dynamic>(
-                'https://webap.nkust.edu.tw/nkust/f_index.html',
-                options: Options(
-                  headers: <String, String>{
-                    'Referer':
-                        'https://webap.nkust.edu.tw/nkust/perchk.jsp',
-                  },
-                ),
-              );
-            } catch (e) {
-              // Non-fatal: if the finalise GET fails transiently the
-              // caller's retry path will still fire on the next
-              // apQuery. Logged so a regression here is visible.
-              log('[login] f_index finalise GET failed: $e');
-            }
             isLogin = true;
             return LoginResponse(
               expireTime: DateTime.now().add(const Duration(hours: 6)),
@@ -552,31 +502,11 @@ class WebApHelper
     bool? bytesResponse,
   }) async {
     await checkLogin();
-    final String moduleDir = '${queryQid.substring(0, 2)}_pro';
     final String url =
-        'https://webap.nkust.edu.tw/nkust/$moduleDir/$queryQid.jsp';
-    final String navUrl =
-        'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp'
-        '?spath=$moduleDir/$queryQid.jsp?';
+        'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
 
-    // webap's JSP portal expects the session to have a "navigation
-    // context" for the target module before it accepts a direct POST
-    // on `*_pro/*.jsp`. A real browser establishes this by loading
-    // `sys001_00.jsp` with the matching `spath` query parameter —
-    // that's the frame the left-hand menu redirects into before the
-    // content frame loads the actual query page. Previously we only
-    // faked the Referer header pointing at sys001_00.jsp without
-    // actually fetching it, so webap treated the POST as an orphan
-    // request and returned its "session expired" error page (code 2)
-    // even though the session itself was valid. This produced the
-    // confusing pattern where ag304_01 kept failing through multiple
-    // successful logins while ag003 recovered — ag003 apparently
-    // tolerates missing nav context, ag304_01 does not.
-    //
-    // Log jar state so we can verify the session cookie webap expects
-    // (typically JSESSIONID) is actually being sent. If only auxiliary
-    // cookies are present the POST was orphaned before it reached
-    // webap's session filter.
+    // Diagnostic: log which cookies the outgoing request will carry so
+    // failures downstream can be correlated with session state.
     final List<Cookie> jarCookies = await cookieJar.loadForRequest(
       Uri.parse(url),
     );
@@ -584,22 +514,12 @@ class WebApHelper
         jarCookies.map((Cookie c) => c.name).join(',');
     log('[apQuery] $queryQid: cookies=[$cookieNames]');
 
-    // Touch the nav URL first to install the context. Response body
-    // is not consumed past status/length logging.
-    final Response<dynamic> navRes = await dio.get<dynamic>(navUrl);
-    final int navBodyLen = (navRes.data is String)
-        ? (navRes.data as String).length
-        : (navRes.data is List<int>)
-            ? (navRes.data as List<int>).length
-            : -1;
-    log('[apQuery] $queryQid: nav GET → status=${navRes.statusCode} '
-        'bodyLen=$navBodyLen');
-    dio.options.headers['Referer'] = navUrl;
-
     final Options options = Options(
       contentType: 'application/x-www-form-urlencoded',
       responseType: bytesResponse != null ? ResponseType.bytes : null,
     );
+    dio.options.headers['Referer'] =
+        'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
     Response<dynamic> request;
     if (bytesResponse != null) {

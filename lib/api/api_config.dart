@@ -15,8 +15,15 @@ class ApiConfig {
   static const int maxRetries = 3;
   static const Duration retryDelay = Duration(milliseconds: 500);
 
+  // Experiment: webap appears to treat the previous Mac-Chrome UA
+  // string as non-interactive traffic and returns its
+  // "Please Logon" redirect page on every apQuery even after a
+  // successful perchk.jsp handshake. Switch to a plain Android Chrome
+  // mobile UA — the same shape a student actually browsing webap on
+  // their phone would send — and see whether the behaviour changes.
   static const String defaultUserAgent =
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+      'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 '
+      '(KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36';
 
   static Dio createDio({
     String? baseUrl,
