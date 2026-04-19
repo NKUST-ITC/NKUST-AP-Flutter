@@ -64,7 +64,7 @@ jobs:
   deploy_android:
     name: Android Play Store
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, android, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -215,7 +215,7 @@ jobs:
   deploy_windows:
     name: Windows App
     needs: prepare
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

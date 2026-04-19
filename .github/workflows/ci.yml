@@ -62,7 +62,7 @@ jobs:
   build_android:
     name: Build Android App
     needs: analyze_and_test
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, android, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -162,7 +162,7 @@ jobs:
   build_windows:
     name: Build Windows App
     needs: analyze_and_test
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
