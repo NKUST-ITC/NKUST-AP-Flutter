@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nkust_ap/api/parser/ap_parser.dart';
-import 'package:nkust_ap/api/parser/bus_parser.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
 import 'package:nkust_ap/api/parser/nkust_parser.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
@@ -343,89 +342,8 @@ void main() {
     });
   });
 
-  // ─── Bus Parsers ─────────────────────────────────────────────────────
-  group('busTimeTableParser', () {
-    test('parses bus timetable JSON', () {
-      final String json =
-          File('assets_test/bus/timetable.json').readAsStringSync();
-      final Map<String, dynamic> input =
-          jsonDecode(json) as Map<String, dynamic>;
-      // Cast data list elements
-      input['data'] = (input['data'] as List<dynamic>)
-          .map((dynamic e) => e as Map<String, dynamic>)
-          .toList();
-      final Map<String, dynamic> result = busTimeTableParser(input);
-
-      final List<dynamic> data = result['data'] as List<dynamic>;
-      expect(data.length, 2);
-      expect(data[0]['startStation'], '建工');
-      expect(data[0]['endStation'], '燕巢');
-      expect(data[0]['busId'], '42');
-      expect(data[0]['reserveCount'], 30);
-      expect(data[0]['limitCount'], 50);
-      expect(data[0]['isReserve'], isA<bool>());
-      expect(data[0]['departureTime'], isNotEmpty);
-      expect(data[1]['startStation'], '燕巢');
-    });
-  });
-
-  group('busReservationsParser', () {
-    test('parses bus reservations JSON', () {
-      final String json =
-          File('assets_test/bus/reservations.json').readAsStringSync();
-      final Map<String, dynamic> input =
-          jsonDecode(json) as Map<String, dynamic>;
-      input['data'] = (input['data'] as List<dynamic>)
-          .map((dynamic e) => e as Map<String, dynamic>)
-          .toList();
-      final Map<String, dynamic> result = busReservationsParser(input);
-
-      final List<dynamic> data = result['data'] as List<dynamic>;
-      expect(data.length, 2);
-      expect(data[0]['cancelKey'], 'RSV001');
-      expect(data[0]['start'], '建工');
-      expect(data[0]['end'], '燕巢');
-      expect(data[0]['state'], '已預約');
-      expect(data[0]['dateTime'], isNotEmpty);
-      expect(data[0]['endTime'], isNotEmpty);
-    });
-  });
-
-  group('busViolationRecordsParser', () {
-    test('parses bus violation records JSON', () {
-      final String json =
-          File('assets_test/bus/violation_records.json').readAsStringSync();
-      final Map<String, dynamic> input =
-          jsonDecode(json) as Map<String, dynamic>;
-      input['data'] = (input['data'] as List<dynamic>)
-          .map((dynamic e) => e as Map<String, dynamic>)
-          .toList();
-      final Map<String, dynamic> result = busViolationRecordsParser(input);
-
-      final List<dynamic> data = result['reservation'] as List<dynamic>;
-      expect(data.length, 2);
-      expect(data[0]['startStation'], '建工');
-      expect(data[0]['endStation'], '燕巢');
-      expect(data[0]['amountend'], 100);
-      expect(data[0]['isPayment'], false);
-      expect(data[0]['time'], isNotEmpty);
-      expect(data[1]['isPayment'], true);
-    });
-  });
-
-  group('busRealTime', () {
-    test('converts .NET ticks to ISO8601 string', () {
-      final String result = busRealTime('637800036000000000');
-      expect(result, isNotEmpty);
-      // Should be parseable as DateTime
-      expect(() => DateTime.parse(result), returnsNormally);
-    });
-
-    test('handles int input', () {
-      final String result = busRealTime(637800036000000000);
-      expect(() => DateTime.parse(result), returnsNormally);
-    });
-  });
+  // Legacy bus.kuas.edu.tw parser tests removed along with BusHelper
+  // (system retired after the KUAS/NKUST merger).
 
   // ─── Leave Parsers ───────────────────────────────────────────────────
   group('leaveQueryParser', () {

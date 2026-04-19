@@ -141,7 +141,7 @@ mixin ReloginMixin {
   }
 }
 
-// ApSessionExpiredException / BusSessionExpiredException have been folded
-// into the ApException hierarchy in lib/api/exceptions/api_exception.dart
-// so UI layers that catch `on ApException catch` automatically cover the
-// session-expired case when relogin retries are exhausted.
+// ApSessionExpiredException is part of the ApException hierarchy in
+// lib/api/exceptions/api_exception.dart so UI layers that catch
+// `on ApException catch` automatically cover the session-expired case
+// when relogin retries are exhausted.
