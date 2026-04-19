@@ -91,7 +91,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build Android app bundle
@@ -224,7 +223,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter doctor -v
       - run: flutter pub get
