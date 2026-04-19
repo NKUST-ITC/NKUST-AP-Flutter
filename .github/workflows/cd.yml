@@ -95,13 +95,15 @@ jobs:
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release --build-number=${{ needs.prepare.outputs.version_code }}
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-      - name: Install Fastlane
-        run: gem install fastlane fastlane-plugin-flutter_version
       - name: Run Fastlane
+        # Self-hosted runner ships fastlane + fastlane-plugin-flutter_version
+        # pre-installed (same assumption the iOS deploy job makes). On
+        # GitHub-hosted ubuntu this job used `ruby/setup-ruby@v1` + a
+        # `gem install` step; on the self-hosted macOS runner those steps
+        # failed because ruby/setup-ruby@v1 tries to mkdir /Users/runner
+        # (the GitHub-hosted runner's home), which the self-hosted user
+        # (rainvisitor) doesn't own — EACCES. Mirror the iOS setup
+        # instead: just invoke the system fastlane directly.
         run: fastlane ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
         working-directory: ./android
 
