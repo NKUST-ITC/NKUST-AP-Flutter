@@ -11,7 +11,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/api/vms_bus_helper.dart';
@@ -162,28 +161,12 @@ class Helper {
       ScraperSource.stdsys, StdsysHelper.instance,
     );
 
-    // MobileNkustHelper: course, score, userInfo. Bus has been extracted
-    // into its own helper (VmsBusHelper) because the bus endpoints live on
-    // vms.nkust.edu.tw, not mobile.nkust.edu.tw.
-    registry.register<CourseProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-    registry.register<ScoreProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-    registry.register<UserInfoProvider>(
-      ScraperSource.mobile, MobileNkustHelper.instance,
-    );
-
-    // VmsBusHelper: bus (vms.nkust.edu.tw)
+    // VmsBusHelper: bus (vms.nkust.edu.tw — the sole remaining
+    // BusProvider since the legacy bus.kuas.edu.tw implementation
+    // never survived the KUAS/NKUST merger and the mobile.nkust.edu.tw
+    // scraper that used to share cookies with it has been removed).
     registry.register<BusProvider>(
-      ScraperSource.mobile, VmsBusHelper.instance,
-    );
-
-    // BusHelper: legacy bus.kuas.edu.tw implementation; kept for the
-    // webap source registration.
-    registry.register<BusProvider>(
-      ScraperSource.webap, BusHelper.instance,
+      ScraperSource.webap, VmsBusHelper.instance,
     );
 
     // LeaveHelper: leave
@@ -223,9 +206,6 @@ class Helper {
       LeaveHelper.instance.isLogin = null;
     });
     registerCleanup(() {
-      MobileNkustHelper.instance.cookiesData?.clear();
-    });
-    registerCleanup(() {
       VmsBusHelper.instance.isLogin = false;
       VmsBusHelper.instance.dioInit();
     });
@@ -240,14 +220,10 @@ class Helper {
     Helper.password = password;
     LoginResponse? loginResponse;
     loginResponse = await _call(() async {
-      final LoginResponse? result = await WebApHelper.instance.login(
+      return WebApHelper.instance.login(
         username: username.toUpperCase(),
         password: password,
       );
-      if (selector?.login == ScraperSource.mobile) {
-        await WebApHelper.instance.loginVms();
-      }
-      return result;
     });
     if (loginResponse != null) {
       expireTime = loginResponse.expireTime;
@@ -473,9 +449,6 @@ class Helper {
     required DateTime dateTime,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusData data = await provider.getTimeTable(dateTime: dateTime);
       reLoginCount = 0;
@@ -494,9 +467,6 @@ class Helper {
 
   Future<BusReservationsData> getBusReservations() async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusReservationsData data = await provider.getReservations();
       reLoginCount = 0;
@@ -508,9 +478,6 @@ class Helper {
     required String busId,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BookingBusData data = await provider.bookBus(busId: busId);
       reLoginCount = 0;
@@ -522,9 +489,6 @@ class Helper {
     required String cancelKey,
   }) async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final CancelBusData data = await provider.cancelBus(busId: cancelKey);
       reLoginCount = 0;
@@ -534,9 +498,6 @@ class Helper {
 
   Future<BusViolationRecordsData> getBusViolationRecords() async {
     return _busCall(() async {
-      if (!MobileNkustHelper.isSupport) {
-        throw const PlatformUnsupportedException();
-      }
       final provider = registry.resolve<BusProvider>(null);
       final BusViolationRecordsData data =
           await provider.getViolationRecords();

@@ -15,7 +15,6 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
@@ -117,18 +116,14 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
+  bool get canUseBus => busEnable && !kIsWeb;
 
   String get _leaveFallbackUrl {
-    switch (Helper.selector?.leave) {
-      case ScraperSource.stdsys:
-        return LeaveHelper.oosafLeaveUrl;
-      case ScraperSource.mobile:
-      case ScraperSource.webap:
-      case ScraperSource.remoteConfig:
-      case null:
-        return MobileNkustHelper.studentLeavePageUrl;
-    }
+    // The mobile.nkust.edu.tw Student/Leave page used to be the default
+    // browser fallback, but mobile portal scraping has been removed and
+    // the page is no longer reachable for students. All non-stdsys
+    // selections now route to the oosaf leave page instead.
+    return LeaveHelper.oosafLeaveUrl;
   }
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
@@ -958,11 +953,6 @@ class HomePageState extends State<HomePage> {
         jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
             as List<dynamic>,
       );
-      final List<String> mobileNkustUserAgent = List<String>.from(
-        jsonDecode(
-          remoteConfig.getString(Constants.mobileNkustUserAgent),
-        ) as List<dynamic>,
-      );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
       PreferenceUtil.instance.setBool(Constants.busEnable, busEnable);
@@ -979,11 +969,6 @@ class HomePageState extends State<HomePage> {
       semesterData.save();
       PreferenceUtil.instance
           .setStringList(Constants.leavesTimeCode, leaveTimeCode);
-      PreferenceUtil.instance.setStringList(
-        Constants.mobileNkustUserAgent,
-        mobileNkustUserAgent,
-      );
-      MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
         code: remoteConfig.getInt(ApConstants.appVersion),
         isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),

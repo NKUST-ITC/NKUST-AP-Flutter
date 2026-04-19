@@ -5,7 +5,6 @@
 /// - `WebApHelper.isLogin` (bool)
 /// - `BusHelper.isLogin` (bool)
 /// - `LeaveHelper.isLogin` (bool?)
-/// - `MobileNkustHelper.cookiesData` (cookie-based)
 sealed class ScraperSessionState {
   const ScraperSessionState();
 }
