@@ -95,7 +95,7 @@ class WebApHelper
   Future<LoginResponse> login({
     required String username,
     required String password,
-    int retryCounts = 5,
+    int retryCounts = 8,
   }) async {
     if (_loginInProgress != null) {
       return _loginInProgress!.future;
@@ -122,7 +122,7 @@ class WebApHelper
   Future<LoginResponse> _doLogin({
     required String username,
     required String password,
-    int retryCounts = 5,
+    int retryCounts = 8,
   }) async {
     //
     /*
@@ -167,6 +167,13 @@ class WebApHelper
         Helper.username = username;
         Helper.password = password;
         final int code = WebApParser.instance.apLoginParser(res.data);
+        // Observability: knowing the perchk code per attempt is the only
+        // way to tell apart "OCR read wrong string, server said -1" from
+        // "OCR right but login succeeded and caller still sees problems
+        // downstream". Printed before the switch so every branch is
+        // covered.
+        log('[login] attempt ${i + 1}/$retryCounts: '
+            'captcha=$captchaCode perchk=$code');
         switch (code) {
           case -1:
             //Captcha error, go retry.
@@ -516,6 +523,17 @@ class WebApHelper
     }
 
     if (WebApParser.instance.apLoginParser(request.data) == 2) {
+      // Helps tell apart a short 302 redirect body (session truly gone
+      // on server side) from a full login page HTML (cookie didn't
+      // reach the server, or jar didn't persist). Logged only on the
+      // failure path to avoid noise.
+      final int bodyLen = (request.data is String)
+          ? (request.data as String).length
+          : (request.data is List<int>)
+              ? (request.data as List<int>).length
+              : -1;
+      log('[apQuery] $queryQid → code=2 session expired '
+          '(status=${request.statusCode} bodyLen=$bodyLen)');
       throw const ApSessionExpiredException();
     }
     return request;
