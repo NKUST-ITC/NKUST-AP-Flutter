@@ -498,14 +498,36 @@ class WebApHelper
     bool? bytesResponse,
   }) async {
     await checkLogin();
+    final String moduleDir = '${queryQid.substring(0, 2)}_pro';
     final String url =
-        'https://webap.nkust.edu.tw/nkust/${queryQid.substring(0, 2)}_pro/$queryQid.jsp';
+        'https://webap.nkust.edu.tw/nkust/$moduleDir/$queryQid.jsp';
+    final String navUrl =
+        'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp'
+        '?spath=$moduleDir/$queryQid.jsp?';
+
+    // webap's JSP portal expects the session to have a "navigation
+    // context" for the target module before it accepts a direct POST
+    // on `*_pro/*.jsp`. A real browser establishes this by loading
+    // `sys001_00.jsp` with the matching `spath` query parameter —
+    // that's the frame the left-hand menu redirects into before the
+    // content frame loads the actual query page. Previously we only
+    // faked the Referer header pointing at sys001_00.jsp without
+    // actually fetching it, so webap treated the POST as an orphan
+    // request and returned its "session expired" error page (code 2)
+    // even though the session itself was valid. This produced the
+    // confusing pattern where ag304_01 kept failing through multiple
+    // successful logins while ag003 recovered — ag003 apparently
+    // tolerates missing nav context, ag304_01 does not.
+    //
+    // Touch the nav URL first to install the context. Response body
+    // is not consumed.
+    await dio.get<dynamic>(navUrl);
+    dio.options.headers['Referer'] = navUrl;
+
     final Options options = Options(
       contentType: 'application/x-www-form-urlencoded',
       responseType: bytesResponse != null ? ResponseType.bytes : null,
     );
-    dio.options.headers['Referer'] =
-        'https://webap.nkust.edu.tw/nkust/system/sys001_00.jsp?spath=ag_pro/$queryQid.jsp?';
 
     Response<dynamic> request;
     if (bytesResponse != null) {
