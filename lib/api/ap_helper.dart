@@ -136,6 +136,25 @@ class WebApHelper
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
 
+    // Clear any stale webap cookies before issuing a fresh login.
+    // Without this step the cookie jar accumulates a new JSESSIONID on
+    // every successful perchk.jsp response without ever evicting the
+    // previous one (PrivateCookieManager stores webap's non-RFC6265
+    // cookies with slightly different attributes each time, so they
+    // don't collide by name). The outgoing Cookie header then carries
+    // both copies and Tomcat picks the first — the old, now-invalid
+    // one — producing persistent "session expired" errors on every
+    // apQuery even though the login itself succeeded. Forcing a
+    // single JSESSIONID by wiping the jar first short-circuits that.
+    final List<Cookie> before = await cookieJar.loadForRequest(
+      Uri.parse('https://webap.nkust.edu.tw/'),
+    );
+    if (before.isNotEmpty) {
+      log('[login] clearing ${before.length} stale webap cookie(s) before '
+          'fresh login: ${before.map((Cookie c) => c.name).join(',')}');
+      await cookieJar.delete(Uri.parse('https://webap.nkust.edu.tw/'));
+    }
+
     // Last transient transport error seen during this login attempt.
     // Used when every captcha iteration fails due to mobile network
     // blips so the caller gets a [NetworkException] (and the UI's
@@ -571,15 +590,15 @@ class WebApHelper
       final String bodyStr = (request.data is String)
           ? request.data as String
           : (request.data is List<int>)
-              ? String.fromCharCodes((request.data as List<int>).take(400))
+              ? String.fromCharCodes((request.data as List<int>).take(1500))
               : '';
       final int bodyLen = (request.data is String)
           ? (request.data as String).length
           : (request.data is List<int>)
               ? (request.data as List<int>).length
               : -1;
-      final String preview = bodyStr.length > 400
-          ? bodyStr.substring(0, 400)
+      final String preview = bodyStr.length > 1500
+          ? bodyStr.substring(0, 1500)
           : bodyStr;
       // Collapse whitespace so the preview fits on one log line.
       final String previewOneLine = preview
