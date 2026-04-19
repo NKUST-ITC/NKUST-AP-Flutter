@@ -136,6 +136,12 @@ class WebApHelper
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
 
+    // Last transient transport error seen during this login attempt.
+    // Used when every captcha iteration fails due to mobile network
+    // blips so the caller gets a [NetworkException] (and the UI's
+    // "offline login" fallback) instead of a misleading
+    // [CaptchaException].
+    ApException? lastTransportError;
     for (int i = 0; i < retryCounts; i++) {
       try {
         final Uint8List? imageBytes = await getValidationImage();
@@ -168,7 +174,11 @@ class WebApHelper
           case 4:
             //Stay old password and relogin.
             await stayOldPwd();
-            return _doLogin(username: username, password: password);
+            return _doLogin(
+              username: username,
+              password: password,
+              retryCounts: retryCounts,
+            );
           case 0:
             isLogin = true;
             return LoginResponse(
@@ -201,12 +211,24 @@ class WebApHelper
         // endpoint.
         rethrow;
       } on DioException catch (e) {
-        // Any DioException — transport failure, server 4xx/5xx, or user
-        // cancellation — terminates the captcha retry loop. Another
-        // attempt with a fresh captcha cannot help when the HTTP layer
-        // itself failed, and retrying a cancelled request would waste
-        // work and produce misleading "captcha error" messages.
-        throw e.toApException();
+        // Distinguish transient transport blips (base station handoff,
+        // WiFi↔cellular switch) from terminal failures. The mobile case
+        // often outlasts RetryInterceptor's ~3s retry window but recovers
+        // within the next captcha iteration; the old code threw on the
+        // first DioException and surfaced "no network" after one blink.
+        final ApException translated = e.toApException();
+        final bool transient = e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.sendTimeout ||
+            e.type == DioExceptionType.receiveTimeout ||
+            e.type == DioExceptionType.connectionError;
+        if (!transient) {
+          // cancel / badResponse / badCertificate / unknown — retrying
+          // with a fresh captcha cannot help, so propagate immediately.
+          throw translated;
+        }
+        lastTransportError = translated;
+        log('login attempt ${i + 1}/$retryCounts: transient ${e.type}');
+        await Future<void>.delayed(const Duration(seconds: 1));
       } catch (e, s) {
         // Truly unexpected errors (parser bugs, etc.) are logged and
         // allowed to trigger another captcha attempt.
@@ -214,7 +236,12 @@ class WebApHelper
         log('[login] attempt ${i + 1}/$retryCounts: $e');
       }
     }
-    //
+    // All attempts exhausted. If any of them were transient transport
+    // failures, prefer that over a generic CaptchaException so the UI's
+    // NetworkException branch (offline-login prompt) fires correctly.
+    if (lastTransportError != null) {
+      throw lastTransportError;
+    }
     throw CaptchaException(
       attempts: retryCounts,
       message: 'captcha failed after $retryCounts attempts',
