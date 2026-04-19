@@ -15,6 +15,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -115,29 +116,14 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  /// External browser URL used as the fallback entry for the mobile-web
-  /// leave system (when the in-app leave flow is disabled via
-  /// `leaveEnable`). Inlined after the MobileNkustHelper removal.
-  static const String _mobileStudentLeaveUrl =
-      'https://mobile.nkust.edu.tw/Student/Leave';
-
-  /// External browser URL used as the fallback entry for the school bus
-  /// timetable (when the in-app bus flow is unavailable on this
-  /// platform). Inlined after the MobileNkustHelper removal.
-  static const String _mobileBusTimetableUrl =
-      'https://vms.nkust.edu.tw/Bus/Bus/Timetable';
-
   bool get canUseBus => busEnable && !kIsWeb;
 
   String get _leaveFallbackUrl {
-    switch (Helper.selector?.leave) {
-      case ScraperSource.stdsys:
-        return LeaveHelper.oosafLeaveUrl;
-      case ScraperSource.webap:
-      case ScraperSource.remoteConfig:
-      case null:
-        return _mobileStudentLeaveUrl;
-    }
+    // The mobile.nkust.edu.tw Student/Leave page used to be the default
+    // browser fallback, but mobile portal scraping has been removed and
+    // the page is no longer reachable for students. All non-stdsys
+    // selections now route to the oosaf leave page instead.
+    return LeaveHelper.oosafLeaveUrl;
   }
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
@@ -450,8 +436,9 @@ class HomePageState extends State<HomePage> {
           DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
-            onTap: () =>
-                PlatformUtil.instance.launchUrl(_mobileBusTimetableUrl),
+            onTap: () => PlatformUtil.instance.launchUrl(
+              VmsBusHelper.timetablePageUrl,
+            ),
           ),
         DrawerMenuItem(
           icon: ApIcon.info,

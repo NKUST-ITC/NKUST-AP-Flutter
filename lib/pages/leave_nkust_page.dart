@@ -1,15 +1,17 @@
 import 'dart:developer';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
 
-/// User agent used for the leave-system WebView login. Kept as a plain
-/// constant now that the old randomized list from MobileNkustHelper has
-/// been removed along with the rest of the mobile crawler (#301).
+/// Single stable Chrome UA used by the leave.nkust.edu.tw WebView login
+/// flow. Previously came from [MobileNkustHelper.userAgentList]'s random
+/// rotation — inlined here after the mobile.nkust.edu.tw scraper was
+/// removed, since leave is the only remaining surface that still needs
+/// a browser-shaped UA string.
 const String _leaveLoginUserAgent =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
     '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
