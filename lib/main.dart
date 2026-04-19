@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
@@ -35,6 +36,10 @@ void main() async {
   await (PreferenceUtil.instance as ApPreferenceUtil).init(
     key: Constants.key,
     iv: Constants.iv,
+  );
+  MobileNkustHelper.userAgentList = PreferenceUtil.instance.getStringList(
+    Constants.mobileNkustUserAgent,
+    MobileNkustHelper.userAgentList,
   );
   final String currentVersion =
       PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');

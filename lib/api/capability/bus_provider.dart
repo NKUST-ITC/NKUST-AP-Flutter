@@ -6,7 +6,7 @@ import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 /// Capability interface for bus-related operations.
 ///
-/// Implemented by: [BusHelper]
+/// Implemented by: [MobileNkustHelper], [BusHelper]
 abstract class BusProvider {
   Future<BusData> getTimeTable({required DateTime dateTime});
   Future<BookingBusData> bookBus({required String busId});

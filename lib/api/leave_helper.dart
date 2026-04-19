@@ -21,6 +21,7 @@ import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
+import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
 class LeaveHelper with ReloginMixin implements LeaveProvider {
@@ -57,6 +58,8 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
   late Dio dio;
   late CookieJar cookieJar;
 
+  MobileCookiesData? cookiesData;
+
   void setProxy(String proxyIP) {
     ApiConfig.setProxy(dio, proxyIP);
   }
@@ -76,6 +79,18 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
     );
     this.dio = dio;
     cookieJar = _webApHelper.cookieJar;
+  }
+
+  void setCookieFromData(MobileCookiesData data) {
+    cookiesData = data;
+    for (final MobileCookies element in data.cookies) {
+      final Cookie tempCookie = Cookie(element.name, element.value);
+      tempCookie.domain = element.domain;
+      cookieJar.saveFromResponse(
+        Uri.parse(element.path),
+        <Cookie>[tempCookie],
+      );
+    }
   }
 
   void setCookie(
@@ -121,6 +136,25 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
     required String password,
     bool clearCache = false,
   }) async {
+    // final data = MobileCookiesData.load();
+    // if (data != null && !clearCache) {
+    //   MobileNkustHelper.instance.setCookieFromData(data);
+    //   final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
+    //   if (isCookieAlive) {
+    //     final now = DateTime.now();
+    //     final lastTime = PreferenceUtil.instance.getInt(
+    //       Constants.MOBILE_COOKIES_LAST_TIME,
+    //       now.microsecondsSinceEpoch,
+    //     );
+    //     AnalyticsUtil.analytics.logEvent(
+    //       name: 'cookies_persistence_time',
+    //       parameters: {
+    //         'time': now.microsecondsSinceEpoch - lastTime,
+    //       },
+    //     );
+    //     return LoginResponse();
+    //   }
+    // }
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(

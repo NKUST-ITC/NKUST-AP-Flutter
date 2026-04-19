@@ -5,27 +5,27 @@ import 'package:nkust_ap/utils/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/mobile_cookies_data.dart';
 
-class LeaveNkustPage extends StatefulWidget {
-  final String username;
-  final String password;
+class MobileNkustPage extends StatefulWidget {
+  final String? username;
+  final String? password;
   final bool clearCache;
 
-  const LeaveNkustPage({
+  const MobileNkustPage({
     super.key,
-    required this.username,
-    required this.password,
+    this.username,
+    this.password,
     this.clearCache = false,
   });
 
   @override
-  LeaveNkustPageState createState() => LeaveNkustPageState();
+  MobileNkustPageState createState() => MobileNkustPageState();
 }
 
-class LeaveNkustPageState extends State<LeaveNkustPage> {
+class MobileNkustPageState extends State<MobileNkustPage> {
   late AppLocalizations app;
   late InAppWebViewController webViewController;
   bool finish = false;
@@ -56,7 +56,7 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
             )
           : null,
       body: InAppWebView(
-        initialUrlRequest: URLRequest(url: WebUri(LeaveHelper.basePath)),
+        initialUrlRequest: URLRequest(url: WebUri(MobileNkustHelper.loginUrl)),
         initialSettings: InAppWebViewSettings(
           clearCache: widget.clearCache,
           userAgent: MobileNkustHelper.instance.userAgent,
@@ -69,27 +69,31 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
         onPageCommitVisible: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onPageCommitVisible $title $uri');
+          if (uri.toString() == MobileNkustHelper.loginUrl) {
+            await webViewController.evaluateJavascript(
+              source:
+                  'document.getElementsByName("Account")[0].value = "${widget.username}";',
+            );
+            await webViewController.evaluateJavascript(
+              source:
+                  'document.getElementsByName("Password")[0].value = "${widget.password}";',
+            );
+            await webViewController.evaluateJavascript(
+              source:
+                  'document.getElementsByName("RememberMe")[0].checked = true;',
+            );
+          }
         },
         onTitleChanged: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onTitleChanged $title $uri');
-          if (uri.toString() == LeaveHelper.home) {
+          if (uri.toString() == MobileNkustHelper.homeUrl) {
             _finishLogin();
           }
         },
         onLoadStop: (controller, title) async {
           final uri = await controller.getUrl();
           debugPrint('onLoadStop $title $uri');
-          if (uri.toString() == LeaveHelper.basePath) {
-            await webViewController.evaluateJavascript(
-              source:
-                  'document.getElementsByName("Login1\$UserName")[0].value = "${widget.username}";',
-            );
-            await webViewController.evaluateJavascript(
-              source:
-                  'document.getElementsByName("Login1\$Password")[0].value = "${widget.password}";',
-            );
-          }
         },
       ),
     );
@@ -99,7 +103,7 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
     if (finish) return;
     finish = true;
     final cookies = await CookieManager.instance().getCookies(
-      url: WebUri(LeaveHelper.basePath),
+      url: WebUri(MobileNkustHelper.baseUrl),
     );
     final data = MobileCookiesData(cookies: []);
     for (final element in cookies) {
@@ -109,8 +113,8 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
           name: element.name,
           value: element.value.toString(),
           domain: element.domain ??
-              (element.name == 'ASP.NET_SessionId'
-                  ? 'leave.nkust.edu.tw'
+              (element.name == '.AspNetCore.Cookies'
+                  ? 'mobile.nkust.edu.tw'
                   : '.nkust.edu.tw'),
         ),
       );
@@ -120,7 +124,12 @@ class LeaveNkustPageState extends State<LeaveNkustPage> {
         );
       }
     }
-    LeaveHelper.instance.setCookieFromData(data);
+    MobileNkustHelper.instance.setCookieFromData(data);
+    data.save();
+    PreferenceUtil.instance.setInt(
+      Constants.mobileCookiesLastTime,
+      DateTime.now().microsecondsSinceEpoch,
+    );
     if (!mounted) return;
     Navigator.pop(context, true);
   }

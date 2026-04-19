@@ -15,6 +15,7 @@ import 'package:nkust_ap/api/ap_status_code.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
+import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
@@ -115,28 +116,17 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  /// External browser URL used as the fallback entry for the mobile-web
-  /// leave system (when the in-app leave flow is disabled via
-  /// `leaveEnable`). Inlined after the MobileNkustHelper removal.
-  static const String _mobileStudentLeaveUrl =
-      'https://mobile.nkust.edu.tw/Student/Leave';
-
-  /// External browser URL used as the fallback entry for the school bus
-  /// timetable (when the in-app bus flow is unavailable on this
-  /// platform). Inlined after the MobileNkustHelper removal.
-  static const String _mobileBusTimetableUrl =
-      'https://vms.nkust.edu.tw/Bus/Bus/Timetable';
-
-  bool get canUseBus => busEnable && !kIsWeb;
+  bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
 
   String get _leaveFallbackUrl {
     switch (Helper.selector?.leave) {
       case ScraperSource.stdsys:
         return LeaveHelper.oosafLeaveUrl;
+      case ScraperSource.mobile:
       case ScraperSource.webap:
       case ScraperSource.remoteConfig:
       case null:
-        return _mobileStudentLeaveUrl;
+        return MobileNkustHelper.studentLeavePageUrl;
     }
   }
 
@@ -447,11 +437,13 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
+          //TODO: Move vms (for school bus) somewhere out of mobileNkustHelper
           DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
-            onTap: () =>
-                PlatformUtil.instance.launchUrl(_mobileBusTimetableUrl),
+            onTap: () => PlatformUtil.instance.launchUrl(
+              MobileNkustHelper.busTimetablePageUrl,
+            ),
           ),
         DrawerMenuItem(
           icon: ApIcon.info,
@@ -966,6 +958,11 @@ class HomePageState extends State<HomePage> {
         jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
             as List<dynamic>,
       );
+      final List<String> mobileNkustUserAgent = List<String>.from(
+        jsonDecode(
+          remoteConfig.getString(Constants.mobileNkustUserAgent),
+        ) as List<dynamic>,
+      );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
       PreferenceUtil.instance.setBool(Constants.busEnable, busEnable);
@@ -982,6 +979,11 @@ class HomePageState extends State<HomePage> {
       semesterData.save();
       PreferenceUtil.instance
           .setStringList(Constants.leavesTimeCode, leaveTimeCode);
+      PreferenceUtil.instance.setStringList(
+        Constants.mobileNkustUserAgent,
+        mobileNkustUserAgent,
+      );
+      MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
         code: remoteConfig.getInt(ApConstants.appVersion),
         isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),
