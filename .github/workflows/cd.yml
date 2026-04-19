@@ -200,29 +200,45 @@ jobs:
           keychain: mac-app-signing
           keychain-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
           create-keychain: true
+      - name: Consolidate keychain search list
+        # apple-actions/import-codesign-certs@v3 calls
+        # `security list-keychains -d user -s <new>.keychain login.keychain`
+        # after each import, which REPLACES the search list. The second
+        # import therefore evicts mac-installer-signing from the search
+        # list, and downstream `security find-identity` / `find-certificate`
+        # / `codesign` / `productbuild` cannot see the Installer identity
+        # at all. Force both custom keychains plus login back into the
+        # search list so subsequent steps see the full inventory.
+        run: |
+          security list-keychains -d user -s \
+            mac-installer-signing.keychain \
+            mac-app-signing.keychain \
+            login.keychain
+          echo "User-domain search list after consolidation:"
+          security list-keychains -d user
       - name: Verify Mac signing identities are available
         run: |
           # A valid "identity" means cert + matching private key are both
-          # present in the keychain. If the .p12 was exported without its
-          # private key (i.e. selecting only the certificate row in
-          # Keychain Access instead of Cmd-clicking both the cert AND
-          # the private key child, so "Export 2 items" appears),
-          # `security import` still succeeds and the cert shows up under
-          # `find-certificate`, but `find-identity` won't list it —
-          # signing fails later with a confusing error. Detect both
-          # failure modes separately so the fix (re-export the .p12
-          # correctly vs. upload the right .p12 in the first place) is
-          # obvious.
+          # present in the keychain. Diagnose three possible failure
+          # modes separately so the remediation is obvious:
+          #   A. identity visible   → OK
+          #   B. cert present but no matching key → .p12 exported
+          #      without selecting the private key row
+          #   C. cert absent entirely → wrong .p12 / wrong password
+          # Queries are scoped to the two custom keychains so we don't
+          # get false positives from an unrelated cert left over in
+          # the login keychain from earlier experiments.
+          KEYCHAINS=(mac-installer-signing.keychain mac-app-signing.keychain)
           check_identity() {
             local label="$1" cn_prefix="$2" base_secret="$3" pwd_secret="$4"
-            if security find-identity -v | grep -q "$cn_prefix"; then
+            if security find-identity -v "${KEYCHAINS[@]}" | grep -q "$cn_prefix"; then
               echo "  ✓ $label identity present"
               return 0
             fi
-            if security find-certificate -c "$cn_prefix" >/dev/null 2>&1; then
+            if security find-certificate -a -c "$cn_prefix" "${KEYCHAINS[@]}" 2>/dev/null | grep -q "labl"; then
               echo "::error::$label certificate is imported but has no matching private key. The .p12 in $base_secret was exported without the private key. Re-export from Keychain Access with BOTH the cert row AND its private key child selected ('Export 2 items…')."
             else
-              echo "::error::$label certificate not found in any keychain. Verify $base_secret contains a valid .p12 and $pwd_secret matches its export password."
+              echo "::error::$label certificate not found in mac-installer-signing / mac-app-signing keychains. Verify $base_secret contains a valid .p12 and $pwd_secret matches its export password."
             fi
             return 1
           }
@@ -230,11 +246,15 @@ jobs:
           check_identity "Installer"    "3rd Party Mac Developer Installer"    MAC_INSTALLER_CERT_BASE64 MAC_INSTALLER_CERT_PASSWORD || missing=1
           check_identity "Application"  "3rd Party Mac Developer Application"  MAC_APP_CERT_BASE64       MAC_APP_CERT_PASSWORD       || missing=1
           if [ "$missing" = "1" ]; then
-            echo "--- current signing identities ---"
+            echo "--- identities in mac-installer-signing ---"
+            security find-identity -v mac-installer-signing.keychain || true
+            echo "--- identities in mac-app-signing ---"
+            security find-identity -v mac-app-signing.keychain || true
+            echo "--- all identities (full search list) ---"
             security find-identity -v || true
             exit 1
           fi
-          security find-identity -v | grep "3rd Party Mac Developer"
+          security find-identity -v "${KEYCHAINS[@]}" | grep "3rd Party Mac Developer"
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
