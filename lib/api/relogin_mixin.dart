@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 /// Mixin for handling session-level re-login when a scraper session expires.
 ///
@@ -83,6 +84,17 @@ mixin ReloginMixin {
   /// the race-condition timestamp and the [onReloginSuccess] broadcast stay
   /// consistent whether the login was triggered by top-level `login()` or
   /// by this method.
+  /// How many initial session-expired errors should skip relogin when a
+  /// successful login happened within [recentLoginWindow]. webap
+  /// occasionally returns code 2 on the first query after a fresh
+  /// session, and a short backoff is enough to recover without burning
+  /// a captcha. Kept intentionally small (2) — observations show that
+  /// if the first 1–2 retries don't recover the session, waiting
+  /// longer doesn't help and only the real relogin path does. This
+  /// budget is tracked SEPARATELY from [maxRelogins] so race-retry
+  /// never starves the relogin path.
+  static const int _raceConditionAttemptLimit = 2;
+
   Future<T> withAutoRelogin<T>({
     required Future<T> Function() action,
     required Future<void> Function() relogin,
@@ -90,25 +102,38 @@ mixin ReloginMixin {
     Duration retryDelay = const Duration(milliseconds: 500),
     Duration recentLoginWindow = const Duration(seconds: 30),
   }) async {
-    int attempts = 0;
+    int raceAttempts = 0;
+    int reloginAttempts = 0;
     while (true) {
       try {
         return await action();
       } catch (e) {
-        if (!isSessionExpired(e) || attempts >= maxRelogins) rethrow;
-        attempts++;
+        if (!isSessionExpired(e)) rethrow;
 
         final bool recentlyLoggedIn = _lastSuccessfulRelogin != null &&
             DateTime.now().difference(_lastSuccessfulRelogin!) <
                 recentLoginWindow;
+        log('[withAutoRelogin] race=$raceAttempts/$_raceConditionAttemptLimit '
+            'relogin=$reloginAttempts/$maxRelogins '
+            'recentlyLoggedIn=$recentlyLoggedIn '
+            'trigger=${e.runtimeType}');
 
-        if (recentlyLoggedIn && attempts <= 1) {
-          // First retry after a recent login — likely a server race
-          // condition (#342), not real session expiry. Just delay and
-          // retry the request without re-authenticating.
-          await Future<void>.delayed(retryDelay);
+        if (recentlyLoggedIn &&
+            raceAttempts < _raceConditionAttemptLimit) {
+          // Short-circuit for the small server-side session-propagation
+          // race (#342). Delay with exponential backoff (500ms → 1000ms)
+          // and retry the same request without re-authenticating.
+          raceAttempts++;
+          final Duration delay = retryDelay * raceAttempts;
+          log('[withAutoRelogin] → race-retry $raceAttempts/$_raceConditionAttemptLimit delay=${delay.inMilliseconds}ms');
+          await Future<void>.delayed(delay);
           continue;
         }
+
+        // Race budget exhausted (or we never qualified) — the session is
+        // genuinely gone and only a real relogin will recover it.
+        if (reloginAttempts >= maxRelogins) rethrow;
+        reloginAttempts++;
 
         // Single-flight relogin: piggy-back on any in-progress relogin.
         // If it fails (e.g. wrong password), propagate the same failure to
@@ -116,11 +141,13 @@ mixin ReloginMixin {
         // and trigger redundant captcha attempts.
         final Completer<void>? inFlight = _reloginInFlight;
         if (inFlight != null) {
+          log('[withAutoRelogin] → await in-flight relogin');
           await inFlight.future;
           await Future<void>.delayed(retryDelay);
           continue;
         }
 
+        log('[withAutoRelogin] → relogin $reloginAttempts/$maxRelogins');
         final Completer<void> completer = Completer<void>();
         _reloginInFlight = completer;
         try {

@@ -211,7 +211,7 @@ class WebApHelper
         // Truly unexpected errors (parser bugs, etc.) are logged and
         // allowed to trigger another captcha attempt.
         CrashlyticsUtil.instance.recordError(e, s);
-        log(e.toString());
+        log('[login] attempt ${i + 1}/$retryCounts: $e');
       }
     }
     //
