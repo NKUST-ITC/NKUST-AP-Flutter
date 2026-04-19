@@ -192,17 +192,6 @@ final class ApSessionExpiredException extends ApException {
   String get typeName => 'ApSessionExpiredException';
 }
 
-/// Bus-system variant of [ApSessionExpiredException]. Kept distinct so
-/// [BusHelper] can match only its own session errors without accidentally
-/// reacting to WebAP's.
-final class BusSessionExpiredException extends ApException {
-  const BusSessionExpiredException(String message)
-      : super(statusCode: ApStatusCode.sessionExpired, message: message);
-
-  @override
-  String get typeName => 'BusSessionExpiredException';
-}
-
 /// The current account does not have access to this feature (e.g. a
 /// non-student trying to use the bus / leave system). Distinct from
 /// [AuthException] because authentication succeeded — the server simply

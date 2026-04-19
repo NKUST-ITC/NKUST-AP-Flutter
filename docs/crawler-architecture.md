@@ -33,7 +33,6 @@ flowchart TB
     Leave["LeaveHelper<br/>leave.nkust.edu.tw"]
     Vms["VmsBusHelper<br/>vms.nkust.edu.tw"]
     Nkust["NKUSTHelper<br/>nkust.edu.tw"]
-    BusLegacy["BusHelper (legacy)<br/>bus.kuas.edu.tw<br/>(kept, not registered)"]
   end
 
   subgraph Parsers ["Parsers"]
@@ -43,7 +42,6 @@ flowchart TB
     LeaveParser[LeaveParser]
     VmsParser[VmsBusParser]
     NkustParser[NKUSTParser]
-    BusParser[BusParser]
     Utils["parser_utils<br/>(clearTransEncoding, getCSRF)"]
   end
 
@@ -55,14 +53,12 @@ flowchart TB
   Capability -.implements.-> Stdsys
   Capability -.implements.-> Leave
   Capability -.implements.-> Vms
-  Capability -.implements.-> BusLegacy
 
   WebAp --> ApParser
   Stdsys --> StdsysParser
   Leave --> LeaveParser
   Vms --> VmsParser
   Nkust --> NkustParser
-  BusLegacy --> BusParser
   ApParser --> Utils
   StdsysParser --> Utils
   Vms --> Utils
@@ -155,11 +151,6 @@ classDiagram
     +isLogin bool
     +loginVms(username, password)  form POST
   }
-  class BusHelper {
-    <<legacy>>
-    bus.kuas.edu.tw
-    not registered after 302
-  }
 
   WebApHelper ..|> CourseProvider
   WebApHelper ..|> ScoreProvider
@@ -178,9 +169,6 @@ classDiagram
   LeaveHelper --> WebApHelper : shares CookieJar
 
   VmsBusHelper ..|> BusProvider
-
-  BusHelper ..|> BusProvider
-  BusHelper ..> ReloginMixin
 ```
 
 **要點**：
@@ -190,7 +178,7 @@ classDiagram
 3. **`StdsysHelper` 沒有自己的 Dio** — 直接用 `_webApHelper.dio`、`_webApHelper.cookieJar`，因此只要 webap 登入並完成 stdsys SSO，cookie jar 同時帶著兩邊 session。
 4. **`LeaveHelper` 共用 cookieJar**、但有自己的 Dio（因為 Header 不同、有 WebView 登入流程）。
 5. **`VmsBusHelper` 完全獨立** — 自己的 Dio / CookieJar，不依賴 webap，因為 `vms.nkust.edu.tw` 的 login 是直接 form POST、跟 webap SSO 無關。
-6. **`BusHelper` 仍存在但已從 Registry 登記移除**（#302）— 類別檔保留待另案評估是否完全刪除。
+6. **legacy `BusHelper`**（bus.kuas.edu.tw，KUAS/NKUST 合校前的舊系統）已整顆刪除。
 
 ---
 
@@ -394,7 +382,6 @@ classDiagram
 | `stdsys_helper.dart` | `StdsysHelper` |
 | `leave_helper.dart` | `LeaveHelper` |
 | `vms_bus_helper.dart` | `VmsBusHelper`（#302 新增） |
-| `bus_helper.dart` | `BusHelper`（legacy，未 registered） |
 | `nkust_helper.dart` | `NKUSTHelper` — 學校公告 |
 | `ap_status_code.dart` | 狀態碼常數（`sessionExpired`、`schoolServerError` 等） |
 | `exceptions/api_exception.dart` | sealed `ApException` 階層 |
@@ -410,7 +397,6 @@ classDiagram
 | `leave_parser.dart` | `LeaveParser` |
 | `vms_bus_parser.dart` | `VmsBusParser`（#302） |
 | `nkust_parser.dart` | `NKUSTParser` |
-| `bus_parser.dart` | legacy kuas bus |
 | `parser_utils.dart` | `clearTransEncoding`、`getCSRF`（#379） |
 
 ---
@@ -428,4 +414,32 @@ classDiagram
 
 ---
 
-_Last updated: #302 合併後（2026-04-19）_
+## 附錄 B：歷代爬蟲遷移紀錄
+
+校車爬蟲（及其他被合併進來的來源）的演進，留著避免後人看到「憑空出現的 VmsBusHelper」疑惑為什麼要這樣設計。
+
+| 年份 | 系統 / 端點 | 狀態 | 對應 helper |
+|---|---|---|---|
+| 2015~ | **KUAS 時期校車系統**<br>`bus.kuas.edu.tw` | 高雄應用科大（KUAS）自家的校車預約 | `BusHelper`（使用 `BusEncrypt` 逆向 JS 種子） |
+| 2020 | **三校合併**（高應大 + 高第一 + 高海大 → NKUST）<br>校車遷移到 `vms.nkust.edu.tw`，但使用者登入走 `mobile.nkust.edu.tw` 統一入口 | 新校車系統 vms 透過 mobile portal 的 session（共用 cookies）間接登入 | `MobileNkustHelper`（`baseUrl = mobile.nkust.edu.tw`，`busBaseUrl = vms.nkust.edu.tw`，兩個來源綁在同一個 helper 裡） |
+| 2025-04 | **mobile portal 改版 / 行動入口爬蟲無用**<br>但校車仍使用 `vms.nkust.edu.tw` | 校車部分從 `MobileNkustHelper` 抽出，直接用 form POST 登入 vms，不再依賴 mobile portal SSO | `VmsBusHelper`（#302 / #393） |
+| 2025-04 | mobile.nkust.edu.tw 爬蟲 | 刪除 | — |
+| 2025-04 | bus.kuas.edu.tw 爬蟲 | 刪除（本 PR） | — |
+
+**為什麼 2025 年才拆出 vms**：`MobileNkustHelper` 當初把 mobile portal 跟 vms 綁在一起是因為兩邊共用 session / cookies。直到需要**完全移除** mobile portal 爬蟲時，才必須把 vms 的依賴解開：
+- 2025-04 上旬 #301 嘗試直接刪 `MobileNkustHelper`，結果把 vms 校車一起帶走 → 被 revert
+- 2025-04 中旬 #302 / #393 先把 vms 拆成獨立 helper，再砍 mobile portal；同期 #394 順手把早已無用的 KUAS 時期 `BusHelper` 也刪了
+
+## 附錄 C：爬蟲重構歷史 PR
+
+- [#230](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/230) — 爬蟲類別重構整體追蹤
+- [#342](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/342) — 單次執行模式登入保護
+- [#372](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/372) → [#373](https://github.com/NKUST-ITC/NKUST-AP-Flutter/pull/373) — `ApException` 階層化
+- [#379](https://github.com/NKUST-ITC/NKUST-AP-Flutter/pull/379) — 抽共用 `clearTransEncoding` / `getCSRF`
+- [#301](https://github.com/NKUST-ITC/NKUST-AP-Flutter/pull/301) — 刪除 `MobileNkustHelper`（含校車，後被 revert）
+- [#302](https://github.com/NKUST-ITC/NKUST-AP-Flutter/issues/302) / [#393](https://github.com/NKUST-ITC/NKUST-AP-Flutter/pull/393) — 先拆 `VmsBusHelper`，再刪 `MobileNkustHelper`
+- [#394](https://github.com/NKUST-ITC/NKUST-AP-Flutter/pull/394) — 收尾刪除 KUAS 時期 `BusHelper`
+
+---
+
+_Last updated: #394 合併後（2026-04-19）_

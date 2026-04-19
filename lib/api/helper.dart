@@ -8,7 +8,6 @@ import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/bus_helper.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
@@ -187,7 +186,6 @@ class Helper {
     }
 
     forward(WebApHelper.instance.onReloginSuccess);
-    forward(BusHelper.instance.onReloginSuccess);
     forward(LeaveHelper.instance.onReloginSuccess);
 
     // Register cleanup callbacks for each sub-helper.
@@ -197,10 +195,6 @@ class Helper {
       await WebApHelper.instance.logout();
       WebApHelper.instance.dioInit();
       WebApHelper.instance.isLogin = false;
-    });
-    registerCleanup(() {
-      BusHelper.instance.isLogin = false;
-      BusHelper.instance.dioInit();
     });
     registerCleanup(() {
       LeaveHelper.instance.isLogin = null;

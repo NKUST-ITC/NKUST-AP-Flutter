@@ -3,7 +3,6 @@
 /// Replaces the scattered login state that was previously spread across:
 /// - `Helper.username/password/expireTime` (static fields)
 /// - `WebApHelper.isLogin` (bool)
-/// - `BusHelper.isLogin` (bool)
 /// - `LeaveHelper.isLogin` (bool?)
 sealed class ScraperSessionState {
   const ScraperSessionState();
