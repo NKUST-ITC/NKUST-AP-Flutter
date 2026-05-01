@@ -150,6 +150,10 @@ class WebApHelper
           bodyBytes: imageBytes,
         );
 
+        // perchk.jsp does a server-side CSRF check that emits
+        // alert('Please Logon From Homepage!!') when the request lacks
+        // the homepage Referer/Origin. Without these, even a correct
+        // captcha gets rejected as 驗證碼錯誤.
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{
@@ -157,7 +161,13 @@ class WebApHelper
             'pwd': password,
             'etxt_code': captchaCode,
           },
-          options: Options(contentType: 'application/x-www-form-urlencoded'),
+          options: Options(
+            contentType: 'application/x-www-form-urlencoded',
+            headers: <String, String>{
+              'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
+              'Origin': 'https://webap.nkust.edu.tw',
+            },
+          ),
         );
         Helper.username = username;
         Helper.password = password;
