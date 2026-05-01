@@ -36,9 +36,6 @@ void main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
-  final String currentVersion =
-      PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');
-  if (int.parse(currentVersion) < 30603) CourseData.migrateFrom0_10();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(
       clientId:
