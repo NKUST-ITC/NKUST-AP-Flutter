@@ -44,11 +44,16 @@ jobs:
         run: |
           VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Get version code from variable
+      - name: Get version code and bump VERSION_CODE for next run
         id: get_version_code
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          echo "version_code=${{ vars.VERSION_CODE }}" >> $GITHUB_OUTPUT
-          echo "Using version code: ${{ vars.VERSION_CODE }}"
+          CURRENT="${{ vars.VERSION_CODE }}"
+          NEXT=$((CURRENT + 1))
+          echo "version_code=$CURRENT" >> $GITHUB_OUTPUT
+          gh variable set VERSION_CODE --body "$NEXT" --repo "${{ github.repository }}"
+          echo "Using version code: $CURRENT (VERSION_CODE bumped to $NEXT for next run)"
       - name: Aggregate changelog from merged PRs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -441,18 +446,3 @@ jobs:
             nkust_ap_windows_portable.zip
             nkust_ap_linux.tar.gz
             nkust_ap_linux.snap
-
-  finalize:
-    name: Increment Version Code
-    needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux, github_release]
-    if: always() && needs.github_release.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Increment VERSION_CODE
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          CURRENT=${{ needs.prepare.outputs.version_code }}
-          NEXT=$((CURRENT + 1))
-          gh variable set VERSION_CODE --body "$NEXT" --repo "${{ github.repository }}"
-          echo "Version code incremented: $CURRENT -> $NEXT"
