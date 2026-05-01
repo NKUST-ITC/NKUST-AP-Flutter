@@ -5,7 +5,7 @@ import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/models/room_data.dart';
 import 'package:nkust_ap/pages/study/room_course_page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 enum _State { loading, finish, custom }
 
@@ -15,7 +15,7 @@ class RoomListPage extends StatefulWidget {
 }
 
 class RoomListPageState extends State<RoomListPage> {
-  late AppLocalizations app;
+  late NkustLocalizations app;
 
   _State state = _State.loading;
   int campusIndex = 0;
@@ -35,7 +35,7 @@ class RoomListPageState extends State<RoomListPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(

@@ -1,16 +1,16 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/widgets.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
-import 'package:nkust_ap/l10n/l10n.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 /// Maps a typed [ApException] to the best-fit user-facing message, pulling
 /// from both the shared [ApLocalizations] (ap_common) and the project's own
-/// [AppLocalizations] so project-specific strings such as
+/// [NkustLocalizations] so project-specific strings such as
 /// `loginFailedFiveTimes` can be reached.
 extension ApExceptionL10n on ApException {
   String toLocalizedMessage(BuildContext context) {
-    final ApLocalizations ap = ApLocalizations.of(context);
-    final AppLocalizations app = AppLocalizations.of(context);
+    final ApLocalizations ap = context.ap;
+    final NkustLocalizations app = context.t;
     final ApException self = this;
     switch (self) {
       case AuthException():

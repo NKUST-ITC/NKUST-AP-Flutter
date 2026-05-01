@@ -22,7 +22,7 @@ class BusPage extends StatefulWidget {
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  AppLocalizations? app;
+  NkustLocalizations? app;
 
   TabController? controller;
 
@@ -53,7 +53,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     return Scaffold(
       appBar: AppBar(
         title: Text(app!.bus),

@@ -43,7 +43,7 @@ class HomePageState extends State<HomePage> {
 
   HomeState state = HomeState.loading;
 
-  late AppLocalizations app;
+  late NkustLocalizations app;
   late ApLocalizations ap;
 
   Widget? content;
@@ -131,7 +131,7 @@ class HomePageState extends State<HomePage> {
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
       email: 'nkust.itc@gmail.com',
-      appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
+      appLicense: context.t.aboutOpenSourceContent,
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
@@ -187,7 +187,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     ap = context.ap;
     return HomePageScaffold(
       title: app.appName,
@@ -904,7 +904,7 @@ class HomePageState extends State<HomePage> {
   static const String prefApiKey = 'inkust_api_key';
 
   Future<void> _checkData({bool first = false}) async {
-    final AppLocalizations app = AppLocalizations.of(context);
+    final NkustLocalizations app = context.t;
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion =
         PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '');

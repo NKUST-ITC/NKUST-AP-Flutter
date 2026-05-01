@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -33,13 +33,13 @@ class LeaveNkustPage extends StatefulWidget {
 }
 
 class LeaveNkustPageState extends State<LeaveNkustPage> {
-  late AppLocalizations app;
+  late NkustLocalizations app;
   late InAppWebViewController webViewController;
   bool finish = false;
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     return Scaffold(
       appBar: AppBar(
         title: Text(app.loginAuth),

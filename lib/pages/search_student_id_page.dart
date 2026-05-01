@@ -47,7 +47,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       appBarTitle: ap.searchUsername,
       forms: <Widget>[
         Text(
-          AppLocalizations.of(context).searchStudentId,
+          context.t.searchStudentId,
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
@@ -172,9 +172,9 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
         Navigator.pop(context, data.id);
       } else {
         _showResultDialog(
-          sprintf(
-            AppLocalizations.of(context).searchStudentIdFormat,
-            <dynamic>[data.name, data.id],
+          context.t.searchStudentIdFormat(
+            name: data.name ?? '',
+            id: data.id,
           ),
         );
       }
@@ -212,7 +212,7 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
               ),
               if (showFirstHint)
                 TextSpan(
-                  text: '\n${AppLocalizations.of(context).firstLoginHint}',
+                  text: '\n${context.t.firstLoginHint}',
                 ),
             ],
           ),

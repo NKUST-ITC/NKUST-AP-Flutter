@@ -1,6 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/l10n/l10n.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 class ReportPage extends StatefulWidget {
   static const String routerName = '/report';
@@ -10,11 +10,11 @@ class ReportPage extends StatefulWidget {
 }
 
 class ReportPageState extends State<ReportPage> {
-  late AppLocalizations app;
+  late NkustLocalizations app;
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(

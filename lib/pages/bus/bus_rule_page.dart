@@ -13,7 +13,7 @@ class BusRulePage extends StatefulWidget {
 }
 
 class BusRulePageState extends State<BusRulePage> {
-  AppLocalizations? app;
+  NkustLocalizations? app;
 
   @override
   void initState() {
@@ -24,7 +24,7 @@ class BusRulePageState extends State<BusRulePage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(

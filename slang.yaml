@@ -1,0 +1,12 @@
+base_locale: zh-Hant-TW
+fallback_strategy: base_locale
+input_directory: lib/l10n
+output_directory: lib/l10n/generated
+input_file_pattern: .i18n.json
+key_case: camel
+key_map_case: camel
+translate_var: t
+class_name: NkustLocalizations
+enum_name: NkustLocale
+locale_handling: false
+lazy: false

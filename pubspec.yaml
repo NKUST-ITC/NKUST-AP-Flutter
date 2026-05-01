@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 3.13.0
+version: 4.0.0
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -14,6 +14,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
+  slang: ^4.4.0
+  slang_flutter: ^4.4.0
 
   ap_common: ^1.0.1-dev.12
   ap_common_firebase: ^1.0.1-dev.13
@@ -48,6 +50,7 @@ dev_dependencies:
   lint: ^2.1.2
   build_runner: ^2.1.11
   json_serializable: ^6.3.0
+  slang_build_runner: ^4.4.0
 
 
 dependency_overrides:
@@ -86,10 +89,3 @@ flutter:
     - changelog.json
     # - assets/webap_captcha.tflite
 
-flutter_intl:
-  enabled: true
-  class_name: AppLocalizations
-  main_locale: 'zh_TW'
-  arb_dir: lib/l10n
-  output_dir: lib/l10n
-  use_deferred_loading: true

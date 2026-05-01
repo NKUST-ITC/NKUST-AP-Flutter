@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 part 'bus_reservations_data.g.dart';
@@ -124,11 +124,11 @@ class BusReservation {
     return formatterTime.format(s);
   }
 
-  String getStart(AppLocalizations? local) {
+  String getStart(NkustLocalizations? local) {
     return Utils.parserCampus(local, start);
   }
 
-  String getEnd(AppLocalizations? local) {
+  String getEnd(NkustLocalizations? local) {
     return Utils.parserCampus(local, end);
   }
 
