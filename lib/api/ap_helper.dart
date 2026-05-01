@@ -74,6 +74,18 @@ class WebApHelper
     this.cookieJar = cookieJar;
   }
 
+  Future<void> _primeHomepage() async {
+    try {
+      await dio.get<dynamic>(
+        'https://webap.nkust.edu.tw/nkust/index_main.html',
+      );
+    } catch (e) {
+      // Non-fatal: if priming fails, fall through to the captcha loop
+      // and let the existing retry/error path surface the real failure.
+      log('[login] homepage prime failed: $e');
+    }
+  }
+
   Future<Uint8List?> getValidationImage() async {
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://webap.nkust.edu.tw/nkust/validateCode.jsp',
@@ -136,6 +148,14 @@ class WebApHelper
     */
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
+
+    // Prime the session by visiting the homepage before fetching the
+    // captcha. webap binds the captcha to session cookies that are only
+    // set when index_main.html is loaded; jumping straight to
+    // validateCode.jsp leaves the session in a state where every
+    // subsequent perchk.jsp POST is rejected as 驗證碼錯誤 even with a
+    // correctly OCR-decoded code.
+    await _primeHomepage();
 
     for (int i = 0; i < retryCounts; i++) {
       try {
