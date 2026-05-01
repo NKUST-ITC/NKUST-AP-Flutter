@@ -2,21 +2,46 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/capability/course_provider.dart';
+import 'package:nkust_ap/api/capability/score_provider.dart';
+import 'package:nkust_ap/api/capability/semester_provider.dart';
+import 'package:nkust_ap/api/capability/user_info_provider.dart';
+import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/models/room_data.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
-class StdsysHelper {
+enum EnrollmentLetterLang {
+  chinese,
+  english;
+
+  String get _path => switch (this) {
+        EnrollmentLetterLang.chinese => 'ChinesePDF',
+        EnrollmentLetterLang.english => 'EnglishPDF',
+      };
+}
+
+class StdsysHelper
+    implements CourseProvider, ScoreProvider, UserInfoProvider, SemesterProvider {
+  /// The [WebApHelper] instance this helper depends on for Dio and cookie
+  /// management.
+  final WebApHelper _webApHelper;
+
+  StdsysHelper(this._webApHelper);
+
   static StdsysHelper? _instance;
   // ignore: prefer_constructors_over_static_methods
   static StdsysHelper get instance {
-    return _instance ??= StdsysHelper();
+    return _instance ??= StdsysHelper(WebApHelper.instance);
   }
 
-  Dio get dio => WebApHelper.instance.dio;
-  CookieJar get cookieJar => WebApHelper.instance.cookieJar;
+  Dio get dio => _webApHelper.dio;
+  CookieJar get cookieJar => _webApHelper.cookieJar;
 
-  Future<Response<Uint8List>> getEnrollmentLetter() async {
-    await WebApHelper.instance.loginToStdsys();
+  Future<Response<Uint8List>> getEnrollmentLetter([
+    EnrollmentLetterLang lang = EnrollmentLetterLang.chinese,
+  ]) async {
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -25,7 +50,7 @@ class StdsysHelper {
         .join('; ');
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
-      'https://stdsys.nkust.edu.tw/student/Doc/Status/Download',
+      'https://stdsys.nkust.edu.tw/student/Doc/Status/${lang._path}',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
@@ -42,7 +67,7 @@ class StdsysHelper {
     String? schoolYear,
     String? semester,
   ) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -52,7 +77,7 @@ class StdsysHelper {
 
     final Response<String> response = await dio.get<String>(
       'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetRoomList/',
-      queryParameters: {
+      queryParameters: <String, dynamic>{
         'fgShowAll': 'False',
         'fgEnable': 'True',
         'fgShowCode': 'False',
@@ -85,6 +110,8 @@ class StdsysHelper {
     String? years,
     String? semesterValue,
   ) async {
+    await _webApHelper.loginToStdsys();
+
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
@@ -93,7 +120,7 @@ class StdsysHelper {
 
     final Response<String> response = await dio.get<String>(
       'https://stdsys.nkust.edu.tw/student/TimeTable/RoomTimeTable/GetScheduleByRoom',
-      queryParameters: {
+      queryParameters: <String, dynamic>{
         'id': '$years;$semesterValue;$roomId',
       },
       options: Options(
@@ -115,7 +142,7 @@ class StdsysHelper {
     String? year,
     String? semester,
   }) async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -126,28 +153,35 @@ class StdsysHelper {
     // schoolYearSms 格式：學年-學期，例如 "114-2"
     final String schoolYearSms = '$year-$semester';
 
-    final Response<String> response = await dio.post<String>(
-      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery/Query',
-      data: 'schoolYearSms=$schoolYearSms',
-      options: Options(
-        responseType: ResponseType.plain,
-        contentType: 'application/x-www-form-urlencoded',
-        headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseQuery',
-          'Cookie': cookieHeader,
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      ),
-    );
+    try {
+      final Response<String> response = await dio.post<String>(
+        'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList/Query',
+        data: 'schoolYearSms=$schoolYearSms',
+        options: Options(
+          responseType: ResponseType.plain,
+          contentType: 'application/x-www-form-urlencoded',
+          headers: <String, dynamic>{
+            'Referer':
+                'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+            'Cookie': cookieHeader,
+          },
+        ),
+      );
 
-    return CourseData.fromJson(
-      StdsysParser.instance.studentCourseTableParser(response.data),
-    );
+      return CourseData.fromJson(
+        StdsysParser.instance.studentCourseTableParser(response.data),
+      );
+    } on DioException catch (e) {
+      // 當傳入無課程的學期時，會回傳 500
+      if (e.response?.statusCode == 500) {
+        return CourseData.empty();
+      }
+      rethrow;
+    }
   }
 
   Future<UserInfo> getUserInfo() async {
-    await WebApHelper.instance.loginToStdsys();
+    await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
@@ -161,8 +195,7 @@ class StdsysHelper {
         responseType: ResponseType.plain,
         contentType: 'application/x-www-form-urlencoded',
         headers: <String, dynamic>{
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student',
+          'Referer': 'https://stdsys.nkust.edu.tw/student',
           'Cookie': cookieHeader,
         },
       ),
@@ -172,7 +205,9 @@ class StdsysHelper {
     return data;
   }
 
-  Future<Uint8List?> getUserPicture(String pictureUrl) async {
+  @override
+  Future<Uint8List?> getUserPicture(String? pictureUrl) async {
+    if (pictureUrl == null) return null;
     dio.options.headers['Accept'] =
         'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8';
     final Response<Uint8List> response = await dio.get<Uint8List>(
@@ -183,4 +218,114 @@ class StdsysHelper {
     );
     return response.data;
   }
+
+  Future<SemesterData?> getSemesters() async {
+    await _webApHelper.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<String> response = await dio.post<String>(
+      'https://stdsys.nkust.edu.tw/student/WebCode/GetSchoolYearSmsCodes',
+      queryParameters: <String, dynamic>{
+        'stdId': Helper.username,
+      },
+      options: Options(
+        responseType: ResponseType.plain,
+        headers: <String, dynamic>{
+          'Referer': 'https://stdsys.nkust.edu.tw/student/',
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+
+    final Map<String, dynamic> json =
+        StdsysParser.instance.semesterParser(response.data);
+    return SemesterData.fromJson(json);
+  }
+
+  Future<Response<Uint8List>> getSingleTranscript(
+      String? year, String? semester,
+      [bool showRank = true]) async {
+    await _webApHelper.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://stdsys.nkust.edu.tw/student/Score/SingleSemesterTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
+
+  Future<Response<Uint8List>> getHistoryTranscript(
+      String? year, String? semester,
+      [bool showRank = true]) async {
+    await _webApHelper.loginToStdsys();
+
+    final List<Cookie> cookies = await cookieJar
+        .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
+    final String cookieHeader = cookies
+        .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
+        .join('; ');
+
+    final Response<Uint8List> response = await dio.get<Uint8List>(
+      'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
+      options: Options(
+        responseType: ResponseType.bytes,
+        headers: <String, dynamic>{
+          'Cookie': cookieHeader,
+        },
+      ),
+    );
+    return response;
+  }
+
+  String parsePdfText(Response<Uint8List> rawpdf) {
+    final Uint8List bytes = rawpdf.data!;
+    final PdfDocument document = PdfDocument(inputBytes: bytes);
+    try {
+      final PdfTextExtractor extractor = PdfTextExtractor(document);
+      final String text = extractor.extractText();
+      return text;
+    } finally {
+      document.dispose();
+    }
+  }
+
+  Future<ScoreData> getScoresByYearSemester(
+    String? year,
+    String? semester,
+  ) async {
+    final Response<Uint8List> rawpdf =
+        await getSingleTranscript(year, semester);
+
+    try {
+      final String parsed = parsePdfText(rawpdf);
+      return ScoreData.fromJson(
+        StdsysParser.instance.scoresParser(parsed),
+      );
+    } catch (e) {
+      return ScoreData.empty();
+    }
+  }
+
+  @override
+  Future<ScoreData?> getScores({
+    required String year,
+    required String semester,
+  }) =>
+      getScoresByYearSemester(year, semester);
 }

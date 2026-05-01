@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 import 'package:nkust_ap/utils/global.dart';
 
@@ -18,12 +20,11 @@ class EnrollmentLetterPage extends StatefulWidget {
 
 class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   PdfState pdfState = PdfState.loading;
-
-  late AppLocalizations app;
-
+  late NkustLocalizations app;
   Uint8List? data;
-
+  late EnrollmentLetterLang selectedLang;
   String? errorMessage;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -32,21 +33,53 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
       'EnrollmentLetterPage',
       'enrollment_letter_page.dart',
     );
-    _getEnrollmentLetter();
   }
 
   @override
-  void dispose() {
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      selectedLang = _defaultLangForLocale(Localizations.localeOf(context));
+      _getEnrollmentLetter();
+    }
+  }
+
+  EnrollmentLetterLang _defaultLangForLocale(Locale locale) {
+    return switch (locale.languageCode) {
+      'zh' || 'ja' => EnrollmentLetterLang.chinese,
+      _ => EnrollmentLetterLang.english,
+    };
   }
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     return Scaffold(
       appBar: AppBar(
         title: Text(app.enrollmentLetter),
-        backgroundColor: ApTheme.of(context).blue,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: OptionPickerBottomSheet.fromOptions(
+              title: context.ap.language,
+              titleIcon: Icons.translate_rounded,
+              buttonIcon: Icons.language_rounded,
+              options: [
+                PickerOption(value: 0, label: app.traditionalChinese),
+                const PickerOption(value: 1, label: 'English'),
+              ],
+              selectedValue: selectedLang.index,
+              onSelect: (v) {
+                setState(() {
+                  selectedLang = EnrollmentLetterLang.values[v];
+                  pdfState = PdfState.loading;
+                });
+                _getEnrollmentLetter();
+              },
+            ),
+          ),
+        ],
       ),
       body: PdfView(
         state: pdfState,
@@ -63,17 +96,45 @@ class _EnrollmentLetterPageState extends State<EnrollmentLetterPage> {
   Future<void> _getEnrollmentLetter() async {
     try {
       final Response<Uint8List> response =
-          await StdsysHelper.instance.getEnrollmentLetter();
+          await Helper.instance.getEnrollmentLetter(selectedLang);
+      final responseData = response.data;
+      if (responseData == null || responseData.isEmpty) {
+        setState(() {
+          pdfState = PdfState.error;
+          errorMessage = app.noEnrollmentData;
+        });
+        return;
+      }
+      final bool isValidPdf = responseData.length >= 4 &&
+          responseData[0] == 0x25 &&
+          responseData[1] == 0x50 &&
+          responseData[2] == 0x44 &&
+          responseData[3] == 0x46;
+      if (!isValidPdf) {
+        final bool isHtml = responseData[0] == 0x3c;
+        setState(() {
+          pdfState = PdfState.error;
+          errorMessage =
+              isHtml ? app.noEnrollmentAvailable : app.invalidPdfFormat;
+        });
+        return;
+      }
       setState(() {
         pdfState = PdfState.finish;
-        data = response.data;
+        data = responseData;
       });
-    } catch (e) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       setState(() {
         pdfState = PdfState.error;
-        errorMessage = '查無繳費紀錄';
+        // Keep the 404 special case (no enrollment letter available for
+        // this student) mapped to a dedicated user message.
+        if (e is ServerException && e.httpStatusCode == 404) {
+          errorMessage = app.noEnrollmentData;
+        } else {
+          errorMessage = e.toLocalizedMessage(context);
+        }
       });
-      rethrow;
     }
   }
 }

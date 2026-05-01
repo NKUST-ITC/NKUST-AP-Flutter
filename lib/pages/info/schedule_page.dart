@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:nkust_ap/models/schedule_data.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
-import 'package:sprintf/sprintf.dart';
 
 enum _State { loading, finish, error, empty, pdf }
 
@@ -33,15 +32,6 @@ class SchedulePageState extends State<SchedulePage>
 
   int page = 1;
 
-  TextStyle get _textBlueStyle => TextStyle(
-        color: ApTheme.of(context).blueText,
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold,
-      );
-
-  TextStyle get _textStyle => const TextStyle(
-        fontSize: 16.0,
-      );
   PdfState pdfState = PdfState.loading;
 
   Uint8List? data;
@@ -69,10 +59,7 @@ class SchedulePageState extends State<SchedulePage>
   Widget _body() {
     switch (state) {
       case _State.loading:
-        return Container(
-          alignment: Alignment.center,
-          child: const CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case _State.error:
       case _State.empty:
         return InkWell(
@@ -81,7 +68,7 @@ class SchedulePageState extends State<SchedulePage>
             icon: ApIcon.assignment,
             content: state == _State.error
                 ? ap.clickToRetry
-                : AppLocalizations.of(context).busEmpty,
+                : context.t.busEmpty,
           ),
         );
       case _State.pdf:
@@ -132,25 +119,8 @@ class SchedulePageState extends State<SchedulePage>
   }
 
   List<Widget> _scheduleItem(ScheduleData schedule) {
-    final List<Widget> events = <Widget>[];
-    for (final String i in schedule.events) {
-      events.add(
-        Container(
-          alignment: Alignment.centerLeft,
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-          child: Text(
-            i,
-            style: _textStyle,
-            textAlign: TextAlign.left,
-          ),
-        ),
-      );
-      events.add(
-        Divider(
-          color: ApTheme.of(context).grey,
-        ),
-      );
-    }
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
     return <Widget>[
       SliverPersistentHeader(
         pinned: true,
@@ -158,11 +128,16 @@ class SchedulePageState extends State<SchedulePage>
           minHeight: 0.0,
           maxHeight: 50.0,
           child: Container(
+            color: colorScheme.surface,
             alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
               schedule.week,
-              style: _textBlueStyle,
+              style: TextStyle(
+                color: colorScheme.primary,
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+              ),
               textAlign: TextAlign.left,
             ),
           ),
@@ -171,64 +146,75 @@ class SchedulePageState extends State<SchedulePage>
       SliverList(
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                AnalyticsUtil.instance.logEvent('add_schedule_create');
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) => YesNoDialog(
-                    title: ap.events,
-                    contentWidget: RichText(
-                      textAlign: TextAlign.center,
-                      text: TextSpan(
-                        style: TextStyle(
-                          color: ApTheme.of(context).grey,
-                          height: 1.3,
-                          fontSize: 16.0,
-                        ),
-                        children: <TextSpan>[
-                          TextSpan(
-                            text: ap.addCalendarContent(
-                              arg1: schedule.events[index],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    leftActionText: ap.cancel,
-                    rightActionText: ap.determine,
-                    rightActionFunction: () {
-                      if (schedule.events.isNotEmpty) {
-                        _addToCalendar(schedule.events[index]);
-                      }
-                      AnalyticsUtil.instance.logEvent('add_schedule_click');
-                    },
-                  ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 16.0,
-                ),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Colors.grey, width: 0.5),
-                  ),
-                ),
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  schedule.events[index],
-                  style: _textStyle,
-                  textAlign: TextAlign.left,
-                ),
-              ),
-            );
+            return _buildEventItem(schedule, index, colorScheme);
           },
           childCount: schedule.events.length,
         ),
       ),
     ];
+  }
+
+  Widget _buildEventItem(
+    ScheduleData schedule,
+    int index,
+    ColorScheme colorScheme,
+  ) {
+    return InkWell(
+      onTap: () {
+        AnalyticsUtil.instance.logEvent('add_schedule_create');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => YesNoDialog(
+            title: ap.events,
+            contentWidget: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                  color: colorScheme.onSurfaceVariant,
+                  height: 1.3,
+                  fontSize: 16.0,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                    text: ap.addCalendarContent(
+                      arg1: schedule.events[index],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            leftActionText: ap.cancel,
+            rightActionText: ap.determine,
+            rightActionFunction: () {
+              if (schedule.events.isNotEmpty) {
+                _addToCalendar(schedule.events[index]);
+              }
+              AnalyticsUtil.instance.logEvent('add_schedule_click');
+            },
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(
+              color: colorScheme.outlineVariant,
+              width: 0.5,
+            ),
+          ),
+        ),
+        alignment: Alignment.centerLeft,
+        child: Text(
+          schedule.events[index],
+          style: TextStyle(
+            fontSize: 16.0,
+            color: colorScheme.onSurface,
+          ),
+          textAlign: TextAlign.left,
+        ),
+      ),
+    );
   }
 
   void _addToCalendar(String msg) {

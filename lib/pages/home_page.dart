@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -5,12 +6,17 @@ import 'dart:math';
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
+import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
+import 'package:nkust_ap/api/leave_helper.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
+import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
@@ -37,7 +43,7 @@ class HomePageState extends State<HomePage> {
 
   HomeState state = HomeState.loading;
 
-  late AppLocalizations app;
+  late NkustLocalizations app;
   late ApLocalizations ap;
 
   Widget? content;
@@ -54,7 +60,12 @@ class HomePageState extends State<HomePage> {
   bool busEnable = true;
 
   UserInfo? userInfo;
+  CourseData? courseData;
+  BusReservationsData? busReservationsData;
 
+  StreamSubscription<void>? _reloginSub;
+  bool _userInfoFetchFailed = false;
+  bool _userInfoFetchInProgress = false;
 
   String get sectionImage {
     final String department = userInfo?.department ?? '';
@@ -105,14 +116,22 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  bool get canUseBus => busEnable && MobileNkustHelper.isSupport;
+  bool get canUseBus => busEnable && !kIsWeb;
+
+  String get _leaveFallbackUrl {
+    // The mobile.nkust.edu.tw Student/Leave page used to be the default
+    // browser fallback, but mobile portal scraping has been removed and
+    // the page is no longer reachable for students. All non-stdsys
+    // selections now route to the oosaf leave page instead.
+    return LeaveHelper.oosafLeaveUrl;
+  }
 
   static Widget aboutPage(BuildContext context, {String? assetImage}) {
     return AboutUsPage(
       assetImage: assetImage ?? ImageAssets.kuasap2,
       githubName: 'NKUST-ITC',
       email: 'nkust.itc@gmail.com',
-      appLicense: AppLocalizations.of(context).aboutOpenSourceContent,
+      appLicense: context.t.aboutOpenSourceContent,
       fbFanPageId: '735951703168873',
       fbFanPageUrl: 'https://www.facebook.com/NKUST.ITC/',
       githubUrl: 'https://github.com/NKUST-ITC',
@@ -134,6 +153,7 @@ class HomePageState extends State<HomePage> {
       );
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
+      _loadCourseData();
       if (PreferenceUtil.instance.getBool(Constants.prefAutoLogin, false)) {
         _login();
       } else {
@@ -147,17 +167,27 @@ class HomePageState extends State<HomePage> {
       }
       await _checkData(first: true);
     });
+    _reloginSub = Helper.instance.onReloginSuccess.listen((_) {
+      if (!mounted) return;
+      // Only retry when a previous fetch actually failed. The initial
+      // login flow calls `_getUserInfo()` directly, so no retry is needed
+      // just because the stream fired.
+      if (_userInfoFetchFailed) {
+        _getUserInfo();
+      }
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    _reloginSub?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     ap = context.ap;
     return HomePageScaffold(
       title: app.appName,
@@ -166,6 +196,7 @@ class HomePageState extends State<HomePage> {
       announcements: announcements,
       isLogin: isLogin,
       content: content,
+      dashboardWidgets: _buildDashboardWidgets(),
       actions: <Widget>[
         IconButton(
           icon: const Icon(Icons.fiber_new_rounded),
@@ -310,7 +341,7 @@ class HomePageState extends State<HomePage> {
             ),
             DrawerSubMenuItem(
               icon: enrollmentLetter,
-              title: '在學證明',
+              title: app.enrollmentLetter,
               onTap: () => _openPage(
                 const EnrollmentLetterPage(),
                 needLogin: true,
@@ -319,7 +350,7 @@ class HomePageState extends State<HomePage> {
           ],
         ),
         if (leaveEnable)
-        DrawerMenuSection(
+          DrawerMenuSection(
             initiallyExpanded: isLeaveExpanded,
             onExpansionChanged: (bool bool) {
               setState(() {
@@ -359,15 +390,13 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.calendarToday,
             title: ap.leave,
-            onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Student/Leave',
-            ),
+            onTap: () => PlatformUtil.instance.launchUrl(_leaveFallbackUrl),
           ),
         if (canUseBus)
-        DrawerMenuSection(
+          DrawerMenuSection(
             initiallyExpanded: isBusExpanded,
             onExpansionChanged: (bool bool) {
               setState(() {
@@ -404,11 +433,11 @@ class HomePageState extends State<HomePage> {
             ],
           )
         else
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.directionsBus,
             title: ap.bus,
             onTap: () => PlatformUtil.instance.launchUrl(
-              'https://mobile.nkust.edu.tw/Bus/Timetable',
+              VmsBusHelper.timetablePageUrl,
             ),
           ),
         DrawerMenuItem(
@@ -438,17 +467,20 @@ class HomePageState extends State<HomePage> {
         ),
         if (isLogin) ...<Widget>[
           const DrawerDivider(),
-        DrawerMenuItem(
+          DrawerMenuItem(
             icon: ApIcon.powerSettingsNew,
             title: ap.logout,
+            iconColor: Theme.of(context).colorScheme.error,
             onTap: () async {
               await PreferenceUtil.instance
                   .setBool(Constants.prefAutoLogin, false);
               if (!mounted) return;
               ShareDataWidget.of(context)!.data.logout();
-              isLogin = false;
-              userInfo = null;
-              content = null;
+              setState(() {
+                isLogin = false;
+                userInfo = null;
+                content = null;
+              });
               if (isMobile) Navigator.of(context).pop();
               checkLogin();
             },
@@ -458,22 +490,153 @@ class HomePageState extends State<HomePage> {
     );
   }
 
-  void onTabTapped(int index) {
+  Future<void> onTabTapped(int index) async {
     if (isLogin) {
       switch (canUseBus ? index : index + 1) {
         case 0:
           if (canUseBus) {
-            ApUtils.pushCupertinoStyle(context, const BusPage());
+            await _pushAndReload(const BusPage());
           } else {
             UiUtil.instance.showToast(context, ap.platformError);
           }
         case 1:
-          ApUtils.pushCupertinoStyle(context, CoursePage());
+          await _pushAndReload(CoursePage());
         case 2:
-          ApUtils.pushCupertinoStyle(context, ScorePage());
+          await _pushAndReload(ScorePage());
       }
     } else {
       UiUtil.instance.showToast(context, ap.notLogin);
+    }
+  }
+
+  Future<void> _pushAndReload(Widget page) async {
+    await Navigator.push(
+      context,
+      CupertinoPageRoute<void>(builder: (_) => page),
+    );
+    _loadCourseData();
+  }
+
+  BusReservation? get _nextBusReservation {
+    if (busReservationsData == null) return null;
+    final DateTime now = DateTime.now();
+    final List<BusReservation> future = busReservationsData!.reservations
+        .where((BusReservation r) => r.getDateTime().isAfter(now))
+        .toList()
+      ..sort(
+        (BusReservation a, BusReservation b) =>
+            a.getDateTime().compareTo(b.getDateTime()),
+      );
+    return future.isEmpty ? null : future.first;
+  }
+
+  List<Widget>? _buildDashboardWidgets() {
+    if (courseData == null && !canUseBus) return null;
+    return <Widget>[
+      if (canUseBus)
+        QuickInfoRow(
+          items: <QuickInfoItem>[
+            if (_nextBusReservation != null)
+              QuickInfoItem(
+                icon: ApIcon.directionsBus,
+                label: app.busReserve,
+                subtitle:
+                    '${_nextBusReservation!.getDate()} ${_nextBusReservation!.getStart(app)} → ${_nextBusReservation!.getEnd(app)} ${_nextBusReservation!.getTime()}',
+                onTap: () {
+                  if (isLogin) {
+                    _pushAndReload(const BusPage());
+                  } else {
+                    UiUtil.instance.showToast(context, ap.notLogin);
+                  }
+                },
+              ),
+            if (_nextBusReservation == null)
+              QuickInfoItem(
+                icon: ApIcon.directionsBus,
+                label: app.bus,
+                subtitle: app.busReservations,
+                onTap: () {
+                  if (isLogin) {
+                    _pushAndReload(const BusPage());
+                  } else {
+                    UiUtil.instance.showToast(context, ap.notLogin);
+                  }
+                },
+              ),
+          ],
+        ),
+      if (canUseBus) const SizedBox(height: 16),
+      if (courseData != null)
+        TodayScheduleCard(
+          courseData: courseData!,
+          onTap: () {
+            _pushAndReload(CoursePage());
+          },
+        ),
+      if (courseData == null) _buildEmptyScheduleCard(),
+    ];
+  }
+
+  Widget _buildEmptyScheduleCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Card(
+        child: InkWell(
+          onTap: () {
+            if (isLogin) {
+              ApUtils.pushCupertinoStyle(context, CoursePage());
+            } else {
+              openLoginPage();
+            }
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Row(
+              children: <Widget>[
+                Icon(
+                  Icons.today_rounded,
+                  size: 32,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    isLogin ? ap.courseEmpty : ap.notLogin,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _loadCourseData() async {
+    final String username = Helper.username ??
+        PreferenceUtil.instance
+            .getString(Constants.prefUsername, '')
+            .toUpperCase();
+    if (username.isEmpty) return;
+    final SemesterData? semesterData = SemesterData.load();
+    if (semesterData != null) {
+      final String tag = '${username}_${semesterData.defaultSemester.code}';
+      final CourseData? data = CourseData.load(tag);
+      if (data != null && mounted) {
+        setState(() => courseData = data);
+      }
+    }
+    final BusReservationsData? busData = BusReservationsData.load(username);
+    if (busData != null && mounted) {
+      setState(() => busReservationsData = busData);
     }
   }
 
@@ -500,31 +663,43 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _setupBusNotify(BuildContext context) async {
-    if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
-      try {
-        final BusReservationsData response =
-            await Helper.instance.getBusReservations();
-        await Utils.setBusNotify(context, response.reservations);
-      } on DioException catch (e) {
-        if (e.hasResponse) {
-          AnalyticsUtil.instance.logApiEvent(
-            'getBusReservations',
-            e.response!.statusCode!,
-            message: e.message ?? '',
-          );
-        }
-      } catch (e, s) {
-        CrashlyticsUtil.instance.recordError(e, s);
+    try {
+      final BusReservationsData response =
+          await Helper.instance.getBusReservations();
+      response.save(Helper.username);
+      if (mounted) {
+        setState(() {
+          busReservationsData = response;
+        });
       }
+      if (PreferenceUtil.instance.getBool(Constants.prefBusNotify, false)) {
+        await Utils.setBusNotify(context, response.reservations);
+      }
+    } on ApException catch (e) {
+      if (e is ServerException && e.httpStatusCode != null) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getBusReservations',
+          e.httpStatusCode!,
+          message: e.message,
+        );
+      }
+    } catch (e, s) {
+      CrashlyticsUtil.instance.recordError(e, s);
     }
   }
 
   Future<void> _getUserInfo() async {
-    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
-      userInfo = UserInfo.load(Helper.username!);
-    } else {
+    if (_userInfoFetchInProgress) return;
+    _userInfoFetchInProgress = true;
+    try {
+      if (PreferenceUtil.instance
+          .getBool(Constants.prefIsOfflineLogin, false)) {
+        userInfo = UserInfo.load(Helper.username!);
+        return;
+      }
       try {
         final UserInfo data = await Helper.instance.getUsersInfo();
+        _userInfoFetchFailed = false;
         if (mounted) {
           setState(() {
             userInfo = data;
@@ -532,6 +707,7 @@ class HomePageState extends State<HomePage> {
           if (userInfo != null) {
             AnalyticsUtil.instance.logUserInfo(userInfo!);
             userInfo!.save(Helper.username!);
+            ApCommonPlugin.updateUserInfoWidget(userInfo!);
           }
           _checkData();
           if (PreferenceUtil.instance
@@ -539,34 +715,32 @@ class HomePageState extends State<HomePage> {
             _getUserPicture();
           }
         }
-      } on DioException catch (e) {
-        if (e.hasResponse) {
+      } on ApException catch (e) {
+        _userInfoFetchFailed = true;
+        if (e is ServerException && e.httpStatusCode != null) {
           AnalyticsUtil.instance.logApiEvent(
             'getUserInfo',
-            e.response!.statusCode!,
-            message: e.message ?? '',
+            e.httpStatusCode!,
+            message: e.message,
           );
         }
       } catch (e, s) {
+        _userInfoFetchFailed = true;
         CrashlyticsUtil.instance.recordError(e, s);
       }
+    } finally {
+      _userInfoFetchInProgress = false;
     }
   }
 
   Future<void> _getUserPicture() async {
-    try {
-      if (userInfo != null && userInfo!.pictureUrl != null) {
-        final Uint8List? response =
-            await Helper.instance.getUserPicture(userInfo!.pictureUrl!);
-        if (mounted) {
-          setState(() {
-            userInfo = userInfo!.copyWith(pictureBytes: response);
-          });
-        }
-        // CacheUtils.savePictureData(response);
-      }
-    } catch (e) {
-      rethrow;
+    if (userInfo == null || userInfo!.pictureUrl == null) return;
+    final Uint8List? response =
+        await Helper.instance.getUserPicture(userInfo!.pictureUrl!);
+    if (mounted) {
+      setState(() {
+        userInfo = userInfo!.copyWith(pictureBytes: response);
+      });
     }
   }
 
@@ -601,11 +775,15 @@ class HomePageState extends State<HomePage> {
         username: username,
         password: password,
       );
+      if (!mounted) return;
       if (isLogin) return;
       ShareDataWidget.of(context)!.data.loginResponse = response;
-      isLogin = true;
+      setState(() {
+        isLogin = true;
+      });
       PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
       _getUserInfo();
+      _loadCourseData();
       _setupBusNotify(context);
       if (state != HomeState.finish) {
         _getAnnouncements();
@@ -613,58 +791,47 @@ class HomePageState extends State<HomePage> {
       _homeKey.currentState
         ?..hideSnackBar()
         ..showBasicHint(text: ap.loginSuccess);
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
       if (isLogin) return;
-      String message = '';
-      if (response.statusCode == ApStatusCode.userDataError ||
-          response.statusCode == ApStatusCode.passwordFiveTimesError) {
-        Toast.show(ap.passwordError, context);
-        await PreferenceUtil.instance
-            .setBool(Constants.prefAutoLogin, false);
+      if (e is CancelledException) return;
+      // Invalid credentials / account lockout — stop auto-login; user must
+      // re-enter password.
+      if (e is AuthException &&
+          (e.reason == AuthFailureReason.invalidCredentials ||
+              e.reason == AuthFailureReason.tooManyAttempts)) {
+        Toast.show(e.toLocalizedMessage(context), context);
+        await PreferenceUtil.instance.setBool(Constants.prefAutoLogin, false);
         checkLogin();
       } else {
-        switch (response.statusCode) {
-          case ApStatusCode.schoolServerError:
-            message = ap.schoolServerError;
-          case ApStatusCode.apiServerError:
-            message = ap.apiServerError;
-          case ApStatusCode.unknownError:
-          case ApStatusCode.cancel:
-            message = ap.loginFail;
-          default:
-            message = ap.somethingError;
-        }
         _homeKey.currentState!.showSnackBar(
-          text: message,
+          text: e.toLocalizedMessage(context),
           actionText: ap.retry,
           onSnackBarTapped: _login,
         );
         offLineLogin();
       }
-    } on DioException catch (e) {
-      if (isLogin) return;
-      final String text = e.i18nMessage!;
-      _homeKey.currentState!.showSnackBar(
-        text: text,
-        actionText: ap.retry,
-        onSnackBarTapped: _login,
-      );
-      offLineLogin();
     }
   }
 
   void offLineLogin() {
+    if (!mounted) return;
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, true);
     UiUtil.instance.showToast(context, ap.loadOfflineData);
-    isLogin = true;
+    setState(() {
+      isLogin = true;
+    });
     _getUserInfo();
     _homeKey.currentState?.hideSnackBar();
   }
 
   void handleLoginSuccess(String? username, String? password) {
-    isLogin = true;
+    if (!mounted) return;
+    setState(() {
+      isLogin = true;
+    });
     PreferenceUtil.instance.setBool(Constants.prefIsOfflineLogin, false);
     _getUserInfo();
+    _loadCourseData();
     _setupBusNotify(context);
     if (state != HomeState.finish) {
       _getAnnouncements();
@@ -737,7 +904,7 @@ class HomePageState extends State<HomePage> {
   static const String prefApiKey = 'inkust_api_key';
 
   Future<void> _checkData({bool first = false}) async {
-    final AppLocalizations app = AppLocalizations.of(context);
+    final NkustLocalizations app = context.t;
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final String currentVersion =
         PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '');
@@ -750,10 +917,17 @@ class HomePageState extends State<HomePage> {
       final Map<String, dynamic>? entry =
           rawData?[packageInfo.buildNumber] as Map<String, dynamic>?;
       if (entry != null && mounted) {
-        final List<dynamic>? items = entry[ap.locale] as List<dynamic>?;
-        if (items != null && items.isNotEmpty) {
-          final String updateNoteContent =
-              items.map((dynamic e) => '\u2022 $e').join('\n');
+        final dynamic localeValue = entry[ap.locale];
+        String? updateNoteContent;
+        if (localeValue is List) {
+          if (localeValue.isNotEmpty) {
+            updateNoteContent =
+                localeValue.map((dynamic e) => '\u2022 $e').join('\n');
+          }
+        } else if (localeValue is String && localeValue.isNotEmpty) {
+          updateNoteContent = localeValue;
+        }
+        if (updateNoteContent != null) {
           DialogUtils.showUpdateContent(
             context,
             'v${packageInfo.version}\n$updateNoteContent',
@@ -779,11 +953,6 @@ class HomePageState extends State<HomePage> {
         jsonDecode(remoteConfig.getString(Constants.leavesTimeCode))
             as List<dynamic>,
       );
-      final List<String> mobileNkustUserAgent = List<String>.from(
-        jsonDecode(
-          remoteConfig.getString(Constants.mobileNkustUserAgent),
-        ) as List<dynamic>,
-      );
       busEnable = remoteConfig.getBool(Constants.busEnable);
       leaveEnable = remoteConfig.getBool(Constants.leaveEnable);
       PreferenceUtil.instance.setBool(Constants.busEnable, busEnable);
@@ -800,11 +969,6 @@ class HomePageState extends State<HomePage> {
       semesterData.save();
       PreferenceUtil.instance
           .setStringList(Constants.leavesTimeCode, leaveTimeCode);
-      PreferenceUtil.instance.setStringList(
-        Constants.mobileNkustUserAgent,
-        mobileNkustUserAgent,
-      );
-      MobileNkustHelper.userAgentList = mobileNkustUserAgent;
       versionInfo = VersionInfo(
         code: remoteConfig.getInt(ApConstants.appVersion),
         isForceUpdate: remoteConfig.getBool(ApConstants.isForceUpdate),
@@ -812,12 +976,35 @@ class HomePageState extends State<HomePage> {
       );
       if (first) {
         if (!mounted) return;
+        try {
+          final Response<dynamic> changelogResponse = await Dio().get(
+            'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/changelog.json',
+            options: Options(responseType: ResponseType.plain),
+          );
+          final Map<String, dynamic> changelogJson =
+              jsonDecode(changelogResponse.data as String)
+                  as Map<String, dynamic>;
+          final Map<String, dynamic>? versionMap =
+              changelogJson['${versionInfo.code}'] as Map<String, dynamic>?;
+          if (versionMap != null) {
+            final dynamic localeValue = versionMap[ap.locale];
+            String? content;
+            if (localeValue is List) {
+              content = localeValue.map((dynamic e) => '\u2022 $e').join('\n');
+            } else if (localeValue is String) {
+              content = localeValue;
+            }
+            if (content != null) {
+              versionInfo = versionInfo.copyWith(content: content);
+            }
+          }
+        } catch (_) {}
+        if (!mounted) return;
         DialogUtils.showNewVersionContent(
           context: context,
           appName: app.appName,
           iOSAppId: '1439751462',
           defaultUrl: 'https://www.facebook.com/NKUST.ITC/',
-          githubRepositoryName: 'NKUST-ITC/NKUST-AP-Flutter',
           windowsPath:
               'https://github.com/NKUST-ITC/NKUST-AP-Flutter/releases/download/%s/nkust_ap_windows.zip',
           snapStoreId: 'nkust-ap',

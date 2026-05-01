@@ -3,18 +3,31 @@ name: Store CD
 on:
   push:
     branches:
-      - master
+      - production
       - develop
+    paths:
+      - 'lib/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'ios/**'
+      - 'macos/**'
+      - 'linux/**'
+      - 'windows/**'
+      - 'assets/**'
+      - '.github/workflows/cd.yml'
+      - '.github/scripts/**'
   workflow_dispatch:
 
 env:
-  flutter_version: '3.35.x'
+  flutter_version: '3.41.x'
   java_version: '21'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 permissions:
   contents: write
   actions: write
+  pull-requests: read
 
 jobs:
   prepare:
@@ -23,7 +36,7 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       version_code: ${{ steps.get_version_code.outputs.version_code }}
-      is_production: ${{ github.ref == 'refs/heads/master' }}
+      is_production: ${{ github.ref == 'refs/heads/production' }}
     steps:
       - uses: actions/checkout@v4
       - name: Get version from pubspec.yaml
@@ -31,16 +44,32 @@ jobs:
         run: |
           VERSION=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | cut -d'+' -f1)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-      - name: Get version code from variable
+      - name: Get version code and bump VERSION_CODE for next run
         id: get_version_code
+        env:
+          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          echo "version_code=${{ vars.VERSION_CODE }}" >> $GITHUB_OUTPUT
-          echo "Using version code: ${{ vars.VERSION_CODE }}"
+          CURRENT="${{ vars.VERSION_CODE }}"
+          NEXT=$((CURRENT + 1))
+          echo "version_code=$CURRENT" >> $GITHUB_OUTPUT
+          gh variable set VERSION_CODE --body "$NEXT" --repo "${{ github.repository }}"
+          echo "Using version code: $CURRENT (VERSION_CODE bumped to $NEXT for next run)"
+      - name: Aggregate changelog from merged PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_TYPE=${{ github.ref == 'refs/heads/production' && 'stable' || 'beta' }}
+          bash "$GITHUB_WORKSPACE/.github/scripts/aggregate_changelog.sh" "$RELEASE_TYPE" changelog_aggregated.json
+      - name: Upload aggregated changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog-aggregated
+          path: changelog_aggregated.json
 
   deploy_android:
     name: Android Play Store
     needs: prepare
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, android, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,33 +82,40 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} android
         working-directory: ./android/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
       - name: Build Android app bundle
         run: flutter build appbundle --release --build-number=${{ needs.prepare.outputs.version_code }}
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.3'
-      - name: Install Fastlane
-        run: gem install fastlane fastlane-plugin-flutter_version
       - name: Run Fastlane
+        # Self-hosted runner ships fastlane + fastlane-plugin-flutter_version
+        # pre-installed (same assumption the iOS deploy job makes). On
+        # GitHub-hosted ubuntu this job used `ruby/setup-ruby@v1` + a
+        # `gem install` step; on the self-hosted macOS runner those steps
+        # failed because ruby/setup-ruby@v1 tries to mkdir /Users/runner
+        # (the GitHub-hosted runner's home), which the self-hosted user
+        # (rainvisitor) doesn't own — EACCES. Mirror the iOS setup
+        # instead: just invoke the system fastlane directly.
         run: fastlane ${{ needs.prepare.outputs.is_production == 'true' && 'playstore' || 'beta' }}
         working-directory: ./android
 
   deploy_ios:
     name: iOS Deploy TestFlight
     needs: prepare
-    runs-on: self-hosted
+    runs-on: [self-hosted, macOS]
     continue-on-error: true
     steps:
       - name: Checkout code
@@ -91,9 +127,15 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ env.java_version }}
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate changelog
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} ios
         working-directory: ./ios/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -125,8 +167,7 @@ jobs:
   deploy_macos:
     name: macOS Deploy TestFlight
     needs: prepare
-    runs-on: self-hosted
-    continue-on-error: true
+    runs-on: [self-hosted, macOS]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -141,22 +182,128 @@ jobs:
       - name: Flutter Initialize
         run: flutter doctor -v
       - run: flutter pub get
+      - name: Clean previous signing keychains (self-hosted idempotency)
+        # Self-hosted runners keep ~/Library/Keychains between jobs, so
+        # apple-actions/import-codesign-certs fails on the second run
+        # with exit 48 ("A keychain with the same name already exists").
+        run: |
+          security delete-keychain mac-installer-signing.keychain 2>/dev/null || true
+          security delete-keychain mac-app-signing.keychain 2>/dev/null || true
+      - name: Import Mac Installer Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_INSTALLER_CERT_BASE64 }}
+          p12-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
+          keychain: mac-installer-signing
+          keychain-password: ${{ secrets.MAC_INSTALLER_CERT_PASSWORD }}
+      - name: Import Mac App Distribution certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.MAC_APP_CERT_BASE64 }}
+          p12-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          keychain: mac-app-signing
+          keychain-password: ${{ secrets.MAC_APP_CERT_PASSWORD }}
+          create-keychain: true
+      - name: Consolidate keychain search list
+        # Each apple-actions/import-codesign-certs@v3 run rewrites the
+        # user-domain search list to `<its keychain> login`, which
+        # evicts the previous custom keychain. Re-add both so every
+        # subsequent security/codesign/productbuild lookup sees both
+        # identities.
+        run: |
+          security list-keychains -d user -s \
+            mac-installer-signing.keychain \
+            mac-app-signing.keychain \
+            login.keychain
+          security list-keychains -d user
+      - name: Verify Mac signing identities are available
+        run: |
+          missing=0
+          if ! security find-identity -v | grep -q "3rd Party Mac Developer Installer"; then
+            echo "::error::3rd Party Mac Developer Installer identity missing. Check MAC_INSTALLER_CERT_BASE64 / MAC_INSTALLER_CERT_PASSWORD."
+            missing=1
+          fi
+          if ! security find-identity -v | grep -q "3rd Party Mac Developer Application"; then
+            echo "::error::3rd Party Mac Developer Application identity missing. Check MAC_APP_CERT_BASE64 / MAC_APP_CERT_PASSWORD."
+            missing=1
+          fi
+          if [ "$missing" = "1" ]; then
+            security find-identity -v || true
+            exit 1
+          fi
+          security find-identity -v | grep "3rd Party Mac Developer"
+      - name: Download Mac App Store provisioning profile
+        # Pull the Mac App Store Distribution provisioning profile via
+        # the Connect API rather than committing it to the repo. The
+        # action drops the .provisionprofile under
+        # ~/Library/MobileDevice/Provisioning Profiles/ with a UUID
+        # filename. We copy it into the .app bundle after build, before
+        # codesign seals the Contents hash.
+        uses: apple-actions/download-provisioning-profiles@v4
+        with:
+          bundle-id: com.nkust.ap.flutter
+          profile-type: MAC_APP_STORE
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_API_KEY_PEM }}
       - name: Generate changelog
-        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} ios
+        run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} macos
         working-directory: ./macos/fastlane
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
       - name: Build macOS
         run: flutter build macos --release --build-number=${{ needs.prepare.outputs.version_code }}
+      - name: Embed provisioning profile and codesign .app
+        # `flutter build macos --release` produces an unsigned (or
+        # ad-hoc-signed) .app. For App Store upload we need to:
+        #   1. Copy the downloaded MAC_APP_STORE profile into the
+        #      bundle as Contents/embedded.provisionprofile so altool's
+        #      "profile included in the bundle" check matches.
+        #   2. Re-sign with the 3rd Party Mac Developer Application
+        #      identity and the Release.entitlements (which declares
+        #      com.apple.security.app-sandbox=true, required for App
+        #      Store submission).
+        # Order matters: profile must land before codesign seals the
+        # _CodeSignature directory; otherwise the signature invalidates
+        # the moment we drop a new file into Contents/.
+        env:
+          MAC_APP_DISTRIBUTION_CERT_NAME: ${{ secrets.MAC_APP_DISTRIBUTION_CERT_NAME }}
+        run: |
+          APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -type d -name '*.app' | head -n1)"
+          if [ -z "$APP_PATH" ]; then
+            echo "::error::No .app bundle found under build/macos/Build/Products/Release"
+            exit 1
+          fi
+          echo "App bundle: $APP_PATH"
+
+          PROFILE_SRC="$(find "$HOME/Library/MobileDevice/Provisioning Profiles" -maxdepth 1 -type f -name '*.provisionprofile' | head -n1)"
+          if [ -z "$PROFILE_SRC" ]; then
+            echo "::error::No provisioning profile found under ~/Library/MobileDevice/Provisioning Profiles/ — download step didn't land anything."
+            exit 1
+          fi
+          echo "Embedding profile: $PROFILE_SRC"
+          cp "$PROFILE_SRC" "$APP_PATH/Contents/embedded.provisionprofile"
+
+          codesign --force --deep --options runtime --timestamp \
+            --entitlements macos/Runner/Release.entitlements \
+            --sign "$MAC_APP_DISTRIBUTION_CERT_NAME" \
+            "$APP_PATH"
+          codesign --verify --verbose=2 "$APP_PATH"
+          codesign --display --entitlements :- "$APP_PATH" | \
+            grep -q "com.apple.security.app-sandbox" || {
+              echo "::error::app-sandbox entitlement missing from signed .app"
+              exit 1
+            }
       - name: Decode API Key
         run: |
           echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > macos/AuthKey.p8
-      - name: Install Fastlane
-        run: gem install fastlane
       - name: Deploy macOS to TestFlight via Fastlane
         run: fastlane mac release key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./macos
         env:
           APP_STORE_CONNECT_TEAM_ID: '${{ secrets.APP_STORE_CONNECT_TEAM_ID }}'
           APP_STORE_CONNECT_MACOS_BUNDLE_IDENTIFIER: 'com.nkust.ap.flutter'
+          MAC_INSALLER_DISTRIBUTION_CERT_NAME: '${{ secrets.MAC_INSALLER_DISTRIBUTION_CERT_NAME }}'
           DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
           KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
           ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
@@ -164,7 +311,7 @@ jobs:
   deploy_windows:
     name: Windows App
     needs: prepare
-    runs-on: windows-latest
+    runs-on: [self-hosted, Windows]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -173,7 +320,6 @@ jobs:
         with:
           flutter-version: ${{ env.flutter_version }}
           channel: 'stable'
-          cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter doctor -v
       - run: flutter pub get
@@ -253,8 +399,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Download aggregated changelog
+        uses: actions/download-artifact@v4
+        with:
+          name: changelog-aggregated
       - name: Generate release notes
         run: bash "$GITHUB_WORKSPACE/.github/scripts/generate_changelog.sh" ${{ needs.prepare.outputs.version_code }} github
+        env:
+          AGGREGATED_CHANGELOG: ${{ github.workspace }}/changelog_aggregated.json
+          RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
       - name: Download Windows installer
         uses: actions/download-artifact@v4
         with:
@@ -282,28 +435,14 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
-          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/master' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          tag_name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          name: v${{ needs.prepare.outputs.version }}${{ github.ref != 'refs/heads/production' && '-beta' || '' }}+${{ needs.prepare.outputs.version_code }}
+          target_commitish: ${{ github.sha }}
           body_path: RELEASE_NOTES_GENERATED.md
           draft: false
-          prerelease: ${{ github.ref != 'refs/heads/master' }}
+          prerelease: ${{ github.ref != 'refs/heads/production' }}
           files: |
             nkust_ap_windows_setup.exe
             nkust_ap_windows_portable.zip
             nkust_ap_linux.tar.gz
             nkust_ap_linux.snap
-
-  finalize:
-    name: Increment Version Code
-    needs: [prepare, deploy_android, deploy_ios, deploy_macos, deploy_windows, deploy_linux, github_release]
-    if: always() && needs.github_release.result == 'success'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Increment VERSION_CODE
-        env:
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
-        run: |
-          CURRENT=${{ needs.prepare.outputs.version_code }}
-          NEXT=$((CURRENT + 1))
-          gh variable set VERSION_CODE --body "$NEXT" --repo "${{ github.repository }}"
-          echo "Version code incremented: $CURRENT -> $NEXT"

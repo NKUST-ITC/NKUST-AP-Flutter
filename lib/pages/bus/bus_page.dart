@@ -1,7 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/bus/bus_violation_records_page.dart';
@@ -21,7 +22,7 @@ class BusPage extends StatefulWidget {
 }
 
 class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
-  AppLocalizations? app;
+  NkustLocalizations? app;
 
   TabController? controller;
 
@@ -52,7 +53,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     return Scaffold(
       appBar: AppBar(
         title: Text(app!.bus),
@@ -99,38 +100,23 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
           }
         },
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: onTabTapped,
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: app!.busReserve,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.assignment),
             label: app!.busReservations,
           ),
-          BottomNavigationBarItem(
-            icon: Stack(
-              children: <Widget>[
-                Icon(ApIcon.monetizationOn),
-                if (ShareDataWidget.of(context)!.data.hasBusViolationRecords)
-                  Positioned(
-                    top: -1.0,
-                    right: -1.0,
-                    child: Stack(
-                      children: <Widget>[
-                        Icon(
-                          Icons.brightness_1,
-                          size: 10.0,
-                          color: ApTheme.of(context).red,
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+          NavigationDestination(
+            icon: Badge(
+              isLabelVisible:
+                  ShareDataWidget.of(context)!.data.hasBusViolationRecords,
+              child: Icon(ApIcon.monetizationOn),
             ),
             label: app!.busViolationRecords,
           ),
@@ -166,10 +152,9 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
             ? AnalyticsConstants.yes
             : AnalyticsConstants.no,
       );
-    } on DioException catch (e) {
-      if (e.hasResponse &&
-          (e.response!.statusCode == 401 ||
-              e.response!.statusCode == 403)) {
+    } on ApException catch (e) {
+      if (e is AccountNotSupportedException ||
+          e is CampusNotSupportedException) {
         AnalyticsUtil.instance.setUserProperty(
           Constants.canUseBus,
           AnalyticsConstants.no,
@@ -181,7 +166,7 @@ class BusPageState extends State<BusPage> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> login() async {
-    if (MobileNkustHelper.instance.cookiesData == null) {
+    if (!VmsBusHelper.instance.isLogin) {
       try {
         await WebApHelper.instance.loginVms();
       } catch (e, s) {

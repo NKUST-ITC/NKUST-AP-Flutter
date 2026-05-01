@@ -1,13 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- debug-overrides only apply when the APK is built with
+         android:debuggable="true". Release builds ignore this block
+         entirely, so production continues to pin only @raw/twca_nkust
+         plus system CAs. Lets us plug in Charles / Proxyman / mitmproxy
+         via a user-added CA for HTTPS inspection without touching the
+         production trust chain. -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user"/>
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
+
     <domain-config>
         <domain includeSubdomains="true">webap.nkust.edu.tw</domain>
         <domain includeSubdomains="true">mobile.nkust.edu.tw</domain>
         <domain includeSubdomains="true">oosaf.nkust.edu.tw</domain>
         <domain includeSubdomains="true">vms.nkust.edu.tw</domain>
         <domain includeSubdomains="true">stdsys.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">leave.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">acad.nkust.edu.tw</domain>
+        <domain includeSubdomains="true">bus.kuas.edu.tw</domain>
         <trust-anchors>
             <certificates src="@raw/twca_nkust"/>
+            <certificates src="system"/>
         </trust-anchors>
     </domain-config>
 </network-security-config>

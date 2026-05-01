@@ -1,6 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State {
@@ -56,7 +58,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
   }
 
   TextStyle _textBlueStyle() {
-    return TextStyle(color: ApTheme.of(context).blueText, fontSize: 16.0);
+    return TextStyle(
+        color: Theme.of(context).colorScheme.primary, fontSize: 16.0);
   }
 
   TextStyle _textStyle() {
@@ -119,7 +122,6 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       appBar: AppBar(
         // Title
         title: Text(ap.calculateCredits),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: Flex(
         direction: Axis.vertical,
@@ -131,7 +133,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             child: Text(
               ap.calculateUnitsContent,
               style: TextStyle(
-                color: ApTheme.of(context).blueText,
+                color: Theme.of(context).colorScheme.primary,
                 fontSize: 16.0,
               ),
             ),
@@ -286,17 +288,11 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     _getSemesterScore();
   }
 
-  void _onFailure(DioException e) {
+  void _onError(ApException e) {
+    if (e is CancelledException) return;
     setState(() {
       state = _State.custom;
-      customStateHint = e.i18nMessage;
-    });
-  }
-
-  void _onError(GeneralResponse response) {
-    setState(() {
-      state = _State.custom;
-      customStateHint = response.getGeneralMessage(context);
+      customStateHint = e.toLocalizedMessage(context);
     });
   }
 
@@ -309,10 +305,8 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
     }
     try {
       semesterData = await Helper.instance.getSemester();
-    } on GeneralResponse catch (response) {
-      _onError(response);
-    } on DioException catch (e) {
-      _onFailure(e);
+    } on ApException catch (e) {
+      _onError(e);
     }
   }
 
@@ -331,8 +325,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
         semester: semesterData!.data[currentSemesterIndex],
       );
       if (startYear == -1) {
-        startYear =
-            int.parse(semesterData!.data[currentSemesterIndex].year);
+        startYear = int.parse(semesterData!.data[currentSemesterIndex].year);
       }
       semesterList.add(semesterData!.data[currentSemesterIndex]);
       if (data?.scores != null) {
@@ -340,8 +333,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
           if (score.semesterScore == null || score.semesterScore!.isEmpty) {
             continue;
           }
-          final double? semesterScore =
-              double.tryParse(score.semesterScore!);
+          final double? semesterScore = double.tryParse(score.semesterScore!);
           if ((semesterScore != null && semesterScore >= 60.0) ||
               score.semesterScore == '合格' ||
               score.semesterScore == '通過') {
@@ -352,8 +344,7 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
             } else {
               otherUnitsTotal += double.parse(score.units);
             }
-            if (score.title.contains('延伸通識') ||
-                score.title.contains('博雅')) {
+            if (score.title.contains('延伸通識') || score.title.contains('博雅')) {
               extendGeneralEducations.add(score);
             } else if (score.title.contains('核心通識') ||
                 score.title.contains('核心')) {
@@ -371,22 +362,18 @@ class CalculateUnitsPageState extends State<CalculateUnitsPage>
       } else {
         final DateTime end = DateTime.now();
         final double second =
-            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) /
-                1000;
+            (end.millisecondsSinceEpoch - start.millisecondsSinceEpoch) / 1000;
         (AnalyticsUtil.instance as FirebaseAnalyticsUtils)
             .logCalculateUnits(second);
-        unitsTotal =
-            requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
+        unitsTotal = requiredUnitsTotal + electiveUnitsTotal + otherUnitsTotal;
         if (mounted) {
           setState(() {
             state = _State.finish;
           });
         }
       }
-    } on GeneralResponse catch (response) {
-      _onError(response);
-    } on DioException catch (e) {
-      _onFailure(e);
+    } on ApException catch (e) {
+      _onError(e);
     }
   }
 }

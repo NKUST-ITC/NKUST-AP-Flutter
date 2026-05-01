@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/mobile_nkust_helper.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
@@ -37,10 +36,6 @@ void main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
-  MobileNkustHelper.userAgentList = PreferenceUtil.instance.getStringList(
-    Constants.mobileNkustUserAgent,
-    MobileNkustHelper.userAgentList,
-  );
   final String currentVersion =
       PreferenceUtil.instance.getString(Constants.prefCurrentVersion, '0');
   if (int.parse(currentVersion) < 30603) CourseData.migrateFrom0_10();
@@ -59,6 +54,8 @@ void main() async {
   if (!kIsWeb && (Platform.isIOS)) {
     await ApCommonPlugin.configure(appGroupId: 'group.com.nkust.ap');
   }
+
+  await _initApLocale();
 
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) {
@@ -82,6 +79,28 @@ void main() async {
     };
   }
   runApp(const MyApp());
+}
+
+/// Pre-resolves slang's locale before [runApp] so `context.ap` and `context.t`
+/// don't briefly fall back to the base (English) locale on the first frame —
+/// ap_common's [LocaleSettings] is `lazy: true` with deferred imports for
+/// non-base locales, so without awaiting here the `TranslationProvider`
+/// starts in English until the async `_initLocale` (and its `loadLibrary()`)
+/// completes.
+Future<void> _initApLocale() async {
+  final String languageCode = PreferenceUtil.instance.getString(
+    Constants.prefLanguageCode,
+    ApSupportLanguageConstants.system,
+  );
+  if (languageCode == ApSupportLanguageConstants.system) {
+    await useApDeviceLocale();
+  } else {
+    final Locale flutterLocale = Locale(
+      languageCode,
+      languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+    );
+    await setApLocaleFromFlutter(flutterLocale);
+  }
 }
 
 class MyHttpOverrides extends HttpOverrides {

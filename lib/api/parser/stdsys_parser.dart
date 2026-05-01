@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 class StdsysParser {
   static StdsysParser? _instance;
@@ -11,42 +12,6 @@ class StdsysParser {
   // ignore: prefer_constructors_over_static_methods
   static StdsysParser get instance {
     return _instance ??= StdsysParser();
-  }
-
-  String clearTransEncoding(List<int> htmlBytes) {
-    // htmlBytes is fixed-length list, need copy.
-    final List<int> tempData = List<int>.from(htmlBytes);
-
-    //Add /r/n on first word.
-    tempData.insert(0, 10);
-    tempData.insert(0, 13);
-
-    int startIndex = 0;
-    for (int i = 0; i < tempData.length - 1; i++) {
-      //check i and i+1 is /r/n
-      if (tempData[i] == 13 && tempData[i + 1] == 10) {
-        if (i - startIndex - 2 <= 4 && i - startIndex - 2 > 0) {
-          //check in this range word is number or A~F (Hex)
-          int removeCount = 0;
-          for (int strIndex = startIndex + 2; strIndex < i; strIndex++) {
-            if ((tempData[strIndex] > 47 && tempData[strIndex] < 58) ||
-                (tempData[strIndex] > 64 && tempData[strIndex] < 71) ||
-                (tempData[strIndex] > 96 && tempData[strIndex] < 103)) {
-              removeCount++;
-            }
-          }
-          if (removeCount == i - startIndex - 2) {
-            tempData.removeRange(startIndex, i + 2);
-          }
-          //Subtract offset
-          i -= i - startIndex - 2;
-          startIndex -= i - startIndex - 2;
-        }
-        startIndex = i;
-      }
-    }
-
-    return utf8.decode(tempData, allowMalformed: true);
   }
 
   Map<String, dynamic> roomListParser(String? jsonString) {
@@ -87,154 +52,135 @@ class StdsysParser {
 
     final Document document = parse(rawHtml);
 
-    // Result structure
-    final Map<String, dynamic> courses = <String, dynamic>{};
-    final Map<String, dynamic> tempTime = <String, dynamic>{};
-    final List<Map<String, dynamic>> timeCodes = <Map<String, dynamic>>[];
+    final List<Element> rows = document.querySelectorAll('tbody > tr');
 
-    // stdsys 個人課表只有 1 個 timetable（不像 roomCourseTableQuery 有 2 個）
-    // 欄位：td[0]=節次時間, td[1]=週一, td[2]=週二, ... td[7]=週日
-    final List<Element> tables = document.getElementsByTagName('table');
-    if (tables.isEmpty) {
-      log('[stdsys] no table found');
-      return <String, dynamic>{'courses': <dynamic>[], 'timeCodes': timeCodes};
-    }
+    final List<Map<String, dynamic>> courses = [];
 
-    final Element timetable = tables[0];
-    final List<Element> rows = timetable.getElementsByTagName('tr');
-    log('[stdsys] timetable rows: ${rows.length}');
-
-    final List<String> dayKeys = <String>[
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-      'Sunday',
+    // 節次對應 index
+    final List<String> timeKeys = [
+      'M',
+      '1',
+      '2',
+      '3',
+      '4',
+      'A',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      '13'
     ];
 
-    // 節次索引追蹤（依插入順序）
-    final List<String> sectionOrder = <String>[];
+    // 星期對應
+    final Map<String, int> weekdayMap = {
+      '一': 1,
+      '二': 2,
+      '三': 3,
+      '四': 4,
+      '五': 5,
+      '六': 6,
+      '日': 7
+    };
 
-    // 正規表達式：時間格式 HH:MM
-    final RegExp timeRegex = RegExp(r'^\d{2}:\d{2}$');
+    for (final Element row in rows) {
+      final List<Element> cells = row.querySelectorAll('td');
 
-    try {
-      for (int rowIdx = 1; rowIdx < rows.length; rowIdx++) {
-        final List<Element> tds = rows[rowIdx].getElementsByTagName('td');
-        if (tds.length < 2) continue;
+      // 忽略最後一列「總學分數」
+      if (cells.length < 9) continue;
 
-        // ── 解析 td[0]：節次 + 時間 ──────────────────────────────────
-        // 格式（text）："M\n07:10\n|\n\n08:00" 或 "1\n08:10\n|\n\n09:00"
-        final List<String> timeParts = tds[0]
-            .text
-            .split(RegExp(r'[\s\r\n|]+'))
-            .map((String s) => s.trim())
-            .where((String s) => s.isNotEmpty)
-            .toList();
+      final String code = cells[0].text.trim();
+      final String title = cells[1].text.trim();
+      final String required = cells[2].text.trim();
+      final String units = cells[3].text.trim();
+      final String className = cells[4].text.trim();
+      final String timeStr = cells[5].text.trim();
+      final String locationStr = cells[6].text.trim();
+      final String teacherStr = cells[7].text.trim();
 
-        String section = '';
-        String startTime = '';
-        String endTime = '';
+      // 略過沒有上課時間的課程（如線上通識）
+      if (timeStr.isEmpty) continue;
 
-        for (final String part in timeParts) {
-          if (timeRegex.hasMatch(part)) {
-            if (startTime.isEmpty) {
-              startTime = part;
-            } else {
-              endTime = part;
+      // 教師名稱
+      final List<String> instructors = teacherStr
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+
+      // 上課地點
+      final String room = locationStr;
+
+      // 上課時間
+      final List<Map<String, int>> sectionTimes = [];
+
+      final RegExp exp =
+          RegExp(r'\((一|二|三|四|五|六|日)\)([A-Z0-9]+(?:-[A-Z0-9]+)?)');
+      final Iterable<RegExpMatch> matches = exp.allMatches(timeStr);
+
+      for (final RegExpMatch match in matches) {
+        final String wd = match.group(1)!;
+        final String periods = match.group(2)!;
+        final int weekday = weekdayMap[wd]!;
+
+        if (periods.contains('-')) {
+          // 某節到某節，如 3-4 或 5-7
+          final List<String> parts = periods.split('-');
+          final int startIdx = timeKeys.indexOf(parts[0]);
+          final int endIdx = timeKeys.indexOf(parts[1]);
+
+          if (startIdx != -1 && endIdx != -1) {
+            for (int i = startIdx; i <= endIdx; i++) {
+              sectionTimes.add({'weekday': weekday, 'index': i});
             }
-          } else if (section.isEmpty) {
-            section = part;
           }
-        }
-
-        if (section.isEmpty) continue;
-
-        // 記錄節次（去重）
-        if (!tempTime.containsKey(section)) {
-          tempTime[section] = <String, dynamic>{
-            'startTime': startTime,
-            'endTime': endTime,
-            'section': section,
-          };
-          sectionOrder.add(section);
-          timeCodes.add(<String, dynamic>{
-            'title': section,
-            'startTime': startTime,
-            'endTime': endTime,
-          });
-        }
-        final int sectionIndex = sectionOrder.indexOf(section);
-
-        // ── 解析 td[1..7]：各天課程 ─────────────────────────────────
-        for (int dayIdx = 0; dayIdx < dayKeys.length; dayIdx++) {
-          final int tdIdx = dayIdx + 1;
-          if (tdIdx >= tds.length) break;
-
-          final Element dayCell = tds[tdIdx];
-          if (dayCell.text.trim().isEmpty) continue;
-
-          // 以 <br> 切割：課名 / 老師 / 教室 / 校區
-          final List<String> parts = dayCell.innerHtml
-              .split(RegExp(r'<br\s*/?>'))
-              .map((String s) => s
-                  .replaceAll(RegExp(r'<[^>]*>'), '')
-                  .replaceAll('&nbsp;', '')
-                  .replaceAll(String.fromCharCode(160), '')
-                  .trim())
-              .where((String s) => s.isNotEmpty)
-              .toList();
-
-          if (parts.isEmpty) continue;
-
-          final String title = parts[0];
-          final String rawInstructors =
-              parts.length > 1 ? parts[1].replaceAll('老師', '').trim() : '';
-          final String room = parts.length > 2 ? parts[2].trim() : '';
-          //TODO: 處理校區
-
-          // 以「課名＋老師」作為 key 合併同一門課的多節
-          final String courseKey = '$title$rawInstructors';
-
-          if (!courses.containsKey(courseKey)) {
-            courses[courseKey] = <String, dynamic>{
-              'code': '',
-              'title': title,
-              'className': '',
-              'group': '',
-              'units': '',
-              'hours': '',
-              'required': '',
-              'at': '',
-              'sectionTimes': <Map<String, dynamic>>[],
-              'location': room.isNotEmpty
-                  ? <String, dynamic>{'building': '', 'room': room}
-                  : null,
-              'instructors': rawInstructors.isNotEmpty
-                  ? <String>[rawInstructors]
-                  : <String>[],
-            };
+        } else {
+          // 單一節次，如 A
+          final int idx = timeKeys.indexOf(periods);
+          if (idx != -1) {
+            sectionTimes.add({'weekday': weekday, 'index': idx});
           }
-
-          (courses[courseKey]['sectionTimes'] as List<dynamic>).add(
-            <String, dynamic>{
-              'weekday': dayIdx + 1,
-              'index': sectionIndex,
-            },
-          );
         }
       }
-    } catch (e, s) {
-      CrashlyticsUtil.instance
-          .recordError(e, s, reason: 'studentCourseTableParser failed');
+
+      courses.add({
+        'code': code,
+        'title': title,
+        'className': className,
+        'group': '',
+        'units': units,
+        'hours': '',
+        'required': required,
+        'at': '',
+        'sectionTimes': sectionTimes,
+        'location': {'building': '', 'room': room},
+        'instructors': instructors,
+      });
     }
 
-    log('[stdsys] parsed courses: ${courses.length}, timeCodes: ${timeCodes.length}');
+    final List<Map<String, dynamic>> timeCodes = [
+      {'title': 'M', 'startTime': '07:10', 'endTime': '08:00'},
+      {'title': '1', 'startTime': '08:10', 'endTime': '09:00'},
+      {'title': '2', 'startTime': '09:10', 'endTime': '10:00'},
+      {'title': '3', 'startTime': '10:10', 'endTime': '11:00'},
+      {'title': '4', 'startTime': '11:10', 'endTime': '12:00'},
+      {'title': 'A', 'startTime': '12:10', 'endTime': '13:00'},
+      {'title': '5', 'startTime': '13:30', 'endTime': '14:20'},
+      {'title': '6', 'startTime': '14:30', 'endTime': '15:20'},
+      {'title': '7', 'startTime': '15:30', 'endTime': '16:20'},
+      {'title': '8', 'startTime': '16:30', 'endTime': '17:20'},
+      {'title': '9', 'startTime': '17:30', 'endTime': '18:20'},
+      {'title': '10', 'startTime': '18:30', 'endTime': '19:20'},
+      {'title': '11', 'startTime': '19:25', 'endTime': '20:15'},
+      {'title': '12', 'startTime': '20:20', 'endTime': '21:10'},
+      {'title': '13', 'startTime': '21:15', 'endTime': '22:05'}
+    ];
 
-    return <String, dynamic>{
-      'courses': courses.values.toList(),
+    return {
+      'courses': courses,
       'timeCodes': timeCodes,
     };
   }
@@ -502,5 +448,102 @@ class StdsysParser {
       className: className,
       pictureUrl: pictureUrl,
     );
+  }
+
+  Map<String, dynamic> semesterParser(String? rawJson) {
+    final Map<String, dynamic> apiData =
+        json.decode(rawJson!) as Map<String, dynamic>;
+    final List<dynamic> result = (apiData['result'] as List<dynamic>?) ?? [];
+
+    final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
+      final String text = item['text'].toString();
+      final String value = item['value'].toString();
+      final List<String> parts = value.split('-');
+      final String year = parts[0];
+      final String val = parts[1];
+
+      return {
+        'year': year,
+        'value': val,
+        'text': text,
+      };
+    }).toList();
+
+    final Map<String, dynamic>? defaultSemester =
+        semesters.isNotEmpty ? semesters.first : null;
+
+    final Map<String, dynamic> semesterDataJson = {
+      'data': semesters,
+      'default': defaultSemester,
+      'currentIndex': 0,
+    };
+
+    return semesterDataJson;
+  }
+
+  Map<String, dynamic> scoresParser(String rawstr) {
+    final List<String> lines = rawstr
+        .split('\n')
+        .map((String e) => e.trim())
+        .where((String e) => e.isNotEmpty)
+        .toList();
+
+    final List<Map<String, dynamic>> scores = <Map<String, dynamic>>[];
+    final Map<String, dynamic> detail = <String, dynamic>{
+      'conduct': 0.0,
+      'classRank': '',
+      'departmentRank': '',
+      'average': 0.0,
+    };
+
+    int beginLine = 14;
+
+    for (int i = 0; i < lines.length - 1; i++) {
+      final String line = lines[i];
+
+      if (line.contains('課程名稱')) {
+        beginLine = i + 4;
+      } else if (line.contains('操行成績：')) {
+        detail['conduct'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      } else if (line.contains('班 排 名：')) {
+        final RegExpMatch? match =
+            RegExp(r'班\s*排\s*名：\s*(\d+)\s*/\s*(\d+)').firstMatch(line);
+        detail['classRank'] =
+            match != null ? '${match.group(1)}/${match.group(2)}' : '';
+      } else if (line.contains('學業成績：')) {
+        detail['average'] = double.tryParse(lines[i + 1]) ?? 0.0;
+      }
+    }
+
+    for (int i = beginLine; i + 3 < lines.length; i = i + 4) {
+      final Map<String, dynamic> score = <String, dynamic>{
+        'title': '',
+        'units': '',
+        'hours': '',
+        'required': '',
+        'at': '',
+        'middleScore': '',
+        'semesterScore': '',
+        'remark': '',
+      };
+
+      if (lines[i].contains('-----')) {
+        break;
+      }
+
+      score['title'] = lines[i];
+      score['required'] = lines[i + 1];
+      score['units'] = lines[i + 2];
+      score['semesterScore'] = lines[i + 3];
+
+      scores.add(score);
+    }
+
+    final Map<String, dynamic> data = <String, dynamic>{
+      'scores': scores,
+      'detail': detail,
+    };
+
+    return data;
   }
 }

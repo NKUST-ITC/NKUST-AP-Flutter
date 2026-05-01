@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:nkust_ap/api/scraper_registry.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 part 'crawler_selector.g.dart';
@@ -14,21 +15,38 @@ class CrawlerSelector {
     required this.course,
     required this.score,
     required this.semester,
+    this.leave = ScraperSource.stdsys,
   });
 
-  final String login;
-  @JsonKey(name: 'user_info')
-  final String userInfo;
-  final String course;
-  final String score;
-  final String semester;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource login;
+  @JsonKey(
+    name: 'user_info',
+    fromJson: ScraperSource.fromString,
+    toJson: _sourceToString,
+  )
+  final ScraperSource userInfo;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource course;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource score;
+  @JsonKey(fromJson: ScraperSource.fromString, toJson: _sourceToString)
+  final ScraperSource semester;
+  @JsonKey(fromJson: _leaveFromJson, toJson: _sourceToString)
+  final ScraperSource leave;
+
+  static String _sourceToString(ScraperSource source) => source.toJsonString();
+
+  static ScraperSource _leaveFromJson(Object? value) =>
+      value is String ? ScraperSource.fromString(value) : ScraperSource.stdsys;
 
   CrawlerSelector copyWith({
-    String? login,
-    String? userInfo,
-    String? course,
-    String? score,
-    String? semester,
+    ScraperSource? login,
+    ScraperSource? userInfo,
+    ScraperSource? course,
+    ScraperSource? score,
+    ScraperSource? semester,
+    ScraperSource? leave,
   }) =>
       CrawlerSelector(
         login: login ?? this.login,
@@ -36,6 +54,7 @@ class CrawlerSelector {
         course: course ?? this.course,
         score: score ?? this.score,
         semester: semester ?? this.semester,
+        leave: leave ?? this.leave,
       );
 
   factory CrawlerSelector.fromJson(Map<String, dynamic> json) =>

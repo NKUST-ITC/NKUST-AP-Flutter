@@ -3,6 +3,8 @@ import 'package:ap_common_flutter_ui/ap_common_flutter_ui.dart';
 import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -62,8 +64,8 @@ class SettingPageState extends State<SettingPage> {
                 const CheckCourseNotifyItem(),
                 const ClearAllNotifyItem(),
                 SettingSwitch(
-                  text: AppLocalizations.of(context).busNotify,
-                  subText: AppLocalizations.of(context).busNotifySubTitle,
+                  text: context.t.busNotify,
+                  subText: context.t.busNotifySubTitle,
                   value: busNotify,
                   onChanged: (bool b) async {
                     AnalyticsUtil.instance.logEvent('notify_bus_create');
@@ -114,11 +116,19 @@ class SettingPageState extends State<SettingPage> {
                 ChangeThemeColorItem(
                   onChanged: (Color color) {
                     final int index = ApTheme.themeColors.indexWhere(
-                      (ThemeColor themeColor) => themeColor.color == color,
+                      (ThemeColor tc) =>
+                          tc.color.toARGB32() == color.toARGB32(),
                     );
+                    final int newIndex =
+                        (index != -1) ? index : ApTheme.customColorIndex;
+                    final Color? newCustomColor = (index != -1) ? null : color;
                     ShareDataWidget.of(context)!
                         .data
-                        .loadThemeColor(index, color);
+                        .loadThemeColor(newIndex, newCustomColor);
+                    ApTheme.of(context).saveSettings(
+                      index: newIndex,
+                      customColor: newCustomColor,
+                    );
                   },
                 ),
                 ChangeIconStyleItem(
@@ -219,7 +229,7 @@ class SettingPageState extends State<SettingPage> {
         await Utils.setBusNotify(context, response.reservations);
         if (!context.mounted) return;
         UiUtil.instance
-            .showToast(context, AppLocalizations.of(context).busNotifyHint);
+            .showToast(context, context.t.busNotifyHint);
       }
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
@@ -233,46 +243,27 @@ class SettingPageState extends State<SettingPage> {
         if (!context.mounted) return;
         UiUtil.instance.showToast(
           context,
-          AppLocalizations.of(context).busNotifyHint,
+          context.t.busNotifyHint,
         );
       } else {
         UiUtil.instance.showToast(
           context,
-          AppLocalizations.of(context).busReservationEmpty,
+          context.t.busReservationEmpty,
         );
       }
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-    } on GeneralResponse catch (response) {
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
       Navigator.of(context, rootNavigator: true).pop();
       setState(() => busNotify = false);
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-      UiUtil.instance
-          .showToast(context, response.getGeneralMessage(context));
-    } on DioException catch (e) {
-      Navigator.of(context, rootNavigator: true).pop();
-      setState(() => busNotify = false);
-      PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
-      if (e.hasResponse) {
-        if (e.response!.statusCode == 401) {
-          UiUtil.instance.showToast(context, ap.userNotSupport);
-        } else if (e.response!.statusCode == 403) {
-          UiUtil.instance.showToast(context, ap.campusNotSupport);
-        } else {
-          if (e.message != null) {
-            UiUtil.instance.showToast(context, e.message!);
-            AnalyticsUtil.instance.logApiEvent(
-              'getBusReservations',
-              e.response!.statusCode!,
-              message: e.message ?? '',
-            );
-          }
-        }
-      } else if (e.type == DioExceptionType.unknown) {
-        UiUtil.instance.showToast(context, ap.busFailInfinity);
-      } else {
-        if (e.i18nMessage != null) {
-          UiUtil.instance.showToast(context, e.i18nMessage!);
-        }
+      UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      if (e is ServerException && e.httpStatusCode != null) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getBusReservations',
+          e.httpStatusCode!,
+          message: e.message,
+        );
       }
     }
   }

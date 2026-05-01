@@ -13,7 +13,7 @@ class BusRulePage extends StatefulWidget {
 }
 
 class BusRulePageState extends State<BusRulePage> {
-  AppLocalizations? app;
+  NkustLocalizations? app;
 
   @override
   void initState() {
@@ -23,28 +23,22 @@ class BusRulePageState extends State<BusRulePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(app!.busRule),
-        backgroundColor: ApTheme.of(context).blue,
-      ),
+      appBar: AppBar(title: Text(app!.busRule)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: SelectableText.rich(
           TextSpan(
             style: TextStyle(
-              color: ApTheme.of(context).grey,
+              color: colorScheme.onSurfaceVariant,
               height: 1.3,
               fontSize: 16.0,
             ),
-            children: <TextSpan>[
+            children: [
               TextSpan(
                 text: app!.busRuleReservationRuleTitle,
                 style: const TextStyle(
@@ -52,34 +46,29 @@ class BusRulePageState extends State<BusRulePage> {
                   fontSize: 24.0,
                 ),
               ),
-              TextSpan(
-                text: app!.busRuleTravelBy,
-              ),
+              TextSpan(text: app!.busRuleTravelBy),
               TextSpan(
                 text: 'http://bus.kuas.edu.tw/',
                 style: TextStyle(
-                  color: ApTheme.of(context).blueAccent,
+                  color: colorScheme.primary,
                   decoration: TextDecoration.underline,
                 ),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => PlatformUtil.instance
-                      .launchUrl('http://bus.kuas.edu.tw/'),
+                  ..onTap = () => PlatformUtil.instance.launchUrl(
+                        'http://bus.kuas.edu.tw/',
+                      ),
               ),
               TextSpan(text: app!.busRuleFourteenDay),
               TextSpan(
                 text: app!.busRuleReservationTime,
-                style: TextStyle(color: ApTheme.of(context).red),
+                style: TextStyle(color: colorScheme.error),
               ),
-              TextSpan(
-                text: app!.busRuleCancellingTitle,
-              ),
+              TextSpan(text: app!.busRuleCancellingTitle),
               TextSpan(
                 text: app!.busRuleCancelingTime,
-                style: TextStyle(color: ApTheme.of(context).red),
+                style: TextStyle(color: colorScheme.error),
               ),
-              TextSpan(
-                text: app!.busRuleFollow,
-              ),
+              TextSpan(text: app!.busRuleFollow),
               TextSpan(
                 text: app!.busRuleTakeOn,
                 style: const TextStyle(
@@ -87,30 +76,24 @@ class BusRulePageState extends State<BusRulePage> {
                   fontSize: 24.0,
                 ),
               ),
-              TextSpan(
-                text: app!.busRuleTwentyDollars,
-              ),
+              TextSpan(text: app!.busRuleTwentyDollars),
               TextSpan(
                 text: app!.busRulePrepareCoins,
-                style: TextStyle(color: ApTheme.of(context).blueText),
+                style: TextStyle(color: colorScheme.primary),
               ),
-              TextSpan(
-                text: app!.busRuleIdCard,
-              ),
+              TextSpan(text: app!.busRuleIdCard),
               TextSpan(
                 text: app!.busRuleNoIdCard,
                 style: TextStyle(
-                  color: ApTheme.of(context).red,
+                  color: colorScheme.error,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               TextSpan(
                 text: app!.busRuleFollowingTime,
-                style: TextStyle(color: ApTheme.of(context).red),
+                style: TextStyle(color: colorScheme.error),
               ),
-              TextSpan(
-                text: app!.busRuleLateAndNoReservation,
-              ),
+              TextSpan(text: app!.busRuleLateAndNoReservation),
               TextSpan(
                 text: app!.busRuleStandbyTitle,
                 style: const TextStyle(
@@ -118,9 +101,7 @@ class BusRulePageState extends State<BusRulePage> {
                   fontSize: 24.0,
                 ),
               ),
-              TextSpan(
-                text: app!.busRuleStandbyRule,
-              ),
+              TextSpan(text: app!.busRuleStandbyRule),
               TextSpan(
                 text: app!.busRuleFineTitle,
                 style: const TextStyle(
@@ -130,7 +111,7 @@ class BusRulePageState extends State<BusRulePage> {
               ),
               TextSpan(
                 text: app!.busRuleFineRule,
-                style: TextStyle(color: ApTheme.of(context).red),
+                style: TextStyle(color: colorScheme.error),
               ),
             ],
           ),

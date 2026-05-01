@@ -8,8 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
+import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/capability/leave_provider.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/relogin_mixin.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/leave_parser.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -17,82 +21,61 @@ import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/models/mobile_cookies_data.dart';
 import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
-class LeaveHelper {
-  LeaveHelper() {
+class LeaveHelper with ReloginMixin implements LeaveProvider {
+  /// The [WebApHelper] instance this helper depends on for cookie management
+  /// and cross-system login.
+  final WebApHelper _webApHelper;
+
+  LeaveHelper(this._webApHelper) {
     dioInit();
   }
 
   static const String basePath = 'https://leave.nkust.edu.tw/';
   static const String home = '${basePath}masterindex.aspx';
+  //TODO: Move oosaf (for attendant/absent etc.) somewhere out of leaveHelper
+  static const String oosafBasePath = 'https://oosaf.nkust.edu.tw/';
+  static const String oosafLeaveCreateUrl =
+      '${oosafBasePath}Student/Leave/Create';
+  static const String oosafAbsenteeismUrl =
+      '${oosafBasePath}Student/Absenteeism';
+  static const String oosafLeaveUrl = '${oosafBasePath}Student/Leave';
 
   static LeaveHelper? _instance;
 
-  //ignore: prefer_constructors_over_static_methods
+  // ignore: prefer_constructors_over_static_methods
   static LeaveHelper get instance {
-    return _instance ??= LeaveHelper();
+    return _instance ??= LeaveHelper(WebApHelper.instance);
   }
 
-  int reLoginReTryCountsLimit = 3;
-  int reLoginReTryCounts = 0;
+  @override
+  int get maxRelogins => 3;
 
   bool? isLogin;
 
   late Dio dio;
   late CookieJar cookieJar;
 
-  MobileCookiesData? cookiesData;
-
   void setProxy(String proxyIP) {
-    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-      final HttpClient client = HttpClient();
-      client.findProxy = (Uri uri) {
-        return 'PROXY $proxyIP';
-      };
-      return client;
-    };
+    ApiConfig.setProxy(dio, proxyIP);
   }
 
   void dioInit() {
-    // Use PrivateCookieManager to overwrite origin CookieManager, because
-    // Cookie name of the NKUST ap system not follow the RFC6265. :(
-    dio = Dio();
-    dio.interceptors.add(PrivateCookieManager(WebApHelper.instance.cookieJar));
-    dio.options.headers['user-agent'] =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36';
-
-    dio.options.headers.addAll(<String, String>{
-      'Origin': 'http://leave.nkust.edu.tw',
-      'Upgrade-Insecure-Requests': '1',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept':
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-      'Referer': 'https://leave.nkust.edu.tw/LogOn.aspx',
-      'Accept-Encoding': 'gzip, deflate',
-      'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
-    });
-
-    dio.options.headers['Connection'] = 'close';
-    dio.options.connectTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
+    final (:dio, cookieJar: _) = ApiConfig.createScraperDio(
+      sharedCookieJar: _webApHelper.cookieJar,
+      headers: <String, dynamic>{
+        'Origin': 'http://leave.nkust.edu.tw',
+        'Upgrade-Insecure-Requests': '1',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept':
+            'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Referer': 'https://leave.nkust.edu.tw/LogOn.aspx',
+        'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
+      },
     );
-    dio.options.receiveTimeout = const Duration(
-      milliseconds: Constants.timeoutMs,
-    );
-  }
-
-  void setCookieFromData(MobileCookiesData data) {
-    cookiesData = data;
-    for (final MobileCookies element in data.cookies) {
-      final Cookie tempCookie = Cookie(element.name, element.value);
-      tempCookie.domain = element.domain;
-      cookieJar.saveFromResponse(
-        Uri.parse(element.path),
-        <Cookie>[tempCookie],
-      );
-    }
+    this.dio = dio;
+    cookieJar = _webApHelper.cookieJar;
   }
 
   void setCookie(
@@ -109,13 +92,27 @@ class LeaveHelper {
     );
   }
 
+  /// Probes whether the current cookies still authenticate us to the
+  /// leave system.
+  ///
+  /// - Returns `true`  → session alive.
+  /// - Returns `false` → session absent / expired but server reachable.
+  /// - Throws [NetworkException] when the probe itself cannot reach the
+  ///   server (timeout, DNS, etc.) — caller should distinguish this from
+  ///   a real logged-out state.
   Future<bool> isCookieAlive() async {
     try {
       //TODO check cookies is expire
       final Response<dynamic> res = await dio.get('');
       return res.data == 'alive';
-    } catch (_) {}
-    return false;
+    } on DioException catch (e) {
+      if (NetworkException.isTransport(e)) {
+        throw NetworkException.from(e);
+      }
+      // Non-transport DioException (badResponse etc.) indicates the server
+      // answered but not with 'alive' — treat as logged out.
+      return false;
+    }
   }
 
   Future<LoginResponse> login({
@@ -124,25 +121,6 @@ class LeaveHelper {
     required String password,
     bool clearCache = false,
   }) async {
-    // final data = MobileCookiesData.load();
-    // if (data != null && !clearCache) {
-    //   MobileNkustHelper.instance.setCookieFromData(data);
-    //   final isCookieAlive = await MobileNkustHelper.instance.isCookieAlive();
-    //   if (isCookieAlive) {
-    //     final now = DateTime.now();
-    //     final lastTime = PreferenceUtil.instance.getInt(
-    //       Constants.MOBILE_COOKIES_LAST_TIME,
-    //       now.microsecondsSinceEpoch,
-    //     );
-    //     AnalyticsUtil.analytics.logEvent(
-    //       name: 'cookies_persistence_time',
-    //       parameters: {
-    //         'time': now.microsecondsSinceEpoch - lastTime,
-    //       },
-    //     );
-    //     return LoginResponse();
-    //   }
-    // }
     final bool? result = await Navigator.push<bool>(
       context,
       MaterialPageRoute<bool>(
@@ -154,9 +132,10 @@ class LeaveHelper {
       ),
     );
     if (result ?? false) {
+      markReloginSuccess();
       return LoginResponse();
     } else {
-      throw GeneralResponse(statusCode: ApStatusCode.cancel, message: 'cancel');
+      throw const CancelledException(message: 'leave login cancelled by user');
     }
   }
 
@@ -165,7 +144,7 @@ class LeaveHelper {
   )
   Future<bool> leaveLogin() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
 
     //Get base hidden data.
@@ -200,16 +179,14 @@ class LeaveHelper {
     return false;
   }
 
-  Future<LeaveData> getLeaves({String? year, String? semester}) async {
+  @override
+  Future<LeaveData> getLeaves(
+      {required String year, required String semester}) async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
-    }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
+      await _webApHelper.loginToLeave();
     }
     final Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/AK002MainM.aspx',
@@ -233,14 +210,10 @@ class LeaveHelper {
 
   Future<LeaveSubmitInfoData> getLeavesSubmitInfo() async {
     if (Helper.username == null || Helper.password == null) {
-      throw 'NullThrownError';
-    }
-    if (reLoginReTryCounts > reLoginReTryCountsLimit) {
-      throw 'NullThrownError';
+      throw StateError('Helper.username/password not configured');
     }
     if (!(isLogin ?? false)) {
-      await WebApHelper.instance.loginToLeave();
-      reLoginReTryCounts++;
+      await _webApHelper.loginToLeave();
     }
     Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
@@ -279,7 +252,7 @@ class LeaveHelper {
     XFile? proofImage,
   }) async {
     //force relogin to aviod error.
-    await WebApHelper.instance.loginToLeave();
+    await _webApHelper.loginToLeave();
 
     Response<String> res = await dio.get<String>(
       'https://leave.nkust.edu.tw/CK001MainM.aspx',
@@ -423,4 +396,16 @@ class LeaveHelper {
 
     return null;
   }
+
+  // -- Capability interface implementations --
+
+  @override
+  Future<LeaveSubmitInfoData> getSubmitInfo() => getLeavesSubmitInfo();
+
+  @override
+  Future<Response<dynamic>?> submit(
+    LeaveSubmitData data, {
+    XFile? proofImage,
+  }) =>
+      leavesSubmit(data, proofImage: proofImage);
 }

@@ -5,6 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
@@ -89,7 +91,6 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(ap.schoolInfo),
-        backgroundColor: ApTheme.of(context).blue,
       ),
       body: TabBarView(
         controller: controller,
@@ -100,6 +101,7 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             notificationList: notificationList,
             onRefresh: () async {
               setState(() => notificationList.clear());
+              page = 1;
               _getNotifications();
             },
             onLoadingMore: () async {
@@ -122,25 +124,24 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (int index) {
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (int index) {
           setState(() {
             _currentIndex = index;
             controller.animateTo(_currentIndex);
           });
         },
-        fixedColor: ApTheme.of(context).yellow,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+        destinations: <NavigationDestination>[
+          NavigationDestination(
             icon: Icon(ApIcon.fiberNew),
             label: ap.notifications,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.phone),
             label: ap.phones,
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(ApIcon.dateRange),
             label: ap.events,
           ),
@@ -161,18 +162,13 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         if (mounted) {
           setState(() => notificationState = NotificationState.finish);
         }
-      } on GeneralResponse {
-        UiUtil.instance.showToast(context, ap.somethingError);
+      } on ApException catch (e) {
+        if (e is CancelledException) return;
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
         if (mounted && notificationList.isEmpty) {
           setState(() => notificationState = NotificationState.error);
         }
-      } on DioException catch (e) {
-        if (e.i18nMessage != null) {
-          UiUtil.instance.showToast(context, e.i18nMessage!);
-        }
-        if (mounted && notificationList.isEmpty) {
-          setState(() => notificationState = NotificationState.error);
-        }
+        rethrow;
       }
     }
   }
