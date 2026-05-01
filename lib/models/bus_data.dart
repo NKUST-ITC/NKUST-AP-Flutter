@@ -4,7 +4,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 part 'bus_data.g.dart';
@@ -74,7 +74,7 @@ class BusTime {
     this.canBook,
   });
 
-  String getSpecialTrainTitle(AppLocalizations? local) {
+  String getSpecialTrainTitle(NkustLocalizations? local) {
     switch (specialTrain) {
       case '1':
         return local!.specialBus;
@@ -131,7 +131,7 @@ class BusTime {
             : ApTheme.of(context).disabled;
   }
 
-  String getReserveState(AppLocalizations? local) {
+  String getReserveState(NkustLocalizations? local) {
     return isReserve
         ? local!.reserved
         : canReserve()
@@ -151,11 +151,11 @@ class BusTime {
     return formatterTime.format(departureTime);
   }
 
-  String? getStart(AppLocalizations? local) {
+  String? getStart(NkustLocalizations? local) {
     return Utils.parserCampus(local, startStation);
   }
 
-  String? getEnd(AppLocalizations? local) {
+  String? getEnd(NkustLocalizations? local) {
     return Utils.parserCampus(local, endStation);
   }
 }

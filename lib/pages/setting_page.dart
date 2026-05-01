@@ -64,8 +64,8 @@ class SettingPageState extends State<SettingPage> {
                 const CheckCourseNotifyItem(),
                 const ClearAllNotifyItem(),
                 SettingSwitch(
-                  text: AppLocalizations.of(context).busNotify,
-                  subText: AppLocalizations.of(context).busNotifySubTitle,
+                  text: context.t.busNotify,
+                  subText: context.t.busNotifySubTitle,
                   value: busNotify,
                   onChanged: (bool b) async {
                     AnalyticsUtil.instance.logEvent('notify_bus_create');
@@ -229,7 +229,7 @@ class SettingPageState extends State<SettingPage> {
         await Utils.setBusNotify(context, response.reservations);
         if (!context.mounted) return;
         UiUtil.instance
-            .showToast(context, AppLocalizations.of(context).busNotifyHint);
+            .showToast(context, context.t.busNotifyHint);
       }
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);
       return;
@@ -243,12 +243,12 @@ class SettingPageState extends State<SettingPage> {
         if (!context.mounted) return;
         UiUtil.instance.showToast(
           context,
-          AppLocalizations.of(context).busNotifyHint,
+          context.t.busNotifyHint,
         );
       } else {
         UiUtil.instance.showToast(
           context,
-          AppLocalizations.of(context).busReservationEmpty,
+          context.t.busReservationEmpty,
         );
       }
       PreferenceUtil.instance.setBool(Constants.prefBusNotify, busNotify);

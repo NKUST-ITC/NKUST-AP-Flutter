@@ -5,7 +5,7 @@ import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 enum _State {
@@ -25,7 +25,7 @@ class BusViolationRecordsPage extends StatefulWidget {
 }
 
 class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
-  late AppLocalizations app;
+  late NkustLocalizations app;
   late ApLocalizations ap;
 
   _State state = _State.loading;
@@ -59,7 +59,7 @@ class _BusViolationRecordsPageState extends State<BusViolationRecordsPage> {
 
   @override
   Widget build(BuildContext context) {
-    app = AppLocalizations.of(context);
+    app = context.t;
     ap = context.ap;
     switch (state) {
       case _State.loading:
@@ -354,9 +354,7 @@ class ReservationItem extends StatelessWidget {
               children: <Widget>[
                 Center(
                   child: Text(
-                    reservation!.isPayment
-                        ? AppLocalizations.of(context).paid
-                        : AppLocalizations.of(context).unpaid,
+                    reservation!.isPayment ? context.t.paid : context.t.unpaid,
                     style: TextStyle(
                       color: reservation!.isPayment
                           ? Theme.of(context).colorScheme.tertiary
@@ -384,7 +382,7 @@ class ReservationItem extends StatelessWidget {
         horizontal: 8.0,
       ),
       child: Text(
-        station ?? AppLocalizations.of(context).unknown,
+        station ?? context.t.unknown,
         overflow: TextOverflow.fade,
         style: TextStyle(
           fontSize: 12.0,
