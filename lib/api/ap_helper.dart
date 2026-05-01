@@ -9,6 +9,7 @@ import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/safe_cookie_manager.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -256,7 +257,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -295,7 +296,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -368,7 +369,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
