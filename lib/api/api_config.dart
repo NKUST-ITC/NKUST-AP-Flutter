@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/safe_cookie_manager.dart';
 
 class ApiConfig {
   static const Duration connectTimeout = Duration(seconds: 15);
@@ -57,7 +58,7 @@ class ApiConfig {
   /// Creates a [Dio] instance configured for web scraping NKUST systems.
   ///
   /// Includes:
-  /// - [PrivateCookieManager] for non-RFC6265 cookie handling
+  /// - [SafeCookieManager] for non-RFC6265 cookie handling
   /// - [RetryInterceptor] for HTTP-level timeout/5xx auto-retry
   /// - [ErrorInterceptor] for enhanced Chinese error messages
   /// - [NativeAdapter] for iOS/Android/macOS
@@ -78,7 +79,7 @@ class ApiConfig {
     );
     // Insert cookie manager at position 0 so it runs before retry/error
     // interceptors.
-    dio.interceptors.insert(0, PrivateCookieManager(cookieJar));
+    dio.interceptors.insert(0, SafeCookieManager(cookieJar));
     return (dio: dio, cookieJar: cookieJar);
   }
 

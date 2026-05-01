@@ -9,6 +9,7 @@ import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/safe_cookie_manager.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
@@ -71,6 +72,18 @@ class WebApHelper
     final (:dio, :cookieJar) = ApiConfig.createScraperDio();
     this.dio = dio;
     this.cookieJar = cookieJar;
+  }
+
+  Future<void> _primeHomepage() async {
+    try {
+      await dio.get<dynamic>(
+        'https://webap.nkust.edu.tw/nkust/index_main.html',
+      );
+    } catch (e) {
+      // Non-fatal: if priming fails, fall through to the captcha loop
+      // and let the existing retry/error path surface the real failure.
+      log('[login] homepage prime failed: $e');
+    }
   }
 
   Future<Uint8List?> getValidationImage() async {
@@ -136,6 +149,14 @@ class WebApHelper
     //
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
 
+    // Prime the session by visiting the homepage before fetching the
+    // captcha. webap binds the captcha to session cookies that are only
+    // set when index_main.html is loaded; jumping straight to
+    // validateCode.jsp leaves the session in a state where every
+    // subsequent perchk.jsp POST is rejected as 驗證碼錯誤 even with a
+    // correctly OCR-decoded code.
+    await _primeHomepage();
+
     for (int i = 0; i < retryCounts; i++) {
       try {
         final Uint8List? imageBytes = await getValidationImage();
@@ -149,6 +170,10 @@ class WebApHelper
           bodyBytes: imageBytes,
         );
 
+        // perchk.jsp does a server-side CSRF check that emits
+        // alert('Please Logon From Homepage!!') when the request lacks
+        // the homepage Referer/Origin. Without these, even a correct
+        // captcha gets rejected as 驗證碼錯誤.
         final Response<dynamic> res = await dio.post(
           'https://webap.nkust.edu.tw/nkust/perchk.jsp',
           data: <String, String>{
@@ -156,7 +181,13 @@ class WebApHelper
             'pwd': password,
             'etxt_code': captchaCode,
           },
-          options: Options(contentType: 'application/x-www-form-urlencoded'),
+          options: Options(
+            contentType: 'application/x-www-form-urlencoded',
+            headers: <String, String>{
+              'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
+              'Origin': 'https://webap.nkust.edu.tw',
+            },
+          ),
         );
         Helper.username = username;
         Helper.password = password;
@@ -256,7 +287,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://mobile.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -295,7 +326,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://oosaf.nkust.edu.tw/Account/LoginBySkytekPortalNewWindow',
@@ -368,7 +399,7 @@ class WebApHelper
 
     res = await (Dio()
           ..interceptors.add(
-            PrivateCookieManager(cookieJar),
+            SafeCookieManager(cookieJar),
           ))
         .post(
       'https://stdsys.nkust.edu.tw/Student/Account/LoginBySkytekPortalNewWindow',
