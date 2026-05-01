@@ -8,7 +8,7 @@ import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/pages/page.dart';
-import 'package:nkust_ap/utils/app_localizations.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
 class MyApp extends StatefulWidget {
@@ -117,8 +117,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
             builder: (BuildContext context) {
               final Color seedColor = ApTheme.of(context).seedColor;
               return MaterialApp(
-                onGenerateTitle: (BuildContext context) =>
-                    AppLocalizations.of(context).appName,
+                onGenerateTitle: (BuildContext context) => context.t.appName,
                 debugShowCheckedModeBanner: false,
                 routes: <String, WidgetBuilder>{
                   Navigator.defaultRouteName: (BuildContext context) => kIsWeb
@@ -136,7 +135,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 themeMode: themeMode,
                 locale: TranslationProvider.of(context).flutterLocale,
                 localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
-                  appDelegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
@@ -144,6 +142,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 supportedLocales: const <Locale>[
                   Locale('en', 'US'), // English
                   Locale('zh', 'TW'), // Traditional Chinese TW
+                  Locale('ja'), // Japanese
                 ],
               );
             },
@@ -173,7 +172,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void loadLocale(Locale locale) {
     this.locale = locale;
     AnnouncementHelper.instance.setLocale(this.locale!);
-    appDelegate.load(locale);
     setApLocaleFromFlutter(locale);
   }
 }

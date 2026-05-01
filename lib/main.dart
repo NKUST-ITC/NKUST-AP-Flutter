@@ -55,6 +55,8 @@ void main() async {
     await ApCommonPlugin.configure(appGroupId: 'group.com.nkust.ap');
   }
 
+  await _initApLocale();
+
   AnnouncementHelper.instance.organization = 'nkust';
   if (FirebaseUtils.isSupportCore) {
     await Firebase.initializeApp();
@@ -77,6 +79,28 @@ void main() async {
     };
   }
   runApp(const MyApp());
+}
+
+/// Pre-resolves slang's locale before [runApp] so `context.ap` and `context.t`
+/// don't briefly fall back to the base (English) locale on the first frame —
+/// ap_common's [LocaleSettings] is `lazy: true` with deferred imports for
+/// non-base locales, so without awaiting here the `TranslationProvider`
+/// starts in English until the async `_initLocale` (and its `loadLibrary()`)
+/// completes.
+Future<void> _initApLocale() async {
+  final String languageCode = PreferenceUtil.instance.getString(
+    Constants.prefLanguageCode,
+    ApSupportLanguageConstants.system,
+  );
+  if (languageCode == ApSupportLanguageConstants.system) {
+    await useApDeviceLocale();
+  } else {
+    final Locale flutterLocale = Locale(
+      languageCode,
+      languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
+    );
+    await setApLocaleFromFlutter(flutterLocale);
+  }
 }
 
 class MyHttpOverrides extends HttpOverrides {

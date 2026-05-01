@@ -68,7 +68,7 @@ class SchedulePageState extends State<SchedulePage>
             icon: ApIcon.assignment,
             content: state == _State.error
                 ? ap.clickToRetry
-                : AppLocalizations.of(context).busEmpty,
+                : context.t.busEmpty,
           ),
         );
       case _State.pdf:

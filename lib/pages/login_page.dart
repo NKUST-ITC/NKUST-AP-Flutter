@@ -50,7 +50,7 @@ class LoginPageState extends State<LoginPage> {
     return LoginScaffold(
       logoMode: LogoMode.image,
       logoSource: ImageAssets.K,
-      logoSubtitle: AppLocalizations.of(context).appName,
+      logoSubtitle: context.t.appName,
       forms: <Widget>[
         Text(
           ap.login,

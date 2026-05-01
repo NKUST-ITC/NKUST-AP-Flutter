@@ -34,7 +34,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   BusReservationsData? busReservationsData;
   DateTime dateTime = DateTime.now();
 
-  AppLocalizations? app;
+  NkustLocalizations? app;
   late ApLocalizations ap;
 
   bool isOffline = false;
@@ -55,7 +55,7 @@ class BusReservationsPageState extends State<BusReservationsPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    app = context.t;
     ap = context.ap;
     return Column(
       children: <Widget>[

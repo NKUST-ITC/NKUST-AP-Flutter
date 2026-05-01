@@ -32,7 +32,7 @@ class BusReservePageState extends State<BusReservePage>
   @override
   bool get wantKeepAlive => true;
 
-  AppLocalizations? app;
+  NkustLocalizations? app;
   late ApLocalizations ap;
 
   _State state = _State.finish;
@@ -62,7 +62,7 @@ class BusReservePageState extends State<BusReservePage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    app = AppLocalizations.of(context);
+    app = context.t;
     ap = context.ap;
     return Scaffold(
       body: OrientationBuilder(
