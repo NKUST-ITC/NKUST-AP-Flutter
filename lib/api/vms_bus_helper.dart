@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/capability/bus_provider.dart';
 import 'package:nkust_ap/api/parser/parser_utils.dart';
 import 'package:nkust_ap/api/parser/vms_bus_parser.dart';
+import 'package:nkust_ap/api/safe_cookie_manager.dart';
 import 'package:nkust_ap/models/booking_bus_data.dart';
 import 'package:nkust_ap/models/bus_data.dart';
 import 'package:nkust_ap/models/bus_reservations_data.dart';
@@ -78,7 +78,7 @@ class VmsBusHelper implements BusProvider {
       dio.httpClientAdapter = NativeAdapter();
     }
 
-    dio.interceptors.add(CookieManager(cookieJar));
+    dio.interceptors.add(SafeCookieManager(cookieJar));
   }
 
   /// Logs into VMS via its direct form POST. A successful login returns
