@@ -8,6 +8,7 @@ on:
     paths:
       - 'lib/**'
       - 'test/**'
+      - 'packages/**'
       - 'pubspec.yaml'
       - 'pubspec.lock'
       - 'android/**'
@@ -24,6 +25,7 @@ on:
     paths:
       - 'lib/**'
       - 'test/**'
+      - 'packages/**'
       - 'pubspec.yaml'
       - 'pubspec.lock'
       - 'android/**'
@@ -58,10 +60,22 @@ jobs:
           cache: true
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
-      - name: Analyze
+      - name: Analyze (main app)
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
-      - name: Test
-        run: flutter test || true
+      - name: Test (main app)
+        run: flutter test
+      - name: Pub get (nkust_crawler package)
+        working-directory: packages/nkust_crawler
+        run: dart pub get
+      - name: Analyze (nkust_crawler package)
+        # Default dart analyze fails on warnings; package currently
+        # carries info-level lints only. Bump to --fatal-infos once
+        # those are cleaned up.
+        working-directory: packages/nkust_crawler
+        run: dart analyze
+      - name: Test (nkust_crawler package, hermetic only)
+        working-directory: packages/nkust_crawler
+        run: dart test
 
   build_android:
     name: Build Android App

@@ -19,23 +19,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
         with:
-          flutter-version: ${{ env.flutter_version }}
-          channel: 'stable'
-          cache: true
-          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          sdk: stable
 
-      - run: flutter pub get
+      - name: Pub get (nkust_crawler)
+        working-directory: packages/nkust_crawler
+        run: dart pub get
 
-      - name: Run crawler monitor tests
+      - name: Run live integration tests against real NKUST servers
         id: test
         env:
-          NKUST_USERNAME: ${{ secrets.NKUST_USERNAME }}
-          NKUST_PASSWORD: ${{ secrets.NKUST_PASSWORD }}
+          NKUST_USER: ${{ secrets.NKUST_USERNAME }}
+          NKUST_PASS: ${{ secrets.NKUST_PASSWORD }}
         run: |
-          flutter test test/crawler_monitor_test.dart --tags integration 2>&1 | tee test_output.txt
+          cd packages/nkust_crawler
+          dart test -P live -r expanded 2>&1 | tee ../../test_output.txt
           echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
 
       - name: Classify failures
