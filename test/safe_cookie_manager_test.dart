@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nkust_ap/api/safe_cookie_manager.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 void main() {
   group('splitMalformedSetCookie', () {

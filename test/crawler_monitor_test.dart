@@ -5,7 +5,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/stdsys_helper.dart';
 
 //ignore_for_file: lines_longer_than_80_chars, avoid_print
