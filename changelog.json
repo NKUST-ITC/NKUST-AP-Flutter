@@ -1,4 +1,14 @@
 {
+  "40044": {
+    "version": "4.0.1",
+    "date": "2026-05-02",
+    "zh-TW": [
+      "全新 Material Design 3 介面：採用 Material You 設計語言，帶來更現代的視覺風格與動態色彩體驗。"
+    ],
+    "en-US": [
+      "All-new Material Design 3 interface: Adopts the Material You design language, delivering a more modern visual style with dynamic color experiences."
+    ]
+  },
   "31300": {
     "version": "3.13.0",
     "date": "2026-04-03",

@@ -144,11 +144,22 @@ class StdsysHelper
   }) async {
     await _webApHelper.loginToStdsys();
 
+    // 先 GET 表單頁，讓 server 種下 .AspNetCore.Antiforgery.* 與 XSRF-TOKEN
+    // cookie，後續 POST 才有 antiforgery token 可帶。
+    await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+      options: Options(responseType: ResponseType.plain),
+    );
+
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
+    final String? xsrfToken = cookies
+        .where((Cookie cookie) => cookie.name == 'XSRF-TOKEN')
+        .map((Cookie cookie) => cookie.value)
+        .firstOrNull;
 
     // schoolYearSms 格式：學年-學期，例如 "114-2"
     final String schoolYearSms = '$year-$semester';
@@ -161,8 +172,12 @@ class StdsysHelper
           responseType: ResponseType.plain,
           contentType: 'application/x-www-form-urlencoded',
           headers: <String, dynamic>{
+            'Accept': '*/*',
+            'Origin': 'https://stdsys.nkust.edu.tw',
             'Referer':
                 'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+            'X-Requested-With': 'XMLHttpRequest',
+            if (xsrfToken != null) 'X-XSRF-TOKEN': xsrfToken,
             'Cookie': cookieHeader,
           },
         ),
