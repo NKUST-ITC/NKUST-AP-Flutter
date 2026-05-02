@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:nkust_ap/api/scraper_registry.dart';
-import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_crawler/src/abstractions/key_value_store.dart';
+import 'package:nkust_crawler/src/registry/scraper_registry.dart';
 
 part 'crawler_selector.g.dart';
 
@@ -68,18 +67,14 @@ class CrawlerSelector {
 
   String toRawJson() => jsonEncode(toJson());
 
+  static const String _prefKey = 'crawler_selector';
+
   void save() {
-    PreferenceUtil.instance.setString(
-      Constants.crawlerSelector,
-      toRawJson(),
-    );
+    crawlerStorage.setString(_prefKey, toRawJson());
   }
 
   static CrawlerSelector? load() {
-    final String rawString = PreferenceUtil.instance.getString(
-      Constants.crawlerSelector,
-      '',
-    );
+    final String rawString = crawlerStorage.getString(_prefKey, '');
     if (rawString == '') {
       return null;
     } else {

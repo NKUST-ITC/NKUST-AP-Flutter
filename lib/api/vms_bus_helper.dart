@@ -6,15 +6,8 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
-import 'package:nkust_ap/api/capability/bus_provider.dart';
-import 'package:nkust_ap/api/parser/parser_utils.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/parser/vms_bus_parser.dart';
-import 'package:nkust_ap/api/safe_cookie_manager.dart';
-import 'package:nkust_ap/models/booking_bus_data.dart';
-import 'package:nkust_ap/models/bus_data.dart';
-import 'package:nkust_ap/models/bus_reservations_data.dart';
-import 'package:nkust_ap/models/bus_violation_records_data.dart';
-import 'package:nkust_ap/models/cancel_bus_data.dart';
 
 /// Scraper for the NKUST school bus system at `vms.nkust.edu.tw`.
 ///

@@ -1,4 +1,4 @@
-import 'package:nkust_ap/models/event_info_response.dart';
+import 'package:nkust_crawler/src/models/event_info_response.dart';
 
 class EventSendCallback<T> {
   final Function(T data) onSuccess;

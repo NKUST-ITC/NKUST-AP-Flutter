@@ -2,7 +2,7 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:nkust_ap/l10n/nkust_localizations.dart';
-import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/utils/utils.dart';
 
 extension BusReservationUiX on BusReservation {

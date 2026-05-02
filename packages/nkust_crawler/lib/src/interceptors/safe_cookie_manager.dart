@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
 
 /// Drop-in replacement for [PrivateCookieManager] that survives the
 /// non-RFC `Set-Cookie` headers webap occasionally emits.

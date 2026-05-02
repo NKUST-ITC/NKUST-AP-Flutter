@@ -18,7 +18,7 @@ import 'package:nkust_ap/api/parser/stdsys_parser.dart';
 import 'package:nkust_ap/integrations/crawler/firebase_crash_reporter.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/crawler_selector.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();

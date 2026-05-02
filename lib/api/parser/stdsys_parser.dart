@@ -5,7 +5,6 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:ap_common/ap_common.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 class StdsysParser {
   static StdsysParser? _instance;

@@ -6,7 +6,7 @@ import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:nkust_ap/models/leave_campus_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 

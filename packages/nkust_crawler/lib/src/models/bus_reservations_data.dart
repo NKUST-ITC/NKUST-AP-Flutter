@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_crawler/src/abstractions/key_value_store.dart';
 
 part 'bus_reservations_data.g.dart';
 
@@ -33,19 +32,15 @@ class BusReservationsData {
     );
   }
 
+  static const String _prefKey = 'pref_bus_reservevations_data';
+
   // Waiting setString support Map.
   void save(String? tag) {
-    PreferenceUtil.instance.setString(
-      '${Constants.prefBusReservationsData}_$tag',
-      toRawJson(),
-    );
+    crawlerStorage.setString('${_prefKey}_$tag', toRawJson());
   }
 
   static BusReservationsData? load(String? tag) {
-    final String rawString = PreferenceUtil.instance.getString(
-      '${Constants.prefBusReservationsData}_$tag',
-      '',
-    );
+    final String rawString = crawlerStorage.getString('${_prefKey}_$tag', '');
     if (rawString == '') {
       return null;
     } else {

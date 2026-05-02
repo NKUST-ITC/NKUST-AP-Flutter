@@ -1,8 +1,7 @@
 import 'dart:convert';
 
-import 'package:ap_common/ap_common.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:nkust_ap/config/constants.dart';
+import 'package:nkust_crawler/src/abstractions/key_value_store.dart';
 
 part 'leave_data.g.dart';
 
@@ -35,18 +34,14 @@ class LeaveData {
     );
   }
 
+  static const String _prefKey = 'pref_leave_data';
+
   void save(String tag) {
-    PreferenceUtil.instance.setString(
-      '${Constants.prefLeaveData}_$tag',
-      toRawJson(),
-    );
+    crawlerStorage.setString('${_prefKey}_$tag', toRawJson());
   }
 
   static LeaveData? load(String tag) {
-    final String rawString = PreferenceUtil.instance.getString(
-      '${Constants.prefLeaveData}_$tag',
-      '',
-    );
+    final String rawString = crawlerStorage.getString('${_prefKey}_$tag', '');
     if (rawString == '') {
       return null;
     } else {

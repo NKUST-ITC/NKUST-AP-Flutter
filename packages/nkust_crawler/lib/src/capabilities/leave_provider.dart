@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:ap_common/ap_common.dart';
-import 'package:nkust_ap/models/leave_data.dart';
-import 'package:nkust_ap/models/leave_submit_data.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_crawler/src/models/leave_data.dart';
+import 'package:nkust_crawler/src/models/leave_submit_data.dart';
+import 'package:nkust_crawler/src/models/leave_submit_info_data.dart';
 
 /// Image upload payload for leave submission. Decoupled from any specific
 /// Flutter / image_picker type so the crawler layer can stay

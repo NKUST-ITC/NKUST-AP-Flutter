@@ -7,7 +7,7 @@ import 'package:image/image.dart' as image_utils;
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/extensions/bus_reservations_data_ui_extension.dart';
 import 'package:nkust_ap/l10n/nkust_localizations.dart';
-import 'package:nkust_ap/models/bus_reservations_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Utils {

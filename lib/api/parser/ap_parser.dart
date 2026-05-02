@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 //TODO confirm this rule
 //ignore_for_file: unreachable_from_main

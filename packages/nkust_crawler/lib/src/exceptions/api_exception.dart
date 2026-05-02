@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_crawler/src/exceptions/ap_status_code.dart';
 
 /// Root of the typed exception hierarchy for crawler / login flows.
 ///
