@@ -242,11 +242,25 @@ class StdsysHelper
   Future<SemesterData?> getSemesters() async {
     await _webApHelper.loginToStdsys();
 
+    // Same antiforgery dance as getCourseTable: GET a stdsys page first
+    // so the server seeds .AspNetCore.Antiforgery.* / XSRF-TOKEN cookies,
+    // then echo the XSRF-TOKEN back as both the X-XSRF-TOKEN header and
+    // X-Requested-With: XMLHttpRequest. Without this the WebCode/*
+    // endpoints respond 400 Bad Request with an empty body.
+    await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+      options: Options(responseType: ResponseType.plain),
+    );
+
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
+    final String? xsrfToken = cookies
+        .where((Cookie cookie) => cookie.name == 'XSRF-TOKEN')
+        .map((Cookie cookie) => cookie.value)
+        .firstOrNull;
 
     final Response<String> response = await dio.post<String>(
       'https://stdsys.nkust.edu.tw/student/WebCode/GetSchoolYearSmsCodes',
@@ -256,7 +270,12 @@ class StdsysHelper
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Referer': 'https://stdsys.nkust.edu.tw/student/',
+          'Accept': '*/*',
+          'Origin': 'https://stdsys.nkust.edu.tw',
+          'Referer':
+              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
+          'X-Requested-With': 'XMLHttpRequest',
+          if (xsrfToken != null) 'X-XSRF-TOKEN': xsrfToken,
           'Cookie': cookieHeader,
         },
       ),
