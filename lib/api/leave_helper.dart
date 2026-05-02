@@ -11,7 +11,7 @@ import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/parser/leave_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 class LeaveHelper with ReloginMixin implements LeaveProvider {

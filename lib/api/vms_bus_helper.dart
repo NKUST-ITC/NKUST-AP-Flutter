@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/parser/vms_bus_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 /// Scraper for the NKUST school bus system at `vms.nkust.edu.tw`.
 ///

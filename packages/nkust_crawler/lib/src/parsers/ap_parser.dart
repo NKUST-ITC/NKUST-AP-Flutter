@@ -1,10 +1,13 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+
+import 'package:nkust_crawler/src/util/build_mode.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
-import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
+import 'package:nkust_crawler/src/parsers/parser_utils.dart';
 
 //TODO confirm this rule
 //ignore_for_file: unreachable_from_main

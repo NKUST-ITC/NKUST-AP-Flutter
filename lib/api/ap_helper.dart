@@ -12,7 +12,7 @@ import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/vms_bus_helper.dart';
-import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 

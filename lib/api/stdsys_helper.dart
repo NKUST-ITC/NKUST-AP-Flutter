@@ -4,7 +4,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/parser/stdsys_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 enum EnrollmentLetterLang {

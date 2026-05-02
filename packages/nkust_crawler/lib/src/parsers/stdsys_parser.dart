@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter/foundation.dart';
+import 'dart:typed_data';
+
+import 'package:nkust_crawler/src/util/build_mode.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
-import 'package:ap_common/ap_common.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:ap_common_core/ap_common_core.dart';
+import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
+import 'package:nkust_crawler/src/parsers/parser_utils.dart';
 
 class StdsysParser {
   static StdsysParser? _instance;

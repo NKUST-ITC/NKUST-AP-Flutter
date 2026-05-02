@@ -48,8 +48,13 @@ export 'src/models/reward_and_penalty_data.dart';
 export 'src/models/room_data.dart';
 export 'src/models/schedule_data.dart';
 
-// Parsers (utils)
+// Parsers
+export 'src/parsers/ap_parser.dart';
+export 'src/parsers/leave_parser.dart';
+export 'src/parsers/nkust_parser.dart';
 export 'src/parsers/parser_utils.dart';
+export 'src/parsers/stdsys_parser.dart';
+export 'src/parsers/vms_bus_parser.dart';
 
 // Registry
 export 'src/registry/scraper_registry.dart';

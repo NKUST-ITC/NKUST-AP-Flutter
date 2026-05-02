@@ -12,7 +12,7 @@ import 'package:http/http.dart' as http;
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/parser/nkust_parser.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/utils/captcha_utils.dart';
 import 'package:sprintf/sprintf.dart';
