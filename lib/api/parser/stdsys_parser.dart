@@ -403,42 +403,36 @@ class StdsysParser {
   static UserInfo userInfoParser(dynamic rawHtml) {
     final Document document = parse(rawHtml);
 
-    final List<Element> divs = document.querySelectorAll('div.col-6');
-
     String? name;
     String? educationSystem;
     String? department;
     String? className;
     String? id;
 
-    for (final Element div in divs) {
-      final String? label = div.querySelector('label')?.text.trim();
-      final String? value = div.querySelector('.fielddata')?.text.trim();
+    for (final Element item in document.querySelectorAll('.info-item')) {
+      final String label =
+          item.querySelector('.info-label')?.text.trim() ?? '';
+      final String value =
+          item.querySelector('.info-value')?.text.trim() ?? '';
 
-      if (label == null) continue;
-
-      if (label.contains('姓　　名')) {
-        name = value;
-      } else if (label.contains('學　　制')) {
-        educationSystem = value;
-      } else if (label.contains('科　　系')) {
-        department = value;
-      } else if (label.contains('班　　級')) {
-        className = value;
-      } else if (label.contains('學　　號')) {
-        id = value;
+      switch (label) {
+        case '姓名':
+          name = value;
+        case '學制':
+          educationSystem = value;
+        case '科系':
+          department = value;
+        case '班級':
+          className = value;
+        case '學號':
+          id = value;
       }
     }
 
-    final Element? img = document.querySelector('img.photo');
-    String? pictureUrl;
-
-    if (img != null) {
-      final String? src = img.attributes['src'];
-      if (src != null) {
-        pictureUrl = 'https://stdsys.nkust.edu.tw$src';
-      }
-    }
+    final Element? img = document.querySelector('img.student-photo');
+    final String? src = img?.attributes['src'];
+    final String? pictureUrl =
+        src == null ? null : 'https://stdsys.nkust.edu.tw$src';
 
     return UserInfo(
       name: name ?? '',
