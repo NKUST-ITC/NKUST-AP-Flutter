@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/io.dart';
-import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
@@ -21,7 +20,6 @@ import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/models/login_response.dart';
-import 'package:nkust_ap/pages/leave_nkust_page.dart';
 
 class LeaveHelper with ReloginMixin implements LeaveProvider {
   /// The [WebApHelper] instance this helper depends on for cookie management
@@ -112,30 +110,6 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
       // Non-transport DioException (badResponse etc.) indicates the server
       // answered but not with 'alive' — treat as logged out.
       return false;
-    }
-  }
-
-  Future<LoginResponse> login({
-    required BuildContext context,
-    required String username,
-    required String password,
-    bool clearCache = false,
-  }) async {
-    final bool? result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute<bool>(
-        builder: (_) => LeaveNkustPage(
-          username: username,
-          password: password,
-          clearCache: clearCache,
-        ),
-      ),
-    );
-    if (result ?? false) {
-      markReloginSuccess();
-      return LoginResponse();
-    } else {
-      throw const CancelledException(message: 'leave login cancelled by user');
     }
   }
 
