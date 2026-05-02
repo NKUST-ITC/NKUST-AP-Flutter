@@ -5,6 +5,7 @@ library;
 import 'dart:io';
 
 import 'package:ap_common_core/ap_common_core.dart';
+import 'package:dio/dio.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:test/test.dart';
 
@@ -56,6 +57,21 @@ void main() {
         EuclideanCaptchaSolver(FileSystemTemplateProvider(findTemplateDir()));
     WebApHelper.instance.captchaSolver = solver;
     NKUSTHelper.instance.captchaSolver = solver;
+
+    // Verbose HTTP logging so failed parses are debuggable from the test
+    // output alone — opt in via NKUST_HTTP_LOG=1 to keep the default
+    // run quiet.
+    if (Platform.environment['NKUST_HTTP_LOG'] == '1') {
+      print('[live] enabling Dio LogInterceptor on shared webap dio');
+      WebApHelper.instance.dio.interceptors.add(LogInterceptor(
+        request: false,
+        requestHeader: false,
+        requestBody: false,
+        responseHeader: true,
+        responseBody: true,
+        error: true,
+      ));
+    }
 
     print('[live] login as $username (captcha retries up to 5×)');
     final LoginResponse? login = await Helper.instance.login(
