@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart';
+import 'package:nkust_crawler/src/abstractions/captcha_template_provider.dart';
 
 class SegmentationException implements Exception {
   final String message;
@@ -14,7 +14,14 @@ class SegmentationException implements Exception {
 // (label, (minX, minY, maxX, maxY))
 typedef CausalNeighborOffsets = MapEntry<int, (int, int, int, int)>;
 
-Future<String> solveByEucDist(Image image) async {
+/// Characters the captcha generator can emit. Reference templates for
+/// each must be supplied by [CaptchaTemplateProvider].
+const String captchaCharset = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+Future<String> solveByEucDist(
+  Image image,
+  List<Matrix<int>> referenceMatrices,
+) async {
   final Matrix<int> img = imageToMatrix(image);
 
   final Matrix<int> binaryImg = binaryThreshold(img, 138);
@@ -29,23 +36,10 @@ Future<String> solveByEucDist(Image image) async {
   final StringBuffer results = StringBuffer();
   for (final Matrix<int>? charImg in characters) {
     // null is never happened because numLabels == 4
-    results.write(await getCharacter(charImg!));
+    results.write(getCharacter(charImg!, referenceMatrices));
   }
   return results.toString();
 }
-
-const String _characters = '123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-
-/// Load reference images from the assets directory.
-final List<Future<Matrix<int>>> _referenceImages =
-    List<Future<Matrix<int>>>.generate(_characters.length, (
-  int index,
-) async {
-  final String char = _characters[index];
-  final String path = 'assets/eucdist/$char.bmp';
-  final Image img = await readImage(path);
-  return imageToMatrix(img);
-});
 
 /// Calculate the Euclidean distance between two gray-scale images.
 num eucDist(Matrix<int> a, Matrix<int> b) {
@@ -66,19 +60,13 @@ num eucDist(Matrix<int> a, Matrix<int> b) {
 
 /// Get the character represented by the image.
 /// The image should be a preprocessed, cropped character gray-scale image.
-Future<String> getCharacter(Matrix<int> img) async {
-  // Compute distances to reference images
-  final List<Future<num>> distances = _referenceImages
-      .map((Future<Matrix<int>> ref) async => eucDist(img, await ref))
+String getCharacter(Matrix<int> img, List<Matrix<int>> referenceMatrices) {
+  final List<num> distances = referenceMatrices
+      .map((Matrix<int> ref) => eucDist(img, ref))
       .toList();
-
-  // Wait for all distances to be computed
-  final List<num> resolvedDistances = await Future.wait(distances);
-  // Find the index of the minimum distance
-  final int index = resolvedDistances
-      .indexOf(resolvedDistances.reduce((num a, num b) => a < b ? a : b));
-
-  return _characters[index];
+  final int index =
+      distances.indexOf(distances.reduce((num a, num b) => a < b ? a : b));
+  return captchaCharset[index];
 }
 
 class Matrix<T> {
@@ -161,17 +149,27 @@ extension MatrixIntExtensions on Matrix<int> {
   }
 }
 
-/// Read an image from the given path.
-/// Throws [PathNotFoundException] if the file is not found.
-/// Throws [Exception] if there is an error reading the image.
-Future<Image> readImage(String path) async {
-  final ByteData byteData = await rootBundle.load(path);
-  final Uint8List bytes = byteData.buffer.asUint8List();
+/// Decodes a single template glyph (BMP bytes) into the matrix form the
+/// solver compares against. Bytes come from a [CaptchaTemplateProvider].
+Future<Matrix<int>> decodeTemplate(Uint8List bytes) async {
   final Image? img = decodeBmp(bytes);
   if (img == null) {
-    throw Exception('Failed to decode image: $path');
+    throw Exception('Failed to decode captcha template image');
   }
-  return img;
+  return imageToMatrix(img);
+}
+
+/// Loads every glyph in [captchaCharset] from [provider] and decodes them
+/// into matrices. Call once per solver instance; the result is cached.
+Future<List<Matrix<int>>> loadReferenceMatrices(
+  CaptchaTemplateProvider provider,
+) async {
+  return Future.wait(
+    captchaCharset.split('').map((String char) async {
+      final Uint8List bytes = await provider.loadTemplate(char);
+      return decodeTemplate(bytes);
+    }),
+  );
 }
 
 Matrix<int> imageToMatrix(Image image) {

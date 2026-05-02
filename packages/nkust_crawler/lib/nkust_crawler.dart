@@ -13,6 +13,10 @@ export 'src/abstractions/crash_reporter.dart';
 export 'src/abstractions/key_value_store.dart';
 export 'src/abstractions/pdf_text_extractor.dart';
 
+// Captcha
+export 'src/captcha/captcha_solver_impl.dart';
+export 'src/captcha/eucdist.dart' show captchaCharset;
+
 // Config
 export 'src/config/api_config.dart';
 
