@@ -62,7 +62,9 @@ void main() {
     // output alone — opt in via NKUST_HTTP_LOG=1 to keep the default
     // run quiet.
     if (Platform.environment['NKUST_HTTP_LOG'] == '1') {
-      print('[live] enabling Dio LogInterceptor on shared webap dio');
+      print('[live] !! NKUST_HTTP_LOG=1: dumps response bodies + cookies !!');
+      print('[live] !! never paste this output publicly — contains PII +');
+      print('[live] !! session cookies that grant access to the account.');
       WebApHelper.instance.dio.interceptors.add(LogInterceptor(
         request: false,
         requestHeader: false,
@@ -73,7 +75,7 @@ void main() {
       ));
     }
 
-    print('[live] login as $username (captcha retries up to 5×)');
+    print('[live] login as ${redact(username)} (captcha retries up to 5×)');
     final LoginResponse? login = await Helper.instance.login(
       username: username,
       password: password,
@@ -87,9 +89,10 @@ void main() {
     () async {
       print('[live] webap→stdsys SSO + GET stdsys user-info page');
       final UserInfo info = await Helper.instance.getUsersInfo();
-      print('[live]   ← id=${info.id} name=${info.name}');
-      print('[live]     dept=${info.department} class=${info.className}');
-      print('[live]     pictureUrl=${info.pictureUrl}');
+      print('[live]   ← id=${redact(info.id)} name=${redact(info.name)}');
+      print('[live]     dept=${redact(info.department)} '
+          'class=${redact(info.className)}');
+      print('[live]     pictureUrl=${info.pictureUrl == null ? '<null>' : '<set>'}');
       expect(info.id, isNotEmpty);
       expect(info.id.toUpperCase(), username.toUpperCase());
       expect(info.name, isNotEmpty);
@@ -132,9 +135,10 @@ void main() {
       if (courses.courses.isEmpty) {
         print('[live]     (empty — student may not be enrolled this term)');
       } else {
+        // Course title is mildly identifying when paired with other
+        // redacted fields (dept + class), so mask it too.
         final Course first = courses.courses.first;
-        print('[live]     e.g. "${first.title}" '
-            '(${first.location?.building} ${first.location?.room})');
+        print('[live]     e.g. "${redact(first.title)}" (location <set>)');
       }
       expect(courses.courses, isNotNull);
       expect(courses.timeCodes, isNotNull);
@@ -157,9 +161,9 @@ void main() {
       if (scores == null) {
         print('[live]   ← null (no scores yet for this semester)');
       } else {
-        print('[live]   ← ${scores.scores.length} score rows');
-        print('[live]     conduct=${scores.detail.conduct} '
-            'avg=${scores.detail.average}');
+        // Counts are safe to print, individual scores are not.
+        print('[live]   ← ${scores.scores.length} score rows '
+            '(conduct/avg redacted)');
       }
       if (scores != null) {
         expect(scores.scores, isNotNull);

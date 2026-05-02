@@ -65,6 +65,23 @@ Semester currentAcademicSemester([DateTime? now]) {
   );
 }
 
+/// Masks PII (student id, name, etc.) for `print()` calls inside live
+/// tests so that pasted output doesn't accidentally leak the running
+/// account's data into chat / screenshots / CI logs.
+///
+/// - null:   `<null>`.
+/// - empty:  `<empty>`.
+/// - 1 char: `••`.
+/// - 2 char: first char + `•` (e.g. `梁•`).
+/// - ≥3 char: first char + middle bullets + last char (e.g. `C•••••••117`).
+String redact(String? value) {
+  if (value == null) return '<null>';
+  if (value.isEmpty) return '<empty>';
+  if (value.length == 1) return '••';
+  if (value.length == 2) return '${value[0]}•';
+  return '${value[0]}${"•" * (value.length - 2)}${value[value.length - 1]}';
+}
+
 /// Locates `assets/eucdist/` regardless of whether the test is run from
 /// the repo root or from `packages/nkust_crawler/`.
 Directory findTemplateDir() {

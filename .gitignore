@@ -9,6 +9,17 @@
 .history
 .svn/
 
+# Secrets / live-test artifacts. Live integration tests read credentials
+# from env vars; these patterns block accidental commits of dotfiles or
+# response dumps that may contain student id, name, session cookies, or
+# transcript HTML.
+.env
+.env.*
+*.har
+*.dump
+nkust_*_dump.txt
+nkust_http_log_*.txt
+
 # IntelliJ related
 *.iml
 *.ipr
