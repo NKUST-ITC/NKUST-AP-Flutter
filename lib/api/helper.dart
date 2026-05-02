@@ -549,7 +549,7 @@ class Helper {
 
   Future<Response<dynamic>?> sendLeavesSubmit({
     required LeaveSubmitData data,
-    required XFile? image,
+    required LeaveProofImage? image,
   }) async {
     return _leaveCall(() async {
       final provider = registry.resolve<LeaveProvider>(null);

@@ -249,7 +249,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
 
   Future<Response<dynamic>?> leavesSubmit(
     LeaveSubmitData data, {
-    XFile? proofImage,
+    LeaveProofImage? proofImage,
   }) async {
     //force relogin to aviod error.
     await _webApHelper.loginToLeave();
@@ -373,10 +373,10 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
     if (proofImage != null) {
       log('Add proof image');
       requestData[r'ctl00$ContentPlaceHolder1$CK001$FileUpload1'] =
-          await MultipartFile.fromFile(
-        proofImage.path,
-        filename: 'proof_image.jpg',
-        contentType: MediaType.parse('image/jpeg'),
+          MultipartFile.fromBytes(
+        proofImage.bytes,
+        filename: proofImage.filename,
+        contentType: MediaType.parse(proofImage.mime),
       );
     }
 
@@ -405,7 +405,7 @@ class LeaveHelper with ReloginMixin implements LeaveProvider {
   @override
   Future<Response<dynamic>?> submit(
     LeaveSubmitData data, {
-    XFile? proofImage,
+    LeaveProofImage? proofImage,
   }) =>
       leavesSubmit(data, proofImage: proofImage);
 }

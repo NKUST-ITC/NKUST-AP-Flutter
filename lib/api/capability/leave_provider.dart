@@ -1,7 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:nkust_ap/models/leave_data.dart';
 import 'package:nkust_ap/models/leave_submit_data.dart';
 import 'package:nkust_ap/models/leave_submit_info_data.dart';
+
+/// Image upload payload for leave submission. Decoupled from any specific
+/// Flutter / image_picker type so the crawler layer can stay
+/// platform-agnostic — callers convert their own [XFile]/[File]/whatever
+/// into this shape before submitting.
+typedef LeaveProofImage = ({Uint8List bytes, String filename, String mime});
 
 /// Capability interface for leave/absence operations.
 ///
@@ -11,6 +19,6 @@ abstract class LeaveProvider {
   Future<LeaveSubmitInfoData> getSubmitInfo();
   Future<Response<dynamic>?> submit(
     LeaveSubmitData data, {
-    XFile? proofImage,
+    LeaveProofImage? proofImage,
   });
 }
