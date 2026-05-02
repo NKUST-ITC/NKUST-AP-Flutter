@@ -6,7 +6,6 @@ import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
-import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 //TODO confirm this rule
@@ -71,7 +70,10 @@ class WebApParser {
     return 3;
   }
 
-  Map<String, dynamic> apUserInfoParser(String? html) {
+  /// [fallbackId] is used as the `id` field when the response HTML cannot be
+  /// parsed (e.g. webap returned an error page). Caller should pass the
+  /// currently-known username so the UI still has something to render.
+  Map<String, dynamic> apUserInfoParser(String? html, {String? fallbackId}) {
     final Map<String, dynamic> data = <String, dynamic>{
       'educationSystem': null,
       'department': null,
@@ -84,7 +86,7 @@ class WebApParser {
     final List<Element> tdElements = document.getElementsByTagName('td');
     if (tdElements.length < 15) {
       // parse data error.
-      data['id'] = Helper.username;
+      data['id'] = fallbackId;
       return data;
     }
     try {

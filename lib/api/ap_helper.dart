@@ -528,7 +528,10 @@ class WebApHelper
   Future<UserInfo> userInfoCrawler() async {
     final Response<dynamic> query = await apQuery('ag003', null);
     return UserInfo.fromJson(
-      WebApParser.instance.apUserInfoParser(query.data as String),
+      WebApParser.instance.apUserInfoParser(
+        query.data as String,
+        fallbackId: Helper.username,
+      ),
     );
   }
 
