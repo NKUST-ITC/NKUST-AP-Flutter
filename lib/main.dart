@@ -9,16 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/integrations/crawler/firebase_crash_reporter.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:nkust_ap/integrations/crawler/crawler_bootstrap.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -42,6 +36,7 @@ void main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
+  bootstrapCrawler();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(
       clientId:
@@ -49,23 +44,6 @@ void main() async {
           '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com',
     );
   }
-  if (!kIsWeb &&
-      (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
-    ApiConfig.platformAdapterFactory = NativeAdapter.new;
-  }
-  Helper.bootstrap(
-    apiHost:
-        PreferenceUtil.instance.getString(Constants.apiHost, Helper.host),
-  );
-  const FirebaseCrashReporter firebaseReporter = FirebaseCrashReporter();
-  Helper.instance.reporter = firebaseReporter;
-  WebApHelper.instance.reporter = firebaseReporter;
-  WebApParser.instance.reporter = firebaseReporter;
-  StdsysParser.instance.reporter = firebaseReporter;
-  Helper.instance.onLogout = () {
-    ApCommonPlugin.clearCourseWidget();
-    ApCommonPlugin.clearUserInfoWidget();
-  };
   Helper.selector = CrawlerSelector.load();
   if (!kIsWeb && Platform.isAndroid) {
     HttpOverrides.global = MyHttpOverrides();
