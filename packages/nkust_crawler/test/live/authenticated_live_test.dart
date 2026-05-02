@@ -118,9 +118,12 @@ void main() {
   test(
     'getCourseTables returns courses for the current semester',
     () async {
-      final SemesterData semesters = await Helper.instance.getSemester();
-      final Semester sem = semesters.defaultSemester;
-      print('[live] GET stdsys course table for ${sem.year}/${sem.value}');
+      // Skip getSemester() — its `defaultSemester` is often last term's
+      // (the most recent one with a transcript), not the one the student
+      // is actually attending. Derive from wall-clock instead.
+      final Semester sem = currentAcademicSemester();
+      print('[live] GET stdsys course table for ${sem.year}/${sem.value} '
+          '(${sem.text})');
       final CourseData courses = await Helper.instance.getCourseTables(
         semester: sem,
       );
@@ -143,9 +146,11 @@ void main() {
   test(
     'getScores returns score data (or null for an empty semester)',
     () async {
-      final SemesterData semesters = await Helper.instance.getSemester();
-      final Semester sem = semesters.defaultSemester;
-      print('[live] webap→stdsys SSO + PDF transcript for ${sem.year}/${sem.value}');
+      // Same wall-clock semester override as getCourseTables — the live
+      // default semester routinely points at last term.
+      final Semester sem = currentAcademicSemester();
+      print('[live] webap→stdsys SSO + PDF transcript for ${sem.year}/${sem.value} '
+          '(${sem.text})');
       final ScoreData? scores = await Helper.instance.getScores(
         semester: sem,
       );
