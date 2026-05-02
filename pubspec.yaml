@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 4.0.1
+version: 4.0.0
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -20,6 +20,8 @@ dependencies:
   ap_common: ^1.0.1-dev.12
   ap_common_firebase: ^1.0.1-dev.13
   ap_common_plugin: ^1.0.1-dev.12
+  nkust_crawler:
+    path: packages/nkust_crawler
   #official plugin
   http: ^0.13.3
   html: ^0.15.0

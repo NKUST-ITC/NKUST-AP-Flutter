@@ -9,7 +9,7 @@ import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/crash_reporter.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/safe_cookie_manager.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
