@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:nkust_crawler/src/config/api_config.dart';

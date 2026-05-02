@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;

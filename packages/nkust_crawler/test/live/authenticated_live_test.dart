@@ -131,7 +131,7 @@ void main() {
         semester: sem,
       );
       print('[live]   ← ${courses.courses.length} courses, '
-          '${courses.timeCodes?.length ?? 0} time codes');
+          '${courses.timeCodes.length} time codes');
       if (courses.courses.isEmpty) {
         print('[live]     (empty — student may not be enrolled this term)');
       } else {

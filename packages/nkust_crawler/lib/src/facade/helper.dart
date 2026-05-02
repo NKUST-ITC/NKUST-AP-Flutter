@@ -6,7 +6,6 @@ import 'dart:typed_data';
 import 'package:ap_common_core/ap_common_core.dart';
 import 'package:dio/dio.dart';
 import 'package:nkust_crawler/src/helpers/ap_helper.dart';
-import 'package:nkust_crawler/src/exceptions/ap_status_code.dart';
 import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
 import 'package:nkust_crawler/src/exceptions/api_exception.dart';
 import 'package:nkust_crawler/src/helpers/leave_helper.dart';

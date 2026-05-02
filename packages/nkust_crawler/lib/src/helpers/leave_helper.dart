@@ -2,16 +2,13 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/io.dart';
 import 'package:html/dom.dart' as html;
 import 'package:html/parser.dart' show parse;
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:nkust_crawler/src/config/api_config.dart';
 import 'package:nkust_crawler/src/helpers/ap_helper.dart';
-import 'package:nkust_crawler/src/exceptions/ap_status_code.dart';
 import 'package:nkust_crawler/src/capabilities/leave_provider.dart';
 import 'package:nkust_crawler/src/exceptions/api_exception.dart';
 import 'package:nkust_crawler/src/session/relogin_mixin.dart';
@@ -20,7 +17,6 @@ import 'package:nkust_crawler/src/parsers/leave_parser.dart';
 import 'package:nkust_crawler/src/models/leave_data.dart';
 import 'package:nkust_crawler/src/models/leave_submit_data.dart';
 import 'package:nkust_crawler/src/models/leave_submit_info_data.dart';
-import 'package:nkust_crawler/src/models/login_response.dart';
 
 class LeaveHelper with ReloginMixin implements LeaveProvider {
   /// The [WebApHelper] instance this helper depends on for cookie management
