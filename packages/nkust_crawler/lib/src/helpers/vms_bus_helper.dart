@@ -1,13 +1,18 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:flutter/foundation.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
-import 'package:nkust_ap/api/api_config.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_crawler/src/config/api_config.dart';
+import 'package:nkust_crawler/src/capabilities/bus_provider.dart';
+import 'package:nkust_crawler/src/parsers/parser_utils.dart';
+import 'package:nkust_crawler/src/parsers/vms_bus_parser.dart';
+import 'package:nkust_crawler/src/interceptors/safe_cookie_manager.dart';
+import 'package:nkust_crawler/src/models/booking_bus_data.dart';
+import 'package:nkust_crawler/src/models/bus_data.dart';
+import 'package:nkust_crawler/src/models/bus_reservations_data.dart';
+import 'package:nkust_crawler/src/models/bus_violation_records_data.dart';
+import 'package:nkust_crawler/src/models/cancel_bus_data.dart';
 
 /// Scraper for the NKUST school bus system at `vms.nkust.edu.tw`.
 ///
@@ -67,8 +72,9 @@ class VmsBusHelper implements BusProvider {
       ),
     );
 
-    if (!kIsWeb && (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
-      dio.httpClientAdapter = NativeAdapter();
+    final factory = ApiConfig.platformAdapterFactory;
+    if (factory != null) {
+      dio.httpClientAdapter = factory();
     }
 
     dio.interceptors.add(SafeCookieManager(cookieJar));

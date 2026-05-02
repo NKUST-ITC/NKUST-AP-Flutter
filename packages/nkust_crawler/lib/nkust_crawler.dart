@@ -7,9 +7,24 @@
 library;
 
 // Abstractions
+export 'src/abstractions/captcha_solver.dart';
 export 'src/abstractions/captcha_template_provider.dart';
 export 'src/abstractions/crash_reporter.dart';
 export 'src/abstractions/key_value_store.dart';
+export 'src/abstractions/pdf_text_extractor.dart';
+
+// Config
+export 'src/config/api_config.dart';
+
+// Facade
+export 'src/facade/helper.dart';
+
+// Helpers
+export 'src/helpers/ap_helper.dart';
+export 'src/helpers/leave_helper.dart';
+export 'src/helpers/nkust_helper.dart';
+export 'src/helpers/stdsys_helper.dart';
+export 'src/helpers/vms_bus_helper.dart';
 
 // Capabilities
 export 'src/capabilities/bus_provider.dart';

@@ -3,18 +3,28 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ap_common/ap_common.dart';
+import 'package:dio/dio.dart';
+import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/io.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
-import 'package:nkust_ap/api/api_config.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/vms_bus_helper.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/utils/captcha_utils.dart';
+import 'package:nkust_crawler/src/abstractions/captcha_solver.dart';
+import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
+import 'package:nkust_crawler/src/capabilities/course_provider.dart';
+import 'package:nkust_crawler/src/capabilities/score_provider.dart';
+import 'package:nkust_crawler/src/capabilities/semester_provider.dart';
+import 'package:nkust_crawler/src/capabilities/user_info_provider.dart';
+import 'package:nkust_crawler/src/config/api_config.dart';
+import 'package:nkust_crawler/src/exceptions/api_exception.dart';
+import 'package:nkust_crawler/src/exceptions/ap_status_code.dart';
+import 'package:nkust_crawler/src/facade/helper.dart';
+import 'package:nkust_crawler/src/helpers/leave_helper.dart';
+import 'package:nkust_crawler/src/helpers/vms_bus_helper.dart';
+import 'package:nkust_crawler/src/interceptors/safe_cookie_manager.dart';
+import 'package:nkust_crawler/src/models/login_response.dart';
+import 'package:nkust_crawler/src/models/midterm_alerts_data.dart';
+import 'package:nkust_crawler/src/models/reward_and_penalty_data.dart';
+import 'package:nkust_crawler/src/models/room_data.dart';
+import 'package:nkust_crawler/src/parsers/ap_parser.dart';
+import 'package:nkust_crawler/src/session/relogin_mixin.dart';
 
 class WebApHelper
     with ReloginMixin
@@ -39,6 +49,10 @@ class WebApHelper
   /// retry loop. Defaults to no-op; main app wires a Firebase-backed
   /// implementation at bootstrap.
   CrashReporter reporter = const NoOpCrashReporter();
+
+  /// Captcha solver injected by the host app. Throws [StateError] if the
+  /// login path is hit before a solver is wired.
+  CaptchaSolver? captchaSolver;
 
   //ignore: prefer_constructors_over_static_methods
   static WebApHelper get instance {
@@ -159,10 +173,15 @@ class WebApHelper
           continue;
         }
 
-        // extractByEucDist 不會回傳 null，失敗會丟出 exception
-        final String captchaCode = await CaptchaUtils.extractByEucDist(
-          bodyBytes: imageBytes,
-        );
+        final solver = captchaSolver;
+        if (solver == null) {
+          throw StateError(
+            'WebApHelper.captchaSolver is not configured. '
+            'Wire a CaptchaSolver implementation at app bootstrap.',
+          );
+        }
+        // solver throws on segmentation failure, never returns null
+        final String captchaCode = await solver.solve(imageBytes);
 
         // perchk.jsp does a server-side CSRF check that emits
         // alert('Please Logon From Homepage!!') when the request lacks

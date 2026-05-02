@@ -3,18 +3,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:ap_common/ap_common.dart';
+import 'package:dio/dio.dart';
+import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/io.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:native_dio_adapter/native_dio_adapter.dart';
-import 'package:nkust_ap/api/api_config.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/utils/captcha_utils.dart';
+import 'package:nkust_crawler/src/abstractions/captcha_solver.dart';
+import 'package:nkust_crawler/src/config/api_config.dart';
+import 'package:nkust_crawler/src/exceptions/api_exception.dart';
+import 'package:nkust_crawler/src/parsers/nkust_parser.dart';
 import 'package:sprintf/sprintf.dart';
 
 class NKUSTHelper {
@@ -22,6 +20,11 @@ class NKUSTHelper {
 
   late Dio dio;
   late CookieJar cookieJar;
+
+  /// Captcha solver injected by the host app (defaults to a stub that
+  /// always throws — host must wire a real implementation before login
+  /// flows that need a captcha).
+  CaptchaSolver? captchaSolver;
 
   //ignore: prefer_constructors_over_static_methods
   static NKUSTHelper get instance {
@@ -78,9 +81,14 @@ class NKUSTHelper {
           continue;
         }
 
-        final String captchaCode = await CaptchaUtils.extractByEucDist(
-          bodyBytes: imageBytes,
-        );
+        final solver = captchaSolver;
+        if (solver == null) {
+          throw StateError(
+            'NKUSTHelper.captchaSolver is not configured. '
+            'Wire a CaptchaSolver implementation at app bootstrap.',
+          );
+        }
+        final String captchaCode = await solver.solve(imageBytes);
 
         final List<Cookie> cookies = await cookieJar
             .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));

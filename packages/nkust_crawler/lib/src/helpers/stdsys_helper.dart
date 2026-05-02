@@ -1,11 +1,16 @@
 import 'dart:typed_data';
-import 'package:ap_common/ap_common.dart';
+import 'package:dio/dio.dart';
+import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/helper.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
+import 'package:nkust_crawler/src/helpers/ap_helper.dart';
+import 'package:nkust_crawler/src/capabilities/course_provider.dart';
+import 'package:nkust_crawler/src/capabilities/score_provider.dart';
+import 'package:nkust_crawler/src/capabilities/semester_provider.dart';
+import 'package:nkust_crawler/src/capabilities/user_info_provider.dart';
+import 'package:nkust_crawler/src/facade/helper.dart';
+import 'package:nkust_crawler/src/parsers/stdsys_parser.dart';
+import 'package:nkust_crawler/src/models/room_data.dart';
+import 'package:nkust_crawler/src/abstractions/pdf_text_extractor.dart';
 
 enum EnrollmentLetterLang {
   chinese,
@@ -33,6 +38,10 @@ class StdsysHelper
 
   Dio get dio => _webApHelper.dio;
   CookieJar get cookieJar => _webApHelper.cookieJar;
+
+  /// Decoder for transcript PDFs returned by stdsys. Wired at bootstrap;
+  /// score lookup throws if it isn't.
+  PdfTextExtractor? pdfTextExtractor;
 
   Future<Response<Uint8List>> getEnrollmentLetter([
     EnrollmentLetterLang lang = EnrollmentLetterLang.chinese,
@@ -305,15 +314,14 @@ class StdsysHelper
   }
 
   String parsePdfText(Response<Uint8List> rawpdf) {
-    final Uint8List bytes = rawpdf.data!;
-    final PdfDocument document = PdfDocument(inputBytes: bytes);
-    try {
-      final PdfTextExtractor extractor = PdfTextExtractor(document);
-      final String text = extractor.extractText();
-      return text;
-    } finally {
-      document.dispose();
+    final extractor = pdfTextExtractor;
+    if (extractor == null) {
+      throw StateError(
+        'StdsysHelper.pdfTextExtractor is not configured. '
+        'Wire a PdfTextExtractor implementation at app bootstrap.',
+      );
     }
+    return extractor.extract(rawpdf.data!);
   }
 
   Future<ScoreData> getScoresByYearSemester(

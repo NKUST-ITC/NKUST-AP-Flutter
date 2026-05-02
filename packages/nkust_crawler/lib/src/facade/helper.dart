@@ -3,15 +3,36 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 
-import 'package:ap_common/ap_common.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:nkust_ap/api/ap_helper.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
-import 'package:nkust_ap/api/nkust_helper.dart';
-import 'package:nkust_ap/api/stdsys_helper.dart';
-import 'package:nkust_ap/api/vms_bus_helper.dart';
-import 'package:nkust_ap/utils/global.dart';
+import 'package:ap_common_core/ap_common_core.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_crawler/src/helpers/ap_helper.dart';
+import 'package:nkust_crawler/src/exceptions/ap_status_code.dart';
+import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
+import 'package:nkust_crawler/src/exceptions/api_exception.dart';
+import 'package:nkust_crawler/src/helpers/leave_helper.dart';
+import 'package:nkust_crawler/src/helpers/nkust_helper.dart';
+import 'package:nkust_crawler/src/helpers/stdsys_helper.dart';
+import 'package:nkust_crawler/src/helpers/vms_bus_helper.dart';
+import 'package:nkust_crawler/src/models/booking_bus_data.dart';
+import 'package:nkust_crawler/src/models/bus_violation_records_data.dart';
+import 'package:nkust_crawler/src/models/cancel_bus_data.dart';
+import 'package:nkust_crawler/src/models/crawler_selector.dart';
+import 'package:nkust_crawler/src/models/leave_data.dart';
+import 'package:nkust_crawler/src/models/leave_submit_data.dart';
+import 'package:nkust_crawler/src/models/leave_submit_info_data.dart';
+import 'package:nkust_crawler/src/models/login_response.dart';
+import 'package:nkust_crawler/src/models/midterm_alerts_data.dart';
+import 'package:nkust_crawler/src/models/models.dart';
+import 'package:nkust_crawler/src/models/reward_and_penalty_data.dart';
+import 'package:nkust_crawler/src/models/room_data.dart';
+import 'package:nkust_crawler/src/capabilities/bus_provider.dart';
+import 'package:nkust_crawler/src/capabilities/course_provider.dart';
+import 'package:nkust_crawler/src/capabilities/leave_provider.dart';
+import 'package:nkust_crawler/src/capabilities/score_provider.dart';
+import 'package:nkust_crawler/src/capabilities/semester_provider.dart';
+import 'package:nkust_crawler/src/capabilities/user_info_provider.dart';
+import 'package:nkust_crawler/src/registry/scraper_registry.dart';
+import 'package:nkust_crawler/src/session/session_state.dart';
 
 class Helper {
   static const String host = 'nkust.taki.dog';
@@ -580,28 +601,6 @@ void _noopOnLogout() {}
 
 extension DioErrorExtension on DioException {
   bool get hasResponse => type == DioExceptionType.badResponse;
-}
-
-extension GeneralResponseExtension on GeneralResponse {
-  String getGeneralMessage(
-    BuildContext context,
-  ) {
-    String message = '';
-    switch (statusCode) {
-      case ApStatusCode.schoolServerError:
-        message = ap.schoolServerError;
-      case GeneralResponse.platformNotSupportCode:
-        message = ap.platformError;
-      default:
-        message = ap.unknownError;
-    }
-    AnalyticsUtil.instance.logApiEvent(
-      'GeneralResponse',
-      statusCode,
-      message: message,
-    );
-    return message;
-  }
 }
 
 extension SemesterExtension on Semester {

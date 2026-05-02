@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:nkust_crawler/src/interceptors/safe_cookie_manager.dart';
 
 class ApiConfig {
   static const Duration connectTimeout = Duration(seconds: 15);
