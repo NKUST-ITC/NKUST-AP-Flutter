@@ -58,6 +58,10 @@ void main() async {
   WebApHelper.instance.reporter = firebaseReporter;
   WebApParser.instance.reporter = firebaseReporter;
   StdsysParser.instance.reporter = firebaseReporter;
+  Helper.instance.onLogout = () {
+    ApCommonPlugin.clearCourseWidget();
+    ApCommonPlugin.clearUserInfoWidget();
+  };
   Helper.selector = CrawlerSelector.load();
   if (!kIsWeb && Platform.isAndroid) {
     HttpOverrides.global = MyHttpOverrides();

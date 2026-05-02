@@ -4,7 +4,6 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
@@ -69,6 +68,12 @@ class Helper {
   /// implementation at bootstrap and propagates it down to sub-helpers /
   /// parsers.
   CrashReporter reporter = const NoOpCrashReporter();
+
+  /// Called from [clearSetting] after session state is wiped. Wired at app
+  /// bootstrap to invalidate the home-screen widgets that mirror the
+  /// previous user's data; defaults to no-op so package consumers (server
+  /// side, CLI, tests) are not forced to depend on the widget plugin.
+  void Function() onLogout = _noopOnLogout;
 
   /// Cleanup callbacks registered by sub-helpers.
   /// Called during [clearSetting] so each helper can reset its own state.
@@ -569,8 +574,7 @@ class Helper {
     expireTime = null;
     username = null;
     password = null;
-    ApCommonPlugin.clearCourseWidget();
-    ApCommonPlugin.clearUserInfoWidget();
+    instance.onLogout();
 
     // Call all registered cleanup callbacks from sub-helpers.
     for (final callback in instance._cleanupCallbacks) {
@@ -578,6 +582,8 @@ class Helper {
     }
   }
 }
+
+void _noopOnLogout() {}
 
 extension DioErrorExtension on DioException {
   bool get hasResponse => type == DioExceptionType.badResponse;
