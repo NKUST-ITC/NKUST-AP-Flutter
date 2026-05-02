@@ -1,12 +1,8 @@
 import 'dart:convert';
 
 import 'package:ap_common/ap_common.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/l10n/nkust_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 part 'bus_reservations_data.g.dart';
 
@@ -94,50 +90,4 @@ class BusReservation {
     }
     return list;
   }
-
-  Color getColorState(BuildContext context) {
-    return ApTheme.of(context).grey;
-  }
-
-  String getDate() {
-    initializeDateFormatting();
-    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    final DateFormat formatterTime = DateFormat('yyyy/MM/dd');
-    return formatterTime.format(formatterDateTime.parse(dateTime));
-  }
-
-  String getTime() {
-    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    final DateFormat formatterTime = DateFormat('HH:mm');
-    return formatterTime.format(formatterDateTime.parse(dateTime));
-  }
-
-  DateTime getDateTime() {
-    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    return formatterDateTime.parse(dateTime);
-  }
-
-  String getDateTimeStr() {
-    final DateFormat formatterDateTime = DateFormat('yyyy/MM/dd HH:mm');
-    final DateFormat formatterTime = DateFormat('yyyy/MM/dd HH:mm');
-    final DateTime s = formatterDateTime.parse(dateTime);
-    return formatterTime.format(s);
-  }
-
-  String getStart(NkustLocalizations? local) {
-    return Utils.parserCampus(local, start);
-  }
-
-  String getEnd(NkustLocalizations? local) {
-    return Utils.parserCampus(local, end);
-  }
-
-//  bool canCancel() {
-//    var now = new DateTime.now();
-//    initializeDateFormatting();
-//    var formatter = new DateFormat('yyyy/MM/ddTHH:mm:ssZ');
-//    var endEnrollDateTime = formatter.parse(this.endTime);
-//    return now.millisecondsSinceEpoch <
-//        endEnrollDateTime.millisecondsSinceEpoch;
-//  }
 }

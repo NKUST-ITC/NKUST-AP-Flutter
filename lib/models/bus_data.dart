@@ -1,11 +1,6 @@
 import 'dart:convert';
 
-import 'package:ap_common/ap_common.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:nkust_ap/l10n/nkust_localizations.dart';
-import 'package:nkust_ap/utils/utils.dart';
 
 part 'bus_data.g.dart';
 
@@ -74,25 +69,6 @@ class BusTime {
     this.canBook,
   });
 
-  String getSpecialTrainTitle(NkustLocalizations? local) {
-    switch (specialTrain) {
-      case '1':
-        return local!.specialBus;
-      case '2':
-        return local!.trialBus;
-      default:
-        return '';
-    }
-  }
-
-//  String getSpecialTrainRemark() {
-//    print(specialTrainRemark);
-//    if (specialTrainRemark.length == 0)
-//      return "";
-//    else
-//      return "${specialTrainRemark.replaceAll("\n", "").replaceAll("<br />", "\n")}\n";
-//  }
-
   static List<BusTime> toList(List<Map<String, dynamic>> jsonArray) {
     final List<BusTime> list = <BusTime>[];
     for (final Map<String, dynamic> item in jsonArray) {
@@ -114,48 +90,5 @@ class BusTime {
 
   bool canReserve() {
     return canBook ?? true;
-  }
-
-  @Deprecated('legacy config')
-  String getEndEnrollDateTime() {
-    initializeDateFormatting();
-    final DateFormat dateFormat = DateFormat('yyyy-MM-dd HH:mm:ss ');
-    return dateFormat.format(endEnrollDateTime!);
-  }
-
-  Color getColorState(BuildContext context) {
-    return isReserve
-        ? ApTheme.of(context).blueAccent
-        : canReserve()
-            ? ApTheme.of(context).grey
-            : ApTheme.of(context).disabled;
-  }
-
-  String getReserveState(NkustLocalizations? local) {
-    return isReserve
-        ? local!.reserved
-        : canReserve()
-            ? local!.reserve
-            : local!.canNotReserve;
-  }
-
-  String getDate() {
-    initializeDateFormatting();
-    final DateFormat formatterTime = DateFormat('yyyy-MM-dd');
-    return formatterTime.format(departureTime);
-  }
-
-  String getTime() {
-    initializeDateFormatting();
-    final DateFormat formatterTime = DateFormat('HH:mm', 'zh');
-    return formatterTime.format(departureTime);
-  }
-
-  String? getStart(NkustLocalizations? local) {
-    return Utils.parserCampus(local, startStation);
-  }
-
-  String? getEnd(NkustLocalizations? local) {
-    return Utils.parserCampus(local, endStation);
   }
 }

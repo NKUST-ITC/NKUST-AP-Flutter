@@ -17,6 +17,7 @@ import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/vms_bus_helper.dart';
 import 'package:nkust_ap/api/scraper_registry.dart';
+import 'package:nkust_ap/extensions/bus_reservations_data_ui_extension.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
 import 'package:nkust_ap/models/login_response.dart';
 import 'package:nkust_ap/models/models.dart';
