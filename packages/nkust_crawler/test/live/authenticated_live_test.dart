@@ -69,7 +69,7 @@ void main() {
   test(
     'getUsersInfo returns the authenticated student',
     () async {
-      print('[live] POST webap ag003 (user info)');
+      print('[live] webap→stdsys SSO + GET stdsys user-info page');
       final UserInfo info = await Helper.instance.getUsersInfo();
       print('[live]   ← id=${info.id} name=${info.name}');
       print('[live]     dept=${info.department} class=${info.className}');
@@ -85,7 +85,7 @@ void main() {
   test(
     'getSemester returns the current and historical semesters',
     () async {
-      print('[live] POST webap ag304_01 (semester list)');
+      print('[live] GET stdsys semester list');
       final SemesterData data = await Helper.instance.getSemester();
       print('[live]   ← ${data.semesters.length} semesters');
       print('[live]     default: ${data.defaultSemester.year}/'
@@ -104,7 +104,7 @@ void main() {
     () async {
       final SemesterData semesters = await Helper.instance.getSemester();
       final Semester sem = semesters.defaultSemester;
-      print('[live] POST webap ag222 (course table) for ${sem.year}/${sem.value}');
+      print('[live] GET stdsys course table for ${sem.year}/${sem.value}');
       final CourseData courses = await Helper.instance.getCourseTables(
         semester: sem,
       );
