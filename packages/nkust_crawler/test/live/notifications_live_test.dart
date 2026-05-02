@@ -13,21 +13,26 @@ import '_helpers.dart';
 /// HTML extractor still match the live server.
 void main() {
   setUpAll(() {
+    print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
   });
 
   test(
     'getNotifications page 1 returns at least one announcement',
     () async {
+      print('[live] POST acad.nkust.edu.tw  Rcg=232  Page=0');
       final NotificationsData result =
           await NKUSTHelper.instance.getNotifications(1);
 
+      final int count = result.data.notifications.length;
+      print('[live]   ← $count announcements (page=${result.data.page})');
       expect(result.data.notifications, isNotEmpty);
 
-      // Spot-check the first row has the expected fields populated; the
-      // real server can return arbitrary Chinese-language titles, so we
-      // only assert non-emptiness rather than a specific value.
       final Notifications first = result.data.notifications.first;
+      print('[live]   first: "${first.info.title}"');
+      print('[live]          dept=${first.info.department} '
+          'date=${first.info.date}');
+      print('[live]          link=${first.link}');
       expect(first.link, isNotEmpty);
       expect(first.info.title, isNotEmpty);
       expect(first.info.date, isNotEmpty);

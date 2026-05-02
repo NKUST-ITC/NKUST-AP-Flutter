@@ -9,15 +9,22 @@ are **skipped by default** so `dart test` stays hermetic; opt in via
 
 ```bash
 # anonymous tests only (no credentials, only network)
-dart test -P live-anonymous
+dart test -P live-anonymous -r expanded
 
 # everything, including authenticated flow (requires creds)
 NKUST_USER=<student_id> NKUST_PASS=<webap_password> \
-  dart test -P live
+  dart test -P live -r expanded
 ```
+
+`-r expanded` makes the per-step `print()` log show inline so you can
+see exactly what each test hit and what came back. Without it the
+default reporter only prints test names.
 
 The presets are defined in `dart_test.yaml`; default `dart test`
 excludes them via `exclude_tags`.
+
+Tests without credentials self-skip with a clear reason; nothing fails
+just because env vars are missing.
 
 If `NKUST_USER` / `NKUST_PASS` are unset, the authenticated tests
 self-skip with a clear message — they will not fail the run.
