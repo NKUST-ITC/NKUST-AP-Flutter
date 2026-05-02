@@ -37,6 +37,20 @@ void main() {
     print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
 
+    // Force stdsys for userInfo / course / score / semester. WebAP's
+    // legacy `ag*` endpoints are unreliable / partially broken in
+    // production; stdsys is the path the app uses by default. Login
+    // itself still has to run through webap because that's the only
+    // entry point that issues a session.
+    print('[live] selector = stdsys for userInfo/course/score/semester');
+    Helper.selector = CrawlerSelector(
+      login: ScraperSource.webap,
+      userInfo: ScraperSource.stdsys,
+      course: ScraperSource.stdsys,
+      score: ScraperSource.stdsys,
+      semester: ScraperSource.stdsys,
+    );
+
     print('[live] wiring EuclideanCaptchaSolver with FS-backed templates');
     final EuclideanCaptchaSolver solver =
         EuclideanCaptchaSolver(FileSystemTemplateProvider(findTemplateDir()));
@@ -130,7 +144,15 @@ void main() {
         expect(scores.scores, isNotNull);
       }
     },
-    skip: hasCredentials ? false : missingCredsReason,
+    // The stdsys score path returns a transcript PDF and decodes it via
+    // [PdfTextExtractor]; the only implementation we ship
+    // (`SyncfusionPdfTextExtractor`) transitively depends on `dart:ui`,
+    // which is not available under pure-Dart `dart test`. Run this from
+    // the Flutter app's smoke harness instead.
+    skip: !hasCredentials
+        ? missingCredsReason
+        : 'getScores via stdsys needs SyncfusionPdfTextExtractor '
+            '(Flutter-bound); test from the host app.',
     timeout: const Timeout(Duration(minutes: 2)),
   );
 }
