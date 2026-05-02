@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:ap_common/ap_common.dart';
+import 'package:nkust_ap/api/crash_reporter.dart';
 import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 class StdsysParser {
@@ -13,6 +14,9 @@ class StdsysParser {
   static StdsysParser get instance {
     return _instance ??= StdsysParser();
   }
+
+  /// Sink for parser-level errors. See [CrashReporter] for rationale.
+  CrashReporter reporter = const NoOpCrashReporter();
 
   Map<String, dynamic> roomListParser(String? jsonString) {
     final Map<String, dynamic> data = <String, dynamic>{
@@ -347,7 +351,7 @@ class StdsysParser {
 
         data['_temp_time'] = tempTime;
       } catch (e, s) {
-        CrashlyticsUtil.instance.recordError(e, s, reason: 'Parse grid failed');
+        reporter.recordError(e, s, reason: 'Parse grid failed');
       }
     }
 
@@ -393,8 +397,7 @@ class StdsysParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtil.instance
-          .recordError(e, s, reason: 'Final merge error: $tmpCourseName');
+      reporter.recordError(e, s, reason: 'Final merge error: $tmpCourseName');
     }
 
     return data;

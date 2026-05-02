@@ -1,11 +1,10 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:ap_common/ap_common.dart';
-import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
+import 'package:nkust_ap/api/crash_reporter.dart';
 import 'package:nkust_ap/api/parser/parser_utils.dart';
 
 //TODO confirm this rule
@@ -20,6 +19,11 @@ class WebApParser {
   static WebApParser get instance {
     return _instance ??= WebApParser();
   }
+
+  /// Sink for parser-level errors. Replaced at app bootstrap with a
+  /// Firebase-backed implementation; defaults to a no-op so tests and
+  /// pure-Dart consumers never need to mock it.
+  CrashReporter reporter = const NoOpCrashReporter();
 
   int apLoginParser(dynamic html) {
     /*
@@ -101,13 +105,7 @@ class WebApParser {
       data['name'] = tdElements[10].text.replaceAll('姓　　名：', '');
       data['pictureUrl'] = 'https://webap.nkust.edu.tw/nkust$imageUrl';
     } catch (e, s) {
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        CrashlyticsUtil.instance.recordError(
-          e,
-          s,
-          reason: document.outerHtml,
-        );
-      }
+      reporter.recordError(e, s, reason: document.outerHtml);
     }
     return data;
   }
@@ -265,14 +263,12 @@ class WebApParser {
       }
     } catch (e, s) {
       if (kDebugMode) rethrow;
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await CrashlyticsUtil.instance.recordError(
-          e,
-          s,
-          reason: 'Section A = '
-              "${document.getElementsByTagName("table")[0].innerHtml}",
-        );
-      }
+      reporter.recordError(
+        e,
+        s,
+        reason: 'Section A = '
+            "${document.getElementsByTagName("table")[0].innerHtml}",
+      );
     }
 
     //the second talbe.
@@ -318,17 +314,11 @@ class WebApParser {
       }
     } catch (e, s) {
       if (kDebugMode) rethrow;
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        final StringBuffer htmlStringBuffer = StringBuffer();
-        for (final Element value in timeCodeElements) {
-          htmlStringBuffer.write(value.innerHtml);
-        }
-        await CrashlyticsUtil.instance.recordError(
-          e,
-          s,
-          reason: htmlStringBuffer.toString(),
-        );
+      final StringBuffer htmlStringBuffer = StringBuffer();
+      for (final Element value in timeCodeElements) {
+        htmlStringBuffer.write(value.innerHtml);
       }
+      reporter.recordError(e, s, reason: htmlStringBuffer.toString());
     }
     //make each day.
     final List<String> weekdays = <String>[
@@ -385,13 +375,7 @@ class WebApParser {
       }
     } catch (e, s) {
       if (kDebugMode) rethrow;
-      if (FirebaseCrashlyticsUtils.isSupported) {
-        await CrashlyticsUtil.instance.recordError(
-          e,
-          s,
-          reason: 'Section C = ${table2.innerHtml}',
-        );
-      }
+      reporter.recordError(e, s, reason: 'Section C = ${table2.innerHtml}');
     }
     return data;
   }
@@ -715,8 +699,7 @@ class WebApParser {
       }
       data.remove('_temp_time');
     } catch (e, s) {
-      CrashlyticsUtil.instance
-          .recordError(e, s, reason: 'course name = $tmpCourseName');
+      reporter.recordError(e, s, reason: 'course name = $tmpCourseName');
     }
 
     return data;

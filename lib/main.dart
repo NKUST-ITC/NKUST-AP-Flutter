@@ -10,8 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_ap/api/parser/ap_parser.dart';
+import 'package:nkust_ap/api/parser/stdsys_parser.dart';
+import 'package:nkust_ap/integrations/crawler/firebase_crash_reporter.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/models/crawler_selector.dart';
@@ -49,6 +53,11 @@ void main() async {
       (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
     ApiConfig.platformAdapterFactory = NativeAdapter.new;
   }
+  const FirebaseCrashReporter firebaseReporter = FirebaseCrashReporter();
+  Helper.instance.reporter = firebaseReporter;
+  WebApHelper.instance.reporter = firebaseReporter;
+  WebApParser.instance.reporter = firebaseReporter;
+  StdsysParser.instance.reporter = firebaseReporter;
   Helper.selector = CrawlerSelector.load();
   if (!kIsWeb && Platform.isAndroid) {
     HttpOverrides.global = MyHttpOverrides();

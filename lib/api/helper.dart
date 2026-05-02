@@ -8,6 +8,7 @@ import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nkust_ap/api/ap_helper.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/crash_reporter.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/leave_helper.dart';
 import 'package:nkust_ap/api/nkust_helper.dart';
@@ -62,6 +63,12 @@ class Helper {
 
   /// Registry for resolving capability providers at runtime.
   final ScraperRegistry registry = ScraperRegistry();
+
+  /// Sink for crawler-level errors (parser bugs, unexpected throws inside
+  /// [_call]). Defaults to no-op; main app wires a Firebase-backed
+  /// implementation at bootstrap and propagates it down to sub-helpers /
+  /// parsers.
+  CrashReporter reporter = const NoOpCrashReporter();
 
   /// Cleanup callbacks registered by sub-helpers.
   /// Called during [clearSetting] so each helper can reset its own state.
@@ -295,7 +302,7 @@ class Helper {
       _maybeRecordApException(translated, s);
       throw translated;
     } catch (e, s) {
-      CrashlyticsUtil.instance.recordError(e, s);
+      reporter.recordError(e, s);
       throw UnknownException(
         message: '${e.runtimeType}: $e',
         cause: e,
@@ -310,7 +317,7 @@ class Helper {
   /// keep the dashboard usable.
   void _maybeRecordApException(ApException e, StackTrace s) {
     if (e is ServerException || e is CaptchaException) {
-      CrashlyticsUtil.instance.recordError(e, s, reason: e.typeName);
+      reporter.recordError(e, s, reason: e.typeName);
     }
   }
 

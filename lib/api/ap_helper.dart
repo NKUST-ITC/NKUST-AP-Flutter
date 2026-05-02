@@ -9,6 +9,7 @@ import 'package:dio/io.dart';
 import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/ap_status_code.dart';
+import 'package:nkust_ap/api/crash_reporter.dart';
 import 'package:nkust_ap/api/safe_cookie_manager.dart';
 import 'package:nkust_ap/api/exceptions/api_exception.dart';
 import 'package:nkust_ap/api/helper.dart';
@@ -45,6 +46,11 @@ class WebApHelper
   int get maxRelogins => 3;
 
   bool isLogin = false;
+
+  /// Sink for unexpected errors (parser bugs, etc.) hit during the captcha
+  /// retry loop. Defaults to no-op; main app wires a Firebase-backed
+  /// implementation at bootstrap.
+  CrashReporter reporter = const NoOpCrashReporter();
 
   //ignore: prefer_constructors_over_static_methods
   static WebApHelper get instance {
@@ -241,7 +247,7 @@ class WebApHelper
       } catch (e, s) {
         // Truly unexpected errors (parser bugs, etc.) are logged and
         // allowed to trigger another captcha attempt.
-        CrashlyticsUtil.instance.recordError(e, s);
+        reporter.recordError(e, s);
         log(e.toString());
       }
     }
