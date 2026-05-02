@@ -13,8 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/extensions/bus_reservations_data_ui_extension.dart';
 import 'package:nkust_ap/pages/study/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/study/reward_and_penalty_page.dart';

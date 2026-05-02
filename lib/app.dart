@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/pages/page.dart';
 import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';

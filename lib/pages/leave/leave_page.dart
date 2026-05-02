@@ -3,7 +3,6 @@ import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 
 class LeavePage extends StatefulWidget {
   static const String routerName = '/leave';

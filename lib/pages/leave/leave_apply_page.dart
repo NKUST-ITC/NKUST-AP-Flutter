@@ -690,7 +690,7 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       if (image != null) {
         proof = (
           bytes: await image!.readAsBytes(),
-          filename: 'proof_image.jpg',
+          filename: image!.name,
           mime: image!.mimeType ?? 'image/jpeg',
         );
       }

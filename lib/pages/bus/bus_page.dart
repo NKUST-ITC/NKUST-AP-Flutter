@@ -1,8 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/pages/bus/bus_rule_page.dart';
 import 'package:nkust_ap/pages/bus/bus_violation_records_page.dart';
 import 'package:nkust_ap/utils/global.dart';

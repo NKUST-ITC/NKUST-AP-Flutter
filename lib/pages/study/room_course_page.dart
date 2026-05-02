@@ -2,7 +2,6 @@ import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
 
 class EmptyRoomPage extends StatefulWidget {

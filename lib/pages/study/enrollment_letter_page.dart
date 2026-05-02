@@ -4,9 +4,7 @@ import 'dart:typed_data';
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
-import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class EnrollmentLetterPage extends StatefulWidget {
