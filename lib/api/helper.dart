@@ -103,9 +103,25 @@ class Helper {
     }
   }
 
+  /// One-shot apiHost override. Set this from app bootstrap *before* any
+  /// access to [Helper.instance] (or call [bootstrap] directly) so the
+  /// singleton picks up the user-configured backend host. Reading
+  /// `PreferenceUtil` is the app's responsibility — keeping it out of the
+  /// helper itself keeps the crawler layer free of preference-storage
+  /// dependencies.
+  static String? _bootstrapApiHost;
+
+  /// Call this once during app startup to configure the [Helper] singleton
+  /// with a runtime-resolved apiHost. Idempotent: subsequent calls reset
+  /// the bootstrap value but only take effect if `_instance` has not been
+  /// constructed yet.
+  static void bootstrap({String? apiHost}) {
+    _bootstrapApiHost = apiHost;
+  }
+
   //ignore: prefer_constructors_over_static_methods
   static Helper get instance {
-    return _instance ??= Helper();
+    return _instance ??= Helper(apiHost: _bootstrapApiHost);
   }
 
   /// Fires whenever any scraper helper (WebAP / Bus / Leave) completes a
@@ -118,12 +134,11 @@ class Helper {
   final StreamController<void> _reloginSuccessController =
       StreamController<void>.broadcast();
 
-  Helper() {
-    final String apiHost =
-        PreferenceUtil.instance.getString(Constants.apiHost, host);
+  Helper({String? apiHost}) {
+    final String resolvedHost = apiHost ?? host;
     dio = Dio(
       BaseOptions(
-        baseUrl: 'https://$apiHost/$version',
+        baseUrl: 'https://$resolvedHost/$version',
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
       ),
@@ -133,7 +148,7 @@ class Helper {
   }
 
   static void resetInstance() {
-    _instance = Helper();
+    _instance = Helper(apiHost: _bootstrapApiHost);
     cancelToken = CancelToken();
   }
 

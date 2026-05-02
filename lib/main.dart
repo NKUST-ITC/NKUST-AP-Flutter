@@ -53,6 +53,10 @@ void main() async {
       (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
     ApiConfig.platformAdapterFactory = NativeAdapter.new;
   }
+  Helper.bootstrap(
+    apiHost:
+        PreferenceUtil.instance.getString(Constants.apiHost, Helper.host),
+  );
   const FirebaseCrashReporter firebaseReporter = FirebaseCrashReporter();
   Helper.instance.reporter = firebaseReporter;
   WebApHelper.instance.reporter = firebaseReporter;
