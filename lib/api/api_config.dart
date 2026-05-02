@@ -1,11 +1,8 @@
 import 'dart:io';
 
-import 'package:ap_common/ap_common.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
-import 'package:flutter/foundation.dart';
-import 'package:native_dio_adapter/native_dio_adapter.dart';
 import 'package:nkust_ap/api/safe_cookie_manager.dart';
 
 class ApiConfig {
@@ -18,6 +15,16 @@ class ApiConfig {
 
   static const String defaultUserAgent =
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+  /// Optional HTTP adapter factory attached to every [Dio] this class
+  /// produces. The factory pattern (rather than a single shared instance)
+  /// matches the original behaviour where each helper got its own adapter.
+  ///
+  /// Wire this once at app bootstrap (e.g. to [NativeAdapter] for
+  /// iOS/macOS/Android cookie/redirect parity). Leave `null` for pure-Dart
+  /// contexts (web, tests, server-side) — Dio's built-in adapter will be
+  /// used.
+  static HttpClientAdapter Function()? platformAdapterFactory;
 
   static Dio createDio({
     String? baseUrl,
@@ -43,10 +50,9 @@ class ApiConfig {
       ),
     );
 
-    if (!kIsWeb && useNativeAdapter) {
-      if (Platform.isIOS || Platform.isMacOS || Platform.isAndroid) {
-        dio.httpClientAdapter = NativeAdapter();
-      }
+    final factory = platformAdapterFactory;
+    if (useNativeAdapter && factory != null) {
+      dio.httpClientAdapter = factory();
     }
 
     dio.interceptors.add(RetryInterceptor(dio: dio));
@@ -84,9 +90,9 @@ class ApiConfig {
   }
 
   static void setProxy(Dio dio, String proxyIP) {
-    if (kIsWeb) return;
-
-    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+    final adapter = dio.httpClientAdapter;
+    if (adapter is! IOHttpClientAdapter) return;
+    adapter.createHttpClient = () {
       final client = HttpClient();
       client.findProxy = (uri) => 'PROXY $proxyIP';
       client.badCertificateCallback = (cert, host, port) => true;

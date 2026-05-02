@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
+import 'package:native_dio_adapter/native_dio_adapter.dart';
+import 'package:nkust_ap/api/api_config.dart';
 import 'package:nkust_ap/api/helper.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
@@ -42,6 +44,10 @@ void main() async {
           //ignore: lines_longer_than_80_chars
           '141403473068-03ffk4hr8koq260iqvf45rnntnjg4tgc.apps.googleusercontent.com',
     );
+  }
+  if (!kIsWeb &&
+      (Platform.isIOS || Platform.isMacOS || Platform.isAndroid)) {
+    ApiConfig.platformAdapterFactory = NativeAdapter.new;
   }
   Helper.selector = CrawlerSelector.load();
   if (!kIsWeb && Platform.isAndroid) {
