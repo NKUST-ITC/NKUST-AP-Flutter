@@ -1,7 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/exceptions/api_exception.dart';
-import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';

@@ -1,0 +1,183 @@
+@Tags(<String>['live'])
+@TestOn('vm')
+library;
+
+import 'dart:io';
+
+import 'package:ap_common_core/ap_common_core.dart';
+import 'package:dio/dio.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:test/test.dart';
+
+import '_helpers.dart';
+
+/// Drives the full read-only crawler flow against the real WebAP /
+/// stdsys / acad systems with a real student account. Reads credentials
+/// from the environment so they never live in the repo:
+///
+///     NKUST_USER=...        # student id
+///     NKUST_PASS=...        # webap password
+///     dart test -P live -r expanded
+///
+/// Side-effecting endpoints (bus booking / cancellation, leave submit)
+/// are intentionally absent — running this test must never mutate state
+/// on the school's servers.
+void main() {
+  final String username = Platform.environment['NKUST_USER'] ?? '';
+  final String password = Platform.environment['NKUST_PASS'] ?? '';
+  final bool hasCredentials = username.isNotEmpty && password.isNotEmpty;
+  final String missingCredsReason =
+      'NKUST_USER / NKUST_PASS not set — set both env vars to run this test';
+
+  setUpAll(() async {
+    if (!hasCredentials) {
+      print('[live] no credentials in env — authenticated tests will skip');
+      return;
+    }
+
+    print('[live] configuring in-memory storage');
+    configureCrawlerStorage(InMemoryKeyValueStore());
+
+    // Force stdsys for userInfo / course / score / semester. WebAP's
+    // legacy `ag*` endpoints are unreliable / partially broken in
+    // production; stdsys is the path the app uses by default. Login
+    // itself still has to run through webap because that's the only
+    // entry point that issues a session.
+    print('[live] selector = stdsys for userInfo/course/score/semester');
+    Helper.selector = CrawlerSelector(
+      login: ScraperSource.webap,
+      userInfo: ScraperSource.stdsys,
+      course: ScraperSource.stdsys,
+      score: ScraperSource.stdsys,
+      semester: ScraperSource.stdsys,
+    );
+
+    print('[live] wiring EuclideanCaptchaSolver with FS-backed templates');
+    final EuclideanCaptchaSolver solver =
+        EuclideanCaptchaSolver(FileSystemTemplateProvider(findTemplateDir()));
+    WebApHelper.instance.captchaSolver = solver;
+    NKUSTHelper.instance.captchaSolver = solver;
+
+    // Verbose HTTP logging so failed parses are debuggable from the test
+    // output alone — opt in via NKUST_HTTP_LOG=1 to keep the default
+    // run quiet.
+    if (Platform.environment['NKUST_HTTP_LOG'] == '1') {
+      print('[live] !! NKUST_HTTP_LOG=1: dumps response bodies + cookies !!');
+      print('[live] !! never paste this output publicly — contains PII +');
+      print('[live] !! session cookies that grant access to the account.');
+      WebApHelper.instance.dio.interceptors.add(LogInterceptor(
+        request: false,
+        requestHeader: false,
+        requestBody: false,
+        responseHeader: true,
+        responseBody: true,
+        error: true,
+      ));
+    }
+
+    print('[live] login as ${redact(username)} (captcha retries up to 5×)');
+    final LoginResponse? login = await Helper.instance.login(
+      username: username,
+      password: password,
+    );
+    print('[live]   ← session expires at ${login?.expireTime}');
+    expect(login, isNotNull, reason: 'login() should return a LoginResponse');
+  });
+
+  test(
+    'getUsersInfo returns the authenticated student',
+    () async {
+      print('[live] webap→stdsys SSO + GET stdsys user-info page');
+      final UserInfo info = await Helper.instance.getUsersInfo();
+      print('[live]   ← id=${redact(info.id)} name=${redact(info.name)}');
+      print('[live]     dept=${redact(info.department)} '
+          'class=${redact(info.className)}');
+      print('[live]     pictureUrl=${info.pictureUrl == null ? '<null>' : '<set>'}');
+      expect(info.id, isNotEmpty);
+      expect(info.id.toUpperCase(), username.toUpperCase());
+      expect(info.name, isNotEmpty);
+    },
+    skip: hasCredentials ? false : missingCredsReason,
+    timeout: const Timeout(Duration(minutes: 1)),
+  );
+
+  test(
+    'getSemester returns the current and historical semesters',
+    () async {
+      print('[live] GET stdsys semester list');
+      final SemesterData data = await Helper.instance.getSemester();
+      print('[live]   ← ${data.semesters.length} semesters');
+      print('[live]     default: ${data.defaultSemester.year}/'
+          '${data.defaultSemester.value} '
+          '"${data.defaultSemester.text}"');
+      expect(data.semesters, isNotEmpty);
+      expect(data.defaultSemester.year, isNotEmpty);
+      expect(data.defaultSemester.value, isNotEmpty);
+    },
+    skip: hasCredentials ? false : missingCredsReason,
+    timeout: const Timeout(Duration(minutes: 1)),
+  );
+
+  test(
+    'getCourseTables returns courses for the current semester',
+    () async {
+      // Skip getSemester() — its `defaultSemester` is often last term's
+      // (the most recent one with a transcript), not the one the student
+      // is actually attending. Derive from wall-clock instead.
+      final Semester sem = currentAcademicSemester();
+      print('[live] GET stdsys course table for ${sem.year}/${sem.value} '
+          '(${sem.text})');
+      final CourseData courses = await Helper.instance.getCourseTables(
+        semester: sem,
+      );
+      print('[live]   ← ${courses.courses.length} courses, '
+          '${courses.timeCodes.length} time codes');
+      if (courses.courses.isEmpty) {
+        print('[live]     (empty — student may not be enrolled this term)');
+      } else {
+        // Course title is mildly identifying when paired with other
+        // redacted fields (dept + class), so mask it too.
+        final Course first = courses.courses.first;
+        print('[live]     e.g. "${redact(first.title)}" (location <set>)');
+      }
+      expect(courses.courses, isNotNull);
+      expect(courses.timeCodes, isNotNull);
+    },
+    skip: hasCredentials ? false : missingCredsReason,
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
+
+  test(
+    'getScores returns score data (or null for an empty semester)',
+    () async {
+      // Same wall-clock semester override as getCourseTables — the live
+      // default semester routinely points at last term.
+      final Semester sem = currentAcademicSemester();
+      print('[live] webap→stdsys SSO + PDF transcript for ${sem.year}/${sem.value} '
+          '(${sem.text})');
+      final ScoreData? scores = await Helper.instance.getScores(
+        semester: sem,
+      );
+      if (scores == null) {
+        print('[live]   ← null (no scores yet for this semester)');
+      } else {
+        // Counts are safe to print, individual scores are not.
+        print('[live]   ← ${scores.scores.length} score rows '
+            '(conduct/avg redacted)');
+      }
+      if (scores != null) {
+        expect(scores.scores, isNotNull);
+      }
+    },
+    // The stdsys score path returns a transcript PDF and decodes it via
+    // [PdfTextExtractor]; the only implementation we ship
+    // (`SyncfusionPdfTextExtractor`) transitively depends on `dart:ui`,
+    // which is not available under pure-Dart `dart test`. Run this from
+    // the Flutter app's smoke harness instead.
+    skip: !hasCredentials
+        ? missingCredsReason
+        : 'getScores via stdsys needs SyncfusionPdfTextExtractor '
+            '(Flutter-bound); test from the host app.',
+    timeout: const Timeout(Duration(minutes: 2)),
+  );
+}

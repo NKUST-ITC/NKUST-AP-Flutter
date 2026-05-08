@@ -1,4 +1,4 @@
-export 'package:nkust_ap/api/helper.dart';
+export 'package:nkust_crawler/nkust_crawler.dart';
 export 'package:nkust_ap/config/constants.dart';
 export 'package:nkust_ap/pages/page.dart';
 

@@ -7,6 +7,12 @@ analyzer:
     - lib/firebase_options.dart
     - lib/l10n/*.dart
     - lib/**/*.g.dart
+    # Sub-package has its own analysis_options.yaml + dev_dependencies
+    # (package:test, package:lint/strict.yaml). Running root-level
+    # `flutter analyze` here fails on test files because main app's pub
+    # resolution doesn't include the sub-package's dev deps. Each package
+    # is analysed in its own CI job (`cd packages/nkust_crawler && dart analyze`).
+    - packages/**
 
 linter:
   rules:

@@ -3,11 +3,7 @@ import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nkust_ap/api/parser/ap_parser.dart';
-import 'package:nkust_ap/api/parser/leave_parser.dart';
-import 'package:nkust_ap/api/parser/nkust_parser.dart';
-import 'package:nkust_ap/api/parser/stdsys_parser.dart';
-import 'package:nkust_ap/models/midterm_alerts_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 //ignore_for_file: lines_longer_than_80_chars
 

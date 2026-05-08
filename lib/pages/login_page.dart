@@ -1,8 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nkust_ap/api/ap_status_code.dart';
-import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/pages/search_student_id_page.dart';
 import 'package:nkust_ap/res/assets.dart';

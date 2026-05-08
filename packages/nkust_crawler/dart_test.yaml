@@ -1,0 +1,23 @@
+# Live integration tests hit nkust.edu.tw / acad.nkust.edu.tw etc.
+# directly. They are excluded from the default `dart test` run; opt in
+# with one of the presets below:
+#
+#     dart test -P live              # all live tests (needs creds for some)
+#     dart test -P live-anonymous    # only the no-credentials ones
+#
+# Authenticated live tests additionally require:
+#     NKUST_USER=...
+#     NKUST_PASS=...
+exclude_tags: "live || live-anonymous"
+
+presets:
+  live:
+    exclude_tags: "__never__"
+  live-anonymous:
+    exclude_tags: "__never__"
+    include_tags: "live-anonymous"
+
+tags:
+  live:
+  live-anonymous:
+  __never__:
