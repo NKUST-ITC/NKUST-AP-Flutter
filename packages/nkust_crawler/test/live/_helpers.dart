@@ -82,33 +82,38 @@ String redact(String? value) {
   return '${value[0]}${"•" * (value.length - 2)}${value[value.length - 1]}';
 }
 
-/// Adds the NKUST in-house TWCA root certificate to
-/// `SecurityContext.defaultContext` so that HTTPS handshakes against
-/// `acad.nkust.edu.tw` (and any other host signed by the same chain)
-/// don't fail with `CERTIFICATE_VERIFY_FAILED` on CI / desktop runners
-/// that ship with the upstream Mozilla CA bundle only.
+/// Disables TLS certificate verification for the entire test process.
 ///
-/// The Flutter app does this from `main.dart` via `PlatformAssetBundle`;
-/// from inside `dart test` we read the same `.cer` file straight off
-/// disk. No-op if the cert can't be located (so the test still tries to
-/// connect and produces a useful error message if the host has actually
-/// changed its certificate).
-void trustNkustCa() {
-  for (final String candidate in <String>[
-    'assets/ca/twca_nkust.cer',
-    '../../assets/ca/twca_nkust.cer',
-  ]) {
-    final File file = File(candidate);
-    if (file.existsSync()) {
-      SecurityContext.defaultContext.setTrustedCertificatesBytes(
-        file.readAsBytesSync(),
-      );
-      return;
-    }
+/// NKUST hosts (notably `acad.nkust.edu.tw`) are signed by TWCA, which
+/// the CI Ubuntu runner's default Mozilla CA bundle does not trust. We
+/// previously shipped a bundled `assets/ca/twca_nkust.cer` and added it
+/// to `SecurityContext.defaultContext`, but the school's certs rotate
+/// on their own schedule (~annually) and there is no stable feed for
+/// the new chain, so the bundled cert silently goes stale and tests
+/// start failing weeks later for the same reason.
+///
+/// For *live tests against the school* the pragmatic answer is to
+/// accept any certificate the server presents — we're not validating
+/// MITM resistance here, we're validating that endpoints respond and
+/// that parsers still understand the response. Production app code is
+/// NOT affected (this only runs inside `dart test`, never wired from
+/// `main.dart`).
+///
+/// Works by installing an [HttpOverrides] that flips
+/// `badCertificateCallback` on every [HttpClient] the test process
+/// constructs — which covers Dio's default `IOHttpClientAdapter` as
+/// well as raw `dart:io` HttpClient usage.
+void acceptAnyTlsCertificate() {
+  HttpOverrides.global = _AcceptAnyCertHttpOverrides();
+}
+
+class _AcceptAnyCertHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate _, String __, int ___) =>
+          true;
   }
-  // ignore: avoid_print
-  print('[live] WARNING: assets/ca/twca_nkust.cer not found relative to '
-      '${Directory.current.path}; acad.nkust.edu.tw handshake will fail.');
 }
 
 /// Locates `assets/eucdist/` regardless of whether the test is run from

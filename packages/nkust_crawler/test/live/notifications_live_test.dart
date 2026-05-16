@@ -13,8 +13,8 @@ import '_helpers.dart';
 /// HTML extractor still match the live server.
 void main() {
   setUpAll(() {
-    print('[live] trusting NKUST TWCA root certificate');
-    trustNkustCa();
+    print('[live] accepting any TLS cert (test process only)');
+    acceptAnyTlsCertificate();
     print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
   });

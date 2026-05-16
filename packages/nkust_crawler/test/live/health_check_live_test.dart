@@ -17,7 +17,7 @@ import '_helpers.dart';
 /// can classify failures (server-down vs parser-drift) by grepping the
 /// reporter output.
 void main() {
-  setUpAll(trustNkustCa);
+  setUpAll(acceptAnyTlsCertificate);
 
   final Dio healthDio = Dio(
     BaseOptions(
