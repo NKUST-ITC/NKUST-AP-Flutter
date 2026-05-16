@@ -82,6 +82,35 @@ String redact(String? value) {
   return '${value[0]}${"•" * (value.length - 2)}${value[value.length - 1]}';
 }
 
+/// Adds the NKUST in-house TWCA root certificate to
+/// `SecurityContext.defaultContext` so that HTTPS handshakes against
+/// `acad.nkust.edu.tw` (and any other host signed by the same chain)
+/// don't fail with `CERTIFICATE_VERIFY_FAILED` on CI / desktop runners
+/// that ship with the upstream Mozilla CA bundle only.
+///
+/// The Flutter app does this from `main.dart` via `PlatformAssetBundle`;
+/// from inside `dart test` we read the same `.cer` file straight off
+/// disk. No-op if the cert can't be located (so the test still tries to
+/// connect and produces a useful error message if the host has actually
+/// changed its certificate).
+void trustNkustCa() {
+  for (final String candidate in <String>[
+    'assets/ca/twca_nkust.cer',
+    '../../assets/ca/twca_nkust.cer',
+  ]) {
+    final File file = File(candidate);
+    if (file.existsSync()) {
+      SecurityContext.defaultContext.setTrustedCertificatesBytes(
+        file.readAsBytesSync(),
+      );
+      return;
+    }
+  }
+  // ignore: avoid_print
+  print('[live] WARNING: assets/ca/twca_nkust.cer not found relative to '
+      '${Directory.current.path}; acad.nkust.edu.tw handshake will fail.');
+}
+
 /// Locates `assets/eucdist/` regardless of whether the test is run from
 /// the repo root or from `packages/nkust_crawler/`.
 Directory findTemplateDir() {

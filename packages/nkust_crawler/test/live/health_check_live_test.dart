@@ -5,6 +5,8 @@ library;
 import 'package:dio/dio.dart';
 import 'package:test/test.dart';
 
+import '_helpers.dart';
+
 /// Liveness probes for every NKUST endpoint we depend on. No
 /// authentication, no parsing — just a plain GET that asserts the server
 /// answered below 500. If any of these fail, the school is having an
@@ -15,6 +17,8 @@ import 'package:test/test.dart';
 /// can classify failures (server-down vs parser-drift) by grepping the
 /// reporter output.
 void main() {
+  setUpAll(trustNkustCa);
+
   final Dio healthDio = Dio(
     BaseOptions(
       connectTimeout: const Duration(seconds: 10),

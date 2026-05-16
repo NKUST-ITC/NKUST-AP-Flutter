@@ -35,6 +35,9 @@ void main() {
       return;
     }
 
+    print('[live] trusting NKUST TWCA root certificate');
+    trustNkustCa();
+
     print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
 
