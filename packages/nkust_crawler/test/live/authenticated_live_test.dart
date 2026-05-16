@@ -35,6 +35,9 @@ void main() {
       return;
     }
 
+    print('[live] accepting any TLS cert (test process only)');
+    acceptAnyTlsCertificate();
+
     print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
 
