@@ -92,7 +92,7 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
     app = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(app.enrollmentLetter),
+        title: Text(app.historyTranscript),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8),
@@ -275,7 +275,7 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
       setState(() {
         pdfState = PdfState.error;
         state = _State.error;
-        // Keep the 404 special case (no enrollment letter available for
+        // Keep the 404 special case (no data available for
         // this student) mapped to a dedicated user message.
         if (e is ServerException && e.httpStatusCode == 404) {
           errorMessage = app.noData;
