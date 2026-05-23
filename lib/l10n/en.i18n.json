@@ -205,5 +205,8 @@
   "projectCount": "${count} projects",
   "openSourceLicense": "Open Source License",
   "nkustLocation": "NKUST",
-  "otherBuilding": "Other"
+  "otherBuilding": "Other",
+  "notOpened": "Data of this semester is not available at this moment.",
+  "singleTranscript": "Semester Transcript",
+  "historyTranscript": "Historical Transcript"
 }
