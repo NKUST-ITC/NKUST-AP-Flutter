@@ -205,5 +205,8 @@
   "projectCount": "${count} 個專案",
   "openSourceLicense": "開源授權",
   "nkustLocation": "高雄科技大學",
-  "otherBuilding": "其他"
+  "otherBuilding": "其他",
+  "notOpened": "該學期尚未開放查詢",
+  "singleTranscript": "單學期成績單",
+  "historyTranscript": "歷年成績單"
 }
