@@ -189,6 +189,9 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
             }
             AnalyticsUtil.instance.logEvent('retry_click');
           },
+          child: Center(
+            child: Text(errorMessage ?? app.tapToRetry),
+          ),
         );
       case _State.finish:
         return PdfView(
