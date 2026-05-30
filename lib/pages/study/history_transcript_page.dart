@@ -33,10 +33,6 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
   Semester? selectSemester;
   SemesterData? semesterData;
   final SemesterPickerController _pickerController = SemesterPickerController();
-  String get courseNotifyCacheKey => PreferenceUtil.instance.getString(
-        ApConstants.currentSemesterCode,
-        ApConstants.semesterLatest,
-      );
   String? errorMessage;
 
   @override
