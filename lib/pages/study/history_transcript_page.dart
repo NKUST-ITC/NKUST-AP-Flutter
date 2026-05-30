@@ -258,7 +258,7 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
             setState(() {
             pdfState = PdfState.error;
             state = _State.finish;
-            errorMessage = ap.noData;
+            errorMessage = app.noData;
             _pickerController.markSemesterEmpty(selectSemester!);
           });
           return;

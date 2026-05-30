@@ -258,7 +258,7 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
             setState(() {
             pdfState = PdfState.error;
             state = _State.finish;
-            errorMessage = ap.noData;
+            errorMessage = app.noData;
             _pickerController.markSemesterEmpty(selectSemester!);
           });
           return;
