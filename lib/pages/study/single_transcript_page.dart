@@ -26,6 +26,7 @@ class SingleTranscriptPage extends StatefulWidget {
 }
 
 class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
+  bool _isFetching = false;
   _State state = _State.loading;
   PdfState pdfState = PdfState.loading;
   late NkustLocalizations app;
@@ -207,12 +208,16 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
   }
 
   Future<void> _getTranscriptData() async {
+    if (_isFetching) return;
+
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
       return;
     }
+
+    _isFetching = true;
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     try {
@@ -282,6 +287,8 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
           errorMessage = e.toLocalizedMessage(context);
         }
       });
+    } finally {
+      _isFetching = false;
     }
   }
 }
