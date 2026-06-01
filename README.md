@@ -127,3 +127,21 @@ flowchart TD
 
 > **注意：** Android 和 iOS/macOS 正式版均需人工進行最終發布動作，CI/CD 只負責打包與上傳，不會自動對外公開。
 
+## 第三方套件授權聲明
+
+### Syncfusion® Flutter
+
+本專案使用 [syncfusion_flutter_pdf](https://pub.dev/packages/syncfusion_flutter_pdf) 等 Syncfusion® Flutter 套件。  
+該套件採用 [Syncfusion® Community License](https://www.syncfusion.com/content/downloads/syncfusion_license.pdf) 授權，而非 MIT / Apache 等寬鬆授權。
+
+**本專案已通過 Syncfusion 官方社群授權審核，可合法使用上述套件。**
+
+適用條件（供 Fork 或二次使用者確認）：
+
+- 年度總營收低於 1,000,000 美元
+- 開發人員少於 5 人
+- 需同意並遵守 [Syncfusion 使用條款](https://www.syncfusion.com/content/downloads/syncfusion_license.pdf)
+
+若您 Fork、衍生或二次使用本專案，請先確認您的使用情境是否仍符合上述條件。  
+若不符合，請至 Syncfusion 購買商業授權，或改用其他替代套件。
+已依照 issue 建議內容補上 README 授權聲明，PR 詳見 #376。
