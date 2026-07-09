@@ -246,6 +246,9 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get busRuleFineTitle => '罰金\n';
 	@override String get busRuleFineRule => '• 違反罰金の計算：最初の3回は無点、4回目から違反点数を記録、各点は運賃相当の罰金\n• 違反点数は学期末まで統計（前期1/31、後期8/31）、新学期で再計算。罰金未払いの場合、翌学期は予約権限停止\n• 罰金は違反明細を印刷後、自動支払機または総務処出納組で支払い\n• 違反点数に疑問がある場合、違反発生日から10日以内に総務処事務組で確認してください\n';
 	@override String get otherBuilding => 'その他';
+	@override String get notOpened => 'この学期はまだ閲覧できません';
+	@override String get singleTranscript => '学期成績証明書';
+	@override String get historyTranscript => '通算成績証明書';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -463,6 +466,9 @@ extension on NkustLocalizationsJa {
 			'busRuleFineTitle' => '罰金\n',
 			'busRuleFineRule' => '• 違反罰金の計算：最初の3回は無点、4回目から違反点数を記録、各点は運賃相当の罰金\n• 違反点数は学期末まで統計（前期1/31、後期8/31）、新学期で再計算。罰金未払いの場合、翌学期は予約権限停止\n• 罰金は違反明細を印刷後、自動支払機または総務処出納組で支払い\n• 違反点数に疑問がある場合、違反発生日から10日以内に総務処事務組で確認してください\n',
 			'otherBuilding' => 'その他',
+			'notOpened' => 'この学期はまだ閲覧できません',
+			'singleTranscript' => '学期成績証明書',
+			'historyTranscript' => '通算成績証明書',
 			_ => null,
 		};
 	}

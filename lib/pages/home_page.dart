@@ -21,6 +21,8 @@ import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:nkust_ap/pages/study/single_transcript_page.dart';
+import 'package:nkust_ap/pages/study/history_transcript_page.dart';
 
 class HomePage extends StatefulWidget {
   static const String routerName = '/home';
@@ -298,6 +300,22 @@ class HomePageState extends State<HomePage> {
               title: ap.score,
               onTap: () => _openPage(
                 ScorePage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.assignment,
+              title: app.singleTranscript,
+              onTap: () => _openPage(
+                const SingleTranscriptPage(),
+                needLogin: true,
+              ),
+            ),
+            DrawerSubMenuItem(
+              icon: ApIcon.assignment,
+              title: app.historyTranscript,
+              onTap: () => _openPage(
+                const HistoryTranscriptPage(),
                 needLogin: true,
               ),
             ),

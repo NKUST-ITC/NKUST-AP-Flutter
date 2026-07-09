@@ -246,6 +246,9 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get openSourceLicense => 'Open Source License';
 	@override String get nkustLocation => 'NKUST';
 	@override String get otherBuilding => 'Other';
+	@override String get notOpened => 'Data of this semester is not available at this moment.';
+	@override String get singleTranscript => 'Semester Transcript';
+	@override String get historyTranscript => 'Historical Transcript';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -463,6 +466,9 @@ extension on NkustLocalizationsEn {
 			'openSourceLicense' => 'Open Source License',
 			'nkustLocation' => 'NKUST',
 			'otherBuilding' => 'Other',
+			'notOpened' => 'Data of this semester is not available at this moment.',
+			'singleTranscript' => 'Semester Transcript',
+			'historyTranscript' => 'Historical Transcript',
 			_ => null,
 		};
 	}

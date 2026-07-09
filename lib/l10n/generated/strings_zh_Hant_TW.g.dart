@@ -655,6 +655,15 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 
 	/// zh-Hant-TW: '其他'
 	String get otherBuilding => '其他';
+
+	/// zh-Hant-TW: '該學期尚未開放查詢'
+	String get notOpened => '該學期尚未開放查詢';
+
+	/// zh-Hant-TW: '單學期成績單'
+	String get singleTranscript => '單學期成績單';
+
+	/// zh-Hant-TW: '歷年成績單'
+	String get historyTranscript => '歷年成績單';
 }
 
 /// The flat map containing all translations for locale <zh-Hant-TW>.
@@ -872,6 +881,9 @@ extension on NkustLocalizations {
 			'openSourceLicense' => '開源授權',
 			'nkustLocation' => '高雄科技大學',
 			'otherBuilding' => '其他',
+			'notOpened' => '該學期尚未開放查詢',
+			'singleTranscript' => '單學期成績單',
+			'historyTranscript' => '歷年成績單',
 			_ => null,
 		};
 	}
