@@ -6,6 +6,7 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:ap_common_core/ap_common_core.dart';
 import 'package:nkust_crawler/src/abstractions/crash_reporter.dart';
+import 'package:nkust_crawler/src/models/student_id_query_result.dart';
 import 'package:nkust_crawler/src/parsers/parser_utils.dart';
 
 class StdsysParser {
@@ -45,6 +46,57 @@ class StdsysParser {
 
     return data;
   }
+
+  /// Parses the page returned by `POST /student/QueryStudentId/ShowResult`.
+  ///
+  /// The view has no stable ids or data attributes — it renders either a
+  /// bootstrap alert with the server's own message (查無此人 / 機器人驗證失敗)
+  /// or a 姓名 / 學號 pair. Matching on the labels instead of the markup keeps
+  /// this working when the school reshuffles the layout, which it does often.
+  StudentIdQueryResult queryStudentIdResultParser(String? rawHtml) {
+    if (rawHtml == null || rawHtml.isEmpty) {
+      return const StudentIdQueryResult.failure();
+    }
+
+    final Document document = parse(rawHtml);
+    final String text = _flattenText(document.body ?? document.documentElement);
+
+    final RegExpMatch? idMatch =
+        RegExp(r'學號[：:\s]*([A-Za-z]?\d{6,12})').firstMatch(text);
+
+    if (idMatch != null) {
+      final RegExpMatch? nameMatch =
+          RegExp(r'姓名[：:\s]*([^\s：:]{1,20})').firstMatch(text);
+      return StudentIdQueryResult.success(
+        id: idMatch.group(1)!,
+        name: nameMatch?.group(1),
+      );
+    }
+
+    final Element? alert = document.querySelector('.alert');
+    final String message = _collapse(alert?.text ?? '');
+
+    return StudentIdQueryResult.failure(message.isEmpty ? null : message);
+  }
+
+  /// Element boundaries become whitespace, so label and value stay separate
+  /// words no matter whether the server renders them in one text node
+  /// (`姓名：王小明`) or in sibling table cells. [Element.text] glues them
+  /// together and would make the label regexes capture both at once.
+  String _flattenText(Node? node) => _collapse(_writeText(node));
+
+  String _writeText(Node? node) {
+    if (node == null) return '';
+    if (node is Text) return node.text;
+    if (node is Element) {
+      final String tag = node.localName ?? '';
+      if (tag == 'script' || tag == 'style') return '';
+    }
+    return node.nodes.map(_writeText).join(' ');
+  }
+
+  String _collapse(String text) =>
+      text.replaceAll(RegExp(r'\s+'), ' ').trim();
 
   Map<String, dynamic> studentCourseTableParser(dynamic html) {
     dynamic rawHtml;
