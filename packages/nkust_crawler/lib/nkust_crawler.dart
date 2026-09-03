@@ -28,6 +28,7 @@ export 'src/helpers/ap_helper.dart';
 export 'src/helpers/leave_helper.dart';
 export 'src/helpers/nkust_helper.dart';
 export 'src/helpers/stdsys_helper.dart';
+export 'src/helpers/student_id_query_helper.dart';
 export 'src/helpers/vms_bus_helper.dart';
 
 // Capabilities

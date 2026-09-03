@@ -11,12 +11,14 @@ import 'package:nkust_crawler/src/exceptions/api_exception.dart';
 import 'package:nkust_crawler/src/helpers/leave_helper.dart';
 import 'package:nkust_crawler/src/helpers/nkust_helper.dart';
 import 'package:nkust_crawler/src/helpers/stdsys_helper.dart';
+import 'package:nkust_crawler/src/helpers/student_id_query_helper.dart';
 import 'package:nkust_crawler/src/helpers/vms_bus_helper.dart';
 import 'package:nkust_crawler/src/models/booking_bus_data.dart';
 import 'package:nkust_crawler/src/models/bus_violation_records_data.dart';
 import 'package:nkust_crawler/src/models/cancel_bus_data.dart';
 import 'package:nkust_crawler/src/models/crawler_selector.dart';
 import 'package:nkust_crawler/src/models/leave_data.dart';
+import 'package:nkust_crawler/src/models/student_id_query_result.dart';
 import 'package:nkust_crawler/src/models/leave_submit_data.dart';
 import 'package:nkust_crawler/src/models/leave_submit_info_data.dart';
 import 'package:nkust_crawler/src/models/login_response.dart';
@@ -530,6 +532,22 @@ class Helper {
   }) async {
     return _call(() async {
       return NKUSTHelper.instance.getNotifications(page);
+    });
+  }
+
+  /// Student-id lookup. [turnstileToken] must come from a WebView that
+  /// completed the Cloudflare challenge on the query page.
+  Future<StudentIdQueryResult> queryStudentId({
+    required String rocId,
+    required DateTime birthday,
+    required String turnstileToken,
+  }) async {
+    return _call(() async {
+      return StudentIdQueryHelper.instance.query(
+        rocId: rocId,
+        birthday: birthday,
+        turnstileToken: turnstileToken,
+      );
     });
   }
 
