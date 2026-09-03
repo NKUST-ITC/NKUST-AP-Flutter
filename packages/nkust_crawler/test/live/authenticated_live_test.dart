@@ -59,7 +59,6 @@ void main() {
     final EuclideanCaptchaSolver solver =
         EuclideanCaptchaSolver(FileSystemTemplateProvider(findTemplateDir()));
     WebApHelper.instance.captchaSolver = solver;
-    NKUSTHelper.instance.captchaSolver = solver;
 
     // Verbose HTTP logging so failed parses are debuggable from the test
     // output alone — opt in via NKUST_HTTP_LOG=1 to keep the default

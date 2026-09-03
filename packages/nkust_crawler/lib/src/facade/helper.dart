@@ -533,18 +533,6 @@ class Helper {
     });
   }
 
-  Future<UserInfo> searchUsername({
-    required String rocId,
-    required DateTime birthday,
-  }) async {
-    return _call(() async {
-      return NKUSTHelper.instance.getUsername(
-        rocId: rocId,
-        birthday: birthday,
-      );
-    });
-  }
-
   Future<LeaveData> getLeaves({
     required Semester semester,
   }) async {

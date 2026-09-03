@@ -66,6 +66,7 @@ export 'src/models/models.dart';
 export 'src/models/reward_and_penalty_data.dart';
 export 'src/models/room_data.dart';
 export 'src/models/schedule_data.dart';
+export 'src/models/student_id_query_result.dart';
 
 // Parsers
 export 'src/parsers/ap_parser.dart';
