@@ -9,10 +9,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
-import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/app.dart';
 import 'package:nkust_ap/config/constants.dart';
-import 'package:nkust_ap/models/crawler_selector.dart';
+import 'package:nkust_ap/integrations/crawler/crawler_bootstrap.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -36,6 +36,7 @@ void main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
+  bootstrapCrawler();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(
       clientId:

@@ -1,7 +1,7 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/exceptions/api_exception.dart';
-import 'package:nkust_ap/api/helper.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:nkust_ap/pages/query_student_id_web_view_page.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -161,33 +161,39 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
     setState(() => isSearching = true);
     AnalyticsUtil.instance.logEvent('search_username_click');
 
-    try {
-      final UserInfo data = await Helper.instance.searchUsername(
-        rocId: _id.text,
-        birthday: birthday,
-      );
-      if (!mounted) return;
-      setState(() => isSearching = false);
-      if (isAutoFill) {
-        Navigator.pop(context, data.id);
-      } else {
-        _showResultDialog(
-          context.t.searchStudentIdFormat(
-            name: data.name ?? '',
-            id: data.id,
-          ),
-        );
-      }
-    } on ApException catch (e) {
-      if (!mounted) return;
-      setState(() => isSearching = false);
-      if (e is CancelledException) return;
-      // 404 means "no match found" — surface the server's own message
-      // (e.g. "查無此人") instead of the generic ap.unknownError.
-      final bool isNotFound = e is ServerException && e.httpStatusCode == 404;
+    final StudentIdQueryResult? result =
+        await Navigator.push<StudentIdQueryResult>(
+      context,
+      MaterialPageRoute<StudentIdQueryResult>(
+        builder: (_) => QueryStudentIdWebViewPage(
+          rocId: _id.text,
+          birthday: birthday,
+        ),
+      ),
+    );
+
+    if (!mounted) return;
+    setState(() => isSearching = false);
+
+    // Popped without a result — the user backed out of the challenge page.
+    if (result == null) return;
+
+    if (!result.isSuccess) {
       _showResultDialog(
-        isNotFound ? e.message : context.ap.unknownError,
+        result.message ?? context.ap.unknownError,
         showFirstHint: false,
+      );
+      return;
+    }
+
+    if (isAutoFill) {
+      Navigator.pop(context, result.id);
+    } else {
+      _showResultDialog(
+        context.t.searchStudentIdFormat(
+          name: result.name ?? '',
+          id: result.id!,
+        ),
       );
     }
   }

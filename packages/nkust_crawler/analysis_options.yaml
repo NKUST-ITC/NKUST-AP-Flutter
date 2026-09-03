@@ -1,0 +1,6 @@
+include: package:lint/strict.yaml
+
+linter:
+  rules:
+    public_member_api_docs: false
+    avoid_classes_with_only_static_members: false

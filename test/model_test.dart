@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nkust_ap/models/leave_data.dart';
-import 'package:nkust_ap/models/midterm_alerts_data.dart';
-import 'package:nkust_ap/models/reward_and_penalty_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 //ignore_for_file: lines_longer_than_80_chars
 

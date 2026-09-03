@@ -389,6 +389,12 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '查詢學號'
 	String get searchStudentId => '查詢學號';
 
+	/// zh-Hant-TW: '學號查詢驗證'
+	String get studentIdQueryVerify => '學號查詢驗證';
+
+	/// zh-Hant-TW: '請完成機器人驗證，通過後會自動查詢'
+	String get studentIdQueryVerifyHint => '請完成機器人驗證，通過後會自動查詢';
+
 	/// zh-Hant-TW: '學生證條碼'
 	String get studentIdBarcode => '學生證條碼';
 
@@ -783,6 +789,8 @@ extension on NkustLocalizations {
 			'needHelp' => '需要幫助嗎？',
 			'selectReportOption' => '選擇下方選項來回報問題或提供建議',
 			'searchStudentId' => '查詢學號',
+			'studentIdQueryVerify' => '學號查詢驗證',
+			'studentIdQueryVerifyHint' => '請完成機器人驗證，通過後會自動查詢',
 			'studentIdBarcode' => '學生證條碼',
 			'useStudentIdInLibrary' => '請於圖書館使用此學號',
 			'tapToLogin' => '點擊登入',

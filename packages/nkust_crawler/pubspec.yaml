@@ -1,0 +1,27 @@
+name: nkust_crawler
+description: Pure-Dart NKUST web scraping toolkit (webap / stdsys / leave / vms-bus)
+version: 0.1.0-dev.0
+publish_to: none
+
+environment:
+  sdk: ">=3.6.0 <4.0.0"
+
+dependencies:
+  ap_common_core: ^1.0.1-dev.9
+  cookie_jar: ^4.0.0
+  crypto: ^3.0.2
+  dio: ^5.8.0+1
+  html: ^0.15.0
+  http: ">=0.13.3 <2.0.0"
+  http_parser: ^4.0.0
+  image: ^4.0.2
+  intl: ">=0.17.0 <1.0.0"
+  json_annotation: ^4.6.0
+  sprintf: ^7.0.0
+
+dev_dependencies:
+  build_runner: ^2.1.11
+  json_serializable: ^6.3.0
+  lint: ^2.1.2
+  mocktail: ^1.0.0
+  test: ^1.24.0

@@ -1,0 +1,88 @@
+import 'dart:convert';
+
+import 'package:json_annotation/json_annotation.dart';
+import 'package:nkust_crawler/src/abstractions/key_value_store.dart';
+
+part 'bus_reservations_data.g.dart';
+
+@JsonSerializable()
+class BusReservationsData {
+  @JsonKey(name: 'data')
+  List<BusReservation> reservations;
+
+  BusReservationsData({
+    required this.reservations,
+  });
+
+  factory BusReservationsData.fromJson(Map<String, dynamic> json) =>
+      _$BusReservationsDataFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BusReservationsDataToJson(this);
+
+  factory BusReservationsData.fromRawJson(String str) =>
+      BusReservationsData.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
+
+  String toRawJson() => jsonEncode(toJson());
+
+  factory BusReservationsData.sample() {
+    return BusReservationsData.fromRawJson(
+      '{ "data": [ { "dateTime": "2019/03/17T16:51:57Z", "endTime": "2019/03/14T08:20:00Z", "cancelKey": "2004434", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T00:20:00Z", "endTime": "2019/03/17T09:20:00Z", "cancelKey": "2006005", "start": "建工", "state": "0", "travelState": "0" }, { "dateTime": "2019/03/18T08:40:00Z", "endTime": "2019/03/18T03:40:00Z", "cancelKey": "2006006", "start": "燕巢", "state": "0", "travelState": "0" } ] }',
+    );
+  }
+
+  static const String _prefKey = 'pref_bus_reservevations_data';
+
+  // Waiting setString support Map.
+  void save(String? tag) {
+    crawlerStorage.setString('${_prefKey}_$tag', toRawJson());
+  }
+
+  static BusReservationsData? load(String? tag) {
+    final String rawString = crawlerStorage.getString('${_prefKey}_$tag', '');
+    if (rawString == '') {
+      return null;
+    } else {
+      return BusReservationsData.fromRawJson(rawString);
+    }
+  }
+}
+
+@JsonSerializable()
+class BusReservation {
+  String dateTime;
+  String cancelKey;
+  String start;
+  String end;
+  String state;
+  String travelState;
+
+  BusReservation({
+    required this.dateTime,
+    required this.cancelKey,
+    required this.start,
+    required this.end,
+    required this.state,
+    required this.travelState,
+  });
+
+  factory BusReservation.fromJson(Map<String, dynamic> json) =>
+      _$BusReservationFromJson(json);
+
+  Map<String, dynamic> toJson() => _$BusReservationToJson(this);
+
+  factory BusReservation.fromRawJson(String str) => BusReservation.fromJson(
+        json.decode(str) as Map<String, dynamic>,
+      );
+
+  String toRawJson() => jsonEncode(toJson());
+
+  static List<BusReservation> toList(List<Map<String, dynamic>> jsonArray) {
+    final List<BusReservation> list = <BusReservation>[];
+    for (final Map<String, dynamic> item in jsonArray) {
+      list.add(BusReservation.fromJson(item));
+    }
+    return list;
+  }
+}

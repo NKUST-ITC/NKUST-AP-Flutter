@@ -5,7 +5,7 @@ import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:nkust_ap/api/leave_helper.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 /// Single stable Chrome UA used by the leave.nkust.edu.tw WebView login
 /// flow. Previously came from [MobileNkustHelper.userAgentList]'s random

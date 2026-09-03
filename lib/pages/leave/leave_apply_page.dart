@@ -5,12 +5,8 @@ import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
-import 'package:nkust_ap/models/error_response.dart';
-import 'package:nkust_ap/models/leave_campus_data.dart';
-import 'package:nkust_ap/models/leave_submit_data.dart';
-import 'package:nkust_ap/models/leave_submit_info_data.dart';
 import 'package:nkust_ap/pages/leave/pick_tutor_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:sprintf/sprintf.dart';
@@ -690,9 +686,17 @@ class LeaveApplyPageState extends State<LeaveApplyPage>
       barrierDismissible: false,
     );
     try {
+      LeaveProofImage? proof;
+      if (image != null) {
+        proof = (
+          bytes: await image!.readAsBytes(),
+          filename: image!.name,
+          mime: image!.mimeType ?? 'image/jpeg',
+        );
+      }
       final Response<dynamic>? res = await Helper.instance.sendLeavesSubmit(
         data: data,
-        image: image,
+        image: proof,
       );
       Navigator.of(context, rootNavigator: true).pop();
       DialogUtils.showDefault(

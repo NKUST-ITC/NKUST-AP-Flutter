@@ -1,6 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nkust_ap/api/exceptions/api_exception.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/l10n/nkust_localizations.dart';
 
 /// Maps a typed [ApException] to the best-fit user-facing message, pulling

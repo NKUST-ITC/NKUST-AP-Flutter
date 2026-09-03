@@ -3,11 +3,7 @@ import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nkust_ap/api/parser/ap_parser.dart';
-import 'package:nkust_ap/api/parser/leave_parser.dart';
-import 'package:nkust_ap/api/parser/nkust_parser.dart';
-import 'package:nkust_ap/api/parser/stdsys_parser.dart';
-import 'package:nkust_ap/models/midterm_alerts_data.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
 
 //ignore_for_file: lines_longer_than_80_chars
 
@@ -339,6 +335,60 @@ void main() {
         sectionTimes4.every((dynamic st) => st['weekday'] == 1),
         isTrue,
       );
+    });
+  });
+
+  // ─── StdsysParser: queryStudentIdResultParser ────────────────────────
+  group('StdsysParser.queryStudentIdResultParser', () {
+    test('reports the server message when Turnstile verification fails', () {
+      final String html =
+          File('assets_test/stdsys/query_student_id_bot_failed.html')
+              .readAsStringSync();
+
+      final StudentIdQueryResult result =
+          StdsysParser.instance.queryStudentIdResultParser(html);
+
+      expect(result.isSuccess, isFalse);
+      expect(result.id, isNull);
+      expect(result.message, contains('機器人驗證失敗'));
+    });
+
+    // Synthetic markup: a real success page needs a valid 身分證號 to capture.
+    // Both shapes the view could plausibly render are covered so a layout
+    // change on the school's side is less likely to break the lookup.
+    test('parses 姓名 / 學號 rendered as inline text', () {
+      const String html = '<html><body><div class="card-body">'
+          '<div class="alert alert-success">姓名：王小明　學號：C109123456</div>'
+          '</div></body></html>';
+
+      final StudentIdQueryResult result =
+          StdsysParser.instance.queryStudentIdResultParser(html);
+
+      expect(result.isSuccess, isTrue);
+      expect(result.id, 'C109123456');
+      expect(result.name, '王小明');
+    });
+
+    test('parses 姓名 / 學號 rendered as table cells', () {
+      const String html = '<html><body><table><tbody>'
+          '<tr><td>姓名</td><td>王小明</td></tr>'
+          '<tr><td>學號</td><td>C109123456</td></tr>'
+          '</tbody></table></body></html>';
+
+      final StudentIdQueryResult result =
+          StdsysParser.instance.queryStudentIdResultParser(html);
+
+      expect(result.isSuccess, isTrue);
+      expect(result.id, 'C109123456');
+      expect(result.name, '王小明');
+    });
+
+    test('fails without a message on empty input', () {
+      final StudentIdQueryResult result =
+          StdsysParser.instance.queryStudentIdResultParser('');
+
+      expect(result.isSuccess, isFalse);
+      expect(result.message, isNull);
     });
   });
 
