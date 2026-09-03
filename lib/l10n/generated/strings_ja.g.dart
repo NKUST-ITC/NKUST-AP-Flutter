@@ -139,6 +139,8 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get needHelp => 'お困りですか？';
 	@override String get selectReportOption => '問題を報告または提案してください';
 	@override String get searchStudentId => '学籍番号検索';
+	@override String get studentIdQueryVerify => '学籍番号照会の認証';
+	@override String get studentIdQueryVerifyHint => 'ロボット認証を完了してください。通過後に自動で照会します。';
 	@override String get studentIdBarcode => '学生証バーコード';
 	@override String get useStudentIdInLibrary => '図書館でこの学籍番号を使用';
 	@override String get tapToLogin => 'タップしてログイン';
@@ -356,6 +358,8 @@ extension on NkustLocalizationsJa {
 			'needHelp' => 'お困りですか？',
 			'selectReportOption' => '問題を報告または提案してください',
 			'searchStudentId' => '学籍番号検索',
+			'studentIdQueryVerify' => '学籍番号照会の認証',
+			'studentIdQueryVerifyHint' => 'ロボット認証を完了してください。通過後に自動で照会します。',
 			'studentIdBarcode' => '学生証バーコード',
 			'useStudentIdInLibrary' => '図書館でこの学籍番号を使用',
 			'tapToLogin' => 'タップしてログイン',
