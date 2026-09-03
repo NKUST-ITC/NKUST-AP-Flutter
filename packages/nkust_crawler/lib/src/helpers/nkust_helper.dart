@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
 import 'package:ap_common_core/ap_common_core.dart';
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:dio/dio.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
-import 'package:http/http.dart' as http;
 import 'package:nkust_crawler/src/abstractions/captcha_solver.dart';
 import 'package:nkust_crawler/src/config/api_config.dart';
 import 'package:nkust_crawler/src/exceptions/api_exception.dart';
@@ -45,13 +43,25 @@ class NKUSTHelper {
     this.cookieJar = cookieJar;
   }
 
+  /// webap only sets the session cookie the captcha is bound to once
+  /// index_main.html has been fetched. Without this prime, getuid_1.jsp
+  /// rejects every code as a bad captcha even when the OCR is correct
+  /// (the login flow hits the same quirk in WebApHelper).
+  Future<void> _primeHomepage() async {
+    try {
+      await dio.get<dynamic>(
+        'https://webap.nkust.edu.tw/nkust/index_main.html',
+      );
+    } catch (_) {}
+  }
+
   Future<Uint8List?> getUidValidationImage() async {
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://webap.nkust.edu.tw/nkust/validateCode_foruid.jsp',
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
-          'Referer': 'https://webap.nkust.edu.tw/',
+          'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
         },
       ),
     );
@@ -71,7 +81,7 @@ class NKUSTHelper {
 
     assert(retryCounts >= 0, 'retryCounts must be >= 0');
 
-    Object? lastError;
+    await _primeHomepage();
 
     for (int i = 0; i < retryCounts; i++) {
       try {
@@ -90,34 +100,31 @@ class NKUSTHelper {
         }
         final String captchaCode = await solver.solve(imageBytes);
 
-        final List<Cookie> cookies = await cookieJar
-            .loadForRequest(Uri.parse('https://webap.nkust.edu.tw'));
-        final String cookieHeader = cookies
-            .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
-            .join('; ');
-
-        final http.Response response = await http.post(
-          Uri(
-            scheme: 'https',
-            host: 'webap.nkust.edu.tw',
-            path: '/nkust/system/getuid_1.jsp',
-            queryParameters: <String, String>{
-              'uid': rocId,
-              'bir': birthdayText,
-              'Text3': captchaCode,
-              'kind': '2',
+        // Submit through the shared [dio] client so the session cookie the
+        // captcha is bound to (set on the validateCode response) rides
+        // along — on iOS that cookie lives in URLSession's own store and
+        // never reaches a separate package:http client.
+        final Response<dynamic> response = await dio.post<dynamic>(
+          'https://webap.nkust.edu.tw/nkust/system/getuid_1.jsp',
+          data: <String, String>{
+            'uid': rocId,
+            'bir': birthdayText,
+            'Text3': captchaCode,
+            'kind': '2',
+          },
+          options: Options(
+            responseType: ResponseType.plain,
+            contentType: Headers.formUrlEncodedContentType,
+            headers: <String, String>{
+              'Referer': 'https://webap.nkust.edu.tw/nkust/index_main.html',
+              'Origin': 'https://webap.nkust.edu.tw',
             },
           ),
-          headers: <String, String>{
-            'Connection': 'close',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Referer': 'https://webap.nkust.edu.tw/',
-            'Cookie': cookieHeader,
-          },
         );
 
-        if (!response.body.contains('驗證碼')) {
-          final Document document = parse(response.body);
+        final String body = response.data?.toString() ?? '';
+        if (!body.contains('驗證碼')) {
+          final Document document = parse(body);
           final List<Element> elements = document.getElementsByTagName('b');
 
           if (elements.length >= 4) {
@@ -141,42 +148,16 @@ class NKUSTHelper {
         }
       } on ApException {
         rethrow;
-      } on SocketException catch (e, s) {
-        // package:http wraps transport errors as SocketException /
-        // HandshakeException; translate immediately so the UI shows
-        // "沒有網路連線" rather than the generic "未知錯誤" that _call
-        // would otherwise wrap this as.
-        throw NetworkException(
-          message: e.message,
-          cause: e,
-          causeStackTrace: s,
-        );
-      } on HandshakeException catch (e, s) {
-        throw NetworkException(
-          message: e.message,
-          cause: e,
-          causeStackTrace: s,
-        );
-      } on http.ClientException catch (e, s) {
-        throw NetworkException(
-          message: e.message,
-          cause: e,
-          causeStackTrace: s,
-        );
-      } catch (error) {
-        lastError = error;
-
-        if (i == retryCounts - 1) {
-          rethrow;
-        }
+      } on DioException catch (e) {
+        throw e.toApException();
+      } catch (_) {
+        // Captcha OCR / segmentation failure — retry with a fresh image.
       }
     }
 
     throw CaptchaException(
       attempts: retryCounts,
-      message: lastError == null
-          ? 'captcha failed after $retryCounts attempts'
-          : 'captcha failed: $lastError',
+      message: 'captcha failed after $retryCounts attempts',
     );
   }
 
