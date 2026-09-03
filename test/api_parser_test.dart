@@ -338,6 +338,30 @@ void main() {
     });
   });
 
+  // ─── StdsysParser: queryStudentIdFormTokenParser ─────────────────────
+  group('StdsysParser.queryStudentIdFormTokenParser', () {
+    test('extracts the antiforgery request token from the query form', () {
+      final String html =
+          File('assets_test/stdsys/query_student_id_form.html')
+              .readAsStringSync();
+
+      final String? token =
+          StdsysParser.instance.queryStudentIdFormTokenParser(html);
+
+      expect(token, isNotNull);
+      expect(token, startsWith('CfDJ8'));
+    });
+
+    test('returns null when the form has no token', () {
+      expect(
+        StdsysParser.instance
+            .queryStudentIdFormTokenParser('<html><body></body></html>'),
+        isNull,
+      );
+      expect(StdsysParser.instance.queryStudentIdFormTokenParser(''), isNull);
+    });
+  });
+
   // ─── StdsysParser: queryStudentIdResultParser ────────────────────────
   group('StdsysParser.queryStudentIdResultParser', () {
     test('reports the server message when Turnstile verification fails', () {
@@ -353,13 +377,22 @@ void main() {
       expect(result.message, contains('機器人驗證失敗'));
     });
 
-    // Synthetic markup: a real success page needs a valid 身分證號 to capture.
-    // Both shapes the view could plausibly render are covered so a layout
-    // change on the school's side is less likely to break the lookup.
-    test('parses 姓名 / 學號 rendered as inline text', () {
+    // Header/column layout mirrors the real result page; the row values are
+    // synthetic so no one's 學號 lands in the repo.
+    test('reads 學號 / 姓名 out of the result table by column', () {
       const String html = '<html><body><div class="card-body">'
-          '<div class="alert alert-success">姓名：王小明　學號：C109123456</div>'
-          '</div></body></html>';
+          '<table class="table borded"><thead><tr>'
+          '<th class="text-center">入學學年-學期</th>'
+          '<th class="text-center">系所</th>'
+          '<th class="text-center">學制</th>'
+          '<th class="text-center">學生姓名</th>'
+          '<th class="text-center text-info">學號</th>'
+          '<th class="text-center text-info">在學狀態</th>'
+          '<th class="text-center">備註</th>'
+          '</tr></thead><tbody><tr>'
+          '<td>113-1</td><td>電子工程系</td><td>學士</td>'
+          '<td>王小明</td><td>C109123456</td><td>在學</td><td></td>'
+          '</tr></tbody></table></div></body></html>';
 
       final StudentIdQueryResult result =
           StdsysParser.instance.queryStudentIdResultParser(html);
@@ -369,11 +402,26 @@ void main() {
       expect(result.name, '王小明');
     });
 
-    test('parses 姓名 / 學號 rendered as table cells', () {
-      const String html = '<html><body><table><tbody>'
-          '<tr><td>姓名</td><td>王小明</td></tr>'
-          '<tr><td>學號</td><td>C109123456</td></tr>'
+    test('prefers the row the student is still enrolled in', () {
+      const String html = '<html><body>'
+          '<table><thead><tr>'
+          '<th>學生姓名</th><th>學號</th><th>在學狀態</th>'
+          '</tr></thead><tbody>'
+          '<tr><td>王小明</td><td>C105111111</td><td>畢業</td></tr>'
+          '<tr><td>王小明</td><td>C109123456</td><td>在學</td></tr>'
           '</tbody></table></body></html>';
+
+      final StudentIdQueryResult result =
+          StdsysParser.instance.queryStudentIdResultParser(html);
+
+      expect(result.isSuccess, isTrue);
+      expect(result.id, 'C109123456');
+    });
+
+    test('falls back to label-adjacent values when there is no table', () {
+      const String html = '<html><body><div class="card-body">'
+          '<div class="alert alert-success">姓名：王小明　學號：C109123456</div>'
+          '</div></body></html>';
 
       final StudentIdQueryResult result =
           StdsysParser.instance.queryStudentIdResultParser(html);

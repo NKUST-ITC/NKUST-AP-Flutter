@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <title>&#x767B;&#x5165; / Nkust</title>
+
+    <link rel="shortcut icon" href="/student/img/favicon.ico">
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet" />
+
+
+    <link rel="stylesheet" href="/student/_content/Nkust.Web.Core/libs/sweetalert2/dist/sweetalert2.min.css" />
+    <link href="/student/_content/Nkust.Web.Core/libs/font-awesome/css/all.min.css?v=Mg1XLfuETnFSSAt7YjdCNsSJbMyjrJ1puwPzvCA0rLg" rel="stylesheet" />
+    <link href="/student/_content/Nkust.Web.Core/libs/icheck-bootstrap/icheck-bootstrap.css?v=nGN1DgpDTrAS3DS7E5J0cL-gblWBKAMSoU_LSuY8gu8" rel="stylesheet" />
+    <link href="/student/_content/Nkust.Web.Core/libs/admin-lte/dist/css/adminlte.min.css?v=gm2jB4Crdw1zuiybGdH7svr9LMyenyQV-rCwJHTNS5w" rel="stylesheet" />
+
+    <link href="/student/_content/Nkust.Web.Core/libs/toastr/toastr.css?v=He3QEBKoL_nMXlVsoM7S2C2kjFQqS5L-mgA-F8LpG-U" rel="stylesheet" />
+    <link href="/student/libs-ext/famfamfam-flags/dist/sprite/famfamfam-flags.min.css?v=D9O-28vCF-qJh2qZSFIXxXc30hTED8RmnKeZRyvVEpA" rel="stylesheet" />
+
+    <link href="/student/view-resources/Views/Account/_Layout.css?v=pHobCa-IAfjMNqE8x1a2vYglVfPFWGtvFJmb0671Np0" rel="stylesheet" />
+    <link href="/student/css/style.css?v=4lZM0wjJ2dQ7A_s0DqJZvDRfKrl2g7nHv4nvpfkfmQw" rel="stylesheet" />
+
+
+
+    <style>
+        .btn-info {
+            color: white;
+            background-color: #17a2b8 !important;
+            border-color: #17a2b8 !important;
+        }
+        .btn-info:hover {
+            color: white;
+            background-color: #138496 !important;
+        }
+        .text-info {
+            color: #17a2b8 !important;
+        }
+
+        .blank_height {
+            height: 0px;
+        }
+
+        @media(min-height:600px) {
+            .blank_height {
+                height: 120px;
+            }
+        }
+
+        @media(min-height:800px) {
+            .blank_height {
+                height: 220px;
+            }
+        }
+
+        @media(min-height:900px) {
+            .blank_height {
+                height: 320px;
+            }
+        }
+    </style>
+    
+    <style>        
+        .card {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+        }
+        /*無框外光暈*/
+        .form-control:focus {
+            box-shadow: 0px 1.0px 1.0px rgba(0, 0, 0, 0.075) inset;
+        }
+    </style>
+
+</head>
+<body class="hold-transition login-page" style="height:100%">
+    <div class="container h-100 d-flex justify-content-center">
+        <div class="">
+            <div class="login-logo">
+                <div class="text-center mt-3">
+                    <img src="https://www.nkust.edu.tw/var/file/0/1000/img/513/182513897.png" width="400" height="60" alt="Nkust Logo">
+                    <h2 class="text-center mt-4 text-info fw-bold mb-0">
+                        <span class="text-danger"></span>學生學號查詢<span class='text-danger'></span>
+                    </h2>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-10 offset-1">
+                    <div class="card">
+                        <div class="card-body shadow-lg">
+                            
+<h5 class="text-center text-info fw-bold">請輸入學生資料查詢</h5>
+<form id="LoginForm" method="post" action="/student/QueryStudentId/ShowResult">
+    <input type="hidden" type="hidden" id="ReturnUrl" name="ReturnUrl" value="" class="form-control k-textbox" style="padding-left:3px" />
+    <input type="hidden" name="returnUrlHash" />   
+    <div class="input-group mb-3">
+        <div class="input-group-text">
+            <span class="fas fa-lock"></span>
+        </div>
+        <input type="password" type="password" class="nkust-input k-textbox form-control px-2" placeholder="學生身份證號" autocomplete="off" required maxlength="32" data-val="true" data-val-required="The IdNo field is required." id="IdNo" name="IdNo" style="padding-left:3px">
+        <div class="input-group-text">
+            <span class="fa-regular fa-eye-slash" id="toggleIdNo"></span>
+        </div>
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-text">
+            <span class="fas fa-lock"></span>
+        </div>
+        <input type="password" type="password" class="nkust-input k-textbox form-control px-2" placeholder="學生生日7碼(YYYMMDD)" autocomplete="off" required maxlength="32" data-val="true" data-val-required="The Birthday field is required." id="Birthday" name="Birthday" style="padding-left:3px">
+        <div class="input-group-text">
+            <span class="fa-regular fa-eye-slash" id="toggleBirthday"></span>
+        </div>
+    </div>
+    <label class="text-danger">生日格式：例如 0980201(98年2月1日)</label>
+    <div class="d-flex flex-row-reverse mt-1">
+        <div class="">
+            <button type="submit" id="LoginButton" class="btn btn-info btn-block g-recaptcha_old" data-sitekey_old="0x4AAAAAABrczXF7Y5OJeH_7" data-callback_old="onSubmit"><i class="btn-flat fas fa-sign-in-alt"> &#x767B;&#x5165;</i></button>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-1">
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAABrczXF7Y5OJeH_7"></div>
+    </div>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8MEQwsvvZn5FtbJZ_8POIvbhJVY9KKsn_XLoQHH8KGVu-hPPcc5g4pi97Cr9fVscPcuDF1BECdvt5l-7AIV9DyT8Cidec35LFCABhnF33vvFu5u-gDo6naAkyDGbQA6YScJKzkT3oVYOYqAm4REsEyI" /></form>
+
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12">                
+                    &nbsp;
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <p />
+                    <span style="font-size:10px">
+                        <strong>&copy; <a href="http://www.nkust.edu.tw" class="text-decoration-none">國立高雄科技大學</a> 版權所有.  電算與網路中心軟體發展組設計開發.  <b>版本</b>： 9.4.2.0 [20260810 07:07:21]</strong>
+                    </span>
+                    <br />
+                    <span style="font-size:10px">Copyright &copy; 2021 Computer and Network Center. All rights reserved</span>
+                </div>
+            </div>
+            <div class="blank_height">
+                &nbsp;
+            </div>
+        </div>        
+    </div>       
+    
+
+    <script src="/student/_content/Nkust.Web.Core/libs/jquery/jquery.js?v=eKhayi8LEQwp4NKxN-CfCh-3qOVUtJn3QNZ0TciWLP4"></script>
+
+    <script src="/student/libs/bootstrap/dist/js/bootstrap.bundle.js?v=Qesn0fIyfJA0VfGtzm0Kga5Ro9eCzokdNoMPke7bSxE"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/admin-lte/dist/js/adminlte.min.js?v=x5Mj2wYeSa9WVOK-EK8Z5rmXHFZ-MOY8r4eW8AKzpXU"></script>
+
+    <script src="/student/_content/Nkust.Web.Core/libs/block-ui/jquery.blockUI.js?v=oQaw-JJuUcJQ9QVYMcFnPxICDT-hv8-kuxT2FNzTGhc"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/spin/spin.js?v=GySbz3oZXNlwoawo5PpYy0iM38B-q3jyi_HLw00uxy0"></script>
+    <script src="/student/libs-ext/spin/jquery.spin.js?v=i7H7HL08ldqUANgfQInE7LlU2uWUdQMCJ-Q7-_zLutY"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/sweetalert2/dist/sweetalert2.all.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/toastr/toastr.min.js?v=yNbKY1y6h2rbVcQtf0b8lq4a-xpktyFc3pSYoGAY1qQ"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/moment/moment-with-locales.js?v=Np7WIE3NI3P2GL_AJrelExNN-VAKrmfFINaLSg17MTQ"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/abp.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.jquery.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.toastr.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.blockUI.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.sweet-alert2.min.js"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/abp-web-resources/Abp/Framework/scripts/libs/abp.spin.min.js"></script>
+
+    <script src="/student/_content/Nkust.Web.Core/libs/jquery-validate/jquery.validate.min.js?v=umbTaFxP31Fv6O1itpLS_3-v5fOAWDLOUzlmvOGaKV4"></script>
+    <script src="/student/_content/Nkust.Web.Core/libs/jquery-validate/jquery.validate.unobtrusive.min.js?v=RFWFWIIPsjB4DucR4jqwxTWw13ZmtI-s6tVR2LJmZXk"></script>
+
+    <script src="/student/_content/Nkust.Web.Core/js/utilities.js?v=dML2DqL5niomJB8hWeHwDnrZkBEszN0hGIkKyDT0HTQ"></script>
+
+
+
+
+    <script src="/student/_content/Nkust.Web.Core/libs/jquery-validate/localization/messages_zh_TW.min.js?v=dVl5CRbQ8cGuneBb6sgpVSsEEYeegHZ6M0TOcgSPBY8"></script>
+
+<script type="text/javascript">
+        // Localizing momentjs
+        moment.locale('zh-TW');
+</script>
+
+<!-- Dynamic scripts of ABP system (They are created on runtime and can not be bundled) -->
+<script src="/student/AbpServiceProxies/GetAll?v=639240309034919526" type="text/javascript"></script>
+<script src="/student/AbpScripts/GetScripts?v=639240309034919526" type="text/javascript"></script>
+        
+    <!-- Google recaptcha 
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+    -->
+    <!-- Tnrustile recaptcha -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script>
+    function onSubmit(token) {//recaptcha
+        if ($("form").valid()) {
+            $("form").submit();
+        }
+     }
+         $(() => {
+                //$("#togglePassword").click(function (e) {
+                    $("#toggleIdNo").on('click', function () {
+                        var mytype = $("input[name='IdNo']").prop("type") === "password" ? "text" : "password";
+                            $("input[name='IdNo']").prop("type", mytype);
+                    // toggle the eye icon
+                    //$("#togglePassword").toggleClass('fa-eye');//不知為何沒作用
+                    if (mytype == "text") {
+                                $("#toggleIdNo").removeClass('fa-eye-slash');
+                                $("#toggleIdNo").addClass('fa-eye');
+                    }
+                    else {
+                                $("#toggleIdNo").removeClass('fa-eye');
+                                $("#toggleIdNo").addClass('fa-eye-slash');
+                    }
+                });
+                    $("#toggleBirthday").on('click', function () {
+                            var mytype = $("input[name='Birthday']").prop("type") === "password" ? "text" : "password";
+                            $("input[name='Birthday']").prop("type", mytype);
+                        // toggle the eye icon
+                        //$("#togglePassword").toggleClass('fa-eye');//不知為何沒作用
+                        if (mytype == "text") {
+                                $("#toggleBirthday").removeClass('fa-eye-slash');
+                                $("#toggleBirthday").addClass('fa-eye');
+                        }
+                        else {
+                                $("#toggleBirthday").removeClass('fa-eye');
+                                $("#toggleBirthday").addClass('fa-eye-slash');
+                        }
+                    });
+            });
+    </script>
+
+</body>
+</html>

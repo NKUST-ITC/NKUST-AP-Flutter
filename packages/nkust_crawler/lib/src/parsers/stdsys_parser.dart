@@ -47,36 +47,113 @@ class StdsysParser {
     return data;
   }
 
+  /// Pulls the ASP.NET antiforgery request token out of the student-id query
+  /// form. Paired with the `.AspNetCore.Antiforgery.*` cookie from the same
+  /// response, so both have to come from one session.
+  String? queryStudentIdFormTokenParser(String? rawHtml) {
+    if (rawHtml == null || rawHtml.isEmpty) return null;
+
+    final Element? input = parse(rawHtml)
+        .querySelector('input[name="__RequestVerificationToken"]');
+    final String? value = input?.attributes['value'];
+
+    return (value == null || value.isEmpty) ? null : value;
+  }
+
   /// Parses the page returned by `POST /student/QueryStudentId/ShowResult`.
   ///
-  /// The view has no stable ids or data attributes — it renders either a
-  /// bootstrap alert with the server's own message (查無此人 / 機器人驗證失敗)
-  /// or a 姓名 / 學號 pair. Matching on the labels instead of the markup keeps
-  /// this working when the school reshuffles the layout, which it does often.
+  /// A hit renders a table whose header row names the columns (入學學年-學期 /
+  /// 系所 / 學制 / 學生姓名 / 學號 / 在學狀態 / 備註), so the value is found by
+  /// column position rather than next to its label. A miss renders a bootstrap
+  /// alert carrying the server's own message (查無此人 / 機器人驗證失敗).
   StudentIdQueryResult queryStudentIdResultParser(String? rawHtml) {
     if (rawHtml == null || rawHtml.isEmpty) {
       return const StudentIdQueryResult.failure();
     }
 
     final Document document = parse(rawHtml);
-    final String text = _flattenText(document.body ?? document.documentElement);
 
-    final RegExpMatch? idMatch =
-        RegExp(r'學號[：:\s]*([A-Za-z]?\d{6,12})').firstMatch(text);
+    final StudentIdQueryResult? fromTable = _resultFromTable(document);
+    if (fromTable != null) return fromTable;
 
-    if (idMatch != null) {
-      final RegExpMatch? nameMatch =
-          RegExp(r'姓名[：:\s]*([^\s：:]{1,20})').firstMatch(text);
-      return StudentIdQueryResult.success(
-        id: idMatch.group(1)!,
-        name: nameMatch?.group(1),
-      );
-    }
+    final StudentIdQueryResult? fromLabels = _resultFromLabels(document);
+    if (fromLabels != null) return fromLabels;
 
     final Element? alert = document.querySelector('.alert');
     final String message = _collapse(alert?.text ?? '');
 
     return StudentIdQueryResult.failure(message.isEmpty ? null : message);
+  }
+
+  /// Reads 學號 / 學生姓名 out of the result table by matching the header cells,
+  /// not by class names — the school's markup carries none worth trusting
+  /// (the table's own class is a misspelled `borded`).
+  StudentIdQueryResult? _resultFromTable(Document document) {
+    for (final Element table in document.querySelectorAll('table')) {
+      final List<Element> headers = table.querySelectorAll('th');
+      if (headers.isEmpty) continue;
+
+      int idIndex = -1;
+      int nameIndex = -1;
+      int statusIndex = -1;
+      for (int i = 0; i < headers.length; i++) {
+        final String header = _collapse(headers[i].text);
+        if (header.contains('學號')) {
+          idIndex = i;
+        } else if (header.contains('姓名')) {
+          nameIndex = i;
+        } else if (header.contains('在學狀態')) {
+          statusIndex = i;
+        }
+      }
+      if (idIndex < 0) continue;
+
+      // A student can appear in several rows (e.g. 學士 then 碩士); prefer the
+      // one they are currently enrolled in, else fall back to the first row.
+      List<Element>? chosen;
+      for (final Element row in table.querySelectorAll('tr')) {
+        final List<Element> cells = row.querySelectorAll('td');
+        if (cells.length <= idIndex) continue;
+        if (_collapse(cells[idIndex].text).isEmpty) continue;
+        chosen ??= cells;
+        if (statusIndex >= 0 &&
+            cells.length > statusIndex &&
+            _collapse(cells[statusIndex].text).contains('在學')) {
+          chosen = cells;
+          break;
+        }
+      }
+      if (chosen == null) continue;
+
+      final String? name = (nameIndex >= 0 && chosen.length > nameIndex)
+          ? _collapse(chosen[nameIndex].text)
+          : null;
+
+      return StudentIdQueryResult.success(
+        id: _collapse(chosen[idIndex].text),
+        name: (name == null || name.isEmpty) ? null : name,
+      );
+    }
+
+    return null;
+  }
+
+  /// Fallback for a non-tabular layout, where 學號 and 姓名 sit next to their
+  /// own labels.
+  StudentIdQueryResult? _resultFromLabels(Document document) {
+    final String text = _flattenText(document.body ?? document.documentElement);
+
+    final RegExpMatch? idMatch =
+        RegExp(r'學號[：:\s]*([A-Za-z]?\d{6,12})').firstMatch(text);
+    if (idMatch == null) return null;
+
+    final RegExpMatch? nameMatch =
+        RegExp(r'姓名[：:\s]*([^\s：:]{1,20})').firstMatch(text);
+
+    return StudentIdQueryResult.success(
+      id: idMatch.group(1)!,
+      name: nameMatch?.group(1),
+    );
   }
 
   /// Element boundaries become whitespace, so label and value stay separate
