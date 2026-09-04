@@ -77,6 +77,13 @@ class ZuvioCourseListPageState extends State<ZuvioCourseListPage> {
         return <ZuvioCourse>[];
       }).add(c);
     }
+    for (final String semester in order) {
+      final List<ZuvioCourse> group = grouped[semester]!;
+      grouped[semester] = <ZuvioCourse>[
+        ...group.where((ZuvioCourse c) => c.pinned),
+        ...group.where((ZuvioCourse c) => !c.pinned),
+      ];
+    }
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -108,13 +115,34 @@ class ZuvioCourseListPageState extends State<ZuvioCourseListPage> {
 
   Widget _row(ZuvioCourse course) {
     return ZListRow(
-      icon: Icons.class_outlined,
+      icon: course.pinned ? Icons.push_pin_rounded : Icons.class_outlined,
       title: course.name,
       subtitle: course.teacherName,
+      trailing:
+          course.unreadCount > 0 ? _unreadBadge(course.unreadCount) : null,
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute<void>(
           builder: (_) => ZuvioCoursePage(course: course),
+        ),
+      ),
+    );
+  }
+
+  Widget _unreadBadge(int count) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: context.zc.danger,
+        borderRadius: ZRadii.pill,
+      ),
+      child: Text(
+        count > 99 ? '99+' : '$count',
+        textAlign: TextAlign.center,
+        style: context.zt.label.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );

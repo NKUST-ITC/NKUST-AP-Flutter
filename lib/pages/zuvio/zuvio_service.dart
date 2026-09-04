@@ -1,3 +1,5 @@
+import 'package:ap_common/ap_common.dart';
+import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:zuvio_crawler/zuvio_crawler.dart' as zc;
 
@@ -45,13 +47,29 @@ abstract class ZuvioService {
   Future<ZuvioFeedbackThread?> getFeedbackThread(String feedbackId);
 }
 
+/// [code] is a stable machine token the UI can translate; [message] is a
+/// human-readable fallback (already localized, or the raw upstream text
+/// when there is no code).
 class ZuvioException implements Exception {
-  const ZuvioException(this.message);
+  const ZuvioException(this.message, {this.code});
 
   final String message;
+  final String? code;
 
   @override
   String toString() => message;
+}
+
+/// Machine tokens for [ZuvioException.code].
+abstract final class ZuvioErrorCode {
+  static const String auth = 'auth';
+  static const String sessionExpired = 'session_expired';
+  static const String network = 'network';
+  static const String unexpected = 'unexpected';
+  static const String rollcallNotOnair = 'rollcall_not_onair';
+  static const String rollcallNeedLocation = 'rollcall_need_location';
+  static const String rollcallAnswered = 'rollcall_answered';
+  static const String rollcallExpired = 'rollcall_expired';
 }
 
 class ZuvioCrawlerService implements ZuvioService {
@@ -69,7 +87,7 @@ class ZuvioCrawlerService implements ZuvioService {
   }
 
   @override
-  Future<void> logout() async => _helper.logout();
+  Future<void> logout() => _helper.logout();
 
   @override
   Future<List<ZuvioCourse>> getCourses() {
@@ -82,6 +100,8 @@ class ZuvioCrawlerService implements ZuvioService {
               name: c.courseName,
               teacherName: c.teacherName,
               semester: c.semesterName,
+              pinned: c.pinned,
+              unreadCount: c.unreadCount,
             ),
           )
           .toList();
@@ -116,9 +136,22 @@ class ZuvioCrawlerService implements ZuvioService {
         longitude: longitude,
       );
       if (!result.success) {
-        throw ZuvioException(result.message);
+        throw ZuvioException(
+          result.message,
+          code: _rollcallCode(result.message),
+        );
       }
     });
+  }
+
+  String? _rollcallCode(String raw) {
+    return switch (raw.trim().toUpperCase()) {
+      'ROLLCALL IS NOT ONAIR' => ZuvioErrorCode.rollcallNotOnair,
+      'LOSE THE GPS LOCATION' => ZuvioErrorCode.rollcallNeedLocation,
+      'ROLLCALL IS ANSWERED' => ZuvioErrorCode.rollcallAnswered,
+      'ROLLCALL IS EXPIRED' => ZuvioErrorCode.rollcallExpired,
+      _ => null,
+    };
   }
 
   @override
@@ -333,8 +366,27 @@ class ZuvioCrawlerService implements ZuvioService {
   Future<T> _run<T>(Future<T> Function() body) async {
     try {
       return await body();
-    } on zc.ZuvioException catch (e) {
-      throw ZuvioException(e.message);
+    } on ZuvioException {
+      // Already an app-level failure raised inside [body]; pass through.
+      rethrow;
+    } on zc.ZuvioAuthException catch (e) {
+      throw ZuvioException(e.message, code: ZuvioErrorCode.auth);
+    } on zc.ZuvioSessionExpiredException catch (e) {
+      throw ZuvioException(e.message, code: ZuvioErrorCode.sessionExpired);
+    } on zc.ZuvioNetworkException catch (e) {
+      throw ZuvioException(e.message, code: ZuvioErrorCode.network);
+    } on zc.ZuvioException catch (e, s) {
+      // Unexpected: parse failure or a shape Zuvio changed under us.
+      _report(e, s, 'zuvio scrape failed');
+      throw ZuvioException(e.message, code: ZuvioErrorCode.unexpected);
+    } catch (e, s) {
+      _report(e, s, 'zuvio unexpected error');
+      throw ZuvioException(e.toString(), code: ZuvioErrorCode.unexpected);
     }
+  }
+
+  void _report(Object error, StackTrace stack, String reason) {
+    if (!FirebaseCrashlyticsUtils.isSupported) return;
+    CrashlyticsUtil.instance.recordError(error, stack, reason: reason);
   }
 }

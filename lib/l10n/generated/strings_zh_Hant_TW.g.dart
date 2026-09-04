@@ -869,9 +869,6 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '你的作答'
 	String get zuvioYourAnswer => '你的作答';
 
-	/// zh-Hant-TW: '已選'
-	String get zuvioSelected => '已選';
-
 	/// zh-Hant-TW: '出席排名'
 	String get zuvioAttendanceRank => '出席排名';
 
@@ -898,6 +895,24 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 
 	/// zh-Hant-TW: '請開啟裝置的定位服務'
 	String get zuvioLocationServiceOff => '請開啟裝置的定位服務';
+
+	/// zh-Hant-TW: '此點名需要定位資訊，請允許定位後再試一次'
+	String get zuvioRollcallNeedLocation => '此點名需要定位資訊，請允許定位後再試一次';
+
+	/// zh-Hant-TW: '你已完成這次點名'
+	String get zuvioRollcallAlreadyAnswered => '你已完成這次點名';
+
+	/// zh-Hant-TW: '這次點名已結束'
+	String get zuvioRollcallExpired => '這次點名已結束';
+
+	/// zh-Hant-TW: '網路連線不穩，請稍後再試'
+	String get zuvioErrorNetwork => '網路連線不穩，請稍後再試';
+
+	/// zh-Hant-TW: '登入階段已過期，請重新登入'
+	String get zuvioErrorSessionExpired => '登入階段已過期，請重新登入';
+
+	/// zh-Hant-TW: '操作失敗，請稍後再試'
+	String get zuvioErrorUnexpected => '操作失敗，請稍後再試';
 }
 
 /// The flat map containing all translations for locale <zh-Hant-TW>.
@@ -1186,7 +1201,6 @@ extension on NkustLocalizations {
 			'zuvioRollcallTapHint' => '點擊下方按鈕完成簽到',
 			'zuvioQuestionSubmitted' => '已作答',
 			'zuvioYourAnswer' => '你的作答',
-			'zuvioSelected' => '已選',
 			'zuvioAttendanceRank' => '出席排名',
 			'zuvioAccuracyRank' => '正確率排名',
 			'zuvioCheckedInAt' => '簽到於',
@@ -1196,6 +1210,12 @@ extension on NkustLocalizations {
 			'zuvioLogout' => '登出 Zuvio',
 			'zuvioLogoutConfirm' => '確定要登出 Zuvio？',
 			'zuvioLocationServiceOff' => '請開啟裝置的定位服務',
+			'zuvioRollcallNeedLocation' => '此點名需要定位資訊，請允許定位後再試一次',
+			'zuvioRollcallAlreadyAnswered' => '你已完成這次點名',
+			'zuvioRollcallExpired' => '這次點名已結束',
+			'zuvioErrorNetwork' => '網路連線不穩，請稍後再試',
+			'zuvioErrorSessionExpired' => '登入階段已過期，請重新登入',
+			'zuvioErrorUnexpected' => '操作失敗，請稍後再試',
 			_ => null,
 		};
 	}

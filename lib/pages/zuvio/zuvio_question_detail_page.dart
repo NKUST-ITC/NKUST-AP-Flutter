@@ -123,22 +123,19 @@ class ZuvioQuestionDetailPageState extends State<ZuvioQuestionDetailPage> {
                     child: Text(o.order, style: context.zt.cardTitle),
                   ),
                 Expanded(child: Text(o.text, style: context.zt.body)),
-                if (o.isSelected) ...<Widget>[
-                  const SizedBox(width: ZGap.s),
-                  Text(
-                    context.t.zuvioSelected,
-                    style: context.zt.label.copyWith(
-                      color: o.isCorrect ? zc.success : zc.danger,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
                 if (o.isCorrect) ...<Widget>[
-                  const SizedBox(width: ZGap.xs),
+                  const SizedBox(width: ZGap.s),
                   Icon(
                     Icons.check_circle_rounded,
                     size: 18,
                     color: zc.success,
+                  ),
+                ] else if (o.isSelected) ...<Widget>[
+                  const SizedBox(width: ZGap.s),
+                  Icon(
+                    Icons.cancel_rounded,
+                    size: 18,
+                    color: zc.danger,
                   ),
                 ],
               ],

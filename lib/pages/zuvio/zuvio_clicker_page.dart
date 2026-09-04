@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
@@ -19,8 +21,11 @@ class ZuvioClickerPage extends StatefulWidget {
 }
 
 class ZuvioClickerPageState extends State<ZuvioClickerPage> {
+  static const Duration _pollInterval = Duration(seconds: 15);
+
   _State _state = _State.loading;
   ZuvioClickerQuestion? _question;
+  Timer? _poll;
 
   @override
   void initState() {
@@ -33,15 +38,37 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
   }
 
   @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ZScaffold(
       title: context.t.zuvioClickers,
       body: RefreshIndicator(
-        onRefresh: _load,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.xl, ZGap.m, ZGap.xl),
-          children: <Widget>[_body()],
+        onRefresh: () => _load(),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    ZGap.m,
+                    ZGap.xl,
+                    ZGap.m,
+                    ZGap.xl,
+                  ),
+                  child: _state == _State.live
+                      ? _body()
+                      : Center(child: _body()),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -51,12 +78,7 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
     final ZColors zc = context.zc;
     switch (_state) {
       case _State.loading:
-        return const Center(
-          child: Padding(
-            padding: EdgeInsets.only(top: ZGap.xxxl),
-            child: CircularProgressIndicator(strokeWidth: 2.5),
-          ),
-        );
+        return const CircularProgressIndicator(strokeWidth: 2.5);
       case _State.error:
         return _hint(Icons.error_outline_rounded, context.ap.somethingError);
       case _State.idle:
@@ -115,28 +137,29 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
   }
 
   Widget _hint(IconData icon, String text, {String? detail}) {
-    return Padding(
-      padding: const EdgeInsets.only(top: ZGap.xxxl),
-      child: Column(
-        children: <Widget>[
-          Icon(icon, size: 44, color: context.zc.textFaint),
-          const SizedBox(height: ZGap.m),
-          Text(text, style: context.zt.cardTitle),
-          if (detail != null) ...<Widget>[
-            const SizedBox(height: ZGap.xs),
-            Text(
-              detail,
-              textAlign: TextAlign.center,
-              style: context.zt.supporting,
-            ),
-          ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 44, color: context.zc.textFaint),
+        const SizedBox(height: ZGap.m),
+        Text(text, style: context.zt.cardTitle),
+        if (detail != null) ...<Widget>[
+          const SizedBox(height: ZGap.xs),
+          Text(
+            detail,
+            textAlign: TextAlign.center,
+            style: context.zt.supporting,
+          ),
         ],
-      ),
+      ],
     );
   }
 
-  Future<void> _load() async {
-    setState(() => _state = _State.loading);
+  /// [silent] is the background poll while idle: no spinner, and a
+  /// transient failure keeps the "no live question" view.
+  Future<void> _load({bool silent = false}) async {
+    _poll?.cancel();
+    if (!silent) setState(() => _state = _State.loading);
     try {
       final ZuvioClickerQuestion? q =
           await ZuvioService.instance.getLiveClicker(widget.course.courseId);
@@ -147,7 +170,10 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
       });
     } on ZuvioException {
       if (!mounted) return;
-      setState(() => _state = _State.error);
+      if (!silent) setState(() => _state = _State.error);
+    }
+    if (mounted && _state == _State.idle) {
+      _poll = Timer(_pollInterval, () => _load(silent: true));
     }
   }
 }

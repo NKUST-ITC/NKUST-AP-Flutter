@@ -8,7 +8,6 @@ import 'package:zuvio_crawler/src/parsers/history_parser.dart';
 import 'package:zuvio_crawler/src/parsers/question_parser.dart';
 import 'package:zuvio_crawler/src/parsers/rollcall_parser.dart';
 import 'package:zuvio_crawler/src/zuvio_client.dart';
-import 'package:zuvio_crawler/src/zuvio_exception.dart';
 
 /// The single entry point the host app talks to. Wraps a [ZuvioClient]
 /// and the stateless parsers.
@@ -26,7 +25,7 @@ class ZuvioHelper {
     await client.login(email: email, password: password);
   }
 
-  void logout() => client.logout();
+  Future<void> logout() => client.logout();
 
   Future<List<ZuvioCourse>> getCourses() async {
     final Map<String, dynamic> json =
@@ -47,7 +46,9 @@ class ZuvioHelper {
 
   /// Submits `app_v2/makeRollcall`. [latitude] / [longitude] are only
   /// needed for GPS rollcalls; a plain (non-GPS) rollcall accepts empty
-  /// coordinates.
+  /// coordinates. The raw `msg` (e.g. `ROLLCALL IS NOT ONAIR`,
+  /// `LOSE THE GPS LOCATION`) is surfaced untranslated so the host app
+  /// can localize it.
   Future<ZuvioRollcallResult> makeRollcall({
     required String rollcallId,
     double? latitude,
@@ -62,14 +63,7 @@ class ZuvioHelper {
         'lng': longitude ?? '',
       },
     );
-    final ZuvioRollcallResult result = ZuvioRollcallResult.fromJson(json);
-    if (!result.success && result.message == 'ROLLCALL IS NOT ONAIR') {
-      throw const ZuvioException('未開放簽到');
-    }
-    if (!result.success && result.message == 'LOSE THE GPS LOCATION') {
-      throw const ZuvioException('此點名需要定位資訊');
-    }
-    return result;
+    return ZuvioRollcallResult.fromJson(json);
   }
 
   Future<ZuvioClickerQuestion?> getLiveClicker(String courseId) async {

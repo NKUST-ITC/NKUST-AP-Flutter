@@ -317,7 +317,6 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioRollcallTapHint => 'Tap the button below to check in';
 	@override String get zuvioQuestionSubmitted => 'Submitted';
 	@override String get zuvioYourAnswer => 'Your answer';
-	@override String get zuvioSelected => 'Chosen';
 	@override String get zuvioAttendanceRank => 'Attend. Rank';
 	@override String get zuvioAccuracyRank => 'Accuracy Rank';
 	@override String get zuvioCheckedInAt => 'Checked in';
@@ -327,6 +326,12 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioLogout => 'Sign out of Zuvio';
 	@override String get zuvioLogoutConfirm => 'Sign out of Zuvio?';
 	@override String get zuvioLocationServiceOff => 'Turn on your device location service';
+	@override String get zuvioRollcallNeedLocation => 'This rollcall needs your location, allow it and try again';
+	@override String get zuvioRollcallAlreadyAnswered => 'You have already checked in for this rollcall';
+	@override String get zuvioRollcallExpired => 'This rollcall has ended';
+	@override String get zuvioErrorNetwork => 'Connection is unstable, please try again later';
+	@override String get zuvioErrorSessionExpired => 'Your session has expired, please sign in again';
+	@override String get zuvioErrorUnexpected => 'Something went wrong, please try again later';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -615,7 +620,6 @@ extension on NkustLocalizationsEn {
 			'zuvioRollcallTapHint' => 'Tap the button below to check in',
 			'zuvioQuestionSubmitted' => 'Submitted',
 			'zuvioYourAnswer' => 'Your answer',
-			'zuvioSelected' => 'Chosen',
 			'zuvioAttendanceRank' => 'Attend. Rank',
 			'zuvioAccuracyRank' => 'Accuracy Rank',
 			'zuvioCheckedInAt' => 'Checked in',
@@ -625,6 +629,12 @@ extension on NkustLocalizationsEn {
 			'zuvioLogout' => 'Sign out of Zuvio',
 			'zuvioLogoutConfirm' => 'Sign out of Zuvio?',
 			'zuvioLocationServiceOff' => 'Turn on your device location service',
+			'zuvioRollcallNeedLocation' => 'This rollcall needs your location, allow it and try again',
+			'zuvioRollcallAlreadyAnswered' => 'You have already checked in for this rollcall',
+			'zuvioRollcallExpired' => 'This rollcall has ended',
+			'zuvioErrorNetwork' => 'Connection is unstable, please try again later',
+			'zuvioErrorSessionExpired' => 'Your session has expired, please sign in again',
+			'zuvioErrorUnexpected' => 'Something went wrong, please try again later',
 			_ => null,
 		};
 	}

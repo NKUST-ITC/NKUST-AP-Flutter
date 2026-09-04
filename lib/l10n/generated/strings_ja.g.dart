@@ -317,7 +317,6 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioRollcallTapHint => '下のボタンをタップしてサインイン';
 	@override String get zuvioQuestionSubmitted => '回答済み';
 	@override String get zuvioYourAnswer => 'あなたの回答';
-	@override String get zuvioSelected => '選択';
 	@override String get zuvioAttendanceRank => '出席順位';
 	@override String get zuvioAccuracyRank => '正答率順位';
 	@override String get zuvioCheckedInAt => 'サインイン';
@@ -327,6 +326,12 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioLogout => 'Zuvio からログアウト';
 	@override String get zuvioLogoutConfirm => 'Zuvio からログアウトしますか？';
 	@override String get zuvioLocationServiceOff => '端末の位置情報サービスをオンにしてください';
+	@override String get zuvioRollcallNeedLocation => 'この点呼には位置情報が必要です。許可してからもう一度お試しください';
+	@override String get zuvioRollcallAlreadyAnswered => 'この点呼はすでに完了しています';
+	@override String get zuvioRollcallExpired => 'この点呼は終了しました';
+	@override String get zuvioErrorNetwork => '通信が不安定です。しばらくしてからお試しください';
+	@override String get zuvioErrorSessionExpired => 'ログインセッションが切れました。再度ログインしてください';
+	@override String get zuvioErrorUnexpected => '処理に失敗しました。しばらくしてからお試しください';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -615,7 +620,6 @@ extension on NkustLocalizationsJa {
 			'zuvioRollcallTapHint' => '下のボタンをタップしてサインイン',
 			'zuvioQuestionSubmitted' => '回答済み',
 			'zuvioYourAnswer' => 'あなたの回答',
-			'zuvioSelected' => '選択',
 			'zuvioAttendanceRank' => '出席順位',
 			'zuvioAccuracyRank' => '正答率順位',
 			'zuvioCheckedInAt' => 'サインイン',
@@ -625,6 +629,12 @@ extension on NkustLocalizationsJa {
 			'zuvioLogout' => 'Zuvio からログアウト',
 			'zuvioLogoutConfirm' => 'Zuvio からログアウトしますか？',
 			'zuvioLocationServiceOff' => '端末の位置情報サービスをオンにしてください',
+			'zuvioRollcallNeedLocation' => 'この点呼には位置情報が必要です。許可してからもう一度お試しください',
+			'zuvioRollcallAlreadyAnswered' => 'この点呼はすでに完了しています',
+			'zuvioRollcallExpired' => 'この点呼は終了しました',
+			'zuvioErrorNetwork' => '通信が不安定です。しばらくしてからお試しください',
+			'zuvioErrorSessionExpired' => 'ログインセッションが切れました。再度ログインしてください',
+			'zuvioErrorUnexpected' => '処理に失敗しました。しばらくしてからお試しください',
 			_ => null,
 		};
 	}

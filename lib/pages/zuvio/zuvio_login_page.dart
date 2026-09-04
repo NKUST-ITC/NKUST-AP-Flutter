@@ -55,19 +55,6 @@ class ZuvioLoginPageState extends State<ZuvioLoginPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
-                  Container(
-                    height: 56,
-                    width: 56,
-                    decoration: BoxDecoration(
-                      color: context.zc.accentSoft,
-                      borderRadius: ZRadii.card,
-                    ),
-                    child: Icon(
-                      Icons.co_present_outlined,
-                      color: context.zc.onAccentSoft,
-                    ),
-                  ),
-                  const SizedBox(height: ZGap.l),
                   Text(context.t.zuvioLogin, style: context.zt.pageTitle),
                   const SizedBox(height: ZGap.s),
                   Text(

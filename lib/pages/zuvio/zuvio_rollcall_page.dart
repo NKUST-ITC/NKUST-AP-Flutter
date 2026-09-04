@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,9 +22,12 @@ class ZuvioRollcallPage extends StatefulWidget {
 }
 
 class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
+  static const Duration _pollInterval = Duration(seconds: 15);
+
   _State _state = _State.checking;
   ZuvioRollcall _rollcall = const ZuvioRollcall.notOpen();
   String _errorText = '';
+  Timer? _poll;
 
   @override
   void initState() {
@@ -35,44 +40,68 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
   }
 
   @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return ZScaffold(
       title: context.t.zuvioRollcall,
       body: RefreshIndicator(
-        onRefresh: _check,
-        child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.xl, ZGap.m, ZGap.xl),
-          children: <Widget>[
-            ZCard(
-              padding: const EdgeInsets.symmetric(
-                horizontal: ZGap.l,
-                vertical: ZGap.xxl,
+        onRefresh: () => _check(),
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    ZGap.m,
+                    ZGap.xl,
+                    ZGap.m,
+                    ZGap.xl,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      ZCard(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: ZGap.l,
+                          vertical: ZGap.xxl,
+                        ),
+                        child: Column(
+                          children: <Widget>[
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 220),
+                              child: _icon(),
+                            ),
+                            const SizedBox(height: ZGap.l),
+                            Text(
+                              _title(),
+                              textAlign: TextAlign.center,
+                              style: context.zt.heading,
+                            ),
+                            const SizedBox(height: ZGap.s),
+                            Text(
+                              _subtitle(),
+                              textAlign: TextAlign.center,
+                              style: context.zt.supporting,
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: ZGap.l),
+                      _action(),
+                    ],
+                  ),
+                ),
               ),
-              child: Column(
-                children: <Widget>[
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 220),
-                    child: _icon(),
-                  ),
-                  const SizedBox(height: ZGap.l),
-                  Text(
-                    _title(),
-                    textAlign: TextAlign.center,
-                    style: context.zt.heading,
-                  ),
-                  const SizedBox(height: ZGap.s),
-                  Text(
-                    _subtitle(),
-                    textAlign: TextAlign.center,
-                    style: context.zt.supporting,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: ZGap.l),
-            _action(),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -146,14 +175,18 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
       _State.error => ZButton(
           label: context.ap.retry,
           variant: ZButtonVariant.secondary,
-          onPressed: _check,
+          onPressed: () => _check(),
         ),
       _ => const SizedBox.shrink(),
     };
   }
 
-  Future<void> _check() async {
-    setState(() => _state = _State.checking);
+  /// [silent] refreshes are the background poll: no spinner, and a
+  /// transient failure keeps the current "not open" view rather than
+  /// flipping to the error state.
+  Future<void> _check({bool silent = false}) async {
+    _poll?.cancel();
+    if (!silent) setState(() => _state = _State.checking);
     try {
       final ZuvioRollcall rollcall = await ZuvioService.instance
           .getCurrentRollcall(widget.course.courseId);
@@ -168,14 +201,20 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
       });
     } on ZuvioException catch (e) {
       if (!mounted) return;
-      setState(() {
-        _state = _State.error;
-        _errorText = e.message;
-      });
+      if (!silent) {
+        setState(() {
+          _state = _State.error;
+          _errorText = _localizedError(e);
+        });
+      }
+    }
+    if (mounted && _state == _State.notOpen) {
+      _poll = Timer(_pollInterval, () => _check(silent: true));
     }
   }
 
   Future<void> _signIn() async {
+    _poll?.cancel();
     setState(() => _state = _State.submitting);
     AnalyticsUtil.instance.logEvent('zuvio_rollcall_sign_in');
     try {
@@ -183,11 +222,11 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
           .makeRollcall(rollcallId: _rollcall.rollcallId);
       _markAnswered();
     } on ZuvioException catch (e) {
-      if (e.message == '此點名需要定位資訊') {
+      if (e.code == ZuvioErrorCode.rollcallNeedLocation) {
         await _signInWithLocation();
         return;
       }
-      _showError(e.message);
+      _showError(_localizedError(e));
     }
   }
 
@@ -233,8 +272,23 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
       );
       _markAnswered();
     } on ZuvioException catch (e) {
-      _showError(e.message);
+      _showError(_localizedError(e));
     }
+  }
+
+  String _localizedError(ZuvioException e) {
+    return switch (e.code) {
+      ZuvioErrorCode.rollcallNotOnair => context.t.zuvioRollcallNotOpen,
+      ZuvioErrorCode.rollcallNeedLocation =>
+        context.t.zuvioRollcallNeedLocation,
+      ZuvioErrorCode.rollcallAnswered =>
+        context.t.zuvioRollcallAlreadyAnswered,
+      ZuvioErrorCode.rollcallExpired => context.t.zuvioRollcallExpired,
+      ZuvioErrorCode.network => context.t.zuvioErrorNetwork,
+      ZuvioErrorCode.sessionExpired => context.t.zuvioErrorSessionExpired,
+      ZuvioErrorCode.unexpected => context.t.zuvioErrorUnexpected,
+      _ => e.message,
+    };
   }
 
   void _markAnswered() {

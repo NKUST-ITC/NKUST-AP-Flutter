@@ -4,12 +4,16 @@ class ZuvioCourse {
     required this.name,
     required this.teacherName,
     required this.semester,
+    this.pinned = false,
+    this.unreadCount = 0,
   });
 
   final String courseId;
   final String name;
   final String teacherName;
   final String semester;
+  final bool pinned;
+  final int unreadCount;
 }
 
 enum ZuvioRollcallState {

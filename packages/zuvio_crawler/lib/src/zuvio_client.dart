@@ -106,11 +106,23 @@ class ZuvioClient {
     return parsed;
   }
 
-  void logout() {
+  /// Hits `irs/logout` so Zuvio drops the server-side session too, then
+  /// clears the local session, cached credentials and cookie jar. The
+  /// network call is best-effort — the local state is cleared even if it
+  /// fails.
+  Future<void> logout() async {
+    try {
+      await dio.get<dynamic>(
+        'irs/logout',
+        options: Options(followRedirects: false),
+      );
+    } catch (_) {
+      // Ignore: the local wipe below is what matters for the user.
+    }
     _session = null;
     _account = null;
     _password = null;
-    cookieJar.deleteAll();
+    await cookieJar.deleteAll();
   }
 
   /// Zuvio silently redirects an expired session back to the login form
