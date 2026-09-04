@@ -1,27 +1,31 @@
 import 'package:zuvio_crawler/src/models/models.dart';
 
 final RegExp _rollcallId =
-    RegExp(r'''var\s+rollcall_id\s*=\s*['"]([^'"]*)['"]''');
-final RegExp _answeredMakeRollcall =
-    RegExp(r'''makeRollcall\(\s*['"]?(\d+)['"]?\s*\)''');
+    RegExp(r'''(?:var\s+rollcall_id\s*=\s*|makeRollcall\(\s*)['"]?(\d+)['"]?''');
 
 /// Parses `/student5/irs/rollcall/<courseId>`.
 ///
-/// When a rollcall is running the page renders `var rollcall_id = '<id>'`
-/// (and a submit button wired to `makeRollcall('<id>')`); when none is
-/// running the id is an empty string.
+/// When a rollcall is running the page shows「簽到開放中」and renders the
+/// active id (in `var rollcall_id = '<id>'` or a `makeRollcall('<id>')`
+/// button); otherwise it shows「未開放簽到」.
 ZuvioRollcall parseRollcall(String html) {
-  final String? inlineId = _rollcallId.firstMatch(html)?.group(1);
-  final String? btnId = _answeredMakeRollcall.firstMatch(html)?.group(1);
-  final String id = (inlineId != null && inlineId.isNotEmpty)
-      ? inlineId
-      : (btnId ?? '');
-  if (id.isEmpty) return const ZuvioRollcall.notOpen();
+  final bool answered =
+      html.contains('您已簽到') || html.contains('rollcall-refinish');
+  final bool open = html.contains('簽到開放中') || html.contains('請點擊按鈕簽到');
 
-  final bool answered = html.contains('i-r-f-b-answered') ||
-      html.contains('rollcall-refinish') && html.contains('g-f-b-b-answered');
-  return ZuvioRollcall(
-    rollcallId: id,
-    state: answered ? ZuvioRollcallState.answered : ZuvioRollcallState.open,
-  );
+  final String id = _rollcallId
+          .allMatches(html)
+          .map((RegExpMatch m) => m.group(1) ?? '')
+          .firstWhere((String s) => s.isNotEmpty, orElse: () => '') ;
+
+  if (answered && id.isNotEmpty) {
+    return ZuvioRollcall(
+      rollcallId: id,
+      state: ZuvioRollcallState.answered,
+    );
+  }
+  if (open && id.isNotEmpty) {
+    return ZuvioRollcall(rollcallId: id, state: ZuvioRollcallState.open);
+  }
+  return const ZuvioRollcall.notOpen();
 }

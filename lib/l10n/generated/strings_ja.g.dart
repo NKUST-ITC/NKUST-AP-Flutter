@@ -295,12 +295,38 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioStickerConfused => 'わからない';
 	@override String zuvioSemesterFormat({required Object year, required Object term}) => '${year} 学年度 第 ${term} 学期';
 	@override String get zuvioBetaTitle => 'ベータ機能';
-	@override String get zuvioBetaContent => 'Zuvio 関連機能は現在ベータ版です。ブラウザ操作を模擬してデータを取得するため、Zuvio サイトの変更で動作しなくなったり予期しない結果になることがあります。必ず Zuvio 公式アプリ／サイトの結果を優先してください。本機能の利用による点呼・回答等の問題について本アプリは責任を負いません。';
+	@override String get zuvioBetaContent => 'Zuvio 関連機能は現在ベータ版です。ブラウザ操作を模擬してデータを取得するため、Zuvio サイトの変更で動作しなくなったり予期しない結果になることがあります。\n\n現在は「点呼サインイン」と各種データの読み取り（コース、お知らせ、回答・点呼記録、フィードバック内容など）のみ対応しています。「回答」や「フィードバック送信」などの書き込みは未対応です。\n\n必ず Zuvio 公式アプリ／サイトの結果を優先してください。本機能の利用による点呼・回答等の問題について本アプリは責任を負いません。';
 	@override String get zuvioBetaAgree => '理解して同意する';
 	@override String get zuvioCourseInfo => 'コース情報';
 	@override String get zuvioAttendanceOnTime => '定刻';
 	@override String get zuvioAttendanceLate => '遅刻';
 	@override String get zuvioAttendanceAbsent => '欠席';
+	@override String get zuvioBulletinAttachments => '添付ファイル';
+	@override String get zuvioAttachmentHint => '添付ファイルはブラウザで開き、Zuvio のサーバーから配信されます。Zuvio 側の不具合で開けない場合があります。';
+	@override String get zuvioFeedbackReplied => '先生が返信済み';
+	@override String get zuvioFeedbackNotReplied => '返信待ち';
+	@override String get zuvioAttendanceRecord => '点呼記録';
+	@override String get zuvioNoQuestions => '問題がありません';
+	@override String get zuvioQuestionCorrect => '正解';
+	@override String get zuvioQuestionWrong => '不正解';
+	@override String get zuvioQuestionUnanswered => '未回答';
+	@override String get zuvioFeedbackMe => '自分';
+	@override String get zuvioAttendanceRate => '出席率';
+	@override String get zuvioClassRank => '順位';
+	@override String get zuvioAccuracy => '正答率';
+	@override String get zuvioRollcallTapHint => '下のボタンをタップしてサインイン';
+	@override String get zuvioQuestionSubmitted => '回答済み';
+	@override String get zuvioYourAnswer => 'あなたの回答';
+	@override String get zuvioSelected => '選択';
+	@override String get zuvioAttendanceRank => '出席順位';
+	@override String get zuvioAccuracyRank => '正答率順位';
+	@override String get zuvioCheckedInAt => 'サインイン';
+	@override String get zuvioEnrolled => '履修人数';
+	@override String get zuvioWriteUnsupported => '現在は読み取りのみ対応、送信は未対応です';
+	@override String get zuvioFeatures => '機能一覧';
+	@override String get zuvioLogout => 'Zuvio からログアウト';
+	@override String get zuvioLogoutConfirm => 'Zuvio からログアウトしますか？';
+	@override String get zuvioLocationServiceOff => '端末の位置情報サービスをオンにしてください';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -567,12 +593,38 @@ extension on NkustLocalizationsJa {
 			'zuvioStickerConfused' => 'わからない',
 			'zuvioSemesterFormat' => ({required Object year, required Object term}) => '${year} 学年度 第 ${term} 学期',
 			'zuvioBetaTitle' => 'ベータ機能',
-			'zuvioBetaContent' => 'Zuvio 関連機能は現在ベータ版です。ブラウザ操作を模擬してデータを取得するため、Zuvio サイトの変更で動作しなくなったり予期しない結果になることがあります。必ず Zuvio 公式アプリ／サイトの結果を優先してください。本機能の利用による点呼・回答等の問題について本アプリは責任を負いません。',
+			'zuvioBetaContent' => 'Zuvio 関連機能は現在ベータ版です。ブラウザ操作を模擬してデータを取得するため、Zuvio サイトの変更で動作しなくなったり予期しない結果になることがあります。\n\n現在は「点呼サインイン」と各種データの読み取り（コース、お知らせ、回答・点呼記録、フィードバック内容など）のみ対応しています。「回答」や「フィードバック送信」などの書き込みは未対応です。\n\n必ず Zuvio 公式アプリ／サイトの結果を優先してください。本機能の利用による点呼・回答等の問題について本アプリは責任を負いません。',
 			'zuvioBetaAgree' => '理解して同意する',
 			'zuvioCourseInfo' => 'コース情報',
 			'zuvioAttendanceOnTime' => '定刻',
 			'zuvioAttendanceLate' => '遅刻',
 			'zuvioAttendanceAbsent' => '欠席',
+			'zuvioBulletinAttachments' => '添付ファイル',
+			'zuvioAttachmentHint' => '添付ファイルはブラウザで開き、Zuvio のサーバーから配信されます。Zuvio 側の不具合で開けない場合があります。',
+			'zuvioFeedbackReplied' => '先生が返信済み',
+			'zuvioFeedbackNotReplied' => '返信待ち',
+			'zuvioAttendanceRecord' => '点呼記録',
+			'zuvioNoQuestions' => '問題がありません',
+			'zuvioQuestionCorrect' => '正解',
+			'zuvioQuestionWrong' => '不正解',
+			'zuvioQuestionUnanswered' => '未回答',
+			'zuvioFeedbackMe' => '自分',
+			'zuvioAttendanceRate' => '出席率',
+			'zuvioClassRank' => '順位',
+			'zuvioAccuracy' => '正答率',
+			'zuvioRollcallTapHint' => '下のボタンをタップしてサインイン',
+			'zuvioQuestionSubmitted' => '回答済み',
+			'zuvioYourAnswer' => 'あなたの回答',
+			'zuvioSelected' => '選択',
+			'zuvioAttendanceRank' => '出席順位',
+			'zuvioAccuracyRank' => '正答率順位',
+			'zuvioCheckedInAt' => 'サインイン',
+			'zuvioEnrolled' => '履修人数',
+			'zuvioWriteUnsupported' => '現在は読み取りのみ対応、送信は未対応です',
+			'zuvioFeatures' => '機能一覧',
+			'zuvioLogout' => 'Zuvio からログアウト',
+			'zuvioLogoutConfirm' => 'Zuvio からログアウトしますか？',
+			'zuvioLocationServiceOff' => '端末の位置情報サービスをオンにしてください',
 			_ => null,
 		};
 	}

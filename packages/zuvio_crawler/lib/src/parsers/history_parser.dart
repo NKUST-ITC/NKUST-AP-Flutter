@@ -46,23 +46,21 @@ List<ZuvioAttendanceRecord> parseAttendanceHistory(String html) {
   return out;
 }
 
-/// Parses the 問答紀錄 tab. Only the folder list is server-rendered; the
-/// per-folder answered counts load lazily, so entries come back at
-/// folder granularity.
+final RegExp _folderId = RegExp(r'irs_questions\(\s*\d+\s*,\s*(\d+)\s*\)');
+
+/// Parses the 問答紀錄 folder list. Each `.i-h-a-folder-row` links to
+/// `irs_questions(<courseId>, <folderId>)`; per-folder answered counts
+/// load lazily via `app_v2/getFolderAnsweredAmount`.
 List<ZuvioHistoryEntry> parseAnswerFolders(String html) {
   final Document doc = parse(html);
   final List<ZuvioHistoryEntry> out = <ZuvioHistoryEntry>[];
   for (final Element row in doc.querySelectorAll('.i-h-a-folder-row')) {
     final String name =
         row.querySelector('.i-h-a-f-r-folder-name')?.text.trim() ?? '';
-    if (name.isEmpty) continue;
-    out.add(
-      ZuvioHistoryEntry(
-        title: name,
-        folder: name,
-        status: ZuvioAnswerStatus.onTime,
-      ),
-    );
+    final RegExpMatch? m =
+        _folderId.firstMatch(row.attributes['onclick'] ?? '');
+    if (name.isEmpty || m == null) continue;
+    out.add(ZuvioHistoryEntry(folderId: m.group(1)!, title: name));
   }
   return out;
 }

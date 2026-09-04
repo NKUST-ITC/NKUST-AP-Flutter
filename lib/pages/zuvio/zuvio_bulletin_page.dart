@@ -1,8 +1,9 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_bulletin_detail_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
-import 'package:nkust_ap/pages/zuvio/zuvio_widgets.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class ZuvioBulletinPage extends StatefulWidget {
@@ -17,8 +18,8 @@ class ZuvioBulletinPage extends StatefulWidget {
 }
 
 class ZuvioBulletinPageState extends State<ZuvioBulletinPage> {
-  List<ZuvioBulletin>? _items;
-  bool _error = false;
+  ZViewState _state = ZViewState.loading;
+  List<ZuvioBulletin> _items = <ZuvioBulletin>[];
 
   @override
   void initState() {
@@ -32,83 +33,68 @@ class ZuvioBulletinPageState extends State<ZuvioBulletinPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.zuvioBulletin)),
-      body: RefreshIndicator(onRefresh: _load, child: _body()),
-    );
-  }
-
-  Widget _body() {
-    if (_error) {
-      return _hint(context.ap.somethingError);
-    }
-    if (_items == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_items!.isEmpty) {
-      return _hint(context.t.noData);
-    }
-    return ListView.builder(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(12),
-      itemCount: _items!.length,
-      itemBuilder: (BuildContext context, int index) {
-        final ZuvioBulletin b = _items![index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  b.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+    return ZScaffold(
+      title: context.t.zuvioBulletin,
+      body: RefreshIndicator(
+        onRefresh: _load,
+        child: ZStateView(
+          state: _state,
+          onRetry: _load,
+          emptyIcon: Icons.campaign_outlined,
+          builder: (_) => ListView.separated(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding:
+                const EdgeInsets.fromLTRB(ZGap.m, ZGap.m, ZGap.m, ZGap.xxl),
+            itemCount: _items.length,
+            separatorBuilder: (_, __) => const SizedBox(height: ZGap.s),
+            itemBuilder: (BuildContext context, int index) {
+              final ZuvioBulletin b = _items[index];
+              return ZCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) => ZuvioBulletinDetailPage(summary: b),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  '${b.author} · ${zuvioFormatDate(b.date)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(b.title, style: context.zt.cardTitle),
+                    const SizedBox(height: ZGap.xs),
+                    Text(
+                      '${b.author} · ${zuvioDate(b.date)}',
+                      style: context.zt.label,
+                    ),
+                    const SizedBox(height: ZGap.s),
+                    Text(
+                      b.content,
+                      style: context.zt.supporting,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                Text(b.content, style: const TextStyle(height: 1.5)),
-              ],
-            ),
+              );
+            },
           ),
-        );
-      },
-    );
-  }
-
-  Widget _hint(String text) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: <Widget>[
-        SizedBox(height: MediaQuery.of(context).size.height * 0.3),
-        HintContent(icon: ApIcon.info, content: text),
-      ],
+        ),
+      ),
     );
   }
 
   Future<void> _load() async {
-    setState(() {
-      _error = false;
-      _items = null;
-    });
+    setState(() => _state = ZViewState.loading);
     try {
       final List<ZuvioBulletin> data =
           await ZuvioService.instance.getBulletins(widget.course.courseId);
       if (!mounted) return;
-      setState(() => _items = data);
+      setState(() {
+        _items = data;
+        _state = data.isEmpty ? ZViewState.empty : ZViewState.ready;
+      });
     } on ZuvioException {
       if (!mounted) return;
-      setState(() => _error = true);
+      setState(() => _state = ZViewState.error);
     }
   }
 }

@@ -1,20 +1,12 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/utils/global.dart';
 
-enum _State {
-  checking,
-  notOpen,
-  needLocation,
-  locating,
-  locationDenied,
-  ready,
-  submitting,
-  answered,
-  error,
-}
+enum _State { checking, notOpen, open, locating, submitting, answered, error }
 
 class ZuvioRollcallPage extends StatefulWidget {
   static const String routerName = '/zuvio/rollcall';
@@ -30,7 +22,6 @@ class ZuvioRollcallPage extends StatefulWidget {
 class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
   _State _state = _State.checking;
   ZuvioRollcall _rollcall = const ZuvioRollcall.notOpen();
-  ZuvioLocation? _location;
   String _errorText = '';
 
   @override
@@ -40,163 +31,140 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
       'ZuvioRollcallPage',
       'zuvio_rollcall_page.dart',
     );
-    _checkRollcall();
+    _check();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.zuvioRollcall)),
+    return ZScaffold(
+      title: context.t.zuvioRollcall,
       body: RefreshIndicator(
-        onRefresh: _checkRollcall,
+        onRefresh: _check,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.xl, ZGap.m, ZGap.xl),
           children: <Widget>[
-            const SizedBox(height: 32),
-            _statusIcon(),
-            const SizedBox(height: 24),
-            Text(
-              _statusTitle(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              _statusSubtitle(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ZCard(
+              padding: const EdgeInsets.symmetric(
+                horizontal: ZGap.l,
+                vertical: ZGap.xxl,
+              ),
+              child: Column(
+                children: <Widget>[
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 220),
+                    child: _icon(),
+                  ),
+                  const SizedBox(height: ZGap.l),
+                  Text(
+                    _title(),
+                    textAlign: TextAlign.center,
+                    style: context.zt.heading,
+                  ),
+                  const SizedBox(height: ZGap.s),
+                  Text(
+                    _subtitle(),
+                    textAlign: TextAlign.center,
+                    style: context.zt.supporting,
+                  ),
+                ],
               ),
             ),
-            if (_location != null) ...<Widget>[
-              const SizedBox(height: 16),
-              Text(
-                '${_location!.latitude.toStringAsFixed(6)}, '
-                '${_location!.longitude.toStringAsFixed(6)}',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-            const SizedBox(height: 40),
-            _actionButton(),
+            const SizedBox(height: ZGap.l),
+            _action(),
           ],
         ),
       ),
     );
   }
 
-  Widget _statusIcon() {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    late final IconData icon;
-    late final Color color;
-    switch (_state) {
-      case _State.checking:
-      case _State.locating:
-      case _State.submitting:
-        return const Center(child: CircularProgressIndicator());
-      case _State.notOpen:
-        icon = Icons.event_busy_outlined;
-        color = colorScheme.onSurfaceVariant;
-      case _State.needLocation:
-      case _State.ready:
-        icon = Icons.location_on_outlined;
-        color = colorScheme.primary;
-      case _State.locationDenied:
-      case _State.error:
-        icon = Icons.error_outline_rounded;
-        color = colorScheme.error;
-      case _State.answered:
-        icon = Icons.check_circle_outline_rounded;
-        color = Colors.green;
+  Widget _icon() {
+    final ZColors zc = context.zc;
+    if (_state == _State.checking ||
+        _state == _State.submitting ||
+        _state == _State.locating) {
+      return const SizedBox(
+        key: ValueKey<String>('rc-progress'),
+        height: 72,
+        width: 72,
+        child: Center(
+          child: SizedBox(
+            height: 40,
+            width: 40,
+            child: CircularProgressIndicator(strokeWidth: 3),
+          ),
+        ),
+      );
     }
-    return Icon(icon, size: 88, color: color);
+    final (IconData icon, Color color) = switch (_state) {
+      _State.notOpen => (Icons.event_busy_outlined, zc.textSecondary),
+      _State.open => (Icons.how_to_reg_outlined, zc.accent),
+      _State.error => (Icons.error_outline_rounded, zc.danger),
+      _State.answered => (Icons.check_circle_rounded, zc.success),
+      _ => (Icons.help_outline_rounded, zc.textSecondary),
+    };
+    return Container(
+      key: ValueKey<_State>(_state),
+      height: 72,
+      width: 72,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, size: 38, color: color),
+    );
   }
 
-  String _statusTitle() {
-    switch (_state) {
-      case _State.checking:
-        return context.t.loading;
-      case _State.notOpen:
-        return context.t.zuvioRollcallNotOpen;
-      case _State.needLocation:
-      case _State.ready:
-        return context.t.zuvioRollcallOpen;
-      case _State.locating:
-        return context.t.zuvioLocating;
-      case _State.locationDenied:
-        return context.t.zuvioLocationDenied;
-      case _State.submitting:
-        return context.t.zuvioSigningIn;
-      case _State.answered:
-        return context.t.zuvioSignInSuccess;
-      case _State.error:
-        return context.ap.somethingError;
-    }
+  String _title() {
+    return switch (_state) {
+      _State.checking => context.t.loading,
+      _State.notOpen => context.t.zuvioRollcallNotOpen,
+      _State.open => context.t.zuvioRollcallOpen,
+      _State.locating => context.t.zuvioLocating,
+      _State.submitting => context.t.zuvioSigningIn,
+      _State.answered => context.t.zuvioSignInSuccess,
+      _State.error => context.ap.somethingError,
+    };
   }
 
-  String _statusSubtitle() {
-    switch (_state) {
-      case _State.needLocation:
-      case _State.ready:
-        return context.t.zuvioRollcallGpsHint;
-      case _State.locationDenied:
-        return context.t.zuvioLocationDeniedHint;
-      case _State.answered:
-        final DateTime at = _rollcall.answeredAt ?? DateTime.now();
-        return '${at.hour.toString().padLeft(2, '0')}:'
-            '${at.minute.toString().padLeft(2, '0')}';
-      case _State.error:
-        return _errorText;
-      default:
-        return widget.course.name;
-    }
+  String _subtitle() {
+    return switch (_state) {
+      _State.open => context.t.zuvioRollcallTapHint,
+      _State.answered => zuvioTime(_rollcall.answeredAt ?? DateTime.now()),
+      _State.error => _errorText,
+      _ => widget.course.name,
+    };
   }
 
-  Widget _actionButton() {
-    switch (_state) {
-      case _State.needLocation:
-      case _State.ready:
-        return ApButton(
-          text: context.t.zuvioSignIn,
+  Widget _action() {
+    return switch (_state) {
+      _State.open => ZButton(
+          label: context.t.zuvioSignIn,
+          icon: Icons.how_to_reg_rounded,
           onPressed: _signIn,
-        );
-      case _State.locationDenied:
-      case _State.error:
-        return ApButton(
-          text: context.t.tapToRetry,
-          onPressed: _checkRollcall,
-        );
-      default:
-        return const SizedBox.shrink();
-    }
+        ),
+      _State.error => ZButton(
+          label: context.ap.retry,
+          variant: ZButtonVariant.secondary,
+          onPressed: _check,
+        ),
+      _ => const SizedBox.shrink(),
+    };
   }
 
-  Future<void> _checkRollcall() async {
-    setState(() {
-      _state = _State.checking;
-      _location = null;
-    });
+  Future<void> _check() async {
+    setState(() => _state = _State.checking);
     try {
       final ZuvioRollcall rollcall = await ZuvioService.instance
           .getCurrentRollcall(widget.course.courseId);
       if (!mounted) return;
       setState(() {
         _rollcall = rollcall;
-        switch (rollcall.state) {
-          case ZuvioRollcallState.open:
-            _state = _State.needLocation;
-          case ZuvioRollcallState.answered:
-            _state = _State.answered;
-          case ZuvioRollcallState.notOpen:
-          case ZuvioRollcallState.absent:
-          case ZuvioRollcallState.leave:
-            _state = _State.notOpen;
-        }
+        _state = switch (rollcall.state) {
+          ZuvioRollcallState.open => _State.open,
+          ZuvioRollcallState.answered => _State.answered,
+          _ => _State.notOpen,
+        };
       });
     } on ZuvioException catch (e) {
       if (!mounted) return;
@@ -208,45 +176,84 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
   }
 
   Future<void> _signIn() async {
-    setState(() => _state = _State.locating);
-    final ZuvioLocation? location = await _acquireLocation();
-    if (!mounted) return;
-    if (location == null) {
-      setState(() => _state = _State.locationDenied);
-      return;
-    }
-    setState(() {
-      _location = location;
-      _state = _State.submitting;
-    });
+    setState(() => _state = _State.submitting);
     AnalyticsUtil.instance.logEvent('zuvio_rollcall_sign_in');
     try {
-      await ZuvioService.instance.makeRollcall(
-        rollcallId: _rollcall.rollcallId,
-        location: location,
-      );
-      if (!mounted) return;
-      setState(() {
-        _rollcall = ZuvioRollcall(
-          rollcallId: _rollcall.rollcallId,
-          state: ZuvioRollcallState.answered,
-          answeredAt: DateTime.now(),
-        );
-        _state = _State.answered;
-      });
+      await ZuvioService.instance
+          .makeRollcall(rollcallId: _rollcall.rollcallId);
+      _markAnswered();
     } on ZuvioException catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _state = _State.error;
-        _errorText = e.message;
-      });
+      if (e.message == '此點名需要定位資訊') {
+        await _signInWithLocation();
+        return;
+      }
+      _showError(e.message);
     }
   }
 
-  /// Device GPS. Replace with a `geolocator` call once the platform
-  /// location permission plumbing is wired.
-  Future<ZuvioLocation?> _acquireLocation() async {
-    await Future<void>.delayed(const Duration(milliseconds: 800));
-    return const ZuvioLocation(latitude: 22.652, longitude: 120.328);
+  Future<void> _signInWithLocation() async {
+    if (!mounted) return;
+    setState(() => _state = _State.locating);
+
+    final String serviceOff = context.t.zuvioLocationServiceOff;
+    final String denied = context.t.zuvioLocationDeniedHint;
+    final String failed = context.t.zuvioLocationDenied;
+
+    Position position;
+    try {
+      if (!await Geolocator.isLocationServiceEnabled()) {
+        _showError(serviceOff);
+        return;
+      }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        _showError(denied);
+        return;
+      }
+      position = await Geolocator.getCurrentPosition(
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
+      );
+    } catch (_) {
+      _showError(failed);
+      return;
+    }
+
+    if (!mounted) return;
+    setState(() => _state = _State.submitting);
+    try {
+      await ZuvioService.instance.makeRollcall(
+        rollcallId: _rollcall.rollcallId,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+      _markAnswered();
+    } on ZuvioException catch (e) {
+      _showError(e.message);
+    }
+  }
+
+  void _markAnswered() {
+    if (!mounted) return;
+    setState(() {
+      _rollcall = ZuvioRollcall(
+        rollcallId: _rollcall.rollcallId,
+        state: ZuvioRollcallState.answered,
+        answeredAt: DateTime.now(),
+      );
+      _state = _State.answered;
+    });
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    setState(() {
+      _state = _State.error;
+      _errorText = message;
+    });
   }
 }

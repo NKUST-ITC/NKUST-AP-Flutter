@@ -909,6 +909,27 @@ class HomePageState extends State<HomePage> {
         true,
       );
     }
+
+    final bool signedOut = PreferenceUtil.instance.getBool(
+      Constants.prefZuvioSignedOut,
+      false,
+    );
+    if (!ZuvioService.instance.isLogin && !signedOut) {
+      // Zuvio shares the campus system credentials, so reuse the stored
+      // login instead of asking again. After an explicit sign-out the
+      // login page is shown until the user signs in there manually.
+      final String username =
+          PreferenceUtil.instance.getString(Constants.prefUsername, '');
+      final String password = PreferenceUtil.instance
+          .getStringSecurity(Constants.prefPassword, '');
+      if (username.isNotEmpty && password.isNotEmpty) {
+        try {
+          await ZuvioService.instance
+              .login(email: username, password: password);
+        } catch (_) {}
+      }
+    }
+
     if (!mounted) return;
     _openPage(
       ZuvioService.instance.isLogin

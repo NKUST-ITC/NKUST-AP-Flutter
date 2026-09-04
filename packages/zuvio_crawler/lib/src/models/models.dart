@@ -69,18 +69,16 @@ enum ZuvioAnswerStatus { onTime, late, missed }
 
 class ZuvioHistoryEntry {
   const ZuvioHistoryEntry({
+    required this.folderId,
     required this.title,
-    required this.folder,
-    required this.status,
-    this.openAt,
-    this.answeredAt,
+    this.answeredCount,
   });
 
+  final String folderId;
   final String title;
-  final String folder;
-  final ZuvioAnswerStatus status;
-  final DateTime? openAt;
-  final DateTime? answeredAt;
+
+  /// From `app_v2/getFolderAnsweredAmount`; null until loaded.
+  final String? answeredCount;
 }
 
 class ZuvioAttendanceRecord {
@@ -95,42 +93,62 @@ class ZuvioAttendanceRecord {
   final DateTime? checkedInAt;
 }
 
+class ZuvioAttachment {
+  const ZuvioAttachment({required this.name, required this.url});
+
+  final String name;
+  final String url;
+}
+
 class ZuvioBulletin {
   const ZuvioBulletin({
+    required this.id,
     required this.author,
     required this.title,
     required this.content,
     this.date,
+    this.attachments = const <ZuvioAttachment>[],
   });
 
+  final String id;
   final String author;
   final String title;
   final String content;
   final DateTime? date;
+  final List<ZuvioAttachment> attachments;
 }
 
 class ZuvioFeedbackMessage {
   const ZuvioFeedbackMessage({
+    required this.id,
     required this.content,
     required this.isMine,
+    this.replied = false,
     this.authorName,
     this.createdAt,
   });
 
   /// Items from `app_v2/getFeedbackList` in the 私訊老師 feed are all the
-  /// current student's own messages.
+  /// current student's own messages; `reply_id` is set once the teacher
+  /// has replied.
   factory ZuvioFeedbackMessage.fromJson(Map<String, dynamic> json) {
     return ZuvioFeedbackMessage(
+      id: '${json['id'] ?? ''}',
       content: '${json['content'] ?? ''}',
       isMine: true,
+      replied: json['reply_id'] != null &&
+          '${json['reply_id']}'.isNotEmpty &&
+          '${json['reply_id']}' != 'null',
       createdAt: DateTime.tryParse(
         '${json['created_at']}'.replaceFirst(' ', 'T'),
       ),
     );
   }
 
+  final String id;
   final String content;
   final bool isMine;
+  final bool replied;
   final String? authorName;
   final DateTime? createdAt;
 }
@@ -153,6 +171,72 @@ class ZuvioCourseInfo {
   const ZuvioCourseInfo({required this.sections});
 
   final List<ZuvioInfoSection> sections;
+}
+
+enum ZuvioQuestionResult { correct, wrong, unanswered, submitted }
+
+enum ZuvioQuestionKind { single, multiple, essay }
+
+class ZuvioQuestion {
+  const ZuvioQuestion({
+    required this.id,
+    required this.type,
+    required this.text,
+    required this.result,
+  });
+
+  final String id;
+  final String type;
+  final String text;
+  final ZuvioQuestionResult result;
+}
+
+class ZuvioQuestionOption {
+  const ZuvioQuestionOption({
+    required this.order,
+    required this.text,
+    required this.isCorrect,
+    required this.isSelected,
+  });
+
+  final String order;
+  final String text;
+  final bool isCorrect;
+  final bool isSelected;
+}
+
+class ZuvioQuestionDetail {
+  const ZuvioQuestionDetail({
+    required this.type,
+    required this.kind,
+    required this.text,
+    required this.result,
+    required this.options,
+    this.essayAnswer,
+  });
+
+  final String type;
+  final ZuvioQuestionKind kind;
+  final String text;
+  final ZuvioQuestionResult result;
+  final List<ZuvioQuestionOption> options;
+  final String? essayAnswer;
+}
+
+class ZuvioFeedbackThread {
+  const ZuvioFeedbackThread({
+    required this.question,
+    this.questionAt,
+    this.reply,
+    this.replyAuthor,
+    this.replyAt,
+  });
+
+  final String question;
+  final DateTime? questionAt;
+  final String? reply;
+  final String? replyAuthor;
+  final DateTime? replyAt;
 }
 
 class ZuvioClickerQuestion {

@@ -1,11 +1,10 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_course_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/utils/global.dart';
-
-enum _State { loading, finish, empty, error }
 
 class ZuvioCourseListPage extends StatefulWidget {
   static const String routerName = '/zuvio/courses';
@@ -17,7 +16,7 @@ class ZuvioCourseListPage extends StatefulWidget {
 }
 
 class ZuvioCourseListPageState extends State<ZuvioCourseListPage> {
-  _State _state = _State.loading;
+  ZViewState _state = ZViewState.loading;
   List<ZuvioCourse> _courses = <ZuvioCourse>[];
 
   @override
@@ -32,80 +31,92 @@ class ZuvioCourseListPageState extends State<ZuvioCourseListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.zuvioCourseList)),
+    return ZScaffold(
+      title: context.t.zuvioCourseList,
+      actions: <Widget>[
+        IconButton(
+          tooltip: context.t.zuvioLogout,
+          icon: const Icon(Icons.logout_rounded),
+          onPressed: _logout,
+        ),
+      ],
       body: RefreshIndicator(
         onRefresh: _load,
-        child: _body(),
+        child: ZStateView(
+          state: _state,
+          onRetry: _load,
+          emptyIcon: Icons.school_outlined,
+          emptyText: context.t.zuvioNoCourses,
+          loading: _loadingList(),
+          builder: (_) => _list(),
+        ),
       ),
     );
   }
 
-  Widget _body() {
-    switch (_state) {
-      case _State.loading:
-        return const Center(child: CircularProgressIndicator());
-      case _State.empty:
-        return _hint(context.t.zuvioNoCourses);
-      case _State.error:
-        return _hint(context.ap.somethingError);
-      case _State.finish:
-        return _groupedList();
-    }
+  Widget _loadingList() {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.m, ZGap.m, ZGap.m),
+      children: <Widget>[
+        for (int i = 0; i < 5; i++)
+          const Padding(
+            padding: EdgeInsets.only(bottom: ZGap.sm),
+            child: ZSkeleton(height: 64, radius: 16),
+          ),
+      ],
+    );
   }
 
-  Widget _groupedList() {
+  Widget _list() {
     final List<String> order = <String>[];
     final Map<String, List<ZuvioCourse>> grouped =
         <String, List<ZuvioCourse>>{};
-    for (final ZuvioCourse course in _courses) {
-      final String key = course.semester;
-      grouped.putIfAbsent(key, () {
-        order.add(key);
+    for (final ZuvioCourse c in _courses) {
+      grouped.putIfAbsent(c.semester, () {
+        order.add(c.semester);
         return <ZuvioCourse>[];
-      }).add(course);
-    }
-
-    final List<Widget> children = <Widget>[];
-    for (final String semester in order) {
-      children.add(
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
-          child: Text(
-            _semesterLabel(semester),
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-        ),
-      );
-      for (final ZuvioCourse course in grouped[semester]!) {
-        children.add(
-          Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.class_outlined),
-              title: Text(course.name),
-              subtitle: Text(course.teacherName),
-              trailing: const Icon(Icons.chevron_right_rounded),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (_) => ZuvioCoursePage(course: course),
-                ),
-              ),
-            ),
-          ),
-        );
-      }
+      }).add(c);
     }
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 16),
-      children: children,
+      padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.s, ZGap.m, ZGap.xxl),
+      children: <Widget>[
+        for (final String semester in order) ...<Widget>[
+          const SizedBox(height: ZGap.m),
+          ZSectionHeader(_semesterLabel(semester)),
+          ZCard(
+            padding: const EdgeInsets.symmetric(vertical: ZGap.xs),
+            child: Column(
+              children: <Widget>[
+                for (int i = 0; i < grouped[semester]!.length; i++) ...<Widget>[
+                  if (i != 0)
+                    Divider(
+                      height: 1,
+                      indent: ZGap.xxl + ZGap.s,
+                      color: context.zc.outline,
+                    ),
+                  _row(grouped[semester]![i]),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _row(ZuvioCourse course) {
+    return ZListRow(
+      icon: Icons.class_outlined,
+      title: course.name,
+      subtitle: course.teacherName,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (_) => ZuvioCoursePage(course: course),
+        ),
+      ),
     );
   }
 
@@ -117,29 +128,49 @@ class ZuvioCourseListPageState extends State<ZuvioCourseListPage> {
     return code;
   }
 
-  Widget _hint(String text) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: <Widget>[
-        SizedBox(height: MediaQuery.of(context).size.height * 0.3),
-        HintContent(icon: ApIcon.classIcon, content: text),
-      ],
-    );
+  Future<void> _logout() async {
+    final bool confirmed = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) => AlertDialog(
+            title: Text(context.t.zuvioLogout),
+            content: Text(context.t.zuvioLogoutConfirm),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(false),
+                child: Text(context.ap.cancel),
+              ),
+              TextButton(
+                onPressed: () =>
+                    Navigator.of(context, rootNavigator: true).pop(true),
+                child: Text(context.t.zuvioLogout),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed || !mounted) return;
+    await ZuvioService.instance.logout();
+    await PreferenceUtil.instance
+        .setBool(Constants.prefZuvioSignedOut, true);
+    AnalyticsUtil.instance.logEvent('zuvio_logout');
+    if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _load() async {
-    setState(() => _state = _State.loading);
+    setState(() => _state = ZViewState.loading);
     try {
       final List<ZuvioCourse> courses =
           await ZuvioService.instance.getCourses();
       if (!mounted) return;
       setState(() {
         _courses = courses;
-        _state = courses.isEmpty ? _State.empty : _State.finish;
+        _state =
+            courses.isEmpty ? ZViewState.empty : ZViewState.ready;
       });
     } on ZuvioException {
       if (!mounted) return;
-      setState(() => _state = _State.error);
+      setState(() => _state = ZViewState.error);
     }
   }
 }

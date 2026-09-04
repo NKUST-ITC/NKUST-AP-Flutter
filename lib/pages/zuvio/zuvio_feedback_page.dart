@@ -1,8 +1,9 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_feedback_detail_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
-import 'package:nkust_ap/pages/zuvio/zuvio_widgets.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class ZuvioFeedbackPage extends StatefulWidget {
@@ -17,10 +18,8 @@ class ZuvioFeedbackPage extends StatefulWidget {
 }
 
 class ZuvioFeedbackPageState extends State<ZuvioFeedbackPage> {
-  final TextEditingController _input = TextEditingController();
-  List<ZuvioFeedbackMessage>? _messages;
-  bool _error = false;
-  bool _sending = false;
+  ZViewState _state = ZViewState.loading;
+  List<ZuvioFeedbackMessage> _messages = <ZuvioFeedbackMessage>[];
 
   @override
   void initState() {
@@ -33,179 +32,150 @@ class ZuvioFeedbackPageState extends State<ZuvioFeedbackPage> {
   }
 
   @override
-  void dispose() {
-    _input.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.zuvioFeedback)),
+    return ZScaffold(
+      title: context.t.zuvioFeedback,
       body: Column(
         children: <Widget>[
-          Expanded(child: _list()),
-          const Divider(height: 1),
-          _composer(),
+          Expanded(
+            child: ZStateView(
+              state: _state,
+              onRetry: _load,
+              emptyIcon: Icons.forum_outlined,
+              emptyText: context.t.zuvioFeedbackEmpty,
+              builder: (_) => RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding:
+                      const EdgeInsets.fromLTRB(ZGap.m, ZGap.m, ZGap.m, ZGap.m),
+                  itemCount: _messages.length,
+                  itemBuilder: (BuildContext context, int index) =>
+                      _bubble(_messages[index]),
+                ),
+              ),
+            ),
+          ),
+          _readOnlyNotice(),
         ],
       ),
     );
   }
 
-  Widget _list() {
-    if (_error) {
-      return _hint(context.ap.somethingError);
-    }
-    if (_messages == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (_messages!.isEmpty) {
-      return _hint(context.t.zuvioFeedbackEmpty);
-    }
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView.builder(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(12),
-        itemCount: _messages!.length,
-        itemBuilder: (BuildContext context, int index) =>
-            _bubble(_messages![index]),
-      ),
-    );
-  }
-
-  Widget _hint(String text) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: <Widget>[
-        SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-        HintContent(icon: ApIcon.assignment, content: text),
-      ],
-    );
-  }
-
-  Widget _bubble(ZuvioFeedbackMessage m) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final Color bg = m.isMine
-        ? colorScheme.primaryContainer
-        : colorScheme.surfaceContainerHighest;
-    return Align(
-      alignment: m.isMine ? Alignment.centerRight : Alignment.centerLeft,
+  Widget _readOnlyNotice() {
+    return SafeArea(
+      top: false,
       child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(
+          horizontal: ZGap.m,
+          vertical: ZGap.sm,
         ),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        color: context.zc.surfaceHi,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            if (!m.isMine && m.authorName != null)
-              Text(
-                m.authorName!,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: colorScheme.onSurfaceVariant,
-                ),
+            Icon(
+              Icons.info_outline_rounded,
+              size: 15,
+              color: context.zc.textFaint,
+            ),
+            const SizedBox(width: ZGap.xs),
+            Flexible(
+              child: Text(
+                context.t.zuvioWriteUnsupported,
+                style: context.zt.label,
+                textAlign: TextAlign.center,
               ),
-            Text(m.content),
-            if (m.createdAt != null) ...<Widget>[
-              const SizedBox(height: 2),
-              Text(
-                zuvioFormatDateTime(m.createdAt!),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _composer() {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 12,
-        right: 8,
-        top: 8,
-        bottom: 8 + MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              controller: _input,
-              minLines: 1,
-              maxLines: 4,
-              decoration: InputDecoration(
-                isDense: true,
-                hintText: context.t.zuvioFeedbackHint,
-                border: const OutlineInputBorder(),
-              ),
+  Widget _bubble(ZuvioFeedbackMessage m) {
+    final ZColors zc = context.zc;
+    final bool openable = m.isMine && m.id.isNotEmpty;
+    return Align(
+      alignment: m.isMine ? Alignment.centerRight : Alignment.centerLeft,
+      child: GestureDetector(
+        onTap: openable
+            ? () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (_) =>
+                        ZuvioFeedbackDetailPage(feedbackId: m.id),
+                  ),
+                )
+            : null,
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.78,
+          ),
+          margin: const EdgeInsets.symmetric(vertical: ZGap.xs),
+          padding: const EdgeInsets.symmetric(
+            horizontal: ZGap.sm,
+            vertical: ZGap.s,
+          ),
+          decoration: BoxDecoration(
+            color: m.isMine ? zc.accentSoft : zc.surfaceHi,
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(14),
+              topRight: const Radius.circular(14),
+              bottomLeft: Radius.circular(m.isMine ? 14 : 4),
+              bottomRight: Radius.circular(m.isMine ? 4 : 14),
             ),
           ),
-          IconButton(
-            icon: _sending
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.send_rounded),
-            onPressed: _sending ? null : _send,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              if (!m.isMine && m.authorName != null)
+                Text(m.authorName!, style: context.zt.label),
+              Text(m.content, style: context.zt.body),
+              const SizedBox(height: ZGap.xs),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (m.createdAt != null)
+                    Text(
+                      zuvioDateTime(m.createdAt!),
+                      style: context.zt.label,
+                    ),
+                  if (m.isMine) ...<Widget>[
+                    const SizedBox(width: ZGap.s),
+                    Text(
+                      m.replied
+                          ? context.t.zuvioFeedbackReplied
+                          : context.t.zuvioFeedbackNotReplied,
+                      style: context.zt.label.copyWith(
+                        color: m.replied ? zc.success : zc.textFaint,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Future<void> _load() async {
-    setState(() {
-      _error = false;
-      _messages = null;
-    });
+    setState(() => _state = ZViewState.loading);
     try {
       final List<ZuvioFeedbackMessage> data =
           await ZuvioService.instance.getFeedback(widget.course.courseId);
       if (!mounted) return;
-      setState(() => _messages = data);
+      setState(() {
+        _messages = data;
+        _state = data.isEmpty ? ZViewState.empty : ZViewState.ready;
+      });
     } on ZuvioException {
       if (!mounted) return;
-      setState(() => _error = true);
-    }
-  }
-
-  Future<void> _send() async {
-    final String text = _input.text.trim();
-    if (text.isEmpty) return;
-    setState(() => _sending = true);
-    try {
-      await ZuvioService.instance
-          .sendFeedback(widget.course.courseId, text);
-      if (!mounted) return;
-      _input.clear();
-      setState(() {
-        _sending = false;
-        _messages = <ZuvioFeedbackMessage>[
-          ...?_messages,
-          ZuvioFeedbackMessage(
-            content: text,
-            createdAt: DateTime.now(),
-            isMine: true,
-          ),
-        ];
-      });
-    } on ZuvioException catch (e) {
-      if (!mounted) return;
-      setState(() => _sending = false);
-      UiUtil.instance.showToast(context, e.message);
+      setState(() => _state = ZViewState.error);
     }
   }
 }

@@ -72,20 +72,77 @@ enum ZuvioAnswerStatus {
   missed,
 }
 
-class ZuvioHistoryEntry {
-  const ZuvioHistoryEntry({
-    required this.title,
-    required this.folder,
-    required this.status,
-    this.openAt,
-    this.answeredAt,
+class ZuvioHistoryFolder {
+  const ZuvioHistoryFolder({required this.folderId, required this.title});
+
+  final String folderId;
+  final String title;
+}
+
+enum ZuvioQuestionResult { correct, wrong, unanswered, submitted }
+
+enum ZuvioQuestionKind { single, multiple, essay }
+
+class ZuvioQuestion {
+  const ZuvioQuestion({
+    required this.id,
+    required this.type,
+    required this.text,
+    required this.result,
   });
 
-  final String title;
-  final String folder;
-  final ZuvioAnswerStatus status;
-  final DateTime? openAt;
-  final DateTime? answeredAt;
+  final String id;
+  final String type;
+  final String text;
+  final ZuvioQuestionResult result;
+}
+
+class ZuvioQuestionOption {
+  const ZuvioQuestionOption({
+    required this.order,
+    required this.text,
+    required this.isCorrect,
+    required this.isSelected,
+  });
+
+  final String order;
+  final String text;
+  final bool isCorrect;
+  final bool isSelected;
+}
+
+class ZuvioQuestionDetail {
+  const ZuvioQuestionDetail({
+    required this.type,
+    required this.kind,
+    required this.text,
+    required this.result,
+    required this.options,
+    this.essayAnswer,
+  });
+
+  final String type;
+  final ZuvioQuestionKind kind;
+  final String text;
+  final ZuvioQuestionResult result;
+  final List<ZuvioQuestionOption> options;
+  final String? essayAnswer;
+}
+
+class ZuvioFeedbackThread {
+  const ZuvioFeedbackThread({
+    required this.question,
+    this.questionAt,
+    this.reply,
+    this.replyAuthor,
+    this.replyAt,
+  });
+
+  final String question;
+  final DateTime? questionAt;
+  final String? reply;
+  final String? replyAuthor;
+  final DateTime? replyAt;
 }
 
 class ZuvioAttendanceRecord {
@@ -100,31 +157,46 @@ class ZuvioAttendanceRecord {
   final DateTime? checkedInAt;
 }
 
+class ZuvioAttachment {
+  const ZuvioAttachment({required this.name, required this.url});
+
+  final String name;
+  final String url;
+}
+
 class ZuvioBulletin {
   const ZuvioBulletin({
+    required this.id,
     required this.author,
     required this.date,
     required this.title,
     required this.content,
+    this.attachments = const <ZuvioAttachment>[],
   });
 
+  final String id;
   final String author;
   final DateTime date;
   final String title;
   final String content;
+  final List<ZuvioAttachment> attachments;
 }
 
 class ZuvioFeedbackMessage {
   const ZuvioFeedbackMessage({
+    required this.id,
     required this.content,
     required this.isMine,
+    this.replied = false,
     this.createdAt,
     this.authorName,
   });
 
+  final String id;
   final String content;
   final DateTime? createdAt;
   final bool isMine;
+  final bool replied;
   final String? authorName;
 }
 

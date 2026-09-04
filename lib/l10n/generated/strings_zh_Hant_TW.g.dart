@@ -803,8 +803,8 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '測試版功能'
 	String get zuvioBetaTitle => '測試版功能';
 
-	/// zh-Hant-TW: 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能而造成的點名、作答等問題，本 App 不負擔責任。'
-	String get zuvioBetaContent => 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能而造成的點名、作答等問題，本 App 不負擔責任。';
+	/// zh-Hant-TW: 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。 目前僅支援「點名簽到」與各項資料讀取（課程、公告、問答與點名紀錄、回饋內容等）；「作答」與「送出回饋」等寫入功能尚未支援。 請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能造成的點名、作答等問題，本 App 不負擔責任。'
+	String get zuvioBetaContent => 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。\n\n目前僅支援「點名簽到」與各項資料讀取（課程、公告、問答與點名紀錄、回饋內容等）；「作答」與「送出回饋」等寫入功能尚未支援。\n\n請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能造成的點名、作答等問題，本 App 不負擔責任。';
 
 	/// zh-Hant-TW: '我瞭解並同意'
 	String get zuvioBetaAgree => '我瞭解並同意';
@@ -820,6 +820,84 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 
 	/// zh-Hant-TW: '缺席'
 	String get zuvioAttendanceAbsent => '缺席';
+
+	/// zh-Hant-TW: '公告附件'
+	String get zuvioBulletinAttachments => '公告附件';
+
+	/// zh-Hant-TW: '附件會在瀏覽器開啟，並由 Zuvio 伺服器提供，可能因對方服務異常而無法下載。'
+	String get zuvioAttachmentHint => '附件會在瀏覽器開啟，並由 Zuvio 伺服器提供，可能因對方服務異常而無法下載。';
+
+	/// zh-Hant-TW: '老師已回覆'
+	String get zuvioFeedbackReplied => '老師已回覆';
+
+	/// zh-Hant-TW: '老師尚未回覆'
+	String get zuvioFeedbackNotReplied => '老師尚未回覆';
+
+	/// zh-Hant-TW: '點名紀錄'
+	String get zuvioAttendanceRecord => '點名紀錄';
+
+	/// zh-Hant-TW: '沒有題目'
+	String get zuvioNoQuestions => '沒有題目';
+
+	/// zh-Hant-TW: '正確'
+	String get zuvioQuestionCorrect => '正確';
+
+	/// zh-Hant-TW: '錯誤'
+	String get zuvioQuestionWrong => '錯誤';
+
+	/// zh-Hant-TW: '未作答'
+	String get zuvioQuestionUnanswered => '未作答';
+
+	/// zh-Hant-TW: '我'
+	String get zuvioFeedbackMe => '我';
+
+	/// zh-Hant-TW: '出席率'
+	String get zuvioAttendanceRate => '出席率';
+
+	/// zh-Hant-TW: '班排'
+	String get zuvioClassRank => '班排';
+
+	/// zh-Hant-TW: '正確率'
+	String get zuvioAccuracy => '正確率';
+
+	/// zh-Hant-TW: '點擊下方按鈕完成簽到'
+	String get zuvioRollcallTapHint => '點擊下方按鈕完成簽到';
+
+	/// zh-Hant-TW: '已作答'
+	String get zuvioQuestionSubmitted => '已作答';
+
+	/// zh-Hant-TW: '你的作答'
+	String get zuvioYourAnswer => '你的作答';
+
+	/// zh-Hant-TW: '已選'
+	String get zuvioSelected => '已選';
+
+	/// zh-Hant-TW: '出席排名'
+	String get zuvioAttendanceRank => '出席排名';
+
+	/// zh-Hant-TW: '正確率排名'
+	String get zuvioAccuracyRank => '正確率排名';
+
+	/// zh-Hant-TW: '簽到於'
+	String get zuvioCheckedInAt => '簽到於';
+
+	/// zh-Hant-TW: '修課人數'
+	String get zuvioEnrolled => '修課人數';
+
+	/// zh-Hant-TW: '此功能目前僅支援讀取，尚無法送出'
+	String get zuvioWriteUnsupported => '此功能目前僅支援讀取，尚無法送出';
+
+	/// zh-Hant-TW: '功能清單'
+	String get zuvioFeatures => '功能清單';
+
+	/// zh-Hant-TW: '登出 Zuvio'
+	String get zuvioLogout => '登出 Zuvio';
+
+	/// zh-Hant-TW: '確定要登出 Zuvio？'
+	String get zuvioLogoutConfirm => '確定要登出 Zuvio？';
+
+	/// zh-Hant-TW: '請開啟裝置的定位服務'
+	String get zuvioLocationServiceOff => '請開啟裝置的定位服務';
 }
 
 /// The flat map containing all translations for locale <zh-Hant-TW>.
@@ -1086,12 +1164,38 @@ extension on NkustLocalizations {
 			'zuvioStickerConfused' => '聽不懂',
 			'zuvioSemesterFormat' => ({required Object year, required Object term}) => '${year} 學年度 第 ${term} 學期',
 			'zuvioBetaTitle' => '測試版功能',
-			'zuvioBetaContent' => 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能而造成的點名、作答等問題，本 App 不負擔責任。',
+			'zuvioBetaContent' => 'Zuvio 相關功能目前為測試版，透過模擬瀏覽器操作存取資料，可能因 Zuvio 網站改版而失效或產生非預期結果。\n\n目前僅支援「點名簽到」與各項資料讀取（課程、公告、問答與點名紀錄、回饋內容等）；「作答」與「送出回饋」等寫入功能尚未支援。\n\n請一律以 Zuvio 官方 App／網站的結果為準；因使用本功能造成的點名、作答等問題，本 App 不負擔責任。',
 			'zuvioBetaAgree' => '我瞭解並同意',
 			'zuvioCourseInfo' => '課程相關',
 			'zuvioAttendanceOnTime' => '準時',
 			'zuvioAttendanceLate' => '遲到',
 			'zuvioAttendanceAbsent' => '缺席',
+			'zuvioBulletinAttachments' => '公告附件',
+			'zuvioAttachmentHint' => '附件會在瀏覽器開啟，並由 Zuvio 伺服器提供，可能因對方服務異常而無法下載。',
+			'zuvioFeedbackReplied' => '老師已回覆',
+			'zuvioFeedbackNotReplied' => '老師尚未回覆',
+			'zuvioAttendanceRecord' => '點名紀錄',
+			'zuvioNoQuestions' => '沒有題目',
+			'zuvioQuestionCorrect' => '正確',
+			'zuvioQuestionWrong' => '錯誤',
+			'zuvioQuestionUnanswered' => '未作答',
+			'zuvioFeedbackMe' => '我',
+			'zuvioAttendanceRate' => '出席率',
+			'zuvioClassRank' => '班排',
+			'zuvioAccuracy' => '正確率',
+			'zuvioRollcallTapHint' => '點擊下方按鈕完成簽到',
+			'zuvioQuestionSubmitted' => '已作答',
+			'zuvioYourAnswer' => '你的作答',
+			'zuvioSelected' => '已選',
+			'zuvioAttendanceRank' => '出席排名',
+			'zuvioAccuracyRank' => '正確率排名',
+			'zuvioCheckedInAt' => '簽到於',
+			'zuvioEnrolled' => '修課人數',
+			'zuvioWriteUnsupported' => '此功能目前僅支援讀取，尚無法送出',
+			'zuvioFeatures' => '功能清單',
+			'zuvioLogout' => '登出 Zuvio',
+			'zuvioLogoutConfirm' => '確定要登出 Zuvio？',
+			'zuvioLocationServiceOff' => '請開啟裝置的定位服務',
 			_ => null,
 		};
 	}

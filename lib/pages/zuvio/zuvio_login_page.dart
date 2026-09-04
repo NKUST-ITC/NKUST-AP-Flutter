@@ -1,8 +1,8 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_course_list_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
-import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class ZuvioLoginPage extends StatefulWidget {
@@ -15,13 +15,13 @@ class ZuvioLoginPage extends StatefulWidget {
 }
 
 class ZuvioLoginPageState extends State<ZuvioLoginPage> {
-  final TextEditingController _email = TextEditingController();
+  final TextEditingController _id = TextEditingController();
   final TextEditingController _password = TextEditingController();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
+  final FocusNode _idFocus = FocusNode();
+  final FocusNode _passwordFocus = FocusNode();
 
   bool _isLoading = false;
-  bool _obscurePassword = true;
+  bool _obscure = true;
 
   @override
   void initState() {
@@ -34,83 +34,86 @@ class ZuvioLoginPageState extends State<ZuvioLoginPage> {
 
   @override
   void dispose() {
-    _email.dispose();
+    _id.dispose();
     _password.dispose();
-    _emailFocusNode.dispose();
-    _passwordFocusNode.dispose();
+    _idFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ApLocalizations ap = context.ap;
-    return LoginScaffold(
-      logoMode: LogoMode.image,
-      logoSource: ImageAssets.K,
-      appBarTitle: context.t.zuvioTitle,
-      forms: <Widget>[
-        Text(
-          context.t.zuvioLogin,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          context.t.zuvioAccountHint,
-          style: TextStyle(
-            fontSize: 13,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 24),
-        ApTextField(
-          controller: _email,
-          focusNode: _emailFocusNode,
-          nextFocusNode: _passwordFocusNode,
-          labelText: ap.studentId,
-          prefixIcon: Icons.person_outline_rounded,
-          autofillHints: const <String>[AutofillHints.username],
-        ),
-        const SizedBox(height: 12),
-        ApTextField(
-          controller: _password,
-          focusNode: _passwordFocusNode,
-          obscureText: _obscurePassword,
-          textInputAction: TextInputAction.send,
-          onSubmitted: (_) {
-            _passwordFocusNode.unfocus();
-            _login();
-          },
-          labelText: ap.password,
-          prefixIcon: Icons.lock_outline_rounded,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _obscurePassword
-                  ? Icons.visibility_outlined
-                  : Icons.visibility_off_outlined,
+    return Scaffold(
+      backgroundColor: context.zc.screen,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(ZGap.xl),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Container(
+                    height: 56,
+                    width: 56,
+                    decoration: BoxDecoration(
+                      color: context.zc.accentSoft,
+                      borderRadius: ZRadii.card,
+                    ),
+                    child: Icon(
+                      Icons.co_present_outlined,
+                      color: context.zc.onAccentSoft,
+                    ),
+                  ),
+                  const SizedBox(height: ZGap.l),
+                  Text(context.t.zuvioLogin, style: context.zt.pageTitle),
+                  const SizedBox(height: ZGap.s),
+                  Text(
+                    context.t.zuvioAccountHint,
+                    style: context.zt.supporting,
+                  ),
+                  const SizedBox(height: ZGap.xxl),
+                  ZTextField(
+                    controller: _id,
+                    focusNode: _idFocus,
+                    label: ap.studentId,
+                    icon: Icons.person_outline_rounded,
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => _passwordFocus.requestFocus(),
+                    autofillHints: const <String>[AutofillHints.username],
+                  ),
+                  const SizedBox(height: ZGap.sm),
+                  ZTextField(
+                    controller: _password,
+                    focusNode: _passwordFocus,
+                    label: ap.password,
+                    icon: Icons.lock_outline_rounded,
+                    obscure: _obscure,
+                    onToggleObscure: () =>
+                        setState(() => _obscure = !_obscure),
+                    textInputAction: TextInputAction.send,
+                    onSubmitted: (_) => _login(),
+                    autofillHints: const <String>[AutofillHints.password],
+                  ),
+                  const SizedBox(height: ZGap.xl),
+                  ZButton(
+                    label: ap.login,
+                    loading: _isLoading,
+                    onPressed: _login,
+                  ),
+                ],
+              ),
             ),
-            onPressed: () =>
-                setState(() => _obscurePassword = !_obscurePassword),
           ),
-          autofillHints: const <String>[AutofillHints.password],
         ),
-        const SizedBox(height: 24),
-        ApButton(
-          text: ap.login,
-          isLoading: _isLoading,
-          onPressed: _login,
-        ),
-      ],
+      ),
     );
   }
 
   Future<void> _login() async {
-    if (_email.text.isEmpty || _password.text.isEmpty) {
+    if (_id.text.isEmpty || _password.text.isEmpty) {
       UiUtil.instance.showToast(context, context.ap.doNotEmpty);
       return;
     }
@@ -118,9 +121,11 @@ class ZuvioLoginPageState extends State<ZuvioLoginPage> {
     AnalyticsUtil.instance.logEvent('zuvio_login_click');
     try {
       await ZuvioService.instance.login(
-        email: _email.text,
+        email: _id.text,
         password: _password.text,
       );
+      await PreferenceUtil.instance
+          .setBool(Constants.prefZuvioSignedOut, false);
       if (!mounted) return;
       setState(() => _isLoading = false);
       Navigator.pushReplacement(

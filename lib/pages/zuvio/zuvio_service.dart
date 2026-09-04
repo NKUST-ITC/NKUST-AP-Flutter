@@ -1,9 +1,8 @@
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:zuvio_crawler/zuvio_crawler.dart' as zc;
 
-/// Data source for the Zuvio pages. Defaults to the real
-/// [zc.ZuvioHelper]; swap [instance] for [ZuvioMockService] to work on
-/// the UI offline.
+/// UI-facing wrapper over the live [zc.ZuvioHelper] scraper. Every call
+/// here performs a real request against `irs.zuvio.com.tw`.
 abstract class ZuvioService {
   static ZuvioService instance = ZuvioCrawlerService();
 
@@ -19,22 +18,31 @@ abstract class ZuvioService {
 
   Future<void> makeRollcall({
     required String rollcallId,
-    required ZuvioLocation location,
+    double? latitude,
+    double? longitude,
   });
 
   Future<ZuvioClickerQuestion?> getLiveClicker(String courseId);
 
-  Future<List<ZuvioHistoryEntry>> getAnswerHistory(String courseId);
+  Future<List<ZuvioHistoryFolder>> getAnswerFolders(String courseId);
+
+  Future<List<ZuvioQuestion>> getQuestions(String courseId, String folderId);
+
+  Future<ZuvioQuestionDetail?> getQuestionDetail(String questionId);
 
   Future<List<ZuvioAttendanceRecord>> getAttendanceHistory(String courseId);
 
   Future<List<ZuvioBulletin>> getBulletins(String courseId);
+
+  Future<ZuvioBulletin?> getBulletinDetail(String bulletinId);
 
   Future<List<ZuvioInfoSection>> getCourseInfo(String courseId);
 
   Future<List<ZuvioFeedbackMessage>> getFeedback(String courseId);
 
   Future<void> sendFeedback(String courseId, String text);
+
+  Future<ZuvioFeedbackThread?> getFeedbackThread(String feedbackId);
 }
 
 class ZuvioException implements Exception {
@@ -98,13 +106,14 @@ class ZuvioCrawlerService implements ZuvioService {
   @override
   Future<void> makeRollcall({
     required String rollcallId,
-    required ZuvioLocation location,
+    double? latitude,
+    double? longitude,
   }) {
     return _run(() async {
       final zc.ZuvioRollcallResult result = await _helper.makeRollcall(
         rollcallId: rollcallId,
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: latitude,
+        longitude: longitude,
       );
       if (!result.success) {
         throw ZuvioException(result.message);
@@ -128,22 +137,77 @@ class ZuvioCrawlerService implements ZuvioService {
   }
 
   @override
-  Future<List<ZuvioHistoryEntry>> getAnswerHistory(String courseId) {
+  Future<List<ZuvioHistoryFolder>> getAnswerFolders(String courseId) {
     return _run(() async {
       final List<zc.ZuvioHistoryEntry> data =
           await _helper.getAnswerHistory(courseId);
       return data
           .map(
-            (zc.ZuvioHistoryEntry e) => ZuvioHistoryEntry(
-              title: e.title,
-              folder: e.folder,
-              status: _status(e.status),
-              openAt: e.openAt,
-              answeredAt: e.answeredAt,
-            ),
+            (zc.ZuvioHistoryEntry e) =>
+                ZuvioHistoryFolder(folderId: e.folderId, title: e.title),
           )
           .toList();
     });
+  }
+
+  @override
+  Future<List<ZuvioQuestion>> getQuestions(
+    String courseId,
+    String folderId,
+  ) {
+    return _run(() async {
+      final List<zc.ZuvioQuestion> data =
+          await _helper.getQuestions(courseId, folderId);
+      return data.map(_question).toList();
+    });
+  }
+
+  @override
+  Future<ZuvioQuestionDetail?> getQuestionDetail(String questionId) {
+    return _run(() async {
+      final zc.ZuvioQuestionDetail? d =
+          await _helper.getQuestionDetail(questionId);
+      if (d == null) return null;
+      return ZuvioQuestionDetail(
+        type: d.type,
+        kind: switch (d.kind) {
+          zc.ZuvioQuestionKind.single => ZuvioQuestionKind.single,
+          zc.ZuvioQuestionKind.multiple => ZuvioQuestionKind.multiple,
+          zc.ZuvioQuestionKind.essay => ZuvioQuestionKind.essay,
+        },
+        text: d.text,
+        result: _qResult(d.result),
+        essayAnswer: d.essayAnswer,
+        options: d.options
+            .map(
+              (zc.ZuvioQuestionOption o) => ZuvioQuestionOption(
+                order: o.order,
+                text: o.text,
+                isCorrect: o.isCorrect,
+                isSelected: o.isSelected,
+              ),
+            )
+            .toList(),
+      );
+    });
+  }
+
+  ZuvioQuestion _question(zc.ZuvioQuestion q) {
+    return ZuvioQuestion(
+      id: q.id,
+      type: q.type,
+      text: q.text,
+      result: _qResult(q.result),
+    );
+  }
+
+  ZuvioQuestionResult _qResult(zc.ZuvioQuestionResult r) {
+    return switch (r) {
+      zc.ZuvioQuestionResult.correct => ZuvioQuestionResult.correct,
+      zc.ZuvioQuestionResult.wrong => ZuvioQuestionResult.wrong,
+      zc.ZuvioQuestionResult.unanswered => ZuvioQuestionResult.unanswered,
+      zc.ZuvioQuestionResult.submitted => ZuvioQuestionResult.submitted,
+    };
   }
 
   @override
@@ -168,17 +232,33 @@ class ZuvioCrawlerService implements ZuvioService {
     return _run(() async {
       final List<zc.ZuvioBulletin> data =
           await _helper.getBulletins(courseId);
-      return data
-          .map(
-            (zc.ZuvioBulletin b) => ZuvioBulletin(
-              author: b.author,
-              date: b.date ?? DateTime.now(),
-              title: b.title,
-              content: b.content,
-            ),
-          )
-          .toList();
+      return data.map(_bulletin).toList();
     });
+  }
+
+  @override
+  Future<ZuvioBulletin?> getBulletinDetail(String bulletinId) {
+    return _run(() async {
+      final zc.ZuvioBulletin? b =
+          await _helper.getBulletinDetail(bulletinId);
+      return b == null ? null : _bulletin(b);
+    });
+  }
+
+  ZuvioBulletin _bulletin(zc.ZuvioBulletin b) {
+    return ZuvioBulletin(
+      id: b.id,
+      author: b.author,
+      date: b.date ?? DateTime.now(),
+      title: b.title,
+      content: b.content,
+      attachments: b.attachments
+          .map(
+            (zc.ZuvioAttachment a) =>
+                ZuvioAttachment(name: a.name, url: a.url),
+          )
+          .toList(),
+    );
   }
 
   @override
@@ -209,9 +289,11 @@ class ZuvioCrawlerService implements ZuvioService {
       return data
           .map(
             (zc.ZuvioFeedbackMessage m) => ZuvioFeedbackMessage(
+              id: m.id,
               content: m.content,
               createdAt: m.createdAt,
               isMine: m.isMine,
+              replied: m.replied,
               authorName: m.authorName,
             ),
           )
@@ -222,6 +304,22 @@ class ZuvioCrawlerService implements ZuvioService {
   @override
   Future<void> sendFeedback(String courseId, String text) {
     return Future<void>.error(const ZuvioException('尚未支援送出回饋'));
+  }
+
+  @override
+  Future<ZuvioFeedbackThread?> getFeedbackThread(String feedbackId) {
+    return _run(() async {
+      final zc.ZuvioFeedbackThread? t =
+          await _helper.getFeedbackThread(feedbackId);
+      if (t == null) return null;
+      return ZuvioFeedbackThread(
+        question: t.question,
+        questionAt: t.questionAt,
+        reply: t.reply,
+        replyAuthor: t.replyAuthor,
+        replyAt: t.replyAt,
+      );
+    });
   }
 
   ZuvioAnswerStatus _status(zc.ZuvioAnswerStatus s) {
@@ -238,175 +336,5 @@ class ZuvioCrawlerService implements ZuvioService {
     } on zc.ZuvioException catch (e) {
       throw ZuvioException(e.message);
     }
-  }
-}
-
-class ZuvioMockService implements ZuvioService {
-  bool _login = false;
-
-  @override
-  bool get isLogin => _login;
-
-  @override
-  Future<void> login({
-    required String email,
-    required String password,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 600));
-    if (password.isEmpty) {
-      throw const ZuvioException('帳號或密碼錯誤');
-    }
-    _login = true;
-  }
-
-  @override
-  Future<void> logout() async {
-    _login = false;
-  }
-
-  @override
-  Future<List<ZuvioCourse>> getCourses() async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    return const <ZuvioCourse>[
-      ZuvioCourse(
-        courseId: '751763',
-        name: '物件導向程式設計',
-        teacherName: '王大瑾',
-        semester: '113-2',
-      ),
-      ZuvioCourse(
-        courseId: '1088648',
-        name: '國際貿易實務',
-        teacherName: '王馨葦',
-        semester: '112-1',
-      ),
-    ];
-  }
-
-  @override
-  Future<ZuvioRollcall> getCurrentRollcall(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    if (courseId == '751763') {
-      return const ZuvioRollcall(
-        rollcallId: '9001',
-        state: ZuvioRollcallState.open,
-      );
-    }
-    return const ZuvioRollcall.notOpen();
-  }
-
-  @override
-  Future<void> makeRollcall({
-    required String rollcallId,
-    required ZuvioLocation location,
-  }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 700));
-  }
-
-  @override
-  Future<ZuvioClickerQuestion?> getLiveClicker(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    if (courseId == '751763') {
-      return const ZuvioClickerQuestion(
-        id: 'q1',
-        name: '第 3 章 隨堂測驗：多型的定義為何？',
-        isLive: true,
-        answered: false,
-      );
-    }
-    return null;
-  }
-
-  @override
-  Future<List<ZuvioHistoryEntry>> getAnswerHistory(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    return const <ZuvioHistoryEntry>[
-      ZuvioHistoryEntry(
-        title: 'W7 繼承與多型',
-        folder: 'W7',
-        status: ZuvioAnswerStatus.onTime,
-      ),
-      ZuvioHistoryEntry(
-        title: 'W6 封裝',
-        folder: 'W6',
-        status: ZuvioAnswerStatus.onTime,
-      ),
-    ];
-  }
-
-  @override
-  Future<List<ZuvioAttendanceRecord>> getAttendanceHistory(
-    String courseId,
-  ) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    final DateTime now = DateTime.now();
-    return <ZuvioAttendanceRecord>[
-      ZuvioAttendanceRecord(
-        date: now.subtract(const Duration(days: 2)),
-        status: ZuvioAnswerStatus.onTime,
-        checkedInAt: now.subtract(const Duration(days: 2)),
-      ),
-      ZuvioAttendanceRecord(
-        date: now.subtract(const Duration(days: 9)),
-        status: ZuvioAnswerStatus.late,
-      ),
-      ZuvioAttendanceRecord(
-        date: now.subtract(const Duration(days: 16)),
-        status: ZuvioAnswerStatus.missed,
-      ),
-    ];
-  }
-
-  @override
-  Future<List<ZuvioBulletin>> getBulletins(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 500));
-    return <ZuvioBulletin>[
-      ZuvioBulletin(
-        author: '王大瑾',
-        date: DateTime.now().subtract(const Duration(days: 1)),
-        title: '期末成績公佈',
-        content: '附上期末成績及最後總成績，如有問題請於 1/21 前 email 告知。',
-      ),
-    ];
-  }
-
-  @override
-  Future<List<ZuvioInfoSection>> getCourseInfo(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    return const <ZuvioInfoSection>[
-      ZuvioInfoSection(
-        title: '課程資訊',
-        rows: <ZuvioInfoRow>[
-          ZuvioInfoRow(label: '授課教師', value: '王馨葦'),
-          ZuvioInfoRow(label: '助教', value: '未設置'),
-          ZuvioInfoRow(label: '修課人數', value: '64'),
-        ],
-      ),
-      ZuvioInfoSection(
-        title: '出席表現',
-        rows: <ZuvioInfoRow>[
-          ZuvioInfoRow(label: '準時', value: '9'),
-          ZuvioInfoRow(label: '遲到', value: '1'),
-          ZuvioInfoRow(label: '出席率', value: '100%'),
-        ],
-      ),
-    ];
-  }
-
-  @override
-  Future<List<ZuvioFeedbackMessage>> getFeedback(String courseId) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    return <ZuvioFeedbackMessage>[
-      ZuvioFeedbackMessage(
-        content: '老師好，因專題發表今日無法參與課程',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        isMine: true,
-      ),
-    ];
-  }
-
-  @override
-  Future<void> sendFeedback(String courseId, String text) async {
-    await Future<void>.delayed(const Duration(milliseconds: 300));
   }
 }

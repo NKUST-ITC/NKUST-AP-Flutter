@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/utils/global.dart';
@@ -33,91 +34,105 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.t.zuvioClickers)),
+    return ZScaffold(
+      title: context.t.zuvioClickers,
       body: RefreshIndicator(
         onRefresh: _load,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24),
-          children: <Widget>[
-            const SizedBox(height: 24),
-            _body(),
-          ],
+          padding: const EdgeInsets.fromLTRB(ZGap.m, ZGap.xl, ZGap.m, ZGap.xl),
+          children: <Widget>[_body()],
         ),
       ),
     );
   }
 
   Widget _body() {
+    final ZColors zc = context.zc;
     switch (_state) {
       case _State.loading:
-        return const Center(child: CircularProgressIndicator());
-      case _State.error:
-        return HintContent(
-          icon: ApIcon.assignment,
-          content: context.ap.somethingError,
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: ZGap.xxxl),
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
         );
+      case _State.error:
+        return _hint(Icons.error_outline_rounded, context.ap.somethingError);
       case _State.idle:
-        return Column(
-          children: <Widget>[
-            Icon(
-              Icons.pause_circle_outline_rounded,
-              size: 88,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              context.t.zuvioNoLiveClicker,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              context.t.zuvioNoLiveClickerHint,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+        return _hint(
+          Icons.pause_circle_outline_rounded,
+          context.t.zuvioNoLiveClicker,
+          detail: context.t.zuvioNoLiveClickerHint,
         );
       case _State.live:
         final ZuvioClickerQuestion q = _question!;
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    const Icon(Icons.podcasts_rounded,
-                        size: 18, color: Colors.redAccent),
-                    const SizedBox(width: 6),
-                    Text(
-                      context.t.zuvioClickerLive,
-                      style: const TextStyle(
-                        color: Colors.redAccent,
-                        fontWeight: FontWeight.bold,
-                      ),
+        return ZCard(
+          padding: const EdgeInsets.all(ZGap.l),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: zc.danger,
+                      shape: BoxShape.circle,
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(q.name, style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 20),
-                ApButton(
-                  text: q.answered
-                      ? context.t.zuvioClickerAnswered
-                      : context.t.zuvioClickerAnswer,
-                  onPressed: q.answered ? null : _answer,
+                  ),
+                  const SizedBox(width: ZGap.s),
+                  Text(
+                    context.t.zuvioClickerLive,
+                    style: context.zt.label.copyWith(
+                      color: zc.danger,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: ZGap.sm),
+              Text(q.name, style: context.zt.body),
+              const SizedBox(height: ZGap.l),
+              ZButton(
+                label: q.answered
+                    ? context.t.zuvioClickerAnswered
+                    : context.t.zuvioClickerAnswer,
+              ),
+              if (!q.answered) ...<Widget>[
+                const SizedBox(height: ZGap.s),
+                Text(
+                  context.t.zuvioWriteUnsupported,
+                  textAlign: TextAlign.center,
+                  style: context.zt.label,
                 ),
               ],
-            ),
+            ],
           ),
         );
     }
+  }
+
+  Widget _hint(IconData icon, String text, {String? detail}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: ZGap.xxxl),
+      child: Column(
+        children: <Widget>[
+          Icon(icon, size: 44, color: context.zc.textFaint),
+          const SizedBox(height: ZGap.m),
+          Text(text, style: context.zt.cardTitle),
+          if (detail != null) ...<Widget>[
+            const SizedBox(height: ZGap.xs),
+            Text(
+              detail,
+              textAlign: TextAlign.center,
+              style: context.zt.supporting,
+            ),
+          ],
+        ],
+      ),
+    );
   }
 
   Future<void> _load() async {
@@ -134,10 +149,5 @@ class ZuvioClickerPageState extends State<ZuvioClickerPage> {
       if (!mounted) return;
       setState(() => _state = _State.error);
     }
-  }
-
-  void _answer() {
-    AnalyticsUtil.instance.logEvent('zuvio_clicker_answer');
-    UiUtil.instance.showToast(context, context.t.zuvioComingSoon);
   }
 }

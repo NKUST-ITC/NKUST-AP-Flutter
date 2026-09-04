@@ -36,6 +36,8 @@ class ZuvioClient {
   final CookieJar cookieJar;
 
   ZuvioSession? _session;
+  String? _account;
+  String? _password;
 
   ZuvioSession get session {
     final ZuvioSession? s = _session;
@@ -59,6 +61,8 @@ class ZuvioClient {
 
     final String account =
         email.contains('@') ? email.trim() : '${email.trim()}@nkust.edu.tw';
+    _account = account;
+    _password = password;
 
     final Response<dynamic> res = await _guard(
       () => dio.post<dynamic>(
@@ -104,18 +108,56 @@ class ZuvioClient {
 
   void logout() {
     _session = null;
+    _account = null;
+    _password = null;
     cookieJar.deleteAll();
   }
 
+  /// Zuvio silently redirects an expired session back to the login form
+  /// instead of returning an auth error, so we sniff the body for it.
+  bool _isLoginPage(String body) =>
+      body.contains('id="myform"') || body.contains('irs/submitLogin');
+
+  /// Runs [attempt]; if it reports the session went stale, logs back in
+  /// once with the cached credentials and retries.
+  Future<T> _retryOnExpiry<T>(Future<T> Function() attempt) async {
+    try {
+      return await attempt();
+    } on ZuvioSessionExpiredException {
+      final String? account = _account;
+      final String? password = _password;
+      if (account == null || password == null) rethrow;
+      await login(email: account, password: password);
+      return attempt();
+    }
+  }
+
+  /// Zuvio funnels attachment downloads through `tool/downloadImg` rather
+  /// than exposing the storage bucket directly.
+  String proxyDownloadUrl(String fileUrl, String name) {
+    final int dot = name.lastIndexOf('.');
+    final String base = dot > 0 ? name.substring(0, dot) : name;
+    return '${baseUrl}tool/downloadImg/'
+        '?user_id=${Uri.encodeComponent(session.userId)}'
+        '&accessToken=${Uri.encodeComponent(session.accessToken)}'
+        '&file_url=${Uri.encodeComponent(fileUrl)}'
+        '&file_name=${Uri.encodeComponent(base)}'
+        '&origin_name=${Uri.encodeComponent(name)}';
+  }
+
   /// GET an HTML page, returning its body.
-  Future<String> getHtml(String path, {Map<String, dynamic>? headers}) async {
-    final Response<dynamic> res = await _guard(
-      () => dio.get<dynamic>(
-        path,
-        options: headers == null ? null : Options(headers: headers),
-      ),
-    );
-    return res.data?.toString() ?? '';
+  Future<String> getHtml(String path, {Map<String, dynamic>? headers}) {
+    return _retryOnExpiry(() async {
+      final Response<dynamic> res = await _guard(
+        () => dio.get<dynamic>(
+          path,
+          options: headers == null ? null : Options(headers: headers),
+        ),
+      );
+      final String body = res.data?.toString() ?? '';
+      if (_isLoginPage(body)) throw const ZuvioSessionExpiredException();
+      return body;
+    });
   }
 
   /// POST to an `app_v2/*` JSON endpoint. [data] is merged with the
@@ -123,19 +165,23 @@ class ZuvioClient {
   Future<Map<String, dynamic>> postJson(
     String path,
     Map<String, dynamic> data,
-  ) async {
-    final Response<dynamic> res = await _guard(
-      () => dio.post<dynamic>(
-        path,
-        data: <String, dynamic>{
-          'user_id': session.userId,
-          'accessToken': session.accessToken,
-          ...data,
-        },
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-      ),
-    );
-    return _decode(res.data);
+  ) {
+    return _retryOnExpiry(() async {
+      final Response<dynamic> res = await _guard(
+        () => dio.post<dynamic>(
+          path,
+          data: <String, dynamic>{
+            'user_id': session.userId,
+            'accessToken': session.accessToken,
+            ...data,
+          },
+          options: Options(contentType: Headers.formUrlEncodedContentType),
+        ),
+      );
+      final String raw = res.data?.toString() ?? '';
+      if (_isLoginPage(raw)) throw const ZuvioSessionExpiredException();
+      return _decode(res.data);
+    });
   }
 
   /// GET a JSON endpoint (`course/listStudentFullCourses` etc.) with the
@@ -143,18 +189,22 @@ class ZuvioClient {
   Future<Map<String, dynamic>> getJson(
     String path, {
     Map<String, dynamic>? query,
-  }) async {
-    final Response<dynamic> res = await _guard(
-      () => dio.get<dynamic>(
-        path,
-        queryParameters: <String, dynamic>{
-          'user_id': session.userId,
-          'accessToken': session.accessToken,
-          ...?query,
-        },
-      ),
-    );
-    return _decode(res.data);
+  }) {
+    return _retryOnExpiry(() async {
+      final Response<dynamic> res = await _guard(
+        () => dio.get<dynamic>(
+          path,
+          queryParameters: <String, dynamic>{
+            'user_id': session.userId,
+            'accessToken': session.accessToken,
+            ...?query,
+          },
+        ),
+      );
+      final String raw = res.data?.toString() ?? '';
+      if (_isLoginPage(raw)) throw const ZuvioSessionExpiredException();
+      return _decode(res.data);
+    });
   }
 
   Map<String, dynamic> _decode(dynamic data) {

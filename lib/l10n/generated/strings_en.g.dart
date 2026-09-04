@@ -295,12 +295,38 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioStickerConfused => 'Confused';
 	@override String zuvioSemesterFormat({required Object year, required Object term}) => 'Year ${year} Semester ${term}';
 	@override String get zuvioBetaTitle => 'Beta Feature';
-	@override String get zuvioBetaContent => 'Zuvio features are in beta. They read data by scripting the website and may break or return unexpected results when Zuvio changes. Always rely on the official Zuvio app/site; this app is not responsible for attendance or answer issues caused by using this feature.';
+	@override String get zuvioBetaContent => 'Zuvio features are in beta. They read data by scripting the website and may break or return unexpected results when Zuvio changes.\n\nOnly rollcall check-in and read-only data (courses, announcements, answer & attendance history, feedback threads) are supported; writing (answering questions, sending feedback) is not yet available.\n\nAlways rely on the official Zuvio app/site; this app is not responsible for attendance or answer issues caused by using this feature.';
 	@override String get zuvioBetaAgree => 'I understand and agree';
 	@override String get zuvioCourseInfo => 'Course Info';
 	@override String get zuvioAttendanceOnTime => 'On time';
 	@override String get zuvioAttendanceLate => 'Late';
 	@override String get zuvioAttendanceAbsent => 'Absent';
+	@override String get zuvioBulletinAttachments => 'Attachments';
+	@override String get zuvioAttachmentHint => 'Attachments open in the browser and are served by Zuvio; they may be unavailable if Zuvio\'s storage is down.';
+	@override String get zuvioFeedbackReplied => 'Teacher replied';
+	@override String get zuvioFeedbackNotReplied => 'Awaiting reply';
+	@override String get zuvioAttendanceRecord => 'Attendance';
+	@override String get zuvioNoQuestions => 'No questions';
+	@override String get zuvioQuestionCorrect => 'Correct';
+	@override String get zuvioQuestionWrong => 'Wrong';
+	@override String get zuvioQuestionUnanswered => 'Unanswered';
+	@override String get zuvioFeedbackMe => 'Me';
+	@override String get zuvioAttendanceRate => 'Attendance';
+	@override String get zuvioClassRank => 'Rank';
+	@override String get zuvioAccuracy => 'Accuracy';
+	@override String get zuvioRollcallTapHint => 'Tap the button below to check in';
+	@override String get zuvioQuestionSubmitted => 'Submitted';
+	@override String get zuvioYourAnswer => 'Your answer';
+	@override String get zuvioSelected => 'Chosen';
+	@override String get zuvioAttendanceRank => 'Attend. Rank';
+	@override String get zuvioAccuracyRank => 'Accuracy Rank';
+	@override String get zuvioCheckedInAt => 'Checked in';
+	@override String get zuvioEnrolled => 'Enrolled';
+	@override String get zuvioWriteUnsupported => 'Read-only for now — sending is not supported yet';
+	@override String get zuvioFeatures => 'Features';
+	@override String get zuvioLogout => 'Sign out of Zuvio';
+	@override String get zuvioLogoutConfirm => 'Sign out of Zuvio?';
+	@override String get zuvioLocationServiceOff => 'Turn on your device location service';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -567,12 +593,38 @@ extension on NkustLocalizationsEn {
 			'zuvioStickerConfused' => 'Confused',
 			'zuvioSemesterFormat' => ({required Object year, required Object term}) => 'Year ${year} Semester ${term}',
 			'zuvioBetaTitle' => 'Beta Feature',
-			'zuvioBetaContent' => 'Zuvio features are in beta. They read data by scripting the website and may break or return unexpected results when Zuvio changes. Always rely on the official Zuvio app/site; this app is not responsible for attendance or answer issues caused by using this feature.',
+			'zuvioBetaContent' => 'Zuvio features are in beta. They read data by scripting the website and may break or return unexpected results when Zuvio changes.\n\nOnly rollcall check-in and read-only data (courses, announcements, answer & attendance history, feedback threads) are supported; writing (answering questions, sending feedback) is not yet available.\n\nAlways rely on the official Zuvio app/site; this app is not responsible for attendance or answer issues caused by using this feature.',
 			'zuvioBetaAgree' => 'I understand and agree',
 			'zuvioCourseInfo' => 'Course Info',
 			'zuvioAttendanceOnTime' => 'On time',
 			'zuvioAttendanceLate' => 'Late',
 			'zuvioAttendanceAbsent' => 'Absent',
+			'zuvioBulletinAttachments' => 'Attachments',
+			'zuvioAttachmentHint' => 'Attachments open in the browser and are served by Zuvio; they may be unavailable if Zuvio\'s storage is down.',
+			'zuvioFeedbackReplied' => 'Teacher replied',
+			'zuvioFeedbackNotReplied' => 'Awaiting reply',
+			'zuvioAttendanceRecord' => 'Attendance',
+			'zuvioNoQuestions' => 'No questions',
+			'zuvioQuestionCorrect' => 'Correct',
+			'zuvioQuestionWrong' => 'Wrong',
+			'zuvioQuestionUnanswered' => 'Unanswered',
+			'zuvioFeedbackMe' => 'Me',
+			'zuvioAttendanceRate' => 'Attendance',
+			'zuvioClassRank' => 'Rank',
+			'zuvioAccuracy' => 'Accuracy',
+			'zuvioRollcallTapHint' => 'Tap the button below to check in',
+			'zuvioQuestionSubmitted' => 'Submitted',
+			'zuvioYourAnswer' => 'Your answer',
+			'zuvioSelected' => 'Chosen',
+			'zuvioAttendanceRank' => 'Attend. Rank',
+			'zuvioAccuracyRank' => 'Accuracy Rank',
+			'zuvioCheckedInAt' => 'Checked in',
+			'zuvioEnrolled' => 'Enrolled',
+			'zuvioWriteUnsupported' => 'Read-only for now — sending is not supported yet',
+			'zuvioFeatures' => 'Features',
+			'zuvioLogout' => 'Sign out of Zuvio',
+			'zuvioLogoutConfirm' => 'Sign out of Zuvio?',
+			'zuvioLocationServiceOff' => 'Turn on your device location service',
 			_ => null,
 		};
 	}
