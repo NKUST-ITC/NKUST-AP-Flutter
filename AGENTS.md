@@ -65,6 +65,7 @@ nkust_ap/
 |------|------|
 | `docs/crawler-architecture.md` | 爬蟲分層、ScraperRegistry、Capability 介面、Session 狀態機 |
 | `docs/refactor-scraper-state-design.md` | Scraper 狀態設計決策記錄（ADR 風格） |
+| `docs/student-id-query-turnstile.md` | 學號查詢改走 stdsys + Cloudflare Turnstile 的背景與 WebView 實作 |
 | `docs/cookie-handling.md` | Cookie / `SafeCookieManager` 行為 |
 | `docs/changelog-pipeline.md` | PR → `changelog.json` → Fastlane 變更紀錄管線 |
 | `docs/extracting-flutter-crawler-as-dart-package.md` | 將爬蟲抽離成獨立 Dart package 的流程（reusable guide） |

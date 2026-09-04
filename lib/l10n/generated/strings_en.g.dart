@@ -157,6 +157,8 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get needHelp => 'Need Help?';
 	@override String get selectReportOption => 'Select an option below to report an issue or provide suggestions';
 	@override String get searchStudentId => 'Search Student ID';
+	@override String get studentIdQueryVerifyHint => 'Complete the robot check; the query runs automatically once it passes.';
+	@override String get studentIdQueryChallengeFailed => 'The robot check could not be completed. Retry, or look the id up in a browser.';
 	@override String get studentIdBarcode => 'Student ID Barcode';
 	@override String get useStudentIdInLibrary => 'Use this student ID in the library';
 	@override String get tapToLogin => 'Tap to Login';
@@ -461,6 +463,8 @@ extension on NkustLocalizationsEn {
 			'needHelp' => 'Need Help?',
 			'selectReportOption' => 'Select an option below to report an issue or provide suggestions',
 			'searchStudentId' => 'Search Student ID',
+			'studentIdQueryVerifyHint' => 'Complete the robot check; the query runs automatically once it passes.',
+			'studentIdQueryChallengeFailed' => 'The robot check could not be completed. Retry, or look the id up in a browser.',
 			'studentIdBarcode' => 'Student ID Barcode',
 			'useStudentIdInLibrary' => 'Use this student ID in the library',
 			'tapToLogin' => 'Tap to Login',

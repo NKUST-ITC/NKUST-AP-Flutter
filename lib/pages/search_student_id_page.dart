@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:nkust_ap/widgets/turnstile_challenge_view.dart';
 import 'package:sprintf/sprintf.dart';
 
 class SearchStudentIdPage extends StatefulWidget {
@@ -16,9 +17,16 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
   final TextEditingController _id = TextEditingController();
   final FocusNode idFocusNode = FocusNode();
 
+  final GlobalKey<TurnstileChallengeViewState> _challengeKey =
+      GlobalKey<TurnstileChallengeViewState>();
+
   DateTime birthday = DateTime(DateTime.now().year - 18);
   bool isAutoFill = true;
   bool isSearching = false;
+
+  /// Set once the inline challenge resolves; cleared when its token expires.
+  String? _turnstileToken;
+  String? _challengeError;
 
   @override
   void initState() {
@@ -71,11 +79,38 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
           text: ap.autoFill,
           onChanged: _onAutoFillChanged,
         ),
+        const SizedBox(height: 16),
+        TurnstileChallengeView(
+          key: _challengeKey,
+          onToken: (String? token) {
+            if (!mounted) return;
+            setState(() {
+              _turnstileToken = token;
+              if (token != null) _challengeError = null;
+            });
+          },
+          onError: (String code) {
+            if (!mounted) return;
+            setState(() => _challengeError = code);
+          },
+        ),
+        if (_challengeError != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(
+              '${context.t.studentIdQueryChallengeFailed}（$_challengeError）',
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
         const SizedBox(height: 24),
         ApButton(
           text: ap.search,
           isLoading: isSearching,
-          onPressed: _search,
+          onPressed: _turnstileToken == null ? null : _search,
         ),
       ],
     );
@@ -157,38 +192,65 @@ class SearchStudentIdPageState extends State<SearchStudentIdPage> {
       UiUtil.instance.showToast(context, context.ap.doNotEmpty);
       return;
     }
-    setState(() => isSearching = true);
+    final String? token = _turnstileToken;
+    if (token == null) {
+      UiUtil.instance.showToast(
+        context,
+        context.t.studentIdQueryVerifyHint,
+      );
+      return;
+    }
+
     AnalyticsUtil.instance.logEvent('search_username_click');
+    setState(() => isSearching = true);
 
     try {
-      final UserInfo data = await Helper.instance.searchUsername(
+      final StudentIdQueryResult result =
+          await Helper.instance.queryStudentId(
         rocId: _id.text,
         birthday: birthday,
+        turnstileToken: token,
       );
       if (!mounted) return;
       setState(() => isSearching = false);
+
+      // A token is single-use, so the challenge has to be re-armed whether
+      // the lookup succeeded or not.
+      await _rearmChallenge();
+
+      if (!result.isSuccess) {
+        _showResultDialog(
+          result.message ?? context.ap.unknownError,
+          showFirstHint: false,
+        );
+        return;
+      }
+
+      if (!mounted) return;
       if (isAutoFill) {
-        Navigator.pop(context, data.id);
+        Navigator.pop(context, result.id);
       } else {
         _showResultDialog(
           context.t.searchStudentIdFormat(
-            name: data.name ?? '',
-            id: data.id,
+            name: result.name ?? '',
+            id: result.id!,
           ),
         );
       }
     } on ApException catch (e) {
       if (!mounted) return;
       setState(() => isSearching = false);
+      await _rearmChallenge();
       if (e is CancelledException) return;
-      // 404 means "no match found" — surface the server's own message
-      // (e.g. "查無此人") instead of the generic ap.unknownError.
-      final bool isNotFound = e is ServerException && e.httpStatusCode == 404;
-      _showResultDialog(
-        isNotFound ? e.message : context.ap.unknownError,
-        showFirstHint: false,
-      );
+      // ErrorInterceptor already turns transport failures into readable
+      // Chinese messages (「沒有網路連線」 etc.), so show them as-is.
+      _showResultDialog(e.message, showFirstHint: false);
     }
+  }
+
+  Future<void> _rearmChallenge() async {
+    if (mounted) setState(() => _turnstileToken = null);
+    await _challengeKey.currentState?.reload();
   }
 
   void _showResultDialog(String? text, {bool showFirstHint = true}) {
