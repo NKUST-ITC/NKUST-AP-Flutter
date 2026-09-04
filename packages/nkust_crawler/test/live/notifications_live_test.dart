@@ -22,7 +22,7 @@ void main() {
   test(
     'getNotifications page 1 returns at least one announcement',
     () async {
-      print('[live] POST acad.nkust.edu.tw  Rcg=232  Page=0');
+      print('[live] POST acad.nkust.edu.tw  Rcg=2072  page 1');
       final NotificationsData result =
           await NKUSTHelper.instance.getNotifications(1);
 
