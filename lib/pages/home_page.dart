@@ -17,6 +17,9 @@ import 'package:nkust_ap/extensions/bus_reservations_data_ui_extension.dart';
 import 'package:nkust_ap/pages/study/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_course_list_page.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_login_page.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
@@ -434,6 +437,11 @@ class HomePageState extends State<HomePage> {
               VmsBusHelper.timetablePageUrl,
             ),
           ),
+        DrawerMenuItem(
+          icon: ApIcon.classIcon,
+          title: context.t.zuvioTitle,
+          onTap: _openZuvio,
+        ),
         DrawerMenuItem(
           icon: ApIcon.info,
           title: ap.schoolInfo,
@@ -865,6 +873,48 @@ class HomePageState extends State<HomePage> {
         },
       );
     }
+  }
+
+  Future<void> _openZuvio() async {
+    final bool accepted = PreferenceUtil.instance.getBool(
+      Constants.prefZuvioTermsAccepted,
+      false,
+    );
+    if (!accepted) {
+      final bool agree = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) => AlertDialog(
+              title: Text(context.t.zuvioBetaTitle),
+              content: SingleChildScrollView(
+                child: Text(context.t.zuvioBetaContent),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(false),
+                  child: Text(context.ap.cancel),
+                ),
+                TextButton(
+                  onPressed: () =>
+                      Navigator.of(context, rootNavigator: true).pop(true),
+                  child: Text(context.t.zuvioBetaAgree),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+      if (!agree) return;
+      await PreferenceUtil.instance.setBool(
+        Constants.prefZuvioTermsAccepted,
+        true,
+      );
+    }
+    if (!mounted) return;
+    _openPage(
+      ZuvioService.instance.isLogin
+          ? const ZuvioCourseListPage()
+          : const ZuvioLoginPage(),
+    );
   }
 
   Future<void> _openPage(

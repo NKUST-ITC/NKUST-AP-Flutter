@@ -46,6 +46,7 @@ class Constants {
       'notification_bus_index_offset';
 
   static const String prefIsOfflineLogin = 'pref_is_offline_login';
+  static const String prefZuvioTermsAccepted = 'pref_zuvio_terms_accepted';
 
   static const String scheduleData = 'schedule_data';
   static const String schedulePdfUrl = 'schedule_pdf_url';

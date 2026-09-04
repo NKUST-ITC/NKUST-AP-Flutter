@@ -22,6 +22,8 @@ dependencies:
   ap_common_plugin: ^1.0.1-dev.12
   nkust_crawler:
     path: packages/nkust_crawler
+  zuvio_crawler:
+    path: packages/zuvio_crawler
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
