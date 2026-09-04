@@ -94,6 +94,26 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
                           ],
                         ),
                       ),
+                      if (_state == _State.notOpen) ...<Widget>[
+                        const SizedBox(height: ZGap.m),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(
+                              Icons.sync_rounded,
+                              size: 14,
+                              color: context.zc.textFaint,
+                            ),
+                            const SizedBox(width: ZGap.xs),
+                            Text(
+                              context.t.zuvioRollcallAutoRefresh(
+                                seconds: _pollInterval.inSeconds,
+                              ),
+                              style: context.zt.label,
+                            ),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: ZGap.l),
                       _action(),
                     ],

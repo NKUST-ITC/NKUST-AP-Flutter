@@ -913,6 +913,9 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 
 	/// zh-Hant-TW: '操作失敗，請稍後再試'
 	String get zuvioErrorUnexpected => '操作失敗，請稍後再試';
+
+	/// zh-Hant-TW: '每 ${seconds} 秒自動檢查一次'
+	String zuvioRollcallAutoRefresh({required Object seconds}) => '每 ${seconds} 秒自動檢查一次';
 }
 
 /// The flat map containing all translations for locale <zh-Hant-TW>.
@@ -1216,6 +1219,7 @@ extension on NkustLocalizations {
 			'zuvioErrorNetwork' => '網路連線不穩，請稍後再試',
 			'zuvioErrorSessionExpired' => '登入階段已過期，請重新登入',
 			'zuvioErrorUnexpected' => '操作失敗，請稍後再試',
+			'zuvioRollcallAutoRefresh' => ({required Object seconds}) => '每 ${seconds} 秒自動檢查一次',
 			_ => null,
 		};
 	}

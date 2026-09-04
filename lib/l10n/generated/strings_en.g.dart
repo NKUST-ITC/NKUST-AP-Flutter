@@ -332,6 +332,7 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioErrorNetwork => 'Connection is unstable, please try again later';
 	@override String get zuvioErrorSessionExpired => 'Your session has expired, please sign in again';
 	@override String get zuvioErrorUnexpected => 'Something went wrong, please try again later';
+	@override String zuvioRollcallAutoRefresh({required Object seconds}) => 'Auto-checking every ${seconds}s';
 }
 
 /// The flat map containing all translations for locale <en>.
@@ -635,6 +636,7 @@ extension on NkustLocalizationsEn {
 			'zuvioErrorNetwork' => 'Connection is unstable, please try again later',
 			'zuvioErrorSessionExpired' => 'Your session has expired, please sign in again',
 			'zuvioErrorUnexpected' => 'Something went wrong, please try again later',
+			'zuvioRollcallAutoRefresh' => ({required Object seconds}) => 'Auto-checking every ${seconds}s',
 			_ => null,
 		};
 	}

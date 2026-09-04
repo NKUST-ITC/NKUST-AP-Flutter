@@ -291,5 +291,6 @@
   "zuvioRollcallExpired": "This rollcall has ended",
   "zuvioErrorNetwork": "Connection is unstable, please try again later",
   "zuvioErrorSessionExpired": "Your session has expired, please sign in again",
-  "zuvioErrorUnexpected": "Something went wrong, please try again later"
+  "zuvioErrorUnexpected": "Something went wrong, please try again later",
+  "zuvioRollcallAutoRefresh": "Auto-checking every ${seconds}s"
 }

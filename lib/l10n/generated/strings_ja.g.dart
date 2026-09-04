@@ -332,6 +332,7 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioErrorNetwork => '通信が不安定です。しばらくしてからお試しください';
 	@override String get zuvioErrorSessionExpired => 'ログインセッションが切れました。再度ログインしてください';
 	@override String get zuvioErrorUnexpected => '処理に失敗しました。しばらくしてからお試しください';
+	@override String zuvioRollcallAutoRefresh({required Object seconds}) => '${seconds} 秒ごとに自動確認中';
 }
 
 /// The flat map containing all translations for locale <ja>.
@@ -635,6 +636,7 @@ extension on NkustLocalizationsJa {
 			'zuvioErrorNetwork' => '通信が不安定です。しばらくしてからお試しください',
 			'zuvioErrorSessionExpired' => 'ログインセッションが切れました。再度ログインしてください',
 			'zuvioErrorUnexpected' => '処理に失敗しました。しばらくしてからお試しください',
+			'zuvioRollcallAutoRefresh' => ({required Object seconds}) => '${seconds} 秒ごとに自動確認中',
 			_ => null,
 		};
 	}

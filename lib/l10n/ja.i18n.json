@@ -291,5 +291,6 @@
   "zuvioRollcallExpired": "この点呼は終了しました",
   "zuvioErrorNetwork": "通信が不安定です。しばらくしてからお試しください",
   "zuvioErrorSessionExpired": "ログインセッションが切れました。再度ログインしてください",
-  "zuvioErrorUnexpected": "処理に失敗しました。しばらくしてからお試しください"
+  "zuvioErrorUnexpected": "処理に失敗しました。しばらくしてからお試しください",
+  "zuvioRollcallAutoRefresh": "${seconds} 秒ごとに自動確認中"
 }

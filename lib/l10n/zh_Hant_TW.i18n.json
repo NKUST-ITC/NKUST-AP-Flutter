@@ -291,5 +291,6 @@
   "zuvioRollcallExpired": "這次點名已結束",
   "zuvioErrorNetwork": "網路連線不穩，請稍後再試",
   "zuvioErrorSessionExpired": "登入階段已過期，請重新登入",
-  "zuvioErrorUnexpected": "操作失敗，請稍後再試"
+  "zuvioErrorUnexpected": "操作失敗，請稍後再試",
+  "zuvioRollcallAutoRefresh": "每 ${seconds} 秒自動檢查一次"
 }
