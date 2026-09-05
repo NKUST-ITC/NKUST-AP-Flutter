@@ -1,0 +1,19 @@
+{
+  "status": true,
+  "feedbacks": [
+    {
+      "id": "800001",
+      "content": "老師這題的推導可以再說明一次嗎？",
+      "created_at": "2025-03-05 14:20",
+      "reply_id": "900001",
+      "reply_status": "CHECKED"
+    },
+    {
+      "id": "800002",
+      "content": "請問期中考範圍到第幾章？",
+      "created_at": "2025-03-06 10:00",
+      "reply_id": null,
+      "reply_status": "UNCHECK"
+    }
+  ]
+}

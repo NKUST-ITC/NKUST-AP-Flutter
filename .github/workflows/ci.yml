@@ -76,6 +76,15 @@ jobs:
       - name: Test (nkust_crawler package, hermetic only)
         working-directory: packages/nkust_crawler
         run: dart test
+      - name: Pub get (zuvio_crawler package)
+        working-directory: packages/zuvio_crawler
+        run: dart pub get
+      - name: Analyze (zuvio_crawler package)
+        working-directory: packages/zuvio_crawler
+        run: dart analyze
+      - name: Test (zuvio_crawler package)
+        working-directory: packages/zuvio_crawler
+        run: dart test
 
   build_android:
     name: Build Android App
