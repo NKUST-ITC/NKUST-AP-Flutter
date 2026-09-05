@@ -201,7 +201,19 @@ class ZuvioClient {
   /// its query string, so routing the download through here — instead of
   /// handing that URL to an external browser or share sheet — keeps the
   /// token out of browser history and Referer headers.
+  ///
+  /// [url] must resolve to Zuvio's own host: this method attaches the
+  /// live session's tokens to whatever request it's given (via
+  /// [proxyDownloadUrl]'s query string, already baked into [url] by the
+  /// time it gets here), so it must never be reachable with a caller- or
+  /// data-controlled host — that would turn an attachment download into
+  /// a way to fire an authenticated, token-bearing request anywhere.
   Future<List<int>> downloadBytes(String url) async {
+    final String host = Uri.parse(url).host;
+    final String expectedHost = Uri.parse(baseUrl).host;
+    if (host != expectedHost) {
+      throw ZuvioException('refused to download from unexpected host: $host');
+    }
     final Response<List<int>> res = await _guard(
       () => dio.get<List<int>>(
         url,

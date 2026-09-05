@@ -148,6 +148,12 @@ class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
     } on ZuvioException catch (e) {
       if (!mounted) return;
       UiUtil.instance.showToast(context, e.message);
+    } catch (_) {
+      // A filesystem error or anything else unrelated to the Zuvio
+      // request itself should still surface something instead of an
+      // unhandled async error with no user-visible feedback.
+      if (!mounted) return;
+      UiUtil.instance.showToast(context, context.ap.somethingError);
     } finally {
       if (mounted) setState(() => _downloadingName = null);
     }
