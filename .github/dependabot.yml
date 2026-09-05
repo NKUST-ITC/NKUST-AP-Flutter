@@ -1,0 +1,41 @@
+version: 2
+
+updates:
+  - package-ecosystem: "pub"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "20:00"
+      timezone: "Asia/Taipei"
+    versioning-strategy: increase
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # ap_common 系列互相以 pinned dev 版本互指，
+      # 拆開單獨升版會 version solving failed，必須綁成同一支 PR
+      ap-common:
+        patterns:
+          - "ap_common"
+          - "ap_common_*"
+      dart-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "bundler"
+    directory: "/android"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "bundler"
+    directory: "/ios"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(deps)"
