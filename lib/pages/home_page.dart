@@ -438,11 +438,17 @@ class HomePageState extends State<HomePage> {
               VmsBusHelper.timetablePageUrl,
             ),
           ),
-        DrawerMenuItem(
-          icon: ApIcon.classIcon,
-          title: context.t.zuvioTitle,
-          onTap: _openZuvio,
-        ),
+        // Zuvio login itself would fail on web (Zuvio's server has no
+        // CORS allowance for this app's origin), and the attachment
+        // download flow below uses dart:io File/Directory, which throws
+        // at runtime on web — keep the entry mobile/desktop-only rather
+        // than let someone tap into a feature that can't work here.
+        if (!kIsWeb)
+          DrawerMenuItem(
+            icon: ApIcon.classIcon,
+            title: context.t.zuvioTitle,
+            onTap: _openZuvio,
+          ),
         DrawerMenuItem(
           icon: ApIcon.info,
           title: ap.schoolInfo,

@@ -8,6 +8,22 @@ import 'package:zuvio_crawler/src/parsers/history_parser.dart';
 import 'package:zuvio_crawler/src/parsers/question_parser.dart';
 import 'package:zuvio_crawler/src/parsers/rollcall_parser.dart';
 import 'package:zuvio_crawler/src/zuvio_client.dart';
+import 'package:zuvio_crawler/src/zuvio_exception.dart';
+
+final RegExp _numericId = RegExp(r'^\d+$');
+
+/// Every id below is interpolated straight into a URL *path* segment
+/// (query/body params go through dio's own encoding and don't need
+/// this). They all come from Zuvio's own authenticated pages via a
+/// `\d+` regex, so this never rejects a real id — it just stops a
+/// malformed one from reshaping the request path instead of failing
+/// with a clear error.
+String _pathId(String id, String field) {
+  if (!_numericId.hasMatch(id)) {
+    throw ZuvioException('invalid $field: "$id"');
+  }
+  return id;
+}
 
 /// The single entry point the host app talks to. Wraps a [ZuvioClient]
 /// and the stateless parsers.
@@ -34,6 +50,7 @@ class ZuvioHelper {
   }
 
   Future<ZuvioRollcall> getCurrentRollcall(String courseId) async {
+    _pathId(courseId, 'courseId');
     final String html = await client.getHtml(
       'student5/irs/rollcall/$courseId',
       headers: <String, String>{
@@ -67,12 +84,14 @@ class ZuvioHelper {
   }
 
   Future<ZuvioClickerQuestion?> getLiveClicker(String courseId) async {
+    _pathId(courseId, 'courseId');
     final String html =
         await client.getHtml('student5/irs/clickers/$courseId');
     return parseLiveClicker(html);
   }
 
   Future<List<ZuvioHistoryEntry>> getAnswerHistory(String courseId) async {
+    _pathId(courseId, 'courseId');
     final String html =
         await client.getHtml('student5/irs/history/$courseId/0');
     return parseAnswerFolders(html);
@@ -81,18 +100,21 @@ class ZuvioHelper {
   Future<List<ZuvioAttendanceRecord>> getAttendanceHistory(
     String courseId,
   ) async {
+    _pathId(courseId, 'courseId');
     final String html =
         await client.getHtml('student5/irs/history/$courseId/0');
     return parseAttendanceHistory(html);
   }
 
   Future<List<ZuvioBulletin>> getBulletins(String courseId) async {
+    _pathId(courseId, 'courseId');
     final String html =
         await client.getHtml('student5/irs/course/$courseId/0');
     return parseBulletins(html);
   }
 
   Future<ZuvioBulletin?> getBulletinDetail(String bulletinId) async {
+    _pathId(bulletinId, 'bulletinId');
     final String html =
         await client.getHtml('student5/irs/bulletin/$bulletinId');
     final ZuvioBulletin? b = parseBulletinDetail(html, id: bulletinId);
@@ -125,24 +147,29 @@ class ZuvioHelper {
     String courseId,
     String folderId,
   ) async {
+    _pathId(courseId, 'courseId');
+    _pathId(folderId, 'folderId');
     final String html =
         await client.getHtml('student5/irs/questions/$courseId/$folderId');
     return parseQuestionList(html);
   }
 
   Future<ZuvioQuestionDetail?> getQuestionDetail(String questionId) async {
+    _pathId(questionId, 'questionId');
     final String html =
         await client.getHtml('student5/irs/question/$questionId');
     return parseQuestionDetail(html);
   }
 
   Future<ZuvioFeedbackThread?> getFeedbackThread(String feedbackId) async {
+    _pathId(feedbackId, 'feedbackId');
     final String html =
         await client.getHtml('student5/irs/feedback/$feedbackId');
     return parseFeedbackThread(html);
   }
 
   Future<ZuvioCourseInfo> getCourseInfo(String courseId) async {
+    _pathId(courseId, 'courseId');
     final String html =
         await client.getHtml('student5/irs/course/$courseId/1');
     return parseCourseInfo(html);

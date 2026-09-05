@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
@@ -126,6 +127,13 @@ class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
   /// so passing it to an external browser or share sheet would leak the
   /// session token into browser history / referer headers.
   Future<void> _openAttachment(ZuvioAttachment file) async {
+    if (kIsWeb) {
+      // Writing to a local file (dart:io) isn't available on web; the
+      // drawer entry is already hidden there, so this only matters if
+      // this page is ever reached another way.
+      UiUtil.instance.showToast(context, context.ap.somethingError);
+      return;
+    }
     setState(() => _downloadingName = file.name);
     try {
       final List<int> bytes =
