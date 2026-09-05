@@ -9,6 +9,11 @@ import 'package:test/test.dart';
 /// Answers the acad `mobilercglist` POST with a canned list and counts
 /// how many times it's actually hit.
 class _AcadAdapter implements HttpClientAdapter {
+  _AcadAdapter({this.body});
+
+  /// Overrides the response body; when null a valid `{"content": ...}`
+  /// payload with 40 rows is returned.
+  final String? body;
   int posts = 0;
 
   static String _rows(int n) {
@@ -37,7 +42,7 @@ class _AcadAdapter implements HttpClientAdapter {
     if (options.uri.toString().contains('mobilercglist')) {
       posts++;
       return ResponseBody.fromString(
-        jsonEncode(<String, dynamic>{'content': _rows(40)}),
+        body ?? jsonEncode(<String, dynamic>{'content': _rows(40)}),
         200,
       );
     }
@@ -94,5 +99,19 @@ void main() {
     await helper.getNotifications(1);
     final NotificationsData far = await helper.getNotifications(99);
     expect(far.data.notifications, isEmpty);
+  });
+
+  test('a 200 with a non-JSON body fails cleanly, not with FormatException',
+      () async {
+    final _AcadAdapter adapter =
+        _AcadAdapter(body: '<html><body>502 Bad Gateway</body></html>');
+    final NKUSTHelper helper = newHelper(adapter);
+
+    await expectLater(
+      helper.getNotifications(1),
+      throwsA(isA<ServerException>()),
+    );
+    // retried before giving up
+    expect(adapter.posts, greaterThan(1));
   });
 }

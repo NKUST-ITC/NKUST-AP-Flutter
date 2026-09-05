@@ -245,11 +245,15 @@ class NKUSTHelper {
         }),
       );
       if (res.statusCode == 200 && res.data != null) {
-        final List<Map<String, dynamic>> parsed = acadParser(
-          html: (json.decode(res.data!) as Map<String, dynamic>)['content']
-              as String,
-          baseIndex: 0,
-        );
+        final String? content = _acadContent(res.data!);
+        if (content == null) {
+          // 200 but the body wasn't the expected `{"content": "..."}`
+          // JSON (e.g. an HTML error page): retry, then give up with a
+          // clean ServerException the UI layer already handles.
+          continue;
+        }
+        final List<Map<String, dynamic>> parsed =
+            acadParser(html: content, baseIndex: 0);
         final Set<String> seen = <String>{};
         return <Map<String, dynamic>>[
           for (final Map<String, dynamic> n in parsed)
@@ -263,5 +267,20 @@ class NKUSTHelper {
     throw ServerException(
       message: 'notifications request returned no usable response',
     );
+  }
+
+  /// Pulls the HTML fragment out of acad's `{"content": "..."}` reply,
+  /// or null if the body isn't that shape (rather than letting a raw
+  /// FormatException escape past the UI's `ApException` handler).
+  static String? _acadContent(String body) {
+    try {
+      final Object? decoded = json.decode(body);
+      if (decoded is Map<String, dynamic> && decoded['content'] is String) {
+        return decoded['content'] as String;
+      }
+    } on FormatException {
+      // fall through
+    }
+    return null;
   }
 }
