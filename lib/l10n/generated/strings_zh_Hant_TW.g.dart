@@ -668,6 +668,9 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '登入 Zuvio'
 	String get zuvioLogin => '登入 Zuvio';
 
+	/// zh-Hant-TW: 'Zuvio 登入中…'
+	String get zuvioLoggingIn => 'Zuvio 登入中…';
+
 	/// zh-Hant-TW: '使用校務系統學號與密碼登入'
 	String get zuvioAccountHint => '使用校務系統學號與密碼登入';
 
@@ -826,6 +829,9 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 
 	/// zh-Hant-TW: '缺席'
 	String get zuvioAttendanceAbsent => '缺席';
+
+	/// zh-Hant-TW: '狀態不明'
+	String get zuvioAttendanceUnknown => '狀態不明';
 
 	/// zh-Hant-TW: '公告附件'
 	String get zuvioBulletinAttachments => '公告附件';
@@ -1143,6 +1149,7 @@ extension on NkustLocalizations {
 			'otherBuilding' => '其他',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => '登入 Zuvio',
+			'zuvioLoggingIn' => 'Zuvio 登入中…',
 			'zuvioAccountHint' => '使用校務系統學號與密碼登入',
 			'zuvioEmail' => '電子郵件（帳號）',
 			'zuvioCourseList' => '全部課程',
@@ -1196,6 +1203,7 @@ extension on NkustLocalizations {
 			'zuvioAttendanceOnTime' => '準時',
 			'zuvioAttendanceLate' => '遲到',
 			'zuvioAttendanceAbsent' => '缺席',
+			'zuvioAttendanceUnknown' => '狀態不明',
 			'zuvioBulletinAttachments' => '公告附件',
 			'zuvioAttachmentHint' => '附件會在瀏覽器開啟，並由 Zuvio 伺服器提供，可能因對方服務異常而無法下載。',
 			'zuvioFeedbackReplied' => '老師已回覆',

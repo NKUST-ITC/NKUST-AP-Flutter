@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
@@ -37,6 +39,12 @@ abstract class ZuvioService {
   Future<List<ZuvioBulletin>> getBulletins(String courseId);
 
   Future<ZuvioBulletin?> getBulletinDetail(String bulletinId);
+
+  /// Downloads [attachment] through the authenticated session and
+  /// returns its bytes. Do not pass [ZuvioAttachment.url] itself to an
+  /// external browser/share sheet — it carries the session token in its
+  /// query string.
+  Future<Uint8List> downloadAttachment(ZuvioAttachment attachment);
 
   Future<List<ZuvioInfoSection>> getCourseInfo(String courseId);
 
@@ -278,6 +286,15 @@ class ZuvioCrawlerService implements ZuvioService {
     });
   }
 
+  @override
+  Future<Uint8List> downloadAttachment(ZuvioAttachment attachment) {
+    return _run(() async {
+      final List<int> bytes =
+          await _helper.downloadAttachment(attachment.url);
+      return Uint8List.fromList(bytes);
+    });
+  }
+
   ZuvioBulletin _bulletin(zc.ZuvioBulletin b) {
     return ZuvioBulletin(
       id: b.id,
@@ -360,6 +377,7 @@ class ZuvioCrawlerService implements ZuvioService {
       zc.ZuvioAnswerStatus.onTime => ZuvioAnswerStatus.onTime,
       zc.ZuvioAnswerStatus.late => ZuvioAnswerStatus.late,
       zc.ZuvioAnswerStatus.missed => ZuvioAnswerStatus.missed,
+      zc.ZuvioAnswerStatus.unknown => ZuvioAnswerStatus.unknown,
     };
   }
 

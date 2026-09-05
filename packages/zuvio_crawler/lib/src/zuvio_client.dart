@@ -38,6 +38,16 @@ class ZuvioClient {
   ZuvioSession? _session;
   String? _account;
   String? _password;
+  Future<ZuvioSession>? _loginInFlight;
+
+  /// Bumped by [logout]. A [_login] attempt that started before a
+  /// [logout] call checks this after its network round-trip and, if it
+  /// no longer matches, discards its result instead of resurrecting a
+  /// session the caller explicitly asked to end — otherwise a slow
+  /// login racing a logout (e.g. switching the campus account while
+  /// Zuvio auto-login is still in flight) could leave the next person to
+  /// open the app looking at the previous user's Zuvio session.
+  int _epoch = 0;
 
   ZuvioSession get session {
     final ZuvioSession? s = _session;
@@ -52,10 +62,29 @@ class ZuvioClient {
   /// Logs in and captures the session tokens from the landing page.
   /// Zuvio has no captcha. A bare NKUST student id (no `@`) is expanded
   /// to `<id>@nkust.edu.tw`.
+  ///
+  /// Concurrent callers (e.g. two pages that both notice the session
+  /// expired at once) share a single in-flight attempt instead of each
+  /// wiping the cookie jar out from under the other, which would leave
+  /// one of them retrying against a session that was never actually
+  /// established.
   Future<ZuvioSession> login({
     required String email,
     required String password,
+  }) {
+    final Future<ZuvioSession>? inFlight = _loginInFlight;
+    if (inFlight != null) return inFlight;
+    final Future<ZuvioSession> attempt =
+        _login(email: email, password: password);
+    _loginInFlight = attempt;
+    return attempt.whenComplete(() => _loginInFlight = null);
+  }
+
+  Future<ZuvioSession> _login({
+    required String email,
+    required String password,
   }) async {
+    final int epoch = _epoch;
     await cookieJar.deleteAll();
     _session = null;
 
@@ -89,7 +118,14 @@ class ZuvioClient {
       throw const ZuvioAuthException('帳號或密碼錯誤');
     }
 
-    return _refreshSession();
+    final ZuvioSession session = await _refreshSession();
+    if (epoch != _epoch) {
+      // logout() ran while this attempt was in flight; don't let a slow
+      // login resurrect a session after the caller asked to end one.
+      _session = null;
+      throw const ZuvioSessionExpiredException('logged out mid-login');
+    }
+    return session;
   }
 
   /// Re-scrapes [ZuvioSession] from a known logged-in page. Called after
@@ -111,6 +147,9 @@ class ZuvioClient {
   /// network call is best-effort — the local state is cleared even if it
   /// fails.
   Future<void> logout() async {
+    // Invalidate any login() attempt already in flight before we touch
+    // anything else — see the [_epoch] doc comment.
+    _epoch++;
     try {
       await dio.get<dynamic>(
         'irs/logout',
@@ -155,6 +194,21 @@ class ZuvioClient {
         '&file_url=${Uri.encodeComponent(fileUrl)}'
         '&file_name=${Uri.encodeComponent(base)}'
         '&origin_name=${Uri.encodeComponent(name)}';
+  }
+
+  /// Downloads bytes for a URL built by [proxyDownloadUrl] using this
+  /// session's own client. The URL carries `user_id` + `accessToken` in
+  /// its query string, so routing the download through here — instead of
+  /// handing that URL to an external browser or share sheet — keeps the
+  /// token out of browser history and Referer headers.
+  Future<List<int>> downloadBytes(String url) async {
+    final Response<List<int>> res = await _guard(
+      () => dio.get<List<int>>(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      ),
+    );
+    return res.data ?? const <int>[];
   }
 
   /// GET an HTML page, returning its body.

@@ -29,6 +29,13 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
   String _errorText = '';
   Timer? _poll;
 
+  /// Bumped by every user- or poll-triggered request. An in-flight
+  /// request whose captured generation no longer matches this counter
+  /// when it resolves has been superseded (e.g. the background poll
+  /// replying after the user already tapped 簽到) and its result is
+  /// discarded instead of overwriting a newer state.
+  int _generation = 0;
+
   @override
   void initState() {
     super.initState();
@@ -206,11 +213,12 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
   /// flipping to the error state.
   Future<void> _check({bool silent = false}) async {
     _poll?.cancel();
+    final int gen = ++_generation;
     if (!silent) setState(() => _state = _State.checking);
     try {
       final ZuvioRollcall rollcall = await ZuvioService.instance
           .getCurrentRollcall(widget.course.courseId);
-      if (!mounted) return;
+      if (!mounted || gen != _generation) return;
       setState(() {
         _rollcall = rollcall;
         _state = switch (rollcall.state) {
@@ -220,7 +228,7 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
         };
       });
     } on ZuvioException catch (e) {
-      if (!mounted) return;
+      if (!mounted || gen != _generation) return;
       if (!silent) {
         setState(() {
           _state = _State.error;
@@ -228,30 +236,43 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
         });
       }
     }
-    if (mounted && _state == _State.notOpen) {
+    if (mounted && gen == _generation && _state == _State.notOpen) {
       _poll = Timer(_pollInterval, () => _check(silent: true));
     }
   }
 
   Future<void> _signIn() async {
     _poll?.cancel();
+    final int gen = ++_generation;
     setState(() => _state = _State.submitting);
     AnalyticsUtil.instance.logEvent('zuvio_rollcall_sign_in');
     try {
       await ZuvioService.instance
           .makeRollcall(rollcallId: _rollcall.rollcallId);
+      if (!mounted || gen != _generation) return;
       _markAnswered();
     } on ZuvioException catch (e) {
+      if (!mounted || gen != _generation) return;
+      if (e.code == ZuvioErrorCode.rollcallAnswered) {
+        // Not a failure: the student already checked in (web, another
+        // device, or a duplicate tap) — reflect success, don't scare
+        // them with a red error screen that invites retrying.
+        _markAnswered();
+        return;
+      }
       if (e.code == ZuvioErrorCode.rollcallNeedLocation) {
-        await _signInWithLocation();
+        await _signInWithLocation(gen);
         return;
       }
       _showError(_localizedError(e));
     }
   }
 
-  Future<void> _signInWithLocation() async {
-    if (!mounted) return;
+  /// Continues the sign-in started by [_signIn] under the same
+  /// [generation] so a newer action (another tap, a page refresh)
+  /// discards this one's result instead of clobbering it.
+  Future<void> _signInWithLocation(int generation) async {
+    if (!mounted || generation != _generation) return;
     setState(() => _state = _State.locating);
 
     final String serviceOff = context.t.zuvioLocationServiceOff;
@@ -261,7 +282,7 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
     Position position;
     try {
       if (!await Geolocator.isLocationServiceEnabled()) {
-        _showError(serviceOff);
+        if (generation == _generation) _showError(serviceOff);
         return;
       }
       LocationPermission permission = await Geolocator.checkPermission();
@@ -270,7 +291,7 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
       }
       if (permission == LocationPermission.denied ||
           permission == LocationPermission.deniedForever) {
-        _showError(denied);
+        if (generation == _generation) _showError(denied);
         return;
       }
       position = await Geolocator.getCurrentPosition(
@@ -278,11 +299,11 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
             const LocationSettings(accuracy: LocationAccuracy.high),
       );
     } catch (_) {
-      _showError(failed);
+      if (generation == _generation) _showError(failed);
       return;
     }
 
-    if (!mounted) return;
+    if (!mounted || generation != _generation) return;
     setState(() => _state = _State.submitting);
     try {
       await ZuvioService.instance.makeRollcall(
@@ -290,8 +311,14 @@ class ZuvioRollcallPageState extends State<ZuvioRollcallPage> {
         latitude: position.latitude,
         longitude: position.longitude,
       );
+      if (!mounted || generation != _generation) return;
       _markAnswered();
     } on ZuvioException catch (e) {
+      if (!mounted || generation != _generation) return;
+      if (e.code == ZuvioErrorCode.rollcallAnswered) {
+        _markAnswered();
+        return;
+      }
       _showError(_localizedError(e));
     }
   }

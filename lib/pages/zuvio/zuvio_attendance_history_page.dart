@@ -73,6 +73,11 @@ class ZuvioAttendanceHistoryPageState
           Icons.close_rounded,
           context.zc.danger,
         ),
+      ZuvioAnswerStatus.unknown => (
+          context.t.zuvioAttendanceUnknown,
+          Icons.help_outline_rounded,
+          context.zc.textSecondary,
+        ),
     };
     return ZCard(
       padding: const EdgeInsets.symmetric(

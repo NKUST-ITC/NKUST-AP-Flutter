@@ -17,11 +17,16 @@ List<ZuvioAttendanceRecord> parseAttendanceHistory(String html) {
   for (final Element row
       in doc.querySelectorAll('.i-h-r-rollcall-row')) {
     final String classes = row.className;
-    final ZuvioAnswerStatus status = classes.contains('nonarrival')
-        ? ZuvioAnswerStatus.missed
+    // Only map the three statuses we've actually seen; anything else
+    // (公假/病假/a Zuvio-side addition we don't know about yet) should
+    // surface as unknown rather than silently reading as "on time".
+    final ZuvioAnswerStatus status = classes.contains('punctual')
+        ? ZuvioAnswerStatus.onTime
         : classes.contains('late')
             ? ZuvioAnswerStatus.late
-            : ZuvioAnswerStatus.onTime;
+            : classes.contains('nonarrival')
+                ? ZuvioAnswerStatus.missed
+                : ZuvioAnswerStatus.unknown;
 
     final String top =
         row.querySelector('.i-h-r-r-r-top')?.text.trim() ?? '';

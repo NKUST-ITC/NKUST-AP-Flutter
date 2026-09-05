@@ -52,6 +52,7 @@ class HomePageState extends State<HomePage> {
   bool isStudyExpanded = false;
   bool isBusExpanded = false;
   bool isLeaveExpanded = false;
+  bool _openingZuvio = false;
 
   bool leaveEnable = true;
   bool busEnable = true;
@@ -477,7 +478,8 @@ class HomePageState extends State<HomePage> {
               await PreferenceUtil.instance
                   .setBool(Constants.prefAutoLogin, false);
               if (!mounted) return;
-              ShareDataWidget.of(context)!.data.logout();
+              await ShareDataWidget.of(context)!.data.logout();
+              if (!mounted) return;
               setState(() {
                 isLogin = false;
                 userInfo = null;
@@ -876,74 +878,110 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _openZuvio() async {
-    final bool accepted = PreferenceUtil.instance.getBool(
-      Constants.prefZuvioTermsAccepted,
-      false,
-    );
-    if (!accepted) {
-      final bool agree = await showDialog<bool>(
-            context: context,
-            builder: (BuildContext context) => AlertDialog(
-              title: Text(context.t.zuvioBetaTitle),
-              content: SingleChildScrollView(
-                child: Text(context.t.zuvioBetaContent),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () =>
-                      Navigator.of(context, rootNavigator: true).pop(false),
-                  child: Text(context.ap.cancel),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      Navigator.of(context, rootNavigator: true).pop(true),
-                  child: Text(context.t.zuvioBetaAgree),
-                ),
-              ],
-            ),
-          ) ??
-          false;
-      if (!agree) return;
-      await PreferenceUtil.instance.setBool(
+    // A second tap while the first is still logging in would otherwise
+    // fire a fully independent attempt racing the first for the cookie
+    // jar; the crawler's own login() de-dupes concurrent callers, but
+    // there is no reason to even try opening the disclaimer dialog
+    // twice.
+    if (_openingZuvio) return;
+    _openingZuvio = true;
+    bool drawerClosed = false;
+    try {
+      final bool accepted = PreferenceUtil.instance.getBool(
         Constants.prefZuvioTermsAccepted,
-        true,
+        false,
       );
-    }
-
-    final bool signedOut = PreferenceUtil.instance.getBool(
-      Constants.prefZuvioSignedOut,
-      false,
-    );
-    if (!ZuvioService.instance.isLogin && !signedOut) {
-      // Zuvio shares the campus system credentials, so reuse the stored
-      // login instead of asking again. After an explicit sign-out the
-      // login page is shown until the user signs in there manually.
-      final String username =
-          PreferenceUtil.instance.getString(Constants.prefUsername, '');
-      final String password = PreferenceUtil.instance
-          .getStringSecurity(Constants.prefPassword, '');
-      if (username.isNotEmpty && password.isNotEmpty) {
-        try {
-          await ZuvioService.instance
-              .login(email: username, password: password);
-        } catch (_) {}
+      if (!accepted) {
+        final bool agree = await showDialog<bool>(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: Text(context.t.zuvioBetaTitle),
+                content: SingleChildScrollView(
+                  child: Text(context.t.zuvioBetaContent),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.of(context, rootNavigator: true).pop(false),
+                    child: Text(context.ap.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () =>
+                        Navigator.of(context, rootNavigator: true).pop(true),
+                    child: Text(context.t.zuvioBetaAgree),
+                  ),
+                ],
+              ),
+            ) ??
+            false;
+        if (!agree) return;
+        await PreferenceUtil.instance.setBool(
+          Constants.prefZuvioTermsAccepted,
+          true,
+        );
       }
-    }
 
-    if (!mounted) return;
-    _openPage(
-      ZuvioService.instance.isLogin
-          ? const ZuvioCourseListPage()
-          : const ZuvioLoginPage(),
-    );
+      final bool signedOut = PreferenceUtil.instance.getBool(
+        Constants.prefZuvioSignedOut,
+        false,
+      );
+      if (!ZuvioService.instance.isLogin && !signedOut) {
+        // Zuvio shares the campus system credentials, so reuse the
+        // stored login instead of asking again. After an explicit
+        // sign-out the login page is shown until the user signs in
+        // there manually.
+        final String username =
+            PreferenceUtil.instance.getString(Constants.prefUsername, '');
+        final String password = PreferenceUtil.instance
+            .getStringSecurity(Constants.prefPassword, '');
+        if (username.isNotEmpty && password.isNotEmpty) {
+          // This call can take up to ~45s (connect + receive timeout).
+          // Close the drawer and say so now rather than leaving it
+          // sitting there with no feedback — a user who thinks nothing
+          // happened taps Zuvio again, which is exactly the double
+          // login attempt above the de-dupe guards against.
+          if (mounted && isMobile) {
+            Navigator.of(context).pop();
+            drawerClosed = true;
+          }
+          if (mounted) {
+            UiUtil.instance.showToast(context, context.t.zuvioLoggingIn);
+          }
+          try {
+            await ZuvioService.instance
+                .login(email: username, password: password);
+          } on ZuvioException catch (e) {
+            // A stale saved password et al. should tell the user why
+            // they landed on the manual login page instead of silently
+            // discarding the reason; other failures (network hiccups,
+            // Zuvio being down) aren't worth a toast here since the
+            // manual login page lets them retry anyway.
+            if (mounted && e.code == ZuvioErrorCode.auth) {
+              UiUtil.instance.showToast(context, e.message);
+            }
+          }
+        }
+      }
+
+      if (!mounted) return;
+      _openPage(
+        ZuvioService.instance.isLogin
+            ? const ZuvioCourseListPage()
+            : const ZuvioLoginPage(),
+        popDrawer: !drawerClosed,
+      );
+    } finally {
+      _openingZuvio = false;
+    }
   }
 
   Future<void> _openPage(
     Widget page, {
     bool needLogin = false,
     bool useCupertinoRoute = true,
+    bool popDrawer = true,
   }) async {
-    if (isMobile) Navigator.of(context).pop();
+    if (isMobile && popDrawer) Navigator.of(context).pop();
     if (needLogin && !isLogin) {
       UiUtil.instance.showToast(
         context,

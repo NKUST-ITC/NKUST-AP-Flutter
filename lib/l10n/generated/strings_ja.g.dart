@@ -250,6 +250,7 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get otherBuilding => 'その他';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Zuvio にログイン';
+	@override String get zuvioLoggingIn => 'Zuvio にログイン中…';
 	@override String get zuvioAccountHint => '校務システムの学籍番号とパスワードでログイン';
 	@override String get zuvioEmail => 'メール（アカウント）';
 	@override String get zuvioCourseList => 'すべてのコース';
@@ -303,6 +304,7 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioAttendanceOnTime => '定刻';
 	@override String get zuvioAttendanceLate => '遅刻';
 	@override String get zuvioAttendanceAbsent => '欠席';
+	@override String get zuvioAttendanceUnknown => '状態不明';
 	@override String get zuvioBulletinAttachments => '添付ファイル';
 	@override String get zuvioAttachmentHint => '添付ファイルはブラウザで開き、Zuvio のサーバーから配信されます。Zuvio 側の不具合で開けない場合があります。';
 	@override String get zuvioFeedbackReplied => '先生が返信済み';
@@ -556,6 +558,7 @@ extension on NkustLocalizationsJa {
 			'otherBuilding' => 'その他',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Zuvio にログイン',
+			'zuvioLoggingIn' => 'Zuvio にログイン中…',
 			'zuvioAccountHint' => '校務システムの学籍番号とパスワードでログイン',
 			'zuvioEmail' => 'メール（アカウント）',
 			'zuvioCourseList' => 'すべてのコース',
@@ -609,6 +612,7 @@ extension on NkustLocalizationsJa {
 			'zuvioAttendanceOnTime' => '定刻',
 			'zuvioAttendanceLate' => '遅刻',
 			'zuvioAttendanceAbsent' => '欠席',
+			'zuvioAttendanceUnknown' => '状態不明',
 			'zuvioBulletinAttachments' => '添付ファイル',
 			'zuvioAttachmentHint' => '添付ファイルはブラウザで開き、Zuvio のサーバーから配信されます。Zuvio 側の不具合で開けない場合があります。',
 			'zuvioFeedbackReplied' => '先生が返信済み',

@@ -123,6 +123,13 @@ class ZuvioLoginPageState extends State<ZuvioLoginPage> {
       if (!mounted) return;
       setState(() => _isLoading = false);
       UiUtil.instance.showToast(context, e.message);
+    } catch (_) {
+      // A pref write, navigation, or anything else unrelated to Zuvio
+      // itself should still release the button instead of leaving
+      // "登入中" spinning forever with no way to retry.
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      UiUtil.instance.showToast(context, context.ap.somethingError);
     }
   }
 }

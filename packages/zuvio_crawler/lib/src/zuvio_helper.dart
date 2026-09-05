@@ -114,6 +114,13 @@ class ZuvioHelper {
     );
   }
 
+  /// Downloads the bytes for an attachment [url] returned by
+  /// [getBulletinDetail]. The caller should save/share the resulting
+  /// bytes as a local file rather than handing the (token-bearing) url
+  /// itself to anything outside the app.
+  Future<List<int>> downloadAttachment(String url) =>
+      client.downloadBytes(url);
+
   Future<List<ZuvioQuestion>> getQuestions(
     String courseId,
     String folderId,

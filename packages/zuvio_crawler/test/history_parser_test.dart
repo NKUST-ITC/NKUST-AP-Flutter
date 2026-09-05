@@ -15,8 +15,17 @@ void main() {
           ZuvioAnswerStatus.onTime,
           ZuvioAnswerStatus.late,
           ZuvioAnswerStatus.missed,
+          ZuvioAnswerStatus.unknown,
         ],
       );
+    });
+
+    test('an unrecognized status class reads as unknown, not onTime', () {
+      // A row Zuvio marks some other way (公假/病假/a class we haven't
+      // seen) must not silently render as "準時" in the app.
+      final List<ZuvioAttendanceRecord> rows =
+          parseAttendanceHistory(fixture('history.html'));
+      expect(rows.last.status, ZuvioAnswerStatus.unknown);
     });
 
     test('keeps the check-in time when present and drops the "-" placeholder',

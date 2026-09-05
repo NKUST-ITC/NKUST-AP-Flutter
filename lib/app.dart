@@ -7,6 +7,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/config/constants.dart';
 import 'package:nkust_ap/pages/page.dart';
+import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
 
@@ -32,12 +33,26 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   FirebaseAnalytics? analytics;
 
-  void logout() {
+  Future<void> logout() async {
     setState(() {
       offlineLogin = false;
       loginResponse = null;
     });
-    Helper.clearSetting();
+    try {
+      await Helper.clearSetting();
+    } finally {
+      // Zuvio is a separate session (its own cookie jar + in-memory
+      // tokens) that campus-account logout doesn't otherwise know
+      // about; without this the next person to log into this device
+      // inherits the previous user's Zuvio session. Runs even if the
+      // campus-account cleanup above threw, since this is the half that
+      // actually stops one account's data being exposed to the next.
+      await ZuvioService.instance.logout();
+      await PreferenceUtil.instance
+          .setBool(Constants.prefZuvioSignedOut, false);
+      await PreferenceUtil.instance
+          .setBool(Constants.prefZuvioTermsAccepted, false);
+    }
   }
 
   @override

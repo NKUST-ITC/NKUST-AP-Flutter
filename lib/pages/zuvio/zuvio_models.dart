@@ -74,6 +74,7 @@ enum ZuvioAnswerStatus {
   onTime,
   late,
   missed,
+  unknown,
 }
 
 class ZuvioHistoryFolder {

@@ -250,6 +250,7 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get otherBuilding => 'Other';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Sign in to Zuvio';
+	@override String get zuvioLoggingIn => 'Signing in to Zuvio…';
 	@override String get zuvioAccountHint => 'Sign in with your campus system student ID and password';
 	@override String get zuvioEmail => 'Email (account)';
 	@override String get zuvioCourseList => 'All Courses';
@@ -303,6 +304,7 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get zuvioAttendanceOnTime => 'On time';
 	@override String get zuvioAttendanceLate => 'Late';
 	@override String get zuvioAttendanceAbsent => 'Absent';
+	@override String get zuvioAttendanceUnknown => 'Unknown status';
 	@override String get zuvioBulletinAttachments => 'Attachments';
 	@override String get zuvioAttachmentHint => 'Attachments open in the browser and are served by Zuvio; they may be unavailable if Zuvio\'s storage is down.';
 	@override String get zuvioFeedbackReplied => 'Teacher replied';
@@ -556,6 +558,7 @@ extension on NkustLocalizationsEn {
 			'otherBuilding' => 'Other',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Sign in to Zuvio',
+			'zuvioLoggingIn' => 'Signing in to Zuvio…',
 			'zuvioAccountHint' => 'Sign in with your campus system student ID and password',
 			'zuvioEmail' => 'Email (account)',
 			'zuvioCourseList' => 'All Courses',
@@ -609,6 +612,7 @@ extension on NkustLocalizationsEn {
 			'zuvioAttendanceOnTime' => 'On time',
 			'zuvioAttendanceLate' => 'Late',
 			'zuvioAttendanceAbsent' => 'Absent',
+			'zuvioAttendanceUnknown' => 'Unknown status',
 			'zuvioBulletinAttachments' => 'Attachments',
 			'zuvioAttachmentHint' => 'Attachments open in the browser and are served by Zuvio; they may be unavailable if Zuvio\'s storage is down.',
 			'zuvioFeedbackReplied' => 'Teacher replied',

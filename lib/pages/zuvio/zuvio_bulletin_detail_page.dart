@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_ap/pages/zuvio/ui/zuvio_ui.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_models.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/utils/global.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ZuvioBulletinDetailPage extends StatefulWidget {
   static const String routerName = '/zuvio/bulletin/detail';
@@ -20,6 +24,7 @@ class ZuvioBulletinDetailPage extends StatefulWidget {
 class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
   late ZuvioBulletin _bulletin = widget.summary;
   bool _loading = true;
+  String? _downloadingName;
 
   @override
   void initState() {
@@ -74,7 +79,9 @@ class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
                     horizontal: ZGap.m,
                     vertical: ZGap.sm,
                   ),
-                  onTap: () => PlatformUtil.instance.launchUrl(file.url),
+                  onTap: _downloadingName == null
+                      ? () => _openAttachment(file)
+                      : null,
                   child: Row(
                     children: <Widget>[
                       Icon(
@@ -91,11 +98,18 @@ class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Icon(
-                        Icons.open_in_new_rounded,
-                        size: 16,
-                        color: zc.textFaint,
-                      ),
+                      if (_downloadingName == file.name)
+                        const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      else
+                        Icon(
+                          Icons.ios_share_rounded,
+                          size: 16,
+                          color: zc.textFaint,
+                        ),
                     ],
                   ),
                 ),
@@ -104,6 +118,31 @@ class ZuvioBulletinDetailPageState extends State<ZuvioBulletinDetailPage> {
         ],
       ),
     );
+  }
+
+  /// Downloads the attachment through our own authenticated client and
+  /// hands the OS a local file to open/share — never a Zuvio URL. The
+  /// download URL carries `user_id` + `accessToken` in the query string,
+  /// so passing it to an external browser or share sheet would leak the
+  /// session token into browser history / referer headers.
+  Future<void> _openAttachment(ZuvioAttachment file) async {
+    setState(() => _downloadingName = file.name);
+    try {
+      final List<int> bytes =
+          await ZuvioService.instance.downloadAttachment(file);
+      final Directory dir = await getTemporaryDirectory();
+      final String safeName =
+          file.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_');
+      final File localFile = File('${dir.path}/$safeName');
+      await localFile.writeAsBytes(bytes, flush: true);
+      if (!mounted) return;
+      await Share.shareXFiles(<XFile>[XFile(localFile.path, name: file.name)]);
+    } on ZuvioException catch (e) {
+      if (!mounted) return;
+      UiUtil.instance.showToast(context, e.message);
+    } finally {
+      if (mounted) setState(() => _downloadingName = null);
+    }
   }
 
   Future<void> _load() async {

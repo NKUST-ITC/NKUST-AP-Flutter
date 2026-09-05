@@ -56,7 +56,7 @@ class ZuvioRollcallResult {
 
   factory ZuvioRollcallResult.fromJson(Map<String, dynamic> json) {
     return ZuvioRollcallResult(
-      success: json['status'] == true,
+      success: _isTruthy(json['status']),
       message: '${json['msg'] ?? ''}',
     );
   }
@@ -65,7 +65,20 @@ class ZuvioRollcallResult {
   final String message;
 }
 
-enum ZuvioAnswerStatus { onTime, late, missed }
+/// Zuvio's PHP backend is inconsistent about whether a "true" flag comes
+/// back as a JSON boolean or as `1` / `"1"` / `"true"`; treat all of them
+/// as success rather than only the literal boolean.
+bool _isTruthy(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value == 1;
+  if (value is String) {
+    final String v = value.trim().toLowerCase();
+    return v == 'true' || v == '1';
+  }
+  return false;
+}
+
+enum ZuvioAnswerStatus { onTime, late, missed, unknown }
 
 class ZuvioHistoryEntry {
   const ZuvioHistoryEntry({
