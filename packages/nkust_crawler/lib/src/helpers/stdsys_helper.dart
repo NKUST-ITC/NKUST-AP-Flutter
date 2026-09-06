@@ -7,7 +7,6 @@ import 'package:nkust_crawler/src/capabilities/course_provider.dart';
 import 'package:nkust_crawler/src/capabilities/score_provider.dart';
 import 'package:nkust_crawler/src/capabilities/semester_provider.dart';
 import 'package:nkust_crawler/src/capabilities/user_info_provider.dart';
-import 'package:nkust_crawler/src/facade/helper.dart';
 import 'package:nkust_crawler/src/parsers/stdsys_parser.dart';
 import 'package:nkust_crawler/src/models/room_data.dart';
 import 'package:nkust_crawler/src/abstractions/pdf_text_extractor.dart';
@@ -242,47 +241,30 @@ class StdsysHelper
   Future<SemesterData?> getSemesters() async {
     await _webApHelper.loginToStdsys();
 
-    // Same antiforgery dance as getCourseTable: GET a stdsys page first
-    // so the server seeds .AspNetCore.Antiforgery.* / XSRF-TOKEN cookies,
-    // then echo the XSRF-TOKEN back as both the X-XSRF-TOKEN header and
-    // X-Requested-With: XMLHttpRequest. Without this the WebCode/*
-    // endpoints respond 400 Bad Request with an empty body.
-    await dio.get<String>(
-      'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
-      options: Options(responseType: ResponseType.plain),
-    );
-
     final List<Cookie> cookies = await cookieJar
         .loadForRequest(Uri.parse('https://stdsys.nkust.edu.tw'));
     final String cookieHeader = cookies
         .map((Cookie cookie) => '${cookie.name}=${cookie.value}')
         .join('; ');
-    final String? xsrfToken = cookies
-        .where((Cookie cookie) => cookie.name == 'XSRF-TOKEN')
-        .map((Cookie cookie) => cookie.value)
-        .firstOrNull;
 
-    final Response<String> response = await dio.post<String>(
-      'https://stdsys.nkust.edu.tw/student/WebCode/GetSchoolYearSmsCodes',
-      queryParameters: <String, dynamic>{
-        'stdId': Helper.username,
-      },
+    // The 學生歷年成績查詢 page server-renders a semester dropdown scoped to
+    // the semesters this student was actually enrolled in — unlike
+    // WebCode/GetSchoolYearSmsCodes, which is the school-wide list — so a
+    // graduate never sees semesters after they left.
+    final Response<String> response = await dio.get<String>(
+      'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript',
       options: Options(
         responseType: ResponseType.plain,
         headers: <String, dynamic>{
-          'Accept': '*/*',
-          'Origin': 'https://stdsys.nkust.edu.tw',
-          'Referer':
-              'https://stdsys.nkust.edu.tw/student/Course/StudentCourseList',
-          'X-Requested-With': 'XMLHttpRequest',
-          if (xsrfToken != null) 'X-XSRF-TOKEN': xsrfToken,
+          'Referer': 'https://stdsys.nkust.edu.tw/student',
           'Cookie': cookieHeader,
         },
       ),
     );
 
     final Map<String, dynamic> json =
-        StdsysParser.instance.semesterParser(response.data);
+        StdsysParser.instance.enrolledSemestersParser(response.data);
+    if ((json['data'] as List<dynamic>).isEmpty) return null;
     return SemesterData.fromJson(json);
   }
 

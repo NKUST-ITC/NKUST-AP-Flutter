@@ -277,22 +277,57 @@ class Helper {
     });
   }
 
-  Future<SemesterData> getSemester() async {
+  /// The semester list for the current user. Scraped live rather than
+  /// hand-maintained in Remote Config.
+  ///
+  /// Default: the semesters this student was enrolled in (from stdsys'
+  /// 學生歷年成績查詢 dropdown) — a graduate no longer sees later
+  /// semesters. Pass [schoolWide] for room-timetable lookups, which
+  /// aren't tied to a record and want every semester the school offers.
+  Future<SemesterData> getSemester({bool schoolWide = false}) async {
     return _call(() async {
-      SemesterData? data;
-      log(selector?.semester.toString() ?? '');
-      if (selector?.semester == ScraperSource.remoteConfig) {
-        data = SemesterData.load();
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      } else {
-        final provider = registry.resolve<SemesterProvider>(selector?.semester);
-        data = await provider.getSemesters();
-      }
       reLoginCount = 0;
-      if (data == null) {
+      if (schoolWide) {
+        // Not cached — it would clobber the student-scoped list the other
+        // pages rely on.
+        SemesterData? live;
+        try {
+          live = await WebApHelper.instance.schoolSemesters();
+        } catch (e, s) {
+          if (e is! ApException) reporter.recordError(e, s);
+        }
+        if (live != null && live.data.isNotEmpty) {
+          return live;
+        }
+        final cached = SemesterData.load();
+        if (cached == null) {
+          throw ServerException(message: 'empty semester data');
+        }
+        return cached;
+      }
+      // Unless the selector explicitly names a source, use stdsys: webap's
+      // semester list is school-wide, and loginToStdsys bridges from the
+      // webap session so webap-primary users reach the scoped list too.
+      var source = selector?.semester;
+      if (source == null || source == ScraperSource.remoteConfig) {
+        source = ScraperSource.stdsys;
+      }
+      log('getSemester via $source');
+      try {
+        final provider = registry.resolve<SemesterProvider>(source);
+        final live = await provider.getSemesters();
+        if (live != null && live.data.isNotEmpty) {
+          live.save();
+          return live;
+        }
+      } catch (e, s) {
+        if (e is! ApException) reporter.recordError(e, s);
+      }
+      final cached = SemesterData.load();
+      if (cached == null) {
         throw ServerException(message: 'empty semester data');
       }
-      return data;
+      return cached;
     });
   }
 

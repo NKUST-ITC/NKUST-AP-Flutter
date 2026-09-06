@@ -555,6 +555,29 @@ class WebApHelper
     );
   }
 
+  /// Every semester the school offers, from the public `ag202.jsp` course
+  /// query page (no login) — for room-timetable lookups, which aren't
+  /// tied to a student's record. Defaults to the newest semester; the
+  /// page's own `selected` option lags a year.
+  Future<SemesterData?> schoolSemesters() async {
+    try {
+      final Response<String> response = await dio.get<String>(
+        'https://webap.nkust.edu.tw/nkust/ag_pro/ag202.jsp',
+        options: Options(responseType: ResponseType.plain),
+      );
+      final Map<String, dynamic> json =
+          WebApParser.instance.semestersParser(response.data);
+      final List<dynamic> data = json['data'] as List<dynamic>;
+      if (data.isEmpty) return null;
+      json['default'] = data.first;
+      return SemesterData.fromJson(json);
+    } on TypeError {
+      // semestersParser force-unwraps #yms_yms; treat a layout change as
+      // "no data" so the caller falls back to its cache.
+      return null;
+    }
+  }
+
   @Deprecated('use StdsysHelper.getEnrollmentLetter instead')
   Future<Response<Uint8List>> getEnrollmentLetter() async {
     final List<Cookie> cookies =

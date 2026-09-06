@@ -83,8 +83,8 @@ class _EmptyRoomPageState extends State<EmptyRoomPage> {
       return;
     }
     try {
-      final SemesterData data = await Helper.instance.getSemester();
-      data.save();
+      final SemesterData data =
+          await Helper.instance.getSemester(schoolWide: true);
       if (mounted) {
         setState(() {
           semesterData = data.copyWith(currentIndex: data.defaultIndex);

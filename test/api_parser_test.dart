@@ -440,6 +440,89 @@ void main() {
     });
   });
 
+  // ─── StdsysParser: enrolledSemestersParser ───────────────────────────
+  group('StdsysParser.enrolledSemestersParser', () {
+    const String html = '''
+      <script>
+        var ds = { data: [
+          {"Text":"112-2","Value":"1122"},
+          {"Text":"112-1","Value":"1121"},
+          {"Text":"110-2","Value":"1102"},
+          {"Text":"109-1","Value":"1091"}
+        ] };
+      </script>
+    ''';
+
+    test('reads the enrolled semesters, newest first', () {
+      final Map<String, dynamic> data =
+          StdsysParser.instance.enrolledSemestersParser(html);
+      final List<dynamic> list = data['data'] as List<dynamic>;
+
+      expect(list, hasLength(4));
+      expect(list.first, <String, dynamic>{
+        'year': '112',
+        'value': '2',
+        'text': '112-2',
+      });
+      expect(list.last['text'], '109-1');
+      expect(data['default'], list.first);
+    });
+
+    test('ignores pairs whose Value does not match Text', () {
+      final Map<String, dynamic> data = StdsysParser.instance
+          .enrolledSemestersParser('{"Text":"115-1","Value":"9999"}');
+      expect(data['data'], isEmpty);
+      expect(data['default'], isNull);
+    });
+
+    test('returns an empty list for null or option-less html', () {
+      expect(
+        StdsysParser.instance.enrolledSemestersParser(null)['data'],
+        isEmpty,
+      );
+      expect(
+        StdsysParser.instance
+            .enrolledSemestersParser('<html></html>')['data'],
+        isEmpty,
+      );
+    });
+  });
+
+  // ─── WebApParser: semestersParser (public ag202.jsp) ─────────────────
+  group('WebApParser.semestersParser', () {
+    String buildYms(int count) {
+      final StringBuffer b = StringBuffer('<html><body>'
+          '<select id="yms_yms" name="yms_yms">');
+      for (int i = 0; i < count; i++) {
+        final int year = 115 - i;
+        final String sel = i == 3 ? ' selected=""' : '';
+        b.write('<option value="$year#1"$sel>$year學年度第1學期</option>');
+      }
+      b.write('</select></body></html>');
+      return b.toString();
+    }
+
+    test('splits year#semester and honours the selected option', () {
+      final Map<String, dynamic> data =
+          WebApParser.instance.semestersParser(buildYms(40));
+      final List<dynamic> list = data['data'] as List<dynamic>;
+
+      expect(list, hasLength(40));
+      expect(list.first, <String, dynamic>{
+        'year': '115',
+        'value': '1',
+        'text': '115學年度第1學期',
+      });
+      expect((data['default'] as Map<String, dynamic>)['year'], '112');
+    });
+
+    test('falls back when the option list is too short to be real', () {
+      final Map<String, dynamic> data =
+          WebApParser.instance.semestersParser(buildYms(5));
+      expect(data['data'], isEmpty);
+    });
+  });
+
   // Legacy bus.kuas.edu.tw parser tests removed along with BusHelper
   // (system retired after the KUAS/NKUST merger).
 

@@ -520,7 +520,7 @@ class RoomListPageState extends State<RoomListPage> {
   Future<void> _getRoomList() async {
     setState(() => state = _State.loading);
     try {
-      semesterData = await Helper.instance.getSemester();
+      semesterData = await Helper.instance.getSemester(schoolWide: true);
       final RoomData data = await Helper.instance.getRoomList(
         semester: semesterData!.defaultSemester,
         campusCode: campusIndex + 1,

@@ -577,35 +577,40 @@ class StdsysParser {
     );
   }
 
-  Map<String, dynamic> semesterParser(String? rawJson) {
-    final Map<String, dynamic> apiData =
-        json.decode(rawJson!) as Map<String, dynamic>;
-    final List<dynamic> result = (apiData['result'] as List<dynamic>?) ?? [];
+  /// Reads the semester dropdown embedded in the 學生歷年成績查詢 page. Each
+  /// option is `{"Text":"112-2","Value":"1122"}` where Value is the 3-digit
+  /// academic year followed by the 1-digit semester. The list is scoped to
+  /// the semesters the student was enrolled in.
+  Map<String, dynamic> enrolledSemestersParser(String? html) {
+    final List<Map<String, dynamic>> semesters = <Map<String, dynamic>>[];
+    final Set<String> seen = <String>{};
+    if (html != null) {
+      final String text = html
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#34;', '"')
+          .replaceAll('&#x22;', '"');
+      final RegExp exp = RegExp(
+        r'"Text"\s*:\s*"(\d{3})-([1-4])"\s*,\s*"Value"\s*:\s*"?\1\2"?',
+      );
+      for (final RegExpMatch match in exp.allMatches(text)) {
+        final String year = match.group(1)!;
+        final String value = match.group(2)!;
+        if (!seen.add('$year-$value')) {
+          continue;
+        }
+        semesters.add(<String, dynamic>{
+          'year': year,
+          'value': value,
+          'text': '$year-$value',
+        });
+      }
+    }
 
-    final List<Map<String, dynamic>> semesters = result.map((dynamic item) {
-      final String text = item['text'].toString();
-      final String value = item['value'].toString();
-      final List<String> parts = value.split('-');
-      final String year = parts[0];
-      final String val = parts[1];
-
-      return {
-        'year': year,
-        'value': val,
-        'text': text,
-      };
-    }).toList();
-
-    final Map<String, dynamic>? defaultSemester =
-        semesters.isNotEmpty ? semesters.first : null;
-
-    final Map<String, dynamic> semesterDataJson = {
+    return <String, dynamic>{
       'data': semesters,
-      'default': defaultSemester,
+      'default': semesters.isNotEmpty ? semesters.first : null,
       'currentIndex': 0,
     };
-
-    return semesterDataJson;
   }
 
   Map<String, dynamic> scoresParser(String rawstr) {

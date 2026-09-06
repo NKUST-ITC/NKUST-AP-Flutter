@@ -957,10 +957,11 @@ class HomePageState extends State<HomePage> {
         );
         Helper.selector!.save();
       }
-      final SemesterData semesterData = SemesterData.fromRawJson(
-        remoteConfig.getString(Constants.semesterData),
-      );
-      semesterData.save();
+      if (SemesterData.load() == null) {
+        SemesterData.fromRawJson(
+          remoteConfig.getString(Constants.semesterData),
+        ).save();
+      }
       PreferenceUtil.instance
           .setStringList(Constants.leavesTimeCode, leaveTimeCode);
       versionInfo = VersionInfo(
