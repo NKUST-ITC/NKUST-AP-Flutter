@@ -117,6 +117,8 @@
   "needHelp": "需要幫助嗎？",
   "selectReportOption": "選擇下方選項來回報問題或提供建議",
   "searchStudentId": "查詢學號",
+  "studentIdQueryVerifyHint": "請完成機器人驗證，通過後會自動查詢",
+  "studentIdQueryChallengeFailed": "機器人驗證無法完成，請重試或改用瀏覽器查詢",
   "studentIdBarcode": "學生證條碼",
   "useStudentIdInLibrary": "請於圖書館使用此學號",
   "tapToLogin": "點擊登入",

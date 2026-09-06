@@ -39,7 +39,6 @@ void bootstrapCrawler() {
   final EuclideanCaptchaSolver captchaSolver =
       EuclideanCaptchaSolver(const AssetCaptchaTemplateProvider());
   WebApHelper.instance.captchaSolver = captchaSolver;
-  NKUSTHelper.instance.captchaSolver = captchaSolver;
 
   StdsysHelper.instance.pdfTextExtractor = const SyncfusionPdfTextExtractor();
 
