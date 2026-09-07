@@ -616,17 +616,20 @@ class HomePageState extends State<HomePage> {
 
   Future<void> _loadWeekSchedule() async {
     try {
-      final List<AcademicCalendarEvent> all = await loadAcademicCalendar();
-      final DateTime now = DateTime.now();
-      final List<AcademicCalendarEvent> week = eventsThisWeek(all, now);
-      final AcademicCalendarEvent? exam = nextMajorExam(all, now);
-      if (mounted) {
-        setState(() {
-          weekEvents = week;
-          nextExam = exam;
-        });
-      }
+      _applyCalendar(await loadAcademicCalendar());
+      _applyCalendar(await refreshAcademicCalendar());
     } catch (_) {}
+  }
+
+  void _applyCalendar(List<AcademicCalendarEvent>? all) {
+    if (all == null || !mounted) return;
+    final DateTime now = DateTime.now();
+    final List<AcademicCalendarEvent> week = eventsThisWeek(all, now);
+    final AcademicCalendarEvent? exam = nextMajorExam(all, now);
+    setState(() {
+      weekEvents = week;
+      nextExam = exam;
+    });
   }
 
   Future<void> _getAnnouncements() async {
