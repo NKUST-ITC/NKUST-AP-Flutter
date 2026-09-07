@@ -1,8 +1,30 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui' show Color;
 
+import 'package:ap_common/ap_common.dart' show PreferenceUtil;
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/res/assets.dart';
+
+/// Where a new semester's calendar arrives from between store releases.
+///
+/// This is the same file the app bundles, served from the repository, so
+/// publishing one is a commit rather than a build. Hardcoded on purpose:
+/// a remotely configurable source would let whoever holds that config
+/// redirect the app somewhere else.
+const String _remoteUrl =
+    'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter'
+    '/master/assets/schedule_data.json';
+
+const String _prefCached = 'cached_schedule_data';
+const String _prefCachedAt = 'cached_schedule_data_at';
+
+/// Long enough that a semester rollover lands within a day of publishing,
+/// short enough that nobody is fetching an unchanged file on every launch.
+const Duration _refreshInterval = Duration(hours: 12);
+
+Future<List<AcademicCalendarEvent>?>? _inFlight;
 
 enum AcademicCategory { holiday, exam, enrollment, registrar, general }
 
@@ -97,18 +119,119 @@ class AcademicCalendarEvent {
   }
 }
 
-/// Reads the bundled calendar (no network) sorted by start date.
+/// Parses a calendar document, or returns null if anything about it is off.
+///
+/// All or nothing by design. A half-read calendar is worse than no update
+/// at all, and this parses input the app did not build — the bundled asset,
+/// a cached copy, and a file fetched over the network all come through
+/// here, so one malformed entry must not be able to land.
+/// Dart rolls impossible dates over rather than rejecting them, so
+/// `2026-13-45` parses cleanly as 2027-02-14 and a typo in the source
+/// would land as a real-looking entry. Require the result to say back
+/// exactly what was written.
+DateTime? _strictDate(String value) {
+  final RegExpMatch? match =
+      RegExp(r'^(\d{4})-(\d{2})-(\d{2})').firstMatch(value);
+  if (match == null) return null;
+  final DateTime? parsed = DateTime.tryParse(value);
+  if (parsed == null) return null;
+  if (parsed.year != int.parse(match.group(1)!) ||
+      parsed.month != int.parse(match.group(2)!) ||
+      parsed.day != int.parse(match.group(3)!)) {
+    return null;
+  }
+  return parsed;
+}
+
+List<AcademicCalendarEvent>? parseAcademicCalendar(String raw) {
+  try {
+    final dynamic decoded = jsonDecode(raw);
+    if (decoded is! List<dynamic>) return null;
+    final List<AcademicCalendarEvent> events = <AcademicCalendarEvent>[];
+    for (final dynamic item in decoded) {
+      if (item is! Map<String, dynamic>) return null;
+      final Object? start = item['start'];
+      final Object? end = item['end'];
+      final Object? title = item['title'];
+      if (start is! String) return null;
+      if (end != null && end is! String) return null;
+      if (title is! String || title.trim().isEmpty) return null;
+      if (_strictDate(start) == null) return null;
+      if (end is String && _strictDate(end) == null) return null;
+      events.add(AcademicCalendarEvent.fromJson(item));
+    }
+    if (events.isEmpty) return null;
+    return events
+      ..sort(
+        (AcademicCalendarEvent a, AcademicCalendarEvent b) =>
+            a.start.compareTo(b.start),
+      );
+  } catch (_) {
+    return null;
+  }
+}
+
+/// The best calendar available without going to the network.
+///
+/// The bundled asset is the floor — it ships with the app, so it always
+/// parses and the page always has something to draw. A cached download
+/// wins when there is one, because it is the same file from the same
+/// repository, only newer.
 Future<List<AcademicCalendarEvent>> loadAcademicCalendar() async {
+  final String cached = PreferenceUtil.instance.getString(_prefCached, '');
+  if (cached.isNotEmpty) {
+    final List<AcademicCalendarEvent>? events = parseAcademicCalendar(cached);
+    if (events != null) return events;
+    await PreferenceUtil.instance.remove(_prefCached);
+  }
   final String raw = await rootBundle.loadString(FileAssets.scheduleData);
-  final List<dynamic> jsonArray = jsonDecode(raw) as List<dynamic>;
-  return <AcademicCalendarEvent>[
-    for (final dynamic item in jsonArray)
-      if (item is Map<String, dynamic> && item['start'] is String)
-        AcademicCalendarEvent.fromJson(item),
-  ]..sort(
-      (AcademicCalendarEvent a, AcademicCalendarEvent b) =>
-          a.start.compareTo(b.start),
+  return parseAcademicCalendar(raw) ?? <AcademicCalendarEvent>[];
+}
+
+/// Fetches a newer calendar, returning it only when one actually arrived.
+///
+/// Null covers every uninteresting outcome — checked recently, offline,
+/// server unhappy, response unparseable, nothing changed — so callers can
+/// treat it as "keep what you are showing" without distinguishing them.
+Future<List<AcademicCalendarEvent>?> refreshAcademicCalendar({
+  bool force = false,
+}) {
+  return _inFlight ??= _refresh(force: force).whenComplete(() {
+    _inFlight = null;
+  });
+}
+
+Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
+  final String cached = PreferenceUtil.instance.getString(_prefCached, '');
+  if (!force) {
+    final String at = PreferenceUtil.instance.getString(_prefCachedAt, '');
+    final DateTime? last = DateTime.tryParse(at);
+    if (last != null &&
+        DateTime.now().difference(last) < _refreshInterval) {
+      return null;
+    }
+  }
+  try {
+    final Response<String> response = await Dio(
+      BaseOptions(
+        connectTimeout: const Duration(seconds: 5),
+        receiveTimeout: const Duration(seconds: 10),
+        responseType: ResponseType.plain,
+      ),
+    ).get<String>(_remoteUrl);
+    final String? body = response.data;
+    if (body == null) return null;
+    final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
+    if (events == null) return null;
+    await PreferenceUtil.instance.setString(_prefCached, body);
+    await PreferenceUtil.instance.setString(
+      _prefCachedAt,
+      DateTime.now().toIso8601String(),
     );
+    return body == cached ? null : events;
+  } catch (_) {
+    return null;
+  }
 }
 
 /// The midterm or final week [day] falls in, else the next one ahead of it.

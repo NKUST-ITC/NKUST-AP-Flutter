@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
@@ -276,6 +277,7 @@ class SchedulePageState extends State<SchedulePage>
     try {
       final List<AcademicCalendarEvent> parsed = await loadAcademicCalendar();
       if (!mounted) return;
+      unawaited(_refreshSchedules());
       if (parsed.isEmpty) {
         setState(() => state = _State.empty);
         return;
@@ -301,6 +303,24 @@ class SchedulePageState extends State<SchedulePage>
     } catch (_) {
       if (mounted) setState(() => state = _State.error);
     }
+  }
+
+  /// Picks up a calendar published since this build, without making the
+  /// page wait on the network to draw the one it already has.
+  Future<void> _refreshSchedules() async {
+    final List<AcademicCalendarEvent>? fresh = await refreshAcademicCalendar();
+    if (fresh == null || !mounted) return;
+    setState(() {
+      events = fresh;
+      nextExam = nextMajorExam(fresh, DateTime.now());
+      DateTime maxEnd = fresh.first.end;
+      for (final AcademicCalendarEvent event in fresh) {
+        if (event.end.isAfter(maxEnd)) maxEnd = event.end;
+      }
+      firstMonth = DateTime(fresh.first.start.year, fresh.first.start.month);
+      lastMonth = DateTime(maxEnd.year, maxEnd.month);
+      focusedMonth = _clampMonth(focusedMonth);
+    });
   }
 
   DateTime _clampMonth(DateTime month) {
