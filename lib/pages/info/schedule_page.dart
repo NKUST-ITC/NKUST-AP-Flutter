@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:ap_common/ap_common.dart';
@@ -6,12 +5,10 @@ import 'package:ap_common_firebase/ap_common_firebase.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nkust_ap/res/assets.dart';
+import 'package:nkust_ap/utils/academic_calendar.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 enum _State { loading, finish, error, empty, pdf }
-
-enum _Category { holiday, exam, enrollment, registrar, general }
 
 const List<String> _weekdayLabels = <String>[
   '日',
@@ -43,7 +40,7 @@ class SchedulePageState extends State<SchedulePage>
 
   late ApLocalizations ap;
 
-  List<_CalendarEvent> events = <_CalendarEvent>[];
+  List<AcademicCalendarEvent> events = <AcademicCalendarEvent>[];
   DateTime firstMonth = DateTime(DateTime.now().year, DateTime.now().month);
   DateTime lastMonth = DateTime(DateTime.now().year, DateTime.now().month);
   late DateTime focusedMonth = firstMonth;
@@ -101,8 +98,9 @@ class SchedulePageState extends State<SchedulePage>
           ],
         );
       case _State.finish:
-        final List<_CalendarEvent> dayEvents =
-            selectedDay == null ? <_CalendarEvent>[] : _eventsOn(selectedDay!);
+        final List<AcademicCalendarEvent> dayEvents = selectedDay == null
+            ? <AcademicCalendarEvent>[]
+            : _eventsOn(selectedDay!);
         return Column(
           children: <Widget>[
             _viewSwitchBar(showingPdf: false),
@@ -186,26 +184,17 @@ class SchedulePageState extends State<SchedulePage>
     });
   }
 
-  List<_CalendarEvent> _eventsOn(DateTime day) {
+  List<AcademicCalendarEvent> _eventsOn(DateTime day) {
     final DateTime target = DateTime(day.year, day.month, day.day);
-    return <_CalendarEvent>[
-      for (final _CalendarEvent event in events)
+    return <AcademicCalendarEvent>[
+      for (final AcademicCalendarEvent event in events)
         if (!target.isBefore(event.start) && !target.isAfter(event.end)) event,
     ];
   }
 
   Future<void> _getSchedules() async {
     try {
-      final String raw =
-          await rootBundle.loadString(FileAssets.scheduleData);
-      final List<dynamic> jsonArray = jsonDecode(raw) as List<dynamic>;
-      final List<_CalendarEvent> parsed = <_CalendarEvent>[
-        for (final dynamic item in jsonArray)
-          if (item is Map<String, dynamic> && item['start'] is String)
-            _CalendarEvent.fromJson(item),
-      ]..sort(
-          (_CalendarEvent a, _CalendarEvent b) => a.start.compareTo(b.start),
-        );
+      final List<AcademicCalendarEvent> parsed = await loadAcademicCalendar();
       if (!mounted) return;
       if (parsed.isEmpty) {
         setState(() => state = _State.empty);
@@ -216,7 +205,7 @@ class SchedulePageState extends State<SchedulePage>
         final DateTime firstStart = parsed.first.start;
         firstMonth = DateTime(firstStart.year, firstStart.month);
         DateTime maxEnd = parsed.first.end;
-        for (final _CalendarEvent event in parsed) {
+        for (final AcademicCalendarEvent event in parsed) {
           if (event.end.isAfter(maxEnd)) maxEnd = event.end;
         }
         lastMonth = DateTime(maxEnd.year, maxEnd.month);
@@ -272,7 +261,7 @@ class SchedulePageState extends State<SchedulePage>
     }
   }
 
-  void _confirmAddToCalendar(_CalendarEvent event) {
+  void _confirmAddToCalendar(AcademicCalendarEvent event) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     AnalyticsUtil.instance.logEvent('add_schedule_create');
     showDialog<void>(
@@ -302,7 +291,7 @@ class SchedulePageState extends State<SchedulePage>
     );
   }
 
-  void _addToCalendar(_CalendarEvent event) {
+  void _addToCalendar(AcademicCalendarEvent event) {
     try {
       if (ApPlatformCalendarUtil.isSupported) {
         PlatformCalendarUtil.instance.addToApp(
@@ -329,70 +318,17 @@ class SchedulePageState extends State<SchedulePage>
   }
 }
 
-class _CalendarEvent {
-  const _CalendarEvent({
-    required this.start,
-    required this.end,
-    required this.title,
-    required this.category,
-  });
-
-  factory _CalendarEvent.fromJson(Map<String, dynamic> json) {
-    final DateTime start = DateTime.parse(json['start'] as String);
-    final String rawEnd = json['end'] as String? ?? json['start'] as String;
-    final String title = (json['title'] as String? ?? '').trim();
-    return _CalendarEvent(
-      start: start,
-      end: DateTime.parse(rawEnd),
-      title: title,
-      category: _categorize(title),
-    );
-  }
-
-  final DateTime start;
-  final DateTime end;
-  final String title;
-  final _Category category;
-
-  bool get isRange => end.isAfter(start);
-
-  static _Category _categorize(String title) {
-    if (title.contains('放假') ||
-        title.contains('補假') ||
-        title.contains('寒假') ||
-        title.contains('暑假')) {
-      return _Category.holiday;
-    }
-    if (title.contains('考試') || title.contains('競賽')) {
-      return _Category.exam;
-    }
-    if (title.contains('選課')) {
-      return _Category.enrollment;
-    }
-    if (title.contains('休退學') ||
-        title.contains('抵免') ||
-        title.contains('畢業') ||
-        title.contains('離校') ||
-        title.contains('轉系') ||
-        title.contains('學位') ||
-        title.contains('成績')) {
-      return _Category.registrar;
-    }
-    return _Category.general;
-  }
-}
-
-Color _categoryColor(ColorScheme colorScheme, _Category category) {
+Color _categoryColor(ColorScheme colorScheme, AcademicCategory category) {
   switch (category) {
-    case _Category.holiday:
+    case AcademicCategory.holiday:
       return const Color(0xFF2E7D32);
-    case _Category.exam:
-      return const Color(0xFFC62828);
-    case _Category.enrollment:
+    case AcademicCategory.exam:
+      return examAccent;
+    case AcademicCategory.enrollment:
       return colorScheme.primary;
-    case _Category.registrar:
+    case AcademicCategory.registrar:
       return const Color(0xFFEF6C00);
-    case _Category.general:
+    case AcademicCategory.general:
       return colorScheme.outline;
   }
 }
@@ -412,7 +348,7 @@ class _MonthGrid extends StatelessWidget {
   final DateTime? selectedDay;
   final DateTime firstMonth;
   final DateTime lastMonth;
-  final List<_CalendarEvent> Function(DateTime day) hasEvents;
+  final List<AcademicCalendarEvent> Function(DateTime day) hasEvents;
   final ValueChanged<int> onPage;
   final ValueChanged<DateTime> onSelect;
 
@@ -516,7 +452,7 @@ class _DayCell extends StatelessWidget {
   final DateTime focusedMonth;
   final DateTime? selectedDay;
   final DateTime today;
-  final List<_CalendarEvent> events;
+  final List<AcademicCalendarEvent> events;
   final ValueChanged<DateTime> onSelect;
 
   bool _sameDay(DateTime a, DateTime b) =>
@@ -529,8 +465,8 @@ class _DayCell extends StatelessWidget {
     final bool isSelected = selectedDay != null && _sameDay(day, selectedDay!);
     final bool isToday = _sameDay(day, today);
 
-    final List<_Category> dots = <_Category>[];
-    for (final _CalendarEvent event in events) {
+    final List<AcademicCategory> dots = <AcademicCategory>[];
+    for (final AcademicCalendarEvent event in events) {
       if (!dots.contains(event.category)) dots.add(event.category);
     }
 
@@ -571,7 +507,7 @@ class _DayCell extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  for (final _Category category in dots.take(4))
+                  for (final AcademicCategory category in dots.take(4))
                     Container(
                       width: 5.0,
                       height: 5.0,
@@ -594,7 +530,7 @@ class _DayCell extends StatelessWidget {
 class _EventTile extends StatelessWidget {
   const _EventTile({required this.event, required this.onTap});
 
-  final _CalendarEvent event;
+  final AcademicCalendarEvent event;
   final VoidCallback onTap;
 
   String _range() {
