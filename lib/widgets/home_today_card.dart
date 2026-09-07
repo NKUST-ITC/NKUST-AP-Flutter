@@ -1,5 +1,6 @@
 import 'package:ap_common/ap_common.dart';
 import 'package:flutter/material.dart';
+import 'package:nkust_ap/l10n/nkust_localizations.dart';
 import 'package:nkust_ap/utils/academic_calendar.dart';
 
 /// Home dashboard card combining today's classes with the academic-calendar
@@ -16,12 +17,14 @@ class HomeTodayCard extends StatelessWidget {
     super.key,
     required this.courseData,
     required this.weekEvents,
+    required this.nextExam,
     required this.onCourseTap,
     required this.onCalendarTap,
   });
 
   final CourseData? courseData;
   final List<AcademicCalendarEvent> weekEvents;
+  final AcademicCalendarEvent? nextExam;
   final VoidCallback onCourseTap;
   final VoidCallback onCalendarTap;
 
@@ -37,7 +40,9 @@ class HomeTodayCard extends StatelessWidget {
     final bool isTomorrow = slots.isEmpty;
     if (isTomorrow) slots = _slotsFor(tomorrowWeekday);
 
-    if (slots.isEmpty && weekEvents.isEmpty) return const SizedBox.shrink();
+    if (slots.isEmpty && weekEvents.isEmpty && nextExam == null) {
+      return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -54,13 +59,14 @@ class HomeTodayCard extends StatelessWidget {
           children: <Widget>[
             if (slots.isNotEmpty) ...<Widget>[
               _classSection(context, colorScheme, slots, isTomorrow),
-              if (weekEvents.isNotEmpty) ...<Widget>[
+              if (weekEvents.isNotEmpty || nextExam != null) ...<Widget>[
                 const SizedBox(height: 12),
                 const Divider(height: 1),
                 const SizedBox(height: 12),
               ],
             ],
-            if (weekEvents.isNotEmpty) _calendarSection(colorScheme),
+            if (weekEvents.isNotEmpty || nextExam != null)
+              _calendarSection(context, colorScheme),
           ],
         ),
       ),
@@ -202,14 +208,21 @@ class HomeTodayCard extends StatelessWidget {
     );
   }
 
-  Widget _calendarSection(ColorScheme colorScheme) {
+  Widget _calendarSection(BuildContext context, ColorScheme colorScheme) {
     String fmt(DateTime d) => '${d.month}/${d.day}';
+    // The exam pill leads the row and never scrolls out of reach, so the
+    // one date everyone checks for is answered without opening the page.
+    final AcademicCalendarEvent? exam = nextExam;
     return SizedBox(
       height: 32,
       child: Row(
         children: <Widget>[
           Icon(ApIcon.dateRange, size: 18, color: colorScheme.primary),
           const SizedBox(width: 8),
+          if (exam != null) ...<Widget>[
+            _examPill(context, exam),
+            const SizedBox(width: 8),
+          ],
           Expanded(
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
@@ -261,6 +274,46 @@ class HomeTodayCard extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _examPill(BuildContext context, AcademicCalendarEvent exam) {
+    final DateTime today = DateTime.now();
+    final bool started = exam.covers(today);
+    return Center(
+      child: Material(
+        color: examAccent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onCalendarTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  exam.shortTitle,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: examAccent,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  started
+                      ? context.t.scheduleExamToday
+                      : context.t.scheduleExamCountdown(
+                          days: exam.daysUntil(today),
+                        ),
+                  style: const TextStyle(fontSize: 13, color: examAccent),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

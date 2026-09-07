@@ -245,6 +245,9 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get scheduleViewList => 'Back to list';
 	@override String get scheduleNoEvents => 'No events on this day';
 	@override String get scheduleToday => 'Today';
+	@override String scheduleExamCountdown({required Object days}) => 'in ${days} days';
+	@override String get scheduleExamToday => 'In progress';
+	@override String get scheduleExamWeekLegend => 'Exam week';
 	@override String networkError({required Object message}) => 'Network error: ${message}';
 	@override String loadFailed({required Object message}) => 'Load failed: ${message}';
 	@override String get loginFailedFiveTimes => 'You have failed to login 5 times!! Please try again after 30 minutes!!';
@@ -557,6 +560,9 @@ extension on NkustLocalizationsEn {
 			'scheduleViewList' => 'Back to list',
 			'scheduleNoEvents' => 'No events on this day',
 			'scheduleToday' => 'Today',
+			'scheduleExamCountdown' => ({required Object days}) => 'in ${days} days',
+			'scheduleExamToday' => 'In progress',
+			'scheduleExamWeekLegend' => 'Exam week',
 			'networkError' => ({required Object message}) => 'Network error: ${message}',
 			'loadFailed' => ({required Object message}) => 'Load failed: ${message}',
 			'loginFailedFiveTimes' => 'You have failed to login 5 times!! Please try again after 30 minutes!!',

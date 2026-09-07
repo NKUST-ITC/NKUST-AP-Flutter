@@ -52,6 +52,8 @@ class HomePageState extends State<HomePage> {
 
   List<AcademicCalendarEvent> weekEvents = <AcademicCalendarEvent>[];
 
+  AcademicCalendarEvent? nextExam;
+
   bool isLogin = false;
   bool displayPicture = true;
   bool isStudyExpanded = false;
@@ -584,6 +586,7 @@ class HomePageState extends State<HomePage> {
       HomeTodayCard(
         courseData: courseData,
         weekEvents: weekEvents,
+        nextExam: nextExam,
         onCourseTap: () => _pushAndReload(CoursePage()),
         onCalendarTap: () =>
             _pushAndReload(const SchoolInfoPage(initialTab: 2)),
@@ -614,9 +617,15 @@ class HomePageState extends State<HomePage> {
   Future<void> _loadWeekSchedule() async {
     try {
       final List<AcademicCalendarEvent> all = await loadAcademicCalendar();
-      final List<AcademicCalendarEvent> week =
-          eventsThisWeek(all, DateTime.now());
-      if (mounted) setState(() => weekEvents = week);
+      final DateTime now = DateTime.now();
+      final List<AcademicCalendarEvent> week = eventsThisWeek(all, now);
+      final AcademicCalendarEvent? exam = nextMajorExam(all, now);
+      if (mounted) {
+        setState(() {
+          weekEvents = week;
+          nextExam = exam;
+        });
+      }
     } catch (_) {}
   }
 
