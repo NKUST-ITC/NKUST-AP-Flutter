@@ -210,26 +210,28 @@ class HomeTodayCard extends StatelessWidget {
 
   Widget _calendarSection(BuildContext context, ColorScheme colorScheme) {
     String fmt(DateTime d) => '${d.month}/${d.day}';
-    // The exam pill leads the row and never scrolls out of reach, so the
-    // one date everyone checks for is answered without opening the page.
+    // The exam pill rides at the head of the same scroller as everything
+    // else rather than holding a fixed slot, so a busy week is not paying
+    // for it in width.
     final AcademicCalendarEvent? exam = nextExam;
+    final int leading = exam == null ? 0 : 1;
     return SizedBox(
       height: 32,
       child: Row(
         children: <Widget>[
           Icon(ApIcon.dateRange, size: 18, color: colorScheme.primary),
           const SizedBox(width: 8),
-          if (exam != null) ...<Widget>[
-            _examPill(context, exam),
-            const SizedBox(width: 8),
-          ],
           Expanded(
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              itemCount: weekEvents.length,
+              itemCount: weekEvents.length + leading,
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (BuildContext context, int index) {
-                final AcademicCalendarEvent event = weekEvents[index];
+                if (exam != null && index == 0) {
+                  return _examPill(context, exam);
+                }
+                final AcademicCalendarEvent event =
+                    weekEvents[index - leading];
                 final String range = event.isRange
                     ? '${fmt(event.start)}–${fmt(event.end)}'
                     : fmt(event.start);
