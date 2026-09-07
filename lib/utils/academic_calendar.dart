@@ -44,7 +44,11 @@ class AcademicCalendarEvent {
         title.contains('暑假')) {
       return AcademicCategory.holiday;
     }
-    if (title.contains('考試') || title.contains('競賽')) {
+    // Only the two weeks the whole school sits. 英文大會考, 物理、化學競賽
+    // and the 研究生申請學位考試 deadlines all spell out an exam without
+    // being the date students plan a semester around, and giving them the
+    // same red is what stops the red from meaning anything.
+    if (title.contains('期中考') || title.contains('期末考')) {
       return AcademicCategory.exam;
     }
     if (title.contains('選課')) {
