@@ -46,6 +46,8 @@ class SchedulePageState extends State<SchedulePage>
   late DateTime focusedMonth = firstMonth;
   DateTime? selectedDay;
 
+  AcademicCalendarEvent? nextExam;
+
   _State state = _State.loading;
 
   PdfState pdfState = PdfState.loading;
@@ -104,12 +106,14 @@ class SchedulePageState extends State<SchedulePage>
         return Column(
           children: <Widget>[
             _viewSwitchBar(showingPdf: false),
+            if (nextExam != null) _examBanner(nextExam!),
             _MonthGrid(
               focusedMonth: focusedMonth,
               selectedDay: selectedDay,
               firstMonth: firstMonth,
               lastMonth: lastMonth,
               hasEvents: _eventsOn,
+              isExamWeek: _isExamWeek,
               onPage: (int delta) => setState(() {
                 focusedMonth =
                     DateTime(focusedMonth.year, focusedMonth.month + delta);
@@ -176,6 +180,82 @@ class SchedulePageState extends State<SchedulePage>
     );
   }
 
+  /// Pinned above the grid so the answer is there without paging months.
+  Widget _examBanner(AcademicCalendarEvent exam) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final DateTime today = DateTime.now();
+    final bool started = exam.covers(today);
+    final int days = exam.daysUntil(today);
+    String fmt(DateTime d) => '${d.month}/${d.day}';
+    return InkWell(
+      onTap: () => setState(() {
+        selectedDay = DateTime(
+          exam.start.year,
+          exam.start.month,
+          exam.start.day,
+        );
+        focusedMonth =
+            _clampMonth(DateTime(exam.start.year, exam.start.month));
+      }),
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 4.0),
+        padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
+        decoration: BoxDecoration(
+          color: examAccent.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        child: Row(
+          children: <Widget>[
+            Container(
+              width: 8.0,
+              height: 8.0,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: examAccent,
+              ),
+            ),
+            const SizedBox(width: 10.0),
+            Text(
+              exam.shortTitle,
+              style: const TextStyle(
+                fontSize: 15.0,
+                fontWeight: FontWeight.bold,
+                color: examAccent,
+              ),
+            ),
+            const SizedBox(width: 8.0),
+            Expanded(
+              child: Text(
+                '${fmt(exam.start)} – ${fmt(exam.end)}',
+                style: TextStyle(
+                  fontSize: 13.0,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Text(
+              started
+                  ? context.t.scheduleExamToday
+                  : context.t.scheduleExamCountdown(days: days),
+              style: const TextStyle(
+                fontSize: 13.0,
+                fontWeight: FontWeight.bold,
+                color: examAccent,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isExamWeek(DateTime day) {
+    for (final AcademicCalendarEvent event in events) {
+      if (event.isMajorExam && event.covers(day)) return true;
+    }
+    return false;
+  }
+
   void _goToToday() {
     final DateTime today = DateTime.now();
     setState(() {
@@ -202,6 +282,7 @@ class SchedulePageState extends State<SchedulePage>
       }
       setState(() {
         events = parsed;
+        nextExam = nextMajorExam(parsed, DateTime.now());
         final DateTime firstStart = parsed.first.start;
         firstMonth = DateTime(firstStart.year, firstStart.month);
         DateTime maxEnd = parsed.first.end;
@@ -340,6 +421,7 @@ class _MonthGrid extends StatelessWidget {
     required this.firstMonth,
     required this.lastMonth,
     required this.hasEvents,
+    required this.isExamWeek,
     required this.onPage,
     required this.onSelect,
   });
@@ -349,6 +431,7 @@ class _MonthGrid extends StatelessWidget {
   final DateTime firstMonth;
   final DateTime lastMonth;
   final List<AcademicCalendarEvent> Function(DateTime day) hasEvents;
+  final bool Function(DateTime day) isExamWeek;
   final ValueChanged<int> onPage;
   final ValueChanged<DateTime> onSelect;
 
@@ -429,6 +512,7 @@ class _MonthGrid extends StatelessWidget {
             selectedDay: selectedDay,
             today: today,
             events: hasEvents(day),
+            isExamWeek: isExamWeek(day),
             onSelect: onSelect,
           ),
         ),
@@ -445,6 +529,7 @@ class _DayCell extends StatelessWidget {
     required this.selectedDay,
     required this.today,
     required this.events,
+    required this.isExamWeek,
     required this.onSelect,
   });
 
@@ -453,6 +538,7 @@ class _DayCell extends StatelessWidget {
   final DateTime? selectedDay;
   final DateTime today;
   final List<AcademicCalendarEvent> events;
+  final bool isExamWeek;
   final ValueChanged<DateTime> onSelect;
 
   bool _sameDay(DateTime a, DateTime b) =>
@@ -480,8 +566,13 @@ class _DayCell extends StatelessWidget {
     return InkWell(
       onTap: () => onSelect(DateTime(day.year, day.month, day.day)),
       borderRadius: BorderRadius.circular(8.0),
-      child: SizedBox(
+      child: Container(
         height: 46.0,
+        // Adjacent cells share the tint, so an exam week reads as one band
+        // across the row rather than seven separate marks.
+        color: isExamWeek && inMonth
+            ? examAccent.withValues(alpha: 0.12)
+            : null,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

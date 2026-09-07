@@ -65,6 +65,32 @@ class AcademicCalendarEvent {
     }
     return AcademicCategory.general;
   }
+
+  bool get isMajorExam => category == AcademicCategory.exam;
+
+  /// 「第一學期期中考試」 runs long in a one-line banner, and the calendar
+  /// only ever carries one of each per semester, so the two characters that
+  /// tell them apart carry the whole meaning. Titles come from the school's
+  /// PDF and are never translated, hence the literals.
+  String get shortTitle {
+    if (title.contains('期中考')) return '期中考';
+    if (title.contains('期末考')) return '期末考';
+    return title;
+  }
+
+  /// Days from [day] until this starts; zero once it has begun.
+  int daysUntil(DateTime day) {
+    final DateTime target = DateTime(day.year, day.month, day.day);
+    final DateTime from = DateTime(start.year, start.month, start.day);
+    final int days = from.difference(target).inDays;
+    return days < 0 ? 0 : days;
+  }
+
+  bool covers(DateTime day) {
+    final DateTime target = DateTime(day.year, day.month, day.day);
+    return !target.isBefore(DateTime(start.year, start.month, start.day)) &&
+        !target.isAfter(DateTime(end.year, end.month, end.day));
+  }
 }
 
 /// Reads the bundled calendar (no network) sorted by start date.
@@ -79,6 +105,27 @@ Future<List<AcademicCalendarEvent>> loadAcademicCalendar() async {
       (AcademicCalendarEvent a, AcademicCalendarEvent b) =>
           a.start.compareTo(b.start),
     );
+}
+
+/// The midterm or final week [day] falls in, else the next one ahead of it.
+///
+/// Returns null once both are behind us — late in the second semester the
+/// bundled calendar has no exam left to count down to.
+AcademicCalendarEvent? nextMajorExam(
+  List<AcademicCalendarEvent> events,
+  DateTime day,
+) {
+  final DateTime target = DateTime(day.year, day.month, day.day);
+  AcademicCalendarEvent? best;
+  for (final AcademicCalendarEvent event in events) {
+    if (!event.isMajorExam) continue;
+    if (DateTime(event.end.year, event.end.month, event.end.day)
+        .isBefore(target)) {
+      continue;
+    }
+    if (best == null || event.start.isBefore(best.start)) best = event;
+  }
+  return best;
 }
 
 /// Events overlapping the Monday–Sunday week that contains [day].
