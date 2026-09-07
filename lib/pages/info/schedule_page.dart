@@ -402,7 +402,7 @@ class SchedulePageState extends State<SchedulePage>
 Color _categoryColor(ColorScheme colorScheme, AcademicCategory category) {
   switch (category) {
     case AcademicCategory.holiday:
-      return const Color(0xFF2E7D32);
+      return holidayAccent;
     case AcademicCategory.exam:
       return examAccent;
     case AcademicCategory.enrollment:
@@ -552,15 +552,35 @@ class _DayCell extends StatelessWidget {
     final bool isToday = _sameDay(day, today);
 
     final List<AcademicCategory> dots = <AcademicCategory>[];
+    bool isHoliday = false;
     for (final AcademicCalendarEvent event in events) {
       if (!dots.contains(event.category)) dots.add(event.category);
+      if (event.category == AcademicCategory.holiday) isHoliday = true;
     }
+    final bool isWeekend = day.weekday == DateTime.saturday ||
+        day.weekday == DateTime.sunday;
+    final bool isDayOff = isWeekend || isHoliday;
 
-    Color numberColor = colorScheme.onSurface;
+    Color numberColor = isDayOff ? holidayAccent : colorScheme.onSurface;
     if (!inMonth) {
-      numberColor = colorScheme.onSurfaceVariant.withValues(alpha: 0.4);
+      numberColor = numberColor.withValues(alpha: 0.4);
     } else if (isSelected) {
       numberColor = colorScheme.onPrimary;
+    }
+
+    // Red says "no class" the way a wall calendar does, so a declared
+    // holiday gets more of it than a plain weekend. The exam band wins the
+    // background where they overlap — it has to stay unbroken across the
+    // week to read as one block — and the red day number carries the rest.
+    Color? cellTint;
+    if (inMonth) {
+      if (isExamWeek) {
+        cellTint = examAccent.withValues(alpha: 0.12);
+      } else if (isHoliday) {
+        cellTint = holidayAccent.withValues(alpha: 0.13);
+      } else if (isWeekend) {
+        cellTint = holidayAccent.withValues(alpha: 0.05);
+      }
     }
 
     return InkWell(
@@ -568,11 +588,9 @@ class _DayCell extends StatelessWidget {
       borderRadius: BorderRadius.circular(8.0),
       child: Container(
         height: 46.0,
-        // Adjacent cells share the tint, so an exam week reads as one band
-        // across the row rather than seven separate marks.
-        color: isExamWeek && inMonth
-            ? examAccent.withValues(alpha: 0.12)
-            : null,
+        // Adjacent cells share a tint, so a run of days reads as one band
+        // across the row rather than as separate marks.
+        color: cellTint,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[

@@ -6,8 +6,12 @@ import 'package:nkust_ap/res/assets.dart';
 
 enum AcademicCategory { holiday, exam, enrollment, registrar, general }
 
-/// Shared by the month grid and the home card so both reds match.
-const Color examAccent = Color(0xFFC62828);
+/// Red reads as "day off" on every printed calendar in Taiwan, so weekends
+/// and holidays claim it and the exam weeks take a colour of their own.
+const Color holidayAccent = Color(0xFFC62828);
+
+/// Shared by the month grid and the home card so both match.
+const Color examAccent = Color(0xFF6A1B9A);
 
 /// One academic-calendar entry from the bundled `schedule_data.json`.
 class AcademicCalendarEvent {
