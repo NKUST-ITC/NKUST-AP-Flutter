@@ -22,6 +22,8 @@ dependencies:
   ap_common_plugin: ^1.0.1-dev.12
   nkust_crawler:
     path: packages/nkust_crawler
+  zuvio_crawler:
+    path: packages/zuvio_crawler
   #official plugin
   http: ^0.13.3
   html: ^0.15.0
@@ -45,6 +47,8 @@ dependencies:
   path_provider: ^2.1.4
   package_info_plus: ^8.0.3
   syncfusion_flutter_pdf: ^33.1.47
+  geolocator: ^13.0.1
+  share_plus: ^10.1.4
   webview_flutter: ^4.14.1
   webview_flutter_android: ^4.12.0
   webview_flutter_wkwebview: ^3.25.1

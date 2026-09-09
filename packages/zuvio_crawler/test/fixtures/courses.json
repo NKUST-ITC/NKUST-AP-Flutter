@@ -1,0 +1,41 @@
+{
+  "status": true,
+  "semesters": [
+    {
+      "semester_name": "113_2",
+      "course_count": "2",
+      "courses": [
+        {
+          "course_id": "1000001",
+          "course_name": "資料結構",
+          "teacher_name": "示範老師甲",
+          "semester_name": "113-2",
+          "pinned": true,
+          "course_unread_num": "3"
+        },
+        {
+          "course_id": "1000002",
+          "course_name": "計算機概論",
+          "teacher_name": "示範老師乙",
+          "semester_name": "113-2",
+          "pinned": false,
+          "course_unread_num": "0"
+        }
+      ]
+    },
+    {
+      "semester_name": "113_1",
+      "course_count": "1",
+      "courses": [
+        {
+          "course_id": "900003",
+          "course_name": "微積分",
+          "teacher_name": "示範老師丙",
+          "semester_name": "113-1",
+          "pinned": false,
+          "course_unread_num": "1"
+        }
+      ]
+    }
+  ]
+}

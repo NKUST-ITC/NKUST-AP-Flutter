@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   firebase_remote_config
   flutter_inappwebview_windows
   gal
+  geolocator_windows
   printing
   share_plus
   url_launcher_windows
