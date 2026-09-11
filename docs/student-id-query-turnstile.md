@@ -71,7 +71,19 @@ sitekey 綁 hostname allowlist（清單在學校的 Cloudflare dashboard），�
 
 這樣就不必為了畫一個 widget 去載學校那 12KB 的查詢頁與整包 admin-lte / font-awesome / sweetalert2，載入快很多，學校改版也動不到我們。極簡頁裡照樣放 `.cf-turnstile` placeholder，所以注入的 render 腳本兩種模式共用。**已實測**：Cloudflare 接受這個 origin，且 server 不比對 `siteverify` 回應裡的 hostname。
 
-若日後 Cloudflare 收緊此行為，把 `TurnstileChallengeView.useMinimalPage` 設成 `false` 即可退回載真頁（腳本會把頁面其餘部分用 CSS 藏起來）。
+若日後 Cloudflare 收緊此行為，把 `TurnstileChallengeView.useMinimalPage` 設成 `false` 即可退回用學校自己的 markup（腳本會把頁面其餘部分用 CSS 藏起來）。
+
+注意這條退路**不是 `loadRequest`**：真頁的 HTML 由 `StudentIdQueryHelper.fetchQueryPage()` 在 Dart 這邊抓回來，再一樣透過 `loadHtmlString` 餵進 WebView。原因見下一節。
+
+### WebView 不直連學校（憑證）
+
+NKUST 的憑證掛在 `TWCA CYBER Root CA` 底下，Apple 的 trust store 沒有收錄這張 root（Chrome Root Store 有，所以 Android 沒事）。App 自己的 HTTP client 靠 `CaTrustBundle` 補上這個 anchor，但 **WebView 用的是平台自己的 root store，而且沒有可用的 hook 能塞 anchor 進去** —— `webview_flutter` 兩個平台都沒有 SSL error callback，`WKWebView` 的 `didReceiveAuthenticationChallenge` 也沒被暴露出來。
+
+所以只要 WebView 直接 `loadRequest` 到 `stdsys`，iOS 就會失敗。做法是讓**所有連到學校的 TLS 連線都留在 Dart 這一側**：頁面內容抓回來當字串餵進去，origin 照樣由 `baseUrl` 提供。
+
+真頁引用的 `stdsys` 子資源（admin-lte / font-awesome 那些）仍由 WebView 自己去抓，在 iOS 上可能載不起來 —— 但無所謂：注入的腳本本來就把 challenge 以外的東西全藏掉，challenge 本身來自 `challenges.cloudflare.com`，那張憑證每個平台都信。
+
+`fetchQueryPage()` 失敗時會退回極簡頁，總比完全沒有 challenge 好。
 
 ### WebView 端的三個地雷
 
@@ -120,3 +132,4 @@ Android WebView 過程中會出現兩條無害訊息：challenge 頁附屬資源
 
 - 2026-09-03：改用 stdsys + Turnstile WebView 流程，移除 webap OCR 路徑。
 - 2026-09-04：改用官方 `webview_flutter`、移除偽裝 UA（原本會讓 challenge 直接失敗）、改成 explicit render；challenge 內嵌在原生表單裡，查詢改由 `StudentIdQueryHelper` 用 Dio 送出；challenge 承載在自製極簡頁（`baseUrl` 提供 origin）；結果解析改為比對表頭欄位。
+- 2026-09-11：`useMinimalPage: false` 的退路改成先用 `StudentIdQueryHelper.fetchQueryPage()` 抓 HTML 再 `loadHtmlString`，讓 WebView 不再直連 `stdsys`（學校換 CA 後 Apple 平台不信任該憑證鏈，WebView 無法補 anchor）。新增 `student_id_query_live_test.dart` 覆蓋這條路徑。
