@@ -7,7 +7,6 @@ import 'package:ap_common_plugin/ap_common_plugin.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in_dartio/google_sign_in_dartio.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/app.dart';
@@ -22,13 +21,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 //  HttpClient.enableTimelineLogging = isInDebugMode;
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  final ByteData data = await PlatformAssetBundle().load(
-    'assets/ca/twca_nkust.cer',
-  );
-  SecurityContext.defaultContext.setTrustedCertificatesBytes(
-    data.buffer.asUint8List(),
-  );
-
   /// Register all ap_common injection util
   registerOneForAll();
 
@@ -36,7 +28,7 @@ void main() async {
     key: Constants.key,
     iv: Constants.iv,
   );
-  bootstrapCrawler();
+  await bootstrapCrawler();
   if (!kIsWeb && (Platform.isMacOS || Platform.isWindows || Platform.isLinux)) {
     GoogleSignInDart.register(
       clientId:
@@ -45,9 +37,6 @@ void main() async {
     );
   }
   Helper.selector = CrawlerSelector.load();
-  if (!kIsWeb && Platform.isAndroid) {
-    HttpOverrides.global = MyHttpOverrides();
-  }
 
   if (!kIsWeb && (Platform.isIOS)) {
     await ApCommonPlugin.configure(appGroupId: 'group.com.nkust.ap');
@@ -98,14 +87,5 @@ Future<void> _initApLocale() async {
       languageCode == ApSupportLanguageConstants.zh ? 'TW' : null,
     );
     await setApLocaleFromFlutter(flutterLocale);
-  }
-}
-
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
   }
 }
