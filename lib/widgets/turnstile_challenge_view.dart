@@ -10,9 +10,11 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 ///
 /// Turnstile only issues a token to a real browser engine, so the challenge
 /// has to run in a WebView — but it belongs inside the form the user is
-/// filling in, not behind a page transition. This loads the school's query
-/// page, hides everything except the challenge, and reports the token up so
-/// the surrounding native form can submit over HTTP.
+/// filling in, not behind a page transition. This renders a page carrying
+/// the challenge, hides everything else, and reports the token up so the
+/// surrounding native form can submit over HTTP.
+///
+/// The WebView never navigates to the school itself; see [_schoolPage].
 class TurnstileChallengeView extends StatefulWidget {
   const TurnstileChallengeView({
     super.key,
@@ -31,7 +33,7 @@ class TurnstileChallengeView extends StatefulWidget {
 
   final double height;
 
-  /// Hosts the challenge on a minimal page of our own instead of loading the
+  /// Hosts the challenge on a minimal page of our own instead of the
   /// school's 12KB query page (which drags in admin-lte, font-awesome and
   /// sweetalert2 just to draw one widget).
   ///
@@ -39,7 +41,7 @@ class TurnstileChallengeView extends StatefulWidget {
   /// school's Cloudflare dashboard, so the page still has to *look* like it
   /// came from `stdsys.nkust.edu.tw` — hence the `baseUrl`. If Cloudflare
   /// rejects the spoofed origin it answers with error 110200 (invalid
-  /// domain); set this to false to go back to loading the real page.
+  /// domain); set this to false to fall back to the school's own markup.
   final bool useMinimalPage;
 
   @override
@@ -98,15 +100,37 @@ class TurnstileChallengeViewState extends State<TurnstileChallengeView> {
     // A cached page would come back with a spent challenge.
     await _controller.clearCache();
 
-    if (widget.useMinimalPage) {
-      await _controller.loadHtmlString(
-        _minimalPage,
-        baseUrl: StudentIdQueryHelper.queryUrl,
-      );
-      return;
-    }
+    await _controller.loadHtmlString(
+      widget.useMinimalPage ? _minimalPage : await _schoolPage(),
+      baseUrl: StudentIdQueryHelper.queryUrl,
+    );
+  }
 
-    await _controller.loadRequest(Uri.parse(StudentIdQueryHelper.queryUrl));
+  /// Fetches the school's own query page over Dart rather than letting the
+  /// WebView navigate to it.
+  ///
+  /// NKUST's certificates chain to a TWCA root Apple does not carry, and the
+  /// app supplies the missing anchor to its own HTTP clients — but a WebView
+  /// validates against the platform store and offers no hook to extend it,
+  /// so a `loadRequest` here would simply fail on iOS. Loading the markup as
+  /// a string keeps every connection to the school on the stack that knows
+  /// about the anchor.
+  ///
+  /// Sub-resources the page references (its stylesheets and scripts on
+  /// `stdsys`) are still fetched by the WebView and may not load for the
+  /// same reason. That costs nothing here: the injected script hides
+  /// everything but the challenge, and the challenge itself comes from
+  /// `challenges.cloudflare.com`, which every platform trusts.
+  Future<String> _schoolPage() async {
+    try {
+      final String? html = await StudentIdQueryHelper.instance.fetchQueryPage();
+      if (html != null && html.isNotEmpty) return html;
+      debugPrint('[turnstile] school page came back empty');
+    } catch (e) {
+      debugPrint('[turnstile] school page fetch failed: $e');
+    }
+    // Better a working challenge on our own markup than none at all.
+    return _minimalPage;
   }
 
   /// Carries the same `.cf-turnstile` placeholder the school's page uses, so
