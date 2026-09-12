@@ -30,6 +30,26 @@
 
 Root 的壽命遠長於 leaf，學校在 TWCA 體系內怎麼換 sub-CA、怎麼跳 root 都不需要動 App。這消滅了「每年手動換憑證」。
 
+### 為什麼 bundle 裡還有兩張 intermediate
+
+`acad.nkust.edu.tw` 與 `www.nkust.edu.tw` 送出的憑證鏈是**不完整的** —— 只有 leaf 和自簽的 `TWCA Global Root CA`，中間的 `TWCA Secure SSL Certification Authority` 沒送：
+
+```
+$ openssl verify -CAfile twca_roots.pem acad_leaf.pem
+error 20 at 0 depth lookup: unable to get local issuer certificate
+```
+
+瀏覽器看不出問題，是因為 Chrome 與 Safari 會依 AIA 欄位去補抓缺的 intermediate。**BoringSSL 不會**，而 `dart:io` 用的就是 BoringSSL —— 也就是說 Apple 平台上這條路隨時可能斷，只是目前被 keychain 快取擋著看不出來。
+
+所以 bundle 一併收了兩張 sub-CA：
+
+| Intermediate | 用於 | 到期 |
+|---|---|---|
+| `TWCA Secure SSL Certification Authority` | 除 `stdsys` 外所有主機 | 2030-10-16 |
+| `TWCA SSL Certification Authority` | `stdsys` | 2033-02-23 |
+
+**取捨**：`setTrustedCertificatesBytes` 不分 anchor 與「僅供路徑建構」，塞進去的 intermediate 會成為信任錨點。代價是萬一 TWCA 撤銷其中一張，App 仍會信任它。接受這個代價，是因為另一邊是「公告功能在乾淨裝置上直接連不上」，而且此處本來就沒有做 revocation 檢查。
+
 重新產生這份 bundle：
 
 ```bash
@@ -112,3 +132,5 @@ NKUST_USER=... NKUST_PASS=... dart test -P live -r expanded
 ## 變更歷史
 
 - 2026-09-11：改 pin root 並移除全域 `HttpOverrides`；iOS/macOS 改走 `dart:io` + `CaTrustBundle`；接上 Remote Config 覆寫；live test 改為真的驗憑證。
+- 2026-09-12：bundle 補上兩張 TWCA intermediate —— `acad` / `www` 送的鏈缺 sub-CA，BoringSSL 不做 AIA fetch，乾淨裝置上會驗不過。
+- 2026-09-12：學校為 `stdsys` 補上由 `TWCA Global Root CA` 交叉簽署的 `TWCA CYBER Root CA`（到 2030-12-09），Apple 平台因此恢復正常。此處的處理仍然保留：交叉簽署有到期日，且 9/11 當天學校確實送過只有兩張憑證的短鏈。
