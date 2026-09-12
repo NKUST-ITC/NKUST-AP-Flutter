@@ -160,8 +160,14 @@ jobs:
         # reach the login keychain and every embedded framework fails with
         # errSecInternalComponent. CI only needs to prove the app compiles;
         # cd.yml imports the real certificates into dedicated keychains.
+        #
+        # Release.entitlements has to go too: applesignin and aps-environment
+        # are restricted entitlements, and Xcode refuses to build without a
+        # provisioning profile while they are present ("Runner" requires a
+        # provisioning profile).
         run: |
           perl -i -pe 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g; s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g; s/DEVELOPMENT_TEAM = 9UZ879Y8DL;//g' macos/Runner.xcodeproj/project.pbxproj
+          perl -i -pe 's/^\s*CODE_SIGN_ENTITLEMENTS = Runner\/Release\.entitlements;\n$//' macos/Runner.xcodeproj/project.pbxproj
       - name: Build macOS
         run: flutter build macos --release
 
