@@ -50,6 +50,8 @@ dependencies:
   webview_flutter_wkwebview: ^3.25.1
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   lint: ^2.1.2
