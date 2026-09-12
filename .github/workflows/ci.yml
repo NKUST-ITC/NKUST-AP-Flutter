@@ -155,6 +155,13 @@ jobs:
       - run: flutter pub get
       - name: Update CocoaPods specs
         run: pod repo update
+      - name: Use ad-hoc signing for CI
+        # The runner has no interactive login session, so codesign cannot
+        # reach the login keychain and every embedded framework fails with
+        # errSecInternalComponent. CI only needs to prove the app compiles;
+        # cd.yml imports the real certificates into dedicated keychains.
+        run: |
+          perl -i -pe 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g; s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g; s/DEVELOPMENT_TEAM = 9UZ879Y8DL;//g' macos/Runner.xcodeproj/project.pbxproj
       - name: Build macOS
         run: flutter build macos --release
 
