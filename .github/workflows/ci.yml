@@ -98,10 +98,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: ${{ env.java_version }}
-      - name: Decrypt Android keys
-        run: sh ./.github/scripts/decrypt_android_keys.sh
-        env:
-          KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:

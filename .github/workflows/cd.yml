@@ -82,6 +82,15 @@ jobs:
         run: sh ./.github/scripts/decrypt_android_keys.sh
         env:
           KEYS_SECRET_PASSPHRASE: ${{ secrets.KEYS_SECRET_PASSPHRASE }}
+      - name: Verify release keystore is present
+        # build.gradle falls back to the debug key when key.properties is
+        # missing. That is right for CI and wrong here: a silently
+        # debug-signed bundle would be rejected by Play. Fail loudly instead.
+        run: |
+          test -r android/key.properties || {
+            echo "::error::key.properties missing after decrypt - refusing to ship a debug-signed bundle"
+            exit 1
+          }
       - name: Download aggregated changelog
         uses: actions/download-artifact@v4
         with:
