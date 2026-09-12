@@ -168,6 +168,13 @@ jobs:
         run: |
           perl -i -pe 's/CODE_SIGN_IDENTITY = "Apple Development";/CODE_SIGN_IDENTITY = "-";/g; s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g; s/DEVELOPMENT_TEAM = 9UZ879Y8DL;//g' macos/Runner.xcodeproj/project.pbxproj
           perl -i -pe 's/^\s*CODE_SIGN_ENTITLEMENTS = Runner\/Release\.entitlements;\n$//' macos/Runner.xcodeproj/project.pbxproj
+      - name: Disable Crashlytics symbol upload for CI
+        # Mirrors the iOS job. The phase still points at
+        # ${PODS_ROOT}/FirebaseCrashlytics/run, but Firebase now comes in
+        # through Swift Package Manager, so that path no longer exists.
+        # CI has no reason to upload symbols either way.
+        run: |
+          perl -i -pe 's|\$\{PODS_ROOT\}/FirebaseCrashlytics/run|echo skip|' macos/Runner.xcodeproj/project.pbxproj
       - name: Build macOS
         run: flutter build macos --release
 
