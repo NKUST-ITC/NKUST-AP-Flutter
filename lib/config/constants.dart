@@ -46,6 +46,8 @@ class Constants {
       'notification_bus_index_offset';
 
   static const String prefIsOfflineLogin = 'pref_is_offline_login';
+  static const String prefZuvioTermsAccepted = 'pref_zuvio_terms_accepted';
+  static const String prefZuvioSignedOut = 'pref_zuvio_signed_out';
 
   /// Last CA bundle accepted from Remote Config, cached so it survives a
   /// cold start (the bundle is needed before any network call can be made,
