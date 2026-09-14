@@ -37,26 +37,26 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common
-      sha256: "5e6cf9d29275969495741ec3d9acc058467bed632f532ccd249f441692fecf1d"
+      sha256: c8ec1a7ff9683964e1587dc37f491984ff778da6151a98c1c6fbcbe9b7bfd501
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.12"
+    version: "1.0.1-dev.14"
   ap_common_announcement_ui:
     dependency: transitive
     description:
       name: ap_common_announcement_ui
-      sha256: "22dd6fd1b5ee9544e86bf1bdcda6bcc6324b9abf4c86839fe839835f8f9a7469"
+      sha256: ad7a81c0f5c9f7bbbceecd5b4c80a62e34ac6bcc6e888b7a4ff6bba929fd2da3
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.13"
+    version: "1.0.1-dev.15"
   ap_common_core:
     dependency: transitive
     description:
       name: ap_common_core
-      sha256: "3ddea8040e454cc5be04fbeaa1660fa68afb88f0ac4317122f5c0a585a5d6540"
+      sha256: "53893c1338bad15738332ebd45c581bcf8d85c877efa358db236883c4e126c60"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.10"
+    version: "1.0.1-dev.12"
   ap_common_firebase:
     dependency: "direct main"
     description:
@@ -69,26 +69,26 @@ packages:
     dependency: transitive
     description:
       name: ap_common_flutter_core
-      sha256: "3f6d6fe2c6cb6c17ed5cfeefab50f9f596030f08cc0e0a3925674f869f5d5295"
+      sha256: "88bd91948263cf9d346cbe4d02d3eda61f4ce0354989835e48f68f1a49e5ca8e"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-dev.13"
+    version: "1.1.0-dev.15"
   ap_common_flutter_platform:
     dependency: transitive
     description:
       name: ap_common_flutter_platform
-      sha256: "7cb7b7ff27bb1039b1b0799899a793eac166a082414cdf650f9a685f3662a1a2"
+      sha256: "23bfc08aa2c86aa4176c0203f047b8a9b2057dab3342e73473c5983f5ec8f8f2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.13"
+    version: "1.0.1-dev.15"
   ap_common_flutter_ui:
     dependency: transitive
     description:
       name: ap_common_flutter_ui
-      sha256: "69b210a1e2250ab72356dcd89c1b1a9abcd567f3d931a0785794225a3cf6a26f"
+      sha256: "60d78adb5578034c715aae751b03386d23ebead017d28dcc70159d6b471268c3"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0-dev.13"
+    version: "1.1.0-dev.15"
   ap_common_plugin:
     dependency: "direct main"
     description:
@@ -1073,10 +1073,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      sha256: "1ca20c894b1717686a2319b8548763d812bc0aabdac580420a44c5178c57a867"
       url: "https://pub.dev"
     source: hosted
-    version: "0.20.2"
+    version: "0.20.3"
   io:
     dependency: transitive
     description:
@@ -1177,10 +1177,10 @@ packages:
     dependency: transitive
     description:
       name: matcher
-      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
+      sha256: "31bd099b47c10cd1aeb55146a2d46ce0277630ecef3f7dae54ad7873f36696cd"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.19"
+    version: "0.12.20"
   material_color_utilities:
     dependency: transitive
     description:
@@ -1193,10 +1193,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      sha256: "307249ce4ff29d58a18e97f6345f539382eb9c9c29ecda628900f31de0443dd9"
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.19.0"
   mime:
     dependency: transitive
     description:
@@ -1725,10 +1725,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
+      sha256: "2a122cbe059f8b610d3a5415f42e255b6c17b1f21eee1d960f31080237fb4f11"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.10"
+    version: "0.7.12"
   timezone:
     dependency: transitive
     description:
@@ -1837,10 +1837,10 @@ packages:
     dependency: transitive
     description:
       name: vector_math
-      sha256: d530bd74fea330e6e364cda7a85019c434070188383e1cd8d9777ee586914c5b
+      sha256: f36f9f3be64c6198714492bb455c11056e33e2f85d9a0b676a48301e44fdcf47
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.4.2"
   vm_service:
     dependency: transitive
     description:
