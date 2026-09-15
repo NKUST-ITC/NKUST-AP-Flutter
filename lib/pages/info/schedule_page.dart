@@ -184,6 +184,7 @@ class SchedulePageState extends State<SchedulePage>
   /// Pinned above the grid so the answer is there without paging months.
   Widget _examBanner(AcademicCalendarEvent exam) {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final Color accent = examAccentOf(colorScheme.brightness);
     final DateTime today = DateTime.now();
     final bool started = exam.covers(today);
     final int days = exam.daysUntil(today);
@@ -202,7 +203,7 @@ class SchedulePageState extends State<SchedulePage>
         margin: const EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 4.0),
         padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 10.0),
         decoration: BoxDecoration(
-          color: examAccent.withValues(alpha: 0.10),
+          color: accent.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Row(
@@ -210,18 +211,18 @@ class SchedulePageState extends State<SchedulePage>
             Container(
               width: 8.0,
               height: 8.0,
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: examAccent,
+                color: accent,
               ),
             ),
             const SizedBox(width: 10.0),
             Text(
               exam.shortTitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 15.0,
                 fontWeight: FontWeight.bold,
-                color: examAccent,
+                color: accent,
               ),
             ),
             const SizedBox(width: 8.0),
@@ -238,10 +239,10 @@ class SchedulePageState extends State<SchedulePage>
               started
                   ? context.t.scheduleExamToday
                   : context.t.scheduleExamCountdown(days: days),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13.0,
                 fontWeight: FontWeight.bold,
-                color: examAccent,
+                color: accent,
               ),
             ),
           ],
@@ -421,13 +422,13 @@ class SchedulePageState extends State<SchedulePage>
 Color _categoryColor(ColorScheme colorScheme, AcademicCategory category) {
   switch (category) {
     case AcademicCategory.holiday:
-      return holidayAccent;
+      return holidayAccentOf(colorScheme.brightness);
     case AcademicCategory.exam:
-      return examAccent;
+      return examAccentOf(colorScheme.brightness);
     case AcademicCategory.enrollment:
       return colorScheme.primary;
     case AcademicCategory.registrar:
-      return const Color(0xFFEF6C00);
+      return registrarAccentOf(colorScheme.brightness);
     case AcademicCategory.general:
       return colorScheme.outline;
   }
@@ -580,7 +581,9 @@ class _DayCell extends StatelessWidget {
         day.weekday == DateTime.sunday;
     final bool isDayOff = isWeekend || isHoliday;
 
-    Color numberColor = isDayOff ? holidayAccent : colorScheme.onSurface;
+    Color numberColor = isDayOff
+        ? holidayAccentOf(colorScheme.brightness)
+        : colorScheme.onSurface;
     if (!inMonth) {
       numberColor = numberColor.withValues(alpha: 0.4);
     } else if (isSelected) {
@@ -594,11 +597,13 @@ class _DayCell extends StatelessWidget {
     Color? cellTint;
     if (inMonth) {
       if (isExamWeek) {
-        cellTint = examAccent.withValues(alpha: 0.12);
+        cellTint = examAccentOf(colorScheme.brightness).withValues(alpha: 0.12);
       } else if (isHoliday) {
-        cellTint = holidayAccent.withValues(alpha: 0.13);
+        cellTint =
+            holidayAccentOf(colorScheme.brightness).withValues(alpha: 0.13);
       } else if (isWeekend) {
-        cellTint = holidayAccent.withValues(alpha: 0.05);
+        cellTint =
+            holidayAccentOf(colorScheme.brightness).withValues(alpha: 0.05);
       }
     }
 
