@@ -50,8 +50,15 @@ def ssl_context() -> ssl.SSLContext:
 
 # 課(9/7-9/16)115-1 學期選課加退選
 #   unit   dates          title
+#
+# Searched for, not anchored, and the unit excludes digits and spaces. The
+# app reads the same PDFs through a different extractor, which returns the
+# visual row — so where the month grid sits level with an entry the line
+# arrives as `1 2 3 4 5 6 7 ○ 課(9/7-9/16)…`. Both forms have to match the
+# same rule or the two would publish different calendars; on this extractor
+# the looser pattern finds exactly what the anchored one did.
 EVENT = re.compile(
-    r"^(?P<unit>[^()（）]{0,4})[(（]"
+    r"(?P<unit>[^()（）\s\d]{1,4})[(（]"
     r"(?P<dates>\d{1,2}\s*/\s*\d{1,2}[^)）]*)"
     r"[)）](?P<title>.+)$"
 )
@@ -135,7 +142,7 @@ def read_semester(lines: list[str]) -> Semester:
 def parse_events(lines: list[str], semester: Semester) -> list[dict[str, str]]:
     events: list[dict[str, str]] = []
     for line in lines:
-        match = EVENT.match(line)
+        match = EVENT.search(line)
         if not match:
             continue
         dates = match.group("dates").strip()

@@ -6,6 +6,7 @@ import 'package:ap_common/ap_common.dart' show PreferenceUtil;
 import 'package:dio/dio.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/res/assets.dart';
+import 'package:nkust_ap/utils/academic_calendar_source.dart';
 
 /// Where a new semester's calendar arrives from between store releases.
 ///
@@ -19,6 +20,7 @@ const String _remoteUrl =
 
 const String _prefCached = 'cached_schedule_data';
 const String _prefCachedAt = 'cached_schedule_data_at';
+const String _prefPdfAt = 'cached_schedule_pdf_at';
 
 /// Long enough that a semester rollover lands within a day of publishing,
 /// short enough that nobody is fetching an unchanged file on every launch.
@@ -216,14 +218,28 @@ Future<List<AcademicCalendarEvent>?> refreshAcademicCalendar({
 
 Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
   final String cached = PreferenceUtil.instance.getString(_prefCached, '');
-  if (!force) {
-    final String at = PreferenceUtil.instance.getString(_prefCachedAt, '');
-    final DateTime? last = DateTime.tryParse(at);
-    if (last != null &&
-        DateTime.now().difference(last) < _refreshInterval) {
+
+  // The registry's own PDFs first. Reading the source documents is what
+  // keeps a new semester from waiting on anyone to publish a derived file,
+  // and it is the only path that still works if nobody is maintaining one.
+  if (force || _due(_prefPdfAt, pdfRefreshInterval)) {
+    final List<Map<String, String>>? built = await buildCalendarFromPdfs();
+    if (built != null) {
+      await PreferenceUtil.instance.setString(
+        _prefPdfAt,
+        DateTime.now().toIso8601String(),
+      );
+      final List<AcademicCalendarEvent>? events =
+          await _store(jsonEncode(built), cached);
+      if (events != null) return events;
+      // Parsed, but identical to what is already cached.
       return null;
     }
   }
+
+  // The derived file the repository publishes, for when the registry is
+  // unreachable or has changed its layout out from under the rules above.
+  if (!force && !_due(_prefCachedAt, _refreshInterval)) return null;
   try {
     final Response<String> response = await Dio(
       BaseOptions(
@@ -234,17 +250,33 @@ Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
     ).get<String>(_remoteUrl);
     final String? body = response.data;
     if (body == null) return null;
-    final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
-    if (events == null) return null;
-    await PreferenceUtil.instance.setString(_prefCached, body);
-    await PreferenceUtil.instance.setString(
-      _prefCachedAt,
-      DateTime.now().toIso8601String(),
-    );
-    return body == cached ? null : events;
+    return _store(body, cached);
   } catch (_) {
     return null;
   }
+}
+
+/// Whether the timestamp at [key] is missing or older than [interval].
+bool _due(String key, Duration interval) {
+  final DateTime? last =
+      DateTime.tryParse(PreferenceUtil.instance.getString(key, ''));
+  return last == null || DateTime.now().difference(last) >= interval;
+}
+
+/// Validates [body] the way every other calendar input is validated, caches
+/// it, and reports the events only when they differ from [cached].
+Future<List<AcademicCalendarEvent>?> _store(
+  String body,
+  String cached,
+) async {
+  final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
+  if (events == null) return null;
+  await PreferenceUtil.instance.setString(_prefCached, body);
+  await PreferenceUtil.instance.setString(
+    _prefCachedAt,
+    DateTime.now().toIso8601String(),
+  );
+  return body == cached ? null : events;
 }
 
 /// The midterm or final week [day] falls in, else the next one ahead of it.
