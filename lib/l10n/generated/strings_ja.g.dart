@@ -223,6 +223,13 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get noEnrollmentData => '在学証明書のデータがありません';
 	@override String get noEnrollmentAvailable => '在学証明書がダウンロードできません';
 	@override String get invalidPdfFormat => '有効なPDFを取得できません';
+	@override String get scheduleViewPdf => 'PDF版を表示';
+	@override String get scheduleViewList => 'リストに戻る';
+	@override String get scheduleNoEvents => 'この日の予定はありません';
+	@override String get scheduleToday => '今日';
+	@override String scheduleExamCountdown({required Object days}) => 'あと ${days} 日';
+	@override String get scheduleExamToday => '試験中';
+	@override String get scheduleExamWeekLegend => '試験週間';
 	@override String networkError({required Object message}) => 'ネットワークエラー：${message}';
 	@override String loadFailed({required Object message}) => '読み込み失敗：${message}';
 	@override String get loginFailedFiveTimes => 'ログインに5回失敗しました！';
@@ -531,6 +538,13 @@ extension on NkustLocalizationsJa {
 			'noEnrollmentData' => '在学証明書のデータがありません',
 			'noEnrollmentAvailable' => '在学証明書がダウンロードできません',
 			'invalidPdfFormat' => '有効なPDFを取得できません',
+			'scheduleViewPdf' => 'PDF版を表示',
+			'scheduleViewList' => 'リストに戻る',
+			'scheduleNoEvents' => 'この日の予定はありません',
+			'scheduleToday' => '今日',
+			'scheduleExamCountdown' => ({required Object days}) => 'あと ${days} 日',
+			'scheduleExamToday' => '試験中',
+			'scheduleExamWeekLegend' => '試験週間',
 			'networkError' => ({required Object message}) => 'ネットワークエラー：${message}',
 			'loadFailed' => ({required Object message}) => '読み込み失敗：${message}',
 			'loginFailedFiveTimes' => 'ログインに5回失敗しました！',
