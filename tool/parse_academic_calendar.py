@@ -198,6 +198,44 @@ def pick_current(parsed: dict[str, list[dict[str, str]]], today: str) -> str:
     return order[-1]
 
 
+def semester_key(code: str) -> tuple[int, ...]:
+    return tuple(int(part) for part in code.split("-"))
+
+
+def surrounding(parsed: dict[str, list[dict[str, str]]], current: str) -> list[str]:
+    """The current semester and whichever neighbours have been published.
+
+    Week one still looks back at last semester's make-up exams, and from the
+    midterms on the question is when the next one starts. Either side may be
+    absent — the archive begins somewhere, and the registry posts a calendar
+    months after the one it follows — so a missing neighbour just shortens
+    the window.
+    """
+    order = sorted(parsed, key=semester_key)
+    at = order.index(current)
+    return order[max(at - 1, 0) : at + 2]
+
+
+def merge(
+    parsed: dict[str, list[dict[str, str]]], codes: list[str]
+) -> list[dict[str, str]]:
+    """Those semesters as one calendar, in date order.
+
+    Consecutive semesters overlap by a few days and the registry prints some
+    of the entries in that seam on both sheets, so identical ones collapse.
+    """
+    seen: set[tuple[str, str, str]] = set()
+    events: list[dict[str, str]] = []
+    for code in codes:
+        for event in parsed[code]:
+            key = (event["start"], event["end"], event["title"])
+            if key not in seen:
+                seen.add(key)
+                events.append(event)
+    events.sort(key=lambda e: (e["start"], e["end"], e["title"]))
+    return events
+
+
 def write_json(path: Path, payload: object) -> bool:
     """Writes only when the content changes, so reruns leave a clean tree."""
     text = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
@@ -214,7 +252,10 @@ def main() -> int:
     parser.add_argument(
         "--current",
         type=Path,
-        help="also write the newest semester here, for the bundled asset",
+        help=(
+            "also write the current semester and its neighbours here, for "
+            "the bundled asset"
+        ),
     )
     parser.add_argument("--csv-url", default=CSV_URL)
     parser.add_argument(
@@ -273,14 +314,18 @@ def main() -> int:
         if write_json(args.out / f"{code}.json", events):
             changed.append(f"{code}.json")
 
-    codes = sorted(parsed, key=lambda c: tuple(int(p) for p in c.split("-")))
+    codes = sorted(parsed, key=semester_key)
     if write_json(args.out / "index.json", codes):
         changed.append("index.json")
 
     if args.current and parsed:
         current = pick_current(parsed, datetime.date.today().isoformat())
-        print(f"current semester: {current}", file=sys.stderr)
-        if write_json(args.current, parsed[current]):
+        bundled = surrounding(parsed, current)
+        print(
+            f"current semester: {current}, bundling {', '.join(bundled)}",
+            file=sys.stderr,
+        )
+        if write_json(args.current, merge(parsed, bundled)):
             changed.append(str(args.current))
 
     print("changed: " + (", ".join(changed) if changed else "nothing"), file=sys.stderr)

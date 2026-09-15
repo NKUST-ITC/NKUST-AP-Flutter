@@ -292,12 +292,11 @@ class SchedulePageState extends State<SchedulePage>
           if (event.end.isAfter(maxEnd)) maxEnd = event.end;
         }
         lastMonth = DateTime(maxEnd.year, maxEnd.month);
+        // Today, not the first event: the calendar spans three semesters, so
+        // opening on where the data starts would land half a year back.
         final DateTime today = DateTime.now();
-        selectedDay = _eventsOn(today).isNotEmpty
-            ? DateTime(today.year, today.month, today.day)
-            : parsed.first.start;
-        focusedMonth =
-            _clampMonth(DateTime(selectedDay!.year, selectedDay!.month));
+        selectedDay = DateTime(today.year, today.month, today.day);
+        focusedMonth = _clampMonth(DateTime(today.year, today.month));
         state = _State.finish;
       });
     } catch (_) {
