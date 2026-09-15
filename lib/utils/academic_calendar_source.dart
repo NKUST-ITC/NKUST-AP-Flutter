@@ -219,6 +219,10 @@ Uri? _resolve(String value) {
   // registry unchanged.
   final Uri absolute = Uri.https(calendarHost, '/').resolveUri(parsed);
   if (absolute.scheme != 'https' || absolute.host != calendarHost) return null;
+  // The registry publishes on 443. A row naming another port would still be
+  // the school's address while reaching a service that never expected to
+  // hear from every phone on campus.
+  if (absolute.hasPort && absolute.port != 443) return null;
   return absolute;
 }
 

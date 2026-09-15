@@ -176,7 +176,10 @@ void main() {
           '115,中文版,a,https://evil.example/cal.pdf\n'
           '115,中文版,b,http://acad.nkust.edu.tw/plain.pdf\n'
           '115,中文版,c,https://acad.nkust.edu.tw.evil.example/x.pdf\n'
-          '115,中文版,d,//evil.example/protocol-relative.pdf\n';
+          '115,中文版,d,//evil.example/protocol-relative.pdf\n'
+          // Credentials before an @ make the real host the one after it.
+          '115,中文版,e,https://acad.nkust.edu.tw@evil.example/x.pdf\n'
+          '115,中文版,f,https://acad.nkust.edu.tw:8080/x.pdf\n';
       expect(listCalendarPdfs(csv), isEmpty);
     });
 
