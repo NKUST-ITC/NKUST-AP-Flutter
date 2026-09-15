@@ -283,9 +283,11 @@ class HomeTodayCard extends StatelessWidget {
   Widget _examPill(BuildContext context, AcademicCalendarEvent exam) {
     final DateTime today = DateTime.now();
     final bool started = exam.covers(today);
+    final Color accent =
+        examAccentOf(Theme.of(context).colorScheme.brightness);
     return Center(
       child: Material(
-        color: examAccent.withValues(alpha: 0.12),
+        color: accent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
           onTap: onCalendarTap,
@@ -297,10 +299,10 @@ class HomeTodayCard extends StatelessWidget {
               children: <Widget>[
                 Text(
                   exam.shortTitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: examAccent,
+                    color: accent,
                   ),
                 ),
                 const SizedBox(width: 6),
@@ -310,7 +312,7 @@ class HomeTodayCard extends StatelessWidget {
                       : context.t.scheduleExamCountdown(
                           days: exam.daysUntil(today),
                         ),
-                  style: const TextStyle(fontSize: 13, color: examAccent),
+                  style: TextStyle(fontSize: 13, color: accent),
                 ),
               ],
             ),

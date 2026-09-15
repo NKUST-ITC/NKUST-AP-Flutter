@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui' show Color;
+import 'dart:ui' show Brightness, Color;
 
 import 'package:ap_common/ap_common.dart' show PreferenceUtil;
 import 'package:dio/dio.dart';
@@ -30,10 +30,23 @@ enum AcademicCategory { holiday, exam, enrollment, registrar, general }
 
 /// Red reads as "day off" on every printed calendar in Taiwan, so weekends
 /// and holidays claim it and the exam weeks take a colour of their own.
-const Color holidayAccent = Color(0xFFC62828);
+///
+/// Each accent comes as a pair. The tone that carries a printed calendar's
+/// weight on white drops to roughly 2:1 against a dark surface — below even
+/// the 3:1 a non-text element needs — so dark mode swaps in a light twin
+/// instead of reusing the dark one at a lower opacity.
+Color holidayAccentOf(Brightness brightness) => brightness == Brightness.dark
+    ? const Color(0xFFEF9A9A)
+    : const Color(0xFFC62828);
 
 /// Shared by the month grid and the home card so both match.
-const Color examAccent = Color(0xFF6A1B9A);
+Color examAccentOf(Brightness brightness) => brightness == Brightness.dark
+    ? const Color(0xFFCE93D8)
+    : const Color(0xFF6A1B9A);
+
+Color registrarAccentOf(Brightness brightness) => brightness == Brightness.dark
+    ? const Color(0xFFFFB74D)
+    : const Color(0xFFEF6C00);
 
 /// One academic-calendar entry from the bundled `schedule_data.json`.
 class AcademicCalendarEvent {
