@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
 import 'package:nkust_ap/extensions/bus_reservations_data_ui_extension.dart';
+import 'package:nkust_ap/integrations/security/ca_trust_bundle.dart';
 import 'package:nkust_ap/pages/study/midterm_alerts_page.dart';
 import 'package:nkust_ap/pages/study/reward_and_penalty_page.dart';
 import 'package:nkust_ap/pages/study/room_list_page.dart';
@@ -1072,6 +1073,9 @@ class HomePageState extends State<HomePage> {
         );
         Helper.selector!.save();
       }
+      // Picked up on the next cold start — the trust anchors are already
+      // baked into the HTTP clients this session is using.
+      CaTrustBundle.acceptRemote(remoteConfig.getString(Constants.caBundlePem));
       final SemesterData semesterData = SemesterData.fromRawJson(
         remoteConfig.getString(Constants.semesterData),
       );

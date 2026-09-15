@@ -49,6 +49,11 @@ class Constants {
   static const String prefZuvioTermsAccepted = 'pref_zuvio_terms_accepted';
   static const String prefZuvioSignedOut = 'pref_zuvio_signed_out';
 
+  /// Last CA bundle accepted from Remote Config, cached so it survives a
+  /// cold start (the bundle is needed before any network call can be made,
+  /// which is well before Remote Config has fetched).
+  static const String prefCaBundlePem = 'pref_ca_bundle_pem';
+
   static const String scheduleData = 'schedule_data';
   static const String schedulePdfUrl = 'schedule_pdf_url';
   static const String androidAppVersion = 'android_app_version';
@@ -60,6 +65,12 @@ class Constants {
   static const String leaveCampusData = 'leave_campus_data';
   static const String leavesTimeCode = 'leaves_time_code';
   static const String crawlerSelector = 'crawler_selector';
+
+  /// PEM bundle of root CAs to trust for NKUST hosts, on top of the
+  /// platform's own store. Overrides `assets/ca/twca_roots.pem` when set,
+  /// so a CA change on the school's side needs a Remote Config push rather
+  /// than an app release. See [CaTrustBundle].
+  static const String caBundlePem = 'ca_bundle_pem';
   static const String semesterData = 'semester_data';
   static const String versionCode = 'version_code';
 

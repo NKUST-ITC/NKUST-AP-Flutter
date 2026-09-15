@@ -36,6 +36,19 @@ class StudentIdQueryHelper {
     return _instance ??= StudentIdQueryHelper();
   }
 
+  /// Fetches the real query page's HTML.
+  ///
+  /// The host app's WebView renders the Turnstile challenge from a string
+  /// rather than by navigating to [queryUrl], so that the only TLS
+  /// connection to the school is the one made here — where the app's trust
+  /// anchors apply. WKWebView and Android WebView validate against their own
+  /// root stores and offer no usable hook to extend them.
+  Future<String?> fetchQueryPage() async {
+    final (:Dio dio, cookieJar: CookieJar _) = ApiConfig.createScraperDio();
+    final Response<String> page = await dio.get<String>(queryUrl);
+    return page.data;
+  }
+
   /// Runs the lookup with a Turnstile token minted elsewhere.
   ///
   /// Each call gets its own cookie jar: the antiforgery cookie is per-session

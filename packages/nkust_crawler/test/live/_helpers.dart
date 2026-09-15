@@ -82,38 +82,56 @@ String redact(String? value) {
   return '${value[0]}${"•" * (value.length - 2)}${value[value.length - 1]}';
 }
 
-/// Disables TLS certificate verification for the entire test process.
+/// Trusts the TWCA roots NKUST's certificates chain to, on top of the
+/// platform's own root store.
 ///
-/// NKUST hosts (notably `acad.nkust.edu.tw`) are signed by TWCA, which
-/// the CI Ubuntu runner's default Mozilla CA bundle does not trust. We
-/// previously shipped a bundled `assets/ca/twca_nkust.cer` and added it
-/// to `SecurityContext.defaultContext`, but the school's certs rotate
-/// on their own schedule (~annually) and there is no stable feed for
-/// the new chain, so the bundled cert silently goes stale and tests
-/// start failing weeks later for the same reason.
+/// NKUST hosts are signed by TWCA, and not every TWCA root is in every
+/// platform store — `TWCA CYBER Root CA`, which the current
+/// `*.nkust.edu.tw` leaf chains to, is missing from Apple's and from the
+/// CI runner's Mozilla bundle. This used to be papered over by disabling
+/// certificate verification for the whole test process, which also meant
+/// the live tests could never catch the school moving to a CA the app
+/// doesn't trust — exactly the regression that broke iOS in 2026-09.
 ///
-/// For *live tests against the school* the pragmatic answer is to
-/// accept any certificate the server presents — we're not validating
-/// MITM resistance here, we're validating that endpoints respond and
-/// that parsers still understand the response. Production app code is
-/// NOT affected (this only runs inside `dart test`, never wired from
-/// `main.dart`).
-///
-/// Works by installing an [HttpOverrides] that flips
-/// `badCertificateCallback` on every [HttpClient] the test process
-/// constructs — which covers Dio's default `IOHttpClientAdapter` as
-/// well as raw `dart:io` HttpClient usage.
-void acceptAnyTlsCertificate() {
-  HttpOverrides.global = _AcceptAnyCertHttpOverrides();
+/// So the harness now loads the same `assets/ca/twca_roots.pem` the app
+/// ships and leaves verification on. Roots outlive leaves (the CYBER one
+/// runs to 2047), so this does not need the annual refresh the old
+/// bundled leaf did.
+void trustNkustRoots() {
+  HttpOverrides.global = _TwcaRootsHttpOverrides(findCaBundle().readAsBytesSync());
 }
 
-class _AcceptAnyCertHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate _, String __, int ___) =>
-          true;
+class _TwcaRootsHttpOverrides extends HttpOverrides {
+  _TwcaRootsHttpOverrides(Uint8List roots)
+      : _context = SecurityContext(withTrustedRoots: true) {
+    try {
+      _context.setTrustedCertificatesBytes(roots);
+    } on TlsException {
+      // Already present in the platform store — nothing to add.
+    }
   }
+
+  final SecurityContext _context;
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) =>
+      super.createHttpClient(_context);
+}
+
+/// Locates `assets/ca/twca_roots.pem` regardless of whether the test is
+/// run from the repo root or from `packages/nkust_crawler/`.
+File findCaBundle() {
+  for (final String candidate in <String>[
+    'assets/ca/twca_roots.pem',
+    '../../assets/ca/twca_roots.pem',
+  ]) {
+    final File file = File(candidate);
+    if (file.existsSync()) return file;
+  }
+  throw StateError(
+    'Could not locate assets/ca/twca_roots.pem relative to '
+    '${Directory.current.path}',
+  );
 }
 
 /// Locates `assets/eucdist/` regardless of whether the test is run from
