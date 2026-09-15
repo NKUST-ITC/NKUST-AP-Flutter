@@ -52,12 +52,18 @@ final RegExp _event = RegExp(
   r'(\d{1,2}\s*/\s*\d{1,2}[^)）]*)'
   r'[)）](.+)$',
 );
-final RegExp _range =
-    RegExp(r'^(\d{1,2})\s*/\s*(\d{1,2})\s*[-~－～]\s*(\d{1,2})\s*/\s*(\d{1,2})\s*$');
+final RegExp _range = RegExp(
+  r'^(\d{1,2})\s*/\s*(\d{1,2})\s*[-~－～]\s*'
+  r'(\d{1,2})\s*/\s*(\d{1,2})\s*$',
+);
 final RegExp _single = RegExp(r'^(\d{1,2})\s*/\s*(\d{1,2})\s*(前|起|截止)?\s*$');
 
 /// 國立高雄科技大學115 學年度第一學期行事曆
 final RegExp _heading = RegExp(r'(\d{3})\s*學年度第(一|二)學期行事曆');
+
+/// 115學年度第2學期行事曆 (NEW!!) — the index writes the term as a digit
+/// where the document itself spells it out.
+final RegExp _indexName = RegExp(r'(\d{3})\s*學年度第\s*([12一二])\s*學期');
 
 final RegExp _whitespace = RegExp(r'\s+');
 
@@ -145,6 +151,40 @@ List<Map<String, String>>? parseCalendarLines(
   return events;
 }
 
+/// The semester a document's name claims, or null if it does not read as
+/// one. Lets the caller choose which documents to fetch without fetching
+/// every one of them first.
+AcademicSemester? semesterFromName(String name) {
+  final RegExpMatch? match = _indexName.firstMatch(name);
+  if (match == null) return null;
+  final String term = match.group(2)!;
+  return AcademicSemester(
+    int.parse(match.group(1)!),
+    term == '1' || term == '一' ? 1 : 2,
+  );
+}
+
+/// The span a semester covers by definition, for ordering documents that
+/// have not been read yet. A read one has real dates; prefer those.
+({String start, String end}) nominalSpan(AcademicSemester semester) {
+  if (semester.term == 1) {
+    return (
+      start: _stamp(semester.gregorianYear(8), 8, 1),
+      end: _stamp(semester.gregorianYear(1), 1, 31),
+    );
+  }
+  return (
+    start: _stamp(semester.gregorianYear(2), 2, 1),
+    end: _stamp(semester.gregorianYear(8), 8, 31),
+  );
+}
+
+/// The span a semester's entries actually cover.
+({String start, String end}) eventSpan(List<Map<String, String>> events) => (
+      start: events.map((Map<String, String> e) => e['start']!).reduce(_min),
+      end: events.map((Map<String, String> e) => e['end']!).reduce(_max),
+    );
+
 /// The semester a reader is actually in.
 ///
 /// Not simply the newest one published: the registry posts both of next
@@ -153,27 +193,33 @@ List<Map<String, String>>? parseCalendarLines(
 String? pickCurrentSemester(
   Map<String, List<Map<String, String>>> parsed,
   DateTime today,
+) =>
+    pickCurrentSpan(
+      <String, ({String start, String end})>{
+        for (final MapEntry<String, List<Map<String, String>>> entry
+            in parsed.entries)
+          entry.key: eventSpan(entry.value),
+      },
+      today,
+    );
+
+/// [pickCurrentSemester] over spans from any source.
+String? pickCurrentSpan(
+  Map<String, ({String start, String end})> spans,
+  DateTime today,
 ) {
-  if (parsed.isEmpty) return null;
+  if (spans.isEmpty) return null;
   final String stamp = _stamp(today.year, today.month, today.day);
-  final Map<String, List<String>> spans = <String, List<String>>{
-    for (final MapEntry<String, List<Map<String, String>>> entry
-        in parsed.entries)
-      entry.key: <String>[
-        entry.value.map((Map<String, String> e) => e['start']!).reduce(_min),
-        entry.value.map((Map<String, String> e) => e['end']!).reduce(_max),
-      ],
-  };
   final List<String> order = spans.keys.toList()
-    ..sort((String a, String b) => spans[a]![0].compareTo(spans[b]![0]));
+    ..sort((String a, String b) => spans[a]!.start.compareTo(spans[b]!.start));
   for (final String code in order) {
-    if (spans[code]![0].compareTo(stamp) <= 0 &&
-        spans[code]![1].compareTo(stamp) >= 0) {
+    final ({String start, String end}) span = spans[code]!;
+    if (span.start.compareTo(stamp) <= 0 && span.end.compareTo(stamp) >= 0) {
       return code;
     }
   }
   for (final String code in order) {
-    if (stamp.compareTo(spans[code]![0]) < 0) return code;
+    if (stamp.compareTo(spans[code]!.start) < 0) return code;
   }
   return order.last;
 }

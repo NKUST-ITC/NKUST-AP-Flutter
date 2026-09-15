@@ -4,6 +4,7 @@ import 'dart:ui' show Brightness, Color;
 
 import 'package:ap_common/ap_common.dart' show PreferenceUtil;
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:nkust_ap/res/assets.dart';
 import 'package:nkust_ap/utils/academic_calendar_source.dart';
@@ -225,15 +226,17 @@ Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
   if (force || _due(_prefPdfAt, pdfRefreshInterval)) {
     final List<Map<String, String>>? built = await buildCalendarFromPdfs();
     if (built != null) {
-      await PreferenceUtil.instance.setString(
-        _prefPdfAt,
-        DateTime.now().toIso8601String(),
-      );
-      final List<AcademicCalendarEvent>? events =
-          await _store(jsonEncode(built), cached);
-      if (events != null) return events;
-      // Parsed, but identical to what is already cached.
-      return null;
+      final String body = jsonEncode(built);
+      // What this read produces faces the same check as a file off the
+      // network. If it does not survive that, the timestamp is deliberately
+      // left alone: marking it would sit on an unverifiable calendar for a
+      // week instead of falling through to the published one below.
+      final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
+      if (events != null) {
+        await _cache(body, fromPdfs: true);
+        return body == cached ? null : events;
+      }
+      debugPrint('[calendar] the calendars read but did not validate');
     }
   }
 
@@ -250,7 +253,10 @@ Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
     ).get<String>(_remoteUrl);
     final String? body = response.data;
     if (body == null) return null;
-    return _store(body, cached);
+    final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
+    if (events == null) return null;
+    await _cache(body, fromPdfs: false);
+    return body == cached ? null : events;
   } catch (_) {
     return null;
   }
@@ -263,20 +269,15 @@ bool _due(String key, Duration interval) {
   return last == null || DateTime.now().difference(last) >= interval;
 }
 
-/// Validates [body] the way every other calendar input is validated, caches
-/// it, and reports the events only when they differ from [cached].
-Future<List<AcademicCalendarEvent>?> _store(
-  String body,
-  String cached,
-) async {
-  final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
-  if (events == null) return null;
+/// Caches a calendar that has already passed [parseAcademicCalendar].
+///
+/// Reading the registry stamps both clocks: it is the newer answer, so the
+/// published file has nothing to add until its own interval comes round.
+Future<void> _cache(String body, {required bool fromPdfs}) async {
+  final String now = DateTime.now().toIso8601String();
   await PreferenceUtil.instance.setString(_prefCached, body);
-  await PreferenceUtil.instance.setString(
-    _prefCachedAt,
-    DateTime.now().toIso8601String(),
-  );
-  return body == cached ? null : events;
+  await PreferenceUtil.instance.setString(_prefCachedAt, now);
+  if (fromPdfs) await PreferenceUtil.instance.setString(_prefPdfAt, now);
 }
 
 /// The midterm or final week [day] falls in, else the next one ahead of it.
