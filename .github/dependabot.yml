@@ -12,14 +12,6 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
-    # dependabot 不知道 Flutter SDK 的 pin，這些套件升上去 pub get 必定失敗，
-    # 要跟著升 Flutter SDK 時再手動調整
-    ignore:
-      # flutter_localizations 鎖死 intl 版本
-      - dependency-name: "intl"
-      # lint >=2.13.0 需要 Dart SDK >=3.12.0（Flutter 3.41 內建 Dart 3.11）
-      - dependency-name: "lint"
-        versions: [">=2.13.0"]
     groups:
       # ap_common 系列互相以 pinned dev 版本互指，
       # 拆開單獨升版會 version solving failed，必須綁成同一支 PR
