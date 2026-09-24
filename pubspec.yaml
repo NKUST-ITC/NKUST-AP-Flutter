@@ -18,8 +18,8 @@ dependencies:
   slang_flutter: ^4.4.0
 
   ap_common: ^1.0.1-dev.14
-  ap_common_firebase: ^1.0.1-dev.13
-  ap_common_plugin: ^1.0.1-dev.12
+  ap_common_firebase: ^1.0.1-dev.15
+  ap_common_plugin: ^1.0.1-dev.14
   nkust_crawler:
     path: packages/nkust_crawler
   zuvio_crawler:

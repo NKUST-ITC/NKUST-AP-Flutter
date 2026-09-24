@@ -61,10 +61,10 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common_firebase
-      sha256: bfb6adf3556e1beb0d680007fac4ee72c5e52e1a36239550f98eda322cec5b67
+      sha256: dbf9b1ea93b5f1bb1cce44e235b0e41a0c8702dc9dbcb0a339a6caab34512bd9
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.13"
+    version: "1.0.1-dev.15"
   ap_common_flutter_core:
     dependency: transitive
     description:
@@ -93,10 +93,10 @@ packages:
     dependency: "direct main"
     description:
       name: ap_common_plugin
-      sha256: "5ad4e44fa833ddc7411cea55b2bd806c0b78bf643870e3d03b0953a06cdf4bf7"
+      sha256: "91bd2a3128ded93ac15f20e9c21b835da5ab3dee1e7206eb7c15dd27eb6fbf1c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1-dev.12"
+    version: "1.0.1-dev.14"
   app_tracking_transparency:
     dependency: transitive
     description:
