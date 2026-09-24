@@ -13,7 +13,7 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  intl: ^0.20.3
+  intl: ">=0.17.0 <1.0.0"
   slang: ^4.4.0
   slang_flutter: ^4.4.0
 
