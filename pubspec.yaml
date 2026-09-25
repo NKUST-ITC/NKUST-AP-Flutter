@@ -62,7 +62,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   lint: ^2.12.0
-  build_runner: ^2.1.11
+  build_runner: ^2.15.1
   json_serializable: ^6.3.0
   slang_build_runner: ^4.4.0
 
