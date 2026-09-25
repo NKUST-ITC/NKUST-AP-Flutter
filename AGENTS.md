@@ -113,10 +113,15 @@ NKUST_HTTP_LOG=1 dart test --tags integration
 ### Code generation
 
 ```bash
-flutter pub run build_runner build --delete-conflicting-outputs    # json_serializable + slang
+dart run build_runner build --delete-conflicting-outputs    # json_serializable
+dart run slang                                              # i18n（slang）
 ```
 
-修改 `*.i18n.json` 或加 `@JsonSerializable` 的 model 後要跑一次。
+加 `@JsonSerializable` 的 model 後跑第一行；改 `*.i18n.json` 後跑第二行。
+
+slang 的 build_runner builder 在 `build.yaml` 內關掉了：4.18 起它會把 `*.g.dart`
+寫在 `.i18n.json` 旁邊而不理會 `slang.yaml` 的 `output_directory`，留下一份和
+`lib/l10n/generated/` 平行的過期產物。`dart run slang` 才會寫進正確位置。
 
 ### Run / Build
 
