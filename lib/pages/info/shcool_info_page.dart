@@ -1,23 +1,23 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:ap_common/ap_common.dart';
-import 'package:ap_common_firebase/ap_common_firebase.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:nkust_crawler/nkust_crawler.dart';
 import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
+import 'package:nkust_ap/pages/info/schedule_page.dart';
 import 'package:nkust_ap/utils/global.dart';
 
 class SchoolInfoPage extends StatefulWidget {
+  const SchoolInfoPage({super.key, this.initialTab = 0});
+
   static const String routerName = '/ShcoolInfo';
+
+  /// 0 = 最新消息, 1 = 電話, 2 = 行事曆.
+  final int initialTab;
 
   @override
   SchoolInfoPageState createState() => SchoolInfoPageState();
 }
 
-class SchoolInfoPageState extends State<SchoolInfoPage>
-    with SingleTickerProviderStateMixin {
+class SchoolInfoPageState extends State<SchoolInfoPage> {
   final List<PhoneModel> phoneModelList = <PhoneModel>[
     PhoneModel('校安中心\n分機號碼：建工1 楠梓2 第一3 燕巢4 旗津5', '0800-550995'),
     PhoneModel('建工校區', ''),
@@ -59,30 +59,16 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
 
   PhoneState phoneState = PhoneState.finish;
 
-  PdfState pdfState = PdfState.loading;
-
   late ApLocalizations ap;
 
-  late TabController controller;
-
-  int _currentIndex = 0;
-
-  Uint8List? data;
+  late int _currentIndex = widget.initialTab;
 
   @override
   void initState() {
     AnalyticsUtil.instance
         .setCurrentScreen('SchoolInfoPage', 'school_info_page.dart');
-    controller = TabController(length: 3, vsync: this);
     _getNotifications();
-    _getSchedules();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -92,9 +78,8 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
       appBar: AppBar(
         title: Text(ap.schoolInfo),
       ),
-      body: TabBarView(
-        controller: controller,
-        physics: const NeverScrollableScrollPhysics(),
+      body: IndexedStack(
+        index: _currentIndex,
         children: <Widget>[
           NotificationListView(
             state: notificationState,
@@ -114,23 +99,13 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
             state: phoneState,
             phoneModelList: phoneModelList,
           ),
-          PdfView(
-            state: pdfState,
-            data: data,
-            onRefresh: () {
-              setState(() => pdfState = PdfState.loading);
-              _getSchedules();
-            },
-          ),
+          const SchedulePage(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (int index) {
-          setState(() {
-            _currentIndex = index;
-            controller.animateTo(_currentIndex);
-          });
+          setState(() => _currentIndex = index);
         },
         destinations: <NavigationDestination>[
           NavigationDestination(
@@ -170,48 +145,6 @@ class SchoolInfoPageState extends State<SchoolInfoPage>
         }
         rethrow;
       }
-    }
-  }
-
-  Future<void> _getSchedules() async {
-    String pdfUrl =
-        'https://raw.githubusercontent.com/NKUST-ITC/NKUST-AP-Flutter/master/school_schedule.pdf';
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      try {
-        final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
-        await remoteConfig.setConfigSettings(
-          RemoteConfigSettings(
-            fetchTimeout: const Duration(seconds: 10),
-            minimumFetchInterval: const Duration(hours: 1),
-          ),
-        );
-        await remoteConfig.fetchAndActivate();
-        pdfUrl = remoteConfig.getString(Constants.schedulePdfUrl);
-        downloadFdf(pdfUrl);
-      } catch (exception) {
-        downloadFdf(pdfUrl);
-      }
-    } else {
-      downloadFdf(pdfUrl);
-    }
-  }
-
-  Future<void> downloadFdf(String url) async {
-    try {
-      log(url);
-      final Response<Uint8List> response = await Dio().get<Uint8List>(
-        url,
-        options: Options(responseType: ResponseType.bytes),
-      );
-      setState(() {
-        pdfState = PdfState.finish;
-        data = response.data;
-      });
-    } catch (e) {
-      setState(() {
-        pdfState = PdfState.error;
-      });
-      rethrow;
     }
   }
 }

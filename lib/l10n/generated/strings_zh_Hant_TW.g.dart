@@ -642,6 +642,27 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '無法取得有效的 PDF 文件'
 	String get invalidPdfFormat => '無法取得有效的 PDF 文件';
 
+	/// zh-Hant-TW: '檢視 PDF 版本'
+	String get scheduleViewPdf => '檢視 PDF 版本';
+
+	/// zh-Hant-TW: '返回清單'
+	String get scheduleViewList => '返回清單';
+
+	/// zh-Hant-TW: '這天沒有行事曆'
+	String get scheduleNoEvents => '這天沒有行事曆';
+
+	/// zh-Hant-TW: '今天'
+	String get scheduleToday => '今天';
+
+	/// zh-Hant-TW: '還有 ${days} 天'
+	String scheduleExamCountdown({required Object days}) => '還有 ${days} 天';
+
+	/// zh-Hant-TW: '考試進行中'
+	String get scheduleExamToday => '考試進行中';
+
+	/// zh-Hant-TW: '考試週'
+	String get scheduleExamWeekLegend => '考試週';
+
 	/// zh-Hant-TW: '網路錯誤：${message}'
 	String networkError({required Object message}) => '網路錯誤：${message}';
 
@@ -1141,6 +1162,13 @@ extension on NkustLocalizations {
 			'noEnrollmentData' => '查無在學證明資料',
 			'noEnrollmentAvailable' => '尚無在學證明可下載\n請確認是否已申請在學證明',
 			'invalidPdfFormat' => '無法取得有效的 PDF 文件',
+			'scheduleViewPdf' => '檢視 PDF 版本',
+			'scheduleViewList' => '返回清單',
+			'scheduleNoEvents' => '這天沒有行事曆',
+			'scheduleToday' => '今天',
+			'scheduleExamCountdown' => ({required Object days}) => '還有 ${days} 天',
+			'scheduleExamToday' => '考試進行中',
+			'scheduleExamWeekLegend' => '考試週',
 			'networkError' => ({required Object message}) => '網路錯誤：${message}',
 			'loadFailed' => ({required Object message}) => '載入失敗：${message}',
 			'loginFailedFiveTimes' => '您先前已登入失敗達5次!!請30分鐘後再嘗試登入!!',
