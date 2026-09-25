@@ -12,6 +12,11 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
+    ignore:
+      # dio 5.10 新增 DioExceptionType.transformTimeout，
+      # ap_common_flutter_core 與 nkust_crawler 的 exhaustive switch 會編譯失敗
+      - dependency-name: "dio"
+        versions: [">=5.10.0"]
     groups:
       # ap_common 系列互相以 pinned dev 版本互指，
       # 拆開單獨升版會 version solving failed，必須綁成同一支 PR
