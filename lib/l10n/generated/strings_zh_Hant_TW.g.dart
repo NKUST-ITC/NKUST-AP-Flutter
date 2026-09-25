@@ -14,20 +14,21 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// Constructing via the enum [NkustLocale.build] is preferred.
 	NkustLocalizations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<NkustLocale, NkustLocalizations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: NkustLocale.zhHantTw,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-Hant-TW>.
-	@override final TranslationMetadata<NkustLocale, NkustLocalizations> $meta;
+	final TranslationMetadata<NkustLocale, NkustLocalizations> _meta;
+	@override TranslationMetadata<NkustLocale, NkustLocalizations> get $meta => _meta;
 
 	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+	dynamic operator[](String key) => _meta.getTranslation(key);
 
 	late final NkustLocalizations _root = this; // ignore: unused_field
 
