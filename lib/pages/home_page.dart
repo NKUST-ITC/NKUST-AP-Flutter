@@ -372,6 +372,7 @@ class HomePageState extends State<HomePage> {
                 onTap: () => _openPage(
                   const LeavePage(),
                   needLogin: true,
+                  useCupertinoRoute: false,
                 ),
               ),
               DrawerSubMenuItem(
@@ -380,6 +381,7 @@ class HomePageState extends State<HomePage> {
                 onTap: () => _openPage(
                   const LeavePage(initIndex: 1),
                   needLogin: true,
+                  useCupertinoRoute: false,
                 ),
               ),
               DrawerSubMenuItem(
@@ -388,6 +390,7 @@ class HomePageState extends State<HomePage> {
                 onTap: () => _openPage(
                   const LeavePage(initIndex: 2),
                   needLogin: true,
+                  useCupertinoRoute: false,
                 ),
               ),
             ],

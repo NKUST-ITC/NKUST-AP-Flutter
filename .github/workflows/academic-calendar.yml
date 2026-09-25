@@ -90,6 +90,15 @@ jobs:
               --body-file body.md
           fi
 
+      # GITHUB_TOKEN-created pull requests do not emit pull_request events.
+      # Dispatch CI explicitly so generated calendar updates get the same
+      # validation as a developer-created PR.
+      - name: Run CI for the generated branch
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run ci.yml --ref "$BRANCH"
+
       - name: Notify Telegram on failure
         if: failure()
         run: |

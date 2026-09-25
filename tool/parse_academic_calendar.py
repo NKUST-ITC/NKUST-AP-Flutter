@@ -21,9 +21,11 @@ import json
 import re
 import ssl
 import sys
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import urljoin, urlparse
 
 CSV_URL = (
     "https://docs.google.com/spreadsheets/d/e/"
@@ -98,9 +100,49 @@ class Semester:
         return base + 1
 
 
-def fetch(url: str, context: ssl.SSLContext) -> bytes:
+class SameHostRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, new):
+        if not is_allowed_site_host(new):
+            raise urllib.error.URLError("calendar redirect left the allowed host")
+        return super().redirect_request(req, fp, code, msg, headers, new)
+
+
+def is_allowed_site_host(url: str) -> bool:
+    try:
+        parsed = urlparse(url)
+        port = parsed.port
+    except ValueError:
+        return False
+    return (
+        parsed.scheme == "https"
+        and parsed.hostname == urlparse(SITE).hostname
+        and port in (None, 443)
+    )
+
+
+def is_allowed_site_url(url: str) -> bool:
+    return (
+        is_allowed_site_host(url)
+        and urlparse(url).path.lower().endswith(".pdf")
+    )
+
+
+def fetch(
+    url: str, context: ssl.SSLContext, *, restrict_site: bool = False
+) -> bytes:
     request = urllib.request.Request(url, headers={"User-Agent": "nkust-ap"})
-    with urllib.request.urlopen(request, timeout=60, context=context) as response:
+    if restrict_site and not is_allowed_site_url(url):
+        raise urllib.error.URLError("calendar URL is outside the allowed host")
+    https_handler = urllib.request.HTTPSHandler(context=context)
+    opener = urllib.request.build_opener(
+        (
+            SameHostRedirectHandler()
+            if restrict_site
+            else urllib.request.HTTPRedirectHandler()
+        ),
+        https_handler,
+    )
+    with opener.open(request, timeout=60) as response:
         return response.read()
 
 
@@ -112,12 +154,13 @@ def list_pdfs(csv_bytes: bytes) -> list[tuple[str, str]]:
         if (row.get("Subgroup") or "").strip() != "中文版":
             continue
         url = (row.get("URL") or "").strip()
-        if not url.lower().endswith(".pdf"):
+        absolute = urljoin(SITE + "/", url)
+        if not is_allowed_site_url(absolute):
             continue
         found.append(
             (
                 (row.get("Filename") or "").strip(),
-                url if url.startswith("http") else SITE + url,
+                absolute,
             )
         )
     return found
@@ -289,7 +332,7 @@ def main() -> int:
     else:
         context = ssl_context()
         for name, url in list_pdfs(fetch(args.csv_url, context)):
-            sources.append((name, fetch(url, context)))
+            sources.append((name, fetch(url, context, restrict_site=True)))
         if not sources:
             print("no Chinese calendars listed in the CSV", file=sys.stderr)
             return 1

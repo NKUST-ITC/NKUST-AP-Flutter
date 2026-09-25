@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:ui' show Brightness, Color;
 
 import 'package:ap_common/ap_common.dart' show PreferenceUtil;
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
@@ -22,6 +23,7 @@ const String _remoteUrl =
 const String _prefCached = 'cached_schedule_data';
 const String _prefCachedAt = 'cached_schedule_data_at';
 const String _prefPdfAt = 'cached_schedule_pdf_at';
+const String _prefBundledSignature = 'cached_schedule_bundle_signature';
 
 /// Long enough that a semester rollover lands within a day of publishing,
 /// short enough that nobody is fetching an unchanged file on every launch.
@@ -194,14 +196,27 @@ List<AcademicCalendarEvent>? parseAcademicCalendar(String raw) {
 /// wins when there is one, because it is the same file from the same
 /// repository, only newer.
 Future<List<AcademicCalendarEvent>> loadAcademicCalendar() async {
+  final String raw = await rootBundle.loadString(FileAssets.scheduleData);
+  final List<AcademicCalendarEvent>? bundled = parseAcademicCalendar(raw);
+  final String signature = sha256.convert(utf8.encode(raw)).toString();
+  final String previousSignature = PreferenceUtil.instance.getString(
+    _prefBundledSignature,
+    '',
+  );
+  if (previousSignature != signature) {
+    await PreferenceUtil.instance.remove(_prefCached);
+    await PreferenceUtil.instance.remove(_prefCachedAt);
+    await PreferenceUtil.instance.remove(_prefPdfAt);
+    await PreferenceUtil.instance.setString(_prefBundledSignature, signature);
+  }
+
   final String cached = PreferenceUtil.instance.getString(_prefCached, '');
   if (cached.isNotEmpty) {
     final List<AcademicCalendarEvent>? events = parseAcademicCalendar(cached);
     if (events != null) return events;
     await PreferenceUtil.instance.remove(_prefCached);
   }
-  final String raw = await rootBundle.loadString(FileAssets.scheduleData);
-  return parseAcademicCalendar(raw) ?? <AcademicCalendarEvent>[];
+  return bundled ?? <AcademicCalendarEvent>[];
 }
 
 /// Fetches a newer calendar, returning it only when one actually arrived.
@@ -220,17 +235,49 @@ Future<List<AcademicCalendarEvent>?> refreshAcademicCalendar({
 Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
   final String cached = PreferenceUtil.instance.getString(_prefCached, '');
 
-  // The registry's own PDFs first. Reading the source documents is what
-  // keeps a new semester from waiting on anyone to publish a derived file,
-  // and it is the only path that still works if nobody is maintaining one.
+  if (!force && !_due(_prefCachedAt, _refreshInterval)) return null;
+  final Dio dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 5),
+      receiveTimeout: const Duration(seconds: 10),
+      responseType: ResponseType.plain,
+    ),
+  );
+  try {
+    final Response<String> response = await dio.get<String>(_remoteUrl);
+    final String? body = response.data;
+    final List<AcademicCalendarEvent>? events = body == null
+        ? null
+        : parseAcademicCalendar(body);
+    if (events != null) {
+      await _cache(body!, fromPdfs: false);
+      return body == cached ? null : events;
+    }
+  } catch (_) {
+  } finally {
+    dio.close();
+  }
+
+  // Keep a valid reviewed cache when the repository is temporarily
+  // unreachable; the PDF parser is only a fallback when no reviewed copy is
+  // available on the device.
+  if (parseAcademicCalendar(cached) != null) return null;
+
+  // The reviewed repository file is authoritative. Parse the source PDFs
+  // only when that file could not be fetched or validated.
   if (force || _due(_prefPdfAt, pdfRefreshInterval)) {
-    final List<Map<String, String>>? built = await buildCalendarFromPdfs();
+    List<Map<String, String>>? built;
+    try {
+      built = await buildCalendarFromPdfs();
+    } catch (_) {
+      built = null;
+    }
+    await PreferenceUtil.instance.setString(
+      _prefPdfAt,
+      DateTime.now().toIso8601String(),
+    );
     if (built != null) {
       final String body = jsonEncode(built);
-      // What this read produces faces the same check as a file off the
-      // network. If it does not survive that, the timestamp is deliberately
-      // left alone: marking it would sit on an unverifiable calendar for a
-      // week instead of falling through to the published one below.
       final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
       if (events != null) {
         await _cache(body, fromPdfs: true);
@@ -239,27 +286,7 @@ Future<List<AcademicCalendarEvent>?> _refresh({required bool force}) async {
       debugPrint('[calendar] the calendars read but did not validate');
     }
   }
-
-  // The derived file the repository publishes, for when the registry is
-  // unreachable or has changed its layout out from under the rules above.
-  if (!force && !_due(_prefCachedAt, _refreshInterval)) return null;
-  try {
-    final Response<String> response = await Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 5),
-        receiveTimeout: const Duration(seconds: 10),
-        responseType: ResponseType.plain,
-      ),
-    ).get<String>(_remoteUrl);
-    final String? body = response.data;
-    if (body == null) return null;
-    final List<AcademicCalendarEvent>? events = parseAcademicCalendar(body);
-    if (events == null) return null;
-    await _cache(body, fromPdfs: false);
-    return body == cached ? null : events;
-  } catch (_) {
-    return null;
-  }
+  return null;
 }
 
 /// Whether the timestamp at [key] is missing or older than [interval].

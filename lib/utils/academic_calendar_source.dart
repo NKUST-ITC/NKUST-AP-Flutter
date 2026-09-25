@@ -46,8 +46,7 @@ Dio _client() {
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 30),
       headers: const <String, String>{'user-agent': 'nkust-ap'},
-      followRedirects: true,
-      maxRedirects: 3,
+      followRedirects: false,
     ),
   );
   // acad.nkust.edu.tw serves its leaf without the intermediate that joins it
@@ -137,10 +136,27 @@ List<CalendarListing> wanted(List<CalendarListing> listed, DateTime today) {
 /// Downloads and reads one calendar, or null if that did not work out.
 Future<ParsedCalendar?> _read(Dio dio, CalendarListing entry) async {
   try {
-    final Response<List<int>> response = await dio.get<List<int>>(
-      entry.url,
-      options: Options(responseType: ResponseType.bytes),
-    );
+    Uri url = Uri.parse(entry.url);
+    late Response<List<int>> response;
+    for (int redirects = 0; ; redirects++) {
+      response = await dio.get<List<int>>(
+        url.toString(),
+        options: Options(
+          responseType: ResponseType.bytes,
+          validateStatus: (int? status) =>
+              status != null && status >= 200 && status < 400,
+        ),
+      );
+      final int status = response.statusCode ?? 0;
+      if (status < 300 || status >= 400) break;
+      if (redirects >= 3) return null;
+      final String? location = response.headers.value('location');
+      if (location == null) return null;
+      final Uri next = url.resolve(location);
+      if (!_isAllowed(next)) return null;
+      url = next;
+    }
+
     final List<int>? body = response.data;
     if (body == null) return null;
     if (body.length > maxDocumentBytes) {
@@ -209,21 +225,25 @@ List<CalendarListing> listCalendarPdfs(String csv) {
 }
 
 Uri? _resolve(String value) {
-  if (!value.toLowerCase().endsWith('.pdf')) return null;
   final Uri? parsed = Uri.tryParse(value);
   if (parsed == null) return null;
+  if (!parsed.path.toLowerCase().endsWith('.pdf')) return null;
   // Resolved against the registry rather than concatenated onto it, so that
   // a protocol-relative `//elsewhere/x.pdf` becomes the other host it really
   // names and is caught by the check below instead of being disguised as a
   // path. Relative rows — which is all the sheet has ever held — land on the
   // registry unchanged.
   final Uri absolute = Uri.https(calendarHost, '/').resolveUri(parsed);
-  if (absolute.scheme != 'https' || absolute.host != calendarHost) return null;
+  if (!_isAllowed(absolute)) return null;
+  return absolute;
+}
+
+bool _isAllowed(Uri uri) {
+  if (uri.scheme != 'https' || uri.host != calendarHost) return false;
   // The registry publishes on 443. A row naming another port would still be
   // the school's address while reaching a service that never expected to
   // hear from every phone on campus.
-  if (absolute.hasPort && absolute.port != 443) return null;
-  return absolute;
+  return !uri.hasPort || uri.port == 443;
 }
 
 /// Minimal RFC 4180 reader — enough for a four-column sheet whose fields may

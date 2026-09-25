@@ -111,7 +111,7 @@ class HomeTodayCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           for (int i = 0; i < shown; i++) ...<Widget>[
-            _classRow(colorScheme, palette, slots[i]),
+            _classRow(colorScheme, palette, slots[i], isTomorrow),
             if (i < shown - 1) const SizedBox(height: 8),
           ],
           if (slots.length > shown)
@@ -134,9 +134,11 @@ class HomeTodayCard extends StatelessWidget {
     ColorScheme colorScheme,
     CoursePaletteTheme palette,
     _ClassSlot slot,
+    bool isTomorrow,
   ) {
     final DateTime now = DateTime.now();
-    final bool isPast = slot.endMinutes < now.hour * 60 + now.minute;
+    final bool isPast =
+        !isTomorrow && slot.endMinutes < now.hour * 60 + now.minute;
     return Row(
       children: <Widget>[
         SizedBox(
