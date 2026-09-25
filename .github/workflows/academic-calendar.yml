@@ -1,0 +1,114 @@
+name: Academic Calendar
+
+on:
+  schedule:
+    # Mondays 04:00 Taiwan time. The registry publishes a semester at a time,
+    # so weekly is plenty and every run that finds nothing costs one CSV read.
+    - cron: '0 20 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+env:
+  BRANCH: chore/academic-calendar
+
+jobs:
+  refresh:
+    name: Reparse the calendars
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Parse every published calendar
+        id: parse
+        run: |
+          set -o pipefail
+          uv run --with pymupdf --with certifi \
+            tool/parse_academic_calendar.py \
+            --out assets/calendar \
+            --current assets/schedule_data.json 2>&1 | tee parse.log
+
+      - name: Check for changes
+        id: diff
+        run: |
+          # --porcelain, not `git diff`: a newly published semester arrives
+          # as an untracked file, which a diff against HEAD does not see.
+          if [ -z "$(git status --porcelain -- assets)" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "The published calendars already match what is committed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git status --short -- assets
+          fi
+
+      # A PR rather than a push to master: the app pulls this file at runtime,
+      # so anything landing here reaches every install within half a day. The
+      # parse is heuristic, and a layout change it survives without erroring
+      # would otherwise ship unread.
+      - name: Open a pull request
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email \
+            '41898282+github-actions[bot]@users.noreply.github.com'
+          cat > message.txt <<'MSG'
+          chore(schedule): refresh the parsed academic calendars
+
+          Regenerated from the calendars the registry currently publishes.
+          MSG
+
+          {
+            echo 'Regenerated from the calendars listed on the registry sheet.'
+            echo
+            echo 'Check the dates against the PDFs before merging: the parser'
+            echo 'reads a layout rather than a schema, and the app picks this'
+            echo 'up within twelve hours of it reaching master.'
+            echo
+            echo '```'
+            cat parse.log
+            echo '```'
+          } > body.md
+
+          git switch -c "$BRANCH"
+          git add assets/calendar assets/schedule_data.json
+          git commit -F message.txt
+          git push --force origin "$BRANCH"
+
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number \
+              --jq '.[0].number')" ]; then
+            gh pr create --base master --head "$BRANCH" \
+              --title 'chore(schedule): refresh the parsed academic calendars' \
+              --body-file body.md
+          fi
+
+      # GITHUB_TOKEN-created pull requests do not emit pull_request events.
+      # Dispatch CI explicitly so generated calendar updates get the same
+      # validation as a developer-created PR.
+      - name: Run CI for the generated branch
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run ci.yml --ref "$BRANCH"
+
+      - name: Notify Telegram on failure
+        if: failure()
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d parse_mode="Markdown" \
+            -d text="🗓️ *行事曆解析失敗*
+
+          PDF 版面或 CSV 來源可能已變更，行事曆不會更新。
+
+          [查看執行紀錄](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
