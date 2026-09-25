@@ -16,22 +16,22 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	/// Constructing via the enum [NkustLocale.build] is preferred.
 	NkustLocalizationsEn({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<NkustLocale, NkustLocalizations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: NkustLocale.en,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <en>.
-	@override final TranslationMetadata<NkustLocale, NkustLocalizations> $meta;
+	final TranslationMetadata<NkustLocale, NkustLocalizations> _meta;
+	@override TranslationMetadata<NkustLocale, NkustLocalizations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final NkustLocalizationsEn _root = this; // ignore: unused_field
 
@@ -255,6 +255,9 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get openSourceLicense => 'Open Source License';
 	@override String get nkustLocation => 'NKUST';
 	@override String get otherBuilding => 'Other';
+	@override String get notOpened => 'Data of this semester is not available at this moment.';
+	@override String get singleTranscript => 'Semester Transcript';
+	@override String get historyTranscript => 'Historical Transcript';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Sign in to Zuvio';
 	@override String get zuvioLoggingIn => 'Signing in to Zuvio…';
@@ -570,6 +573,9 @@ extension on NkustLocalizationsEn {
 			'openSourceLicense' => 'Open Source License',
 			'nkustLocation' => 'NKUST',
 			'otherBuilding' => 'Other',
+			'notOpened' => 'Data of this semester is not available at this moment.',
+			'singleTranscript' => 'Semester Transcript',
+			'historyTranscript' => 'Historical Transcript',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Sign in to Zuvio',
 			'zuvioLoggingIn' => 'Signing in to Zuvio…',

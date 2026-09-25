@@ -16,22 +16,22 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	/// Constructing via the enum [NkustLocale.build] is preferred.
 	NkustLocalizationsJa({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<NkustLocale, NkustLocalizations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: NkustLocale.ja,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ),
 		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
-		super.$meta.setFlatMapFunction($meta.getTranslation); // copy base translations to super.$meta
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <ja>.
-	@override final TranslationMetadata<NkustLocale, NkustLocalizations> $meta;
+	final TranslationMetadata<NkustLocale, NkustLocalizations> _meta;
+	@override TranslationMetadata<NkustLocale, NkustLocalizations> get $meta => _meta;
 
 	/// Access flat map
-	@override dynamic operator[](String key) => $meta.getTranslation(key) ?? super.$meta.getTranslation(key);
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
 
 	late final NkustLocalizationsJa _root = this; // ignore: unused_field
 
@@ -255,6 +255,9 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get busRuleFineTitle => '罰金\n';
 	@override String get busRuleFineRule => '• 違反罰金の計算：最初の3回は無点、4回目から違反点数を記録、各点は運賃相当の罰金\n• 違反点数は学期末まで統計（前期1/31、後期8/31）、新学期で再計算。罰金未払いの場合、翌学期は予約権限停止\n• 罰金は違反明細を印刷後、自動支払機または総務処出納組で支払い\n• 違反点数に疑問がある場合、違反発生日から10日以内に総務処事務組で確認してください\n';
 	@override String get otherBuilding => 'その他';
+	@override String get notOpened => 'この学期はまだ閲覧できません';
+	@override String get singleTranscript => '学期成績証明書';
+	@override String get historyTranscript => '通算成績証明書';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Zuvio にログイン';
 	@override String get zuvioLoggingIn => 'Zuvio にログイン中…';
@@ -570,6 +573,9 @@ extension on NkustLocalizationsJa {
 			'busRuleFineTitle' => '罰金\n',
 			'busRuleFineRule' => '• 違反罰金の計算：最初の3回は無点、4回目から違反点数を記録、各点は運賃相当の罰金\n• 違反点数は学期末まで統計（前期1/31、後期8/31）、新学期で再計算。罰金未払いの場合、翌学期は予約権限停止\n• 罰金は違反明細を印刷後、自動支払機または総務処出納組で支払い\n• 違反点数に疑問がある場合、違反発生日から10日以内に総務処事務組で確認してください\n',
 			'otherBuilding' => 'その他',
+			'notOpened' => 'この学期はまだ閲覧できません',
+			'singleTranscript' => '学期成績証明書',
+			'historyTranscript' => '通算成績証明書',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Zuvio にログイン',
 			'zuvioLoggingIn' => 'Zuvio にログイン中…',

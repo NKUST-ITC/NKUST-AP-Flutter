@@ -14,20 +14,21 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// Constructing via the enum [NkustLocale.build] is preferred.
 	NkustLocalizations({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<NkustLocale, NkustLocalizations>? meta})
 		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
-		  $meta = meta ?? TranslationMetadata(
+		  _meta = meta ?? TranslationMetadata(
 		    locale: NkustLocale.zhHantTw,
 		    overrides: overrides ?? {},
 		    cardinalResolver: cardinalResolver,
 		    ordinalResolver: ordinalResolver,
 		  ) {
-		$meta.setFlatMapFunction(_flatMapFunction);
+		_meta.setFlatMapFunction(_flatMapFunction);
 	}
 
 	/// Metadata for the translations of <zh-Hant-TW>.
-	@override final TranslationMetadata<NkustLocale, NkustLocalizations> $meta;
+	final TranslationMetadata<NkustLocale, NkustLocalizations> _meta;
+	@override TranslationMetadata<NkustLocale, NkustLocalizations> get $meta => _meta;
 
 	/// Access flat map
-	dynamic operator[](String key) => $meta.getTranslation(key);
+	dynamic operator[](String key) => _meta.getTranslation(key);
 
 	late final NkustLocalizations _root = this; // ignore: unused_field
 
@@ -683,6 +684,15 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '其他'
 	String get otherBuilding => '其他';
 
+	/// zh-Hant-TW: '該學期尚未開放查詢'
+	String get notOpened => '該學期尚未開放查詢';
+
+	/// zh-Hant-TW: '單學期成績單'
+	String get singleTranscript => '單學期成績單';
+
+	/// zh-Hant-TW: '歷年成績單'
+	String get historyTranscript => '歷年成績單';
+
 	/// zh-Hant-TW: 'Zuvio'
 	String get zuvioTitle => 'Zuvio';
 
@@ -1175,6 +1185,9 @@ extension on NkustLocalizations {
 			'openSourceLicense' => '開源授權',
 			'nkustLocation' => '高雄科技大學',
 			'otherBuilding' => '其他',
+			'notOpened' => '該學期尚未開放查詢',
+			'singleTranscript' => '單學期成績單',
+			'historyTranscript' => '歷年成績單',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => '登入 Zuvio',
 			'zuvioLoggingIn' => 'Zuvio 登入中…',
