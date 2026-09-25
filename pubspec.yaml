@@ -33,7 +33,7 @@ dependencies:
   http_parser: ^4.0.0
   image_picker: ^1.2.3
   #third party plugin
-  dio: ^5.11.1
+  dio: ">=5.8.0+1 <5.10.0"
   dio_cookie_manager: ^3.1.1
   native_dio_adapter: ^1.8.0
   cookie_jar: ^4.0.9
