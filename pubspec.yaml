@@ -3,10 +3,13 @@ description: A new Flutter application.
 
 publish_to: none
 
-version: 4.0.0
+version: 4.1.0
 
 environment:
-  sdk: '>=3.6.0 <4.0.0'
+  # 上限對齊 mise.toml 的 Flutter 3.41（Dart 3.11）。dependabot 會挑符合這個
+  # constraint 的最新 stable Flutter 來 resolve，沒有上限就會開出 pub get 失敗的 PR。
+  # 升 Flutter 時一併調整。
+  sdk: '>=3.6.0 <3.12.0'
 
 dependencies:
   flutter:
@@ -14,43 +17,52 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ">=0.17.0 <1.0.0"
-  slang: ^4.4.0
+  slang: ^4.19.2
   slang_flutter: ^4.4.0
 
-  ap_common: ^1.0.1-dev.12
-  ap_common_firebase: ^1.0.1-dev.13
-  ap_common_plugin: ^1.0.1-dev.12
+  ap_common: ^1.0.1-dev.14
+  ap_common_firebase: ^1.0.1-dev.15
+  ap_common_plugin: ^1.0.1-dev.14
   nkust_crawler:
     path: packages/nkust_crawler
+  zuvio_crawler:
+    path: packages/zuvio_crawler
   #official plugin
-  http: ^0.13.3
-  html: ^0.15.0
+  http: ^1.6.0
+  html: ^0.15.7
   http_parser: ^4.0.0
-  image_picker: ^1.2.1
+  image_picker: ^1.2.3
   #third party plugin
-  dio: ^5.8.0+1
+  dio: ">=5.8.0+1 <5.10.0"
   dio_cookie_manager: ^3.1.1
-  native_dio_adapter: ^1.4.0
-  cookie_jar: ^4.0.0
+  native_dio_adapter: ^1.8.0
+  cookie_jar: ^4.0.9
   crypto: ^3.0.2
   encrypt: ^5.0.1
   path: ^1.8.0
   tuple: ^2.0.0
   sprintf: ^7.0.0
-  image: ^4.0.2
+  image: ^4.10.1
   flutter_inappwebview: ^6.1.5
   google_sign_in_dartio: ^0.3.0
   # tflite_flutter: ^0.11.0
-  json_annotation: ^4.6.0
-  path_provider: ^2.1.4
+  json_annotation: ^4.12.0
+  path_provider: ^2.1.6
   package_info_plus: ^8.0.3
-  syncfusion_flutter_pdf: ^33.1.47
+  syncfusion_flutter_pdf: ^33.2.13
+  geolocator: ^14.0.2
+  share_plus: ^10.1.4
+  webview_flutter: ^4.14.1
+  webview_flutter_android: ^4.12.0
+  webview_flutter_wkwebview: ^3.25.1
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
-  lint: ^2.1.2
-  build_runner: ^2.1.11
+  lint: ^2.12.0
+  build_runner: ^2.15.1
   json_serializable: ^6.3.0
   slang_build_runner: ^4.4.0
 

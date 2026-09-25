@@ -35,8 +35,8 @@ void main() {
       return;
     }
 
-    print('[live] accepting any TLS cert (test process only)');
-    acceptAnyTlsCertificate();
+    print('[live] trusting TWCA roots from assets/ca/twca_roots.pem');
+    trustNkustRoots();
 
     print('[live] configuring in-memory storage');
     configureCrawlerStorage(InMemoryKeyValueStore());
@@ -59,7 +59,6 @@ void main() {
     final EuclideanCaptchaSolver solver =
         EuclideanCaptchaSolver(FileSystemTemplateProvider(findTemplateDir()));
     WebApHelper.instance.captchaSolver = solver;
-    NKUSTHelper.instance.captchaSolver = solver;
 
     // Verbose HTTP logging so failed parses are debuggable from the test
     // output alone — opt in via NKUST_HTTP_LOG=1 to keep the default

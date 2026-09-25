@@ -114,6 +114,8 @@
 	<string>We want to improve app usage.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Feature leaves apply would be select photos to apply leaves</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Zuvio rollcall needs your location to confirm classroom attendance</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>We want to improve app usage.</string>
 	<key>NSUserTrackingUsageDescription</key>

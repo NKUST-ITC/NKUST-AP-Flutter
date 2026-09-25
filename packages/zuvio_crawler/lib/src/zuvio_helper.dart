@@ -1,0 +1,192 @@
+import 'package:zuvio_crawler/src/models/models.dart';
+import 'package:zuvio_crawler/src/parsers/bulletin_parser.dart';
+import 'package:zuvio_crawler/src/parsers/clicker_parser.dart';
+import 'package:zuvio_crawler/src/parsers/course_info_parser.dart';
+import 'package:zuvio_crawler/src/parsers/course_parser.dart';
+import 'package:zuvio_crawler/src/parsers/feedback_parser.dart';
+import 'package:zuvio_crawler/src/parsers/history_parser.dart';
+import 'package:zuvio_crawler/src/parsers/question_parser.dart';
+import 'package:zuvio_crawler/src/parsers/rollcall_parser.dart';
+import 'package:zuvio_crawler/src/zuvio_client.dart';
+import 'package:zuvio_crawler/src/zuvio_exception.dart';
+
+final RegExp _numericId = RegExp(r'^\d+$');
+
+/// Every id below is interpolated straight into a URL *path* segment
+/// (query/body params go through dio's own encoding and don't need
+/// this). They all come from Zuvio's own authenticated pages via a
+/// `\d+` regex, so this never rejects a real id — it just stops a
+/// malformed one from reshaping the request path instead of failing
+/// with a clear error.
+String _pathId(String id, String field) {
+  if (!_numericId.hasMatch(id)) {
+    throw ZuvioException('invalid $field: "$id"');
+  }
+  return id;
+}
+
+/// The single entry point the host app talks to. Wraps a [ZuvioClient]
+/// and the stateless parsers.
+class ZuvioHelper {
+  ZuvioHelper({ZuvioClient? client}) : client = client ?? ZuvioClient();
+
+  final ZuvioClient client;
+
+  bool get isLogin => client.isLogin;
+
+  Future<void> login({
+    required String email,
+    required String password,
+  }) async {
+    await client.login(email: email, password: password);
+  }
+
+  Future<void> logout() => client.logout();
+
+  Future<List<ZuvioCourse>> getCourses() async {
+    final Map<String, dynamic> json =
+        await client.getJson('course/listStudentFullCourses');
+    return parseCourseList(json);
+  }
+
+  Future<ZuvioRollcall> getCurrentRollcall(String courseId) async {
+    _pathId(courseId, 'courseId');
+    final String html = await client.getHtml(
+      'student5/irs/rollcall/$courseId',
+      headers: <String, String>{
+        'Referer':
+            '${ZuvioClient.baseUrl}student5/irs/clickers/$courseId',
+      },
+    );
+    return parseRollcall(html);
+  }
+
+  /// Submits `app_v2/makeRollcall`. [latitude] / [longitude] are only
+  /// needed for GPS rollcalls; a plain (non-GPS) rollcall accepts empty
+  /// coordinates. The raw `msg` (e.g. `ROLLCALL IS NOT ONAIR`,
+  /// `LOSE THE GPS LOCATION`) is surfaced untranslated so the host app
+  /// can localize it.
+  Future<ZuvioRollcallResult> makeRollcall({
+    required String rollcallId,
+    double? latitude,
+    double? longitude,
+  }) async {
+    final Map<String, dynamic> json = await client.postJson(
+      'app_v2/makeRollcall',
+      <String, dynamic>{
+        'rollcall_id': rollcallId,
+        'device': 'WEB',
+        'lat': latitude ?? '',
+        'lng': longitude ?? '',
+      },
+    );
+    return ZuvioRollcallResult.fromJson(json);
+  }
+
+  Future<ZuvioClickerQuestion?> getLiveClicker(String courseId) async {
+    _pathId(courseId, 'courseId');
+    final String html =
+        await client.getHtml('student5/irs/clickers/$courseId');
+    return parseLiveClicker(html);
+  }
+
+  Future<List<ZuvioHistoryEntry>> getAnswerHistory(String courseId) async {
+    _pathId(courseId, 'courseId');
+    final String html =
+        await client.getHtml('student5/irs/history/$courseId/0');
+    return parseAnswerFolders(html);
+  }
+
+  Future<List<ZuvioAttendanceRecord>> getAttendanceHistory(
+    String courseId,
+  ) async {
+    _pathId(courseId, 'courseId');
+    final String html =
+        await client.getHtml('student5/irs/history/$courseId/0');
+    return parseAttendanceHistory(html);
+  }
+
+  Future<List<ZuvioBulletin>> getBulletins(String courseId) async {
+    _pathId(courseId, 'courseId');
+    final String html =
+        await client.getHtml('student5/irs/course/$courseId/0');
+    return parseBulletins(html);
+  }
+
+  Future<ZuvioBulletin?> getBulletinDetail(String bulletinId) async {
+    _pathId(bulletinId, 'bulletinId');
+    final String html =
+        await client.getHtml('student5/irs/bulletin/$bulletinId');
+    final ZuvioBulletin? b = parseBulletinDetail(html, id: bulletinId);
+    if (b == null || b.attachments.isEmpty) return b;
+    return ZuvioBulletin(
+      id: b.id,
+      author: b.author,
+      title: b.title,
+      content: b.content,
+      date: b.date,
+      attachments: b.attachments
+          .map(
+            (ZuvioAttachment a) => ZuvioAttachment(
+              name: a.name,
+              url: client.proxyDownloadUrl(a.url, a.name),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// Downloads the bytes for an attachment [url] returned by
+  /// [getBulletinDetail]. The caller should save/share the resulting
+  /// bytes as a local file rather than handing the (token-bearing) url
+  /// itself to anything outside the app.
+  Future<List<int>> downloadAttachment(String url) =>
+      client.downloadBytes(url);
+
+  Future<List<ZuvioQuestion>> getQuestions(
+    String courseId,
+    String folderId,
+  ) async {
+    _pathId(courseId, 'courseId');
+    _pathId(folderId, 'folderId');
+    final String html =
+        await client.getHtml('student5/irs/questions/$courseId/$folderId');
+    return parseQuestionList(html);
+  }
+
+  Future<ZuvioQuestionDetail?> getQuestionDetail(String questionId) async {
+    _pathId(questionId, 'questionId');
+    final String html =
+        await client.getHtml('student5/irs/question/$questionId');
+    return parseQuestionDetail(html);
+  }
+
+  Future<ZuvioFeedbackThread?> getFeedbackThread(String feedbackId) async {
+    _pathId(feedbackId, 'feedbackId');
+    final String html =
+        await client.getHtml('student5/irs/feedback/$feedbackId');
+    return parseFeedbackThread(html);
+  }
+
+  Future<ZuvioCourseInfo> getCourseInfo(String courseId) async {
+    _pathId(courseId, 'courseId');
+    final String html =
+        await client.getHtml('student5/irs/course/$courseId/1');
+    return parseCourseInfo(html);
+  }
+
+  /// The 私訊老師 feed. [offset] pages older messages.
+  Future<List<ZuvioFeedbackMessage>> getFeedback(
+    String courseId, {
+    int offset = 0,
+  }) async {
+    final Map<String, dynamic> json = await client.postJson(
+      'app_v2/getFeedbackList',
+      <String, dynamic>{
+        'course_id': courseId,
+        'offset': offset,
+      },
+    );
+    return parseFeedbackList(json);
+  }
+}

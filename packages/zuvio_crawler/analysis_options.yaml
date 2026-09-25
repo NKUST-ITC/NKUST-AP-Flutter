@@ -1,0 +1,10 @@
+include: package:lint/strict.yaml
+
+analyzer:
+  exclude:
+    - lib/**/*.g.dart
+
+linter:
+  rules:
+    public_member_api_docs: false
+    avoid_classes_with_only_static_members: false

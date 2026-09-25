@@ -28,6 +28,7 @@ export 'src/helpers/ap_helper.dart';
 export 'src/helpers/leave_helper.dart';
 export 'src/helpers/nkust_helper.dart';
 export 'src/helpers/stdsys_helper.dart';
+export 'src/helpers/student_id_query_helper.dart';
 export 'src/helpers/vms_bus_helper.dart';
 
 // Capabilities
@@ -66,6 +67,7 @@ export 'src/models/models.dart';
 export 'src/models/reward_and_penalty_data.dart';
 export 'src/models/room_data.dart';
 export 'src/models/schedule_data.dart';
+export 'src/models/student_id_query_result.dart';
 
 // Parsers
 export 'src/parsers/ap_parser.dart';

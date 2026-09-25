@@ -7,6 +7,18 @@ plugins {
     id "com.google.firebase.crashlytics"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+// CI has no access to KEYS_SECRET_PASSPHRASE, so key.properties is absent there.
+// Fall back to the debug key so release builds still exercise R8, proguard and
+// desugaring; cd.yml guards against shipping a debug-signed bundle.
+def hasReleaseKeystore = keystorePropertiesFile.canRead()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+} else {
+    println "'key.properties' not found - release build will use the debug signing key."
+}
+
 android {
     namespace = "com.nkust.ap.flutter"
     compileSdk = flutter.compileSdkVersion
@@ -32,12 +44,19 @@ android {
     }
 
     signingConfigs {
-        release
+        release {
+            if (hasReleaseKeystore) {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+        }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
             ndk {
                 debugSymbolLevel 'FULL'
             }
@@ -79,22 +98,4 @@ if (flutterVersionCode == null) {
 def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
-}
-
-
-def keystoreProperties = new Properties()
-def keystorePropertiesFile = rootProject.file('key.properties')
-if (keystorePropertiesFile.canRead()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
-    if (keystoreProperties != null) {
-        android.signingConfigs.release.storeFile file(keystoreProperties['storeFile'])
-        android.signingConfigs.release.storePassword keystoreProperties['storePassword']
-        android.signingConfigs.release.keyAlias keystoreProperties['keyAlias']
-        android.signingConfigs.release.keyPassword keystoreProperties['keyPassword']
-    } else {
-        println 'some entries in \'release keystore.properties\' not found!'
-    }
-} else {
-    println '\'release keystore.properties\' not found!'
 }
