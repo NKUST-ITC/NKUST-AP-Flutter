@@ -22,8 +22,10 @@ import 'package:nkust_ap/pages/zuvio/zuvio_course_list_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_login_page.dart';
 import 'package:nkust_ap/pages/zuvio/zuvio_service.dart';
 import 'package:nkust_ap/res/assets.dart';
+import 'package:nkust_ap/utils/academic_calendar.dart';
 import 'package:nkust_ap/utils/global.dart';
 import 'package:nkust_ap/widgets/share_data_widget.dart';
+import 'package:nkust_ap/widgets/home_today_card.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:nkust_ap/pages/study/single_transcript_page.dart';
 import 'package:nkust_ap/pages/study/history_transcript_page.dart';
@@ -49,6 +51,10 @@ class HomePageState extends State<HomePage> {
   Widget? content;
 
   List<Announcement> announcements = <Announcement>[];
+
+  List<AcademicCalendarEvent> weekEvents = <AcademicCalendarEvent>[];
+
+  AcademicCalendarEvent? nextExam;
 
   bool isLogin = false;
   bool displayPicture = true;
@@ -155,6 +161,7 @@ class HomePageState extends State<HomePage> {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
       _getAnnouncements();
       _loadCourseData();
+      _loadWeekSchedule();
       if (PreferenceUtil.instance.getBool(Constants.prefAutoLogin, false)) {
         _login();
       } else {
@@ -471,7 +478,7 @@ class HomePageState extends State<HomePage> {
         DrawerMenuItem(
           icon: ApIcon.info,
           title: ap.schoolInfo,
-          onTap: () => _openPage(SchoolInfoPage()),
+          onTap: () => _openPage(const SchoolInfoPage()),
         ),
         DrawerMenuItem(
           icon: report,
@@ -560,6 +567,8 @@ class HomePageState extends State<HomePage> {
   }
 
   List<Widget>? _buildDashboardWidgets() {
+    // Only ride along with an existing dashboard — never turn a
+    // full-screen announcement layout into the split one on our own.
     if (courseData == null && !canUseBus) return null;
     return <Widget>[
       if (canUseBus)
@@ -595,58 +604,15 @@ class HomePageState extends State<HomePage> {
           ],
         ),
       if (canUseBus) const SizedBox(height: 16),
-      if (courseData != null)
-        TodayScheduleCard(
-          courseData: courseData!,
-          onTap: () {
-            _pushAndReload(CoursePage());
-          },
-        ),
-      if (courseData == null) _buildEmptyScheduleCard(),
-    ];
-  }
-
-  Widget _buildEmptyScheduleCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        child: InkWell(
-          onTap: () {
-            if (isLogin) {
-              ApUtils.pushCupertinoStyle(context, CoursePage());
-            } else {
-              openLoginPage();
-            }
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: <Widget>[
-                Icon(
-                  Icons.today_rounded,
-                  size: 32,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    isLogin ? ap.courseEmpty : ap.notLogin,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.outline,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.outline,
-                ),
-              ],
-            ),
-          ),
-        ),
+      HomeTodayCard(
+        courseData: courseData,
+        weekEvents: weekEvents,
+        nextExam: nextExam,
+        onCourseTap: () => _pushAndReload(CoursePage()),
+        onCalendarTap: () =>
+            _pushAndReload(const SchoolInfoPage(initialTab: 2)),
       ),
-    );
+    ];
   }
 
   Future<void> _loadCourseData() async {
@@ -667,6 +633,24 @@ class HomePageState extends State<HomePage> {
     if (busData != null && mounted) {
       setState(() => busReservationsData = busData);
     }
+  }
+
+  Future<void> _loadWeekSchedule() async {
+    try {
+      _applyCalendar(await loadAcademicCalendar());
+      _applyCalendar(await refreshAcademicCalendar());
+    } catch (_) {}
+  }
+
+  void _applyCalendar(List<AcademicCalendarEvent>? all) {
+    if (all == null || !mounted) return;
+    final DateTime now = DateTime.now();
+    final List<AcademicCalendarEvent> week = eventsThisWeek(all, now);
+    final AcademicCalendarEvent? exam = nextMajorExam(all, now);
+    setState(() {
+      weekEvents = week;
+      nextExam = exam;
+    });
   }
 
   Future<void> _getAnnouncements() async {
