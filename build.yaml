@@ -1,6 +1,11 @@
 targets:
   $default:
     builders:
+      # slang 4.18 起，build_runner builder 會把 *.g.dart 寫在 .i18n.json
+      # 旁邊而不理會 slang.yaml 的 output_directory，留下一份和
+      # lib/l10n/generated/ 平行的過期產物。i18n 改用 `dart run slang` 產生。
+      slang_build_runner:
+        enabled: false
       json_serializable:
         options:
           # Options configure how source code is generated for every
