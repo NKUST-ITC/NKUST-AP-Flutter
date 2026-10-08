@@ -10,7 +10,6 @@
     <!-- Storage permissions for saving course table screenshots to album (gal package) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <!-- Permissions options for the Android 14 alarm `flutter_local_notification` -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />
