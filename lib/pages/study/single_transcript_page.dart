@@ -26,6 +26,7 @@ class SingleTranscriptPage extends StatefulWidget {
 }
 
 class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
+  bool _showRank = true;
   bool _isFetching = false;
   _State state = _State.loading;
   PdfState pdfState = PdfState.loading;
@@ -91,6 +92,48 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
       appBar: AppBar(
         title: Text(app.singleTranscript),
         actions: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _showRank = !_showRank;
+                state = _State.loading;
+              });
+              _getTranscriptData();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('排名'), 
+                  SizedBox(
+                    width: 30,
+                    child: Checkbox(
+                      value: _showRank,
+                      activeColor: Colors.white, 
+                      checkColor: Colors.blue, 
+                      side: const BorderSide(
+                        color: Colors.white, 
+                        width: 0.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      onChanged: (bool? value) {
+                        if (value != null && value != _showRank) {
+                          setState(() {
+                            _showRank = value;
+                            state = _State.loading;
+                          });
+                          _getTranscriptData();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: semesterData == null ? null :
@@ -222,7 +265,10 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
     Helper.cancelToken = CancelToken();
     try {
       final Response<Uint8List> response =
-          await Helper.instance.getSingleTranscript(semester: selectSemester!);
+          await Helper.instance.getSingleTranscript(
+            semester: selectSemester!,
+            showRank: _showRank
+          );
       final Uint8List? responseData = response.data;
       if (mounted) {
         if (responseData == null || responseData.isEmpty) {
