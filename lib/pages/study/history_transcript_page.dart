@@ -26,6 +26,7 @@ class HistoryTranscriptPage extends StatefulWidget {
 }
 
 class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
+  CancelToken? _cancelToken;
   bool _showRank = true;
   bool _isFetching = false;
   _State state = _State.loading;
@@ -45,6 +46,12 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
     );
     _getSemester();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _cancelToken?.cancel('Widget disposed');
+    super.dispose();
   }
 
   Future<void> _getSemester() async {
@@ -262,13 +269,14 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
       return;
     }
 
-    Helper.cancelToken!.cancel('');
-    Helper.cancelToken = CancelToken();
+    _cancelToken?.cancel('Cancel previous request');
+    _cancelToken = CancelToken();
     try {
       final Response<Uint8List> response =
           await Helper.instance.getHistoryTranscript(
             semester: selectSemester!,
             showRank: _showRank,
+            cancelToken: _cancelToken,
           );
       final Uint8List? responseData = response.data;
       if (mounted) {

@@ -566,12 +566,14 @@ class Helper {
   Future<Response<Uint8List>> getSingleTranscript({
     required Semester semester,
     bool showRank = true,
+    CancelToken? cancelToken,
   }) async {
     return _call(() async {
       return StdsysHelper.instance.getSingleTranscript(
         semester.year,
         semester.value,
         showRank,
+        cancelToken,
       );
     });
   }
@@ -579,12 +581,14 @@ class Helper {
   Future<Response<Uint8List>> getHistoryTranscript({
     required Semester semester,
     bool showRank = true,
+    CancelToken? cancelToken,
   }) async {
     return _call(() async {
       return StdsysHelper.instance.getHistoryTranscript(
         semester.year,
         semester.value,
         showRank,
+        cancelToken,
       );
     });
   }
