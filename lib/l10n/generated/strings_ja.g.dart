@@ -258,6 +258,7 @@ class NkustLocalizationsJa extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get notOpened => 'この学期はまだ閲覧できません';
 	@override String get singleTranscript => '学期成績証明書';
 	@override String get historyTranscript => '通算成績証明書';
+	@override String get showRank => '順位';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Zuvio にログイン';
 	@override String get zuvioLoggingIn => 'Zuvio にログイン中…';
@@ -576,6 +577,7 @@ extension on NkustLocalizationsJa {
 			'notOpened' => 'この学期はまだ閲覧できません',
 			'singleTranscript' => '学期成績証明書',
 			'historyTranscript' => '通算成績証明書',
+			'showRank' => '順位',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Zuvio にログイン',
 			'zuvioLoggingIn' => 'Zuvio にログイン中…',

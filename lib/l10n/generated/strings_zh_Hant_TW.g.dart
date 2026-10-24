@@ -693,6 +693,9 @@ class NkustLocalizations with BaseTranslations<NkustLocale, NkustLocalizations> 
 	/// zh-Hant-TW: '歷年成績單'
 	String get historyTranscript => '歷年成績單';
 
+	/// zh-Hant-TW: '排名'
+	String get showRank => '排名';
+
 	/// zh-Hant-TW: 'Zuvio'
 	String get zuvioTitle => 'Zuvio';
 
@@ -1188,6 +1191,7 @@ extension on NkustLocalizations {
 			'notOpened' => '該學期尚未開放查詢',
 			'singleTranscript' => '單學期成績單',
 			'historyTranscript' => '歷年成績單',
+			'showRank' => '排名',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => '登入 Zuvio',
 			'zuvioLoggingIn' => 'Zuvio 登入中…',

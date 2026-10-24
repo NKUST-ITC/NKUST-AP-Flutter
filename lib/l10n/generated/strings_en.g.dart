@@ -258,6 +258,7 @@ class NkustLocalizationsEn extends NkustLocalizations with BaseTranslations<Nkus
 	@override String get notOpened => 'Data of this semester is not available at this moment.';
 	@override String get singleTranscript => 'Semester Transcript';
 	@override String get historyTranscript => 'Historical Transcript';
+	@override String get showRank => 'Ranking';
 	@override String get zuvioTitle => 'Zuvio';
 	@override String get zuvioLogin => 'Sign in to Zuvio';
 	@override String get zuvioLoggingIn => 'Signing in to Zuvio…';
@@ -576,6 +577,7 @@ extension on NkustLocalizationsEn {
 			'notOpened' => 'Data of this semester is not available at this moment.',
 			'singleTranscript' => 'Semester Transcript',
 			'historyTranscript' => 'Historical Transcript',
+			'showRank' => 'Ranking',
 			'zuvioTitle' => 'Zuvio',
 			'zuvioLogin' => 'Sign in to Zuvio',
 			'zuvioLoggingIn' => 'Signing in to Zuvio…',
