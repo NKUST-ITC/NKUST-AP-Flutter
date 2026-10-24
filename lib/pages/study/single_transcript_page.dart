@@ -252,15 +252,16 @@ class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
 
   Future<void> _getTranscriptData() async {
     if (_isFetching) return;
+    _isFetching = true;
 
     if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
       setState(() {
         state = _State.offline;
       });
+      _isFetching = false;
       return;
     }
 
-    _isFetching = true;
     Helper.cancelToken!.cancel('');
     Helper.cancelToken = CancelToken();
     try {
