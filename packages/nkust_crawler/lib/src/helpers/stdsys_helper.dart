@@ -288,7 +288,7 @@ class StdsysHelper
 
   Future<Response<Uint8List>> getSingleTranscript(
       String? year, String? semester,
-      [bool showRank = true]) async {
+      [bool showRank = true, CancelToken? cancelToken]) async {
     await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -299,6 +299,7 @@ class StdsysHelper
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://stdsys.nkust.edu.tw/student/Score/SingleSemesterTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
+      cancelToken: cancelToken,
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{
@@ -311,7 +312,7 @@ class StdsysHelper
 
   Future<Response<Uint8List>> getHistoryTranscript(
       String? year, String? semester,
-      [bool showRank = true]) async {
+      [bool showRank = true, CancelToken? cancelToken]) async {
     await _webApHelper.loginToStdsys();
 
     final List<Cookie> cookies = await cookieJar
@@ -322,6 +323,7 @@ class StdsysHelper
 
     final Response<Uint8List> response = await dio.get<Uint8List>(
       'https://stdsys.nkust.edu.tw/student/Score/HistoryTranscript/PrintTranscript?YM=$year$semester&ShowRank=$showRank',
+      cancelToken: cancelToken,
       options: Options(
         responseType: ResponseType.bytes,
         headers: <String, dynamic>{

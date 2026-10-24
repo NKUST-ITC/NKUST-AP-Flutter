@@ -1,0 +1,349 @@
+import 'dart:async';
+import 'dart:typed_data';
+import 'dart:convert';
+import 'package:ap_common/ap_common.dart';
+import 'package:flutter/material.dart';
+import 'package:nkust_crawler/nkust_crawler.dart';
+import 'package:nkust_ap/api/exceptions/api_exception_l10n.dart';
+import 'package:nkust_ap/utils/global.dart';
+
+enum _State {
+  loading,
+  finish,
+  error,
+  empty,
+  offline,
+  custom,
+}
+
+class SingleTranscriptPage extends StatefulWidget {
+  static const String routerName = '/single_transcript';
+
+  const SingleTranscriptPage({super.key});
+
+  @override
+  State<SingleTranscriptPage> createState() => _SingleTranscriptPageState();
+}
+
+class _SingleTranscriptPageState extends State<SingleTranscriptPage> {
+  CancelToken? _cancelToken;
+  bool _showRank = true;
+  bool _isFetching = false;
+  _State state = _State.loading;
+  PdfState pdfState = PdfState.loading;
+  late NkustLocalizations app;
+  Uint8List? data;
+  Semester? selectSemester;
+  SemesterData? semesterData;
+  final SemesterPickerController _pickerController = SemesterPickerController();
+  String? errorMessage;
+
+  @override
+  void initState() {
+    AnalyticsUtil.instance.setCurrentScreen(
+      'SingleTranscriptPage',
+      'single_transcript_page.dart',
+    );
+    _getSemester();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _cancelToken?.cancel('Widget disposed');
+    super.dispose();
+  }
+
+  Future<void> _getSemester() async {
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      final SemesterData? cacheData = SemesterData.load();
+      if (cacheData != null && mounted) {
+        setState(() {
+          semesterData = cacheData.copyWith(
+            currentIndex: cacheData.defaultIndex,
+          );
+          selectSemester = semesterData!.defaultSemester;
+        });
+      }
+      return;
+    }
+    try {
+      final SemesterData data = await Helper.instance.getSemester();
+      data.save();
+      if (mounted) {
+        setState(() {
+          semesterData = data.copyWith(currentIndex: data.defaultIndex);
+          selectSemester = data.defaultSemester;
+        });
+        _getTranscriptData();
+      }
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      if (mounted) {
+        UiUtil.instance.showToast(context, e.toLocalizedMessage(context));
+      }
+      if (e is ServerException && e.httpStatusCode != null) {
+        AnalyticsUtil.instance.logApiEvent(
+          'getSemester',
+          e.httpStatusCode!,
+          message: e.message,
+        );
+      }
+    }
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    app = context.t;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(app.singleTranscript),
+        actions: [
+          InkWell(
+            onTap: () {
+              setState(() {
+                _showRank = !_showRank;
+                state = _State.loading;
+              });
+              _getTranscriptData();
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(app.showRank), 
+                  SizedBox(
+                    width: 30,
+                    child: Checkbox(
+                      value: _showRank,
+                      activeColor: Colors.white, 
+                      checkColor: Colors.blue, 
+                      side: const BorderSide(
+                        color: Colors.white, 
+                        width: 0.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      onChanged: (bool? value) {
+                        if (value != null && value != _showRank) {
+                          setState(() {
+                            _showRank = value;
+                            state = _State.loading;
+                          });
+                          _getTranscriptData();
+                        }
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: semesterData == null ? null :
+            SemesterPicker(
+              semesterData: semesterData!,
+              currentIndex: semesterData!.currentIndex,
+              featureTag: 'singletranscript',
+              controller: _pickerController,
+              onSelect: (Semester semester, int index) {
+                setState(() {
+                  selectSemester = semester;
+                  semesterData = semesterData?.copyWith(currentIndex: index);
+                  state = _State.loading;
+                });
+                _getTranscriptData();
+              },
+            ),
+          ),
+        ],
+      ),
+      
+      floatingActionButton: semesterData == null
+          ? null
+          : FloatingActionButton(
+              child: const Icon(Icons.search),
+              onPressed: () {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getTranscriptData();
+                  },
+                );
+              },
+            ),
+      body: Flex(
+        direction: Axis.vertical,
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await _getTranscriptData();
+                AnalyticsUtil.instance.logEvent('refresh_swipe');
+                return;
+              },
+              child: _body(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _body() {
+    switch (state) {
+      case _State.loading:
+        return Container(
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(),
+        );
+      case _State.empty:
+      case _State.error:
+      case _State.offline:
+      case _State.custom:
+        return InkWell(
+          onTap: () {
+            if (state == _State.empty) {
+              if (semesterData != null) {
+                SemesterPicker.show(
+                  context: context,
+                  semesterData: semesterData!,
+                  currentIndex: semesterData!.currentIndex,
+                  controller: _pickerController,
+                  onSelect: (Semester semester, int index) {
+                    setState(() {
+                      selectSemester = semester;
+                      semesterData =
+                          semesterData?.copyWith(currentIndex: index);
+                      state = _State.loading;
+                    });
+                    _getTranscriptData();
+                  },
+                );
+              }
+            } else {
+              _getTranscriptData();
+            }
+            AnalyticsUtil.instance.logEvent('retry_click');
+          },
+          child: Center(
+            child: Text(errorMessage ?? app.tapToRetry),
+          ),
+        );
+      case _State.finish:
+        return PdfView(
+          state: pdfState,
+          data: data,
+          errorMessage: errorMessage,
+          onRefresh: () {
+            setState(() => pdfState = PdfState.loading);
+            _getTranscriptData();
+          },
+        );
+    }
+  }
+
+  Future<void> _getTranscriptData() async {
+    if (_isFetching) return;
+    _isFetching = true;
+
+    if (PreferenceUtil.instance.getBool(Constants.prefIsOfflineLogin, false)) {
+      setState(() {
+        state = _State.offline;
+      });
+      _isFetching = false;
+      return;
+    }
+
+    _cancelToken?.cancel('Cancel previous request');
+    _cancelToken = CancelToken();
+    try {
+      final Response<Uint8List> response =
+          await Helper.instance.getSingleTranscript(
+            semester: selectSemester!,
+            showRank: _showRank,
+            cancelToken: _cancelToken,
+          );
+      final Uint8List? responseData = response.data;
+      if (mounted) {
+        if (responseData == null || responseData.isEmpty) {
+          setState(() {
+            state = _State.empty;
+            pdfState = PdfState.error;
+            errorMessage = app.noData;
+            _pickerController.markSemesterEmpty(selectSemester!);
+          });
+          return;
+        }
+        final bool isValidPdf = responseData.length >= 4 &&
+            responseData[0] == 0x25 &&
+            responseData[1] == 0x50 &&
+            responseData[2] == 0x44 &&
+            responseData[3] == 0x46;
+        if (!isValidPdf) {
+          final String text = utf8.decode(responseData);
+          if (text.contains('不開放')) {
+            setState(() {
+              pdfState = PdfState.error;
+              state = _State.finish;
+              errorMessage = app.notOpened;
+              _pickerController.markSemesterEmpty(selectSemester!);
+            });
+            return;
+          }
+          setState(() {
+            pdfState = PdfState.error;
+            state = _State.error;
+            errorMessage = app.invalidPdfFormat;
+          });
+          return;
+        }
+        final String rawtext = latin1.decode(responseData);
+        if (rawtext.contains('Length 0')) {
+            setState(() {
+            pdfState = PdfState.error;
+            state = _State.finish;
+            errorMessage = app.noData;
+            _pickerController.markSemesterEmpty(selectSemester!);
+          });
+          return;
+        }
+        setState(() {
+          pdfState = PdfState.finish;
+          state = _State.finish;
+          data = responseData;
+          _pickerController.markSemesterHasData(selectSemester!);
+        });
+      }
+    } on ApException catch (e) {
+      if (e is CancelledException) return;
+      setState(() {
+        pdfState = PdfState.error;
+        state = _State.error;
+        // Keep the 404 special case (no data available for
+        // this student) mapped to a dedicated user message.
+        if (e is ServerException && e.httpStatusCode == 404) {
+          errorMessage = app.noData;
+        } else {
+          errorMessage = e.toLocalizedMessage(context);
+        }
+      });
+    } finally {
+      _isFetching = false;
+    }
+  }
+}
