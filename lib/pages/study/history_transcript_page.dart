@@ -105,7 +105,7 @@ class _HistoryTranscriptPageState extends State<HistoryTranscriptPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Text('排名'), 
+                  Text(app.showRank), 
                   SizedBox(
                     width: 30,
                     child: Checkbox(
