@@ -36,7 +36,8 @@ platform :ios do
       app_identifier: SIGNING_TARGETS.values,
       api_key: api_key,
       readonly: ENV["MATCH_READONLY"] != "false",
-      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+      git_url: "git@github.com:abc873693/certificates.git",
+      git_private_key: ENV["MATCH_GIT_PRIVATE_KEY"],
       keychain_name: SIGNING_KEYCHAIN,
       keychain_password: keychain_password
     )

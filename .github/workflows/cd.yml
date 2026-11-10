@@ -166,7 +166,8 @@ jobs:
           KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
           ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
           MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
-          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
+          MATCH_GIT_PRIVATE_KEY: '${{ secrets.MATCH_GIT_PRIVATE_KEY }}'
+          GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new'
       - name: Build iOS
         run: flutter build ipa --release --build-number=${{ needs.prepare.outputs.version_code }} --export-options-plist=ios/ExportOptions.plist
       - name: Zip dSYM
