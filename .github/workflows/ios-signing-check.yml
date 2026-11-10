@@ -8,6 +8,8 @@ on:
 jobs:
   check:
     runs-on: [self-hosted, macOS]
+    env:
+      DEVELOPER_DIR: /Applications/Xcode-27.2.0.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

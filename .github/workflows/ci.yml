@@ -113,6 +113,8 @@ jobs:
     name: Build iOS App
     needs: analyze_and_test
     runs-on: [self-hosted, macOS]
+    env:
+      DEVELOPER_DIR: /Applications/Xcode-27.2.0.app/Contents/Developer
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
