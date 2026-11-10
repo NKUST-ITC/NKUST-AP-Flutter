@@ -2,7 +2,76 @@ default_platform(:ios)
 
 APP_STORE_CONNECT_BUNDLE_IDENTIFIER = ENV["APP_STORE_CONNECT_BUNDLE_IDENTIFIER"]
 
+SIGNING_KEYCHAIN = "ci-signing"
+SIGNING_TARGETS = {
+  "Runner" => APP_STORE_CONNECT_BUNDLE_IDENTIFIER,
+  "CourseAppWidgetExtension" => "#{APP_STORE_CONNECT_BUNDLE_IDENTIFIER}.CourseWidget",
+}
+
 platform :ios do
+  # Self-hosted runners run as a dedicated account without a login keychain
+  # or Xcode Apple ID, so signing assets come from match into a throwaway keychain.
+  lane :signing do |options|
+    keychain_password = SecureRandom.hex(24)
+    delete_keychain(name: SIGNING_KEYCHAIN) if File.exist?(File.expand_path("~/Library/Keychains/#{SIGNING_KEYCHAIN}-db"))
+    create_keychain(
+      name: SIGNING_KEYCHAIN,
+      password: keychain_password,
+      unlock: true,
+      timeout: 0,
+      default_keychain: false,
+      add_to_search_list: true
+    )
+
+    api_key = app_store_connect_api_key(
+      key_id: options[:key_id],
+      issuer_id: options[:issuer_id],
+      key_filepath: "./AuthKey.p8",
+      duration: 1200,
+      in_house: false
+    )
+
+    match(
+      type: "appstore",
+      app_identifier: SIGNING_TARGETS.values,
+      api_key: api_key,
+      readonly: ENV["MATCH_READONLY"] != "false",
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+      keychain_name: SIGNING_KEYCHAIN,
+      keychain_password: keychain_password
+    )
+
+    profiles = lane_context[SharedValues::MATCH_PROVISIONING_PROFILE_MAPPING]
+    SIGNING_TARGETS.each do |target, app_id|
+      update_code_signing_settings(
+        path: "Runner.xcodeproj",
+        use_automatic_signing: false,
+        targets: [target],
+        build_configurations: ["Release"],
+        team_id: ENV["DEVELOPER_PORTAL_TEAM_ID"],
+        code_sign_identity: "Apple Distribution",
+        profile_name: profiles[app_id]
+      )
+    end
+
+    profile_entries = profiles.map { |id, name| "    <key>#{id}</key><string>#{name}</string>" }.join("\n")
+    File.write("../ExportOptions.plist", <<~PLIST)
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+        <key>method</key><string>app-store-connect</string>
+        <key>signingStyle</key><string>manual</string>
+        <key>teamID</key><string>#{ENV["DEVELOPER_PORTAL_TEAM_ID"]}</string>
+        <key>provisioningProfiles</key>
+        <dict>
+      #{profile_entries}
+        </dict>
+      </dict>
+      </plist>
+    PLIST
+  end
+
   lane :release do |options|
     key_id = options[:key_id]
     issuer_id = options[:issuer_id]

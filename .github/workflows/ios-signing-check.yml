@@ -1,0 +1,45 @@
+name: iOS signing check (temporary)
+
+on:
+  push:
+    branches:
+      - ci/ios-match-signing
+
+jobs:
+  check:
+    runs-on: [self-hosted, macOS]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.x'
+          channel: 'stable'
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+      - run: flutter pub get
+      - name: Decode API Key
+        run: echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ios/AuthKey.p8
+      - name: Install signing certificate and profiles
+        run: fastlane ios signing key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
+        working-directory: ./ios
+        env:
+          APP_STORE_CONNECT_BUNDLE_IDENTIFIER: '${{ secrets.APP_STORE_CONNECT_BUNDLE_IDENTIFIER }}'
+          DEVELOPER_PORTAL_TEAM_ID: '${{ secrets.DEVELOPER_PORTAL_TEAM_ID }}'
+          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
+          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
+          MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
+          GIT_AUTHORIZATION: '${{ secrets.GIT_AUTHORIZATION }}'
+          MATCH_READONLY: 'false'
+      - name: Build iOS
+        run: flutter build ipa --release --build-number=1 --export-options-plist=ios/ExportOptions.plist
+      - name: Verify signature
+        run: |
+          whoami
+          ls -la build/ios/ipa
+          cd build/ios/ipa && unzip -q -o *.ipa -d extracted
+          codesign -dvv extracted/Payload/Runner.app 2>&1 | grep -E "Authority|TeamIdentifier"
+          codesign -dvv extracted/Payload/Runner.app/PlugIns/*.appex 2>&1 | grep -E "Authority|Identifier"
+      - name: Remove signing keychain
+        if: always()
+        run: |
+          security delete-keychain ci-signing.keychain 2>/dev/null || true
+          rm -f ios/AuthKey.p8
