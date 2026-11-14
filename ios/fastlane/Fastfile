@@ -37,6 +37,7 @@ platform :ios do
       api_key: api_key,
       readonly: ENV["MATCH_READONLY"] != "false",
       git_url: "git@github.com:abc873693/certificates.git",
+      git_branch: "ci-2026",
       git_private_key: ENV["MATCH_GIT_PRIVATE_KEY"],
       keychain_name: SIGNING_KEYCHAIN,
       keychain_password: keychain_password

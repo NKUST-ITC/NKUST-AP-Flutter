@@ -32,6 +32,22 @@ jobs:
           MATCH_GIT_PRIVATE_KEY: '${{ secrets.MATCH_GIT_PRIVATE_KEY }}'
           GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new'
           MATCH_READONLY: 'false'
+      - name: Generate NSYSU profiles
+        working-directory: ./ios
+        env:
+          MATCH_PASSWORD: '${{ secrets.MATCH_PASSWORD }}'
+          MATCH_GIT_PRIVATE_KEY: '${{ secrets.MATCH_GIT_PRIVATE_KEY }}'
+          GIT_SSH_COMMAND: 'ssh -o StrictHostKeyChecking=accept-new'
+          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
+          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
+        run: |
+          jq -n --arg id "$KEY_ID" --arg iss "$ISSUER_ID" --rawfile key AuthKey.p8 '{key_id:$id,issuer_id:$iss,key:$key,in_house:false}' > "$RUNNER_TEMP/api_key.json"
+          security create-keychain -p nsysu-tmp nsysu-tmp.keychain
+          fastlane run match type:appstore readonly:false app_identifier:"com.nsysu.ap,com.nsysu.ap.CourseAppWidget" \
+            git_url:"git@github.com:abc873693/certificates.git" git_branch:ci-2026 git_private_key:"$MATCH_GIT_PRIVATE_KEY" \
+            api_key_path:"$RUNNER_TEMP/api_key.json" keychain_name:nsysu-tmp keychain_password:nsysu-tmp
+          security delete-keychain nsysu-tmp.keychain
+          rm -f "$RUNNER_TEMP/api_key.json"
       - name: Build iOS
         run: flutter build ipa --release --build-number=1 --export-options-plist=ios/ExportOptions.plist
       - name: Verify signature
@@ -45,4 +61,5 @@ jobs:
         if: always()
         run: |
           security delete-keychain ci-signing.keychain 2>/dev/null || true
+          security delete-keychain nsysu-tmp.keychain 2>/dev/null || true
           rm -f ios/AuthKey.p8
