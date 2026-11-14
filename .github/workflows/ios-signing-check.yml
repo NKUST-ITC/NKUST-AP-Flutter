@@ -48,6 +48,20 @@ jobs:
             api_key_path:"$RUNNER_TEMP/api_key.json" keychain_name:nsysu-tmp keychain_password:nsysu-tmp
           security delete-keychain nsysu-tmp.keychain
           rm -f "$RUNNER_TEMP/api_key.json"
+      - name: Debug codesign
+        continue-on-error: true
+        run: |
+          KC="$HOME/Library/Keychains/ci-signing-db"
+          echo "== session"; id; launchctl managername || true
+          echo "== keychain info"; security show-keychain-info "$KC" 2>&1
+          echo "== wwdr in signing keychain"; security find-certificate -a -c "Worldwide Developer" -Z "$KC" | grep -E 'SHA-1|labl'
+          echo "== wwdr in system"; security find-certificate -a -c "Worldwide Developer" -Z /Library/Keychains/System.keychain | grep -E 'SHA-1|labl'
+          security find-certificate -c "Apple Distribution" -p "$KC" > "$RUNNER_TEMP/dist.pem"
+          echo "== verify-cert"; security verify-cert -c "$RUNNER_TEMP/dist.pem" -p codeSign -v 2>&1 | tail -5
+          echo "== verify-cert with keychain"; security verify-cert -c "$RUNNER_TEMP/dist.pem" -k "$KC" -p codeSign -v 2>&1 | tail -5
+          echo "== test codesign"; cp /bin/ls "$RUNNER_TEMP/ls-test"
+          ID=$(security find-identity -v -p codesigning "$KC" | awk 'NR==1{print $2}')
+          codesign -f -s "$ID" --keychain "$KC" -v "$RUNNER_TEMP/ls-test" 2>&1
       - name: Build iOS
         run: |
           security list-keychains -d user
