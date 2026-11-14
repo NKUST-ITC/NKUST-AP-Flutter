@@ -24,11 +24,13 @@ platform :ios do
       add_to_search_list: true
     )
 
-    # The dedicated account has no Apple WWDR intermediate, so codesign cannot build the chain
-    # (errSecInternalComponent) unless it is in the signing keychain.
-    wwdr_path = File.join(Dir.tmpdir, "AppleWWDRCAG3.cer")
-    sh("curl", "-fsSL", "-o", wwdr_path, "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer")
-    import_certificate(certificate_path: wwdr_path, keychain_name: SIGNING_KEYCHAIN, keychain_password: keychain_password)
+    # The dedicated account has no Apple WWDR intermediates, so codesign cannot build the chain
+    # (errSecInternalComponent) unless they are in the signing keychain. Newer certificates are issued by G5/G6.
+    %w[G3 G4 G5 G6].each do |generation|
+      wwdr_path = File.join(Dir.tmpdir, "AppleWWDRCA#{generation}.cer")
+      sh("curl", "-fsSL", "-o", wwdr_path, "https://www.apple.com/certificateauthority/AppleWWDRCA#{generation}.cer")
+      import_certificate(certificate_path: wwdr_path, keychain_name: SIGNING_KEYCHAIN, keychain_password: keychain_password)
+    end
 
     api_key = app_store_connect_api_key(
       key_id: options[:key_id],

@@ -53,6 +53,7 @@ jobs:
           security list-keychains -d user
           security default-keychain -d user
           security find-identity -v -p codesigning
+          security find-certificate -a -c 'Apple Distribution' -p ci-signing.keychain | openssl x509 -noout -subject -issuer
           set -o pipefail
           flutter build ipa -v --release --build-number=1 --export-options-plist=ios/ExportOptions.plist 2>&1 | tee "$RUNNER_TEMP/build.log" | tail -5 || { grep -B5 -A25 -E 'CodeSign|errSec|codesign' "$RUNNER_TEMP/build.log" | tail -120; exit 1; }
       - name: Verify signature
