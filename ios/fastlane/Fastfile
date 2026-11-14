@@ -19,7 +19,8 @@ platform :ios do
       password: keychain_password,
       unlock: true,
       timeout: 0,
-      default_keychain: false,
+      # match decodes profiles with `security cms`, which fails when the account has no default keychain
+      default_keychain: true,
       add_to_search_list: true
     )
 
@@ -37,7 +38,7 @@ platform :ios do
       api_key: api_key,
       readonly: ENV["MATCH_READONLY"] != "false",
       git_url: "git@github.com:abc873693/certificates.git",
-      git_branch: "ci-2026",
+      git_branch: "ap-ci-2026",
       git_private_key: ENV["MATCH_GIT_PRIVATE_KEY"],
       keychain_name: SIGNING_KEYCHAIN,
       keychain_password: keychain_password

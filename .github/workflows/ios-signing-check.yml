@@ -20,6 +20,25 @@ jobs:
       - run: flutter pub get
       - name: Decode API Key
         run: echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ios/AuthKey.p8
+      - name: Revoke orphaned certificate from previous attempt
+        env:
+          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
+          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
+        run: |
+          mkdir -p "$RUNNER_TEMP/revoke/fastlane"
+          cat > "$RUNNER_TEMP/revoke/fastlane/Fastfile" <<'RUBY'
+          lane :revoke do
+            app_store_connect_api_key(key_id: ENV["KEY_ID"], issuer_id: ENV["ISSUER_ID"], key_filepath: ENV["KEY_PATH"])
+            certs = Spaceship::ConnectAPI::Certificate.all
+            certs.each { |c| UI.message("#{c.id} #{c.certificate_type} #{c.display_name} exp=#{c.expiration_date}") }
+            orphan = certs.find { |c| c.id == "55464BYTW3" }
+            if orphan
+              orphan.delete!
+              UI.success("revoked 55464BYTW3")
+            end
+          end
+          RUBY
+          cd "$RUNNER_TEMP/revoke" && KEY_PATH="$GITHUB_WORKSPACE/ios/AuthKey.p8" fastlane revoke
       - name: Install signing certificate and profiles
         run: fastlane ios signing key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./ios
@@ -44,7 +63,7 @@ jobs:
           jq -n --arg id "$KEY_ID" --arg iss "$ISSUER_ID" --rawfile key AuthKey.p8 '{key_id:$id,issuer_id:$iss,key:$key,in_house:false}' > "$RUNNER_TEMP/api_key.json"
           security create-keychain -p nsysu-tmp nsysu-tmp.keychain
           fastlane run match type:appstore readonly:false app_identifier:"com.nsysu.ap,com.nsysu.ap.CourseAppWidget" \
-            git_url:"git@github.com:abc873693/certificates.git" git_branch:ci-2026 git_private_key:"$MATCH_GIT_PRIVATE_KEY" \
+            git_url:"git@github.com:abc873693/certificates.git" git_branch:ap-ci-2026 git_private_key:"$MATCH_GIT_PRIVATE_KEY" \
             api_key_path:"$RUNNER_TEMP/api_key.json" keychain_name:nsysu-tmp keychain_password:nsysu-tmp
           security delete-keychain nsysu-tmp.keychain
           rm -f "$RUNNER_TEMP/api_key.json"
