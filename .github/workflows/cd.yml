@@ -187,7 +187,7 @@ jobs:
           ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
       - name: Remove signing keychain
         if: always()
-        run: security delete-keychain ci-signing.keychain 2>/dev/null || true
+        run: security delete-keychain "$HOME/Library/Keychains/ci-signing-db" 2>/dev/null || true
 
   deploy_macos:
     name: macOS Deploy TestFlight
