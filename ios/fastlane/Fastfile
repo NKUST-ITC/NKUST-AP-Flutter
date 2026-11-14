@@ -12,7 +12,7 @@ platform :ios do
   # Self-hosted runners run as a dedicated account without a login keychain
   # or Xcode Apple ID, so signing assets come from match into a throwaway keychain.
   lane :signing do |options|
-    keychain_password = SecureRandom.hex(24)
+    keychain_password = ENV["SIGNING_KEYCHAIN_PASSWORD"] || SecureRandom.hex(24)
     delete_keychain(name: SIGNING_KEYCHAIN) if File.exist?(File.expand_path("~/Library/Keychains/#{SIGNING_KEYCHAIN}-db"))
     create_keychain(
       name: SIGNING_KEYCHAIN,

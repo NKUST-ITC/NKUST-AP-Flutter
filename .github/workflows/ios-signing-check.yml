@@ -18,6 +18,11 @@ jobs:
           channel: 'stable'
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
       - run: flutter pub get
+      - name: Generate signing keychain password
+        run: |
+          pw=$(openssl rand -hex 24)
+          echo "::add-mask::$pw"
+          echo "SIGNING_KEYCHAIN_PASSWORD=$pw" >> "$GITHUB_ENV"
       - name: Decode API Key
         run: echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ios/AuthKey.p8
       - name: Install signing certificate and profiles
@@ -61,7 +66,14 @@ jobs:
           echo "== verify-cert with keychain"; security verify-cert -c "$RUNNER_TEMP/dist.pem" -k "$KC" -p codeSign -v 2>&1 | tail -5
           echo "== test codesign"; cp /bin/ls "$RUNNER_TEMP/ls-test"
           ID=$(security find-identity -v -p codesigning "$KC" | awk 'NR==1{print $2}')
-          codesign -f -s "$ID" --keychain "$KC" -v "$RUNNER_TEMP/ls-test" 2>&1
+          codesign -f -s "$ID" --keychain "$KC" -v "$RUNNER_TEMP/ls-test" 2>&1 || true
+          echo "== after unlock"; security unlock-keychain -p "$SIGNING_KEYCHAIN_PASSWORD" "$KC"
+          codesign -f -s "$ID" --keychain "$KC" -v "$RUNNER_TEMP/ls-test" 2>&1 || true
+          echo "== after partition list"; security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$SIGNING_KEYCHAIN_PASSWORD" "$KC" >/dev/null
+          codesign -f -s "$ID" --keychain "$KC" -v "$RUNNER_TEMP/ls-test" 2>&1 || true
+          echo "== search list + login"; security list-keychains -d user -s "$KC" /Library/Keychains/System.keychain
+          codesign -f -s "$ID" -v "$RUNNER_TEMP/ls-test" 2>&1 || true
+          echo "== user trust settings"; security dump-trust-settings 2>&1 | head -5; security dump-trust-settings -d 2>&1 | head -5
       - name: Build iOS
         run: |
           security list-keychains -d user
