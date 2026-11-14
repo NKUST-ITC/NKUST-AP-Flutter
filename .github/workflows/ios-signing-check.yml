@@ -20,25 +20,6 @@ jobs:
       - run: flutter pub get
       - name: Decode API Key
         run: echo "${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}" | base64 --decode > ios/AuthKey.p8
-      - name: Revoke orphaned certificate from previous attempt
-        env:
-          KEY_ID: '${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}'
-          ISSUER_ID: '${{ secrets.APP_STORE_CONNECT_API_API_ISSUER_ID }}'
-        run: |
-          mkdir -p "$RUNNER_TEMP/revoke/fastlane"
-          cat > "$RUNNER_TEMP/revoke/fastlane/Fastfile" <<'RUBY'
-          lane :revoke do
-            app_store_connect_api_key(key_id: ENV["KEY_ID"], issuer_id: ENV["ISSUER_ID"], key_filepath: ENV["KEY_PATH"])
-            certs = Spaceship::ConnectAPI::Certificate.all
-            certs.each { |c| UI.message("#{c.id} #{c.certificate_type} #{c.display_name} exp=#{c.expiration_date}") }
-            orphan = certs.find { |c| c.id == "55464BYTW3" }
-            if orphan
-              orphan.delete!
-              UI.success("revoked 55464BYTW3")
-            end
-          end
-          RUBY
-          cd "$RUNNER_TEMP/revoke" && KEY_PATH="$GITHUB_WORKSPACE/ios/AuthKey.p8" fastlane revoke
       - name: Install signing certificate and profiles
         run: fastlane ios signing key_id:"${{ env.KEY_ID }}" issuer_id:"${{ env.ISSUER_ID }}"
         working-directory: ./ios
@@ -68,7 +49,12 @@ jobs:
           security delete-keychain nsysu-tmp.keychain
           rm -f "$RUNNER_TEMP/api_key.json"
       - name: Build iOS
-        run: flutter build ipa --release --build-number=1 --export-options-plist=ios/ExportOptions.plist
+        run: |
+          security list-keychains -d user
+          security default-keychain -d user
+          security find-identity -v -p codesigning
+          set -o pipefail
+          flutter build ipa -v --release --build-number=1 --export-options-plist=ios/ExportOptions.plist 2>&1 | tee "$RUNNER_TEMP/build.log" | tail -5 || { grep -B5 -A25 -E 'CodeSign|errSec|codesign' "$RUNNER_TEMP/build.log" | tail -120; exit 1; }
       - name: Verify signature
         run: |
           whoami
